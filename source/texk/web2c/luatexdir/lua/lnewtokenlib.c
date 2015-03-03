@@ -394,6 +394,76 @@ static int run_build(lua_State * L)
     }
 }
 
+
+/* experiment */
+/* [catcodetable] csname content        : \def\csname{content}  */
+/* [catcodetable] csname content global : \gdef\csname{content} */
+/* [catcodetable] csname                : \def\csname{}         */
+
+
+static int set_macro(lua_State * L)
+{
+    const char *name = null;
+    const char *str = null;
+    const char *s  = null;
+    size_t lname = 0;
+    size_t lstr = 0;
+    int cs;
+    int ct ;
+    int n = lua_gettop(L);
+    int a = 0 ; /* global state */
+    if (n == 0) {
+        return 0 ;
+    }
+    if (lua_isnumber(L, 1)) {
+        if (n == 1)
+            return 0;
+        ct = (int) lua_tointeger(L, 1);
+        name = lua_tolstring(L, 2, &lname);
+        if (n > 2)
+            str = lua_tolstring(L, 3, &lstr);
+        if (n > 3)
+            s = lua_tostring(L, 4);
+    } else {
+        ct = int_par(cat_code_table_code) ;
+        name = lua_tolstring(L, 1, &lname);
+        if (n > 1)
+            str = lua_tolstring(L, 2, &lstr);
+        if (n > 2)
+            s = lua_tostring(L, 3);
+    }
+    if (name == null) {
+        return 0 ;
+    }
+    if (s && (lua_key_eq(s, global))) {
+        a = 4;
+    }
+    cs = string_lookup(name, lname);
+    if (lstr > 0) {
+        halfword p;                 /* tail of the token list */
+        halfword q;                 /* new node being added to the token list via |store_new_token| */
+        halfword t;                 /* token being appended */
+        const char *se = str + lstr;
+        p = temp_token_head;
+        set_token_link(p, null);
+        fast_store_new_token(left_brace_token);
+        fast_store_new_token(end_match_token);
+        while (str < se) {
+            t = (halfword) str2uni((unsigned char *) str);
+            str += utf8_size(t); /* hm, str2uni could return len too */
+            /* we could check for escape and then build a cs token */
+            t = get_cat_code(ct,t) * (1<<21) + t ;
+            fast_store_new_token(t);
+        }
+        define(cs, call_cmd + (a % 4), token_link(temp_token_head));
+    } else {
+        define(cs, call_cmd + (a % 4), null);
+    }
+    return 0;
+}
+
+
+
 /* token instance functions */
 
 static int lua_tokenlib_free(lua_State * L)
@@ -522,6 +592,7 @@ static const struct luaL_Reg tokenlib[] = {
     {"scan_string", run_scan_string},
     {"type", lua_tokenlib_type},
     {"create", run_build},
+    {"set_macro", set_macro},
  /* {"expand", run_expand},               */ /* does not work yet! */
  /* {"csname_id", run_get_csname_id},     */ /* yes or no */
  /* {"command_id", run_get_command_id},   */ /* yes or no */
