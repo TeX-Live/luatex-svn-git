@@ -394,76 +394,6 @@ static int run_build(lua_State * L)
     }
 }
 
-
-/* experiment */
-/* [catcodetable] csname content        : \def\csname{content}  */
-/* [catcodetable] csname content global : \gdef\csname{content} */
-/* [catcodetable] csname                : \def\csname{}         */
-
-
-static int set_macro(lua_State * L)
-{
-    const char *name = null;
-    const char *str = null;
-    const char *s  = null;
-    size_t lname = 0;
-    size_t lstr = 0;
-    int cs;
-    int ct ;
-    int n = lua_gettop(L);
-    int a = 0 ; /* global state */
-    if (n == 0) {
-        return 0 ;
-    }
-    if (lua_isnumber(L, 1)) {
-        if (n == 1)
-            return 0;
-        ct = (int) lua_tointeger(L, 1);
-        name = lua_tolstring(L, 2, &lname);
-        if (n > 2)
-            str = lua_tolstring(L, 3, &lstr);
-        if (n > 3)
-            s = lua_tostring(L, 4);
-    } else {
-        ct = int_par(cat_code_table_code) ;
-        name = lua_tolstring(L, 1, &lname);
-        if (n > 1)
-            str = lua_tolstring(L, 2, &lstr);
-        if (n > 2)
-            s = lua_tostring(L, 3);
-    }
-    if (name == null) {
-        return 0 ;
-    }
-    if (s && (lua_key_eq(s, global))) {
-        a = 4;
-    }
-    cs = string_lookup(name, lname);
-    if (lstr > 0) {
-        halfword p;                 /* tail of the token list */
-        halfword q;                 /* new node being added to the token list via |store_new_token| */
-        halfword t;                 /* token being appended */
-        const char *se = str + lstr;
-        p = temp_token_head;
-        set_token_link(p, null);
-        fast_store_new_token(left_brace_token);
-        fast_store_new_token(end_match_token);
-        while (str < se) {
-            t = (halfword) str2uni((unsigned char *) str);
-            str += utf8_size(t); /* hm, str2uni could return len too */
-            /* we could check for escape and then build a cs token */
-            t = get_cat_code(ct,t) * (1<<21) + t ;
-            fast_store_new_token(t);
-        }
-        define(cs, call_cmd + (a % 4), token_link(temp_token_head));
-    } else {
-        define(cs, call_cmd + (a % 4), null);
-    }
-    return 0;
-}
-
-
-
 /* token instance functions */
 
 static int lua_tokenlib_free(lua_State * L)
@@ -579,6 +509,124 @@ static int lua_tokenlib_type(lua_State * L)
     return 1;
 }
 
+/* experiment */
+
+/* [catcodetable] csname content        :  \def\csname{content} */
+/* [catcodetable] csname content global : \gdef\csname{content} */
+/* [catcodetable] csname                :  \def\csname{} */
+
+static int set_macro(lua_State * L)
+{
+    const char *name = null;
+    const char *str = null;
+    const char *s  = null;
+    size_t lname = 0;
+    size_t lstr = 0;
+    int cs, cc, ct;
+    int n = lua_gettop(L);
+    int a = 0 ; /* global state */
+    int nncs = no_new_control_sequence;
+    if (n == 0) {
+        return 0 ;
+    }
+    if (lua_isnumber(L, 1)) {
+        if (n == 1)
+            return 0;
+        ct = (int) lua_tointeger(L, 1);
+        name = lua_tolstring(L, 2, &lname);
+        if (n > 2)
+            str = lua_tolstring(L, 3, &lstr);
+        if (n > 3)
+            s = lua_tostring(L, 4);
+    } else {
+        ct = int_par(cat_code_table_code) ;
+        name = lua_tolstring(L, 1, &lname);
+        if (n > 1)
+            str = lua_tolstring(L, 2, &lstr);
+        if (n > 2)
+            s = lua_tostring(L, 3);
+    }
+    if (name == null) {
+        return 0 ;
+    }
+    if (s && (lua_key_eq(s, global))) {
+        a = 4;
+    }
+    no_new_control_sequence = false ;
+    cs = string_lookup(name, lname);
+    no_new_control_sequence = nncs;
+    if (lstr > 0) {
+        halfword p; /* tail of the token list */
+        halfword q; /* new node being added to the token list via |store_new_token| */
+        halfword t; /* token being appended */
+        const char *se = str + lstr;
+        p = temp_token_head;
+        set_token_link(p, null);
+        /* this left brace is used to store the number of arguments */
+        fast_store_new_token(left_brace_token);
+        /* and this ends the not present arguments, and no: we will not support arguments here*/
+        fast_store_new_token(end_match_token);
+        while (str < se) {
+            /* hh: str2uni could return len too (also elsewhere) */
+            t = (halfword) str2uni((unsigned char *) str);
+            str += utf8_size(t);
+            cc = get_cat_code(ct,t);
+            /* this is a relating simple converter; if more is needed one can just use */
+            /* tex.print with a regular \def or \gdef and feed the string into the regular */
+            /* scanner; */
+            if (cc == 0) {
+                /* we have a potential control sequence so we check for it */
+                int _lname = 0 ;
+                int _s = 0 ;
+                int _c = 0 ;
+                halfword _cs = null ;
+                const char *_name  = str ;
+                while (str < se) {
+                    t = (halfword) str2uni((unsigned char *) str);
+                    _s = utf8_size(t);
+                    _c = get_cat_code(ct,t);
+                    if (_c == 11) {
+                        str += _s ;
+                        _lname = _lname + _s ;
+                    } else if (_c == 10) {
+                        /* we ignore a trailing space like normal scanning does */
+                        str += _s ;
+                        break ;
+                    } else {
+                        break ;
+                    }
+                }
+                if (_s > 0) {
+                    /* we havea potential \cs */
+                    _cs = string_lookup(_name, _lname);
+                    if (_cs == undefined_control_sequence) {
+                        /* let's play safe and backtrack */
+                        t = cc * (1<<21) + t ;
+                        str = _name ;
+                    } else {
+                        t = cs_token_flag + _cs;
+                    }
+                } else {
+                    /* just a character with some meaning, so \unknown becomes effectively */
+                    /* \\unknown assuming that \\ has some useful meaning of course */
+                    t = cc * (1<<21) + t ;
+                    str = _name ;
+                }
+
+            } else {
+                /* whatever token, so for instance $x^2$ just works given a tex */
+                /* catcode regime */
+                t = cc * (1<<21) + t ;
+            }
+            fast_store_new_token(t);
+        }
+        /* there is no fast_store_new_token(right_brace_token) needed */
+        define(cs, call_cmd + (a % 4), token_link(temp_token_head));
+    } else {
+        define(cs, call_cmd + (a % 4), null);
+    }
+    return 0;
+}
 
 static const struct luaL_Reg tokenlib[] = {
     {"is_token", lua_tokenlib_is_token},
