@@ -1923,6 +1923,7 @@ void conv_toks(void)
             if (luacstrings > 0)
                 lua_string_start();
         }
+        return;
         break;
     case pdf_insert_ht_code:
         scan_register_num();
