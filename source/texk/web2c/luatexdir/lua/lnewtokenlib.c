@@ -509,6 +509,17 @@ static int lua_tokenlib_type(lua_State * L)
     return 1;
 }
 
+
+static int run_scan_token(lua_State * L)
+{
+    saved_tex_scanner texstate;
+    save_tex_scanner(texstate);
+    get_x_token();
+    make_new_token(L, cur_cmd, cur_chr, cur_cs);
+    unsave_tex_scanner(texstate);
+    return 1;
+}
+
 /* experiment */
 
 /* [catcodetable] csname content        :  \def\csname{content} */
@@ -640,6 +651,7 @@ static const struct luaL_Reg tokenlib[] = {
     {"scan_string", run_scan_string},
     {"type", lua_tokenlib_type},
     {"create", run_build},
+    {"scan_token", run_scan_token}, /* expands next token if needed */
     {"set_macro", set_macro},
  /* {"expand", run_expand},               */ /* does not work yet! */
  /* {"csname_id", run_get_csname_id},     */ /* yes or no */
@@ -655,6 +667,7 @@ static const struct luaL_Reg tokenlib_m[] = {
     {"__gc", lua_tokenlib_free},
     {NULL, NULL} /* sentinel */
 };
+
 
 
 int luaopen_newtoken(lua_State * L)
