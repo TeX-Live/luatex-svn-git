@@ -694,7 +694,61 @@ using an algorithm due to Frank~M. Liang.
 can be hyphenated, but most european users seem to agree that
 prohibiting hyphenation there was not the best idea ever.
 
+
 @c
+static halfword find_next_wordstart(halfword r)
+{
+    register int l;
+    register int start_ok = 1;
+    int mathlevel = 1;
+    halfword t; /* hh */
+    while (r != null) {
+        switch (type(r)) {
+        case whatsit_node:
+            break;
+        case glue_node:
+            start_ok = 1;
+            break;
+        case math_node:
+            while (mathlevel > 0) {
+                r = vlink(r);
+                if (r == null)
+                    return r;
+                if (type(r) == math_node) {
+                    if (subtype(r) == before) {
+                        mathlevel++;
+                    } else {
+                        mathlevel--;
+                    }
+                }
+            }
+            break;
+        case glyph_node:
+             if (is_simple_character(r) && (character(r) == ex_hyphen_char)) {
+               /* quick fix ... we need to make a cleaner less redundant if-else test */
+               t = compound_word_break(r, char_lang(r));
+               subtype(t) = automatic_disc;
+               start_ok = 1 ;
+       	    } else {
+            if (start_ok && is_simple_character(r) && (l = get_lc_code(character(r))) > 0) {
+                if (char_uchyph(r) || l == character(r)) {
+                    return r;
+                } else {
+                    start_ok = 0;
+                }
+            }
+            }
+            break;
+        default:
+            start_ok = 0;
+            break;
+        }
+        r = vlink(r);
+    }
+    return r;
+}
+
+/*
 static halfword find_next_wordstart(halfword r)
 {
     register int l;
@@ -740,6 +794,7 @@ static halfword find_next_wordstart(halfword r)
     }
     return r;
 }
+*/
 
 @ @c
 static int valid_wordend(halfword s)
