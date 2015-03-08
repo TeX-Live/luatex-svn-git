@@ -2752,8 +2752,19 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
     pointer x, y, z;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr;   /* dimensions in the calculation */
     scaled delta1, delta2;
+    halfword sub_n, sup_n ;
+    internal_font_number sub_f, sup_f ;
+    int sub_c, sup_c;
+
+    sub_n = null;
+    sup_n = null;
+    sub_f = 0;
+    sup_f = 0;
+    sub_c = 0;
+    sup_c = 0;
     delta1 = it;
     delta2 = 0;
+
 #ifdef DEBUG
     printf("it: %d\n", it);
     dump_simple_node(q);
@@ -2780,6 +2791,49 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
         list_ptr(z) = null;
         flush_node(z);
     }
+
+
+    if (is_char_node(p)) {
+        /* we look at the subscript character (_i) or first character in a list (_{ij}) */
+        sub_n = subscr(q);
+        if (sub_n != null) {
+            if (type(sub_n) == sub_mlist_node) {
+                sub_n = nucleus(math_list(sub_n)) ;
+                if (type(sub_n) != math_char_node) {
+                    sub_n = null ;
+                }
+            }
+            if (sub_n != null) {
+                fetch(sub_n);
+                if (char_exists(cur_f, cur_c)) {
+                    sub_f = cur_f ;
+                    sub_c = cur_c ;
+                } else {
+                    sub_n = null ;
+                }
+            }
+        }
+        /* we look at the superscript character (^i) or first character in a list (^{ij}) */
+        sup_n = supscr(q);
+        if (sup_n != null) {
+            if (type(sup_n) == sub_mlist_node) {
+                sup_n = nucleus(math_list(sup_n)) ;
+                if (type(sup_n) != math_char_node) {
+                    sup_n = null ;
+                }
+            }
+            if (sup_n != null) {
+                fetch(sup_n);
+                if (char_exists(cur_f, cur_c)) {
+                    sup_f = cur_f ;
+                    sup_c = cur_c ;
+                } else {
+                    sup_n = null ;
+                }
+            }
+        }
+    }
+
     if (supscr(q) == null) {
         /* Construct a subscript box |x| when there is no superscript */
         /* When there is a subscript without a superscript, the top of the subscript
@@ -2794,16 +2848,10 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
         shift_amount(x) = shift_down;
 
         /* now find and correct for horizontal shift */
-        if (is_char_node(p) && subscr(q) != null
-            && type(subscr(q)) == math_char_node) {
-            fetch(subscr(q));
-            if (char_exists(cur_f, cur_c)) {
-                delta2 =
-                    find_math_kern(font(p), character(p), cur_f, cur_c,
-                                   sub_mark_cmd, shift_down);
-                if (delta2 != MATH_KERN_NOT_FOUND && delta2 != 0) {
-                    p = attach_hkern_to_new_hlist(q, delta2);
-                }
+        if (sub_n != null) {
+            delta2 = find_math_kern(font(p), character(p),sub_f,sub_c,sub_mark_cmd, shift_down);
+            if (delta2 != MATH_KERN_NOT_FOUND && delta2 != 0) {
+                p = attach_hkern_to_new_hlist(q, delta2);
             }
         }
 
@@ -2823,15 +2871,10 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
         if (subscr(q) == null) {
             shift_amount(x) = -shift_up;
             /* now find and correct for horizontal shift */
-            if (is_char_node(p) && type(supscr(q)) == math_char_node) {
-                fetch(supscr(q));
-                if (char_exists(cur_f, cur_c)) {
-                    clr =
-                        find_math_kern(font(p), character(p), cur_f, cur_c,
-                                       sup_mark_cmd, shift_up);
-                    if (clr != MATH_KERN_NOT_FOUND && clr != 0) {
-                        p = attach_hkern_to_new_hlist(q, clr);
-                    }
+            if (sup_n != null) {
+                clr = find_math_kern(font(p),character(p),sup_f,sup_c,sup_mark_cmd,shift_up);
+                if (clr != MATH_KERN_NOT_FOUND && clr != 0) {
+                    p = attach_hkern_to_new_hlist(q, clr);
                 }
             }
         } else {
@@ -2858,29 +2901,17 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
                 }
             }
             /* now find and correct for horizontal shift */
-            if (is_char_node(p) && subscr(q) != null
-                && type(subscr(q)) == math_char_node) {
-                fetch(subscr(q));
-                if (char_exists(cur_f, cur_c)) {
-                    delta2 =
-                        find_math_kern(font(p), character(p), cur_f, cur_c,
-                                       sub_mark_cmd, shift_down);
-                    if (delta2 != MATH_KERN_NOT_FOUND && delta2 != 0) {
-                        p = attach_hkern_to_new_hlist(q, delta2);
-                    }
+            if (sub_n != null) {
+                delta2 = find_math_kern(font(p), character(p),sub_f,sub_c,sub_mark_cmd, shift_down);
+                if (delta2 != MATH_KERN_NOT_FOUND && delta2 != 0) {
+                    p = attach_hkern_to_new_hlist(q, delta2);
                 }
             }
             /* now the horizontal shift for the superscript. */
             /* the superscript is also to be shifted by |delta1| (the italic correction) */
             clr = MATH_KERN_NOT_FOUND;
-            if (is_char_node(p) && supscr(q) != null
-                && type(supscr(q)) == math_char_node) {
-                fetch(supscr(q));
-                if (char_exists(cur_f, cur_c)) {
-                    clr =
-                        find_math_kern(font(p), character(p), cur_f, cur_c,
-                                       sup_mark_cmd, shift_up);
-                }
+            if (sup_n != null) {
+                clr = find_math_kern(font(p),character(p),sup_f,sup_c,sup_mark_cmd,shift_up);
             }
             if (delta2 == MATH_KERN_NOT_FOUND)
                 delta2 = 0;
