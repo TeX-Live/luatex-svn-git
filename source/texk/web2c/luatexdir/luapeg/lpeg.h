@@ -1,5 +1,5 @@
 /*
-** $Id: lptypes.h,v 1.10 2014/12/12 17:11:35 roberto Exp $
+** $Id: lptypes.h,v 1.11 2015/03/04 16:38:00 roberto Exp $
 ** LPeg - PEG pattern matching for Lua
 ** Copyright 2007-2014, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 ** written by Roberto Ierusalimschy
@@ -8,6 +8,7 @@
 /*
  "Amalgamated" version for LuaTeX written by Scarso Luigi.
 */
+
 
 #if !defined(lptypes_h)
 #define lptypes_h
@@ -27,11 +28,12 @@
 #include "lua.h"
 
 
-#define VERSION         "0.12.1"
+
+#define VERSION         "0.12.2"
 
 
-#define PATTERN_T	"lpeg.pattern"
-#define MAXSTACKIDX	"lpeg.maxstack"
+#define PATTERN_T	"lpeg-pattern"
+#define MAXSTACKIDX	"lpeg-maxstack"
 
 
 /*
@@ -156,14 +158,14 @@ typedef struct Charset {
 #endif
 
 /*
-** $Id: lpcap.h,v 1.1 2013/03/21 20:25:12 roberto Exp $
+** $Id: lpcap.h,v 1.2 2015/02/27 17:13:17 roberto Exp $
 */
 
 #if !defined(lpcap_h)
 #define lpcap_h
 
 
-/* #include "lptypes.h" */
+/* #include "lptypes.h"*/
 
 
 /* kinds of captures */
@@ -175,7 +177,7 @@ typedef enum CapKind {
 
 typedef struct Capture {
   const char *s;  /* subject position */
-  short idx;  /* extra info about capture (group name, arg index, etc.) */
+  unsigned short idx;  /* extra info (group name, arg index, etc.) */
   byte kind;  /* kind of capture */
   byte siz;  /* size of full capture + 1 (0 = not a full capture) */
 } Capture;
@@ -206,7 +208,7 @@ int finddyncap (Capture *cap, Capture *last);
 #define lptree_h
 
 
-/* #include "lptypes.h"  */
+/* #include "lptypes.h" */
 
 
 /*
@@ -282,7 +284,7 @@ extern const byte numsiblings[];
 #if !defined(lpvm_h)
 #define lpvm_h
 
-/* #include "lpcap.h" */
+/* #include "lpcap.h"*/
 
 
 /* Virtual Machine's instructions */
@@ -340,11 +342,11 @@ const char *match (lua_State *L, const char *o, const char *s, const char *e,
 #if !defined(lpcode_h)
 #define lpcode_h
 
-/* #include "lua.h" */
+/* #include "lua.h"*/
 
-/* #include "lptypes.h" */
-/* #include "lptree.h" */
-/* #include "lpvm.h" */
+/* #include "lptypes.h"*/
+/* #include "lptree.h"*/
+/* #include "lpvm.h"*/
 
 int tocharset (TTree *tree, Charset *cs);
 int checkaux (TTree *tree, int pred);
@@ -376,8 +378,8 @@ int sizei (const Instruction *i);
 #define lpprint_h
 
 
-/* #include "lptree.h" */
-/* #include "lpvm.h" */
+/* #include "lptree.h"*/
+/* #include "lpvm.h"*/
 
 
 #if defined(LPEG_DEBUG)
