@@ -2746,16 +2746,55 @@ will be horizontally shifted over |delta1|, the subscript over |delta2|.
 We set |shift_down| and |shift_up| to the minimum amounts to shift the
 baseline of subscripts and superscripts based on the given nucleus.
 
-@c
+Note: We need to look at a character but also at the first one in a sub list
+and there we ignore leading kerns and glue. Elsewhere is code that removes
+kerns assuming that is italic correction. The heuristics are unreliable for
+the new fonts so eventualy there will be an option to ignore such corrections.
+
+@ @c
+#define analyze_script(init,su_n,su_f,su_c) do {                                   \
+      su_n = init;                                                                 \
+      if (su_n != null) {                                                          \
+          if (type(su_n) == sub_mlist_node) {                                      \
+              su_n = math_list(su_n);                                              \
+              if (su_n != null) {                                                  \
+                  while (su_n) {                                                   \
+                      if ((type(su_n) == kern_node) || (type(su_n) == glue_node)) {\
+                          su_n = vlink(su_n);                                      \
+                      } else if (type(su_n) == simple_noad) {                      \
+                          su_n = nucleus(su_n);                                    \
+                          if (type(su_n) != math_char_node) {                      \
+                              su_n = null;                                         \
+                          }                                                        \
+                          break;                                                   \
+                      } else {                                                     \
+                          su_n = null;                                             \
+                          break;                                                   \
+                      }                                                            \
+                  }                                                                \
+              }                                                                    \
+          }                                                                        \
+          if (su_n != null) {                                                      \
+              fetch(su_n);                                                         \
+              if (char_exists(cur_f, cur_c)) {                                     \
+                  su_f = cur_f;                                                    \
+                  su_c = cur_c;                                                    \
+              } else {                                                             \
+                  su_n = null;                                                     \
+              }                                                                    \
+          }                                                                        \
+      }                                                                            \
+  } while (0)
+
+
 static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
 {
     pointer x, y, z;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr;   /* dimensions in the calculation */
     scaled delta1, delta2;
-    halfword sub_n, sup_n ;
-    internal_font_number sub_f, sup_f ;
+    halfword sub_n, sup_n;
+    internal_font_number sub_f, sup_f;
     int sub_c, sup_c;
-
     sub_n = null;
     sup_n = null;
     sub_f = 0;
@@ -2792,49 +2831,15 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
         flush_node(z);
     }
 
-
     if (is_char_node(p)) {
         /* we look at the subscript character (_i) or first character in a list (_{ij}) */
-        sub_n = subscr(q);
-        if (sub_n != null) {
-            if (type(sub_n) == sub_mlist_node) {
-                sub_n = nucleus(math_list(sub_n)) ;
-                if (type(sub_n) != math_char_node) {
-                    sub_n = null ;
-                }
-            }
-            if (sub_n != null) {
-                fetch(sub_n);
-                if (char_exists(cur_f, cur_c)) {
-                    sub_f = cur_f ;
-                    sub_c = cur_c ;
-                } else {
-                    sub_n = null ;
-                }
-            }
-        }
+        analyze_script(subscr(q),sub_n,sub_f,sub_c);
         /* we look at the superscript character (^i) or first character in a list (^{ij}) */
-        sup_n = supscr(q);
-        if (sup_n != null) {
-            if (type(sup_n) == sub_mlist_node) {
-                sup_n = nucleus(math_list(sup_n)) ;
-                if (type(sup_n) != math_char_node) {
-                    sup_n = null ;
-                }
-            }
-            if (sup_n != null) {
-                fetch(sup_n);
-                if (char_exists(cur_f, cur_c)) {
-                    sup_f = cur_f ;
-                    sup_c = cur_c ;
-                } else {
-                    sup_n = null ;
-                }
-            }
-        }
+        analyze_script(supscr(q),sup_n,sup_f,sup_c);
     }
 
     if (supscr(q) == null) {
+
         /* Construct a subscript box |x| when there is no superscript */
         /* When there is a subscript without a superscript, the top of the subscript
            should not exceed the baseline plus four-fifths of the x-height. */
@@ -2890,8 +2895,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
             width(y) = width(y) + space_after_script(cur_style);
             if (shift_down < sub_sup_shift_down(cur_style))
                 shift_down = sub_sup_shift_down(cur_style);
-            clr = subsup_vgap(cur_style) -
-                ((shift_up - depth(x)) - (height(y) - shift_down));
+                clr = subsup_vgap(cur_style) - ((shift_up - depth(x)) - (height(y) - shift_down));
             if (clr > 0) {
                 shift_down = shift_down + clr;
                 clr = sup_sub_bottom_max(cur_style) - (shift_up - depth(x));
@@ -2913,6 +2917,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style)
             if (sup_n != null) {
                 clr = find_math_kern(font(p),character(p),sup_f,sup_c,sup_mark_cmd,shift_up);
             }
+
             if (delta2 == MATH_KERN_NOT_FOUND)
                 delta2 = 0;
             if (clr != MATH_KERN_NOT_FOUND) {
