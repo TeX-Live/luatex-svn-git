@@ -1,4 +1,4 @@
-$Id: README 36016 2015-01-11 00:03:55Z karl $
+$Id: README 36426 2015-03-03 13:30:44Z peter $
 Copyright 2006-2012 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -51,7 +51,7 @@ dvipdfm-x - maintained here, by Khaled Hosny, Akira Kakuto, et al., contains
   dvipdfmx
   xdvipdfmx
 
-dvipng 1.14 - checked 10may12
+dvipng 1.15 - checked 3mar15
   http://mirror.ctan.org/dviware/dvipng/ (but maybe stale)
   http://savannah.nongnu.org/files/?group=dvipng
 
@@ -59,7 +59,7 @@ dvipos - ?
 
 dvipsk - maintained here, by us
 
-dvisvgm 1.9 - checked 7jan15
+dvisvgm 1.9.1 - checked 1mar15
   http://downloads.sourceforge.net/dvisvgm/
 
 gsftopk - from Paul Vojta's xdvi?
@@ -74,6 +74,9 @@ makeindexk - maintained here, by us
 makejvf - ?
 
 mendexk - maintained here, by us (akira et al.)
+
+/musixtnt 2015-02-09 - checked 10feb15
+  http://mirror.ctan.org/macros/musixtnt/
 
 ps2pk - maintained here, by us
 

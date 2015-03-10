@@ -579,7 +579,7 @@ static int set_macro(lua_State * L)
         fast_store_new_token(end_match_token);
         while (str < se) {
             /* hh: str2uni could return len too (also elsewhere) */
-            t = (halfword) str2uni((unsigned char *) str);
+            t = (halfword) str2uni((const unsigned char *) str);
             str += utf8_size(t);
             cc = get_cat_code(ct,t);
             /* this is a relating simple converter; if more is needed one can just use */
@@ -593,7 +593,7 @@ static int set_macro(lua_State * L)
                 halfword _cs = null ;
                 const char *_name  = str ;
                 while (str < se) {
-                    t = (halfword) str2uni((unsigned char *) str);
+                    t = (halfword) str2uni((const unsigned char *) str);
                     _s = utf8_size(t);
                     _c = get_cat_code(ct,t);
                     if (_c == 11) {

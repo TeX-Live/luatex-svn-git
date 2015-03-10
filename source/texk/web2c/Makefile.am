@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/web2c/.
 ##
-## Copyright (C) 2009-2014 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 AM_CPPFLAGS = $(KPATHSEA_INCLUDES)
@@ -17,15 +17,18 @@ proglib = lib/lib.a
 
 ## Below we will add to these
 EXTRA_PROGRAMS =
+EXTRA_LIBRARIES =
+EXTRA_LTLIBRARIES =
 bin_PROGRAMS =
+lib_LIBRARIES =
+lib_LTLIBRARIES =
 noinst_PROGRAMS =
 dist_man_MANS =
 nodist_man_MANS =
 check_PROGRAMS =
 TESTS =
-EXTRA_LIBRARIES =
 EXTRA_DIST = PROJECTS cftests cpascal.h help.h w2c/config.h
-DISTCLEANFILES = $(EXTRA_LIBRARIES) CXXLD.sh
+DISTCLEANFILES = CXXLD.sh
 CLEANFILES =
 TRIPTRAP_CLEAN =
 TRIPTRAP =
@@ -33,11 +36,8 @@ bin_links =
 install_exe_links =
 uninstall_exe_links =
 
-dist-hook:
-	cd "$(distdir)" && rm -rf $(NEVER_DIST)
-
-## in case of an SVN repository
-NEVER_DIST = `find . -name .svn`
+# Files not to be distributed
+include $(srcdir)/../../am/dist_hook.am
 
 ## The sh script that does the conversion.
 web2c = AM_V_P=$(AM_V_P) $(SHELL) ./web2c-sh $@
