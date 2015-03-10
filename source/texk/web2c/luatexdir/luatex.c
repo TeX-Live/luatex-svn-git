@@ -23,17 +23,14 @@
 #include "lua/luatex-api.h"
 #include "luatex_svnversion.h"
 
-static const char _svn_version[] =
-    "$Id$ "
-    "$URL$";
 
 #define TeX
 
 int luatex_svn = luatex_svn_revision;
 int luatex_version = 79;        /* \.{\\luatexversion}  */
-int luatex_revision = '3';      /* \.{\\luatexrevision}  */
+int luatex_revision = '4';      /* \.{\\luatexrevision}  */
 int luatex_date_info = 2015012200;     /* the compile date is now hardwired */
-const char *luatex_version_string = "beta-0.79.3";
+const char *luatex_version_string = "beta-0.79.4";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>

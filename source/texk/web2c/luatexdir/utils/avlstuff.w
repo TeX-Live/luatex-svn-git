@@ -21,9 +21,7 @@
 @* AVL helper functions.
 
 @ @c
-static const char _svn_version[] =
-    "$Id$"
-    "$URL$";
+
 
 #include "ptexlib.h"
 #include "utils/avl.h"

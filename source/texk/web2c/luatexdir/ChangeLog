@@ -1,3 +1,7 @@
+2015-03-10 Luigi Scarso <luigi.scarso@gmail.com>
+	newtoken library; lua 5.2.4;
+	Several bug fixed.
+
 2015-01-14 Luigi Scarso <luigi.scarso@gmail.com>
 
 	tex/mlist.w: mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)

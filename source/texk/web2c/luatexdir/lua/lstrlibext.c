@@ -29,8 +29,6 @@
 #include "lapi.h"
 #include "lundump.h"
 
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 static int str_split (lua_State *L) {
   size_t l;

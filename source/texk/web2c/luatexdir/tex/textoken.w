@@ -18,9 +18,7 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
-static const char _svn_version[] =
-    "$Id$"
-    "$URL$";
+
 
 #include "ptexlib.h"
 
@@ -29,6 +27,8 @@ static const char _svn_version[] =
 #define cat_code_table int_par(cat_code_table_code)
 #define tracing_nesting int_par(tracing_nesting_code)
 #define suppress_outer_error int_par(suppress_outer_error_code)
+#define suppress_mathpar_error int_par(suppress_mathpar_error_code)
+
 
 #define every_eof equiv(every_eof_loc)
 #define box(A) equiv(box_base+(A))
@@ -1923,6 +1923,7 @@ void conv_toks(void)
             if (luacstrings > 0)
                 lua_string_start();
         }
+        return;
         break;
     case pdf_insert_ht_code:
         scan_register_num();

@@ -18,9 +18,7 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
-static const char _svn_version[] =
-    "$Id$"
-    "$URL$";
+
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
@@ -703,7 +701,7 @@ static void init_main_control (void) {
     non_math(mskip_cmd, insert_dollar_sign);
     non_math(math_accent_cmd, insert_dollar_sign);
     jump_table[mmode + endv_cmd] =  insert_dollar_sign;
-    jump_table[mmode + par_end_cmd] =  insert_dollar_sign;
+    jump_table[mmode + par_end_cmd] =  insert_dollar_sign_par_end;
     jump_table[mmode + stop_cmd] =  insert_dollar_sign;
     jump_table[mmode + vskip_cmd] =  insert_dollar_sign;
     jump_table[mmode + un_vbox_cmd] =  insert_dollar_sign;
@@ -929,6 +927,19 @@ void insert_dollar_sign(void)
           "you left one out. Proceed, with fingers crossed.");
     ins_error();
 }
+
+@  We can silently ignore  \.{\\par}s in a math formula.
+
+@c
+void insert_dollar_sign_par_end(void)
+{
+    if (!int_par(suppress_mathpar_error_code)) {
+        insert_dollar_sign() ;
+    }
+}
+
+
+
 
 
 @ The `|you_cant|' procedure prints a line saying that the current command

@@ -17,9 +17,7 @@
 %
 % You should have received a copy of the GNU General Public License along
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
-%
-% $Id$
-% $URL$
+
 
 @
 @c

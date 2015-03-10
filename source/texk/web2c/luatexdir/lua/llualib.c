@@ -20,8 +20,6 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 #define LOAD_BUF_SIZE 256
 #define UINT_MAX32 0xFFFFFFFF

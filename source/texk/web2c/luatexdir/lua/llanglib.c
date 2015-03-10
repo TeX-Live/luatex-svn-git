@@ -21,10 +21,6 @@
 #include "lua/luatex-api.h"
 
 
-
-static const char _svn_version[] =
-    "$Id$ $URL$";
-
 #define LANG_METATABLE "luatex.lang"
 
 #define check_islang(L,b) (struct tex_language **)luaL_checkudata(L,b,LANG_METATABLE)

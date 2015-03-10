@@ -28,8 +28,6 @@
 #include <kpathsea/tex-file.h>
 #include <kpathsea/paths.h>
 
-static const char _svn_version[] =
-    "$Id$ $URL$";
 
 static const unsigned filetypes[] = {
     kpse_gf_format,
