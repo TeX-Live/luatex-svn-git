@@ -1,0 +1,14 @@
+diff -ur lua-5.2.4.orig/src/liolib.c lua-5.2.4/src/liolib.c
+--- lua-5.2.4.orig/src/liolib.c	2015-03-10 10:39:31.687480876 +0100
++++ lua-5.2.4/src/liolib.c	2015-03-10 10:45:41.611472094 +0100
+@@ -19,6 +19,9 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#if defined(HAVE_UNISTD_H)
++#include <unistd.h>
++#endif
+ 
+ #define liolib_c
+ #define LUA_LIB
+
