@@ -1,4 +1,4 @@
-$Id: README 36016 2015-01-11 00:03:55Z karl $
+$Id: README 36417 2015-03-02 08:20:57Z peter $
 Public domain.  Originally written 2005 by Karl Berry.
 
 Extra utilities we (optionally) compile for TeX Live.
@@ -23,7 +23,7 @@ pmx 2.7.0 - checked 25nov14
 ps2eps 1.68 - checked 10may12
   http://tm.uka.de/~bless/ps2eps
 
-t1utils 1.38 - checked 3oct13
+t1utils 1.39 - checked 1mar15
   http://www.lcdf.org/type/
 
 texdoctk - reluctantly maintained here in TL

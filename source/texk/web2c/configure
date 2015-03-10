@@ -638,13 +638,12 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
 subdirs
-WANTEDLIBS
-SYNCTEX_LT_VERSINFO
-SYNCTEXVERSION
+LIBSYNCTEX
+LTLIBSYNCTEX
 SYNCTEX_FALSE
 SYNCTEX_TRUE
-SYSTEM_ZLIB_FALSE
-SYSTEM_ZLIB_TRUE
+SYNCTEX_LT_VERSINFO
+SYNCTEXVERSION
 OTANGLE
 TIE
 CTANGLE
@@ -1038,8 +1037,6 @@ with_system_poppler
 with_system_xpdf
 with_system_zziplib
 with_system_teckit
-with_teckit_includes
-with_teckit_libdir
 with_system_icu
 with_system_graphite2
 with_system_harfbuzz
@@ -1706,7 +1703,7 @@ Optional Features:
   --enable-cxx-runtime-hack  link C++ runtime statically
   --enable-libtool-hack   ignore libtool dependency_libs
   --enable-auto-core      cause TeX&MF to dump core, given a certain filename
-  --disable-dump-share    make fmt/base/mem files architecture-dependent
+  --disable-dump-share    make fmt/base files architecture-dependent
   --disable-ipc           disable TeX's --ipc option, i.e., pipe to a program
   --disable-tex           do not compile and install TeX
   --enable-tex-synctex      build TeX with SyncTeX support
@@ -1742,7 +1739,7 @@ Optional Features:
   --enable-tektronixwin     include Tektronix window support
   --enable-unitermwin       include Uniterm window support
   --disable-web-progs     do not build WEB programs bibtex ... weave
-  --disable-synctex       do not build the SyncTeX tool
+  --disable-synctex       do not build the SyncTeX library and tool
   --disable-missing       terminate if a requested program or feature must be
                           disabled, e.g., due to missing libraries
 
@@ -1801,11 +1798,8 @@ Optional Packages:
                           xpdf library from TL (requires pkg-config)
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
-  --with-system-teckit    use installed teckit headers and library
-  --with-teckit-includes=DIR
-                          teckit headers installed in DIR
-  --with-teckit-libdir=DIR
-                          teckit library installed in DIR
+  --with-system-teckit    use installed teckit headers and library (requires
+                          pkg-config)
   --with-system-icu       use installed ICU headers and libraries (requires
                           icu-config)
   --with-system-graphite2 use installed graphite2 headers and library
@@ -4903,8 +4897,8 @@ esac
 
 
 
-macro_version='2.4.5'
-macro_revision='2.4.5'
+macro_version='2.4.6'
+macro_revision='2.4.6'
 
 
 
@@ -8362,7 +8356,7 @@ func_munge_path_list ()
     x)
         ;;
     *:)
-        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'` \S|@1\"
+        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'` \$$1\"
         ;;
     x:*)
         eval $1=\"\$$1 `$ECHO $2 | $SED 's/:/ /g'`\"
@@ -12687,12 +12681,19 @@ if test set = "${lt_cv_sys_lib_dlsearch_path_spec+set}"; then
   sys_lib_dlsearch_path_spec=$lt_cv_sys_lib_dlsearch_path_spec
 fi
 
-# lt_cv_sys_lib... is unaugmented for libtool script decls...
-lt_cv_sys_lib_dlsearch_path_spec=$sys_lib_dlsearch_path_spec
+# remember unaugmented sys_lib_dlsearch_path content for libtool script decls...
+configure_time_dlsearch_path=$sys_lib_dlsearch_path_spec
 
-# ..but sys_lib_... needs LT_SYS_LIBRARY_PATH munging for
-# LT_SYS_DLSEARCH_PATH macro in ltdl.m4 to work with the correct paths:
+# ... but it needs LT_SYS_LIBRARY_PATH munging for other configure-time code
 func_munge_path_list sys_lib_dlsearch_path_spec "$LT_SYS_LIBRARY_PATH"
+
+# to be used as default LT_SYS_LIBRARY_PATH value in generated libtool
+configure_time_lt_sys_library_path=$LT_SYS_LIBRARY_PATH
+
+
+
+
+
 
 
 
@@ -14065,13 +14066,12 @@ fi
 
 done
 
-for ac_func in putenv strcasecmp strtol strstr
+for ac_func in putenv
 do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  ac_fn_c_check_func "$LINENO" "putenv" "ac_cv_func_putenv"
+if test "x$ac_cv_func_putenv" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+#define HAVE_PUTENV 1
 _ACEOF
 
 fi
@@ -17908,12 +17908,16 @@ if test set = "${lt_cv_sys_lib_dlsearch_path_spec+set}"; then
   sys_lib_dlsearch_path_spec=$lt_cv_sys_lib_dlsearch_path_spec
 fi
 
-# lt_cv_sys_lib... is unaugmented for libtool script decls...
-lt_cv_sys_lib_dlsearch_path_spec=$sys_lib_dlsearch_path_spec
+# remember unaugmented sys_lib_dlsearch_path content for libtool script decls...
+configure_time_dlsearch_path=$sys_lib_dlsearch_path_spec
 
-# ..but sys_lib_... needs LT_SYS_LIBRARY_PATH munging for
-# LT_SYS_DLSEARCH_PATH macro in ltdl.m4 to work with the correct paths:
+# ... but it needs LT_SYS_LIBRARY_PATH munging for other configure-time code
 func_munge_path_list sys_lib_dlsearch_path_spec "$LT_SYS_LIBRARY_PATH"
+
+# to be used as default LT_SYS_LIBRARY_PATH value in generated libtool
+configure_time_lt_sys_library_path=$LT_SYS_LIBRARY_PATH
+
+
 
 
 
@@ -18884,8 +18888,7 @@ fi
 if test "${enable_web_progs+set}" = set; then :
   enableval=$enable_web_progs;
 fi
-
-## configure option for the SyncTeX tool
+## configure option for the SyncTeX library and tool
 # Check whether --enable-synctex was given.
 if test "${enable_synctex+set}" = set; then :
   enableval=$enable_synctex;
@@ -22512,7 +22515,8 @@ finish_cmds='`$ECHO "$finish_cmds" | $SED "$delay_single_quote_subst"`'
 finish_eval='`$ECHO "$finish_eval" | $SED "$delay_single_quote_subst"`'
 hardcode_into_libs='`$ECHO "$hardcode_into_libs" | $SED "$delay_single_quote_subst"`'
 sys_lib_search_path_spec='`$ECHO "$sys_lib_search_path_spec" | $SED "$delay_single_quote_subst"`'
-lt_cv_sys_lib_dlsearch_path_spec='`$ECHO "$lt_cv_sys_lib_dlsearch_path_spec" | $SED "$delay_single_quote_subst"`'
+configure_time_dlsearch_path='`$ECHO "$configure_time_dlsearch_path" | $SED "$delay_single_quote_subst"`'
+configure_time_lt_sys_library_path='`$ECHO "$configure_time_lt_sys_library_path" | $SED "$delay_single_quote_subst"`'
 hardcode_action='`$ECHO "$hardcode_action" | $SED "$delay_single_quote_subst"`'
 enable_dlopen='`$ECHO "$enable_dlopen" | $SED "$delay_single_quote_subst"`'
 enable_dlopen_self='`$ECHO "$enable_dlopen_self" | $SED "$delay_single_quote_subst"`'
@@ -22716,7 +22720,8 @@ postinstall_cmds \
 postuninstall_cmds \
 finish_cmds \
 sys_lib_search_path_spec \
-lt_cv_sys_lib_dlsearch_path_spec \
+configure_time_dlsearch_path \
+configure_time_lt_sys_library_path \
 reload_cmds_CXX \
 old_archive_cmds_CXX \
 old_archive_from_new_cmds_CXX \
@@ -22810,7 +22815,7 @@ $as_echo "$as_me: creating $ofile" >&6;}
 available_tags='CXX '
 
 # Configured defaults for sys_lib_dlsearch_path munging.
-: \${LT_SYS_LIBRARY_PATH="$LT_SYS_LIBRARY_PATH"}
+: \${LT_SYS_LIBRARY_PATH="$configure_time_lt_sys_library_path"}
 
 # ### BEGIN LIBTOOL CONFIG
 
@@ -23064,8 +23069,11 @@ hardcode_into_libs=$hardcode_into_libs
 # Compile-time system search path for libraries.
 sys_lib_search_path_spec=$lt_sys_lib_search_path_spec
 
-# Run-time system search path for libraries.
-sys_lib_dlsearch_path_spec=$lt_lt_cv_sys_lib_dlsearch_path_spec
+# Detected run-time system search path for libraries.
+sys_lib_dlsearch_path_spec=$lt_configure_time_dlsearch_path
+
+# Explicit LT_SYS_LIBRARY_PATH set during ./configure time.
+configure_time_lt_sys_library_path=$lt_configure_time_lt_sys_library_path
 
 # Whether dlopen is supported.
 dlopen_support=$enable_dlopen
@@ -23231,9 +23239,8 @@ compiler_lib_search_path=$lt_compiler_lib_search_path
 _LT_EOF
 
     cat <<'_LT_EOF' >> "$cfgfile"
-## -------------------------------------- ##
-## Shell functions shared with configure. ##
-## -------------------------------------- ##
+
+# ### BEGIN FUNCTIONS SHARED WITH CONFIGURE
 
 # func_munge_path_list VARIABLE PATH
 # -----------------------------------
@@ -23255,7 +23262,7 @@ func_munge_path_list ()
     x)
         ;;
     *:)
-        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'` \S|@1\"
+        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'` \$$1\"
         ;;
     x:*)
         eval $1=\"\$$1 `$ECHO $2 | $SED 's/:/ /g'`\"
@@ -23285,6 +23292,8 @@ func_cc_basename ()
     func_cc_basename_result=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
 }
 
+
+# ### END FUNCTIONS SHARED WITH CONFIGURE
 
 _LT_EOF
 
@@ -24043,23 +24052,12 @@ fi
 if test "${with_system_teckit+set}" = set; then :
   withval=$with_system_teckit;
 fi
-
-# Check whether --with-teckit-includes was given.
-if test "${with_teckit_includes+set}" = set; then :
-  withval=$with_teckit_includes;
-fi
-
-# Check whether --with-teckit-libdir was given.
-if test "${with_teckit_libdir+set}" = set; then :
-  withval=$with_teckit_libdir;
-fi
 if test "x$with_system_teckit" = xyes; then
-  if test "x$with_teckit_includes" != x && test "x$with_teckit_includes" != xyes; then
-  TECKIT_INCLUDES="-I$with_teckit_includes"
-fi
-TECKIT_LIBS="-lTECkit"
-if test "x$with_teckit_libdir" != x && test "x$with_teckit_libdir" != xyes; then
-  TECKIT_LIBS="-L$with_teckit_libdir $TECKIT_LIBS"
+  if $PKG_CONFIG teckit; then
+  TECKIT_INCLUDES=`$PKG_CONFIG teckit --cflags`
+  TECKIT_LIBS=`$PKG_CONFIG teckit --libs`
+elif test "x$need_teckit:$with_system_teckit" = xyes:yes; then
+  as_fn_error $? "did not find teckit" "$LINENO" 5
 fi
 else
   TECKIT_INCLUDES="-I$kpse_BLD/libs/teckit/include"
@@ -24718,13 +24716,11 @@ ac_config_files="$ac_config_files silent-sh"
 
 
 ## texk/web2c/synctexdir/ac/synctex.ac: configure.ac fragment for the TeX Live subdirectory texk/web2c/
- if test "x$with_system_zlib" = xyes; then
-  SYSTEM_ZLIB_TRUE=
-  SYSTEM_ZLIB_FALSE='#'
-else
-  SYSTEM_ZLIB_TRUE='#'
-  SYSTEM_ZLIB_FALSE=
-fi
+
+SYNCTEXVERSION=1.17.0
+
+
+SYNCTEX_LT_VERSINFO=18:0:17
 
 
  if test "x$enable_synctex" != xno; then
@@ -24736,14 +24732,11 @@ else
 fi
 
 
+if test "x$with_system_zlib" = xyes; then :
+  LTLIBSYNCTEX=libsynctex.la
 
-SYNCTEXVERSION=1.17.0
-
-
-SYNCTEX_LT_VERSINFO=18:0:17
-
-if test "x$enable_synctex" != xno; then :
-  WANTEDLIBS=libsynctex.la
+else
+  LIBSYNCTEX=libsynctex.a
 
 fi
 
@@ -25050,10 +25043,6 @@ if test -z "${UPWEB_TRUE}" && test -z "${UPWEB_FALSE}"; then
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
-if test -z "${SYSTEM_ZLIB_TRUE}" && test -z "${SYSTEM_ZLIB_FALSE}"; then
-  as_fn_error $? "conditional \"SYSTEM_ZLIB\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
 if test -z "${SYNCTEX_TRUE}" && test -z "${SYNCTEX_FALSE}"; then
   as_fn_error $? "conditional \"SYNCTEX\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -25782,7 +25771,8 @@ finish_cmds='`$ECHO "$finish_cmds" | $SED "$delay_single_quote_subst"`'
 finish_eval='`$ECHO "$finish_eval" | $SED "$delay_single_quote_subst"`'
 hardcode_into_libs='`$ECHO "$hardcode_into_libs" | $SED "$delay_single_quote_subst"`'
 sys_lib_search_path_spec='`$ECHO "$sys_lib_search_path_spec" | $SED "$delay_single_quote_subst"`'
-lt_cv_sys_lib_dlsearch_path_spec='`$ECHO "$lt_cv_sys_lib_dlsearch_path_spec" | $SED "$delay_single_quote_subst"`'
+configure_time_dlsearch_path='`$ECHO "$configure_time_dlsearch_path" | $SED "$delay_single_quote_subst"`'
+configure_time_lt_sys_library_path='`$ECHO "$configure_time_lt_sys_library_path" | $SED "$delay_single_quote_subst"`'
 hardcode_action='`$ECHO "$hardcode_action" | $SED "$delay_single_quote_subst"`'
 enable_dlopen='`$ECHO "$enable_dlopen" | $SED "$delay_single_quote_subst"`'
 enable_dlopen_self='`$ECHO "$enable_dlopen_self" | $SED "$delay_single_quote_subst"`'
@@ -25986,7 +25976,8 @@ postinstall_cmds \
 postuninstall_cmds \
 finish_cmds \
 sys_lib_search_path_spec \
-lt_cv_sys_lib_dlsearch_path_spec \
+configure_time_dlsearch_path \
+configure_time_lt_sys_library_path \
 reload_cmds_CXX \
 old_archive_cmds_CXX \
 old_archive_from_new_cmds_CXX \
@@ -26825,7 +26816,7 @@ $as_echo X"$file" |
 available_tags='CXX '
 
 # Configured defaults for sys_lib_dlsearch_path munging.
-: \${LT_SYS_LIBRARY_PATH="$LT_SYS_LIBRARY_PATH"}
+: \${LT_SYS_LIBRARY_PATH="$configure_time_lt_sys_library_path"}
 
 # ### BEGIN LIBTOOL CONFIG
 
@@ -27079,8 +27070,11 @@ hardcode_into_libs=$hardcode_into_libs
 # Compile-time system search path for libraries.
 sys_lib_search_path_spec=$lt_sys_lib_search_path_spec
 
-# Run-time system search path for libraries.
-sys_lib_dlsearch_path_spec=$lt_lt_cv_sys_lib_dlsearch_path_spec
+# Detected run-time system search path for libraries.
+sys_lib_dlsearch_path_spec=$lt_configure_time_dlsearch_path
+
+# Explicit LT_SYS_LIBRARY_PATH set during ./configure time.
+configure_time_lt_sys_library_path=$lt_configure_time_lt_sys_library_path
 
 # Whether dlopen is supported.
 dlopen_support=$enable_dlopen
@@ -27246,9 +27240,8 @@ compiler_lib_search_path=$lt_compiler_lib_search_path
 _LT_EOF
 
     cat <<'_LT_EOF' >> "$cfgfile"
-## -------------------------------------- ##
-## Shell functions shared with configure. ##
-## -------------------------------------- ##
+
+# ### BEGIN FUNCTIONS SHARED WITH CONFIGURE
 
 # func_munge_path_list VARIABLE PATH
 # -----------------------------------
@@ -27270,7 +27263,7 @@ func_munge_path_list ()
     x)
         ;;
     *:)
-        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'` \S|@1\"
+        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'` \$$1\"
         ;;
     x:*)
         eval $1=\"\$$1 `$ECHO $2 | $SED 's/:/ /g'`\"
@@ -27300,6 +27293,8 @@ func_cc_basename ()
     func_cc_basename_result=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
 }
 
+
+# ### END FUNCTIONS SHARED WITH CONFIGURE
 
 _LT_EOF
 

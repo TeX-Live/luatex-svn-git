@@ -1404,7 +1404,7 @@ Optional Features:
   --disable-web2c         do not build the web2c (TeX & Co.) package
   --enable-auto-core        cause TeX&MF to dump core, given a certain
                             filename
-  --disable-dump-share      make fmt/base/mem files architecture-dependent
+  --disable-dump-share      make fmt/base files architecture-dependent
   --disable-ipc             disable TeX's --ipc option, i.e., pipe to a
                             program
   --disable-tex             do not compile and install TeX
@@ -1441,7 +1441,7 @@ Optional Features:
   --enable-tektronixwin       include Tektronix window support
   --enable-unitermwin         include Uniterm window support
   --disable-web-progs       do not build WEB programs bibtex ... weave
-  --disable-synctex         do not build the SyncTeX tool
+  --disable-synctex         do not build the SyncTeX library and tool
   --disable-texlive       do not build the texlive (TeX Live scripts) package
   --disable-linked-scripts  do not install the linked scripts
   --disable-mktexmf-default   do not run mktexmf if MF source missing
@@ -3512,8 +3512,7 @@ fi
 if test "${enable_web_progs+set}" = set; then :
   enableval=$enable_web_progs;
 fi
-
-## configure option for the SyncTeX tool
+## configure option for the SyncTeX library and tool
 # Check whether --enable-synctex was given.
 if test "${enable_synctex+set}" = set; then :
   enableval=$enable_synctex;
