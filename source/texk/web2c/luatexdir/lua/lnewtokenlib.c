@@ -142,33 +142,33 @@ static void push_token(lua_State * L, int tok)
 }
 
 
-static int run_get_cs_offset(lua_State * L)
-{
-    lua_pushnumber(L, cs_token_flag);
-    return 1;
-}
+/* static int run_get_cs_offset(lua_State * L) */
+/* { */
+/*     lua_pushnumber(L, cs_token_flag); */
+/*     return 1; */
+/* } */
 
-static int run_get_command_id(lua_State * L)
-{
-    int cs = -1;
-    if (lua_isstring(L, -1)) {
-        cs = get_command_id(lua_tostring(L, -1));
-    }
-    lua_pushnumber(L, cs);
-    return 1;
-}
+/* static int run_get_command_id(lua_State * L) */
+/* { */
+/*     int cs = -1; */
+/*     if (lua_isstring(L, -1)) { */
+/*         cs = get_command_id(lua_tostring(L, -1)); */
+/*     } */
+/*     lua_pushnumber(L, cs); */
+/*     return 1; */
+/* } */
 
-static int run_get_csname_id(lua_State * L)
-{
-    const char *s;
-    size_t k, cs = 0;
-    if (lua_isstring(L, -1)) {
-        s = lua_tolstring(L, -1, &k);
-        cs = (size_t) string_lookup(s, k);
-    }
-    lua_pushnumber(L, (lua_Number) cs);
-    return 1;
-}
+/* static int run_get_csname_id(lua_State * L) */
+/* { */
+/*     const char *s; */
+/*     size_t k, cs = 0; */
+/*     if (lua_isstring(L, -1)) { */
+/*         s = lua_tolstring(L, -1, &k); */
+/*         cs = (size_t) string_lookup(s, k); */
+/*     } */
+/*     lua_pushnumber(L, (lua_Number) cs); */
+/*     return 1; */
+/* } */
 
 static int run_get_next(lua_State * L)
 {
@@ -342,12 +342,12 @@ static int lua_tokenlib_is_token(lua_State * L) /* HH */
 }
 
 
-static int run_expand(lua_State * L)
-{
-    (void) L;
-    expand();
-    return 0;
-}
+/* static int run_expand(lua_State * L) */
+/* { */
+/*     (void) L; */
+/*     expand(); */
+/*     return 0; */
+/* } */
 
 
 static int run_lookup(lua_State * L)

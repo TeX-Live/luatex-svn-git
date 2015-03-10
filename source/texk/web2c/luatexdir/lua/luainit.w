@@ -442,8 +442,8 @@ static void parse_options(int ac, char **av)
                  "aleph     by Giuseppe Bilotta\n"
                  "pdftex    by Han The Thanh and friends\n"
                  "kpathsea  by Karl Berry, Olaf Weber and others\n"
-                 "lua       by Roberto Ierusalimschy, Waldemar Celes,\n"
-                 "             Luiz Henrique de Figueiredo\n"
+                 "lua       by Roberto Ierusalimschy, Waldemar Celes\n"
+                 "             and Luiz Henrique de Figueiredo\n"
                  "metapost  by John Hobby, Taco Hoekwater and friends.\n"
                  "poppler   by Derek Noonburg, Kristian H\\ogsberg (partial)\n"
 #ifdef LuajitTeX
