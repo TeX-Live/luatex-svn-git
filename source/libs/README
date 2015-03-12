@@ -1,4 +1,4 @@
-$Id: README 36458 2015-03-08 10:37:01Z peter $
+$Id: README 36482 2015-03-11 09:31:39Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -9,7 +9,7 @@ bypassing or using the original one.
 
 See also comments in ../texk/README.
 
-cairo 1.14.0 - checked 15oct14
+cairo 1.14.2 - checked 11mar15
   http://cairographics.org/releases/
 
 freetype2 2.5.5 - checked 7jan15
@@ -37,7 +37,7 @@ libpng 1.6.16 - checked 22dec14
   http://www.libpng.org/ - used by many
   http://www.libpng.org/pub/png/pngcode.html
 
-lua 5.2.3 - checked 7dec13
+lua 5.2.3 - checked 11mar15
   http://www.lua.org/ftp/
 
 luajit 2.0.3 - checked 14mar14

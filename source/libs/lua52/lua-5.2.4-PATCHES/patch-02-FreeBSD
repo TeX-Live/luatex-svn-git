@@ -1,6 +1,6 @@
 diff -ur lua-5.2.4.orig/src/liolib.c lua-5.2.4/src/liolib.c
---- lua-5.2.4.orig/src/liolib.c	2015-03-10 10:39:31.687480876 +0100
-+++ lua-5.2.4/src/liolib.c	2015-03-10 10:45:41.611472094 +0100
+--- lua-5.2.4.orig/src/liolib.c	2013-04-12 20:48:47.000000000 +0200
++++ lua-5.2.4/src/liolib.c	2014-03-19 15:03:49.727286832 +0100
 @@ -19,6 +19,9 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -11,4 +11,3 @@ diff -ur lua-5.2.4.orig/src/liolib.c lua-5.2.4/src/liolib.c
  
  #define liolib_c
  #define LUA_LIB
-

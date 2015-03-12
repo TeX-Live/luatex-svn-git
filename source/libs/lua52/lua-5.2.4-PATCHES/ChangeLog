@@ -1,6 +1,8 @@
-2015-03-10  Luigi Scarso <luigi.scarso@gmail.com>
-	Import lua-5.2.4 
-	added a missed patch undump
+2015-03-11  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import lua-5.2.4/ from http://www.lua.org/ftp/lua-5.2.4.tar.gz.
+
+	* patch-01-utf-8, patch-02-FreeBSD, patch-03-export: Adapted.
 
 2014-10-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
 

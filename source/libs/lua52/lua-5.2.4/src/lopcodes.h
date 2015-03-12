@@ -278,7 +278,6 @@ LUA_API const lu_byte luaP_opmodes[NUM_OPCODES];
 #define testTMode(m)	(luaP_opmodes[m] & (1 << 7))
 
 
-
 LUA_API const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
 
 
