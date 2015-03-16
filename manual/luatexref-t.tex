@@ -7478,7 +7478,8 @@ table:
 \NC scan_glue    \NC mu-units           \NC returns a glue spec node \NC \NR
 \NC scan_toks    \NC definer, expand    \NC returns a table of tokens token list (this can become a linked list in later releases) \NC \NR
 \NC scan_code    \NC bitset             \NC returns a character if its category is in the given bitset (representing catcodes) \NC \NR
-\NC scan_string  \NC                    \NC returns a string given between \type {{}} or as \type {\macro} \NC \NR
+\NC scan_string  \NC                    \NC returns a string given between \type {{}}, as \type {\macro} or as sequence of characters with catcode 11 or 12 \NC \NR
+\NC scan_word    \NC                    \NC returns a sequence of characters with catcode 11 or 12 as string \NC \NR
 \NC create       \NC                    \NC returns a userdata token object of the given control sequence name (or character); this interface can change  \NC \NR
 \stoptabulate
 
@@ -7492,6 +7493,42 @@ are defining a macro, in which case the result will also provide information
 about what arguments are expected and in the result this is separated from the
 meaning by a separator token. The \type {expand} flag determines if the list will
 be expanded.
+
+The string scanner scans for something between curly braces and expands on the way,
+or when it sees a control sequence it will return its meaning. Otherwise it will
+scan characters with catcode \type {letter} or \type {other}. So, given the
+following definition:
+
+\startbuffer
+\def\bar{bar}
+\def\foo{foo-\bar}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+we get:
+
+\starttabulate[|l|Tl|l|]
+\NC \type{\directlua{newtoken.scan_string()}{foo}} \NC \directlua{context("{\\red\\type{"..newtoken.scan_string().."}}")} {foo} \NC full expansion \NR
+\NC \type{\directlua{newtoken.scan_string()}foo}   \NC \directlua{context("{\\red\\type{"..newtoken.scan_string().."}}")} foo   \NC letters and others \NR
+\NC \type{\directlua{newtoken.scan_string()}\foo}  \NC \directlua{context("{\\red\\type{"..newtoken.scan_string().."}}")}\foo   \NC meaning \NR
+\stoptabulate
+
+The \type {\foo} case only gives the meaning, but one can pass an already expanded
+definition (\type {\edef}'d). In the case of the braced variant one can of course
+use the \type {\detokenize} and \type {\unexpanded} primitives as there we do
+expand.
+
+The \type {scan_word} scanner can be used to implement for instance a number scanner:
+
+\starttyping
+function newtokens.scan_number(base)
+    return tonumber(newtoken.scan_word(),base)
+end
+\stoptyping
+
+This scanner accepts any valid \LUA\ number so it is a way to pick up floats
+in the input.
 
 The creator function can be used as follows:
 

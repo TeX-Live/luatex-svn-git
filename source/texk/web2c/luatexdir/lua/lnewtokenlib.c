@@ -296,11 +296,61 @@ static int run_scan_string(lua_State * L) /* HH */
         (void) scan_toks(false, true);
         t = def_ref;
         def_ref = saved_defref;
-    } else {
+        tokenlist_to_luastring(L,t);
+    } else if (cur_cmd == call_cmd) {
         t = token_link(cur_chr);
+        tokenlist_to_luastring(L,t);
+    } else {
+        if (cur_cmd == 11 || cur_cmd == 12 ) {
+            char * str ;
+            luaL_Buffer b ;
+            luaL_buffinit(L,&b) ;
+            while (1) {
+                str = (char *) uni2str(cur_chr);
+                luaL_addstring(&b,(char *) str);
+                get_token();
+                if (cur_cmd != 11 && cur_cmd != 12 ) {
+                    break ;
+                }
+            }
+            back_input();
+            luaL_pushresult(&b);
+        } else {
+            back_input();
+            lua_pushnil(L);
+        }
     }
     unsave_tex_scanner(texstate);
-    tokenlist_to_luastring(L,t);
+    return 1;
+}
+
+static int run_scan_word(lua_State * L) /* HH */
+{
+    saved_tex_scanner texstate;
+    save_tex_scanner(texstate);
+    do {
+        get_x_token();
+    } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+    if (cur_cmd == 11 || cur_cmd == 12 ) {
+        char *str ;
+        luaL_Buffer b ;
+        luaL_buffinit(L,&b) ;
+        while (1) {
+            str = (char *) uni2str(cur_chr);
+            luaL_addstring(&b,str);
+            xfree(str); 
+            get_x_token();
+            if (cur_cmd != 11 && cur_cmd != 12 ) {
+                break ;
+            }
+        }
+        back_input();
+        luaL_pushresult(&b);
+    } else {
+        back_input();
+        lua_pushnil(L);
+    }
+    unsave_tex_scanner(texstate);
     return 1;
 }
 
@@ -649,6 +699,7 @@ static const struct luaL_Reg tokenlib[] = {
     {"scan_toks", run_scan_toks},
     {"scan_code", run_scan_code},
     {"scan_string", run_scan_string},
+    {"scan_word", run_scan_word},
     {"type", lua_tokenlib_type},
     {"create", run_build},
     {"scan_token", run_scan_token}, /* expands next token if needed */
