@@ -288,7 +288,7 @@ static int run_scan_string(lua_State * L) /* HH */
     halfword t, saved_defref;
     save_tex_scanner(texstate);
     do {
-        get_token();
+        get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
     if (cur_cmd == left_brace_cmd) {
         back_input();
@@ -308,7 +308,7 @@ static int run_scan_string(lua_State * L) /* HH */
             while (1) {
                 str = (char *) uni2str(cur_chr);
                 luaL_addstring(&b,(char *) str);
-                get_token();
+                get_x_token();
                 if (cur_cmd != 11 && cur_cmd != 12 ) {
                     break ;
                 }
@@ -338,7 +338,7 @@ static int run_scan_word(lua_State * L) /* HH */
         while (1) {
             str = (char *) uni2str(cur_chr);
             luaL_addstring(&b,str);
-            xfree(str); 
+            xfree(str);
             get_x_token();
             if (cur_cmd != 11 && cur_cmd != 12 ) {
                 break ;
