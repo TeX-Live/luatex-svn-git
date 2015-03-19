@@ -1,3 +1,6 @@
+2015-03-19 Luigi Scarso <luigi.scarso@gmail.com>
+	newtoken lib; several bug fixed.
+
 2015-01-14 Luigi Scarso <luigi.scarso@gmail.com>
 
 	tex/mlist.w: mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)

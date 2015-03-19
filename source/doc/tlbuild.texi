@@ -1,8 +1,8 @@
 \input texinfo
 @setfilename tlbuild.info
 
-@set version 2014
-@set month-year May 2014
+@set version 2015
+@set month-year May 2015
 
 @set mytitle Building @TeX{} Live (@value{version})
 @settitle @value{mytitle}
@@ -14,7 +14,7 @@
 @copying
 This file documents the @TL{} build system and more.
 
-Copyright @copyright{} 2013, 2014 Karl Berry & Peter Breitenlohner.
+Copyright @copyright{} 2013, 2014, 2015 Karl Berry & Peter Breitenlohner.
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -344,11 +344,10 @@ to be done unless some source files have been modified.
 @cindex problems with build
 @cindex failure to build
 @vindex --no-clean Build @r{option}
-If configuring or building a module fails, you could either
-(a)@tie{}find and fix the problem, or (b)@tie{}remove the subdirectory
-for that module from the build tree, and rerun the top-level
-@code{make} (or @file{Build} with @code{--no-clean} as its first
-argument).
+If configuring or building a module fails, you should first find and fix the
+problem, then perhaps remove the subdirectory for that module from the build
+tree, and finally rerun the top-level @code{make} (or @file{Build} with
+@code{--no-clean} as its first argument).
 
 
 @node Build in parallel
@@ -414,7 +413,7 @@ e-@TeX{}).
 
 If you want to work on a single program within the TL sources, this is
 the recommended way to do it.  Here is an example from start to
-finish for working on @code{dvipdfmx}.
+finish for working on @code{dvipdfm-x}.
 
 @example
 mkdir mydir && cd mydir  # new working directory
@@ -434,7 +433,7 @@ mkdir Work && cd Work
 make >&outm
 
 # Test:
-cd texk/dvipdfmx
+cd texk/dvipdfm-x
 make check
 @end example
 
@@ -960,14 +959,14 @@ that provides make variables for that library.  E.g., for
 Provide the configure option @code{--with-system-libpng}.  Set and
 @code{AC_SUBST} @code{make} variables for modules using this library (either
 an installed version or from the @TL{} tree): @code{LIBPNG_INCLUDES} for use
-in CPPFLAGS, @code{LIBPNG_LIBS} for use in LDADD, @code{LIBPNG_DEPEND} for
-use as dependency, and @code{LIBPNG_RULE} defining @code{make} rules to
-rebuild the library.
+in @code{CPPFLAGS}, @code{LIBPNG_LIBS} for use in @code{LDADD},
+@code{LIBPNG_DEPEND} for use as dependency, and @code{LIBPNG_RULE} defining
+@code{make} rules to rebuild the library.
 @end defmac
 
 @defmac KPSE_ADD_FLAGS (@var{name})
-Temporarily extend CPPFLAGS and LIBS with the values required for the
-library module @code{@var{name}}.
+Temporarily extend @code{CPPFLAGS} and @code{LIBS} with the values required
+for the library module @code{@var{name}}.
 @end defmac
 
 @defmac KPSE_RESTORE_FLAGS
@@ -1078,9 +1077,10 @@ structure and variation.
 
 @pindex png @r{library}
 @pindex libpng @r{library}
+@set libpngversion libpng-1.6.16
 This generic library uses the source tree in, e.g., the subdirectory
-@file{libpng-1.5.17} with all modifications for TL recorded in
-@file{libpng-1.5.17-PATCHES/*}.  The @file{configure.ac} fragment
+@file{@value{libpngversion}} with all modifications for TL recorded in
+@file{@value{libpngversion}-PATCHES/*}.  The @file{configure.ac} fragment
 @file{ac/withenable.ac} contains
 
 @example
@@ -1184,11 +1184,10 @@ distributed by @TeX{} user groups, and have never been officially
 released for standalone use.
 
 @pindex --with-system-kpathsea
-It is possible, and possibly even useful for distro builds
-(@pxref{Distro builds}), to specify the configure option
-@code{--with-system-kpathsea} in order to use a system version of the
-library and it may then be necessary to specify
-@code{--with-kpathsea-includes} and/or @code{--with-kpathsea-libdir}.
+It is possible, and perhaps even useful for distro builds (@pxref{Distro
+builds}), to specify the configure option @code{--with-system-kpathsea} in
+order to use a system version of the library.  Programs outside the TL tree
+should use @code{pkg-config} for the required flags.
 
 @pindex kpathsea.ac
 @pindex mktex.ac
@@ -1224,11 +1223,12 @@ details for a few of the programs in TL.
 @subsection The @code{t1utils} package in @file{utils/t1utils}
 
 @pindex t1utils @r{package}
+@set t1utilsversion t1utils-1.39
 
-Once again we use the distributed source tree @file{t1utils-1.38} with
-modifications documented in @file{t1utils-1.38-PATCHES/*} and a proxy
-build system consisting of @file{configure.ac} and @file{Makefile.am}.
-The fragment @file{ac/withenable.ac} contains
+Once again we use the distributed source tree @file{@value{t1utilsversion}}
+with modifications documented in @file{@value{t1utilsversion}-PATCHES/*} and
+a proxy build system consisting of @file{configure.ac} and
+@file{Makefile.am}.  The fragment @file{ac/withenable.ac} contains
 
 @example
 KPSE_ENABLE_PROG([t1utils])
@@ -1242,15 +1242,15 @@ supplies the configure option @code{--disable-t1utils}.
 @subsection The @code{xindy} package in @file{utils/xindy}
 
 @pindex xindy
+@set xindyversion xindy-2.5.1
 
-This module uses the distributed source tree @file{xindy-2.4} with
-modifications documented in @file{xindy-2.4-PATCHES/*}, a proxy
-@file{configure.ac}, and a wrapper @file{Makefile.am} that descends
-into @file{xindy-2.4}.  The @code{xindy} build requires that the
-distributed @file{Makefile}s allow a @code{VPATH} build, can handle
-all targets, and do not refer to @code{$@{top_srcdir@}} or
-@code{$@{top_builddir@}}.  The fragment @code{ac/withenable.ac}
-contains
+This module uses the distributed source tree @file{@value{xindyversion}}
+with modifications documented in @file{@value{xindyversion}-PATCHES/*}, a
+proxy @file{configure.ac}, and a wrapper @file{Makefile.am} that descends
+into @file{@value{xindyversion}}.  The @code{xindy} build requires that the
+distributed @file{Makefile}s allow a @code{VPATH} build, can handle all
+targets, and do not refer to @code{$@{top_srcdir@}} or
+@code{$@{top_builddir@}}.  The fragment @code{ac/withenable.ac} contains
 
 @example
 KPSE_ENABLE_PROG([xindy], , [disable native])
@@ -1816,8 +1816,8 @@ in @file{texk/web2c/ac/web2c.ac}.
 @pindex bibtex8
 @pindex bibtexu
 @pindex bibtex-x
-The former programs @code{bibtex8} and @code{bibtexu} have been merged
-into the module @code{bibtex-x} (extended Bib@TeX{}).
+The programs @code{bibtex8} and @code{bibtexu} have been merged into the
+module @code{bibtex-x} (extended Bib@TeX{}).
 
 @vindex --disable-bibtex8
 @noindent @code{--disable-bibtex8}@*Do not build the @file{bibtex8} program.
@@ -1843,11 +1843,11 @@ different) behavior.
 
 @vindex --disable-dvipdfmx
 @noindent @code{--disable-dvipdfmx}@*Do not build the @file{dvipdfmx}
-program or create the @file{dvipdfm} symlink.
+program with the @file{dvipdfm} symlink.
 
 @vindex --disable-xdvipdfmx
 @noindent @code{--disable-xdvipdfmx}@*Do not build the @file{xdvipdfmx}
-program (building @file{xdvipdfmx} requires the @code{freetype} library).
+program.
 
 
 @node Configure options for @file{texk/dvisvgm}

@@ -752,8 +752,6 @@ with_system_zlib
 with_zlib_includes
 with_zlib_libdir
 with_system_kpathsea
-with_kpathsea_includes
-with_kpathsea_libdir
 enable_mktexmf_default
 enable_mktexpk_default
 enable_mktextfm_default
@@ -1492,11 +1490,8 @@ Optional Packages:
   --with-zlib-includes=DIR
                           zlib headers installed in DIR
   --with-zlib-libdir=DIR  zlib library installed in DIR
-  --with-system-kpathsea  use installed kpathsea headers and library
-  --with-kpathsea-includes=DIR
-                          kpathsea headers installed in DIR
-  --with-kpathsea-libdir=DIR
-                          kpathsea library installed in DIR
+  --with-system-kpathsea  use installed kpathsea headers and library (requires
+                          pkg-config)
 
 Some influential environment variables:
   CC          C compiler command
@@ -3818,16 +3813,6 @@ fi
 # Check whether --with-system-kpathsea was given.
 if test "${with_system_kpathsea+set}" = set; then :
   withval=$with_system_kpathsea;
-fi
-
-# Check whether --with-kpathsea-includes was given.
-if test "${with_kpathsea_includes+set}" = set; then :
-  withval=$with_kpathsea_includes;
-fi
-
-# Check whether --with-kpathsea-libdir was given.
-if test "${with_kpathsea_libdir+set}" = set; then :
-  withval=$with_kpathsea_libdir;
 fi
 if test "x$with_system_kpathsea" = x; then
   if test -f $srcdir/../texk/kpathsea/configure; then
