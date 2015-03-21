@@ -2609,7 +2609,6 @@ can readily be obtained with the ratio method (Algorithm 3.4.1R in
 that stays as reference:
 Now each number system has its own implementation,
 true to the original as much as possibile.
-.
 
 @c
 /*  Unused.
