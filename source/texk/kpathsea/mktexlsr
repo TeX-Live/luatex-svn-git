@@ -10,7 +10,7 @@
 # Originally written as `texhash' by Thomas Esser, Okt., 1994.
 # Public domain.
 
-version='$Id: mktexlsr 34656 2014-07-18 23:38:50Z karl $'
+version='$Id: mktexlsr 36626 2015-03-25 22:51:45Z karl $'
 progname=`echo $0 | sed 's%.*/%%'`
 
 usage="Usage: $progname [OPTION]... [DIR]...
@@ -73,7 +73,7 @@ if tty -s; then verbose=true; else verbose=false; fi
 dry_run=false
 trees=
 
-treefile="${TMPDIR-/tmp}/mktexlsrtrees$$.tmp"
+treefile=`mktemp --tmpdir mktexlsrtrees.XXXXXXXXXX` || exit 1
 trap 'cd /; rm -f $treefile; test -z "$db_dir_tmp" || rm -rf "$db_dir_tmp"; 
       exit' 0 1 2 3 7 13 15
 
