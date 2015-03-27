@@ -120,18 +120,11 @@ there will not be backward-incompatible changes any more.
 
 There are three new primitives to test the version of \LUATEX:
 
-\starttabulate[|l|p|]
-\NC \bf primitive         \NC \bf explanation \NC\NR
-\NC \tex{luatexversion}   \NC a combination of major and minor number, as in \PDFTEX;
-                              the current current value is {\bf\the\luatexversion} \NC\NR
-\NC \tex{luatexrevision}  \NC the revision number, as in \PDFTEX;
-                              the current value is {\bf\luatexrevision} \NC\NR
-\NC \tex{luatexdatestamp} \NC (deprecated in 0.78.1, will be gone in 0.80.0)
-                              a combination of the local date and hour when
-                              the current executable was compiled,
-                              the syntax is identical to \tex{luatexrevision};
-                              the value for the executable that generated this
-                              document is {\bf\luatexdatestamp}. \NC\NR
+\starttabulate[|l|p|p|]
+\NC \bf primitive        \NC \bf explanation                            \NC \bf value          \NC \NR
+\NC \tex{luatexbanner}   \NC the banner as reported on the command line \NC \luatexbanner      \NC \NR
+\NC \tex{luatexversion}  \NC a combination of major and minor number    \NC \the\luatexversion \NC \NR
+\NC \tex{luatexrevision} \NC the revision number, the current value is  \NC \luatexrevision    \NC \NR
 \stoptabulate
 
 The official \LUATEX\ version is defined as follows:
@@ -6393,10 +6386,9 @@ tex.eTeXVersion
 tex.eTeXrevision
 tex.formatname
 tex.jobname
+tex.luatexbanner
 tex.luatexrevision
 tex.pdfnormaldeviate
-tex.pdftexbanner
-tex.pdftexrevision
 tex.fontname(number)
 tex.pdffontname(number)
 tex.pdffontobjnum(number)
@@ -6418,6 +6410,26 @@ value.
 The special (lua-only) case of \type{tex.fontidentifier} returns the
 \type{csname} string that matches a font id number (if there is one).
 
+The \PDFTEX\ related primitives will be removed from versions after 0.80. All the
+version related details are available in the \type {status} table at the \LUA\
+end, for instance one can say:
+
+\starttyping
+\let\pdftexbanner  \luatexbanner
+\let\pdftexversion \luatexversion
+\let\pdftexrevision\luatexrevision
+\stoptyping
+
+% or maybe in the future:
+%
+% \starttyping
+% \def\pdftexbanner  {\directlua{tex.write(status.banner)}}
+% \def\pdftexversion {\directlua{tex.write(status.luatex_version}}
+% \def\pdftexrevision{\directlua{tex.write(status.luatex_revision}}
+% \stoptyping
+
+if these are really needed in a macro package.
+
 \subsection{Last item commands}
 
 All \quote{last item} commands are read|-|only and return a number.
@@ -6431,7 +6443,6 @@ tex.lastkern
 tex.lastskip
 tex.lastnodetype
 tex.inputlineno
-tex.pdftexversion
 tex.pdflastobj
 tex.pdflastxform
 tex.pdflastximage
