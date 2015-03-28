@@ -126,6 +126,13 @@ void*           zzip_realdir(ZZIP_DIR * dir);
 _zzip_export
 int             zzip_realfd(ZZIP_FILE * fp);
 
+
+/*
+ * returns the refcount
+ */
+_zzip_export
+int            zzip_dir_refcount(ZZIP_DIR *); 
+
 /*
  * zip handle management
  * zzip/zip.c
