@@ -19,3 +19,21 @@ diff -ur zziplib-0.13.62.orig/zzip/zip.c zziplib-0.13.62/zzip/zip.c
  /**
   * will free the zzip_dir handle unless there are still
   * zzip_files attached (that may use its cache buffer).
+
+
+--- zziplib-0.13.62.orig/zzip/zzip.h	2015-03-28 10:14:06.643268485 +0100
++++ zziplib-0.13.62/zzip/zzip.h         2015-03-28 10:13:41.231267431 +0100
+@@ -126,6 +126,13 @@
+ _zzip_export
+ int             zzip_realfd(ZZIP_FILE * fp);
+ 
++
++/*
++ * returns the refcount
++ */
++_zzip_export
++int            zzip_dir_refcount(ZZIP_DIR *); 
++
+ /*
+  * zip handle management
+  * zzip/zip.c
