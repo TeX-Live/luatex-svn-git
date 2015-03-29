@@ -1,4 +1,4 @@
-% $Id: mpmath.w 2037 2014-09-02 14:59:07Z luigi $
+% $Id: mpmath.w 2057 2015-03-20 01:33:59Z luigi $
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
