@@ -2018,8 +2018,8 @@ static halfword handle_lig_word(halfword cur)
                         /* Building an |init_disc| followed by a |select_disc|
                           \.{{a-}{b}{AB} {-}{}{}} 'c'
                          */
-                        /* becareful: tail is a macro ! */
-                        halfword last1 = vlink(next), tail; 
+                        /* is it tail necessary ? */
+                        halfword last1 = vlink(next), tail ; 
                         uncouple_node(next);
                         try_couple_nodes(fwd, last1);
                         /* \.{{a-}{b}{AB} {-}{c}{}} */
