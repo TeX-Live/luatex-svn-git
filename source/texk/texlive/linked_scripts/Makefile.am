@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/texlive/linked_scripts/
 ##
-## Copyright (C) 2009-2014 Peter Breitenlohner <tex-live@tug.org>
+## Copyright (C) 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 ## TeX Live's extra scripts.
@@ -164,9 +164,12 @@ texmf_other_scripts = \
 	texdiff/texdiff \
 	texdirflatten/texdirflatten \
 	texfot/texfot.pl \
+	texlive/fmtutil.pl \
+	texlive/fmtutil-sys.sh \
 	texlive/rungs.tlu \
 	texlive/tlmgr.pl \
 	texlive/updmap.pl \
+	texlive/updmap-sys.sh \
 	texliveonfly/texliveonfly.py \
 	texloganalyser/texloganalyser \
 	thumbpdf/thumbpdf.pl \
@@ -230,7 +233,7 @@ if WIN32
 	done
 	$(INSTALL_SCRIPT) $(top_srcdir)/$(WIN_WRAPPER)/runscript.dll $(DESTDIR)$(bindir)
 	$(INSTALL_SCRIPT) $(top_srcdir)/$(WIN_WRAPPER)/runscript.exe $(DESTDIR)$(bindir)
-	$(INSTALL_SCRIPT) $(top_srcdir)/$(WIN_WRAPPER)/runscript.tlu $(DESTDIR)$(bindir)
+	$(INSTALL_SCRIPT) $(top_srcdir)/w32_wrapper/runscript.tlu $(DESTDIR)$(bindir)
 	@for s in $(texmf_context_scripts); do \
 	  t=`basename $$s | sed 's,\.[^/]*$$,,' | tr '[A-Z]' '[a-z]'`; \
 	  echo "$(INSTALL_SCRIPT) '$(ctxscript)' '$(DESTDIR)$(bindir)/$$t.exe'"; \

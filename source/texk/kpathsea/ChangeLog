@@ -1,3 +1,23 @@
+2015-04-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Test if isascii is declared.
+	* c-ctype.h: Correctly define isascii, if not declared.
+
+2015-04-14  Norbert Preining  <norbert@preining.info>
+
+	* mktexlsr (treefile): switch back to hard-coded path, as
+	indeed it seems there are several systems without support for
+	mktemp --tmpdir, just mktemp. TL2015 pretest emails.
+
+2015-04-12  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf: update for TL'15.
+	(shell_escape_commands): include extractbb, fingers crossed.
+
+2015-04-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* version.ac: 6.2.1 (without the dev) for 2015 pretest.
+
 2015-03-25  Karl Berry  <karl@tug.org>
 
 	* mktexlsr (treefile): use shell mktemp; patch from Debian
