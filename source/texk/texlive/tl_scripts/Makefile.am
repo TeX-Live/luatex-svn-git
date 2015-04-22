@@ -1,6 +1,6 @@
 ## Makefile.am for the TeX Live subdirectory texk/texlive/tl_scripts/
 ##
-## Copyright 2013-2014 Karl Berry <tex-live@tug.org>
+## Copyright 2013-2015 Karl Berry <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
 ## Build lists of scripts.
@@ -24,13 +24,11 @@ EXTRA_DIST = scripts.lst
 
 # These first variable definitions are what scripts_links.am requires.
 perl_scripts = e2pall
-shell_scripts = fmtutil-sys updmap-sys
 sh_scripts = \
 	allcm \
 	allneeded \
 	dvi2fax \
 	dvired \
-	fmtutil \
 	fontinst \
 	kpsetool \
 	kpsewhere \
@@ -48,9 +46,9 @@ scriptsdir = texmf-dist/scripts/texlive
 include $(top_srcdir)/../../am/script_links.am
 #
 texmfdir = $(datarootdir)/$(scriptsdir)
-dist_texmf_SCRIPTS = $(perl_scripts:=.pl) $(shell_scripts:=.sh) $(sh_scripts:=.sh)
+dist_texmf_SCRIPTS = $(perl_scripts:=.pl) $(sh_scripts:=.sh)
 
-install-data-hook: install-bin-links install-man1-links install-perl-links install-shell-links install-sh-links
+install-data-hook: install-bin-links install-man1-links install-perl-links install-sh-links
 uninstall-hook: uninstall-bin-links uninstall-man1-links uninstall-links
 
 dist_man_MANS = \
@@ -100,16 +98,19 @@ dist_texconfig_DATA = tcfmgr.map
 web2cdir = $(datarootdir)/texmf-dist/web2c
 dist_web2c_DATA = fmtutil.cnf
 
-## Generate the updmap man page using help2man plus a bit of
-## handwritten material.  But don't actually update updmap.1,
+## Generate the updmap/fmtutil man page using help2man plus a bit of
+## handwritten material.  But don't actually update updmap/fmtutil.1,
 ## we don't want to require help2man for an install.  Leave that to be
 ## done by hand.
-.PHONY: xupdmap.1
-updmap_dir = $(top_srcdir)/linked_scripts/texlive
-xupdmap.1: updmap.help2man $(updmap_dir)/updmap.pl
+.PHONY: xupdmap.1 xfmtutil.1
+linked_scripts_dir = $(top_srcdir)/linked_scripts/texlive
+xupdmap.1: updmap.help2man $(linked_scripts_dir)/updmap.pl
 	help2man --include=$< --source="TeX Live" --no-info \
-	  $(updmap_dir)/updmap.pl >/tmp/$@
-EXTRA_DIST += updmap.help2man
+	  $(linked_scripts_dir)/updmap.pl >/tmp/$@
+xfmtutil.1: fmtutil.help2man $(linked_scripts_dir)/fmtutil.pl
+	help2man --include=$< --source="TeX Live" --no-info \
+	  $(linked_scripts_dir)/fmtutil.pl >/tmp/$@
+EXTRA_DIST += updmap.help2man fmtutil.help2man
 
 
 ## 
@@ -139,6 +140,5 @@ $(DESTDIR)$(web2cdir)/fmtutil.cnf:
 ## 
 ## This target is invoked by check-wrapper-consistency (run from cron).
 .PHONY: echo-shell-scripts
-all_shell_scripts = $(shell_scripts) $(sh_scripts)
 echo-shell-scripts:
-	@echo $(all_shell_scripts)
+	@echo $(sh_scripts)
