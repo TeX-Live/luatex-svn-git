@@ -120,18 +120,11 @@ there will not be backward-incompatible changes any more.
 
 There are three new primitives to test the version of \LUATEX:
 
-\starttabulate[|l|p|]
-\NC \bf primitive         \NC \bf explanation \NC\NR
-\NC \tex{luatexversion}   \NC a combination of major and minor number, as in \PDFTEX;
-                              the current current value is {\bf\the\luatexversion} \NC\NR
-\NC \tex{luatexrevision}  \NC the revision number, as in \PDFTEX;
-                              the current value is {\bf\luatexrevision} \NC\NR
-\NC \tex{luatexdatestamp} \NC (deprecated in 0.78.1, will be gone in 0.80.0)
-                              a combination of the local date and hour when
-                              the current executable was compiled,
-                              the syntax is identical to \tex{luatexrevision};
-                              the value for the executable that generated this
-                              document is {\bf\luatexdatestamp}. \NC\NR
+\starttabulate[|l|p|p|]
+\NC \bf primitive        \NC \bf explanation                            \NC \bf value          \NC \NR
+\NC \tex{luatexbanner}   \NC the banner as reported on the command line \NC \luatexbanner      \NC \NR
+\NC \tex{luatexversion}  \NC a combination of major and minor number    \NC \the\luatexversion \NC \NR
+\NC \tex{luatexrevision} \NC the revision number, the current value is  \NC \luatexrevision    \NC \NR
 \stoptabulate
 
 The official \LUATEX\ version is defined as follows:
@@ -6393,10 +6386,9 @@ tex.eTeXVersion
 tex.eTeXrevision
 tex.formatname
 tex.jobname
+tex.luatexbanner
 tex.luatexrevision
 tex.pdfnormaldeviate
-tex.pdftexbanner
-tex.pdftexrevision
 tex.fontname(number)
 tex.pdffontname(number)
 tex.pdffontobjnum(number)
@@ -6418,6 +6410,26 @@ value.
 The special (lua-only) case of \type{tex.fontidentifier} returns the
 \type{csname} string that matches a font id number (if there is one).
 
+The \PDFTEX\ related primitives will be removed from versions after 0.80. All the
+version related details are available in the \type {status} table at the \LUA\
+end, for instance one can say:
+
+\starttyping
+\let\pdftexbanner  \luatexbanner
+\let\pdftexversion \luatexversion
+\let\pdftexrevision\luatexrevision
+\stoptyping
+
+% or maybe in the future:
+%
+% \starttyping
+% \def\pdftexbanner  {\directlua{tex.write(status.banner)}}
+% \def\pdftexversion {\directlua{tex.write(status.luatex_version}}
+% \def\pdftexrevision{\directlua{tex.write(status.luatex_revision}}
+% \stoptyping
+
+if these are really needed in a macro package.
+
 \subsection{Last item commands}
 
 All \quote{last item} commands are read|-|only and return a number.
@@ -6431,7 +6443,6 @@ tex.lastkern
 tex.lastskip
 tex.lastnodetype
 tex.inputlineno
-tex.pdftexversion
 tex.pdflastobj
 tex.pdflastxform
 tex.pdflastximage
@@ -7478,7 +7489,8 @@ table:
 \NC scan_glue    \NC mu-units           \NC returns a glue spec node \NC \NR
 \NC scan_toks    \NC definer, expand    \NC returns a table of tokens token list (this can become a linked list in later releases) \NC \NR
 \NC scan_code    \NC bitset             \NC returns a character if its category is in the given bitset (representing catcodes) \NC \NR
-\NC scan_string  \NC                    \NC returns a string given between \type {{}} or as \type {\macro} \NC \NR
+\NC scan_string  \NC                    \NC returns a string given between \type {{}}, as \type {\macro} or as sequence of characters with catcode 11 or 12 \NC \NR
+\NC scan_word    \NC                    \NC returns a sequence of characters with catcode 11 or 12 as string \NC \NR
 \NC create       \NC                    \NC returns a userdata token object of the given control sequence name (or character); this interface can change  \NC \NR
 \stoptabulate
 
@@ -7492,6 +7504,42 @@ are defining a macro, in which case the result will also provide information
 about what arguments are expected and in the result this is separated from the
 meaning by a separator token. The \type {expand} flag determines if the list will
 be expanded.
+
+The string scanner scans for something between curly braces and expands on the way,
+or when it sees a control sequence it will return its meaning. Otherwise it will
+scan characters with catcode \type {letter} or \type {other}. So, given the
+following definition:
+
+\startbuffer
+\def\bar{bar}
+\def\foo{foo-\bar}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+we get:
+
+\starttabulate[|l|Tl|l|]
+\NC \type{\directlua{newtoken.scan_string()}{foo}} \NC \directlua{context("{\\red\\type{"..newtoken.scan_string().."}}")} {foo} \NC full expansion \NR
+\NC \type{\directlua{newtoken.scan_string()}foo}   \NC \directlua{context("{\\red\\type{"..newtoken.scan_string().."}}")} foo   \NC letters and others \NR
+\NC \type{\directlua{newtoken.scan_string()}\foo}  \NC \directlua{context("{\\red\\type{"..newtoken.scan_string().."}}")}\foo   \NC meaning \NR
+\stoptabulate
+
+The \type {\foo} case only gives the meaning, but one can pass an already expanded
+definition (\type {\edef}'d). In the case of the braced variant one can of course
+use the \type {\detokenize} and \type {\unexpanded} primitives as there we do
+expand.
+
+The \type {scan_word} scanner can be used to implement for instance a number scanner:
+
+\starttyping
+function newtokens.scan_number(base)
+    return tonumber(newtoken.scan_word(),base)
+end
+\stoptyping
+
+This scanner accepts any valid \LUA\ number so it is a way to pick up floats
+in the input.
 
 The creator function can be used as follows:
 

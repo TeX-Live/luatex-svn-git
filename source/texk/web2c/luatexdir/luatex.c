@@ -27,10 +27,10 @@
 #define TeX
 
 int luatex_svn = luatex_svn_revision;
-int luatex_version = 79;        /* \.{\\luatexversion}  */
-int luatex_revision = '4';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2015012200;     /* the compile date is now hardwired */
-const char *luatex_version_string = "beta-0.79.4";
+int luatex_version = 80;        /* \.{\\luatexversion}  */
+int luatex_revision = '1';      /* \.{\\luatexrevision}  */
+int luatex_date_info = 2015042200;     /* the compile date is now hardwired */
+const char *luatex_version_string = "beta-0.80.1";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
@@ -442,7 +442,7 @@ string dump_name;
 /* The C version of the jobname, if given. */
 const_string c_job_name;
 
-const char *ptexbanner;
+const char *luatex_banner;
 
 #ifdef _MSC_VER
 /* Invalid parameter handler */

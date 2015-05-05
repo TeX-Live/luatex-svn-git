@@ -1,6 +1,6 @@
 % luainit.w
 %
-% Copyright 2006-2014 Taco Hoekwater <taco@@luatex.org>
+% Copyright 2006-2015 Taco Hoekwater <taco@@luatex.org>
 %
 % This file is part of LuaTeX.
 %
@@ -422,10 +422,10 @@ static void parse_options(int ac, char **av)
                  "any later version. For more information about these matters, see the file\n"
                  "named COPYING and the LuaTeX source.\n\n"
 #ifdef LuajitTeX
-                 "LuaTeX is Copyright 2014 Taco Hoekwater, the LuaTeX Team.\n"
+                 "LuaTeX is Copyright 2015 Taco Hoekwater, the LuaTeX Team.\n"
                  "Libraries and JIT extensions by Luigi Scarso, the LuaTeX SwigLib team.\n");
 #else
-                 "Copyright 2014 Taco Hoekwater, the LuaTeX Team.\n");
+                 "Copyright 2015 Taco Hoekwater, the LuaTeX Team.\n");
 #endif
             /* *INDENT-ON* */
             uexit(0);
@@ -852,6 +852,7 @@ static void mk_suffixlist(void)
 }
 #endif
 
+
 @ @c
 void lua_initialize(int ac, char **av)
 {
@@ -882,8 +883,7 @@ void lua_initialize(int ac, char **av)
         banner = xmalloc(len);
         sprintf(banner, fmt, luatex_version_string, luatex_svn);
     }
-    ptexbanner = banner;
-
+    luatex_banner = banner;
     kpse_invocation_name = kpse_program_basename(argv[0]);
 
     /* be 'luac' */

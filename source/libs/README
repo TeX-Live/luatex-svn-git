@@ -1,4 +1,4 @@
-$Id: README 36458 2015-03-08 10:37:01Z peter $
+$Id: README 36780 2015-04-12 11:50:46Z peter $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -9,7 +9,7 @@ bypassing or using the original one.
 
 See also comments in ../texk/README.
 
-cairo 1.14.0 - checked 15oct14
+cairo 1.14.2 - checked 11mar15
   http://cairographics.org/releases/
 
 freetype2 2.5.5 - checked 7jan15
@@ -24,20 +24,20 @@ gmp 6.0.0 - checked 25mar14
 graphite2 1.2.4 - checked 2dec13
   http://sourceforge.net/projects/silgraphite/files/graphite2/
 
-harfbuzz 0.9.39 - checked 5mar15
+harfbuzz 0.9.40 - checked 21mar15
   http://www.freedesktop.org/software/harfbuzz/release/
 
-icu 54.1 (release) - checked 2oct14
+icu 55.1 (release) - checked 12apr15
   http://download.icu-project.org/files/icu4c/
 
 libpaper 1.1.24+nmu2 - checked 24oct13
   ftp://ftp.de.debian.org/debian/pool/main/libp/libpaper/
 
-libpng 1.6.16 - checked 22dec14
+libpng 1.6.17 - checked 27mar15
   http://www.libpng.org/ - used by many
   http://www.libpng.org/pub/png/pngcode.html
 
-lua 5.2.3 - checked 7dec13
+lua 5.2.3 - checked 11mar15
   http://www.lua.org/ftp/
 
 luajit 2.0.3 - checked 14mar14
@@ -52,7 +52,7 @@ pixman 0.32.6 - checked 7jul14
 poppler 0.32.0 - checked 8mar15
   http://poppler.freedesktop.org/ - used by luatex and xetex
 
-potrace 1.11 - checked 12apr13
+potrace 1.12 - checked 27mar15
   http://potrace.sourceforge.net
 
 teckit 2.5.4 - checked 18jul14

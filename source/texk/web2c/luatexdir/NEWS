@@ -2,7 +2,25 @@
 This file is in the public domain.
 
 ==============================================================
-Luatex beta-0.79.3 was released 20150121 (5120)
+Luatex beta-0.80.0 was released 20150319 (5195)
+==============================================================
+
+* New library newtokenlib. It will replace the current token lib.
+* Fixed a bug on the normal random generator for double/decimal/binary
+  number systems.
+* Several others bugs fixed.
+
+
+==============================================================
+Luatex beta-0.79.3.1 was released 20150122 (5140)
+==============================================================
+
+* Fixed a bug in  mp.w with a wrong input that gives a seg. fault.
+
+
+
+==============================================================
+Luatex beta-0.79.3 was released 20150121 (5130)
 ==============================================================
 
 
@@ -2292,7 +2310,7 @@ Other news:
    we probably introduced new problems as well).
 
 * Most (all?) files now have a corrected Copyright header,
-   and link in $Id$ and  $URL$ into the object file.
+   and link in $Id: NEWS 5205 2015-03-27 19:28:05Z luigi $ and  $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/NEWS $ into the object file.
 
 * Some unnecessary files were removed from the distribution.
 

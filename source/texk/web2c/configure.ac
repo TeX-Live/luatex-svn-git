@@ -1,6 +1,6 @@
 dnl Process this file with Autoconf to produce a configure script for Web2c.
 dnl
-dnl   Copyright (C) 2009-2014 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -153,11 +153,7 @@ AS_IF([test "x$enable_aleph:$enable_xetex:$enable_omfonts" = xno:no:yes],
 AM_CONDITIONAL([OTANGLE],
                [test "x$enable_otangle" = xyes])[]dnl
 
-AM_CONDITIONAL([MF], [test "x$enable_mf" != xno])
-AM_CONDITIONAL([MFN], [test "x$enable_mf_nowin" != xno])
-
 # Handle --with-mf-x-toolkit and --with-x
-test "x$enable_mf" = xno || enable_mf=yes
 AS_CASE([$with_mf_x_toolkit],
         [yes|no], [],
         [''], [with_mf_x_toolkit=no],
@@ -167,7 +163,12 @@ AS_CASE([$with_mf_x_toolkit],
              with_mf_x_toolkit=no])
 test "x$with_x_toolkit" = xyes && with_x=yes
 test "x$with_x" = xno && with_x_toolkit=no
-: ${with_x=$enable_mf} # tell PATH_XTRA to use X for Metafont, if not specified.
+
+dnl Generate MF* conditionals and set with_x.
+m4_foreach([Kpse_Prog], [kpse_mf_progs],
+           [m4_ifset([Kpse_Prog],
+                     [KPSE_XMF_COND(Kpse_Prog)])])[]dnl
+: ${with_x=yes}
 
 # Distinguish no X at all, no toolkit, or toolkit.
 AC_PATH_XTRA
@@ -206,32 +207,6 @@ AS_IF([test "x$enable_uptex:$enable_euptex" = xno:no],
       [enable_upweb_progs=no],
       [enable_upweb_progs=$enable_web_progs])
 AM_CONDITIONAL([UPWEB], [test "x$enable_upweb_progs" != xno])
-
-dnl Although quite unusual, it is possible to build Web2C (TeX & Co)
-dnl using installed (system) kpathsea headers and library.
-dnl In that case we need the location of <kpathsea/paths.h>.
-if test "x$with_system_kpathsea" = xyes; then
-  if test "x$with_kpathsea_includes" = x; then
-    list="/usr/include /usr/local/include"
-  else
-    list=$with_kpathsea_includes
-  fi
-  found=no
-  for KPATHSEA_PATHS_H in $list; do
-    if test -r "$KPATHSEA_PATHS_H/kpathsea/paths.h"; then
-      found=yes
-      break
-    fi
-  done
-  if test "x$found" = xno; then
-    AC_MSG_NOTICE([You requested to build `web2c' using an installed `kpathsea' version,])
-    AC_MSG_NOTICE([    which requires to locate the <kpathsea/paths.h> header file.])
-    AC_MSG_ERROR([Sorry, not found under any of: $list *****])
-  fi
-else
-  KPATHSEA_PATHS_H='${top_builddir}/..'
-fi
-AC_SUBST([KPATHSEA_PATHS_H])
 
 AC_PROG_YACC
 KPSE_PROG_LEX
@@ -284,6 +259,28 @@ KPSE_GRAPHITE2_FLAGS
 KPSE_ADD_FLAGS([kpathsea])
 AC_CHECK_SIZEOF([off_t], , AC_INCLUDES_DEFAULT
 [#include <kpathsea/config.h>])
+
+if test "x$with_system_kpathsea" = xyes; then
+dnl Although quite unusual, it is possible to build Web2C (TeX & Co)
+dnl using installed (system) kpathsea headers and library.
+dnl In that case we need the location of <kpathsea/paths.h>.
+  list="/usr/include /usr/local/include `echo $KPATHSEA_INCLUDES | sed 's/-I//g'`"
+  found=no
+  for KPATHSEA_PATHS_H in $list; do
+    if test -r "$KPATHSEA_PATHS_H/kpathsea/paths.h"; then
+      found=yes
+      break
+    fi
+  done
+  if test "x$found" = xno; then
+    AC_MSG_NOTICE([You requested to build `web2c' using an installed `kpathsea' version,])
+    AC_MSG_NOTICE([    which requires to locate the <kpathsea/paths.h> header file.])
+    AC_MSG_ERROR([Sorry, not found under any of: $list *****])
+  fi
+else
+  KPATHSEA_PATHS_H='${top_builddir}/..'
+fi
+AC_SUBST([KPATHSEA_PATHS_H])
 
 # Check of poppler 0.25 or better
 AS_CASE([$with_system_poppler],

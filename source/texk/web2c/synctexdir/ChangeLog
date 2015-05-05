@@ -1,3 +1,36 @@
+2015-04-05  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* synctex.c: Support file names with multi-byte characters in SyncTeX
+	for XeTeX in addition to for (e)upTeX (win32 only).
+
+2015-03-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/synctex.am [MinGW]: SyncTeX requires libshlwapi.a.
+	* synctex_parser_utils.c: Avoid an unused variable.
+
+2015-03-23  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* synctex_parser_utils.c: Fix a bug in
+	synctex_bool_t synctex_ignore_leading_dot_slash_in_path().
+	From Noriyuki Abe (2015-03-23).
+
+2015-03-22  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* synctex_parser_utils.c: Use WIN32API PathFindFileName() and
+	PathFindExtension() for last_component and last_extension, respectively,
+	in _synctex_strip_last_path_extension(), in order to support multi-byte
+	characters in SyncTeX applications (win32 only).
+	From Noriyuki Abe (2015-03-22).
+
+2015-03-19  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* synctex.c: Avoid minor memory leaks (win32 only).
+
+2015-03-18  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* synctex.c: Support multi-byte characters in file names in SyncTeX
+	for (e)upTeX (win32 only).
+
 2015-03-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* ac/synctex.a, am/synctex.am: Reorganize rules for libsynctex.
@@ -87,15 +120,15 @@
     as well as 3rd parties developers. The various TeX engines are not affected.
     
 	* synctex_parser.c:
-        - cosmetic changes to enhance code readability
-        - Adding the notiong of mean line and weight to hbox nodes
-          in order to enhance forward synchronization
-        - function synctex_scanner_get_name:
-            + Adding support for the new file naming convention with './'
+	- cosmetic changes to enhance code readability
+	- Adding the notiong of mean line and weight to hbox nodes
+	  in order to enhance forward synchronization
+	- function synctex_scanner_get_name:
+	    + Adding support for the new file naming convention with './'
     * synctex_parser_utils.c:
-        - Adding support for the new file naming convention with './'
-            + function synctex_ignore_leading_dot_slash_in_path replaces synctex_ignore_leading_dot_slash
-            + function _synctex_is_equivalent_file_name is more permissive
+	- Adding support for the new file naming convention with './'
+	    + function synctex_ignore_leading_dot_slash_in_path replaces synctex_ignore_leading_dot_slash
+	    + function _synctex_is_equivalent_file_name is more permissive
 
     See the synctex_parser_readme.txt for more details
 
@@ -253,19 +286,19 @@
 
 	* synctex_parser.c: in the _synctex_smallest_container() function,
 			SYNCTEX_WIDTH is replaced with SYNCTEX_ABS_WIDTH
-            to take into account h boxes with negative width.
-            Solves a problem with amsmath's gather environment
+	    to take into account h boxes with negative width.
+	    Solves a problem with amsmath's gather environment
 	* synctex_parser.c: enhancements in comments to better explain the code
 
 2009-12-30  Jérôme Laurens  <jerome.laurens@u-bourgogne.fr>
 
 	* synctex_parser_utils.c: in the _synctex_malloc() function,
-            memset() is used unconditionally (suggested by J. Kew).
+	    memset() is used unconditionally (suggested by J. Kew).
 	* synctex_parser_utils.c: in the _synctex_error() function,
-            - all 3 instances of OutputDebugString() replaced with OutputDebugStringA()
-            such that unicode is ignored (also suggested by J. Kew).
-            - _WIN32 flag replaced by SYNCTEX_RECENT_WINDOWS because older windows systems
-            may have _WIN32 defined but no OutputDebugString().
+	    - all 3 instances of OutputDebugString() replaced with OutputDebugStringA()
+	    such that unicode is ignored (also suggested by J. Kew).
+	    - _WIN32 flag replaced by SYNCTEX_RECENT_WINDOWS because older windows systems
+	    may have _WIN32 defined but no OutputDebugString().
 
 2009-12-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
 

@@ -1,3 +1,49 @@
+2015-05-03  Karl Berry  <karl@tug.org>
+
+	* kpsewhich.c: copyright 2015.
+	* doc/kpathsea.texi (version, month-year): now 6.2.1, May 2015.
+	(Auxiliary tasks): add --help-formats, sort.
+	(Supported file formats): add bltxml, clua, ris.
+	* NEWS: mention --help-formats.
+
+2015-05-03  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* file-p.c: Implement same_file_p () for windows.
+
+2015-04-17  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Test if isascii is declared.
+	* c-ctype.h: Correctly define isascii, if not declared.
+
+2015-04-14  Norbert Preining  <norbert@preining.info>
+
+	* mktexlsr (treefile): switch back to hard-coded path, as
+	indeed it seems there are several systems without support for
+	mktemp --tmpdir, just mktemp. TL2015 pretest emails.
+
+2015-04-12  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf: update for TL'15.
+	(shell_escape_commands): include extractbb, fingers crossed.
+
+2015-04-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* version.ac: 6.2.1 (without the dev) for 2015 pretest.
+
+2015-03-25  Karl Berry  <karl@tug.org>
+
+	* mktexlsr (treefile): use shell mktemp; patch from Debian
+	via tlbuild mail from Norbert, 6 Mar 2015 09:13:06.
+	Per Nelson Beebe, the program is available on a wide variety of
+	systems nowadays, excluding only SGI IRIX MIPS, which we have
+	not built binaries for in several years.
+	(tlbuild reply, 6 Mar 2015 06:22:21)
+
+2015-03-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, kpathsea.pc.in: Install <kpathsea/c-auto.h> under
+	${libdir}.
+
 2015-03-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* configure.ac: Drop checks for strcasecmp, strtol, and strstr.
