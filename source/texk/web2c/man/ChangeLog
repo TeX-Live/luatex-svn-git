@@ -1,3 +1,21 @@
+2015-04-27  Karl Berry  <karl@tug.org>
+
+ 	* aleph.man,
+	* dvitomp.man,
+	* latex.man,
+	* luatex.man,
+	* mf.man,
+	* mpost.man,
+	* ofm2opl.man,
+	* opl2ofm.man,
+	* ovf2ovp.man,
+	* ovp2ovf.man,
+	* pdfetex.man,
+	* pdftex.man,
+	* pdftosrc.man,
+	* tex.man,
+	* ttf2afm.man: version, url, et al. updates.
+
 2014-12-02  Karl Berry  <karl@tug.org>
 
 	* patgen.man: Kuiken's ushyphmax.tex not in TL for some years.
