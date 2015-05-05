@@ -292,8 +292,7 @@ void read_jpg_info(PDF pdf, image_dict * idict, img_readtype_e readtype)
             switch (units) {
             case 1:
                 if ((img_xres(idict) == 1) || (img_yres(idict) == 1)) {
-                    luatex_warn("The image specifies a resolution of %ddpi by %ddpi. "
-                        "This is probably wrong; expect errors.", 
+                    luatex_warn("The image specifies an unusual resolution of %ddpi by %ddpi. ",
                         img_xres(idict), img_yres(idict));
                 }
                 break;          /* pixels per inch */
