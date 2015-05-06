@@ -26,7 +26,7 @@
 
 #define TeX
 
-int luatex_svn = 5236;
+int luatex_svn = 5238;
 int luatex_version = 80;        /* \.{\\luatexversion}  */
 int luatex_revision = '0';      /* \.{\\luatexrevision}  */
 int luatex_date_info = 2015051900;     /* the compile date is now hardwired */
