@@ -37,7 +37,7 @@
 
 #define var_code 7
 
-@ TODO: not sure if this is the right order 
+@ TODO: not sure if this is the right order
 @c
 #define back_error(A,B) do {                    \
     OK_to_interrupt=false;                      \
@@ -101,7 +101,7 @@ Each noad is five or more words long. The first word contains the
 |type| and |subtype| and |link| fields that are already so familiar to
 us; the second contains the attribute list pointer, and the third,
 fourth an fifth words are called the noad's |nucleus|, |subscr|, and
-|supscr| fields. (This use of a combined attribute list is temporary. 
+|supscr| fields. (This use of a combined attribute list is temporary.
 Eventually, each of fields need their own list)
 
 Consider, for example, the simple formula `\.{\$x\^2\$}', which would be
@@ -112,7 +112,7 @@ empty, and the |supscr| is a representation of `\.2'.
 The |nucleus|, |subscr|, and |supscr| fields are further broken into
 subfields. If |p| points to a noad, and if |q| is one of its principal
 fields (e.g., |q=subscr(p)|), |q=null| indicates a field with no value (the
-corresponding attribute of noad |p| is not present). Otherwise, there are 
+corresponding attribute of noad |p| is not present). Otherwise, there are
 several possibilities for the subfields, depending on the |type| of |q|.
 
 \yskip\hang|type(q)=math_char_node| means that |math_fam(q)| refers to one of
@@ -230,7 +230,7 @@ static void unsave_math_fam_data(int gl)
 
 
 
-@ and parameters 
+@ and parameters
 
 @c
 #define MATHPARAMSTACK  8
@@ -295,7 +295,7 @@ static void unsave_math_param_data(int gl)
 }
 
 
-@ saving and unsaving of both 
+@ saving and unsaving of both
 
 @c
 void unsave_math_data(int gl)
@@ -366,10 +366,10 @@ represent variable-size delimiters by giving the ``small'' and ``large''
 starting characters, as explained in Chapter~17 of {\sl The \TeX book}.
 @:TeXbook}{\sl The \TeX book@>
 
-A |fraction_noad| is actually quite different from all other noads. 
-It has |thickness|, |denominator|, and |numerator| fields instead of 
-|nucleus|, |subscr|, and |supscr|. The |thickness| is a scaled value 
-that tells how thick to make a fraction rule; however, the special 
+A |fraction_noad| is actually quite different from all other noads.
+It has |thickness|, |denominator|, and |numerator| fields instead of
+|nucleus|, |subscr|, and |supscr|. The |thickness| is a scaled value
+that tells how thick to make a fraction rule; however, the special
 value |default_code| is used to stand for the
 |default_rule_thickness| of the current size. The |numerator| and
 |denominator| point to mlists that define a fraction; we always have
@@ -382,7 +382,7 @@ be placed at the left and right of the fraction. In this way, a
 
 
 
-@ The |new_noad| function creates an |ord_noad| that is completely null 
+@ The |new_noad| function creates an |ord_noad| that is completely null
 
 @c
 pointer new_noad(void)
@@ -417,8 +417,8 @@ And finally, we have the |fence_noad| type, to implement
 The |nucleus| of such noads is
 replaced by a |delimiter| field; thus, for example, `\.{\\left(}' produces
 a |fence_noad| such that |delimiter(p)| holds the family and character
-codes for all left parentheses. A |fence_noad| of subtype |left_noad_side| 
-never appears in an mlist except as the first element, and a |fence_noad| 
+codes for all left parentheses. A |fence_noad| of subtype |left_noad_side|
+never appears in an mlist except as the first element, and a |fence_noad|
 with subtype |right_noad_side| never appears in an mlist
 except as the last element; furthermore, we either have both a |left_noad_side|
 and a |right_noad_side|, or neither one is present.
@@ -566,7 +566,7 @@ void show_math_node(pointer p)
 }
 
 
-@ Here are some simple routines used in the display of noads. 
+@ Here are some simple routines used in the display of noads.
 
 @c
 static void print_fam_and_char(pointer p)
@@ -601,7 +601,7 @@ static void print_delimiter(pointer p)
 @ The next subroutine will descend to another level of recursion when a
 subsidiary mlist needs to be displayed. The parameter |c| indicates what
 character is to become part of the recursion history. An empty mlist is
-distinguished from a missing field, because these are not equivalent 
+distinguished from a missing field, because these are not equivalent
 (as explained above).
 @^recursion@>
 
@@ -927,11 +927,11 @@ void math_left_brace(void)
 opposite, then this function will return true. Discovering that fact
 is somewhat odd because it needs traversal of the |save_stack|.
 The occurance of displayed equations is weird enough that this is
-probably still better than having yet another field in the |input_stack| 
+probably still better than having yet another field in the |input_stack|
 structures.
 
-None of this makes much sense if the inline direction of either one of 
-\.{\\pardir} or \.{\\mathdir} is vertical, but in that case the current 
+None of this makes much sense if the inline direction of either one of
+\.{\\pardir} or \.{\\mathdir} is vertical, but in that case the current
 math machinery is ill suited anyway so I do not bother to test that.
 
 @c
@@ -973,7 +973,7 @@ void enter_display_math(void)
          type(tail) == whatsit_node &&
          subtype(tail) == local_par_node && vlink(tail) == null)) {
         if (vlink(head) == tail) {
-            /* bug \#270: |resume_after_display| inserts a |local_par_node|, but if 
+            /* bug \#270: |resume_after_display| inserts a |local_par_node|, but if
                there is another display immediately following, we have to get rid
                of that node */
             flush_node(tail);
@@ -1077,7 +1077,7 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         mlchr = 0;
     } else if (extcode == xetexnum_mathcode) {  /* \.{\\Udelcodenum} */
         /* "FF<21bits> */
-        /* the largest numeric value is $2^29-1$, but 
+        /* the largest numeric value is $2^29-1$, but
            the top of bit 21 can't be used as it contains invalid USV's
          */
         if (doclass) {          /* such a primitive doesn't exist */
@@ -1161,7 +1161,7 @@ mathcodeval scan_mathchar(int extcode)
         }
     } else if (extcode == xetexnum_mathcode) {
         /* "FFT<21bits> */
-        /* the largest numeric value is $2^32-1$, but 
+        /* the largest numeric value is $2^32-1$, but
            the top of bit 21 can't be used as it contains invalid USV's
          */
         /* Note: |scan_int| won't accept families 128-255 because these use bit 32 */
@@ -1201,7 +1201,7 @@ void scan_extdef_math_code(int level, int extcode)
 }
 
 
-@ this reads in a delcode when actually a mathcode is needed 
+@ this reads in a delcode when actually a mathcode is needed
 @c
 mathcodeval scan_delimiter_as_mathchar(int extcode)
 {
@@ -1216,8 +1216,8 @@ mathcodeval scan_delimiter_as_mathchar(int extcode)
 }
 
 @ this has to match the inverse routine in the pascal code
- where the \.{\\Umathchardef} is executed 
- 
+ where the \.{\\Umathchardef} is executed
+
 @c
 mathcodeval mathchar_from_integer(int value, int extcode)
 {
@@ -1515,7 +1515,7 @@ void math_radical(void)
     else
         confusion("math_radical");
     if (chr_code == 2) {
-        /* the trick with the |vlink(q)| is used by |scan_math| 
+        /* the trick with the |vlink(q)| is used by |scan_math|
            to decide whether it needs to go on */
         q = new_node(math_char_node, 0);
         vlink(q) = tail;
@@ -1655,7 +1655,7 @@ void build_choices(void)
 
 
 @ Subscripts and superscripts are attached to the previous nucleus by the
-action procedure called |sub_sup|. 
+action procedure called |sub_sup|.
 
 @c
 void sub_sup(void)
@@ -1702,7 +1702,7 @@ that contains the mlist-so-far as its numerator, while the denominator
 is yet to come. Finally when the mlist is finished, the denominator will
 go into the incompleat fraction noad, and that noad will become the
 whole formula, unless it is surrounded by `\.{\\left}' and `\.{\\right}'
-delimiters. 
+delimiters.
 
 @c
 void math_fraction(void)
@@ -1923,7 +1923,7 @@ void math_left_right(void)
 }
 
 
-@ \TeX\ gets to the following part of the program when 
+@ \TeX\ gets to the following part of the program when
 the first `\.\$' ending a display has been scanned.
 
 @c
@@ -1972,7 +1972,7 @@ static void resume_after_display(void)
     push_nest();
     mode = hmode;
     space_factor = 1000;
-    tail_append(make_local_par_node()); /* this needs to be intercepted in 
+    tail_append(make_local_par_node()); /* this needs to be intercepted in
                                            the display math start ! */
     get_x_token();
     if (cur_cmd != spacer_cmd)
@@ -1984,11 +1984,11 @@ static void resume_after_display(void)
 }
 
 
-@  The fussiest part of math mode processing occurs when a displayed formula is 
+@  The fussiest part of math mode processing occurs when a displayed formula is
 being centered and placed with an optional equation number.
 
 
-At this time we are in vertical mode (or internal vertical mode).  
+At this time we are in vertical mode (or internal vertical mode).
 
   |p| points to the mlist for the formula.
   |a| is either |null| or it points to a box containing the equation number.
@@ -2011,7 +2011,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     pointer pre_t;              /* tail of pre-adjustment list */
     boolean swap_dir;           /* true if the math and surrounding text dirs are opposed */
     swap_dir = (int_par(pre_display_direction_code) < 0 ? true : false );
-    if (eqno_box != null && swap_dir) 
+    if (eqno_box != null && swap_dir)
         l = !l;
 
     adjust_tail = adjust_head;
@@ -2085,14 +2085,25 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
        displacement for all three potential lines of the display, even though
        `\.{\\parshape}' may specify them differently.
      */
-    if (eqno_box && l && (eqno_w == 0)) {   /* \.{\\leqno} on a forced single line due to |width=0| */
-        /* it follows that |type(a)=hlist_node| */
-        shift_amount(eqno_box) = line_s;
-        append_to_vlist(eqno_box);
-        tail_append(new_penalty(inf_penalty));
-    } else {
+     /* \.{\\leqno} on a forced single line due to |width=0| */
+     /* it follows that |type(a)=hlist_node| */
+     /*
+        this doesn't work out ok so but this is bad so we comment this one
+        and if if ever is needed (flushing at the top of the r2l overflow it
+        will become an option: \mathtrteqnooverflowontop=1 */
+     /*
+        if (eqno_box && l && (eqno_w == 0)) {
+            if (math_direction==dir_TLT) {
+                shift_amount(eqno_box) = line_s + line_w;
+            }
+            append_to_vlist(eqno_box);
+            tail_append(new_penalty(inf_penalty));
+        } else {
+    */
         tail_append(new_param_glue(g1));
-    }
+    /*
+        }
+    */
 
     if (eqno_w != 0) {
         r = new_kern(line_w - eq_w - eqno_w - d);
@@ -2162,9 +2173,12 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     }
     append_to_vlist(eq_box);
 
-    if ((eqno_box != null) && (eqno_w == 0) && !l) {
+    /* if ((eqno_box != null) && (eqno_w == 0) && !l) { */
+    if ((eqno_box != null) && (eqno_w == 0)) {
         tail_append(new_penalty(inf_penalty));
-        shift_amount(eqno_box) = line_s;
+        if (math_direction==dir_TLT) {
+            shift_amount(eqno_box) = line_s + line_w;
+        }
         append_to_vlist(eqno_box);
         g2 = 0;
     }
@@ -2277,7 +2291,7 @@ void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
     resume_after_display();
 }
 
-@ Interface to \.{\\Umath} and \.{\\mathstyle} 
+@ Interface to \.{\\Umath} and \.{\\mathstyle}
 
 @c
 void setup_math_style(void)
