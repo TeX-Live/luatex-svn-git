@@ -2010,10 +2010,10 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     pointer t;                  /* tail of adjustment list */
     pointer pre_t;              /* tail of pre-adjustment list */
     boolean swap_dir;           /* true if the math and surrounding text dirs are opposed */
+    scaled eqno_width;
     swap_dir = (int_par(pre_display_direction_code) < 0 ? true : false );
     if (eqno_box != null && swap_dir)
         l = !l;
-
     adjust_tail = adjust_head;
     pre_adjust_tail = pre_adjust_head;
     eq_box = hpack(p, 0, additional, -1);
@@ -2027,9 +2027,11 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     line_s = display_indent;
     if (eqno_box == null) {
         eqno_w = 0;
+        eqno_width = 0;
         eqno_w2 = 0;
     } else {
         eqno_w = width(eqno_box);
+        eqno_width = eqno_w;
         eqno_w2 = eqno_w + get_math_quad(text_size);
     }
     if (eq_w + eqno_w2 > line_w) {
@@ -2087,83 +2089,77 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
      */
      /* \.{\\leqno} on a forced single line due to |width=0| */
      /* it follows that |type(a)=hlist_node| */
-     /*
-        this doesn't work out ok so but this is bad so we comment this one
-        and if if ever is needed (flushing at the top of the r2l overflow it
-        will become an option: \mathtrteqnooverflowontop=1 */
-     /*
+
         if (eqno_box && l && (eqno_w == 0)) {
-            if (math_direction==dir_TLT) {
-                shift_amount(eqno_box) = line_s + line_w;
-            }
+/*            if (math_direction==dir_TLT) { */
+                shift_amount(eqno_box) = 0;
+/*            } else {                       */
+/*            }                              */
             append_to_vlist(eqno_box);
             tail_append(new_penalty(inf_penalty));
         } else {
-    */
+
         tail_append(new_param_glue(g1));
-    /*
+
         }
-    */
 
     if (eqno_w != 0) {
         r = new_kern(line_w - eq_w - eqno_w - d);
-        s = new_kern(width(r) + eqno_w);
         if (l) {
             if (swap_dir) {
                 if (math_direction==dir_TLT) {
                     /* TRT + TLT + \eqno,    (swap_dir=true,  math_direction=TLT, l=true)  */
-                    vlink(eqno_box) = r;
-                    vlink(r) = eq_box;
-                    vlink(eq_box) = s;
-                    eq_box = eqno_box;
+                    /* printf("CASE 1\n"); */
+                    s = new_kern(width(r) + eqno_w);
+                    try_couple_nodes(eqno_box,r);
+                    try_couple_nodes(r,eq_box);
+                    try_couple_nodes(eq_box,s);
                 } else {
                     /* TLT + TRT + \eqno,    (swap_dir=true,  math_direction=TRT, l=true) */
-                    vlink(eqno_box) = r;
-                    vlink(r) = eq_box;
-                    vlink(eq_box) = s;
-                    eq_box = eqno_box;
+                    /* printf("CASE 2\n"); */
+                    try_couple_nodes(eqno_box,r);
+                    try_couple_nodes(r,eq_box);
                 }
             } else {
                 if (math_direction==dir_TLT) {
                     /* TLT + TLT + \leqno,   (swap_dir=false, math_direction=TLT, l=true) */ /* OK */
-                    vlink(eqno_box) = r;
-                    vlink(r) = eq_box;
-                    vlink(eq_box) = s;
-                    eq_box = eqno_box;
+                    /* printf("CASE 3\n"); */
+                    s = new_kern(width(r) + eqno_w);
                 } else {
                     /* TRT + TRT + \leqno,    (swap_dir=false, math_direction=TRT, l=true) */
-                    vlink(eqno_box) = r;
-                    vlink(r) = eq_box;
-                    vlink(eq_box) = s;
-                    eq_box = eqno_box;
+                    /* printf("CASE 4\n"); */
+                    s = new_kern(width(r));
                 }
+                try_couple_nodes(eqno_box,r);
+                try_couple_nodes(r,eq_box);
+                try_couple_nodes(eq_box,s);
             }
+            eq_box = eqno_box;
         } else {
             if (swap_dir) {
                 if (math_direction==dir_TLT) {
                     /* TRT + TLT + \leqno,   (swap_dir=true,  math_direction=TLT, l=false) */
-   	            vlink(eq_box) = r;
-                    vlink(r) = eqno_box;
+                    /* printf("CASE 5\n"); */
                 } else {
                     /* TLT + TRT + \leqno,   (swap_dir=true,  math_direction=TRT, l=false) */
-   	            vlink(eq_box) = r;
-                    vlink(r) = eqno_box;
+                    /* printf("CASE 6\n"); */
                 }
+                try_couple_nodes(eq_box,r);
+                try_couple_nodes(r,eqno_box);
             } else {
                 if (math_direction==dir_TLT) {
                     /*  TLT + TLT + \eqno,    (swap_dir=false, math_direction=TLT, l=false) */ /* OK */
+                    /* printf("CASE 7\n"); */
                     s = new_kern(d);
-                    vlink(s) = eq_box;
-   	            vlink(eq_box) = r;
-                    vlink(r) = eqno_box;
-                    eq_box = s;
                 } else {
                     /* TRT + TRT + \eqno,   (swap_dir=false, math_direction=TRT, l=false) */
-                    vlink(s) = eq_box;
-   	            vlink(eq_box) = r;
-                    vlink(r) = eqno_box;
-                    eq_box = s;
+                    /* printf("CASE 8\n"); */
+                    s = new_kern(width(r) + eqno_w);
                 }
+                try_couple_nodes(s,eq_box);
+                try_couple_nodes(eq_box,r);
+                try_couple_nodes(r,eqno_box);
+                eq_box = s;
             }
         }
         eq_box = hpack(eq_box, 0, additional, -1);
@@ -2171,23 +2167,29 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     } else {
         shift_amount(eq_box) = line_s + d;
     }
+/* check for prev: */
     append_to_vlist(eq_box);
 
-    /* if ((eqno_box != null) && (eqno_w == 0) && !l) { */
-    if ((eqno_box != null) && (eqno_w == 0)) {
+    if ((eqno_box != null) && (eqno_w == 0) && !l) {
         tail_append(new_penalty(inf_penalty));
-        if (math_direction==dir_TLT) {
-            shift_amount(eqno_box) = line_s + line_w;
-        }
+/*        if (math_direction==dir_TLT) { */
+            shift_amount(eqno_box) = line_s + line_w - eqno_width ;
+/*        } else { */
+/*        }        */
+/* check for prev: */
         append_to_vlist(eqno_box);
         g2 = 0;
     }
     if (t != adjust_head) {     /* migrating material comes after equation number */
         vlink(tail) = vlink(adjust_head);
+/* needs testing */
+alink(adjust_tail) = alink(tail);
         tail = t;
     }
     if (pre_t != pre_adjust_head) {
         vlink(tail) = vlink(pre_adjust_head);
+/* needs testing */
+alink(pre_adjust_tail) = alink(tail);
         tail = pre_t;
     }
     tail_append(new_penalty(int_par(post_display_penalty_code)));
