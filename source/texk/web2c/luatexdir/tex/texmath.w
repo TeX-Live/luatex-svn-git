@@ -19,7 +19,7 @@
 
 @ @c
 
-
+// define DEBUG
 #include "ptexlib.h"
 
 @ @c
@@ -61,6 +61,7 @@ pointer fin_mlist(pointer);
 #define every_display  equiv(every_display_loc)
 #define par_shape_ptr  equiv(par_shape_loc)
 
+#define math_eqno_gap_step int_par(math_eqno_gap_step_code)
 
 @ When \TeX\ reads a formula that is enclosed between \.\$'s, it constructs an
 {\sl mlist}, which is essentially a tree structure representing that
@@ -2032,7 +2033,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     } else {
         eqno_w = width(eqno_box);
         eqno_width = eqno_w;
-        eqno_w2 = eqno_w + get_math_quad(text_size);
+	eqno_w2 = eqno_w + round_xn_over_d(math_eqno_gap_step, get_math_quad(text_size), 1000);
     }
     if (eq_w + eqno_w2 > line_w) {
         /* The user can force the equation number to go on a separate line
@@ -2109,25 +2110,33 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
             if (swap_dir) {
                 if (math_direction==dir_TLT) {
                     /* TRT + TLT + \eqno,    (swap_dir=true,  math_direction=TLT, l=true)  */
-                    /* printf("CASE 1\n"); */
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: CASE 1\n");
+#endif
                     s = new_kern(width(r) + eqno_w);
                     try_couple_nodes(eqno_box,r);
                     try_couple_nodes(r,eq_box);
                     try_couple_nodes(eq_box,s);
                 } else {
                     /* TLT + TRT + \eqno,    (swap_dir=true,  math_direction=TRT, l=true) */
-                    /* printf("CASE 2\n"); */
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: CASE 2\n");
+#endif
                     try_couple_nodes(eqno_box,r);
                     try_couple_nodes(r,eq_box);
                 }
             } else {
                 if (math_direction==dir_TLT) {
                     /* TLT + TLT + \leqno,   (swap_dir=false, math_direction=TLT, l=true) */ /* OK */
-                    /* printf("CASE 3\n"); */
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: CASE 3\n");
+#endif
                     s = new_kern(width(r) + eqno_w);
                 } else {
                     /* TRT + TRT + \leqno,    (swap_dir=false, math_direction=TRT, l=true) */
-                    /* printf("CASE 4\n"); */
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: CASE 4\n");
+#endif
                     s = new_kern(width(r));
                 }
                 try_couple_nodes(eqno_box,r);
@@ -2139,21 +2148,29 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
             if (swap_dir) {
                 if (math_direction==dir_TLT) {
                     /* TRT + TLT + \leqno,   (swap_dir=true,  math_direction=TLT, l=false) */
-                    /* printf("CASE 5\n"); */
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: CASE 5\n");
+#endif
                 } else {
                     /* TLT + TRT + \leqno,   (swap_dir=true,  math_direction=TRT, l=false) */
-                    /* printf("CASE 6\n"); */
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: CASE 6\n");
+#endif
                 }
                 try_couple_nodes(eq_box,r);
                 try_couple_nodes(r,eqno_box);
             } else {
                 if (math_direction==dir_TLT) {
                     /*  TLT + TLT + \eqno,    (swap_dir=false, math_direction=TLT, l=false) */ /* OK */
-                    /* printf("CASE 7\n"); */
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: CASE 7\n");
+#endif
                     s = new_kern(d);
                 } else {
                     /* TRT + TRT + \eqno,   (swap_dir=false, math_direction=TRT, l=false) */
-                    /* printf("CASE 8\n"); */
+#ifdef DEBUG
+        fprintf(stderr, "\nDEBUG: CASE 8\n");
+#endif
                     s = new_kern(width(r) + eqno_w);
                 }
                 try_couple_nodes(s,eq_box);

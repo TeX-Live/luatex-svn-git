@@ -694,6 +694,19 @@ $ x + 1 =
 a $
 \stoptyping
 
+\subsection{\tex{matheqnogapstep} (0.81)}
+
+By default \TEX\ will add one quad between the equation and the number. This 
+is hardcoded. A new primitive can control this: 
+
+\startsyntax
+\matheqnogapstep = 1000
+\stopsyntax
+
+Because a math quad from the math text font is used instead of a dimension, we
+use a step to control the size. A value of zero will suppress the gap. The step
+is divided by 1000 which is the usual way to mimmick floating point factors in
+\TEX.
 
 \subsection{\tex{outputbox} (0.37)}
 
