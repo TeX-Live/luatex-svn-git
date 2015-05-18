@@ -1,5 +1,5 @@
 /* luafflib.c
-   
+
    Copyright 2007-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -154,7 +154,7 @@ void handle_glyphvariants(lua_State * L, struct glyphvariants *vars);
 void handle_mathkern(lua_State * L, struct mathkern *mk);
 int handle_altuni(lua_State * L, struct altuni *au);
 
-int is_userdata(lua_State *L, int b, char *utype) 
+int is_userdata(lua_State *L, int b, char *utype)
 {
     if (lua_type(L,b) == LUA_TUSERDATA) {
         lua_getmetatable(L, b);
@@ -162,7 +162,7 @@ int is_userdata(lua_State *L, int b, char *utype)
         if (lua_compare(L, -2, -1, LUA_OPEQ)) {
             lua_pop(L,2);
             return 1;
-        } 
+        }
         lua_pop(L,2);
     }
     return 0;
@@ -287,7 +287,7 @@ static int ff_close(lua_State * L)
     /*fputs("ff_close called",stderr); */
     sf = check_isfont(L, 1);
     if (*sf != NULL) {
-        if ((*sf)->fv) {        // condition might be improved
+      if ((*sf)->fv) {        /* condition might be improved */
             FontViewClose((*sf)->fv);
         } else {
             EncMapFree((*sf)->map);
@@ -561,7 +561,7 @@ void do_handle_lookup_subtable(lua_State * L, struct lookup_subtable *subtable)
     /* dump_intfield   (L,"unused",               subtable->unused); */
     /* The next one is true if there is no fpst, false otherwise */
     /*
-       dump_intfield      (L,"per_glyph_pst_or_kern",subtable->per_glyph_pst_or_kern); 
+       dump_intfield      (L,"per_glyph_pst_or_kern",subtable->per_glyph_pst_or_kern);
      */
     dump_cond_intfield(L, "anchor_classes", subtable->anchor_classes);
     dump_cond_intfield(L, "vertical_kerning", subtable->vertical_kerning);
@@ -1001,7 +1001,9 @@ void handle_splinechar(lua_State * L, struct splinechar *glyph, int hasvmetrics)
     lua_pushnumber(L, glyph->ymax);
     lua_rawset(L, -3);
     lua_setfield(L, -2, "boundingbox");
-    /*dump_intfield(L,"orig_pos",       glyph->orig_pos); */
+    if (glyph->orig_pos >= 0) {
+        dump_intfield(L,"orig_pos",glyph->orig_pos);
+    }
     if (hasvmetrics) {
         dump_intfield(L, "vwidth", glyph->vwidth);
         if (glyph->tsb != 0)
@@ -1029,23 +1031,23 @@ void handle_splinechar(lua_State * L, struct splinechar *glyph, int hasvmetrics)
         dump_enumfield(L, "class", glyph->glyph_class, glyph_class_enum);
     }
     /* TH: internal fontforge stuff
-       dump_intfield(L,"changed",                  glyph->changed); 
-       dump_intfield(L,"changedsincelasthinted",   glyph->changedsincelasthinted); 
-       dump_intfield(L,"manualhints",              glyph->manualhints); 
+       dump_intfield(L,"changed",                  glyph->changed);
+       dump_intfield(L,"changedsincelasthinted",   glyph->changedsincelasthinted);
+       dump_intfield(L,"manualhints",              glyph->manualhints);
        dump_intfield(L,"ticked",                   glyph->ticked);
-       dump_intfield(L,"changed_since_autosave",   glyph->changed_since_autosave); 
-       dump_intfield(L,"widthset",                 glyph->widthset); 
-       dump_intfield(L,"vconflicts",               glyph->vconflicts); 
-       dump_intfield(L,"hconflicts",               glyph->hconflicts); 
-       dump_intfield(L,"searcherdummy",            glyph->searcherdummy); 
-       dump_intfield(L,"changed_since_search",     glyph->changed_since_search); 
-       dump_intfield(L,"wasopen",                  glyph->wasopen); 
-       dump_intfield(L,"namechanged",              glyph->namechanged); 
-       dump_intfield(L,"blended",                  glyph->blended); 
+       dump_intfield(L,"changed_since_autosave",   glyph->changed_since_autosave);
+       dump_intfield(L,"widthset",                 glyph->widthset);
+       dump_intfield(L,"vconflicts",               glyph->vconflicts);
+       dump_intfield(L,"hconflicts",               glyph->hconflicts);
+       dump_intfield(L,"searcherdummy",            glyph->searcherdummy);
+       dump_intfield(L,"changed_since_search",     glyph->changed_since_search);
+       dump_intfield(L,"wasopen",                  glyph->wasopen);
+       dump_intfield(L,"namechanged",              glyph->namechanged);
+       dump_intfield(L,"blended",                  glyph->blended);
        dump_intfield(L,"ticked2",                  glyph->ticked2);
-       dump_intfield(L,"unused_so_far",            glyph->unused_so_far); 
-       dump_intfield(L,"numberpointsbackards",     glyph->numberpointsbackards);  
-       dump_intfield(L,"instructions_out_of_date", glyph->instructions_out_of_date);  
+       dump_intfield(L,"unused_so_far",            glyph->unused_so_far);
+       dump_intfield(L,"numberpointsbackards",     glyph->numberpointsbackards);
+       dump_intfield(L,"instructions_out_of_date", glyph->instructions_out_of_date);
        dump_intfield(L,"complained_about_ptnums",  glyph->complained_about_ptnums);
        unsigned int vs_open: 1;
        unsigned int unlink_rm_ovrlp_save_undo: 1;
@@ -2011,7 +2013,7 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
     }
 
     if (fix_notdef) {
-        /* some code to ensure that the .notdef ends up in slot 0 
+        /* some code to ensure that the .notdef ends up in slot 0
            (this will actually be enforced by the CFF writer) */
         for (k = 0; k < sf->glyphcnt; k++) {
             if (sf->glyphs[k]) {
@@ -2310,7 +2312,7 @@ void do_ff_info(lua_State * L, SplineFont * sf)
     dump_stringfield(L, "weight", sf->weight);
 
     dump_intfield(L, "units_per_em", sf->units_per_em);
-    /* These are not assigned in info... */ 
+    /* These are not assigned in info... */
     /*dump_intfield(L, "design_range_bottom", sf->design_range_bottom);*/
     /*dump_intfield(L, "design_range_top", sf->design_range_top);*/
     /*dump_intfield(L, "design_size", sf->design_size);*/
@@ -2320,11 +2322,11 @@ void do_ff_info(lua_State * L, SplineFont * sf)
     lua_setfield(L, -2, "pfminfo");
 
     /* Do we need this ? */
-    if (sf->names != NULL) { 
-         lua_newtable(L); 
-         handle_ttflangname(L, sf->names); 
-         lua_setfield(L, -2, "names"); 
-    } 
+    if (sf->names != NULL) {
+         lua_newtable(L);
+         handle_ttflangname(L, sf->names);
+         lua_setfield(L, -2, "names");
+    }
 }
 
 typedef enum {
@@ -2500,6 +2502,7 @@ typedef enum {
     GK_vert_variants,
     GK_horiz_variants,
     GK_mathkern,
+    GK_orig_pos,
 } font_glyph_key_values;
 
 const char *font_glyph_keys[] = {
@@ -2526,6 +2529,7 @@ const char *font_glyph_keys[] = {
     "vert_variants",
     "horiz_variants",
     "mathkern",
+    "orig_pos",
     NULL
 };
 
@@ -2583,7 +2587,7 @@ static int ff_glyphs_index(lua_State * L)
          strmatch(sf->origname + strlen(sf->origname) - 4, ".pfb") == 0)) {
         fix_notdef = 1;
     }
-    /* some code to ensure that the .notdef ends up in slot 0 
+    /* some code to ensure that the .notdef ends up in slot 0
        (this will actually be enforced by the CFF writer) */
     if (fix_notdef) {
         l = notdef_loc(sf);
@@ -2786,6 +2790,13 @@ static int ff_glyph_index(lua_State * L)
             lua_pushnil(L);
         }
         break;
+    case GK_orig_pos:
+        if (glyph->orig_pos >= 0) {
+            lua_pushnumber(L, glyph->orig_pos);
+        } else {
+            lua_pushnil(L);
+        }
+        break;
     default:
         lua_pushnil(L);
     }
@@ -2804,10 +2815,12 @@ static int ff_index(lua_State * L)
                           "fontloader.__index: expected a (sub)font userdata object\n");
     }
     sf = *((SplineFont **)lua_touserdata(L, 1));
-  
+
     if (sf == NULL) {
-        return luaL_error(L,
-                          "fontloader.__index: font is nonexistent or freed already\n");
+      /*        return luaL_error(L,*/
+      /*                          "fontloader.__index: font is nonexistent or freed already\n");*/
+        lua_pushnil(L);
+        return 1;
     }
     if (!lua_isstring(L, 2)) {  /* 1 == 'font' */
         return luaL_error(L,
