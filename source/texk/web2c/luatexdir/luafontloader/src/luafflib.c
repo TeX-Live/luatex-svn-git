@@ -49,7 +49,7 @@ extern int readbinfile(FILE * f, unsigned char **b, int *s);
 #define FONT_GLYPHS_METATABLE "fontloader.splinefont.glyphs"
 #define FONT_GLYPH_METATABLE "fontloader.splinefont.glyph"
 
-#define LUA_OTF_VERSION "0.3"
+#define LUA_OTF_VERSION "0.4"
 
 static char *possub_type_enum[] = {
     "null", "position", "pair", "substitution",
@@ -287,7 +287,7 @@ static int ff_close(lua_State * L)
     /*fputs("ff_close called",stderr); */
     sf = check_isfont(L, 1);
     if (*sf != NULL) {
-      if ((*sf)->fv) {        /* condition might be improved */
+      if ((*sf)->fv) {        /* condition might be improved*/
             FontViewClose((*sf)->fv);
         } else {
             EncMapFree((*sf)->map);
@@ -1001,9 +1001,9 @@ void handle_splinechar(lua_State * L, struct splinechar *glyph, int hasvmetrics)
     lua_pushnumber(L, glyph->ymax);
     lua_rawset(L, -3);
     lua_setfield(L, -2, "boundingbox");
-    if (glyph->orig_pos >= 0) {
+    if (glyph->orig_pos>=0) {
         dump_intfield(L,"orig_pos",glyph->orig_pos);
-    }
+}
     if (hasvmetrics) {
         dump_intfield(L, "vwidth", glyph->vwidth);
         if (glyph->tsb != 0)
@@ -1992,7 +1992,8 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
 	dump_intfield(L, "uniqueid", sf->uniqueid);
     }
     dump_intfield(L, "glyphcnt", sf->glyphcnt);
-    dump_intfield(L, "glyphmax", sf->glyphmax);
+    dump_intfield(L, "glyphmax", sf->glyphmax - 1);
+    dump_intfield(L, "glyphmin", sf->glyphmin);
     dump_intfield(L, "units_per_em", sf->units_per_em);
 
     if (sf->possub != NULL) {
@@ -2346,6 +2347,7 @@ typedef enum {
     FK_uniqueid,
     FK_glyphcnt,
     FK_glyphmax,
+    FK_glyphmin,
     FK_units_per_em,
     FK_lookups,
     FK_glyphs,
@@ -2420,6 +2422,7 @@ const char *font_keys[] = {
     "uniqueid",
     "glyphcnt",
     "glyphmax",
+    "glyphmin",
     "units_per_em",
     "lookups",
     "glyphs",
@@ -2577,7 +2580,8 @@ static int ff_glyphs_index(lua_State * L)
 
     lua_pop(L, 1);
     gid = luaL_checkinteger(L, 2);
-    if (gid < 0 || gid >= sf->glyphmax) {
+    /* if (gid < sf->glyphmin || gid >= sf->glyphmax) {*/
+    if (gid < sf->glyphmin || gid > sf->glyphmax) {
         return luaL_error(L, "fontloader.glyphs.__index: index is invalid\n");
     }
     /* This after-the-fact type discovery is not brilliant,
@@ -2791,7 +2795,7 @@ static int ff_glyph_index(lua_State * L)
         }
         break;
     case GK_orig_pos:
-        if (glyph->orig_pos >= 0) {
+        if (glyph->orig_pos>=0) {
             lua_pushnumber(L, glyph->orig_pos);
         } else {
             lua_pushnil(L);
@@ -2817,7 +2821,7 @@ static int ff_index(lua_State * L)
     sf = *((SplineFont **)lua_touserdata(L, 1));
 
     if (sf == NULL) {
-      /*        return luaL_error(L,*/
+      /*        return luaL_error(L, */
       /*                          "fontloader.__index: font is nonexistent or freed already\n");*/
         lua_pushnil(L);
         return 1;
@@ -2874,7 +2878,10 @@ static int ff_index(lua_State * L)
         lua_pushnumber(L, sf->glyphcnt);
         break;
     case FK_glyphmax:
-        lua_pushnumber(L, sf->glyphmax);
+        lua_pushnumber(L, sf->glyphmax - 1);
+        break;
+    case FK_glyphmin:
+        lua_pushnumber(L, sf->glyphmin);
         break;
     case FK_units_per_em:
         lua_pushnumber(L, sf->units_per_em);

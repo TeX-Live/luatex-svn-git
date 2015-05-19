@@ -3674,14 +3674,19 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
     for ( j=0; subdicts[j]!=NULL; ++j )  {
         info->subfonts[j] = cffsffillup(subdicts[j],strings,scnt,info);
         info->subfonts[j]->map = encmap;
+        info->subfonts[j]->glyphmin = -1;
     }
     /* here we also deal with glyphmin */
 
     for ( i=0; i<info->glyph_cnt; ++i ) {
         sf = info->subfonts[ fdselect[i] ];
         cid = dict->charset[i];
-        if ( cid>=sf->glyphcnt )
-            sf->glyphcnt = sf->glyphmax = cid+1;
+        if ( cid>=sf->glyphcnt ) {
+	  if (sf->glyphmin == -1) {
+	    sf->glyphmin = cid;
+	  }
+	  sf->glyphcnt = sf->glyphmax = cid+1;
+	}
         /*if ( cid>=encmap->enccount )
             encmap->enccount = cid+1;*/
     }
