@@ -287,7 +287,7 @@ static int ff_close(lua_State * L)
     /*fputs("ff_close called",stderr); */
     sf = check_isfont(L, 1);
     if (*sf != NULL) {
-      if ((*sf)->fv) {        /* condition might be improved*/
+      if ((*sf)->fv) {        /* condition might be improved */
             FontViewClose((*sf)->fv);
         } else {
             EncMapFree((*sf)->map);
@@ -1989,9 +1989,15 @@ void handle_splinefont(lua_State * L, struct splinefont *sf)
     dump_intfield(L, "ascent", sf->ascent);
     dump_intfield(L, "descent", sf->descent);
     if (sf->uniqueid!=0) {
-	dump_intfield(L, "uniqueid", sf->uniqueid);
+        dump_intfield(L, "uniqueid", sf->uniqueid);
     }
-    dump_intfield(L, "glyphcnt", sf->glyphcnt);
+
+    if (sf->glyphcnt > 0) {
+        dump_intfield(L, "glyphcnt", sf->glyphmax - sf->glyphmin + 1);
+    } else {
+        dump_intfield(L, "glyphcnt", 0);
+    }
+
     dump_intfield(L, "glyphmax", sf->glyphmax - 1);
     dump_intfield(L, "glyphmin", sf->glyphmin);
     dump_intfield(L, "units_per_em", sf->units_per_em);
@@ -2821,7 +2827,7 @@ static int ff_index(lua_State * L)
     sf = *((SplineFont **)lua_touserdata(L, 1));
 
     if (sf == NULL) {
-      /*        return luaL_error(L, */
+      /*       return luaL_error(L, */
       /*                          "fontloader.__index: font is nonexistent or freed already\n");*/
         lua_pushnil(L);
         return 1;
@@ -2875,7 +2881,11 @@ static int ff_index(lua_State * L)
         lua_pushnumber(L, sf->uniqueid);
         break;
     case FK_glyphcnt:
-        lua_pushnumber(L, sf->glyphcnt);
+        if (sf->glyphcnt > 0) {
+            lua_pushnumber(L, sf->glyphmax - sf->glyphmin + 1);
+        } else {
+            lua_pushnumber(L, 0);
+        }
         break;
     case FK_glyphmax:
         lua_pushnumber(L, sf->glyphmax - 1);
