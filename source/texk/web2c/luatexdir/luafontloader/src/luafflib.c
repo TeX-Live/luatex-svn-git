@@ -704,6 +704,8 @@ void handle_splinecharlist(lua_State * L, struct splinecharlist *scl)
 /*  variant shape. The specifics depend on the selector and script */
 /*  fid is currently unused, but may, someday, be used to do ttcs */
 /* NOTE: GlyphInfo displays vs==-1 as vs==0, and fixes things up */
+
+
 int handle_altuni(lua_State * L, struct altuni *au)
 {
     struct altuni *next = au;
@@ -711,16 +713,18 @@ int handle_altuni(lua_State * L, struct altuni *au)
     int k = 1;
     lua_checkstack(L, 3);
     while (next != NULL) {
-	if (next->unienc<0x10FFF) {
-	    lua_newtable(L);
-	    dump_intfield(L, "unicode", next->unienc);
-	    i++;
-	    if (next->vs != -1)
-		dump_intfield(L, "variant", next->vs);
-	    /* dump_intfield(L, "fid", next->fid); */
-	    lua_rawseti(L, -2, k++);
-	}
-        next = next->next;
+    /*   if (next->unienc<0x10FFF) {*/
+      lua_newtable(L);
+      dump_intfield(L, "unicode", next->unienc);
+      i++;
+      if (next->vs != -1)
+	dump_intfield(L, "variant", next->vs);
+      /* dump_intfield(L, "fid", next->fid); */
+      lua_rawseti(L, -2, k++);
+    /*    } else { */
+    /*        printf("skip %i %i\n",next->unienc,next->vs); */
+    /*    } */
+      next = next->next;
     }
     return i;
 }
