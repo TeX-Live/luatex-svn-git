@@ -713,17 +713,17 @@ int handle_altuni(lua_State * L, struct altuni *au)
     int k = 1;
     lua_checkstack(L, 3);
     while (next != NULL) {
-    /*   if (next->unienc<0x10FFF) {*/
-      lua_newtable(L);
-      dump_intfield(L, "unicode", next->unienc);
-      i++;
-      if (next->vs != -1)
-	dump_intfield(L, "variant", next->vs);
-      /* dump_intfield(L, "fid", next->fid); */
-      lua_rawseti(L, -2, k++);
-    /*    } else { */
-    /*        printf("skip %i %i\n",next->unienc,next->vs); */
-    /*    } */
+      if (next->unienc<0x10FFF) {
+	lua_newtable(L);
+	dump_intfield(L, "unicode", next->unienc);
+	i++;
+	if (next->vs != -1)
+	  dump_intfield(L, "variant", next->vs);
+	/* dump_intfield(L, "fid", next->fid); */
+	lua_rawseti(L, -2, k++);
+      } else {
+	printf("ignoring variant %i %i\n",next->unienc,next->vs);
+      }
       next = next->next;
     }
     return i;
