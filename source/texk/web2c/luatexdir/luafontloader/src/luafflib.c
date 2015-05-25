@@ -713,7 +713,7 @@ int handle_altuni(lua_State * L, struct altuni *au)
     int k = 1;
     lua_checkstack(L, 3);
     while (next != NULL) {
-      if (next->unienc<0x10FFF) {
+      if (next->unienc<0x10FFFF) {
 	lua_newtable(L);
 	dump_intfield(L, "unicode", next->unienc);
 	i++;
