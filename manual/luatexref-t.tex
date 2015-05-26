@@ -3010,8 +3010,10 @@ In the \LUATEX\ 0.63.0, the following is implemented:
 \startitemize
 \item all top-level keys that would be returned by \type{to_table()}
   can also be accessed directly.
+%\item the top-level key \quote{glyphs} returns a {\it virtual\/} array that
+%  allows indices from \type{0} to ($\type{f.glyphmax}-1$).
 \item the top-level key \quote{glyphs} returns a {\it virtual\/} array that
-  allows indices from \type{0} to ($\type{f.glyphmax}-1$).
+  allows indices from \type{f.glyphmin} to (\type{f.glyphmax}).
 \item the items in that virtual array (the actual glyphs) are themselves also
   userdata objects, and each has accessors for all of the keys
   explained in the section \quote{Glyph items} below.
@@ -3023,16 +3025,19 @@ In the \LUATEX\ 0.63.0, the following is implemented:
 A short example may be helpful. This code generates a printout of all
 the glyph names in the font \type{PunkNova.kern.otf}:
 
+
 \starttyping
 local f = fontloader.open('PunkNova.kern.otf')
 print (f.fontname)
 local i = 0
-while (i < f.glyphmax) do
-   local g = f.glyphs[i]
-   if g then
-      print(g.name)
-   end
-   i = i + 1
+if f.glyphcnt > 0 then
+    for i=f.glyphmin,f.glyphmax do
+       local g = f.glyphs[i]
+       if g then
+          print(g.name)
+       end
+       i = i + 1
+    end
 end
 fontloader.close(f)
 \stoptyping
@@ -3090,9 +3095,10 @@ this part of the documentation are not yet finished):
 \NC upos                         \NC float    \NC \NC\NR
 \NC uwidth                       \NC float    \NC \NC\NR
 \NC uniqueid                     \NC number   \NC \NC\NR
-\NC glyphcnt                     \NC number   \NC number of included glyphs\NC\NR
 \NC glyphs                       \NC array    \NC \NC\NR
+\NC glyphcnt                     \NC number   \NC number of included glyphs\NC\NR
 \NC glyphmax                     \NC number   \NC maximum used index the glyphs array\NC\NR
+\NC glyphmin                     \NC number   \NC minimum used index the glyphs array\NC\NR
 \NC hasvmetrics                  \NC number   \NC \NC\NR
 \NC onlybitmaps                  \NC number   \NC \NC\NR
 \NC serifcheck                   \NC number   \NC \NC\NR
