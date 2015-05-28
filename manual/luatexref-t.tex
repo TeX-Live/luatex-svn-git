@@ -939,6 +939,7 @@ adhere to the requested option.
 Next the initialization script is loaded and executed. From within the
 script, the entire commandline is available in the \LUA\ table
 \lua{arg}, beginning with \lua {arg[0]}, containing the name of the executable.
+As consequence, the warning about unrecognized option is suppressed.
 
 Commandline processing happens very early on. So early, in fact, that
 none of \TEX's initializations have taken place yet. For that reason,
