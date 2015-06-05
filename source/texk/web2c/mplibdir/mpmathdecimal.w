@@ -789,7 +789,7 @@ int mp_number_to_boolean(mp_number A) {
      // mp->arith_error = 1;
      return mp_false_code; // whatever
   } else {
-     return (result ? mp_true_code : mp_false_code);
+     return result ;
   }
 }
 double mp_number_to_double(mp_number A) {
