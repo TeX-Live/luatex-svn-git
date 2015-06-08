@@ -734,19 +734,21 @@ mp->ps->fm_bytes=NULL;
    mp->ps->fm_byte_length=1;
 } while (0)
 @d valid_code(c)   (c >= 0 && c < 256)
+@d unwrap_file(ff)  ( mp->noninteractive ? ((File *) ff)->f : ff) 
+   
 
 @c
 static int fm_getchar (MP mp) {
   if (mp->ps->fm_bytes == NULL) {
     void *byte_ptr ;
-    (void)fseek(mp->ps->fm_file,0,SEEK_END);
-    mp->ps->fm_byte_length = (size_t)ftell(mp->ps->fm_file);
-    (void)fseek(mp->ps->fm_file,0,SEEK_SET);
+    (void)fseek( unwrap_file(mp->ps->fm_file), 0,SEEK_END);
+    mp->ps->fm_byte_length = (size_t)ftell( unwrap_file(mp->ps->fm_file) );
+    (void)fseek( unwrap_file(mp->ps->fm_file), 0,SEEK_SET);
     if (mp->ps->fm_byte_length==0)
       return EOF;
     mp->ps->fm_bytes = mp_xmalloc(mp, mp->ps->fm_byte_length, 1);
     byte_ptr = (void *)mp->ps->fm_bytes;
-    (mp->read_binary_file)(mp,mp->ps->fm_file,&byte_ptr,&mp->ps->fm_byte_length);
+    (mp->read_binary_file)(mp, mp->ps->fm_file, &byte_ptr,&mp->ps->fm_byte_length);
   } 
   if(mp->ps->fm_byte_waiting >= mp->ps->fm_byte_length)
     return 10;
@@ -1806,9 +1808,9 @@ mp->ps->t1_bytes=NULL;
 static int t1_getchar (MP mp) {
   if (mp->ps->t1_bytes == NULL) {
     void *byte_ptr ;
-    (void)fseek(mp->ps->t1_file,0,SEEK_END);
-    mp->ps->t1_byte_length = (size_t)ftell(mp->ps->t1_file);
-    (void)fseek(mp->ps->t1_file,0,SEEK_SET);
+    (void)fseek( unwrap_file(mp->ps->t1_file), 0,SEEK_END);
+    mp->ps->t1_byte_length = (size_t)ftell( unwrap_file(mp->ps->t1_file) );
+    (void)fseek( unwrap_file(mp->ps->t1_file), 0,SEEK_SET);
     mp->ps->t1_bytes = mp_xmalloc(mp, mp->ps->t1_byte_length, 1);
     byte_ptr = (void *)mp->ps->t1_bytes;
     (mp->read_binary_file)(mp,mp->ps->t1_file,&byte_ptr,&mp->ps->t1_byte_length);
