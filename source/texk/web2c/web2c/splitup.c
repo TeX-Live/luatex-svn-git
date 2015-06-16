@@ -2,7 +2,7 @@
    and it produces several .c and .h files in the current directory
    as its output.
 
-   $Id: splitup.c 27708 2012-09-18 17:43:20Z peter $
+   $Id: splitup.c 37504 2015-06-12 08:45:07Z peter $
 
    Tim Morgan  September 19, 1987.  */
 
@@ -118,8 +118,14 @@ main (int argc, string *argv)
   fputs ("#define STAT\n#define INI\n", out);
   
   if (STREQ (output_name, "mf")) {
-    fputs ("#define INIMF\n#define MF\n", out);
+    fputs ("#define INIMF\n#define MF\n#define onlyMF\n", out);
     coerce = "mfcoerce.h";
+  } else if (STREQ (output_name, "mflua")) {
+    fputs ("#define INIMF\n#define MF\n#define MFLua\n", out);
+    coerce = "mfluacoerce.h";
+  } else if (STREQ (output_name, "mfluajit")) {
+    fputs ("#define INIMF\n#define MF\n#define MFLuaJIT\n", out);
+    coerce = "mfluajitcoerce.h";
   } else if (STREQ (output_name, "tex")) {
     fputs ("#define INITEX\n#define TeX\n#define onlyTeX\n", out);
     coerce = "texcoerce.h";

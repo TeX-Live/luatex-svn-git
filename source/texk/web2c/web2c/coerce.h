@@ -1,6 +1,6 @@
 /* Some definitions that get appended to the `coerce.h' file that web2c
    outputs.  */
-/* $Id: coerce.h 28758 2013-01-07 09:17:01Z peter $ */
+/* $Id: coerce.h 37504 2015-06-12 08:45:07Z peter $ */
 
 /* The C compiler ignores most unnecessary casts (i.e., casts of
    something to its own type).  However, for structures, it doesn't.
@@ -36,6 +36,9 @@ extern void calledit (packedASCIIcode *, poolpointer, integer, integer);
 #ifdef MF
 extern void blankrectangle (screencol, screencol, screenrow, screenrow);
 extern void paintrow (screenrow, pixelcolor, transspec, screencol);
+#if defined(MFLua) || defined(MFLuaJIT)
+#include <mfluadir/mfluac.h>
+#endif
 #endif
 
 extern strnumber makefullnamestring(void);
