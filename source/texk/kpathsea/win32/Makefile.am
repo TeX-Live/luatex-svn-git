@@ -4,7 +4,7 @@
 ## You may freely use, modify and/or distribute this file.
 ##
 AM_CPPFLAGS = -I$(top_builddir)/.. -I$(top_srcdir)/..
-AM_CPPFLAGS += -DWEB2C_KPSE_VERSION='"Web2C-$(WEB2CVERSION) Kpathsea-$(KPSEVERSION)"'
+AM_CPPFLAGS += -DWEB2CVERSION='"$(WEB2CVERSION)"'
 AM_CFLAGS = $(WARNING_CFLAGS)
 
 # Build WIN32 replacements for Unix shell scripts.
@@ -21,40 +21,39 @@ mktexfmt_SOURCES = \
 
 mktexlsr_SOURCES = \
 	dirutil.c \
-	dirutil.h \
+	mkpaths.c \
+	mktex.h \
 	mktexlsr.c
 
 mktexmf_SOURCES = \
 	dirutil.c \
-	dirutil.h \
 	getdestdir.c \
-	getdestdir.h \
+	mkpaths.c \
+	mktex.h \
 	mktexmf.c \
-	mktexupd.c \
-	mktexupd.h
+	mktexupd.c
 
 mktexpk_SOURCES = \
 	dirutil.c \
-	dirutil.h \
 	getdestdir.c \
-	getdestdir.h \
+	mkpaths.c \
+	mktex.h \
 	mktexpk.c \
-	mktexupd.c \
-	mktexupd.h
+	mktexupd.c
 
 mktextfm_SOURCES = \
 	dirutil.c \
-	dirutil.h \
 	getdestdir.c \
-	getdestdir.h \
+	mkpaths.c \
+	mktex.h \
 	mktextfm.c \
-	mktexupd.c \
-	mktexupd.h
+	mktexupd.c
 
 mktexupd_SOURCES = \
+	mkpaths.c \
+	mktex.h \
 	mktexupdmain.c \
-	mktexupd.c \
-	mktexupd.h
+	mktexupd.c
 
 LDADD = ../libkpathsea.la
 

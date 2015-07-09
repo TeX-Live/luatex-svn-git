@@ -1,3 +1,21 @@
+2015-07-08  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/web.am: Fix dependencies for 'make check'.
+
+2015-07-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* texmfmp.h: Declare convertStringToHexString() and getmd5sum().
+
+2015-07-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/texmf.am: Always create mf-nowin, either as extra program
+	or as symlink.
+
+2015-06-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am (tie_c, tie_m): New variables.
+	* am/texmf.am: Use $(tie_c).
+
 2015-06-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	Integrate MFLua and MFLuaJIT.

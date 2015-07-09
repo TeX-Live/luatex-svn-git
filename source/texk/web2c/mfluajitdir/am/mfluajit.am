@@ -11,17 +11,36 @@ if MFLUAJITN
 bin_PROGRAMS += mfluajit-nowin
 endif MFLUAJITN
 if WIN32
-bin_PROGRAMS += inimfluajit
+noinst_PROGRAMS += call_mfluajit
+install_exe_links += install-mfluajit-links
+uninstall_exe_links += uninstall-mfluajit-links
 else !WIN32
+if !MFLUAJITN
+bin_links += mfluajit$(EXEEXT):mfluajit-nowin
+endif !MFLUAJITN
 bin_links += mfluajit$(EXEEXT):inimfluajit
 endif !WIN32
 endif MFLUAJIT
 EXTRA_PROGRAMS += mfluajit mfluajit-nowin
 DISTCLEANFILES += mfluajittrap.diffs
 
-inimfluajit_CPPFLAGS = -DEXEPROG=\"mfluajit.exe\"
-nodist_inimfluajit_SOURCES = callexe.c
-inimfluajit_LDADD =
+call_mfluajit_CPPFLAGS = -DEXEPROG=\"mfluajit.exe\"
+nodist_call_mfluajit_SOURCES = callexe.c
+call_mfluajit_LDADD =
+
+.PHONY: install-mfluajit-links uninstall-mfluajit-links
+if WIN32
+install-mfluajit-links: call_mfluajit$(EXEEXT)
+if !MFLUAJITN
+	$(INSTALL_PROGRAM) call_mfluajit$(EXEEXT) $(DESTDIR)$(bindir)/mfluajit-nowin$(EXEEXT)
+endif !MFLUAJITN
+	$(INSTALL_PROGRAM) call_mfluajit$(EXEEXT) $(DESTDIR)$(bindir)/inimfluajit$(EXEEXT)
+uninstall-mfluajit-links:
+if !MFLUAJITN
+	rm -f $(DESTDIR)$(bindir)/mfluajit-nowin$(EXEEXT)
+endif !MFLUAJITN
+	rm -f $(DESTDIR)$(bindir)/inimfluajit$(EXEEXT)
+endif WIN32
 
 dist_mfluajit_SOURCES = mfluajitdir/mfluajitextra.c mfluajitdir/mfluajitextra.h mfluadir/mflua_version.h
 mfluajit_CPPFLAGS = $(AM_CPPFLAGS) $(X_CFLAGS) $(LUAJIT_INCLUDES) $(LUAJIT_DEFINES)
@@ -42,14 +61,14 @@ EXTRA_LIBRARIES += libmfluajit.a
 
 # MFLua C sources
 mfluajit_c_h = mfluajitini.c mfluajit0.c mfluajitcoerce.h mfluajitd.h
-dist_libmfluajit_a_SOURCES = mfluadir/mfluac.c  mfluadir/mfluac.h
+dist_libmfluajit_a_SOURCES = luatexdir/lua/lkpselib.c mfluadir/mfluac.c mfluadir/mfluac.h
 nodist_libmfluajit_a_SOURCES = $(mfluajit_c_h) mfluajit-pool.c
-libmfluajit_a_CPPFLAGS = $(AM_CPPFLAGS) $(LUAJIT_INCLUDES) -DJIT
+libmfluajit_a_CPPFLAGS = $(AM_CPPFLAGS) $(LUAJIT_INCLUDES) -DMF_LUA -DJIT
 
 # We must create mfluajitd.h before building the libmfluajit_a_OBJECTS.
 $(libmfluajit_a_OBJECTS): mfluajitd.h
 
-$(mfluajit_c_h): mfluajit-web2c $(LUAJIT_LIBS)
+$(mfluajit_c_h): mfluajit-web2c $(LUAJIT_DEPEND)
 	@$(web2c) mfluajit
 mfluajit-web2c: mfluajit.p $(web2c_texmf) web2c/cvtmf1.sed web2c/cvtmf2.sed mfluajitdir/mfluajit.defines
 	@$(web2c) mfluajit
@@ -65,7 +84,7 @@ mfluajit-tangle: tangle$(EXEEXT) mfluajit.web mfluajit.ch tangle-sh
 
 # Generate mfluajit.web
 mfluajit.web: tie$(EXEEXT) $(mfluajit_web_srcs)
-	$(tie) -m mfluajit.web $(mfluajit_web_srcs)
+	$(tie_m) $(mfluajit_web_srcs)
 mfluajit_web_srcs = \
 	mf.web \
 	mfluadir/mf-lua.ch \
@@ -73,7 +92,7 @@ mfluajit_web_srcs = \
 
 # Generate mfluajit.ch
 mfluajit.ch: tie$(EXEEXT) mfluajit.web $(mfluajit_ch_src)
-	$(tie) -c $@ mfluajit.web $(mfluajit_ch_src)
+	$(tie_c) mfluajit.web $(mfluajit_ch_src)
 mfluajit_ch_src = \
 	mf.ch \
 	mfluadir/mflua-m.ch \

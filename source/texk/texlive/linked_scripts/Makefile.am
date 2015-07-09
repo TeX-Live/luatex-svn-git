@@ -47,6 +47,8 @@ installdirs-local:
 ## 
 ## Some /bin/sh scripts are listed as `other' or `context'
 ## scripts because they are correctly handled by the wrapper binaries.
+## Conversely, some non-sh scripts are listed as `shell' because they
+## depend on shell scripts or otherwise aren't useful on Windows.
 ## 
 texmf_scriptsdir = $(datarootdir)/texmf-dist/scripts
 texmf_shell_scripts = \
@@ -59,6 +61,7 @@ texmf_shell_scripts = \
 	listings-ext/listings-ext.sh \
 	ltxfileinfo/ltxfileinfo \
 	lua2dox/lua2dox_filter \
+	pdfbook2/pdfbook2 \
 	pdfjam/pdf180 \
 	pdfjam/pdf270 \
 	pdfjam/pdf90 \
@@ -94,6 +97,7 @@ texmf_other_scripts = \
 	ctanify/ctanify \
 	ctanupload/ctanupload.pl \
 	de-macro/de-macro \
+	diadia/diadia.lua \
 	dosepsbin/dosepsbin.pl \
 	dviasm/dviasm.py \
 	ebong/ebong.py \
@@ -109,16 +113,16 @@ texmf_other_scripts = \
 	fragmaster/fragmaster.pl \
 	getmap/getmapdl.lua \
 	glossaries/makeglossaries \
-	jfontmaps/kanji-fontmap-creator.pl \
-	jfontmaps/kanji-config-updmap.pl \
 	jfontmaps/kanji-config-updmap-sys.sh \
+	jfontmaps/kanji-config-updmap.pl \
+	jfontmaps/kanji-fontmap-creator.pl \
 	kotex-utils/jamo-normalize.pl \
 	kotex-utils/komkindex.pl \
 	kotex-utils/ttf2kotexfont.pl \
 	latex-git-log/latex-git-log \
 	latex2man/latex2man \
-	latexdiff/latexdiff.pl \
 	latexdiff/latexdiff-vc.pl \
+	latexdiff/latexdiff.pl \
 	latexdiff/latexrevise.pl \
 	latexindent/latexindent.pl \
 	latexmk/latexmk.pl \
@@ -129,11 +133,12 @@ texmf_other_scripts = \
 	ltximg/ltximg.pl \
 	luaotfload/luaotfload-tool.lua \
 	m-tx/m-tx.lua \
+	make4ht/make4ht \
 	match_parens/match_parens \
 	mathspic/mathspic.pl \
 	mf2pt1/mf2pt1.pl \
-	mkjobtexmf/mkjobtexmf.pl \
 	mkgrkindex/mkgrkindex \
+	mkjobtexmf/mkjobtexmf.pl \
 	mkpic/mkpic \
 	multibibliography/multibibliography.pl \
 	musixtex/musixflx.lua \
@@ -143,34 +148,35 @@ texmf_other_scripts = \
 	pdfcrop/pdfcrop.pl \
 	pedigree-perl/pedigree.pl \
 	perltex/perltex.pl \
-	pfarrei/pfarrei.tlu \
 	pfarrei/a5toa4.tlu \
-	pkfix/pkfix.pl \
+	pfarrei/pfarrei.tlu \
 	pkfix-helper/pkfix-helper \
+	pkfix/pkfix.pl \
 	pmx/pmx2pdf.lua \
 	pmxchords/pmxchords.lua \
 	pst2pdf/pst2pdf.pl \
 	ptex2pdf/ptex2pdf.lua \
 	purifyeps/purifyeps \
 	pygmentex/pygmentex.py \
-	pythontex/pythontex.py \
 	pythontex/depythontex.py \
+	pythontex/pythontex.py \
 	rubik/rubikrotation.pl \
 	splitindex/splitindex.pl \
 	sty2dtx/sty2dtx.pl \
 	svn-multi/svn-multi.pl \
-	texdoc/texdoc.tlu \
+	tex4ebook/tex4ebook \
 	texcount/texcount.pl \
 	texdef/texdef.pl \
 	texdiff/texdiff \
 	texdirflatten/texdirflatten \
+	texdoc/texdoc.tlu \
 	texfot/texfot.pl \
-	texlive/fmtutil.pl \
 	texlive/fmtutil-sys.sh \
+	texlive/fmtutil.pl \
 	texlive/rungs.tlu \
 	texlive/tlmgr.pl \
-	texlive/updmap.pl \
 	texlive/updmap-sys.sh \
+	texlive/updmap.pl \
 	texliveonfly/texliveonfly.py \
 	texloganalyser/texloganalyser \
 	thumbpdf/thumbpdf.pl \

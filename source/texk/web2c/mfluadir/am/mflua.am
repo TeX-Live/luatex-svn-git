@@ -11,17 +11,36 @@ if MFLUAN
 bin_PROGRAMS += mflua-nowin
 endif MFLUAN
 if WIN32
-bin_PROGRAMS += inimflua
+noinst_PROGRAMS += call_mflua
+install_exe_links += install-mflua-links
+uninstall_exe_links += uninstall-mflua-links
 else !WIN32
+if !MFLUAN
+bin_links += mflua$(EXEEXT):mflua-nowin
+endif !MFLUAN
 bin_links += mflua$(EXEEXT):inimflua
 endif !WIN32
 endif MFLUA
 EXTRA_PROGRAMS += mflua mflua-nowin
 DISTCLEANFILES += mfluatrap.diffs
 
-inimflua_CPPFLAGS = -DEXEPROG=\"mflua.exe\"
-nodist_inimflua_SOURCES = callexe.c
-inimflua_LDADD =
+call_mflua_CPPFLAGS = -DEXEPROG=\"mflua.exe\"
+nodist_call_mflua_SOURCES = callexe.c
+call_mflua_LDADD =
+
+.PHONY: install-mflua-links uninstall-mflua-links
+if WIN32
+install-mflua-links: call_mflua$(EXEEXT)
+if !MFLUAN
+	$(INSTALL_PROGRAM) call_mflua$(EXEEXT) $(DESTDIR)$(bindir)/mflua-nowin$(EXEEXT)
+endif !MFLUAN
+	$(INSTALL_PROGRAM) call_mflua$(EXEEXT) $(DESTDIR)$(bindir)/inimflua$(EXEEXT)
+uninstall-mflua-links:
+if !MFLUAN
+	rm -f $(DESTDIR)$(bindir)/mflua-nowin$(EXEEXT)
+endif !MFLUAN
+	rm -f $(DESTDIR)$(bindir)/inimflua$(EXEEXT)
+endif WIN32
 
 dist_mflua_SOURCES = mfluadir/mfluaextra.c mfluadir/mfluaextra.h mfluadir/mflua_version.h
 mflua_CPPFLAGS = $(AM_CPPFLAGS) $(X_CFLAGS) $(LUA_INCLUDES)
@@ -42,14 +61,14 @@ EXTRA_LIBRARIES += libmflua.a
 
 # MFLua C sources
 mflua_c_h = mfluaini.c mflua0.c mfluacoerce.h mfluad.h
-dist_libmflua_a_SOURCES = mfluadir/mfluac.c  mfluadir/mfluac.h
+dist_libmflua_a_SOURCES = luatexdir/lua/lkpselib.c mfluadir/mfluac.c mfluadir/mfluac.h
 nodist_libmflua_a_SOURCES = $(mflua_c_h) mflua-pool.c
-libmflua_a_CPPFLAGS = $(AM_CPPFLAGS) $(LUA_INCLUDES)
+libmflua_a_CPPFLAGS = $(AM_CPPFLAGS) $(LUA_INCLUDES) -DMF_LUA
 
 # We must create mfluad.h before building the libmflua_a_OBJECTS.
 $(libmflua_a_OBJECTS): mfluad.h
 
-$(mflua_c_h): mflua-web2c $(LUA_LIBS)
+$(mflua_c_h): mflua-web2c $(LUA_DEPEND)
 	@$(web2c) mflua
 mflua-web2c: mflua.p $(web2c_texmf) web2c/cvtmf1.sed web2c/cvtmf2.sed mfluadir/mflua.defines
 	@$(web2c) mflua
@@ -70,14 +89,14 @@ $(srcdir)/mfluadir/mflua_version.h: @MAINTAINER_MODE_TRUE@ mfluadir/mf-lua.ch
 
 # Generate mflua.web
 mflua.web: tie$(EXEEXT) $(mflua_web_srcs)
-	$(tie) -m mflua.web $(mflua_web_srcs)
+	$(tie_m) $(mflua_web_srcs)
 mflua_web_srcs = \
 	mf.web \
 	mfluadir/mf-lua.ch
 
 # Generate mflua.ch
 mflua.ch: tie$(EXEEXT) mflua.web $(mflua_ch_src)
-	$(tie) -c $@ mflua.web $(mflua_ch_src)
+	$(tie_c) mflua.web $(mflua_ch_src)
 mflua_ch_src = \
 	mf.ch \
 	mfluadir/mflua-m.ch \
