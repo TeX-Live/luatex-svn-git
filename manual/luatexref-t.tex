@@ -5,6 +5,8 @@
 % check numbers
 % check \luatex command
 
+\usemodule[newotf]
+
 %\nopdfcompression
 %\loggingall
 \environment luatexref-env
@@ -205,6 +207,7 @@ The affected commands are:
 \skipdef
 \muskipdef
 \toksdef
+\insert
 \box
 \unhbox
 \unvbox
@@ -5610,7 +5613,7 @@ This contains variables and functions that are related to the \PDF\ backend.
 
 \startfunctioncall
 pdf.mapfile(<string> map file)
-pdf.mapfile(<string> map line)
+pdf.mapline(<string> map line)
 \stopfunctioncall
 
 These two functions can be used to replace primitives \type{\pdfmapfile}
