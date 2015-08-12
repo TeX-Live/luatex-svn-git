@@ -1,3 +1,22 @@
+2015-08-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* pltotf.ch, vptovf.ch: Send also real numbers to stderr,
+	completing the change from 2015-01-09 (report from Norbert).
+
+2015-07-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* dvitype.ch: Removed a spurious duplicate statement.
+
+2015-07-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mftraptest (removed): Renamed ...
+	* mftraptest.test (new):  ... into this.
+	* triptest (removed): Renamed ...
+	* triptest.test (new):... into this.
+	* triptrap-sh: Adapted.
+	* Makefile.am, am/bootstrap.am, am/cweb.am, am/texmf.am,
+	am/web.am, libmd5/am/md5.am: Dependencies for 'make check'.
+
 2015-07-09  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
 
 	* texmfmp.h: Add \pdfmdfivesum to XeTeX.
