@@ -1,3 +1,21 @@
+2015-08-27  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* image/pdftoepdf.w: Drop useless casts to avoid warnings.
+	* lua/lpdfscannerlib.cc: Unconstify Token.string to avoid warning.
+	* lua/lepdflib.cc: Drop useless casts to avoid some warnings.
+
+2015-08-27  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* tex/mlist.w: Sync with the trunk.
+	See http://tug.org/pipermail/luatex/2015-August/005319.html
+	* tex/mainbody.h, tex/mainbody.w, tex/printing.w, lua/luainit.w:
+	Remove the option --[no-]parse-first-line, since it does not
+	exist in lua(jit)tex.
+
+2015-07-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* am/luatex.am: Dependencies for 'make check'.
+
 2015-07-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* lua/lkpselib.c: Also used for MFLua and MFLuaJIT.

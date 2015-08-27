@@ -3119,7 +3119,7 @@ euptex_ch_srcs = \
 #
 euptex_tests = euptexdir/euptriptest.test euptexdir/pdfprimitive.test
 libpdftex_a_CPPFLAGS = $(REGEX_INCLUDES) $(pdftex_cppflags)
-libpdftex_a_CXXFLAGS = # $(WARNING_CXXFLAGS)
+libpdftex_a_CXXFLAGS = $(WARNING_CXXFLAGS)
 libpdftex_a_SOURCES = pdftexdir/avl.c pdftexdir/avl.h \
 	pdftexdir/avlstuff.c pdftexdir/avlstuff.h pdftexdir/epdf.c \
 	pdftexdir/image.h pdftexdir/mapfile.c pdftexdir/pdftex.h \
@@ -3183,7 +3183,7 @@ ttf2afm_tests = pdftexdir/ttf2afm.test
 # Force Automake to use CXXLD for linking
 nodist_EXTRA_pdftosrc_SOURCES = dummy.cxx
 pdftosrc_CPPFLAGS = $(pdftex_cppflags)
-pdftosrc_CXXFLAGS = # $(WARNING_CXXFLAGS)
+pdftosrc_CXXFLAGS = $(WARNING_CXXFLAGS)
 pdftosrc_SOURCES = pdftexdir/pdftosrc.cc
 pdftosrc_LDADD = $(pdftex_ldadd) $(LDADD)
 pdftosrc_DEPENDENCIES = $(pdftex_dependencies)
@@ -3607,7 +3607,7 @@ xetex_dependencies = $(proglib) $(KPATHSEA_DEPEND) $(ICU_DEPEND) \
 	$(ZLIB_DEPEND) libmd5.a
 @XETEX_MACOSX_TRUE@xetex_LDFLAGS = -framework ApplicationServices -framework Cocoa
 xetex_CPPFLAGS = $(xetex_cppflags) $(am__append_141)
-xetex_CFLAGS = # $(WARNING_CFLAGS)
+xetex_CFLAGS = $(WARNING_CFLAGS)
 xetex_CXXFLAGS = # $(WARNING_CXXFLAGS)
 xetex_LDADD = $(xetex_ldadd) $(LDADD) $(ipc_socketlibs)
 
@@ -3628,7 +3628,7 @@ xetex_ch_srcs = \
 	tex-binpool.ch
 
 libxetex_a_CPPFLAGS = $(xetex_cppflags)
-libxetex_a_CFLAGS = # $(WARNING_CFLAGS)
+libxetex_a_CFLAGS = $(WARNING_CFLAGS)
 libxetex_a_CXXFLAGS = # $(WARNING_CXXFLAGS)
 libxetex_a_OBJCXXFLAGS = # $(WARNING_OBJCXXFLAGS)
 libxetex_a_SOURCES = xetexdir/MathTable.h xetexdir/XeTeXFontInst.cpp \
