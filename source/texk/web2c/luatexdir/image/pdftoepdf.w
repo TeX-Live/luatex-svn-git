@@ -59,7 +59,7 @@ static PdfDocument *findPdfDocument(char *file_path)
 
 #define PDF_CHECKSUM_SIZE 32
 
-static char *get_file_checksum(char *a, file_error_mode fe)
+static char *get_file_checksum(const char *a, file_error_mode fe)
 {
     struct stat finfo;
     char *ck = NULL;
@@ -93,9 +93,9 @@ static char *get_file_checksum(char *a, file_error_mode fe)
 // Creates a new PdfDocument structure if it doesn't exist yet.
 // When fe = FE_RETURN_NULL, the function returns NULL in error case.
 
-PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
+PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe)
 {
-    char *checksum;
+    char *checksum, *path_copy;
     PdfDocument *pdf_doc;
     PDFDoc *doc = NULL;
     GooString *docName = NULL;
@@ -105,13 +105,14 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
         return (PdfDocument *) NULL;
     }
     assert(checksum != NULL);
-    if ((pdf_doc = findPdfDocument(file_path)) == NULL) {
+    path_copy = xstrdup(file_path);
+    if ((pdf_doc = findPdfDocument(path_copy)) == NULL) {
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: New PdfDocument %s\n", file_path);
 #endif
         new_flag = 1;
         pdf_doc = new PdfDocument;
-        pdf_doc->file_path = xstrdup(file_path);
+        pdf_doc->file_path = path_copy;
         pdf_doc->checksum = checksum;
         pdf_doc->doc = NULL;
         pdf_doc->inObjList = NULL;
@@ -128,6 +129,7 @@ PdfDocument *refPdfDocument(char *file_path, file_error_mode fe)
             luatex_fail("PDF inclusion: file has changed '%s'", file_path);
         }
         free(checksum);
+        free(path_copy);
     }
     assert(pdf_doc != NULL);
     if (pdf_doc->doc == NULL) {

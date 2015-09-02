@@ -1,6 +1,6 @@
 /* lepdflib.cc
 
-   Copyright 2009-2013 Taco Hoekwater <taco@luatex.org>
+   Copyright 2009-2015 Taco Hoekwater <taco@luatex.org>
    Copyright 2009-2013 Hartmut Henkel <hartmut@luatex.org>
 
    This file is part of LuaTeX.
@@ -64,11 +64,9 @@ static const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 #define M_PDFRectangle     "epdf.PDFRectangle"
 #define M_Ref              "epdf.Ref"
 #define M_Stream           "epdf.Stream"
-#ifdef HAVE_STRUCTTREEROOT_H
 #define M_StructElement    "epdf.StructElement"
 #define M_Attribute        "epdf.Attribute"
 #define M_TextSpan         "epdf.TextSpan"
-#endif
 #define M_StructTreeRoot   "epdf.StructTreeRoot"
 #define M_XRefEntry        "epdf.XRefEntry"
 #define M_XRef             "epdf.XRef"
@@ -101,11 +99,9 @@ new_poppler_userdata(Page);
 new_poppler_userdata(PDFRectangle);
 new_poppler_userdata(Ref);
 new_poppler_userdata(Stream);
-#ifdef HAVE_STRUCTTREEROOT_H
 new_poppler_userdata(StructElement);
 new_poppler_userdata(Attribute);
 new_poppler_userdata(TextSpan);
-#endif
 new_poppler_userdata(StructTreeRoot);
 new_poppler_userdata(XRef);
 
@@ -129,7 +125,7 @@ static int l_open_PDFDoc(lua_State * L)
     udstruct *uout;
     PdfDocument *d;
     file_path = luaL_checkstring(L, 1); // path
-    d = refPdfDocument((char *) file_path, FE_RETURN_NULL);
+    d = refPdfDocument(file_path, FE_RETURN_NULL);
     if (d == NULL)
         lua_pushnil(L);
     else {
@@ -157,7 +153,6 @@ static int l_new_Array(lua_State * L)
     return 1;
 }
 
-#ifdef HAVE_STRUCTTREEROOT_H
 static int l_new_Attribute(lua_State * L)
 {
     Attribute::Type t;
@@ -326,9 +321,6 @@ static int l_AttributeOwner_Type(lua_State * L) {
 }
 
 
-#endif
-
-
 static int l_new_Dict(lua_State * L)
 {
     udstruct *uxref, *uout;
@@ -370,12 +362,10 @@ static int l_new_PDFRectangle(lua_State * L)
 static const struct luaL_Reg epdflib_f[] = {
     {"open", l_open_PDFDoc},
     {"Array", l_new_Array},
-#ifdef HAVE_STRUCTTREEROOT_H
     {"Attribute",          l_new_Attribute},
     {"StructElement_Type", l_StructElement_Type},
     {"Attribute_Type",     l_Attribute_Type},
     {"AttributeOwner_Type",l_AttributeOwner_Type},
-#endif
     {"Dict", l_new_Dict},
     {"Object", l_new_Object},
     {"PDFRectangle", l_new_PDFRectangle},
@@ -525,7 +515,7 @@ static int m_##in##_##function(lua_State * L)                  \
     if (uin->pd != NULL && uin->pd->pc != uin->pc)             \
         pdfdoc_changed_error(L);                               \
     s = luaL_checkstring(L, 2);                                \
-    if (((in *) uin->d)->function((char *) s))                 \
+    if (((in *) uin->d)->function(s))                          \
         lua_pushboolean(L, 1);                                 \
     else                                                       \
         lua_pushboolean(L, 0);                                 \
@@ -782,11 +772,7 @@ static int m_Catalog_getPageRef(lua_State * L)
 
 m_poppler_get_GOOSTRING(Catalog, getBaseURI);
 m_poppler_get_GOOSTRING(Catalog, readMetadata);
-#ifdef HAVE_STRUCTTREEROOT_H
 m_poppler_get_poppler(Catalog, StructTreeRoot, getStructTreeRoot);
-#else
-m_poppler_get_poppler(Catalog, Object, getStructTreeRoot);
-#endif
 
 static int m_Catalog_findPage(lua_State * L)
 {
@@ -937,7 +923,7 @@ static int m_Dict_add(lua_State * L)
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
-    s = copyString((char *) luaL_checkstring(L, 2));
+    s = copyString(luaL_checkstring(L, 2));
     uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
     ((Dict *) uin->d)->add(s, ((Object *) uobj->d));
     return 0;
@@ -945,12 +931,12 @@ static int m_Dict_add(lua_State * L)
 
 static int m_Dict_set(lua_State * L)
 {
-    char *s;
+    const char *s;
     udstruct *uin, *uobj;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
-    s = (char *) luaL_checkstring(L, 2);
+    s = luaL_checkstring(L, 2);
     uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
     ((Dict *) uin->d)->set(s, ((Object *) uobj->d));
     return 0;
@@ -958,12 +944,12 @@ static int m_Dict_set(lua_State * L)
 
 static int m_Dict_remove(lua_State * L)
 {
-    char *s;
+    const char *s;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
-    s = (char *) luaL_checkstring(L, 2);
+    s = luaL_checkstring(L, 2);
     ((Dict *) uin->d)->remove(s);
     return 0;
 }
@@ -1294,7 +1280,7 @@ static const struct luaL_Reg Links_m[] = {
 // Object
 
 // Special type checking.
-#define m_Object_isType(function)                                          \
+#define m_Object_isType(function, cast)                                    \
 static int m_Object_##function(lua_State * L)                              \
 {                                                                          \
     udstruct *uin;                                                         \
@@ -1303,7 +1289,7 @@ static int m_Object_##function(lua_State * L)                              \
         pdfdoc_changed_error(L);                                           \
     if (lua_gettop(L) >= 2) {                                              \
         if (lua_isstring(L, 2)                                             \
-            && ((Object *) uin->d)->function((char *) lua_tostring(L, 2))) \
+            && ((Object *) uin->d)->function(cast lua_tostring(L, 2)))     \
             lua_pushboolean(L, 1);                                         \
         else                                                               \
             lua_pushboolean(L, 0);                                         \
@@ -1377,7 +1363,7 @@ static int m_Object_initName(lua_State * L)
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     s = luaL_checkstring(L, 2);
-    ((Object *) uin->d)->initName((char *) s);
+    ((Object *) uin->d)->initName(s);
     return 0;
 }
 
@@ -1528,13 +1514,13 @@ m_poppler_get_BOOL(Object, isInt);
 m_poppler_get_BOOL(Object, isReal);
 m_poppler_get_BOOL(Object, isNum);
 m_poppler_get_BOOL(Object, isString);
-m_Object_isType(isName);
+m_Object_isType(isName, );
 m_poppler_get_BOOL(Object, isNull);
 m_poppler_get_BOOL(Object, isArray);
-m_Object_isType(isDict);
-m_Object_isType(isStream);
+m_Object_isType(isDict, );
+m_Object_isType(isStream, (char *));
 m_poppler_get_BOOL(Object, isRef);
-m_Object_isType(isCmd);
+m_Object_isType(isCmd, );
 m_poppler_get_BOOL(Object, isError);
 m_poppler_get_BOOL(Object, isEOF);
 m_poppler_get_BOOL(Object, isNone);
@@ -1840,7 +1826,7 @@ static int m_Object_dictAdd(lua_State * L)
         pdfdoc_changed_error(L);
     if (!((Object *) uin->d)->isDict())
         luaL_error(L, "Object is not a Dict");
-    ((Object *) uin->d)->dictAdd((char *) s, (Object *) uobj->d);
+    ((Object *) uin->d)->dictAdd(copyString(s), (Object *) uobj->d);
     return 0;
 }
 
@@ -2360,22 +2346,14 @@ static int m_PDFDoc_readMetadata(lua_State * L)
 
 static int m_PDFDoc_getStructTreeRoot(lua_State * L)
 {
-#ifdef HAVE_STRUCTTREEROOT_H
     StructTreeRoot *obj;
-#else
-    Object *obj;
-#endif
     udstruct *uin, *uout;
     uin = (udstruct *) luaL_checkudata(L, 1, M_PDFDoc);
     if (uin->pd != NULL && uin->pd->pc != uin->pc)
         pdfdoc_changed_error(L);
     if (((PdfDocument *) uin->d)->doc->getCatalog()->isOk()) {
         obj = ((PdfDocument *) uin->d)->doc->getStructTreeRoot();
-#ifdef HAVE_STRUCTTREEROOT_H
         uout = new_StructTreeRoot_userdata(L);
-#else
-        uout = new_Object_userdata(L);
-#endif
         uout->d = obj;
         uout->pc = uin->pc;
         uout->pd = uin->pd;
@@ -2740,7 +2718,6 @@ static const struct luaL_Reg Stream_m[] = {
     {NULL, NULL}                // sentinel
 };
 
-#ifdef HAVE_STRUCTTREEROOT_H
 //**********************************************************************
 // TextSpan
 
@@ -3294,7 +3271,6 @@ static const struct luaL_Reg StructTreeRoot_m[] = {
   {"__tostring", m_StructTreeRoot__tostring},
   {NULL, NULL}                // sentinel
 };
-#endif
 
 //**********************************************************************
 // XRef
@@ -3431,12 +3407,10 @@ int luaopen_epdf(lua_State * L)
     setfuncs_meta(PDFRectangle);
     setfuncs_meta(Ref);
     setfuncs_meta(Stream);
-#ifdef HAVE_STRUCTTREEROOT_H
     setfuncs_meta(Attribute);
     setfuncs_meta(StructElement);
     setfuncs_meta(StructTreeRoot);
     setfuncs_meta(TextSpan);
-#endif
     setfuncs_meta(XRef);
     setfuncs_meta(XRefEntry);
 

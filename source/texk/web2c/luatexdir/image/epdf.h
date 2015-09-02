@@ -1,7 +1,7 @@
 /* epdf.h
 
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
-   Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
+   Copyright 2006-2015 Taco Hoekwater <taco@luatex.org>
    This file is part of LuaTeX.
 
    LuaTeX is free software; you can redistribute it and/or modify it under
@@ -47,9 +47,7 @@ extern "C" {
 #  include <Dict.h>
 #  include <XRef.h>
 #  include <Catalog.h>
-#  ifdef HAVE_STRUCTTREEROOT_H
-#    include <StructTreeRoot.h>
-#  endif
+#  include <StructTreeRoot.h>
 #  include <Link.h>
 #  include <Page.h>
 #  include <GfxFont.h>
@@ -194,6 +192,6 @@ struct PdfDocument {
     unsigned int pc;            // counter to track PDFDoc generation or deletion
 };
 
-PdfDocument *refPdfDocument(char *file_path, file_error_mode fe);
+PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe);
 
 #endif                          /* EPDF_H */
