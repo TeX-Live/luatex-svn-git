@@ -2188,7 +2188,7 @@ page object gets finalized. This callback is available in \LUATEX\ 0.78.4 and la
 
 \startfunctioncall
 function(<string> name, <number> size, <number> id)
-    return <table> font
+    return <table> font | <number> id
 end
 \stopfunctioncall
 
@@ -2209,6 +2209,10 @@ The internal structure of the \type{font} table that is to be
 returned is explained in \in{chapter}[fonts]. That table is saved
 internally, so you can put extra fields in the table for your
 later \LUA\ code to use.
+In alternative, retval can be a  previously defined fontid. This is
+useful if a previous definition can be reused instead of
+creating a whole new font structure.
+
 
 Setting this callback to \type{false} is pointless as it will prevent
 font loading completely but will nevertheless generate errors.
