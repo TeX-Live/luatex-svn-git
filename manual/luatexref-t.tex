@@ -722,6 +722,32 @@ that will be used to store the page sent to the output routine. Its default
 value is 255, and the acceptable range is from 0 to 65535.
 
 
+
+\subsection{\tex{fontid}}
+
+\startsyntax
+\fontid\font
+\stopsyntax
+
+This primitive expands into a number. It is not a register so there is no need to
+prefix with \type {\number} (and using \type {\the} gives an error). The currently
+used font id is \fontid\font. Here are some more:
+
+\starttabulate[|l|c|]
+\NC \type {\bf} \NC \bf \fontid\font \NC \NR
+\NC \type {\it} \NC \it \fontid\font \NC \NR
+\NC \type {\bi} \NC \bi \fontid\font \NC \NR
+\stoptabulate
+
+These numbers depend on the macro package used because each one has its own way
+of dealing with fonts. They can also differ per run, as they can depend on the
+order of loading fonts. For instance, when in \CONTEXT\ virtual math \UNICODE\
+fonts are used, we can easily get over a hundred ids in use. Not all ids have to
+be bound to a real font, after all it's just a number.
+
+
+
+
 \subsection{Font syntax}
 
 \LUATEX\ will accept a braced argument as a font name:
