@@ -61,6 +61,7 @@ struct tex_language *new_language(int n)
         lang->post_hyphen_char = 0;
         lang->pre_exhyphen_char = 0;
         lang->post_exhyphen_char = 0;
+        lang->hyphenation_min = -1;
         return lang;
     } else {
         return NULL;
@@ -142,6 +143,22 @@ int get_post_exhyphen_char(int n)
     if (l == NULL)
         return -1;
     return (int) l->post_exhyphen_char;
+}
+
+
+void set_hyphenation_min(int n, int v)
+{
+    struct tex_language *l = get_language((int) n);
+    if (l != NULL)
+        l->hyphenation_min = (int) v;
+}
+
+int get_hyphenation_min(int n)
+{
+    struct tex_language *l = get_language((int) n);
+    if (l == NULL)
+        return -1;
+    return (int) l->hyphenation_min;
 }
 
 @ @c
@@ -732,7 +749,7 @@ static halfword find_next_wordstart(halfword r)
                     /* -- or --- ligature in which case we can in a worse case usage get bad  */
                     /* node lists later on due to messed up ligature building as these dashes */
                     /* ligatures in base fonts. This is a side effect of the separating the   */
-                    /* hyphenation, ligaturing and kerning steps. A test is cmr with ------.  */                            
+                    /* hyphenation, ligaturing and kerning steps. A test is cmr with ------.  */
                     t = vlink(r) ;
                     if ((start_ok > 0) && (t!=null) && (type(t) == glyph_node) && (character(t) != ex_hyphen_char)) {
                         t = compound_word_break(r, char_lang(r));
@@ -818,7 +835,7 @@ void hnj_hyphenation(halfword head, halfword tail)
     couple_nodes(tail, s);
 
     while (r != null) {         /* could be while(1), but let's be paranoid */
-        int clang, lhmin, rhmin;
+        int clang, lhmin, rhmin, hmin;
         halfword hyf_font;
         halfword end_word = r;
         wordstart = r;
@@ -829,6 +846,7 @@ void hnj_hyphenation(halfword head, halfword tail)
         clang = char_lang(wordstart);
         lhmin = char_lhmin(wordstart);
         rhmin = char_rhmin(wordstart);
+        hmin = get_hyphenation_min(clang);
         langdata.pre_hyphen_char = get_pre_hyphen_char(clang);
         langdata.post_hyphen_char = get_post_hyphen_char(clang);
         while (r != null && type(r) == glyph_node && is_simple_character(r) && clang == char_lang(r) &&
@@ -842,7 +860,7 @@ void hnj_hyphenation(halfword head, halfword tail)
             end_word = r;
             r = vlink(r);
         }
-        if (valid_wordend(r) && wordlen >= lhmin + rhmin
+        if (valid_wordend(r) && wordlen >= lhmin + rhmin && (hmin <= 0 || wordlen >= hmin)
             && (hyf_font != 0) && clang >=0 && (lang = tex_languages[clang]) != NULL) {
             *hy = 0;
             if (lang->exceptions != 0 &&
@@ -963,6 +981,7 @@ static void dump_one_language(int i)
     dump_int(lang->post_hyphen_char);
     dump_int(lang->pre_exhyphen_char);
     dump_int(lang->post_exhyphen_char);
+    dump_int(lang->hyphenation_min);
     if (lang->patterns != NULL) {
         s = (char *) hnj_serialize(lang->patterns);
     }
@@ -1010,6 +1029,8 @@ static void undump_one_language(int i)
     lang->pre_exhyphen_char = x;
     undump_int(x);
     lang->post_exhyphen_char = x;
+    undump_int(x);
+    lang->hyphenation_min = x;
     /* patterns */
     undump_int(x);
     if (x > 0) {
@@ -1101,4 +1122,12 @@ void new_post_exhyphen_char(void)
     scan_optional_equals();
     scan_int();
     set_post_exhyphen_char(int_par(language_code), cur_val);
+}
+
+
+void new_hyphenation_min(void)
+{
+    scan_optional_equals();
+    scan_int();
+    set_hyphenation_min(int_par(language_code), cur_val);
 }

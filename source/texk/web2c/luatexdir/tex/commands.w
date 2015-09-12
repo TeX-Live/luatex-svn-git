@@ -428,7 +428,7 @@ void initialize_commands(void)
     /* The hash table is initialized with `\.{\\count}', `\.{\\attribute}',
        `\.{\\dimen}', `\.{\\skip}', and `\.{\\muskip}' all having |register|
        as their command code; they are distinguished by the |chr_code|, which
-       is either |int_val|, |attr_val|, |dimen_val|, |glue_val|, or |mu_val|. 
+       is either |int_val|, |attr_val|, |dimen_val|, |glue_val|, or |mu_val|.
      */
     primitive_tex("count", register_cmd, int_val_level, 0);
     primitive_luatex("attribute", register_cmd, attr_val_level, 0);
@@ -923,6 +923,7 @@ void initialize_commands(void)
     primitive_luatex("posthyphenchar", hyph_data_cmd, 3, 0);
     primitive_luatex("preexhyphenchar", hyph_data_cmd, 4, 0);
     primitive_luatex("postexhyphenchar", hyph_data_cmd, 5, 0);
+    primitive_luatex("hyphenationmin", hyph_data_cmd, 6, 0);
     primitive_tex("hyphenchar", assign_font_int_cmd, 0, 0);
     primitive_tex("skewchar", assign_font_int_cmd, 1, 0);
     primitive_pdftex("lpcode", assign_font_int_cmd, lp_code_base, 0);

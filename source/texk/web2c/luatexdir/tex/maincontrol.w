@@ -2655,6 +2655,9 @@ void prefixed_command(void)
         case 5:
             new_post_exhyphen_char();
             break;
+        case 6:
+            new_hyphenation_min();
+            break;
         }
         break;
     case assign_font_dimen_cmd:

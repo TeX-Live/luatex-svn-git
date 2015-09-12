@@ -1,5 +1,5 @@
 /* equivalents.h
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -279,7 +279,8 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define output_box_code 64
 #  define cur_lang_code 65      /* current language id */
 #  define ex_hyphen_char_code 66
-#  define pdftex_first_integer_code 67  /*base for \pdfTeX's integer parameters */
+#  define hyphenation_min_code 67 /* minimum word lenght */
+#  define pdftex_first_integer_code 68  /*base for \pdfTeX's integer parameters */
 #  define pdf_output_code (pdftex_first_integer_code + 0)
                                                         /*switch on PDF output if positive */
 #  define pdf_compress_level_code (pdftex_first_integer_code + 1)
@@ -292,7 +293,7 @@ here, and the |number_regs| \.{\\dimen} registers.
                                                                 /*generate unique names for resouces */
 #  define pdf_minor_version_code (pdftex_first_integer_code + 6)        /*fractional part of the PDF version produced */
 #  define pdf_pagebox_code (pdftex_first_integer_code + 7)      /*default pagebox to use for PDF inclusion */
-#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 8) /*if the PDF inclusion should treat pdfs 
+#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 8) /*if the PDF inclusion should treat pdfs
                                                                            newer than |pdf_minor_version| as an error */
 #  define pdf_gamma_code (pdftex_first_integer_code + 9)
 #  define pdf_image_gamma_code (pdftex_first_integer_code + 10)
@@ -433,7 +434,7 @@ extern int cur_boundary;        /* where the current level begins */
 
 /*
 We use the notation |saved(k)| to stand for an item that
-appears in location |save_ptr+k| of the save stack. 
+appears in location |save_ptr+k| of the save stack.
 */
 
 #  define saved_type(A) save_stack[save_ptr+(A)].type_
