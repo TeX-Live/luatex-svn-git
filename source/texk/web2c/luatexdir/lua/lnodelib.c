@@ -214,7 +214,7 @@
 /* } */
 
 
-#define nodelib_setattr(L, s, n)     reassign_attribute(n,nodelib_getlist(L,s)) 
+#define nodelib_setattr(L, s, n)     reassign_attribute(n,nodelib_getlist(L,s))
 
 #define nodelib_gettoks(L,a)   tokenlist_from_lua(L)
 
@@ -2878,6 +2878,8 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             fast_metatable_or_nil(vlink(post_break(n)));
         } else if (lua_key_eq(s, replace)) {
             fast_metatable_or_nil(vlink(no_break(n)));
+        } else if (lua_key_eq(s, penalty)) {
+            lua_pushnumber(L, disc_penalty(n));
         } else {
             lua_pushnil(L);
         }
@@ -3628,6 +3630,8 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             nodelib_pushdirect_or_nil(vlink(post_break(n)));
         } else if (lua_key_eq(s, replace)) {
             nodelib_pushdirect_or_nil(vlink(no_break(n)));
+        } else if (lua_key_eq(s, penalty)) {
+            lua_pushnumber(L, disc_penalty(n));
         } else {
             lua_pushnil(L);
         }
@@ -3925,7 +3929,7 @@ static void lua_nodelib_do_tostring(lua_State * L, halfword n, const char *tag)
 
     if ((alink(n) != null) && (type(n) != attribute_node))
         snprintf(a, 7, "%6d", (int) alink(n));
-    if (vlink(n) != null) 
+    if (vlink(n) != null)
         snprintf(v, 7, "%6d", (int) vlink(n));
     snprintf(msg, 255, "<%s %s < %6d > %s : %s %d>", tag, a, (int) n, v, node_data[type(n)].name, subtype(n));
     lua_pushstring(L, msg);
@@ -4823,6 +4827,8 @@ static int lua_nodelib_fast_setfield(lua_State * L)
             set_disc_field(post_break(n), nodelib_getlist(L, 3));
         } else if (lua_key_eq(s, replace)) {
             set_disc_field(no_break(n), nodelib_getlist(L, 3));
+        } else if (lua_key_eq(s, penalty)) {
+            disc_penalty(n) = (halfword) lua_tointeger(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -5569,6 +5575,8 @@ static int lua_nodelib_direct_setfield(lua_State * L)
             set_disc_field(post_break(n), nodelib_popdirect(3));
         } else if (lua_key_eq(s, replace)) {
             set_disc_field(no_break(n), nodelib_popdirect(3));
+        } else if (lua_key_eq(s, penalty)) {
+            disc_penalty(n) = (halfword) lua_tointeger(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }

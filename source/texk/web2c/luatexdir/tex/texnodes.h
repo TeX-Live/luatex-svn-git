@@ -151,7 +151,7 @@ typedef enum {
    pointers are not really needed (8 instead of 10).
  */
 
-#  define disc_node_size 10
+#  define disc_node_size 11
 
 typedef enum {
     discretionary_disc = 0,
@@ -162,13 +162,14 @@ typedef enum {
     select_disc,                /* second of a duo of syllable_discs */
 } discretionary_types;
 
-#  define pre_break_head(a)   ((a)+4)
-#  define post_break_head(a)  ((a)+6)
-#  define no_break_head(a)    ((a)+8)
+#  define pre_break_head(a)   ((a)+5)
+#  define post_break_head(a)  ((a)+7)
+#  define no_break_head(a)    ((a)+9)
 
-#  define pre_break(a)     vinfo((a)+2)
-#  define post_break(a)    vlink((a)+2)
-#  define no_break(a)      vlink((a)+3)
+#  define disc_penalty(a)  vlink((a)+2)
+#  define pre_break(a)     vinfo((a)+3)
+#  define post_break(a)    vlink((a)+3)
+#  define no_break(a)      vlink((a)+4)
 #  define tlink llink
 
 #  define vlink_pre_break(a)  vlink(pre_break_head(a))
