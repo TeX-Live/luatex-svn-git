@@ -74,8 +74,6 @@
     a speedup on these functions is not representative for a normal run, where
     much more happens.
 
-    maybe : setnext setprev setfont setchar (only makes sense for some scripts)
-
     todo  : check and optimize the direct function when possible
 
     todo  : once the direct ones are proven we can redefine some of the less
@@ -90,6 +88,11 @@
 
     Todo: as a prelude to lua 5.3 we should use integer instead of number when
     possible. A boring job. We can use the direct variants for testing this.
+
+    Remark: when a direct node is set, and an invalid one is passed (or nil) we
+    normally get zero and that is a predefined glue, so we get a message about
+    assigning to a glue which is fine. What we should do some day is make node
+    zero a dummy so that null then can be used as test.
 
     Hans Hagen, Luigi Scarso (2011-2013)
 
@@ -620,6 +623,8 @@ static int lua_nodelib_getfont(lua_State * L)
 
 /* node.direct.getfont */
 
+/*
+
 static int lua_nodelib_direct_getfont(lua_State * L)
 {
     halfword n;
@@ -632,10 +637,9 @@ static int lua_nodelib_direct_getfont(lua_State * L)
     return 1;
 }
 
+*/
 
-/* node.direct.getfont */
-/* a new one, waiting some patched from HH
-static int lua_nodelib_direct_getfont(lua_State * L)
+static int lua_nodelib_direct_getfont(lua_State * L) /* family_font is not yet in manual, what does arg 2 do */
 {
     halfword n, t;
     n = (halfword) lua_tonumber(L, 1);
@@ -653,9 +657,6 @@ static int lua_nodelib_direct_getfont(lua_State * L)
     }
     return 1;
 }
-*/
-
-
 
 /* node.getchar */
 
@@ -705,6 +706,33 @@ static int lua_nodelib_direct_getcharacter(lua_State * L)
     } else {
         lua_pushnil(L);
     }
+    return 1;
+}
+
+/* node.getdisc */
+
+
+static int lua_nodelib_direct_getdiscretionary(lua_State * L)
+{
+    halfword n;
+    n = (halfword) lua_tonumber(L, 1);
+    if (n != null) {
+        if (type(n) == disc_node) {
+            nodelib_pushdirect_or_nil(vlink(pre_break(n)));
+            nodelib_pushdirect_or_nil(vlink(post_break(n)));
+            nodelib_pushdirect_or_nil(vlink(no_break(n)));
+            if (lua_isboolean(L, 2)) {
+                if (lua_toboolean(L, 2)) {
+                    nodelib_pushdirect_or_nil(tlink(pre_break(n)));
+                    nodelib_pushdirect_or_nil(tlink(post_break(n)));
+                    nodelib_pushdirect_or_nil(tlink(no_break(n)));
+                    return 6;
+                }
+            }
+            return 3;
+        }
+    }
+    lua_pushnil(L);
     return 1;
 }
 
@@ -896,6 +924,22 @@ static int lua_nodelib_direct_getprev(lua_State * L)
         nodelib_pushdirect_or_nil(alink(p));
     }
     return 1;
+}
+
+/* node.direct.getboth */
+
+static int lua_nodelib_direct_getboth(lua_State * L)
+{
+    halfword p;
+    p = (halfword) lua_tonumber(L, 1);
+    if (p == null) {
+        lua_pushnil(L);
+        lua_pushnil(L);
+    } else {
+        nodelib_pushdirect_or_nil(alink(p));
+        nodelib_pushdirect_or_nil(vlink(p));
+    }
+    return 2;
 }
 
 /* node.subtype */
@@ -2878,8 +2922,6 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             fast_metatable_or_nil(vlink(post_break(n)));
         } else if (lua_key_eq(s, replace)) {
             fast_metatable_or_nil(vlink(no_break(n)));
-        } else if (lua_key_eq(s, penalty)) {
-            lua_pushnumber(L, disc_penalty(n));
         } else {
             lua_pushnil(L);
         }
@@ -3630,8 +3672,6 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             nodelib_pushdirect_or_nil(vlink(post_break(n)));
         } else if (lua_key_eq(s, replace)) {
             nodelib_pushdirect_or_nil(vlink(no_break(n)));
-        } else if (lua_key_eq(s, penalty)) {
-            lua_pushnumber(L, disc_penalty(n));
         } else {
             lua_pushnil(L);
         }
@@ -4827,8 +4867,6 @@ static int lua_nodelib_fast_setfield(lua_State * L)
             set_disc_field(post_break(n), nodelib_getlist(L, 3));
         } else if (lua_key_eq(s, replace)) {
             set_disc_field(no_break(n), nodelib_getlist(L, 3));
-        } else if (lua_key_eq(s, penalty)) {
-            disc_penalty(n) = (halfword) lua_tointeger(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -5462,6 +5500,136 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
     return 0;
 }
 
+static int lua_nodelib_direct_setcharacter(lua_State * L)
+{
+    halfword n;
+    n = (halfword ) lua_tonumber(L, 1);
+    if (n) {
+        if ((type(n) == glyph_node) && (lua_type(L, 2) == LUA_TNUMBER)) {
+            character(n) = (halfword) lua_tointeger(L, 2);
+        }
+    }
+    return 0;
+}
+
+static int lua_nodelib_direct_setnext(lua_State * L)
+{
+    halfword n;
+    n = (halfword ) lua_tonumber(L, 1);
+    if (n) {
+        if (lua_type(L, 2) == LUA_TNUMBER) {
+            vlink(n) = (halfword) lua_tointeger(L, 2);
+        } else {
+            vlink(n) = null;
+        }
+    }
+    return 0;
+}
+
+static int lua_nodelib_direct_setprev(lua_State * L)
+{
+    halfword n;
+    n = (halfword ) lua_tonumber(L, 1);
+    if (n) {
+        if (lua_type(L, 2) == LUA_TNUMBER) {
+            alink(n) = (halfword) lua_tointeger(L, 2);
+        } else {
+            alink(n) = null;
+        }
+    }
+    return 0;
+}
+
+static int lua_nodelib_direct_setboth(lua_State * L)
+{
+    halfword n;
+    n = (halfword ) lua_tonumber(L, 1);
+    if (n) {
+        if (lua_type(L, 2) == LUA_TNUMBER) {
+            alink(n) = (halfword) lua_tointeger(L, 2);
+        } else {
+            alink(n) = null;
+        }
+        if (lua_type(L, 3) == LUA_TNUMBER) {
+            vlink(n) = (halfword) lua_tointeger(L, 3);
+        } else {
+            vlink(n) = null;
+        }
+    }
+    return 0;
+}
+
+static int lua_nodelib_direct_setlink(lua_State * L)
+{
+    halfword a, b;
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        a = (halfword ) lua_tonumber(L, 1);
+        if (lua_type(L, 2) == LUA_TNUMBER) {
+            b = (halfword ) lua_tonumber(L, 2);
+            vlink(a) = b;
+            alink(b) = a;
+        } else {
+            vlink(a) = null;
+        }
+    } else if (lua_type(L, 2) == LUA_TNUMBER) {
+        b = (halfword ) lua_tonumber(L, 2);
+        alink(b) = null;
+    }
+    return 0;
+}
+
+static int lua_nodelib_direct_is_char(lua_State * L)
+{
+    halfword n;
+    halfword f;
+    n = (halfword ) lua_tointeger(L, 1);
+    if ((type(n) == glyph_node) && (subtype(n) < 256)) {
+        f = (halfword ) lua_tointeger(L, 2);
+        if (f && f == font(n)) {
+            lua_pushboolean(L,1);
+            return 1;
+        }
+    }
+    lua_pushboolean(L,0);
+    return 1;
+}
+
+static int lua_nodelib_direct_setdiscretionary(lua_State * L)
+{
+    int t ;
+    halfword n;
+    n = (halfword ) lua_tonumber(L, 1);
+    if (type(n) == disc_node) {
+        t = lua_gettop(L) ;
+        if (t > 1) {
+            set_disc_field(pre_break(n), lua_tointeger(L,2));
+            if (t > 2) {
+                set_disc_field(post_break(n), lua_tointeger(L,3));
+                if (t > 3) {
+                    set_disc_field(no_break(n), lua_tointeger(L,4));
+                    if (t > 4) {
+                        subtype(n) = (quarterword) lua_tointeger(L,5);
+                        if (t > 5) {
+                            penalty(n) = lua_tointeger(L,6);
+                        }
+                    }
+                } else {
+                    set_disc_field(no_break(n), null);
+                }
+            } else {
+                set_disc_field(post_break(n), null);
+                set_disc_field(no_break(n), null);
+            }
+        } else {
+            set_disc_field(pre_break(n), null);
+            set_disc_field(post_break(n), null);
+            set_disc_field(no_break(n), null);
+        }
+    }
+    return 0;
+}
+
+
 static int lua_nodelib_direct_setfield(lua_State * L)
 {
     halfword n;
@@ -5575,8 +5743,6 @@ static int lua_nodelib_direct_setfield(lua_State * L)
             set_disc_field(post_break(n), nodelib_popdirect(3));
         } else if (lua_key_eq(s, replace)) {
             set_disc_field(no_break(n), nodelib_popdirect(3));
-        } else if (lua_key_eq(s, penalty)) {
-            disc_penalty(n) = (halfword) lua_tointeger(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -6324,17 +6490,20 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"free", lua_nodelib_direct_free},
     {"getbox", lua_nodelib_direct_getbox},
     {"getchar", lua_nodelib_direct_getcharacter},
+    {"getdisc", lua_nodelib_direct_getdiscretionary},
     {"getfield", lua_nodelib_direct_getfield},
     {"getfont", lua_nodelib_direct_getfont},
     {"getid", lua_nodelib_direct_getid},
     {"getnext", lua_nodelib_direct_getnext},
     {"getprev", lua_nodelib_direct_getprev},
+    {"getboth", lua_nodelib_direct_getboth},
     {"getlist", lua_nodelib_direct_getlist},
     {"getleader", lua_nodelib_direct_getleader},
     {"getsubtype", lua_nodelib_direct_getsubtype},
     {"has_glyph", lua_nodelib_direct_has_glyph},
     {"has_attribute", lua_nodelib_direct_has_attribute},
     {"has_field", lua_nodelib_direct_has_field},
+    {"is_char", lua_nodelib_direct_is_char},
     {"hpack", lua_nodelib_direct_hpack},
  /* {"id", lua_nodelib_id}, */                                /* no node argument */
     {"insert_after", lua_nodelib_direct_insert_after},
@@ -6356,6 +6525,12 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"set_attribute", lua_nodelib_direct_set_attribute},
     {"setbox", lua_nodelib_direct_setbox},
     {"setfield", lua_nodelib_direct_setfield},
+    {"setchar", lua_nodelib_direct_setcharacter},
+    {"setdisc", lua_nodelib_direct_setdiscretionary},
+    {"setnext", lua_nodelib_direct_setnext},
+    {"setprev", lua_nodelib_direct_setprev},
+    {"setboth", lua_nodelib_direct_setboth},
+    {"setlink", lua_nodelib_direct_setlink},
     {"slide", lua_nodelib_direct_slide},
  /* {"subtype", lua_nodelib_subtype}, */                      /* no node argument */
     {"tail", lua_nodelib_direct_tail},
