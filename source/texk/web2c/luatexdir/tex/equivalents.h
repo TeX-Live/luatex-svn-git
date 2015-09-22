@@ -380,9 +380,8 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define pdf_link_margin_code    (pdftex_first_dimen_code + 4) /* link margin in the PDF output */
 #  define pdf_dest_margin_code    (pdftex_first_dimen_code + 5) /* dest margin in the PDF output */
 #  define pdf_thread_margin_code  (pdftex_first_dimen_code + 6) /* thread margin in the PDF output */
-#  define pdf_ignored_dimen_code   (pdftex_first_dimen_code + 7)
-#  define pdf_px_dimen_code       (pdftex_first_dimen_code + 8)
-#  define pdftex_last_dimen_code  (pdftex_first_dimen_code + 8)        /* last number defined in this section */
+#  define pdf_px_dimen_code       (pdftex_first_dimen_code + 7)
+#  define pdftex_last_dimen_code  (pdftex_first_dimen_code + 7)        /* last number defined in this section */
 #  define dimen_pars (pdftex_last_dimen_code + 1)
                                                 /* total number of dimension parameters */
 

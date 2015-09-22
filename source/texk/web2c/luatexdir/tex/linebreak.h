@@ -60,8 +60,7 @@ extern void ext_do_line_break(int paragraph_dir,
                               halfword club_penalties_ptr,
                               halfword widow_penalties_ptr,
                               int widow_penalty,
-                              int broken_penalty, halfword final_par_glue,
-                              halfword pdf_ignored_dimen);
+                              int broken_penalty, halfword final_par_glue);
 
 extern void get_linebreak_info(int *, int *);
 extern halfword find_protchar_left(halfword l, boolean d);

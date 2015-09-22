@@ -48,7 +48,6 @@ void ext_post_line_break(int paragraph_dir,
                          scaled second_width,
                          scaled second_indent,
                          scaled first_width,
-                         scaled first_indent, halfword best_line,
-                         halfword pdf_ignored_dimen);
+                         scaled first_indent, halfword best_line);
 
 #endif

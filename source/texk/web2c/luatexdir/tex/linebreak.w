@@ -218,7 +218,7 @@ void line_break(boolean d, int line_break_context)
 			  (d ? equiv(display_widow_penalties_loc) : equiv(widow_penalties_loc)),
 			  (d ? int_par(display_widow_penalty_code) : int_par(widow_penalty_code)),
                           int_par(broken_penalty_code),
-                          final_par_glue, dimen_par(pdf_ignored_dimen_code));
+                          final_par_glue);
     }
     lua_node_filter(post_linebreak_filter_callback,
                     line_break_context, start_of_par,
@@ -1650,7 +1650,7 @@ ext_do_line_break(int paragraph_dir,
                   halfword widow_penalties_ptr,
                   int widow_penalty,
                   int broken_penalty,
-                  halfword final_par_glue, halfword pdf_ignored_dimen)
+                  halfword final_par_glue)
 {
     /* DONE,DONE1,DONE2,DONE3,DONE4,DONE5,CONTINUE; */
     halfword cur_p, q, r, s;    /* miscellaneous nodes of temporary interest */
@@ -2189,8 +2189,7 @@ ext_do_line_break(int paragraph_dir,
                         best_bet,
                         last_special_line,
                         second_width,
-                        second_indent, first_width, first_indent, best_line,
-                        pdf_ignored_dimen);
+                        second_indent, first_width, first_indent, best_line);
     /* /Break the paragraph at the chosen... */
     /* Clean up the memory by removing the break nodes; */
     clean_up_the_memory();

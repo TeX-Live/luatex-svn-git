@@ -2237,8 +2237,7 @@ static int tex_run_linebreak(lua_State * L)
         exhyphenpenalty, pdfadjustspacing, adjdemerits, pdfprotrudechars,
         linepenalty, lastlinefit, doublehyphendemerits, finalhyphendemerits,
         hangafter, interlinepenalty, widowpenalty, clubpenalty, brokenpenalty;
-    halfword emergencystretch, hangindent, hsize, leftskip, rightskip,
-        pdfignoreddimen, parshape;
+    halfword emergencystretch, hangindent, hsize, leftskip, rightskip,parshape;
     int fewest_demerits = 0, actual_looseness = 0;
     halfword clubpenalties, interlinepenalties, widowpenalties;
     int save_vlink_tmp_head;
@@ -2314,8 +2313,6 @@ static int tex_run_linebreak(lua_State * L)
     get_dimen_par("hsize", hsize, dimen_par(hsize_code));
     get_glue_par("leftskip", leftskip, glue_par(left_skip_code));
     get_glue_par("rightskip", rightskip, glue_par(right_skip_code));
-    get_dimen_par("pdfignoreddimen", pdfignoreddimen,
-                  dimen_par(pdf_ignored_dimen_code));
 
     ext_do_line_break(paragraph_dir,
                       pretolerance, tracingparagraphs, tolerance,
@@ -2332,7 +2329,7 @@ static int tex_run_linebreak(lua_State * L)
                       clubpenalties,
                       widowpenalties,
                       widowpenalty, brokenpenalty,
-                      final_par_glue, pdfignoreddimen);
+                      final_par_glue);
 
     /* return the generated list, and its prevdepth */
     get_linebreak_info (&fewest_demerits, &actual_looseness) ;
