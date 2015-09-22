@@ -464,7 +464,7 @@ void initialize_commands(void)
     primitive_luatex("fontid", convert_cmd, font_id_code, 0);
     primitive_luatex("luatexrevision", convert_cmd, luatex_revision_code, 0);
     primitive_luatex("luatexdatestamp", convert_cmd, luatex_date_code, 0);
-    primitive_luatex("luatexbanner", convert_cmd, luatex_banner_code, 0); /* replace pdftexbanner*/
+    primitive_luatex("luatexbanner", convert_cmd, luatex_banner_code, 0); 
     primitive_pdftex("pdffontname", convert_cmd, pdf_font_name_code, 0);
     primitive_pdftex("pdffontobjnum", convert_cmd, pdf_font_objnum_code, 0);
     primitive_pdftex("pdffontsize", convert_cmd, pdf_font_size_code, 0);
