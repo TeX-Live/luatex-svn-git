@@ -49,7 +49,6 @@
 #define err_help equiv(err_help_loc)
 #define text_direction int_par(text_direction_code)
 #define every_par equiv(every_par_loc)
-#define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
 #define par_direction int_par(par_direction_code)
 
 #define page_left_offset dimen_par(page_left_offset_code)
@@ -360,13 +359,13 @@ is short, since the |scan_rule_spec| routine already does most of what is
 required; thus, there is no need for a special action procedure.
 
 Note that baselineskip calculations are disabled after a rule in vertical
-mode, by setting |prev_depth:=pdf_ignored_dimen|.
+mode, by setting |prev_depth:=ignore_depth|.
 
 @c
 static void run_rule (void) {
     tail_append(scan_rule_spec());
     if (abs(mode) == vmode)
-        prev_depth = pdf_ignored_dimen;
+        prev_depth = ignore_depth;
     else if (abs(mode) == hmode)
         space_factor = 1000;
 }
@@ -582,7 +581,7 @@ static void run_vcenter (void) {
     normal_paragraph();
     push_nest();
     mode = -vmode;
-    prev_depth = pdf_ignored_dimen;
+    prev_depth = ignore_depth;
     if (every_vbox != null)
         begin_token_list(every_vbox, every_vbox_text);
 }
@@ -1546,7 +1545,7 @@ void begin_insert_or_adjust(void)
     normal_paragraph();
     push_nest();
     mode = -vmode;
-    prev_depth = pdf_ignored_dimen;
+    prev_depth = ignore_depth;
 }
 
 
@@ -3582,7 +3581,6 @@ void initialize(void)
         page_top_offset = one_inch;
         page_right_offset = one_inch;
         page_bottom_offset = one_inch;
-        pdf_ignored_dimen = ignore_depth;
         ini_init_primitives();
         hash_used = frozen_control_sequence;    /* nothing is used */
         hash_high = 0;

@@ -527,7 +527,7 @@ boolean load_fmt_file(const char *fmtname)
     /* Undump the lua bytecodes */
     undump_luac_registers();
 
-    prev_depth = dimen_par(pdf_ignored_dimen_code);
+    prev_depth = ignore_depth;
     return true;                /* it worked! */
   BAD_FMT:
     wake_up_terminal();
