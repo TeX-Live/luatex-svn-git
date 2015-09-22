@@ -6409,6 +6409,9 @@ static int lua_nodelib_direct_set_property(lua_State * L) /* hh */
     return 0;
 }
 
+
+
+
 static int lua_nodelib_direct_properties_get_table(lua_State * L) /* hh */
 {   /* <node|direct> */
     lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(node_properties));
@@ -6448,6 +6451,68 @@ static int lua_nodelib_set_property_t(lua_State * L) /* hh */
     }
     return 0;
 }
+
+/* extra helpers */
+
+static int lua_nodelib_effective_glue(lua_State * L) 
+{
+    halfword *glue;
+    halfword *parent;
+    halfword s;
+    int w;
+    glue = lua_touserdata(L, 1);
+    if ((glue == NULL) || (type(*glue) != glue_node)) {
+        lua_pushnil(L) ;
+    } else {
+        s = glue_ptr(*glue);
+        w = width(s) ;
+        parent = lua_touserdata(L, 2);
+        if ((parent != NULL) && ((type(*parent) == hlist_node) || (type(*parent) == vlist_node))) {
+            if ((int)glue_sign(*parent) == 1) {
+                if (stretch_order(s) == glue_order(*parent)) {
+                    w += stretch(s) * glue_set(*parent);
+                }
+            } else if (glue_sign(*parent) == 2) {
+                if (shrink_order(s) == glue_order(*parent)) {
+                    w -= shrink(s) * glue_set(*parent);
+                }
+            }
+        }
+        lua_pushnumber(L,w);
+    }
+    return 1;
+}
+
+
+static int lua_nodelib_direct_effective_glue(lua_State * L) 
+{
+    halfword glue;
+    halfword parent;
+    halfword s;
+    int w;
+    glue = (halfword)lua_tonumber(L, 1);
+    if ((glue == null) || (type(glue) != glue_node)) {
+        lua_pushnil(L) ;
+    } else {
+        s = glue_ptr(glue);
+        w = width(s) ;
+        parent = (halfword)lua_tonumber(L, 2);
+        if ((parent != null) && ((type(parent) == hlist_node) || (type(parent) == vlist_node))) {
+            if ((int)glue_sign(parent) == 1) {
+                if (stretch_order(s) == glue_order(parent)) {
+                    w += stretch(s) * glue_set(parent);
+                }
+            } else if (glue_sign(parent) == 2) {
+                if (shrink_order(s) == glue_order(parent)) {
+                    w -= shrink(s) * glue_set(parent);
+                }
+            }
+        }
+        lua_pushnumber(L,w);
+    }
+    return 1;
+}
+
 
 static const struct luaL_Reg nodelib_p[] = {
     {"__index",    lua_nodelib_get_property_t},
@@ -6554,6 +6619,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"get_properties_table",lua_nodelib_direct_properties_get_table}, /* hh experiment */
     {"getproperty", lua_nodelib_direct_get_property}, /* bonus */ /* hh experiment */
     {"setproperty", lua_nodelib_direct_set_property}, /* bonus */ /* hh experiment */
+    {"effective_glue", lua_nodelib_direct_effective_glue},
     /* done */
     {NULL, NULL} /* sentinel */
 };
@@ -6629,6 +6695,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"get_properties_table",lua_nodelib_properties_get_table}, /* bonus */ /* hh experiment */
     {"getproperty", lua_nodelib_get_property}, /* hh experiment */
     {"setproperty", lua_nodelib_set_property}, /* hh experiment */
+    {"effective_glue", lua_nodelib_effective_glue},
     /* done */
     {NULL, NULL} /* sentinel */
 };
