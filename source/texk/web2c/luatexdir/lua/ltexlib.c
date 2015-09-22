@@ -1416,7 +1416,6 @@ static int do_lastitem(lua_State * L, int cur_code)
     case last_node_type_code:
     case input_line_no_code:
     case badness_code:
-    case pdftex_version_code:
     case pdf_last_obj_code:
     case pdf_last_xform_code:
     case pdf_last_ximage_code:

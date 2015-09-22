@@ -440,7 +440,6 @@ void initialize_commands(void)
     primitive_tex("lastskip", last_item_cmd, lastskip_code, 0);
     primitive_tex("inputlineno", last_item_cmd, input_line_no_code, 0);
     primitive_tex("badness", last_item_cmd, badness_code, 0);
-    primitive_pdftex("pdftexversion", last_item_cmd, luatex_version_code, 0); /*OBSOLETE */
     primitive_luatex("luatexversion", last_item_cmd, luatex_version_code, 0);
     primitive_pdftex("pdflastobj", last_item_cmd, pdf_last_obj_code, 0);
     primitive_pdftex("pdflastxform", last_item_cmd, pdf_last_xform_code, 0);
