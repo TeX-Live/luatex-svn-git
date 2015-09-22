@@ -61,10 +61,6 @@ void ext_post_line_break(int paragraph_dir,
                          int pdf_protrude_chars,
                          halfword par_shape_ptr,
                          int pdf_adjust_spacing,
-                         int pdf_each_line_height,
-                         int pdf_each_line_depth,
-                         int pdf_first_line_height,
-                         int pdf_last_line_depth,
                          halfword inter_line_penalties_ptr,
                          int inter_line_penalty,
                          int club_penalty,
@@ -423,19 +419,6 @@ void ext_post_line_break(int paragraph_dir,
         shift_amount(just_box) = cur_indent;
         subtype(just_box) = HLIST_SUBTYPE_LINE;
         /* /Call the packaging subroutine, setting |just_box| to the justified box; */
-
-        /* Append the new box to the current vertical list, followed by the list of
-           special nodes taken out of the box by the packager; */
-        if (pdf_each_line_height != pdf_ignored_dimen)
-            height(just_box) = pdf_each_line_height;
-        if (pdf_each_line_depth != pdf_ignored_dimen)
-            depth(just_box) = pdf_each_line_depth;
-        if ((pdf_first_line_height != pdf_ignored_dimen)
-            && (cur_line == cur_list.pg_field + 1))
-            height(just_box) = pdf_first_line_height;
-        if ((pdf_last_line_depth != pdf_ignored_dimen)
-            && (cur_line + 1 == best_line))
-            depth(just_box) = pdf_last_line_depth;
 
         if ((vlink(contrib_head) != null))
             if (!output_active)

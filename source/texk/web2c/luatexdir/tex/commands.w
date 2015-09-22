@@ -314,14 +314,6 @@ void initialize_commands(void)
                      dimen_base + pdf_dest_margin_code, dimen_base);
     primitive_pdftex("pdfthreadmargin", assign_dimen_cmd,
                      dimen_base + pdf_thread_margin_code, dimen_base);
-    primitive_pdftex("pdffirstlineheight", assign_dimen_cmd,
-                     dimen_base + pdf_first_line_height_code, dimen_base);
-    primitive_pdftex("pdflastlinedepth", assign_dimen_cmd,
-                     dimen_base + pdf_last_line_depth_code, dimen_base);
-    primitive_pdftex("pdfeachlineheight", assign_dimen_cmd,
-                     dimen_base + pdf_each_line_height_code, dimen_base);
-    primitive_pdftex("pdfeachlinedepth", assign_dimen_cmd,
-                     dimen_base + pdf_each_line_depth_code, dimen_base);
     primitive_pdftex("pdfignoreddimen", assign_dimen_cmd,
                      dimen_base + pdf_ignored_dimen_code, dimen_base);
     primitive_pdftex("pdfpxdimen", assign_dimen_cmd,

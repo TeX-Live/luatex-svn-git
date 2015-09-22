@@ -52,10 +52,6 @@
 #define pdf_ignored_dimen dimen_par(pdf_ignored_dimen_code)
 #define par_direction int_par(par_direction_code)
 
-#define pdf_first_line_height  dimen_par(pdf_first_line_height_code)
-#define pdf_last_line_depth    dimen_par(pdf_last_line_depth_code)
-#define pdf_each_line_height   dimen_par(pdf_each_line_height_code)
-#define pdf_each_line_depth    dimen_par(pdf_each_line_depth_code)
 #define page_left_offset dimen_par(page_left_offset_code)
 #define page_top_offset dimen_par(page_top_offset_code)
 #define page_right_offset dimen_par(page_right_offset_code)
@@ -3587,10 +3583,6 @@ void initialize(void)
         page_right_offset = one_inch;
         page_bottom_offset = one_inch;
         pdf_ignored_dimen = ignore_depth;
-        pdf_each_line_height = pdf_ignored_dimen;
-        pdf_each_line_depth = pdf_ignored_dimen;
-        pdf_first_line_height = pdf_ignored_dimen;
-        pdf_last_line_depth = pdf_ignored_dimen;
         ini_init_primitives();
         hash_used = frozen_control_sequence;    /* nothing is used */
         hash_high = 0;

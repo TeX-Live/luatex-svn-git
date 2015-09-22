@@ -2238,8 +2238,7 @@ static int tex_run_linebreak(lua_State * L)
         linepenalty, lastlinefit, doublehyphendemerits, finalhyphendemerits,
         hangafter, interlinepenalty, widowpenalty, clubpenalty, brokenpenalty;
     halfword emergencystretch, hangindent, hsize, leftskip, rightskip,
-        pdfeachlineheight, pdfeachlinedepth, pdffirstlineheight,
-        pdflastlinedepth, pdfignoreddimen, parshape;
+        pdfignoreddimen, parshape;
     int fewest_demerits = 0, actual_looseness = 0;
     halfword clubpenalties, interlinepenalties, widowpenalties;
     int save_vlink_tmp_head;
@@ -2315,14 +2314,6 @@ static int tex_run_linebreak(lua_State * L)
     get_dimen_par("hsize", hsize, dimen_par(hsize_code));
     get_glue_par("leftskip", leftskip, glue_par(left_skip_code));
     get_glue_par("rightskip", rightskip, glue_par(right_skip_code));
-    get_dimen_par("pdfeachlineheight", pdfeachlineheight,
-                  dimen_par(pdf_each_line_height_code));
-    get_dimen_par("pdfeachlinedepth", pdfeachlinedepth,
-                  dimen_par(pdf_each_line_depth_code));
-    get_dimen_par("pdffirstlineheight", pdffirstlineheight,
-                  dimen_par(pdf_first_line_height_code));
-    get_dimen_par("pdflastlinedepth", pdflastlinedepth,
-                  dimen_par(pdf_last_line_depth_code));
     get_dimen_par("pdfignoreddimen", pdfignoreddimen,
                   dimen_par(pdf_ignored_dimen_code));
 
@@ -2336,8 +2327,6 @@ static int tex_run_linebreak(lua_State * L)
                       linepenalty, lastlinefit,
                       doublehyphendemerits, finalhyphendemerits,
                       hangindent, hsize, hangafter, leftskip, rightskip,
-                      pdfeachlineheight, pdfeachlinedepth,
-                      pdffirstlineheight, pdflastlinedepth,
                       interlinepenalties,
                       interlinepenalty, clubpenalty,
                       clubpenalties,
