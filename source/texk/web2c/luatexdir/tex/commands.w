@@ -452,7 +452,7 @@ void initialize_commands(void)
     primitive_pdftex("pdfretval", last_item_cmd, pdf_retval_code, 0);
     primitive_pdftex("pdflastximagecolordepth", last_item_cmd,
                      pdf_last_ximage_colordepth_code, 0);
-    primitive_pdftex("pdfrandomseed", last_item_cmd, random_seed_code, 0);
+    primitive_luatex("randomseed", last_item_cmd, random_seed_code, 0);
     primitive_pdftex("pdflastlink", last_item_cmd, pdf_last_link_code, 0);
 
     primitive_tex("number", convert_cmd, number_code, 0);
@@ -473,10 +473,10 @@ void initialize_commands(void)
     primitive_pdftex("rightmarginkern", convert_cmd, right_margin_kern_code, 0);
     primitive_pdftex("pdfxformname", convert_cmd, pdf_xform_name_code, 0);
     primitive_pdftex("pdfcreationdate", convert_cmd, pdf_creation_date_code, 0);
-    primitive_pdftex("pdfuniformdeviate", convert_cmd, uniform_deviate_code, 0);
+    primitive_luatex("uniformdeviate", convert_cmd, uniform_deviate_code, 0);
     primitive_pdftex("pdfcolorstackinit", convert_cmd, pdf_colorstack_init_code,
                      0);
-    primitive_pdftex("pdfnormaldeviate", convert_cmd, normal_deviate_code, 0);
+    primitive_luatex("normaldeviate", convert_cmd, normal_deviate_code, 0);
     primitive_core("directlua", convert_cmd, lua_code, 0);
     primitive_luatex("luafunction", convert_cmd, lua_function_code, 0);
     primitive_luatex("luaescapestring", convert_cmd, lua_escape_string_code, 0);
@@ -998,7 +998,7 @@ void initialize_commands(void)
                      save_cat_code_table_code, 0);
     primitive_luatex("initcatcodetable", extension_cmd,
                      init_cat_code_table_code, 0);
-    primitive_pdftex("pdfsetrandomseed", extension_cmd, set_random_seed_code,
+    primitive_luatex("setrandomseed", extension_cmd, set_random_seed_code,
                      0);
     primitive_luatex("latelua", extension_cmd, late_lua_node, 0);
     primitive_pdftex("pdffontexpand", extension_cmd, pdf_font_expand_code, 0);
