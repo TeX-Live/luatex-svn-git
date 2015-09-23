@@ -302,12 +302,16 @@ void initialize_commands(void)
                      dimen_base + pdf_v_origin_code, dimen_base);
     primitive_omega("pagewidth", assign_dimen_cmd, dimen_base + page_width_code,
                     dimen_base);
+/*
     primitive_pdftex("pdfpagewidth", assign_dimen_cmd,
                      dimen_base + page_width_code, dimen_base);
+*/
     primitive_omega("pageheight", assign_dimen_cmd,
                     dimen_base + page_height_code, dimen_base);
+/*
     primitive_pdftex("pdfpageheight", assign_dimen_cmd,
                      dimen_base + page_height_code, dimen_base);
+*/
     primitive_pdftex("pdflinkmargin", assign_dimen_cmd,
                      dimen_base + pdf_link_margin_code, dimen_base);
     primitive_pdftex("pdfdestmargin", assign_dimen_cmd,
@@ -360,7 +364,9 @@ void initialize_commands(void)
     primitive_tex("noboundary", no_boundary_cmd, 0, 0);
     primitive_tex("noexpand", no_expand_cmd, 0, 0);
     primitive_luatex("primitive", no_expand_cmd, 1, 0);
+/*
     primitive_pdftex("pdfprimitive", no_expand_cmd, 1, 0);
+*/
     primitive_tex("nonscript", non_script_cmd, 0, 0);
     primitive_tex("omit", omit_cmd, 0, 0);
     primitive_tex("parshape", set_tex_shape_cmd, par_shape_loc, par_shape_loc);
@@ -464,7 +470,7 @@ void initialize_commands(void)
     primitive_luatex("fontid", convert_cmd, font_id_code, 0);
     primitive_luatex("luatexrevision", convert_cmd, luatex_revision_code, 0);
     primitive_luatex("luatexdatestamp", convert_cmd, luatex_date_code, 0);
-    primitive_luatex("luatexbanner", convert_cmd, luatex_banner_code, 0); 
+    primitive_luatex("luatexbanner", convert_cmd, luatex_banner_code, 0);
     primitive_pdftex("pdffontname", convert_cmd, pdf_font_name_code, 0);
     primitive_pdftex("pdffontobjnum", convert_cmd, pdf_font_objnum_code, 0);
     primitive_pdftex("pdffontsize", convert_cmd, pdf_font_size_code, 0);
@@ -481,7 +487,10 @@ void initialize_commands(void)
     primitive_luatex("luafunction", convert_cmd, lua_function_code, 0);
     primitive_luatex("luaescapestring", convert_cmd, lua_escape_string_code, 0);
     primitive_luatex("mathstyle", convert_cmd, math_style_code, 0);
+/*
     primitive_pdftex("expanded", convert_cmd, expanded_code, 0);
+*/
+    primitive_luatex("expanded", convert_cmd, expanded_code, 0);
     primitive_tex("jobname", convert_cmd, job_name_code, 0);
     primitive_luatex("formatname", convert_cmd, format_name_code, 0);
     primitive_pdftex("pdfinsertht", convert_cmd, pdf_insert_ht_code, 0);
@@ -507,8 +516,9 @@ void initialize_commands(void)
     primitive_tex("iffalse", if_test_cmd, if_false_code, 0);
     primitive_tex("ifcase", if_test_cmd, if_case_code, 0);
     primitive_luatex("ifprimitive", if_test_cmd, if_primitive_code, 0);
+/*
     primitive_pdftex("ifpdfprimitive", if_test_cmd, if_primitive_code, 0);
-
+*/
     primitive_tex("fi", fi_or_else_cmd, fi_code, 0);
     cs_text(frozen_fi) = maketexstring("fi");
     eqtb[frozen_fi] = eqtb[cur_val];
@@ -585,7 +595,10 @@ void initialize_commands(void)
     primitive_aleph("boxdir", assign_box_dir_cmd, 0, 0);
     primitive_tex("indent", start_par_cmd, 1, 0);
     primitive_tex("noindent", start_par_cmd, 0, 0);
+/*
     primitive_pdftex("quitvmode", start_par_cmd, 2, 0);
+*/
+    primitive_luatex("quitvmode", start_par_cmd, 2, 0);
     primitive_tex("unpenalty", remove_item_cmd, penalty_node, 0);
     primitive_tex("unkern", remove_item_cmd, kern_node, 0);
     primitive_tex("unskip", remove_item_cmd, glue_node, 0);
@@ -961,9 +974,15 @@ void initialize_commands(void)
                      dimen_base + page_left_offset_code, dimen_base);
     primitive_luatex("pagetopoffset", assign_dimen_cmd,
                      dimen_base + page_top_offset_code, dimen_base);
+/*
     primitive_aleph("pagerightoffset", assign_dimen_cmd,
                     dimen_base + page_right_offset_code, dimen_base);
     primitive_aleph("pagebottomoffset", assign_dimen_cmd,
+                    dimen_base + page_bottom_offset_code, dimen_base);
+*/
+    primitive_luatex("pagerightoffset", assign_dimen_cmd,
+                    dimen_base + page_right_offset_code, dimen_base);
+    primitive_luatex("pagebottomoffset", assign_dimen_cmd,
                     dimen_base + page_bottom_offset_code, dimen_base);
     primitive_pdftex("pdfliteral", extension_cmd, pdf_literal_node, 0);
     primitive_pdftex("pdfcolorstack", extension_cmd, pdf_colorstack_node, 0);
@@ -1068,14 +1087,21 @@ void initialize_etex_commands(void)
     primitive_etex("currentiflevel", last_item_cmd, current_if_level_code, 0);
     primitive_etex("currentiftype", last_item_cmd, current_if_type_code, 0);
     primitive_etex("currentifbranch", last_item_cmd, current_if_branch_code, 0);
-
+/*
     primitive_omega("charwd", last_item_cmd, font_char_wd_code, 0);
+*/
     primitive_etex("fontcharwd", last_item_cmd, font_char_wd_code, 0);
+/*
     primitive_omega("charht", last_item_cmd, font_char_ht_code, 0);
+*/
     primitive_etex("fontcharht", last_item_cmd, font_char_ht_code, 0);
+/*
     primitive_omega("chardp", last_item_cmd, font_char_dp_code, 0);
+*/
     primitive_etex("fontchardp", last_item_cmd, font_char_dp_code, 0);
+/*
     primitive_omega("charit", last_item_cmd, font_char_ic_code, 0);
+*/
     primitive_etex("fontcharic", last_item_cmd, font_char_ic_code, 0);
 
     primitive_etex("parshapelength", last_item_cmd, par_shape_length_code, 0);
@@ -1116,11 +1142,16 @@ void initialize_etex_commands(void)
     primitive_etex("ifdefined", if_test_cmd, if_def_code, 0);
     primitive_etex("ifcsname", if_test_cmd, if_cs_code, 0);
     primitive_etex("iffontchar", if_test_cmd, if_font_char_code, 0);
+/*
     primitive_pdftex("ifincsname", if_test_cmd, if_in_csname_code, 0);
+*/
+    primitive_luatex("ifincsname", if_test_cmd, if_in_csname_code, 0);
     primitive_luatex("ifabsnum", if_test_cmd, if_abs_num_code, 0);
     primitive_luatex("ifabsdim", if_test_cmd, if_abs_dim_code, 0);
+/*
     primitive_pdftex("ifpdfabsnum", if_test_cmd, if_abs_num_code, 0);
     primitive_pdftex("ifpdfabsdim", if_test_cmd, if_abs_dim_code, 0);
+*/
 
     /* The |protected| feature of \eTeX\ defines the \.{\\protected} prefix
        command for macro definitions.  Such macros are protected against
