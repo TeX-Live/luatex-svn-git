@@ -350,7 +350,7 @@ void initialize_commands(void)
     primitive_tex("hrule", hrule_cmd, 0, 0);
     primitive_tex("ignorespaces", ignore_spaces_cmd, 0, 0);
     primitive_tex("insert", insert_cmd, 0, 0);
-    primitive_omega("leftghost", char_ghost_cmd, 0, 0);
+    primitive_luatex("leftghost", char_ghost_cmd, 0, 0);
     primitive_tex("mark", mark_cmd, 0, 0);
     primitive_tex("mathaccent", math_accent_cmd, 0, 0);
     primitive_umath("Umathaccent", math_accent_cmd, 1, 0);
@@ -383,7 +383,7 @@ void initialize_commands(void)
     primitive_tex("relax", relax_cmd, too_big_char, too_big_char);
     cs_text(frozen_relax) = maketexstring("relax");
     eqtb[frozen_relax] = eqtb[cur_val];
-    primitive_omega("rightghost", char_ghost_cmd, 1, 0);
+    primitive_luatex("rightghost", char_ghost_cmd, 1, 0);
     primitive_tex("setbox", set_box_cmd, 0, 0);
     primitive_tex("the", the_cmd, 0, 0);
     primitive_tex("toks", toks_register_cmd, 0, 0);
@@ -608,8 +608,8 @@ void initialize_commands(void)
     primitive_tex("unvcopy", un_vbox_cmd, copy_code, 0);
     primitive_tex("-", discretionary_cmd, explicit_disc, 0);
     primitive_tex("discretionary", discretionary_cmd, discretionary_disc, 0);
-    primitive_omega("localleftbox", assign_local_box_cmd, 0, 0);
-    primitive_omega("localrightbox", assign_local_box_cmd, 1, 0);
+    primitive_luatex("localleftbox", assign_local_box_cmd, 0, 0);
+    primitive_luatex("localrightbox", assign_local_box_cmd, 1, 0);
 
     primitive_umath("Ustartmath", math_shift_cs_cmd, text_style, 0);
     primitive_umath("Ustopmath", math_shift_cs_cmd, cramped_text_style, 0);
@@ -956,9 +956,9 @@ void initialize_commands(void)
     cs_text(frozen_special) = maketexstring("special");
     eqtb[frozen_special] = eqtb[cur_val];
     primitive_tex("immediate", extension_cmd, immediate_code, 0);
-    primitive_omega("localinterlinepenalty", assign_int_cmd,
+    primitive_luatex("localinterlinepenalty", assign_int_cmd,
                     int_base + local_inter_line_penalty_code, int_base);
-    primitive_omega("localbrokenpenalty", assign_int_cmd,
+    primitive_luatex("localbrokenpenalty", assign_int_cmd,
                     int_base + local_broken_penalty_code, int_base);
     primitive_luatex("pagedir", assign_dir_cmd, int_base + page_direction_code,
                     dir_base);
