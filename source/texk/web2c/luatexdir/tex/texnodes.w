@@ -182,7 +182,7 @@ const char *node_fields_whatsit_pdf_start_thread[] =
     "named_id", "thread_id", "thread_attr", NULL
 };
 const char *node_fields_whatsit_pdf_end_thread[] = { "attr", NULL };
-const char *node_fields_whatsit_pdf_save_pos[] = { "attr", NULL };
+const char *node_fields_whatsit_save_pos[] = { "attr", NULL };
 const char *node_fields_whatsit_late_lua[] =
     { "attr", "reg", "data", "name", "string", NULL };
 const char *node_fields_whatsit_close_lua[] = { "attr", "reg", NULL };
@@ -296,8 +296,8 @@ node_info whatsit_node_data[] = {
      node_fields_whatsit_pdf_start_thread, "pdf_start_thread"},
     {pdf_end_thread_node, pdf_end_thread_node_size,
      node_fields_whatsit_pdf_end_thread, "pdf_end_thread"},
-    {pdf_save_pos_node, pdf_save_pos_node_size,
-     node_fields_whatsit_pdf_save_pos, "pdf_save_pos"},
+    {save_pos_node, save_pos_node_size,
+     node_fields_whatsit_save_pos, "save_pos"},
     {pdf_thread_data_node, pdf_thread_node_size, NULL, "pdf_thread_data"},
     {pdf_link_data_node, pdf_annot_node_size, NULL, "pdf_link_data"},
     {fake_node, fake_node_size, NULL, fake_node_name},
@@ -1166,7 +1166,7 @@ void flush_node(halfword p)
         case pdf_refximage_node:
         case pdf_end_link_node:
         case pdf_end_thread_node:
-        case pdf_save_pos_node:
+        case save_pos_node:
         case local_par_node:
             break;
 
@@ -1474,7 +1474,7 @@ void check_node(halfword p)
         case pdf_refximage_node:
         case pdf_end_link_node:
         case pdf_end_thread_node:
-        case pdf_save_pos_node:
+        case save_pos_node:
         case local_par_node:
             break;
         default:
@@ -2799,8 +2799,8 @@ static void show_whatsit_node(int p)
     case pdf_end_thread_node:
         tprint_esc("pdfendthread");
         break;
-    case pdf_save_pos_node:
-        tprint_esc("pdfsavepos");
+    case save_pos_node:
+        tprint_esc("savepos");
         break;
     case user_defined_node:
         tprint_esc("whatsit");

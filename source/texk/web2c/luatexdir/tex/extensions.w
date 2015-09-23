@@ -410,9 +410,9 @@ void do_extension(PDF pdf)
         check_o_mode(pdf, "\\pdfrefximage", 1 << OMODE_PDF, false);
         scan_pdfrefximage(pdf);
         break;
-    case pdf_save_pos_node:
-        /* Implement \.{\\pdfsavepos} */
-        new_whatsit(pdf_save_pos_node);
+    case save_pos_node:
+        /* Implement \.{\\savepos} */
+        new_whatsit(save_pos_node);
         break;
     case pdf_start_link_node:
         /* Implement \.{\\pdfstartlink} */

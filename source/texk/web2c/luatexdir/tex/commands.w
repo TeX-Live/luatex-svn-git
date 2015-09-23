@@ -442,8 +442,8 @@ void initialize_commands(void)
     primitive_pdftex("pdflastximagepages", last_item_cmd,
                      pdf_last_ximage_pages_code, 0);
     primitive_pdftex("pdflastannot", last_item_cmd, pdf_last_annot_code, 0);
-    primitive_pdftex("pdflastxpos", last_item_cmd, pdf_last_x_pos_code, 0);
-    primitive_pdftex("pdflastypos", last_item_cmd, pdf_last_y_pos_code, 0);
+    primitive_luatex("lastxpos", last_item_cmd, pdf_last_x_pos_code, 0);
+    primitive_luatex("lastypos", last_item_cmd, pdf_last_y_pos_code, 0);
     primitive_pdftex("pdfretval", last_item_cmd, pdf_retval_code, 0);
     primitive_pdftex("pdflastximagecolordepth", last_item_cmd,
                      pdf_last_ximage_colordepth_code, 0);
@@ -977,7 +977,7 @@ void initialize_commands(void)
     primitive_pdftex("pdfthread", extension_cmd, pdf_thread_node, 0);
     primitive_pdftex("pdfstartthread", extension_cmd, pdf_start_thread_node, 0);
     primitive_pdftex("pdfendthread", extension_cmd, pdf_end_thread_node, 0);
-    primitive_pdftex("pdfsavepos", extension_cmd, pdf_save_pos_node, 0);
+    primitive_luatex("savepos", extension_cmd, save_pos_node, 0);
     primitive_pdftex("pdfinfo", extension_cmd, pdf_info_code, 0);
     primitive_pdftex("pdfcatalog", extension_cmd, pdf_catalog_code, 0);
     primitive_pdftex("pdfnames", extension_cmd, pdf_names_code, 0);

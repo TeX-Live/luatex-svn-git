@@ -454,21 +454,21 @@ typedef enum {
     pdf_thread_node,            /* 20 */
     pdf_start_thread_node,
     pdf_end_thread_node,
-    pdf_save_pos_node,
     pdf_thread_data_node,
     pdf_link_data_node,
     pdf_names_code,
     pdf_font_attr_code,
     pdf_include_chars_code,
     pdf_map_file_code,
-    pdf_map_line_code,          /* 30 */
-    pdf_trailer_code,
+    pdf_map_line_code,          
+    pdf_trailer_code,           /*30  */
     pdf_font_expand_code,
     set_random_seed_code,
     pdf_glyph_to_unicode_code,
-    late_lua_node,              /* 35 */
-    close_lua_node,
+    late_lua_node,              
+    close_lua_node,             /*  35 */
     save_cat_code_table_code,
+    save_pos_node,
     init_cat_code_table_code,
     pdf_colorstack_node,
     pdf_setmatrix_node,         /* 40 */
@@ -548,6 +548,9 @@ typedef enum {
 #  define late_lua_name(a)        vlink((a)+3)
 #  define late_lua_type(a)        subtype((a)+3)
 
+#  define save_pos_node_size 3
+
+
 #  define local_par_size 6
 
 #  define local_pen_inter(a)       vinfo((a)+2)
@@ -622,7 +625,6 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 
 #  define pdf_end_link_node_size 3
 #  define pdf_end_thread_node_size 3
-#  define pdf_save_pos_node_size 3
 
 #  define pdf_colorstack_node_size 4
 #  define pdf_setmatrix_node_size 3
