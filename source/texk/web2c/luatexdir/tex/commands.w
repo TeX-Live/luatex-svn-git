@@ -1081,21 +1081,9 @@ void initialize_etex_commands(void)
     primitive_etex("currentiflevel", last_item_cmd, current_if_level_code, 0);
     primitive_etex("currentiftype", last_item_cmd, current_if_type_code, 0);
     primitive_etex("currentifbranch", last_item_cmd, current_if_branch_code, 0);
-/*
-    primitive_omega("charwd", last_item_cmd, font_char_wd_code, 0);
-*/
     primitive_etex("fontcharwd", last_item_cmd, font_char_wd_code, 0);
-/*
-    primitive_omega("charht", last_item_cmd, font_char_ht_code, 0);
-*/
     primitive_etex("fontcharht", last_item_cmd, font_char_ht_code, 0);
-/*
-    primitive_omega("chardp", last_item_cmd, font_char_dp_code, 0);
-*/
     primitive_etex("fontchardp", last_item_cmd, font_char_dp_code, 0);
-/*
-    primitive_omega("charit", last_item_cmd, font_char_ic_code, 0);
-*/
     primitive_etex("fontcharic", last_item_cmd, font_char_ic_code, 0);
 
     primitive_etex("parshapelength", last_item_cmd, par_shape_length_code, 0);
