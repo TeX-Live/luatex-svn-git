@@ -439,10 +439,10 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 case pdf_last_annot_code:
                     cur_val = pdf_last_annot;
                     break;
-                case pdf_last_x_pos_code:
+                case last_x_pos_code:
                     cur_val = pdf_last_pos.h;
                     break;
-                case pdf_last_y_pos_code:
+                case last_y_pos_code:
                     cur_val = pdf_last_pos.v;
                     break;
                 case pdf_retval_code:

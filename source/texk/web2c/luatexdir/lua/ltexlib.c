@@ -1421,8 +1421,8 @@ static int do_lastitem(lua_State * L, int cur_code)
     case pdf_last_ximage_code:
     case pdf_last_ximage_pages_code:
     case pdf_last_annot_code:
-    case pdf_last_x_pos_code:
-    case pdf_last_y_pos_code:
+    case last_x_pos_code:
+    case last_y_pos_code:
     case pdf_retval_code:
     case pdf_last_ximage_colordepth_code:
     case random_seed_code:

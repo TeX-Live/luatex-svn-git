@@ -442,8 +442,8 @@ void initialize_commands(void)
     primitive_pdftex("pdflastximagepages", last_item_cmd,
                      pdf_last_ximage_pages_code, 0);
     primitive_pdftex("pdflastannot", last_item_cmd, pdf_last_annot_code, 0);
-    primitive_luatex("lastxpos", last_item_cmd, pdf_last_x_pos_code, 0);
-    primitive_luatex("lastypos", last_item_cmd, pdf_last_y_pos_code, 0);
+    primitive_luatex("lastxpos", last_item_cmd, last_x_pos_code, 0);
+    primitive_luatex("lastypos", last_item_cmd, last_y_pos_code, 0);
     primitive_pdftex("pdfretval", last_item_cmd, pdf_retval_code, 0);
     primitive_pdftex("pdflastximagecolordepth", last_item_cmd,
                      pdf_last_ximage_colordepth_code, 0);

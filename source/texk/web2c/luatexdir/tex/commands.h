@@ -276,8 +276,8 @@ typedef enum {
     pdf_last_ximage_code,       /* code for \.{\\pdflastximage} */
     pdf_last_ximage_pages_code, /* code for \.{\\pdflastximagepages} */
     pdf_last_annot_code,        /* code for \.{\\pdflastannot} */
-    pdf_last_x_pos_code,        /* code for \.{\\pdflastxpos} */
-    pdf_last_y_pos_code,        /* code for \.{\\pdflastypos} */
+    last_x_pos_code,        /* code for \.{\\lastxpos} */
+    last_y_pos_code,        /* code for \.{\\lastypos} */
     pdf_retval_code,            /* global multi-purpose return value */
     pdf_last_ximage_colordepth_code,    /* code for \.{\\pdflastximagecolordepth} */
     random_seed_code,           /* code for \.{\\pdfrandomseed} */
