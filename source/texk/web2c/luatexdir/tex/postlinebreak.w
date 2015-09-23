@@ -58,9 +58,9 @@ and begin direction instructions at the beginnings of lines.
 void ext_post_line_break(int paragraph_dir,
                          int right_skip,
                          int left_skip,
-                         int pdf_protrude_chars,
+                         int protrude_chars,
                          halfword par_shape_ptr,
-                         int pdf_adjust_spacing,
+                         int adjust_spacing,
                          halfword inter_line_penalties_ptr,
                          int inter_line_penalty,
                          int club_penalty,
@@ -299,7 +299,7 @@ void ext_post_line_break(int paragraph_dir,
            has been changed to the last node of the |pre_break| list */
         /* If the par ends with a \break command, the last line is utterly empty.
            That is the case of |q==temp_head| */
-        if (q != temp_head && pdf_protrude_chars > 0) {
+        if (q != temp_head && protrude_chars > 0) {
             halfword p, ptmp;
             if (disc_break && (is_char_node(q) || (type(q) != disc_node))) {
                 p = q;          /* |q| has been reset to the last node of |pre_break| */
@@ -367,7 +367,7 @@ void ext_post_line_break(int paragraph_dir,
             }
         }
         /*at this point |q| is the leftmost node; all discardable nodes have been discarded */
-        if (pdf_protrude_chars > 0) {
+        if (protrude_chars > 0) {
 	    halfword p;
             p = q;
             p = find_protchar_left(p, false);   /* no more discardables */
@@ -410,7 +410,7 @@ void ext_post_line_break(int paragraph_dir,
         }
         adjust_tail = adjust_head;
         pre_adjust_tail = pre_adjust_head;
-        if (pdf_adjust_spacing > 0) {
+        if (adjust_spacing > 0) {
             just_box = hpack(q, cur_width, cal_expand_ratio, paragraph_dir);
         } else {
             just_box = hpack(q, cur_width, exactly, paragraph_dir);

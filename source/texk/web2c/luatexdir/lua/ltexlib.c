@@ -2233,7 +2233,7 @@ static int tex_run_linebreak(lua_State * L)
     int paragraph_dir = 0;
     /* locally initialized parameters for line breaking */
     int pretolerance, tracingparagraphs, tolerance, looseness, hyphenpenalty,
-        exhyphenpenalty, pdfadjustspacing, adjdemerits, pdfprotrudechars,
+        exhyphenpenalty, adjustspacing, adjdemerits, protrudechars,
         linepenalty, lastlinefit, doublehyphendemerits, finalhyphendemerits,
         hangafter, interlinepenalty, widowpenalty, clubpenalty, brokenpenalty;
     halfword emergencystretch, hangindent, hsize, leftskip, rightskip,parshape;
@@ -2287,11 +2287,11 @@ static int tex_run_linebreak(lua_State * L)
     get_int_par("hyphenpenalty", hyphenpenalty, int_par(hyphen_penalty_code));
     get_int_par("exhyphenpenalty", exhyphenpenalty,
                 int_par(ex_hyphen_penalty_code));
-    get_int_par("pdfadjustspacing", pdfadjustspacing,
-                int_par(pdf_adjust_spacing_code));
+    get_int_par("adjustspacing", adjustspacing,
+                int_par(adjust_spacing_code));
     get_int_par("adjdemerits", adjdemerits, int_par(adj_demerits_code));
-    get_int_par("pdfprotrudechars", pdfprotrudechars,
-                int_par(pdf_protrude_chars_code));
+    get_int_par("protrudechars", protrudechars,
+                int_par(protrude_chars_code));
     get_int_par("linepenalty", linepenalty, int_par(line_penalty_code));
     get_int_par("lastlinefit", lastlinefit, int_par(last_line_fit_code));
     get_int_par("doublehyphendemerits", doublehyphendemerits,
@@ -2317,9 +2317,9 @@ static int tex_run_linebreak(lua_State * L)
                       pretolerance, tracingparagraphs, tolerance,
                       emergencystretch,
                       looseness, hyphenpenalty, exhyphenpenalty,
-                      pdfadjustspacing,
+                      adjustspacing,
                       parshape,
-                      adjdemerits, pdfprotrudechars,
+                      adjdemerits, protrudechars,
                       linepenalty, lastlinefit,
                       doublehyphendemerits, finalhyphendemerits,
                       hangindent, hsize, hangafter, leftskip, rightskip,

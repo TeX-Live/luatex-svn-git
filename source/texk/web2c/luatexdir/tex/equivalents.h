@@ -281,7 +281,10 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define ex_hyphen_char_code 66
 #  define hyphenation_min_code 67 /* minimum word length */
 #  define disc_penalty_code 68 /* penalty assigned to disc node */
-#  define pdftex_first_integer_code 69  /*base for \pdfTeX's integer parameters */
+#  define adjust_spacing_code 69      /*level of spacing adjusting */
+#  define protrude_chars_code 70      /*protrude chars at left/right edge of paragraphs */
+
+#  define pdftex_first_integer_code 71  /*base for \pdfTeX's integer parameters */
 #  define pdf_output_code (pdftex_first_integer_code + 0)
                                                         /*switch on PDF output if positive */
 #  define pdf_compress_level_code (pdftex_first_integer_code + 1)
@@ -300,17 +303,15 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define pdf_image_gamma_code (pdftex_first_integer_code + 10)
 #  define pdf_image_hicolor_code (pdftex_first_integer_code + 11)
 #  define pdf_image_apply_gamma_code (pdftex_first_integer_code + 12)
-#  define pdf_adjust_spacing_code (pdftex_first_integer_code + 13)      /*level of spacing adjusting */
-#  define pdf_protrude_chars_code (pdftex_first_integer_code + 14)      /*protrude chars at left/right edge of paragraphs */
-#  define pdf_tracing_fonts_code (pdftex_first_integer_code + 15)
+#  define pdf_tracing_fonts_code (pdftex_first_integer_code + 13)
                                                                 /*level of font detail in log */
-#  define pdf_objcompresslevel_code (pdftex_first_integer_code + 16)    /*activate object streams */
-#  define pdf_gen_tounicode_code (pdftex_first_integer_code + 17)
+#  define pdf_objcompresslevel_code (pdftex_first_integer_code + 14)    /*activate object streams */
+#  define pdf_gen_tounicode_code (pdftex_first_integer_code + 15)
                                                                 /*generate ToUnicode for fonts? */
-#  define pdf_draftmode_code (pdftex_first_integer_code + 18)   /*switch on draftmode if positive */
-#  define pdf_replace_font_code (pdftex_first_integer_code + 19)        /*generate ToUnicode for fonts? */
-#  define pdf_inclusion_copy_font_code (pdftex_first_integer_code + 20) /*generate ToUnicode for fonts? */
-#  define pdf_int_pars (pdftex_first_integer_code + 21) /*total number of \pdfTeX's integer parameters */
+#  define pdf_draftmode_code (pdftex_first_integer_code + 16)   /*switch on draftmode if positive */
+#  define pdf_replace_font_code (pdftex_first_integer_code + 17)        /*generate ToUnicode for fonts? */
+#  define pdf_inclusion_copy_font_code (pdftex_first_integer_code + 18) /*generate ToUnicode for fonts? */
+#  define pdf_int_pars (pdftex_first_integer_code + 19) /*total number of \pdfTeX's integer parameters */
 #  define etex_first_integer_code (pdf_int_pars)        /*base for \eTeX's integer parameters */
 #  define tracing_assigns_code (etex_first_integer_code)        /*show assignments */
 #  define tracing_groups_code (etex_first_integer_code+1)       /*show save/restore groups */

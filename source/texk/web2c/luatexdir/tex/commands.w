@@ -240,10 +240,10 @@ void initialize_commands(void)
                      int_base + pdf_image_hicolor_code, int_base);
     primitive_pdftex("pdfimageapplygamma", assign_int_cmd,
                      int_base + pdf_image_apply_gamma_code, int_base);
-    primitive_pdftex("pdfadjustspacing", assign_int_cmd,
-                     int_base + pdf_adjust_spacing_code, int_base);
-    primitive_pdftex("pdfprotrudechars", assign_int_cmd,
-                     int_base + pdf_protrude_chars_code, int_base);
+    primitive_pdftex("adjustspacing", assign_int_cmd,
+                     int_base + adjust_spacing_code, int_base);
+    primitive_pdftex("protrudechars", assign_int_cmd,
+                     int_base + protrude_chars_code, int_base);
     primitive_pdftex("pdftracingfonts", assign_int_cmd,
                      int_base + pdf_tracing_fonts_code, int_base);
     primitive_pdftex("pdfgentounicode", assign_int_cmd,
