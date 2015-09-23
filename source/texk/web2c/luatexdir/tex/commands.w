@@ -300,13 +300,13 @@ void initialize_commands(void)
                      dimen_base + pdf_h_origin_code, dimen_base);
     primitive_pdftex("pdfvorigin", assign_dimen_cmd,
                      dimen_base + pdf_v_origin_code, dimen_base);
-    primitive_omega("pagewidth", assign_dimen_cmd, dimen_base + page_width_code,
+    primitive_luatex("pagewidth", assign_dimen_cmd, dimen_base + page_width_code,
                     dimen_base);
 /*
     primitive_pdftex("pdfpagewidth", assign_dimen_cmd,
                      dimen_base + page_width_code, dimen_base);
 */
-    primitive_omega("pageheight", assign_dimen_cmd,
+    primitive_luatex("pageheight", assign_dimen_cmd,
                     dimen_base + page_height_code, dimen_base);
 /*
     primitive_pdftex("pdfpageheight", assign_dimen_cmd,
@@ -592,7 +592,7 @@ void initialize_commands(void)
     primitive_tex("cleaders", leader_ship_cmd, c_leaders, 0);
     primitive_tex("xleaders", leader_ship_cmd, x_leaders, 0);
     primitive_luatex("gleaders", leader_ship_cmd, g_leaders, 0);
-    primitive_aleph("boxdir", assign_box_dir_cmd, 0, 0);
+    primitive_luatex("boxdir", assign_box_dir_cmd, 0, 0);
     primitive_tex("indent", start_par_cmd, 1, 0);
     primitive_tex("noindent", start_par_cmd, 0, 0);
 /*
@@ -960,26 +960,20 @@ void initialize_commands(void)
                     int_base + local_inter_line_penalty_code, int_base);
     primitive_omega("localbrokenpenalty", assign_int_cmd,
                     int_base + local_broken_penalty_code, int_base);
-    primitive_omega("pagedir", assign_dir_cmd, int_base + page_direction_code,
+    primitive_luatex("pagedir", assign_dir_cmd, int_base + page_direction_code,
                     dir_base);
-    primitive_omega("bodydir", assign_dir_cmd, int_base + body_direction_code,
+    primitive_luatex("bodydir", assign_dir_cmd, int_base + body_direction_code,
                     dir_base);
-    primitive_omega("pardir", assign_dir_cmd, int_base + par_direction_code,
+    primitive_luatex("pardir", assign_dir_cmd, int_base + par_direction_code,
                     dir_base);
-    primitive_omega("textdir", assign_dir_cmd, int_base + text_direction_code,
+    primitive_luatex("textdir", assign_dir_cmd, int_base + text_direction_code,
                     dir_base);
-    primitive_omega("mathdir", assign_dir_cmd, int_base + math_direction_code,
+    primitive_luatex("mathdir", assign_dir_cmd, int_base + math_direction_code,
                     dir_base);
     primitive_luatex("pageleftoffset", assign_dimen_cmd,
                      dimen_base + page_left_offset_code, dimen_base);
     primitive_luatex("pagetopoffset", assign_dimen_cmd,
                      dimen_base + page_top_offset_code, dimen_base);
-/*
-    primitive_aleph("pagerightoffset", assign_dimen_cmd,
-                    dimen_base + page_right_offset_code, dimen_base);
-    primitive_aleph("pagebottomoffset", assign_dimen_cmd,
-                    dimen_base + page_bottom_offset_code, dimen_base);
-*/
     primitive_luatex("pagerightoffset", assign_dimen_cmd,
                     dimen_base + page_right_offset_code, dimen_base);
     primitive_luatex("pagebottomoffset", assign_dimen_cmd,
