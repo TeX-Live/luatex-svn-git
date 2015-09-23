@@ -269,8 +269,8 @@ void do_extension(PDF pdf)
             set_pdf_font_attr(k, 0);
         }
         break;
-    case pdf_font_expand_code:
-        /* Implement \.{\\pdffontexpand} */
+    case font_expand_code:
+        /* Implement \.{\\fontexpand} */
         read_expand_font();
         break;
     case pdf_include_chars_code:
@@ -484,7 +484,7 @@ void do_extension(PDF pdf)
         }
         break;
     case set_random_seed_code:
-        /* Implement \.{\\pdfsetrandomseed} */
+        /* Implement \.{\\setrandomseed} */
         /*  Negative random seed values are silently converted to positive ones */
         scan_int();
         if (cur_val < 0)

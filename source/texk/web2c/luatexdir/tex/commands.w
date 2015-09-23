@@ -994,7 +994,7 @@ void initialize_commands(void)
     primitive_luatex("setrandomseed", extension_cmd, set_random_seed_code,
                      0);
     primitive_luatex("latelua", extension_cmd, late_lua_node, 0);
-    primitive_pdftex("pdffontexpand", extension_cmd, pdf_font_expand_code, 0);
+    primitive_pdftex("expandglyphsinfont", extension_cmd, font_expand_code, 0);
     primitive_pdftex("pdfglyphtounicode", extension_cmd,
                      pdf_glyph_to_unicode_code, 0);
 

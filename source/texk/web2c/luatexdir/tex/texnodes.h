@@ -430,14 +430,16 @@ typedef enum {
 #  define large_fam(A)  vinfo((A)+3)    /* |fam| for ``large'' delimiter */
 #  define large_char(A) vlink((A)+3)    /* |character| for ``large'' delimiter */
 
+
+/* be careful: must be in sync with whatsit_node_data[] ! (at least) */
 typedef enum {
     open_node = 0,
     write_node,
     close_node,
     special_node,
-    language_node,              /*OBSOLETE*/
-    set_language_code,          /*OBSOLETE*/
-    local_par_node,
+    /*language_node,              OBSOLETE*/
+    /*set_language_code,          OBSOLETE*/
+    local_par_node=10,
     dir_node,
     pdf_literal_node,
     pdf_obj_code,
@@ -463,7 +465,7 @@ typedef enum {
     pdf_map_file_code,
     pdf_map_line_code,          /* 30 */
     pdf_trailer_code,           
-    pdf_font_expand_code,
+    font_expand_code,
     set_random_seed_code,
     pdf_glyph_to_unicode_code,
     late_lua_node,              /* 35 */
