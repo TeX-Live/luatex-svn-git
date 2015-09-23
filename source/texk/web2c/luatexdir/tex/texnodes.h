@@ -435,8 +435,8 @@ typedef enum {
     write_node,
     close_node,
     special_node,
-    language_node,
-    set_language_code,
+    language_node,              /*OBSOLETE*/
+    set_language_code,          /*OBSOLETE*/
     local_par_node,
     dir_node,
     pdf_literal_node,
@@ -454,25 +454,25 @@ typedef enum {
     pdf_thread_node,            /* 20 */
     pdf_start_thread_node,
     pdf_end_thread_node,
+ save_pos_node,
     pdf_thread_data_node,
     pdf_link_data_node,
     pdf_names_code,
     pdf_font_attr_code,
     pdf_include_chars_code,
     pdf_map_file_code,
-    pdf_map_line_code,          
-    pdf_trailer_code,           /*30  */
+    pdf_map_line_code,          /* 30 */
+    pdf_trailer_code,           
     pdf_font_expand_code,
     set_random_seed_code,
     pdf_glyph_to_unicode_code,
-    late_lua_node,              
-    close_lua_node,             /*  35 */
+    late_lua_node,              /* 35 */
+    close_lua_node,             
     save_cat_code_table_code,
-    save_pos_node,
     init_cat_code_table_code,
     pdf_colorstack_node,
-    pdf_setmatrix_node,         /* 40 */
-    pdf_save_node,
+    pdf_setmatrix_node,         /*40 */ 
+    pdf_save_node,              
     pdf_restore_node,
     cancel_boundary_node,
     user_defined_node           /* 44 */
