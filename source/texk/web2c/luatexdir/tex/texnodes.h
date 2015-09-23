@@ -439,7 +439,7 @@ typedef enum {
     special_node,
     /*language_node,              OBSOLETE*/
     /*set_language_code,          OBSOLETE*/
-    local_par_node=10,
+    local_par_node=6,
     dir_node,
     pdf_literal_node,
     pdf_obj_code,
