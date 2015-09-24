@@ -30,7 +30,7 @@
 #  define get_character(a)  character(a)
 
 extern halfword insert_discretionary(halfword t, halfword pre, halfword post,
-                                     halfword replace);
+                                     halfword replace, int penalty);
 extern halfword insert_syllable_discretionary(halfword t, lang_variables * lan);
 extern halfword insert_word_discretionary(halfword t, lang_variables * lan);
 extern halfword insert_complex_discretionary(halfword t, lang_variables * lan,
@@ -464,17 +464,17 @@ typedef enum {
     pdf_include_chars_code,
     pdf_map_file_code,
     pdf_map_line_code,          /* 30 */
-    pdf_trailer_code,           
+    pdf_trailer_code,
     font_expand_code,
     set_random_seed_code,
     pdf_glyph_to_unicode_code,
     late_lua_node,              /* 35 */
-    close_lua_node,             
+    close_lua_node,
     save_cat_code_table_code,
     init_cat_code_table_code,
     pdf_colorstack_node,
-    pdf_setmatrix_node,         /*40 */ 
-    pdf_save_node,              
+    pdf_setmatrix_node,         /*40 */
+    pdf_save_node,
     pdf_restore_node,
     cancel_boundary_node,
     user_defined_node           /* 44 */

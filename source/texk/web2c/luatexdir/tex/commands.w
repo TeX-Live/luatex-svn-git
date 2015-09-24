@@ -102,8 +102,6 @@ void initialize_commands(void)
                   int_base + hyphen_penalty_code, int_base);
     primitive_tex("exhyphenpenalty", assign_int_cmd,
                   int_base + ex_hyphen_penalty_code, int_base);
-    primitive_luatex("discpenalty", assign_int_cmd,
-                  int_base + disc_penalty_code, int_base);
     primitive_tex("clubpenalty", assign_int_cmd, int_base + club_penalty_code,
                   int_base);
     primitive_tex("widowpenalty", assign_int_cmd, int_base + widow_penalty_code,

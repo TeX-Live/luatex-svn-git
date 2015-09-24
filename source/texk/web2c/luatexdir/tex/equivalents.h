@@ -280,11 +280,10 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define cur_lang_code 65      /* current language id */
 #  define ex_hyphen_char_code 66
 #  define hyphenation_min_code 67 /* minimum word length */
-#  define disc_penalty_code 68 /* penalty assigned to disc node */
-#  define adjust_spacing_code 69      /*level of spacing adjusting */
-#  define protrude_chars_code 70      /*protrude chars at left/right edge of paragraphs */
+#  define adjust_spacing_code 68      /*level of spacing adjusting */
+#  define protrude_chars_code 69      /*protrude chars at left/right edge of paragraphs */
 
-#  define pdftex_first_integer_code 71  /*base for \pdfTeX's integer parameters */
+#  define pdftex_first_integer_code 70  /*base for \pdfTeX's integer parameters */
 #  define pdf_output_code (pdftex_first_integer_code + 0)
                                                         /*switch on PDF output if positive */
 #  define pdf_compress_level_code (pdftex_first_integer_code + 1)

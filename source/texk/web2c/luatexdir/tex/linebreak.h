@@ -1,5 +1,5 @@
 /* linebreak.h
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -39,8 +39,10 @@ extern void ext_do_line_break(int paragraph_dir,
                               int tolerance,
                               scaled emergency_stretch,
                               int looseness,
+                              /*
                               int hyphen_penalty,
                               int ex_hyphen_penalty,
+                              */
                               int adjust_spacing,
                               halfword par_shape_ptr,
                               int adj_demerits,

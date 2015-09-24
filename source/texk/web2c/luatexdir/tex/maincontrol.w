@@ -1752,6 +1752,7 @@ void append_discretionary(void)
     tail_append(new_disc());
     subtype(tail) = (quarterword) cur_chr;
     if (cur_chr == explicit_disc) {
+        /* \- */
         c = get_pre_hyphen_char(cur_lang);
         if (c != 0) {
             vlink(pre_break(tail)) = new_char(equiv(cur_font_loc), c);
@@ -1764,7 +1765,9 @@ void append_discretionary(void)
             alink(vlink(post_break(tail))) = post_break(tail);
             tlink(post_break(tail)) = vlink(post_break(tail));
         }
+        disc_penalty(tail) = int_par(ex_hyphen_penalty_code);
     } else {
+        /* \discretionary */
         incr(save_ptr);
         set_saved_record(-1, saved_disc, 0, 0);
         new_save_level(disc_group);
@@ -1772,6 +1775,7 @@ void append_discretionary(void)
         push_nest();
         mode = -hmode;
         space_factor = 1000;
+        /* already preset: disc_penalty(tail) = int_par(hyphen_penalty_code); */
     }
 }
 

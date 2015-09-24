@@ -196,8 +196,10 @@ void line_break(boolean d, int line_break_context)
                           int_par(tolerance_code),
                           dimen_par(emergency_stretch_code),
                           int_par(looseness_code),
+                          /*
                           int_par(hyphen_penalty_code),
                           int_par(ex_hyphen_penalty_code),
+                          */
                           int_par(adjust_spacing_code),
                           equiv(par_shape_loc),
                           int_par(adj_demerits_code),
@@ -1628,8 +1630,10 @@ ext_do_line_break(int paragraph_dir,
                   int tolerance,
                   scaled emergency_stretch,
                   int looseness,
+                  /*
                   int hyphen_penalty,
                   int ex_hyphen_penalty,
+                  */
                   int adjust_spacing,
                   halfword par_shape_ptr,
                   int adj_demerits,
@@ -1946,12 +1950,15 @@ ext_do_line_break(int paragraph_dir,
                    automatic disc nodes. Of better, we need to treat discretionaries
                    and explicit hyphens always, even in the first pass (HH). */
                 if (second_pass || subtype(cur_p) <= automatic_disc) {
+                    /*
                     int actual_penalty = hyphen_penalty;
                     if (disc_penalty(cur_p) != 0) {
                         actual_penalty = (int) disc_penalty(cur_p);
                     } else if (subtype(cur_p) == automatic_disc) {
                         actual_penalty = ex_hyphen_penalty;
                     }
+                    */
+                    int actual_penalty = (int) disc_penalty(cur_p);
                     s = vlink_pre_break(cur_p);
                     do_one_seven_eight(reset_disc_width);
                     if (s == null) {    /* trivial pre-break */

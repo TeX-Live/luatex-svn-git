@@ -2232,8 +2232,11 @@ static int tex_run_linebreak(lua_State * L)
     halfword final_par_glue;
     int paragraph_dir = 0;
     /* locally initialized parameters for line breaking */
-    int pretolerance, tracingparagraphs, tolerance, looseness, hyphenpenalty,
-        exhyphenpenalty, adjustspacing, adjdemerits, protrudechars,
+    int pretolerance, tracingparagraphs, tolerance, looseness,
+        /*
+        hyphenpenalty, exhyphenpenalty,
+        */
+        adjustspacing, adjdemerits, protrudechars,
         linepenalty, lastlinefit, doublehyphendemerits, finalhyphendemerits,
         hangafter, interlinepenalty, widowpenalty, clubpenalty, brokenpenalty;
     halfword emergencystretch, hangindent, hsize, leftskip, rightskip,parshape;
@@ -2284,9 +2287,11 @@ static int tex_run_linebreak(lua_State * L)
                 int_par(tracing_paragraphs_code));
     get_int_par("tolerance", tolerance, int_par(tolerance_code));
     get_int_par("looseness", looseness, int_par(looseness_code));
+    /*
     get_int_par("hyphenpenalty", hyphenpenalty, int_par(hyphen_penalty_code));
     get_int_par("exhyphenpenalty", exhyphenpenalty,
                 int_par(ex_hyphen_penalty_code));
+    */
     get_int_par("adjustspacing", adjustspacing,
                 int_par(adjust_spacing_code));
     get_int_par("adjdemerits", adjdemerits, int_par(adj_demerits_code));
@@ -2315,8 +2320,10 @@ static int tex_run_linebreak(lua_State * L)
 
     ext_do_line_break(paragraph_dir,
                       pretolerance, tracingparagraphs, tolerance,
-                      emergencystretch,
-                      looseness, hyphenpenalty, exhyphenpenalty,
+                      emergencystretch, looseness,
+                      /*
+                      hyphenpenalty, exhyphenpenalty,
+                      */
                       adjustspacing,
                       parshape,
                       adjdemerits, protrudechars,
@@ -2486,7 +2493,7 @@ static int lua_math_random (lua_State *L)
 
 /* Experimental code can either become permanent or disappear. It is
 undocumented and mostly present in the experimental branch but for
-practical reasons we also have the setup code in the regular binary. 
+practical reasons we also have the setup code in the regular binary.
 The experimental_code array is indexed by i with 1<= i <= max_experimental_code,
 position 0 is not used */
 int experimental_code[MAX_EXPERIMENTAL_CODE_SIZE] = { 0 };

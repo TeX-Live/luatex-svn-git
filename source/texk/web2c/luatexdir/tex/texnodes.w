@@ -3481,7 +3481,7 @@ halfword new_disc(void)
 {                               /* creates an empty |disc_node| */
     halfword p;                 /* the new node */
     p = new_node(disc_node, 0);
-    disc_penalty(p) = int_par(disc_penalty_code);
+    disc_penalty(p) = int_par(hyphen_penalty_code);
     return p;
 }
 

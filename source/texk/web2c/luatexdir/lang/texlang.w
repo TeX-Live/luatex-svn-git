@@ -331,11 +331,12 @@ void load_tex_hyphenation(int curlang, halfword head)
 
 @c
 halfword insert_discretionary(halfword t, halfword pre, halfword post,
-                              halfword replace)
+                              halfword replace, int penalty)
 {
     halfword g, n;
     int f;
     n = new_node(disc_node, syllable_disc);
+    disc_penalty(n) = penalty;
     try_couple_nodes(n, vlink(t));
     couple_nodes(t, n);
     if (replace != null)
@@ -381,6 +382,7 @@ halfword insert_syllable_discretionary(halfword t, lang_variables * lan)
 {
     halfword g, n;
     n = new_node(disc_node, syllable_disc);
+    disc_penalty(n) = int_par(hyphen_penalty_code);
     couple_nodes(n, vlink(t));
     couple_nodes(t, n);
     delete_attribute_ref(node_attr(n));
@@ -426,7 +428,7 @@ halfword insert_word_discretionary(halfword t, lang_variables * lan)
         pre = insert_character(null, lan->pre_exhyphen_char);
     if (lan->post_exhyphen_char > 0)
         pos = insert_character(null, lan->post_exhyphen_char);
-    return insert_discretionary(t, pre, pos, null);
+    return insert_discretionary(t, pre, pos, null,int_par(ex_hyphen_penalty_code));
 }
 
 @ @c
@@ -446,7 +448,7 @@ halfword insert_complex_discretionary(halfword t, lang_variables * lan,
                                       halfword replace)
 {
     (void) lan;
-    return insert_discretionary(t, pre, pos, replace);
+    return insert_discretionary(t, pre, pos, replace,int_par(hyphen_penalty_code));
 }
 
 
@@ -634,7 +636,7 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
                 try_couple_nodes(t, vlink(q));
                 vlink(q) = null;
             }
-            t = insert_discretionary(t, gg, hh, replace);
+            t = insert_discretionary(t, gg, hh, replace,int_par(hyphen_penalty_code));
             t = vlink(t);       /* skip the new disc */
         } else {
             t = vlink(t);
