@@ -1,4 +1,4 @@
-$Id: README 38285 2015-09-03 06:54:44Z peter $
+$Id: README 38471 2015-09-27 12:22:13Z peter $
 Copyright 2006-2015 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -69,7 +69,7 @@ gsftopk - from Paul Vojta's xdvi?
 
 kpathsea - maintained here, by us
 
-lcdf-typetools 2.104 - checked 8jul14
+lcdf-typetools 2.105 - checked 27sep15
   http://www.lcdf.org/type/
 
 makeindexk - maintained here, by us
