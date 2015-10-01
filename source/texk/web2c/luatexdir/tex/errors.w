@@ -107,7 +107,6 @@ void print_err(const char *s)
         last_error = (string) xmalloc((unsigned) (strlen(s) + 1));
         strcpy(last_error,s);
     }
-   selector = err_old_setting;
 }
 
 @ \TeX\ is careful not to call |error| when the print |selector| setting
