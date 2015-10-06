@@ -689,16 +689,17 @@ void display_normal_noad(pointer p)
             break;
         }
         break;
-    case radical_noad:
-        if (subtype(p) == 7)
+
+       case radical_noad:
+        if (subtype(p) == 6)
             tprint_esc("Udelimiterover");
-        else if (subtype(p) == 6)
-            tprint_esc("Udelimiterunder");
         else if (subtype(p) == 5)
-            tprint_esc("Uoverdelimiter");
+            tprint_esc("Udelimiterunder");
         else if (subtype(p) == 4)
-            tprint_esc("Uunderdelimiter");
+            tprint_esc("Uoverdelimiter");
         else if (subtype(p) == 3)
+            tprint_esc("Uunderdelimiter");
+        else if (subtype(p) == 2)
             tprint_esc("Uroot");
         else
             tprint_esc("radical");
