@@ -74,37 +74,50 @@
 \definecolor[maincolor] [b=.5]
 \definecolor[othercolor][r=.5,g=.5]
 
-\doifmodeelse {atpragma} {
+% \doifmodeelse {atpragma} {
+%
+%   %  \setupbodyfont
+%   %    [lucidaot,10pt]
+%
+%     \setupbodyfont
+%       [dejavu,10pt]
+%
+%     \setuphead [chapter]      [style=\bfd]
+%     \setuphead [section]      [style=\bfb]
+%     \setuphead [subsection]   [style=\bfa]
+%     \setuphead [subsubsection][style=\bf]
+%
+% } {
+%
+%     \definetypeface[mainfacenormal]  [ss][sans] [iwona]       [default]
+%     \definetypeface[mainfacenormal]  [rm][serif][palatino]    [default]
+%     \definetypeface[mainfacenormal]  [tt][mono] [modern]      [default][rscale=1.1]
+%     \definetypeface[mainfacenormal]  [mm][math] [iwona]       [default]
+%
+%     \definetypeface[mainfacemedium]  [ss][sans] [iwona-medium][default]
+%     \definetypeface[mainfacemedium]  [rm][serif][palatino]    [default]
+%     \definetypeface[mainfacemedium]  [tt][mono] [modern]      [default][rscale=1.1]
+%     \definetypeface[mainfacemedium]  [mm][math] [iwona-medium][default]
+%
+%     \setupbodyfont
+%       [mainfacenormal,10pt]
+%
+%     \setuphead [chapter]      [style=\mainfacemedium\bfd]
+%     \setuphead [section]      [style=\mainfacemedium\bfb]
+%     \setuphead [subsection]   [style=\mainfacemedium\bfa]
+%     \setuphead [subsubsection][style=\mainfacemedium\bf]
+%
+% }
 
-    \setupbodyfont
-      [lucidaot,10pt]
+\writestatus{luatex manual}{we assume that dejavu math is available}
 
-    \setuphead [chapter]      [style=\bfd]
-    \setuphead [section]      [style=\bfb]
-    \setuphead [subsection]   [style=\bfa]
-    \setuphead [subsubsection][style=\bf]
+\setupbodyfont % assumes dejavu-math
+  [dejavu,10pt]
 
-} {
-
-    \definetypeface[mainfacenormal]  [ss][sans] [iwona]       [default]
-    \definetypeface[mainfacenormal]  [rm][serif][palatino]    [default]
-    \definetypeface[mainfacenormal]  [tt][mono] [modern]      [default][rscale=1.1]
-    \definetypeface[mainfacenormal]  [mm][math] [iwona]       [default]
-
-    \definetypeface[mainfacemedium]  [ss][sans] [iwona-medium][default]
-    \definetypeface[mainfacemedium]  [rm][serif][palatino]    [default]
-    \definetypeface[mainfacemedium]  [tt][mono] [modern]      [default][rscale=1.1]
-    \definetypeface[mainfacemedium]  [mm][math] [iwona-medium][default]
-
-    \setupbodyfont
-      [mainfacenormal,10pt]
-
-    \setuphead [chapter]      [style=\mainfacemedium\bfd]
-    \setuphead [section]      [style=\mainfacemedium\bfb]
-    \setuphead [subsection]   [style=\mainfacemedium\bfa]
-    \setuphead [subsubsection][style=\mainfacemedium\bf]
-
-}
+\setuphead [chapter]      [style=\bfd]
+\setuphead [section]      [style=\bfb]
+\setuphead [subsection]   [style=\bfa]
+\setuphead [subsubsection][style=\bf]
 
 \setuphead [chapter]      [color=maincolor]
 \setuphead [section]      [color=maincolor]
