@@ -839,7 +839,7 @@ static void ttf_read_loca(void)
 
 void otc_read_tabdir(int index)
 {
-    unsigned long i, num, rem;
+    unsigned long i, num, rem=0;
     dirtab_entry *tab;
     ttf_skip(TTF_FIXED_SIZE);   /* ignore TTCTag 'ttcf' */
     ttf_skip(TTF_ULONG_SIZE);   /* ignorethe version number */

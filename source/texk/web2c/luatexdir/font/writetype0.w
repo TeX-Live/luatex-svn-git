@@ -30,7 +30,7 @@ void writetype0(PDF pdf, fd_entry * fd)
 {
     int callback_id;
     int file_opened = 0;
-    long i;
+    long i = 0;
     dirtab_entry *tab;
     cff_font *cff;
     sfnt *sfont;

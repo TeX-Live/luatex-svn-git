@@ -142,7 +142,7 @@ static int l_open_PDFDoc(lua_State * L)
 
 static int l_open_MemStreamPDFDoc(lua_State * L)
 {
-    const char *docstream;
+    const char *docstream=NULL;
     const char *file_id;
     unsigned long long stream_size;
     udstruct *uout;
@@ -152,11 +152,13 @@ static int l_open_MemStreamPDFDoc(lua_State * L)
          docstream = luaL_checkstring(L, 1); // stream as Lua string
          break;
       case LUA_TLIGHTUSERDATA:
-         docstream = (const char *) lua_touserdata(L, 1); // stream as unsigned char* 
+         docstream = (const char *) lua_touserdata(L, 1); // stream as sequence of bytes 
 	 break;
        default:
          luaL_error(L, "bad argument: string or lightuserdata expected"); 
     }
+    if (docstream==NULL) 
+      luaL_error(L, "bad document"); 
     stream_size = (unsigned long long) luaL_checkint(L, 2);// size of the stream
     file_id  =  luaL_checkstring(L, 3); // a symbolic name for this stream, mandatory
     if (file_id == NULL)
