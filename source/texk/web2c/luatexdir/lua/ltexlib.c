@@ -1991,8 +1991,7 @@ static int tex_extraprimitives(lua_State * L)
     int cs = 0;
     n = lua_gettop(L);
     if (n == 0) {
-        mask = etex_command + aleph_command + omega_command +
-            pdftex_command + luatex_command + umath_command;
+        mask = etex_command + pdftex_command + luatex_command + umath_command;
     } else {
         for (i = 1; i <= n; i++) {
             if (lua_isstring(L, i)) {
@@ -2005,10 +2004,6 @@ static int tex_extraprimitives(lua_State * L)
                     mask |= core_command;
                 } else if (lua_key_eq(s,pdftex)) {
                     mask |= pdftex_command;
-                } else if (lua_key_eq(s,aleph)) {
-                    mask |= aleph_command;
-                } else if (lua_key_eq(s,omega)) {
-                    mask |= omega_command;
                 } else if (lua_key_eq(s,luatex)) {
                     mask |= luatex_command | umath_command;
                 } else if (lua_key_eq(s,umath)) {

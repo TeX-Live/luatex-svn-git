@@ -26,8 +26,6 @@
 typedef enum {
     tex_command = 1,
     etex_command = 2,
-    aleph_command = 4,  /* OBSOLETE */
-    omega_command = 8,  /* OBSOLETE */
     pdftex_command = 16,
     luatex_command = 32,
     core_command = 64,
@@ -74,8 +72,6 @@ extern void undump_primitives(void);
 
 #  define primitive_tex(a,b,c,d)    primitive((a),(b),(c),(d),tex_command)
 #  define primitive_etex(a,b,c,d)   primitive((a),(b),(c),(d),etex_command)
-#  define primitive_aleph(a,b,c,d)  primitive((a),(b),(c),(d),aleph_command)  /* OBSOLETE */
-#  define primitive_omega(a,b,c,d)  primitive((a),(b),(c),(d),omega_command) /* OBSOLETE */
 #  define primitive_pdftex(a,b,c,d) primitive((a),(b),(c),(d),pdftex_command)
 #  define primitive_luatex(a,b,c,d) primitive((a),(b),(c),(d),luatex_command)
 #  define primitive_umath(a,b,c,d)  primitive((a),(b),(c),(d),umath_command)
