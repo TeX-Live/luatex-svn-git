@@ -24,13 +24,14 @@
 /* This enum is a list of origins for primitive commands */
 
 typedef enum {
-    tex_command = 1,
-    etex_command = 2,
-    pdftex_command = 16,
-    luatex_command = 32,
-    core_command = 64,
-    no_command = 128,
-    umath_command = 256,
+    /* Can be modified as suggested ?*/
+    tex_command = 1,    /* 1  */
+    etex_command = 2,   /* 2  */
+    pdftex_command = 16,/* 4  */
+    luatex_command = 32,/* 8  */
+    core_command = 64,  /* 16 */
+    no_command = 128,   /* 32 */
+    umath_command = 256,/* 64  */
 } command_origin;
 
 #  define hash_size 65536       /* maximum number of control sequences; it should be at most about |(fix_mem_max-fix_mem_min)/10| */

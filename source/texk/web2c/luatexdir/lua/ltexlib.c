@@ -1133,7 +1133,7 @@ static int setmathcode(lua_State * L)
     check_char_range(cval, "setmathcode", 8);
     check_char_range(fval, "setmathcode", 256);
     check_char_range(chval, "setmathcode", 65536*17);
-    set_math_code(ch, xetex_mathcode, cval,fval, chval, (quarterword) (level));
+    set_math_code(ch, umath_mathcode, cval,fval, chval, (quarterword) (level));
     return 0;
 }
 
@@ -1190,7 +1190,7 @@ static int setdelcode(lua_State * L)
     check_char_range(scval, "setdelcode", 65536*17);
     check_char_range(lfval, "setdelcode", 256);
     check_char_range(lcval, "setdelcode", 65536*17);
-    set_del_code(ch, xetex_mathcode, sfval, scval, lfval, lcval, (quarterword) (level));
+    set_del_code(ch, umath_mathcode, sfval, scval, lfval, lcval, (quarterword) (level));
 
     return 0;
 }

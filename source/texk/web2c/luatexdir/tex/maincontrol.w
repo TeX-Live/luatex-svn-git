@@ -327,9 +327,9 @@ static void run_math_char_num (void) {
     if (cur_chr == 0)
         mval = scan_mathchar(tex_mathcode);
     else if (cur_chr == 1)
-        mval = scan_mathchar(xetex_mathcode);
+        mval = scan_mathchar(umath_mathcode);
     else
-        mval = scan_mathchar(xetexnum_mathcode);
+        mval = scan_mathchar(umathnum_mathcode);
     math_char_in_text(mval);
 }
 
@@ -342,7 +342,7 @@ static void run_math_given (void) {
 
 static void run_xmath_given (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
-    mval = mathchar_from_integer(cur_chr, xetex_mathcode);
+    mval = mathchar_from_integer(cur_chr, umath_mathcode);
     math_char_in_text(mval);
 }
 
@@ -545,9 +545,9 @@ static void run_math_char_num_mmode (void) {
     if (cur_chr == 0)
         mval = scan_mathchar(tex_mathcode);
     else if (cur_chr == 1)
-        mval = scan_mathchar(xetex_mathcode);
+        mval = scan_mathchar(umath_mathcode);
     else
-        mval = scan_mathchar(xetexnum_mathcode);
+        mval = scan_mathchar(umathnum_mathcode);
     set_math_char(mval);
 }
 
@@ -560,7 +560,7 @@ static void run_math_given_mmode (void) {
 
 static void run_xmath_given_mmode (void) {
     mathcodeval mval;           /* to build up an argument to |set_math_char| */
-    mval = mathchar_from_integer(cur_chr, xetex_mathcode);
+    mval = mathchar_from_integer(cur_chr, umath_mathcode);
     set_math_char(mval);
 }
 
@@ -570,7 +570,7 @@ static void run_delim_num (void) {
     if (cur_chr == 0)
         mval = scan_delimiter_as_mathchar(tex_mathcode);
     else
-        mval = scan_delimiter_as_mathchar(xetex_mathcode);
+        mval = scan_delimiter_as_mathchar(umath_mathcode);
     set_math_char(mval);
 
 }
@@ -2249,14 +2249,14 @@ void prefixed_command(void)
             define(p, math_given_cmd, cur_val);
             break;
         case xmath_char_def_code:
-            mval = scan_mathchar(xetex_mathcode);
+            mval = scan_mathchar(umath_mathcode);
             cur_val =
                 (mval.class_value + (8 * mval.family_value)) * (65536 * 32) +
                 mval.character_value;
             define(p, xmath_given_cmd, cur_val);
             break;
         case umath_char_def_code:
-            mval = scan_mathchar(xetexnum_mathcode);
+            mval = scan_mathchar(umathnum_mathcode);
             cur_val =
                 (mval.class_value + (8 * mval.family_value)) * (65536 * 32) +
                 mval.character_value;
@@ -2498,13 +2498,13 @@ void prefixed_command(void)
         else
             cur_val1 = cur_level;
         if (cur_chr == math_code_base)
-            scan_extdef_math_code(cur_val1, xetex_mathcode);
+            scan_extdef_math_code(cur_val1, umath_mathcode);
         else if (cur_chr == math_code_base + 1)
-            scan_extdef_math_code(cur_val1, xetexnum_mathcode);
+            scan_extdef_math_code(cur_val1, umathnum_mathcode);
         else if (cur_chr == del_code_base)
-            scan_extdef_del_code(cur_val1, xetex_mathcode);
+            scan_extdef_del_code(cur_val1, umath_mathcode);
         else if (cur_chr == del_code_base + 1)
-            scan_extdef_del_code(cur_val1, xetexnum_mathcode);
+            scan_extdef_del_code(cur_val1, umathnum_mathcode);
         break;
     case def_family_cmd:
         p = cur_chr;
