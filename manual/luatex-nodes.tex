@@ -1,0 +1,1291 @@
+\environment luatex-style
+\environment luatex-logos
+
+\startcomponent luatex-nodes
+
+\startchapter[reference=nodes,title={Nodes}]
+
+\section{\LUA\ node representation}
+
+\TEX's nodes are represented in \LUA\ as userdata object with a variable set of
+fields. In the following syntax tables, such the type of such a userdata object
+is represented as \syntax {<node>}.
+
+The current return value of \type {node.types()} is:
+\startluacode
+    for id, name in table.sortedhash(node.types()) do
+        context.type(name)
+        context(" (%s), ",id)
+    end
+    context.removeunwantedspaces()
+    context.removepunctuation()
+\stopluacode
+. % period
+
+The \type {\lastnodetype} primitive is \ETEX\ compliant. The valid range is still
+$[-1,15]$ and glyph nodes (formerly known as char nodes) have number~0 while
+ligature nodes are mapped to~7. That way macro packages can use the same symbolic
+names as in traditional \ETEX. Keep in mind that the internal node numbers are
+different and that there are more node types than~15.
+
+\subsection{Auxiliary items}
+
+A few node|-|typed userdata objects do not occur in the \quote {normal} list of
+nodes, but can be pointed to from within that list. They are not quite the same
+as regular nodes, but it is easier for the library routines to treat them as if
+they were.
+
+\subsubsection{glue_spec items}
+
+Skips are about the only type of data objects in traditional \TEX\ that are not a
+simple value. The structure that represents the glue components of a skip is
+called a \type {glue_spec}, and it has the following accessible fields:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key     \NC \bf type \NC \bf explanation \NC \NR
+\NC width         \NC number   \NC \NC \NR
+\NC stretch       \NC number   \NC \NC \NR
+\NC stretch_order \NC number   \NC \NC \NR
+\NC shrink        \NC number   \NC \NC \NR
+\NC shrink_order  \NC number   \NC \NC \NR
+\NC writable      \NC boolean  \NC If this is true, you can't assign to this
+                                   \type {glue_spec} because it is one of the
+                                   preallocated special cases. \NC \NR
+\stoptabulate
+
+These objects are reference counted, so there is actually an extra read-only
+field named \type {ref_count} as well. This item type will likely disappear in
+the future, and the glue fields themselves will become part of the nodes
+referencing glue items.
+
+The effective width of some glue subtypes depends on the stretch or shrink needed
+to make the encapsulating box fit its dimensions. For instance, in a paragraph
+lines normally have glue representing spaces and these stretch of shrink to make
+the content fit in the available space. The \type {effective_glue} function that
+takes a glue node and a parent (hlist or vlist) returns the effective width of
+that glue item.
+
+\subsubsection{attribute_list and attribute items}
+
+The newly introduced attribute registers are non|-|trivial, because the value
+that is attached to a node is essentially a sparse array of key|-|value pairs.
+
+It is generally easiest to deal with attribute lists and attributes by using the
+dedicated functions in the \type {node} library, but for completeness, here is
+the low|-|level interface.
+
+An \type {attribute_list} item is used as a head pointer for a list of attribute
+items. It has only one user-visible field:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type \NC \bf explanation \NC \NR
+\NC next \NC \syntax{<node>} \NC
+    pointer to the first attribute
+\NC \NR
+\stoptabulate
+
+A normal node's attribute field will point to an item of type \type
+{attribute_list}, and the \type {next} field in that item will point to the first
+defined \quote {attribute} item, whose \type {next} will point to the second
+\quote {attribute} item, etc.
+
+Valid fields in \type {attribute} items:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC next        \NC \syntax{<node>} \NC pointer to the next attribute \NC \NR
+\NC number      \NC number          \NC the attribute type id \NC \NR
+\NC value       \NC number          \NC the attribute value \NC \NR
+\stoptabulate
+
+As mentioned it's better to use the official helpers rather than edit these
+fields directly. For instance the \type {prev} field is used for other purposes
+and there is no double linked list.
+
+\subsubsection{action item}
+
+Valid fields: \showfields{action}\crlf
+Id: \showid{action}
+
+These are a special kind of item that only appears inside \PDF\ start link
+objects.
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type         \NC \bf explanation \NC \NR
+\NC action_type \NC number           \NC \NC \NR
+\NC action_id   \NC number or string \NC \NC \NR
+\NC named_id    \NC number           \NC \NC \NR
+\NC file        \NC string           \NC \NC \NR
+\NC new_window  \NC number           \NC \NC \NR
+\NC data        \NC string           \NC \NC \NR
+\NC ref_count   \NC number           \NC
+    read-only
+\NC \NR
+\stoptabulate
+
+\subsection{Main text nodes}
+
+These are the nodes that comprise actual typesetting commands.
+
+A few fields are present in all nodes regardless of their type, these are:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC next        \NC \syntax{<node>} \NC the next node in a list, or nil \NC \NR
+\NC id          \NC number          \NC the node's type (\type {id}) number \NC \NR
+\NC subtype     \NC number          \NC the node \type {subtype} identifier \NC \NR
+\stoptabulate
+
+The \type {subtype} is sometimes just a stub entry. Not all nodes actually use
+the \type {subtype}, but this way you can be sure that all nodes accept it as a
+valid field name, and that is often handy in node list traversal. In the
+following tables \type {next} and \type {id} are not explicitly mentioned.
+
+Besides these three fields, almost all nodes also have an \type {attr} field, and
+there is a also a field called \type {prev}. That last field is always present,
+but only initialized on explicit request: when the function \type {node.slide()}
+is called, it will set up the \type {prev} fields to be a backwards pointer in
+the argument node list.
+
+\subsubsection{hlist nodes}
+
+Valid fields: \showfields{hlist}\crlf
+Id: \showid{hlist}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC \type {0} = unknown origin,
+                                        \type {1} = created by linebreaking,
+                                        \type {2} = explicit box command,
+                                        \type {3} = paragraph indentation box,
+                                        \type {4} = alignment column or row,
+                                        \type {5} = alignment cell \NC \NR
+\NC attr        \NC \syntax{<node>} \NC The head of the associated attribute
+                                        list \NC \NR
+\NC width       \NC number          \NC \NC \NR
+\NC height      \NC number          \NC \NC \NR
+\NC depth       \NC number          \NC \NC \NR
+\NC shift       \NC number          \NC a displacement perpendicular to the
+                                        character progression direction \NC \NR
+\NC glue_order  \NC number          \NC a number in the range $[0,4]$, indicating
+                                        the glue order \NC \NR
+\NC glue_set    \NC number          \NC the calculated glue ratio \NC \NR
+\NC glue_sign   \NC number          \NC \type {0} = normal,
+                                        \type {1} = stretching,
+                                        \type {2} = shrinking \NC \NR
+\NC head        \NC \syntax{<node>} \NC the first node of the body of this
+                                        list \NC \NR
+\NC dir         \NC string          \NC the direction of this box,
+                                        see~\in[dirnodes] \NC \NR
+\stoptabulate
+
+A warning: never assign a node list to the \type {head} field unless you are sure
+its internal link structure is correct, otherwise an error may result.
+
+Note: the new field name \type {head} was introduced in 0.65 to replace the old
+name \type {list}. Use of the name \type {list} is now deprecated, but it will
+stay available until at least version 0.80.
+
+\subsubsection{vlist nodes}
+
+Valid fields: As for hlist, except that \quote {shift} is a displacement
+perpendicular to the line progression direction, and \quote {subtype} only has
+subtypes~0, 4, and~5.
+
+\subsubsection{rule nodes}
+
+Valid fields: \showfields{rule}\crlf
+Id: \showid{rule}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC unused \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC width       \NC number          \NC the width of the rule; the special value
+                                        $-1073741824$ is used for \quote
+                                        {running} glue dimensions \NC \NR
+\NC height      \NC number          \NC the height of the rule (can be
+                                        negative) \NC \NR
+\NC depth       \NC number          \NC the depth of the rule (can be
+                                        negative) \NC \NR
+\NC dir         \NC string          \NC the direction of this rule,
+                                        see~\in[dirnodes] \NC \NR
+\stoptabulate
+
+\subsubsection{ins nodes}
+
+Valid fields: \showfields{ins}\crlf
+Id: \showid{ins}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC the insertion class \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC cost        \NC number          \NC the penalty associated with this
+                                        insert \NC \NR
+\NC height      \NC number          \NC \NC \NR
+\NC depth       \NC number          \NC \NC \NR
+\NC head/list   \NC \syntax{<node>} \NC the first node of the body of this
+                                        insert \NC \NR
+\NC spec        \NC \syntax{<node>} \NC a pointer to the \type {\splittopskip}
+                                        glue spec \NC \NR
+\stoptabulate
+
+A warning: never assign a node list to the \type {head} field unless you are sure
+its internal link structure is correct, otherwise an error may be result. You can use
+\type {list} instead (often in functions you want to use local variable swith similar
+names and both names are equally sensible).
+
+\subsubsection{mark nodes}
+
+Valid fields: \showfields{mark}\crlf
+Id: \showid{mark}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC unused \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC class       \NC number          \NC the mark class \NC \NR
+\NC mark        \NC table           \NC a table representing a token list \NC \NR
+\stoptabulate
+
+\subsubsection{adjust nodes}
+
+Valid fields: \showfields{adjust}\crlf
+Id: \showid{adjust}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC \type {0} = normal,
+                                        \type {1} = \quote{pre} \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC head/list   \NC \syntax{<node>} \NC adjusted material \NC \NR
+\stoptabulate
+
+A warning: never assign a node list to the \type {head} field unless you are sure
+its internal link structure is correct, otherwise an error may be result.
+
+\subsubsection{disc nodes}
+
+Valid fields: \showfields{disc}\crlf
+Id: \showid{disc}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC indicates the source of a discretionary:
+                                       \type {0} = the \type {\discretionary} command,
+                                       \type {1} = the \type {\-} command,
+                                       \type {2} = added automatically following a \type {-},
+                                       \type {3} = added by the hyphenation algorithm (simple),
+                                       \type {4} = added by the hyphenation algorithm (hard, first item),
+                                       \type {5} = added by the hyphenation algorithm (hard, second item) \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC pre         \NC \syntax{<node>} \NC pointer to the pre|-|break text \NC \NR
+\NC post        \NC \syntax{<node>} \NC pointer to the post|-|break text \NC \NR
+\NC replace     \NC \syntax{<node>} \NC pointer to the no|-|break text \NC \NR
+\NC penalty     \NC number          \NC the penalty associated with the break,
+                                        normally \type {\hyphenpenalty} or \type
+                                        {\exhyphenpenalty} \NC \NR
+\stoptabulate
+
+The subtype numbers~4 and~5 belong to the \quote {of-f-ice} explanation given
+elsewhere.
+
+Warning: never assign a node list to the \type {pre}, \type {post} or \type
+{replace} field unless you are sure its internal link structure is correct,
+otherwise an error may be result. This limnitation will disappear in the future,
+
+\subsubsection{math nodes}
+
+Valid fields: \showfields{math}\crlf
+Id: \showid{math}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC \type {0} = on,
+                                        \type {1} = off \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC surround    \NC number          \NC  width of the \type {\mathsurround} kern \NC \NR
+\stoptabulate
+
+\subsubsection{glue nodes}
+
+Valid fields: \showfields{glue}\crlf
+Id: \showid{glue}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC \type {0} = \type {\skip},
+                                        \type {1-18} = internal glue parameters,
+                                        \type {100-103} = \quote {leader} subtypes \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC spec        \NC \syntax{<node>} \NC pointer to a glue_spec item \NC \NR
+\NC leader      \NC \syntax{<node>} \NC pointer to a box or rule for leaders \NC \NR
+\stoptabulate
+
+The exact meanings of the subtypes are as follows:
+
+\starttabulate[|rT|l|]
+\NC   1 \NC \type {\lineskip}              \NC \NR
+\NC   2 \NC \type {\baselineskip}          \NC \NR
+\NC   3 \NC \type {\parskip}               \NC \NR
+\NC   4 \NC \type {\abovedisplayskip}      \NC \NR
+\NC   5 \NC \type {\belowdisplayskip}      \NC \NR
+\NC   6 \NC \type {\abovedisplayshortskip} \NC \NR
+\NC   7 \NC \type {\belowdisplayshortskip} \NC \NR
+\NC   8 \NC \type {\leftskip}              \NC \NR
+\NC   9 \NC \type {\rightskip}             \NC \NR
+\NC  10 \NC \type {\topskip}               \NC \NR
+\NC  11 \NC \type {\splittopskip}          \NC \NR
+\NC  12 \NC \type {\tabskip}               \NC \NR
+\NC  13 \NC \type {\spaceskip}             \NC \NR
+\NC  14 \NC \type {\xspaceskip}            \NC \NR
+\NC  15 \NC \type {\parfillskip}           \NC \NR
+\NC  16 \NC \type {\thinmuskip}            \NC \NR
+\NC  17 \NC \type {\medmuskip}             \NC \NR
+\NC  18 \NC \type {\thickmuskip}           \NC \NR
+\NC 100 \NC \type {\leaders}               \NC \NR
+\NC 101 \NC \type {\cleaders}              \NC \NR
+\NC 102 \NC \type {\xleaders}              \NC \NR
+\NC 103 \NC \type {\gleaders}              \NC \NR
+\stoptabulate
+
+\subsubsection{kern nodes}
+
+Valid fields: \showfields{kern}\crlf
+Id: \showid{kern}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC \type {0} = from font,
+                                        \type {1} = from \type {\kern} or \type {\/},
+                                        \type {2} = from \type {\accent} \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC kern        \NC number          \NC \NC \NR
+\stoptabulate
+
+
+\subsubsection{penalty nodes}
+
+Valid fields: \showfields{penalty}\crlf
+Id: \showid{penalty}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field  \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype      \NC number          \NC not used \NC \NR
+\NC attr         \NC \syntax{<node>} \NC \NC \NR
+\NC penalty      \NC number          \NC \NC \NR
+\stoptabulate
+
+\subsubsection[glyphnodes]{glyph nodes}
+
+Valid fields: \showfields{glyph}\crlf
+Id: \showid{glyph}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field      \NC \ssbf type      \NC \ssbf explanation \NC \NR
+\NC subtype          \NC number          \NC bitfield \NC \NR
+\NC attr             \NC \syntax{<node>} \NC \NC \NR
+\NC char             \NC number          \NC \NC \NR
+\NC font             \NC number          \NC \NC \NR
+\NC lang             \NC number          \NC \NC \NR
+\NC left             \NC number          \NC \NC \NR
+\NC right            \NC number          \NC \NC \NR
+\NC uchyph           \NC boolean         \NC \NC \NR
+\NC components       \NC \syntax{<node>} \NC pointer to ligature components \NC \NR
+\NC xoffset          \NC number          \NC \NC \NR
+\NC yoffset          \NC number          \NC \NC \NR
+\NC width            \NC number          \NC \NC \NR
+\NC height           \NC number          \NC \NC \NR
+\NC depth            \NC number          \NC \NC \NR
+\NC expansion_factor \NC number          \NC \NC \NR
+\stoptabulate
+
+A warning: never assign a node list to the components field unless you are sure
+its internal link structure is correct, otherwise an error may be result. Valid
+bits for the \type {subtype} field are:
+
+\starttabulate[|c|l|]
+\NC \ssbf bit \NC \bf meaning \NC \NR
+\NC 0 \NC character \NC \NR
+\NC 1 \NC ligature  \NC \NR
+\NC 2 \NC ghost     \NC \NR
+\NC 3 \NC left      \NC \NR
+\NC 4 \NC right     \NC \NR
+\stoptabulate
+
+See \in {section} [charsandglyphs] for a detailed description of the \type
+{subtype} field.
+
+The \type {expansion_factor} has been introduced as part of the separation
+between font- and backend. It is the result of extensive experiments with a more
+efficient implementation of expansion. Early versions of \LUATEX\ already
+replaced multiple instances of fonts in the backend by scaling but contrary to
+\PDFTEX\ in \LUATEX\ we now also got rid of font copies in the frontend and
+replaced them by expansion factors that travel with glyph nodes. Apart from a
+cleaner approach this is also a step towards a better separation between front-
+and backend.
+
+The \type {is_char} function checks if a node is a glyphnode with a subtype still
+less than 256. This function can be used to determine if applying font logic to a
+glyph node makes sense.
+
+\subsubsection{margin_kern nodes}
+
+Valid fields: \showfields{margin_kern}\crlf
+Id: \showid{margin_kern}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype     \NC number          \NC \type {0} = left side,
+                                        \type {1} = right side \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC width       \NC number          \NC \NC \NR
+\NC glyph       \NC \syntax{<node>} \NC \NC \NR
+\stoptabulate
+
+\subsection{Math nodes}
+
+These are the so||called \quote {noad}s and the nodes that are specifically
+associated with math processing. Most of these nodes contain subnodes so that the
+list of possible fields is actually quite small. First, the subnodes:
+
+\subsubsection{Math kernel subnodes}
+
+Many object fields in math mode are either simple characters in a specific family
+or math lists or node lists. There are four associated subnodes that represent
+these cases (in the following node descriptions these are indicated by the word
+\type {<kernel>}).
+
+The \type {next} and \type {prev} fields for these subnodes are unused.
+
+\subsubsubsection{math_char and math_text_char subnodes}
+
+Valid fields: \showfields{math_char}\crlf
+Id: \showid{math_char}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type \NC \bf explanation \NC \NR
+\NC attr \NC \syntax{<node>} \NC \NC \NR
+\NC char \NC number          \NC \NC \NR
+\NC fam  \NC number          \NC \NC \NR
+\stoptabulate
+
+The \type {math_char} is the simplest subnode field, it contains the character
+and family for a single glyph object. The \type {math_text_char} is a special
+case that you will not normally encounter, it arises temporarily during math list
+conversion (its sole function is to suppress a following italic correction).
+
+\subsubsubsection{sub_box and sub_mlist subnodes}
+
+Valid fields: \showfields{sub_box}\crlf
+Id: \showid{sub_box}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type       \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>}\NC \NC \NR
+\NC head        \NC \syntax{<node>}\NC \NC \NR
+\stoptabulate
+
+These two subnode types are used for subsidiary list items. For \type {sub_box},
+the \type {head} points to a \quote {normal} vbox or hbox. For \type {sub_mlist},
+the \type {head} points to a math list that is yet to be converted.
+
+A warning: never assign a node list to the \type {head} field unless you are sure
+its internal link structure is correct, otherwise an error may be result.
+
+\subsubsection{Math delimiter subnode}
+
+There is a fifth subnode type that is used exclusively for delimiter fields. As
+before, the \type {next} and \type {prev} fields are unused.
+
+\subsubsubsection{delim subnodes}
+
+Valid fields: \showfields{delim}\crlf
+Id: \showid{delim}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC\bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC small_char  \NC number          \NC \NC \NR
+\NC small_fam   \NC number          \NC \NC \NR
+\NC large_char  \NC number          \NC \NC \NR
+\NC large_fam   \NC number          \NC \NC \NR
+\stoptabulate
+
+The fields \type {large_char} and \type {large_fam} can be zero, in that case the
+font that is sed for the \type {small_fam} is expected to provide the large
+version as an extension to the \type {small_char}.
+
+\subsubsection{Math core nodes}
+
+First, there are the objects (the \TEX book calls then \quote {atoms}) that are
+associated with the simple math objects: Ord, Op, Bin, Rel, Open, Close, Punct,
+Inner, Over, Under, Vcent. These all have the same fields, and they are combined
+into a single node type with separate subtypes for differentiation.
+
+\subsubsubsection{simple nodes}
+
+Valid fields: \showfields{noad}\crlf
+Id: \showid{noad}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type          \NC \bf explanation \NC \NR
+\NC subtype     \NC number            \NC see below \NC \NR
+\NC attr        \NC \syntax{<node>}   \NC \NC \NR
+\NC nucleus     \NC \syntax{<kernel>} \NC \NC \NR
+\NC sub         \NC \syntax{<kernel>} \NC \NC \NR
+\NC sup         \NC \syntax{<kernel>} \NC \NC \NR
+\stoptabulate
+
+Operators are a bit special because they occupy three subtypes. \type {subtype}.
+
+\starttabulate[|lT|p|]
+\NC \ssbf number \NC \bf node subtype \NC \NR
+\NC  0           \NC Ord \NC \NR
+\NC  1           \NC Op: \type {\displaylimits} \NC \NR
+\NC  2           \NC Op: \type {\limits} \NC \NR
+\NC  3           \NC Op: \type {\nolimits} \NC \NR
+\NC  4           \NC Bin \NC \NR
+\NC  5           \NC Rel \NC \NR
+\NC  6           \NC Open \NC \NR
+\NC  7           \NC Close \NC \NR
+\NC  8           \NC Punct \NC \NR
+\NC  9           \NC Inner \NC \NR
+\NC 10           \NC Under \NC \NR
+\NC 11           \NC Over \NC \NR
+\NC 12           \NC Vcent \NC \NR
+\stoptabulate
+
+\subsubsubsection{accent nodes}
+
+Valid fields: \showfields{accent}\crlf
+Id: \showid{accent}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type          \NC \bf explanation \NC \NR
+\NC subtype     \NC number            \NC the first bit is used for a fixed top
+                                          accent flag (if the \type {accent}
+                                          field is present), the second bit for a
+                                          fixed bottom accent flag (if the \type
+                                          {bot_accent} field is present); example:
+                                          the actual value \type {3} means: do
+                                          not stretch either accent \NC \NR
+\NC attr        \NC \syntax{<node>}   \NC \NC \NR
+\NC nucleus     \NC \syntax{<kernel>} \NC \NC \NR
+\NC sub         \NC \syntax{<kernel>} \NC \NC \NR
+\NC sup         \NC \syntax{<kernel>} \NC \NC \NR
+\NC accent      \NC \syntax{<kernel>} \NC \NC \NR
+\NC bot_accent  \NC \syntax{<kernel>} \NC \NC \NR
+\stoptabulate
+
+\subsubsubsection{style nodes}
+
+Valid fields: \showfields{style}\crlf Id: \showid{style}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type \NC \bf explanation    \NC \NR
+\NC style       \NC string   \NC contains the style \NC \NR
+\stoptabulate
+
+There are eight possibilities for the string value: one of \quote {display},
+\quote {text}, \quote {script}, or \quote {scriptscript}. Each of these can have
+a trailing \type {'} to signify \quote {cramped} styles.
+
+\subsubsubsection{choice nodes}
+
+Valid fields: \showfields{choice}\crlf Id: \showid{choice}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field  \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr         \NC \syntax{<node>} \NC \NC \NR
+\NC display      \NC \syntax{<node>} \NC \NC \NR
+\NC text         \NC \syntax{<node>} \NC \NC \NR
+\NC script       \NC \syntax{<node>} \NC \NC \NR
+\NC scriptscript \NC \syntax{<node>} \NC \NC \NR
+\stoptabulate
+
+A warning: never assign a node list to the display, text, script, or
+scriptscript field unless you are sure its internal link structure is
+correct, otherwise an error may be result.
+
+\subsubsubsection{radical nodes}
+
+Valid fields: \showfields{radical}\crlf Id: \showid{radical}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type          \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>}   \NC \NC \NR
+\NC nucleus     \NC \syntax{<kernel>} \NC \NC \NR
+\NC sub         \NC \syntax{<kernel>} \NC \NC \NR
+\NC sup         \NC \syntax{<kernel>} \NC \NC \NR
+\NC left        \NC \syntax{<delim>}  \NC \NC \NR
+\NC degree      \NC \syntax{<kernel>} \NC
+    Only set by \type {\Uroot}
+\NC \NR
+\stoptabulate
+
+A warning: never assign a node list to the nucleus, sub, sup, left, or degree
+field unless you are sure its internal link structure is correct, otherwise an
+error may be result.
+
+The radical noad is also used for under- and overdelimiters, which is indicated
+by the subtypes:
+
+\starttabulate[|lT|l|]
+\NC 0 \NC \type {\radical}         \NC \NR
+\NC 1 \NC \type {\Uradical}        \NC \NR
+\NC 2 \NC \type {\Uroot}           \NC \NR
+\NC 3 \NC \type {\Uunderdelimiter} \NC \NR
+\NC 4 \NC \type {\Uoverdelimiter}  \NC \NR
+\NC 5 \NC \type {\Udelimiterunder} \NC \NR
+\NC 6 \NC \type {\Udelimiterover}  \NC \NR
+\stoptabulate
+
+\subsubsubsection{fraction nodes}
+
+Valid fields: \showfields{fraction}\crlf
+Id: \showid{fraction}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type          \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>}   \NC \NC \NR
+\NC width       \NC number            \NC \NC \NR
+\NC num         \NC \syntax{<kernel>} \NC \NC \NR
+\NC denom       \NC \syntax{<kernel>} \NC \NC \NR
+\NC left        \NC \syntax{<delim>}  \NC \NC \NR
+\NC right       \NC \syntax{<delim>}  \NC \NC \NR
+\stoptabulate
+
+A warning: never assign a node list to the num, or denom field unless you are
+sure its internal link structure is correct, otherwise an error may be result.
+
+\subsubsubsection{fence nodes}
+
+Valid fields: \showfields{fence}\crlf Id: \showid{fence}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type         \NC \bf explanation \NC \NR
+\NC subtype     \NC number           \NC
+    \type {1} = \type {\left},
+    \type {2} = \type {\middle},
+    \type {3} = \type {\right}
+\NC \NR
+\NC attr        \NC \syntax{<node>}  \NC \NC \NR
+\NC delim       \NC \syntax{<delim>} \NC \NC \NR
+\stoptabulate
+
+\subsection{whatsit nodes}
+
+Whatsit nodes come in many subtypes that you can ask for by running
+\type {node.whatsits()}:
+\startluacode
+    for id, name in table.sortedpairs(node.whatsits()) do
+        context.type(name)
+        context(" (%s), ",id)
+    end
+    context.removeunwantedspaces()
+    context.removepunctuation()
+\stopluacode
+. % period
+
+\subsubsection{open nodes}
+
+Valid fields: \showfields{whatsit,open}\crlf
+Id: \showid{whatsit,open}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC stream      \NC number          \NC \TEX's stream id number \NC \NR
+\NC name        \NC string          \NC file name \NC \NR
+\NC ext         \NC string          \NC file extension \NC \NR
+\NC area        \NC string          \NC file area (this may become obsolete) \NC \NR
+\stoptabulate
+
+\subsubsection{write nodes}
+
+Valid fields: \showfields{whatsit,write}\crlf
+Id: \showid{whatsit,write}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC stream      \NC number          \NC \TEX's stream id number \NC \NR
+\NC data        \NC table           \NC a table representing the token list
+                                        to be written \NC \NR
+\stoptabulate
+
+\subsubsection{close nodes}
+
+Valid fields: \showfields{whatsit,close}\crlf
+Id: \showid{whatsit,close}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC stream      \NC number          \NC \TEX's stream id number \NC \NR
+\stoptabulate
+
+\subsubsection{special nodes}
+
+Valid fields: \showfields{whatsit,special}\crlf
+Id: \showid{whatsit,special}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC data        \NC string          \NC the \type {\special} information \NC \NR
+\stoptabulate
+
+\subsubsection{language nodes}
+
+\LUATEX\ does not have language whatsits any more. All language information is
+already present inside the glyph nodes themselves. This whatsit subtype will be
+removed in the next release.
+
+\subsubsection{local_par nodes}
+
+Valid fields: \showfields{whatsit,local_par}\crlf
+Id: \showid{whatsit,local_par}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field     \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr            \NC \syntax{<node>} \NC \NC \NR
+\NC pen_inter       \NC number          \NC local interline penalty (from \type
+                                            {\localinterlinepenalty}) \NC \NR
+\NC pen_broken      \NC number          \NC local broken penalty (from \type
+                                            {\localbrokenpenalty}) \NC \NR
+\NC dir             \NC string          \NC the direction of this par. see~\in
+                                            [dirnodes] \NC \NR
+\NC box_left        \NC \syntax{<node>} \NC the \type {\localleftbox} \NC \NR
+\NC box_left_width  \NC number          \NC width of the \type {\localleftbox} \NC \NR
+\NC box_right       \NC \syntax{<node>} \NC the \type {\localrightbox}
+\NC \NR
+\NC box_right_width \NC number          \NC width of the \type {\localrightbox} \NC \NR
+\stoptabulate
+
+A warning: never assign a node list to the \type {box_left} or \type {box_right}
+field unless you are sure its internal link structure is correct, otherwise an
+error may be result.
+
+\subsubsection[dirnodes]{dir nodes}
+
+Valid fields: \showfields{whatsit,dir}\crlf
+Id: \showid{whatsit,dir}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC dir         \NC string          \NC the direction (but see below) \NC \NR
+\NC level       \NC number          \NC nesting level of this direction whatsit \NC \NR
+\NC dvi_ptr     \NC number          \NC a saved dvi buffer byte offset \NC \NR
+\NC dir_h       \NC number          \NC a saved dvi position \NC \NR
+\stoptabulate
+
+A note on \type {dir} strings. Direction specifiers are three|-|letter
+combinations of \type {T}, \type {B}, \type {R}, and \type {L}.
+
+These are built up out of three separate items:
+
+\startitemize[packed]
+\startitem
+    the first  is the direction of the \quote{top}   of paragraphs.
+\stopitem
+\startitem
+    the second is the direction of the \quote{start} of lines.
+\stopitem
+\startitem
+    the third  is the direction of the \quote{top}   of glyphs.
+\stopitem
+\stopitemize
+
+However, only four combinations are accepted: \type {TLT}, \type {TRT}, \type
+{RTT}, and \type {LTL}.
+
+Inside actual \type {dir} whatsit nodes, the representation of \type {dir} is not
+a three-letter but a four|-|letter combination. The first character in this case
+is always either \type {+} or \type {-}, indicating whether the value is pushed
+or popped from the direction stack.
+
+\subsubsection{pdf_literal nodes}
+
+Valid fields: \showfields{whatsit,pdf_literal}\crlf
+Id: \showid{whatsit,pdf_literal}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC mode        \NC number          \NC the \quote {mode} setting of this
+                                        literal \NC \NR
+\NC data        \NC string          \NC the \type {\pdfliteral} information \NC \NR
+\stoptabulate
+
+Mode values:
+
+\starttabulate[|lT|p|]
+\NC \ssbf value \NC \ssbf corresponding \type {\pdftex} keyword \NC \NR
+\NC 0           \NC setorigin                                \NC \NR
+\NC 1           \NC page                                     \NC \NR
+\NC 2           \NC direct                                   \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_refobj nodes}
+
+Valid fields: \showfields{whatsit,pdf_refobj}\crlf
+Id: \showid{whatsit,pdf_refobj}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_refxform nodes}
+
+Valid fields: \showfields{whatsit,pdf_refxform}\crlf
+Id: \showid{whatsit,pdf_refxform}.
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC width       \NC number          \NC \NC \NR
+\NC height      \NC number          \NC \NC \NR
+\NC depth       \NC number          \NC \NC \NR
+\NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
+\stoptabulate
+
+Be aware that \type {pdf_refxform} nodes have dimensions that are used by \LUATEX.
+
+\subsubsection{pdf_refximage nodes}
+
+Valid fields: \showfields{whatsit,pdf_refximage}\crlf
+Id: \showid{whatsit,pdf_refximage}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC width       \NC number          \NC \NC \NR
+\NC height      \NC number          \NC \NC \NR
+\NC depth       \NC number          \NC \NC \NR
+\NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
+\stoptabulate
+
+Be aware that \type {pdf_refximage} nodes have dimensions that are used by
+\LUATEX.
+
+\subsubsection{pdf_annot nodes}
+
+Valid fields: \showfields{whatsit,pdf_annot}\crlf
+Id: \showid{whatsit,pdf_annot}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type       \NC \bf explanation \NC \NR
+\NC attr       \NC \syntax{<node>} \NC \NC \NR
+\NC width      \NC number          \NC \NC \NR
+\NC height     \NC number          \NC \NC \NR
+\NC depth      \NC number          \NC \NC \NR
+\NC objnum     \NC number          \NC the referenced \PDF\ object number \NC \NR
+\NC data       \NC string          \NC the annotation data \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_start_link nodes}
+
+Valid fields: \showfields{whatsit,pdf_start_link}\crlf
+Id: \showid{whatsit,pdf_start_link}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC width       \NC number          \NC \NC \NR
+\NC height      \NC number          \NC \NC \NR
+\NC depth       \NC number          \NC \NC \NR
+\NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
+\NC link_attr   \NC table           \NC the link attribute token list \NC \NR
+\NC action      \NC \syntax{<node>} \NC the action to perform \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_end_link nodes}
+
+Valid fields: \showfields{whatsit,pdf_end_link}\crlf
+Id: \showid{whatsit,pdf_end_link}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_dest nodes}
+
+Valid fields: \showfields{whatsit,pdf_dest}\crlf
+Id: \showid{whatsit,pdf_dest}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC width       \NC number          \NC \NC \NR
+\NC height      \NC number          \NC \NC \NR
+\NC depth       \NC number          \NC \NC \NR
+\NC named_id    \NC number          \NC is the dest_id a string value? \NC \NR
+\NC dest_id     \NC number          \NC the destination id \NC \NR
+\NC             \NC string          \NC the destination name \NC \NR
+\NC dest_type   \NC number          \NC type of destination \NC \NR
+\NC xyz_zoom    \NC number          \NC \NC \NR
+\NC objnum      \NC number          \NC the \PDF\ object number \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_thread nodes}
+
+Valid fields: \showfields{whatsit,pdf_thread}\crlf
+Id: \showid{whatsit,pdf_thread}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC width       \NC number          \NC \NC \NR
+\NC height      \NC number          \NC \NC \NR
+\NC depth       \NC number          \NC \NC \NR
+\NC named_id    \NC number          \NC is the tread_id a string value? \NC \NR
+\NC tread_id    \NC number          \NC the thread id \NC \NR
+\NC             \NC string          \NC the thread name \NC \NR
+\NC thread_attr \NC number          \NC extra thread information \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_start_thread nodes}
+
+Valid fields: \showfields{whatsit,pdf_start_thread}\crlf
+Id: \showid{whatsit,pdf_start_thread}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC width       \NC number          \NC \NC \NR
+\NC height      \NC number          \NC \NC \NR
+\NC depth       \NC number          \NC \NC \NR
+\NC named_id    \NC number          \NC is the tread_id a string value? \NC \NR
+\NC tread_id    \NC number          \NC the thread id \NC \NR
+\NC             \NC string          \NC the thread name \NC \NR
+\NC thread_attr \NC number          \NC extra thread information \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_end_thread nodes}
+
+Valid fields: \showfields{whatsit,pdf_end_thread}\crlf
+Id: \showid{whatsit,pdf_end_thread}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\stoptabulate
+
+\subsubsection{save_pos nodes}
+
+Valid fields: \showfields{whatsit,save_pos}\crlf
+Id: \showid{whatsit,save_pos}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\stoptabulate
+
+\subsubsection{late_lua nodes}
+
+Valid fields: \showfields{whatsit,late_lua}\crlf
+Id: \showid{whatsit,late_lua}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC data        \NC string          \NC data to execute \NC \NR
+\NC string      \NC string          \NC data to execute \NC \NR
+\NC name        \NC string          \NC the name to use for lua error reporting \NC \NR
+\stoptabulate
+
+The difference between \type {data} and \type {string} is that on assignment, the
+\type {data} field is converted to a token list, cf. use as \type {\latelua}. The
+\type {string} version is treated as a literal string.
+
+\subsubsection{pdf_colorstack nodes}
+
+Valid fields: \showfields{whatsit,pdf_colorstack}\crlf
+Id: \showid{whatsit,pdf_colorstack}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC stack       \NC number          \NC colorstack id number \NC \NR
+\NC command     \NC number          \NC command to execute \NC \NR
+\NC data        \NC string          \NC data \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_setmatrix nodes}
+
+Valid fields: \showfields{whatsit,pdf_setmatrix}\crlf
+Id: \showid{whatsit,pdf_setmatrix}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\NC data        \NC string          \NC data \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_save nodes}
+
+Valid fields: \showfields{whatsit,pdf_save}\crlf
+Id: \showid{whatsit,pdf_save}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_restore nodes}
+
+Valid fields: \showfields{whatsit,pdf_restore}\crlf
+Id: \showid{whatsit,pdf_restore}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC \NC \NR
+\stoptabulate
+
+\subsubsection{user_defined nodes}
+
+User|-|defined whatsit nodes can only be created and handled from \LUA\ code. In
+effect, they are an extension to the extension mechanism. The \LUATEX\ engine
+will simply step over such whatsits without ever looking at the contents.
+
+Valid fields: \showfields{whatsit,user_defined}\crlf
+Id: \showid{whatsit,user_defined}
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type        \NC  \bf explanation \NC \NR
+\NC attr        \NC \syntax{<node>} \NC  \NC \NR
+\NC user_id     \NC number          \NC id number \NC \NR
+\NC type        \NC number          \NC type of the value \NC \NR
+\NC value       \NC number          \NC \NC \NR
+\NC             \NC string          \NC \NC \NR
+\NC             \NC \syntax{<node>} \NC \NC \NR
+\NC             \NC table           \NC \NC \NR
+\stoptabulate
+
+The \type {type} can have one of five distinct values:
+
+\starttabulate[|lT|p|]
+\NC \ssbf value \NC \bf explanation \NC \NR
+\NC   97        \NC the value is an attribute node list \NC \NR
+\NC  100        \NC the value is a number \NC \NR
+\NC  110        \NC the value is a node list \NC \NR
+\NC  115        \NC the value is a string \NC \NR
+\NC  116        \NC the value is a token list in \LUA\ table form \NC \NR
+\stoptabulate
+
+\section{Two access models}
+
+After doing lots of tests with \LUATEX\ and \LUAJITTEX\, with and without just in
+time compilation enabled, and with and without using ffi, we came to the
+conclusion that userdata prevents a speedup. We also found that the checking of
+metatables as well as assignment comes with overhead that can't be neglected.
+This is normally not really a problem but when processing fonts for more complex
+scripts it could have quite some overhead.
+
+Because the userdata approach has some benefits, this remains the recommended way
+to access nodes. We did several experiments with faster access using this model,
+but eventually settled for the \quote {direct} approach. For code that is proven
+to be okay, one can use this access model that operates on nodes more directly.
+
+Deep down in \TEX\ a node has a number which is an entry in a memory table. In
+fact, this model, where \TEX\ manages memory is real fast and one of the reasons
+why plugging in callbacks that operate on nodes is quite fast. No matter what
+future memory model \LUATEX\ has, an internal reference will always be a simple
+data type (like a number or light userdata in \LUA\ speak). So, if you use the
+direct model, even if you know that you currently deal with numbers, you should
+not depend on that property but treat it an abstraction just like traditional
+nodes. In fact, the fact that we use a simple basic datatype has the penalty that
+less checking can be done, but less checking is also the reason why it's somewhat
+faster. An important aspect is that one cannot mix both methods, but you can cast
+both models.
+
+So our advice is: use the indexed approach when possible and investigate the
+direct one when speed might be an issue. For that reason we also provide the
+\type {get*} and \type {set*} functions in the top level node namespace. There is
+a limited set of getters. When implementing this direct approach the regular
+index by key variant was also optimized, so direct access only makes sense when
+we're accessing nodes millions of times (which happens in some font processing
+for instance).
+
+We're talking mostly of getters because setters are less important. Documents
+have not that many content related nodes and setting many thousands of properties
+is hardly a burden contrary to millions of consultations.
+
+Normally you will access nodes like this:
+
+\starttyping
+local next = current.next
+if next then
+    -- do something
+end
+\stoptyping
+
+Here \type {next} is not a real field, but a virtual one. Accessing it results in
+a metatable method being called. In practice it boils down to looking up the node
+type and based on the node type checking for the field name. In a worst case you
+have a node type that sits at the end of the lookup list and a field that is last
+in the lookup chain. However, in successive versions of \LUATEX\ these lookups
+have been optimized and the most frequently accessed nodes and fields have a
+higher priority.
+
+Because in practice the \type {next} accessor results in a function call, there
+is some overhead involved. The next code does the same and performs a tiny bit
+faster (but not that much because it is still a function call but one that knows
+what to look up).
+
+\starttyping
+local next = node.next(current)
+if next then
+    -- do something
+end
+\stoptyping
+
+There are several such function based accessors now:
+
+\starttabulate[|T|p|]
+\NC getnext    \NC parsing nodelist always involves this one \NC \NR
+\NC getprev    \NC used less but is logical companion to getnext \NC \NR
+\NC getboth    \NC returns the next and prev pointer of a node \NC \NR
+\NC getid      \NC consulted a lot \NC \NR
+\NC getsubtype \NC consulted less but also a topper \NC \NR
+\NC getfont    \NC used a lot in otf handling (glyph nodes are consulted a lot) \NC \NR
+\NC getchar    \NC idem and also in other places \NC \NR
+\NC getdisc    \NC returns the \type {pre}, \type {post} an d\type {replace} fields \NC \NR
+\NC getlist    \NC we often parse nested lists so this is a convenient one too
+                   (only works for hlist and vlist!) \NC \NR
+\NC getleader  \NC comparable to list, seldom used in \TEX\ (but needs frequent consulting
+                   like lists; leaders could have been made a dedicated node type) \NC \NR
+\NC getfield   \NC generic getter, sufficient for the rest (other field names are
+                   often shared so a specific getter makes no sense then) \NC \NR
+\stoptabulate
+
+Some have setter counterparts:
+
+There are several such function based accessors now:
+
+\starttabulate[|T|p|]
+\NC setnext    \NC assigns a value to the next field \NC \NR
+\NC setprev    \NC assigns a value to the prev field \NC \NR
+\NC setboth    \NC assigns a value to the prev and next field \NC \NR
+\NC setlink    \NC links two noded \NC \NR
+\NC setchar    \NC sets the character field \NC \NR
+\NC setdisc    \NC sets the \type {pre}, \type {post} and \type {replace} fields and optionally the
+                   \type {subtype} and \type {penalty} fields \NC \NR  \NC \NR
+\NC getfont    \NC used a lot in otf handling (glyph nodes are consulted a lot) \NC \NR
+\NC getchar    \NC idem and also in other places \NC \NR
+\NC getdisc    \NC returns the \type {pre}, \type {post} an d\type {replace} fields \NC \NR
+\NC getlist    \NC we often parse nested lists so this is a convenient one too
+                   (only works for hlist and vlist!) \NC \NR
+\NC getleader  \NC comparable to list, seldom used in \TEX\ (but needs frequent consulting
+                   like lists; leaders could have been made a dedicated node type) \NC \NR
+\NC getfield   \NC generic getter, sufficient for the rest (other field names are
+                   often shared so a specific getter makes no sense then) \NC \NR
+\stoptabulate
+
+It doesn't make sense to add more. Profiling demonstrated that these fields can
+get accesses way more times than other fields. Even in complex documents, many
+node and fields types never get seen, or seen only a few times. Most functions in
+the \type {node} namespace have a companion in \type {node.direct}, but of course
+not the ones that don't deal with nodes themselves. The following table
+summarized this:
+
+\start \def\yes{$+$} \def\nop{$-$}
+
+\starttabulate[|T|c|c|]
+\HL
+\NC \bf function                \NC \bf node \NC \bf direct \NC \NR
+\HL
+\NC \type {copy_list}            \NC \yes \NC \yes  \NC \NR
+\NC \type {copy}                 \NC \yes \NC \yes  \NC \NR
+\NC \type {count}                \NC \yes \NC \yes  \NC \NR
+\NC \type {current_attr}         \NC \yes \NC \yes  \NC \NR
+\NC \type {dimensions}           \NC \yes \NC \yes  \NC \NR
+\NC \type {do_ligature_n}        \NC \yes \NC \yes  \NC \NR
+\NC \type {effective_glue}       \NC \yes \NC \yes  \NC \NR
+\NC \type {end_of_math}          \NC \yes \NC \yes  \NC \NR
+\NC \type {family_font}          \NC \yes \NC \nop  \NC \NR
+\NC \type {fields}               \NC \yes \NC \nop  \NC \NR
+\NC \type {first_character}      \NC \yes \NC \nop  \NC \NR
+\NC \type {first_glyph}          \NC \yes \NC \yes  \NC \NR
+\NC \type {flush_list}           \NC \yes \NC \yes  \NC \NR
+\NC \type {flush_node}           \NC \yes \NC \yes  \NC \NR
+\NC \type {free}                 \NC \yes \NC \yes  \NC \NR
+\NC \type {getboth}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getbox}               \NC \nop \NC \yes  \NC \NR
+\NC \type {getchar}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getdisc}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getfield}             \NC \yes \NC \yes  \NC \NR
+\NC \type {getfont}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getid}                \NC \yes \NC \yes  \NC \NR
+\NC \type {getleader}            \NC \yes \NC \yes  \NC \NR
+\NC \type {getlist}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getnext}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getprev}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getsubtype}           \NC \yes \NC \yes  \NC \NR
+\NC \type {has_attribute}        \NC \yes \NC \yes  \NC \NR
+\NC \type {has_field}            \NC \yes \NC \yes  \NC \NR
+\NC \type {has_glyph}            \NC \yes \NC \yes  \NC \NR
+\NC \type {hpack}                \NC \yes \NC \yes  \NC \NR
+\NC \type {id}                   \NC \yes \NC \nop  \NC \NR
+\NC \type {insert_after}         \NC \yes \NC \yes  \NC \NR
+\NC \type {insert_before}        \NC \yes \NC \yes  \NC \NR
+\NC \type {is_char}              \NC \yes \NC \yes  \NC \NR
+\NC \type {is_direct}            \NC \nop \NC \yes  \NC \NR
+\NC \type {is_node}              \NC \yes \NC \yes  \NC \NR
+\NC \type {kerning}              \NC \yes \NC \nop  \NC \NR
+\NC \type {last_node}            \NC \yes \NC \yes  \NC \NR
+\NC \type {length}               \NC \yes \NC \yes  \NC \NR
+\NC \type {ligaturing}           \NC \yes \NC \nop  \NC \NR
+\NC \type {mlist_to_hlist}       \NC \yes \NC \nop  \NC \NR
+\NC \type {new}                  \NC \yes \NC \yes  \NC \NR
+\NC \type {next}                 \NC \yes \NC \nop  \NC \NR
+\NC \type {prev}                 \NC \yes \NC \nop  \NC \NR
+\NC \type {protect_glyphs}       \NC \yes \NC \yes  \NC \NR
+\NC \type {protrusion_skippable} \NC \yes \NC \yes  \NC \NR
+\NC \type {remove}               \NC \yes \NC \yes  \NC \NR
+\NC \type {set_attribute}        \NC \yes \NC \yes  \NC \NR
+\NC \type {setboth}              \NC \yes \NC \yes  \NC \NR
+\NC \type {setbox}               \NC \yes \NC \yes  \NC \NR
+\NC \type {setchar}              \NC \yes \NC \yes  \NC \NR
+\NC \type {setdisc}              \NC \yes \NC \yes  \NC \NR
+\NC \type {setfield}             \NC \yes \NC \yes  \NC \NR
+\NC \type {setlink}              \NC \yes \NC \yes  \NC \NR
+\NC \type {setnext}              \NC \yes \NC \yes  \NC \NR
+\NC \type {setprev}              \NC \yes \NC \yes  \NC \NR
+\NC \type {slide}                \NC \yes \NC \yes  \NC \NR
+\NC \type {subtype}              \NC \yes \NC \nop  \NC \NR
+\NC \type {tail}                 \NC \yes \NC \yes  \NC \NR
+\NC \type {todirect}             \NC \yes \NC \yes  \NC \NR
+\NC \type {tonode}               \NC \yes \NC \yes  \NC \NR
+\NC \type {tostring}             \NC \yes \NC \yes  \NC \NR
+\NC \type {traverse_id}          \NC \yes \NC \yes  \NC \NR
+\NC \type {traverse}             \NC \yes \NC \yes  \NC \NR
+\NC \type {types}                \NC \yes \NC \nop  \NC \NR
+\NC \type {type}                 \NC \yes \NC \nop  \NC \NR
+\NC \type {unprotect_glyphs}     \NC \yes \NC \yes  \NC \NR
+\NC \type {unset_attribute}      \NC \yes \NC \yes  \NC \NR
+\NC \type {usedlist}             \NC \yes \NC \yes  \NC \NR
+\NC \type {vpack}                \NC \yes \NC \yes  \NC \NR
+\NC \type {whatsits}             \NC \yes \NC \nop  \NC \NR
+\NC \type {write}                \NC \yes \NC \yes  \NC \NR
+\stoptabulate
+
+\stop
+
+The \type {node.next} and \type {node.prev} functions will stay but for
+consistency there are variants called \type {getnext} and \type {getprev}. We had
+to use \type {get} because \type {node.id} and \type {node.subtype} are already
+taken for providing meta information about nodes. Note: The getters do only basic
+checking for valid keys. You should just stick to the keys mentioned in the
+sections that describe node properties.
+
+\stopchapter
+
+\stopcomponent

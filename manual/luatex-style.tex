@@ -1,0 +1,319 @@
+\startenvironment luatex-style
+
+% I'll clean this up some day.
+
+\usemodule[abr-02]
+
+\setuplayout
+  [height=middle,
+   width=middle,
+   backspace=2cm,
+   topspace=10mm,
+   bottomspace=10mm,
+   header=10mm,
+   footer=10mm,
+   footerdistance=10mm,
+   headerdistance=10mm]
+
+\setuppagenumbering
+  [alternative=doublesided]
+
+\setuptolerance
+  [stretch,tolerant]
+
+\setuptype
+  [lines=hyphenated]
+
+\setuptyping
+  [lines=hyphenated]
+
+\setupitemize
+  [each]
+  [packed]
+
+\setupwhitespace
+  [medium]
+
+\def\|{\string|}
+\def\>{\string>}
+
+\def\showfields#1{\ctxlua
+    {
+        local t = string.split('#1',',')
+        local r = { }
+        for _, a in pairs(node.fields(t[1],t[2])) do
+            if not (a == 'id' or a == 'subtype' or a =='next' or a=='prev') then
+                table.insert(r,'\\type{'.. a .. '}')
+            end
+        end
+        tex.sprint(table.concat(r, ', '))
+    }%
+}
+
+\def\showid#1{\ctxlua
+    {
+        local t = string.split('#1',',')
+        tex.sprint('\\type{'.. node.id(t[1]) .. '}')
+        if t[2] then
+          tex.sprint(', \\type{'.. node.subtype(t[2]) .. '}')
+        end
+    }%
+}
+
+\starttexdefinition unexpanded todo #1
+    \dontleavehmode
+    \startcolor[red]
+        \bf<TODO: #1>
+    \stopcolor
+\stoptexdefinition
+
+\definecolor[blue] [b=.5]
+\definecolor[red]  [r=.5]
+\definecolor[green][g=.5]
+
+\definecolor[maincolor] [b=.5]
+\definecolor[othercolor][r=.5,g=.5]
+
+\doifmodeelse {atpragma} {
+
+    \setupbodyfont
+      [lucidaot,10pt]
+
+    \setuphead [chapter]      [style=\bfd]
+    \setuphead [section]      [style=\bfb]
+    \setuphead [subsection]   [style=\bfa]
+    \setuphead [subsubsection][style=\bf]
+
+} {
+
+    \definetypeface[mainfacenormal]  [ss][sans] [iwona]       [default]
+    \definetypeface[mainfacenormal]  [rm][serif][palatino]    [default]
+    \definetypeface[mainfacenormal]  [tt][mono] [modern]      [default][rscale=1.1]
+    \definetypeface[mainfacenormal]  [mm][math] [iwona]       [default]
+
+    \definetypeface[mainfacemedium]  [ss][sans] [iwona-medium][default]
+    \definetypeface[mainfacemedium]  [rm][serif][palatino]    [default]
+    \definetypeface[mainfacemedium]  [tt][mono] [modern]      [default][rscale=1.1]
+    \definetypeface[mainfacemedium]  [mm][math] [iwona-medium][default]
+
+    \setupbodyfont
+      [mainfacenormal,10pt]
+
+    \setuphead [chapter]      [style=\mainfacemedium\bfd]
+    \setuphead [section]      [style=\mainfacemedium\bfb]
+    \setuphead [subsection]   [style=\mainfacemedium\bfa]
+    \setuphead [subsubsection][style=\mainfacemedium\bf]
+
+}
+
+\setuphead [chapter]      [color=maincolor]
+\setuphead [section]      [color=maincolor]
+\setuphead [subsection]   [color=maincolor]
+\setuphead [subsubsection][color=maincolor]
+
+\definehead
+  [remark]
+  [subsubsubject]
+
+\setupheadertexts
+  []
+
+\definemixedcolumns
+  [twocolumns]
+  [n=2,
+   balance=yes,
+   before=\blank,
+   after=\blank]
+
+\definemixedcolumns
+  [threecolumns]
+  [twocolumns]
+  [n=3]
+
+\definemixedcolumns
+  [fourcolumns]
+  [threecolumns]
+  [n=4]
+
+\setuptyping
+  [color=maincolor]
+
+\setuptype
+  [color=maincolor]
+
+\definetyping
+  [functioncall]
+
+\startMPdefinitions
+
+    color   luaplanetcolor ; luaplanetcolor := \MPcolor{maincolor} ;
+    color   luaholecolor   ; luaholecolor   := white ;
+    numeric luaextraangle  ; luaextraangle  := 0 ;
+    numeric luaorbitfactor ; luaorbitfactor := .25 ;
+
+    vardef lualogo = image (
+
+        % Graphic design by A. Nakonechnyj. Copyright (c) 1998, All rights reserved.
+
+        save d, r, p ; numeric d, r, p ;
+
+        d := sqrt(2)/4 ; r := 1/4 ; p := r/8 ;
+
+        fill fullcircle scaled 1
+            withcolor luaplanetcolor ;
+        draw fullcircle rotated 40.5 scaled (1+r)
+            dashed evenly scaled p
+            withpen pencircle scaled (p/2)
+            withcolor (luaorbitfactor * luaholecolor) ;
+        fill fullcircle scaled r shifted (d+1/8,d+1/8)
+            rotated luaextraangle
+            withcolor luaplanetcolor ;
+        fill fullcircle scaled r shifted (d-1/8,d-1/8)
+            withcolor luaholecolor   ;
+        luaorbitfactor := .25 ;
+    )  enddef ;
+
+\stopMPdefinitions
+
+\startuseMPgraphic{luapage}
+    StartPage ;
+
+        fill Page withcolor \MPcolor{othercolor} ;
+
+        luaorbitfactor := 1 ;
+        picture p ; p := lualogo xsized (3PaperWidth/5) ;
+        draw p shifted center Page shifted (0,-ypart center ulcorner p) ;
+
+    StopPage ;
+\stopuseMPgraphic
+
+\starttexdefinition luaextraangle
+    % we can also just access the last page and so in mp directly
+    \ctxlua {
+        context(\lastpage == 0 and 0 or \realfolio*360/\lastpage)
+    }
+\stoptexdefinition
+
+\startuseMPgraphic{luanumber}
+    luaextraangle  := \luaextraangle;
+    luaorbitfactor := 0.25 ;
+    picture p ; p := lualogo ;
+    setbounds p to boundingbox fullcircle ;
+    draw p ysized 1cm ;
+\stopuseMPgraphic
+
+\definelayer
+  [page]
+  [width=\paperwidth,
+   height=\paperheight]
+
+\setupbackgrounds
+  [leftpage]
+  [background=page]
+
+\setupbackgrounds
+  [rightpage]
+  [background=page]
+
+\startsetups pagenumber:right
+  \setlayerframed
+    [page]
+    [preset=rightbottom,offset=1cm]
+    [frame=off,height=1cm,offset=overlay]
+    {\useMPgraphic{luanumber}}
+  \setlayerframed
+    [page]
+    [preset=rightbottom,offset=1cm,x=1.5cm]
+    [frame=off,height=1cm,width=1cm,offset=overlay]
+    {\pagenumber}
+  \setlayerframed
+    [page]
+    [preset=rightbottom,offset=1cm,x=2.5cm]
+    [frame=off,height=1cm,offset=overlay]
+    {\getmarking[chapter]}
+\stopsetups
+
+\startsetups pagenumber:left
+  \setlayerframed
+    [page]
+    [preset=leftbottom,offset=1cm,x=2.5cm]
+    [frame=off,height=1cm,offset=overlay]
+    {\getmarking[chapter]}
+  \setlayerframed
+    [page]
+    [preset=leftbottom,offset=1cm,x=1.5cm]
+    [frame=off,height=1cm,width=1cm,offset=overlay]
+    {\pagenumber}
+  \setlayerframed
+    [page]
+    [preset=leftbottom,offset=1cm]
+    [frame=off,height=1cm,offset=overlay]
+    {\useMPgraphic{luanumber}}
+\stopsetups
+
+\unexpanded\def\nonterminal#1>{\mathematics{\langle\hbox{\rm #1}\rangle}}
+
+% taco's brainwave -)
+
+\newcatcodetable\syntaxcodetable
+
+\unexpanded\def\makesyntaxcodetable
+  {\begingroup
+   \catcode`\<=13 \catcode`\|=12
+   \catcode`\!= 0 \catcode`\\=12
+   \savecatcodetable\syntaxcodetable
+   \endgroup}
+
+\makesyntaxcodetable
+
+\unexpanded\def\startsyntax {\begingroup\catcodetable\syntaxcodetable  \dostartsyntax}
+\unexpanded\def\syntax      {\begingroup\catcodetable\syntaxcodetable  \dosyntax}
+           \let\stopsyntax   \relax
+
+\unexpanded\def\syntaxenvbody#1%
+  {\par
+   \tt
+   \startnarrower
+   \maincolor #1
+   \stopnarrower
+   \par}
+
+\unexpanded\def\syntaxbody#1%
+  {\begingroup
+   \maincolor \tt #1%
+   \endgroup}
+
+\bgroup \catcodetable\syntaxcodetable
+
+!gdef!dostartsyntax#1\stopsyntax{!let<!nonterminal!syntaxenvbody{#1}!endgroup}
+!gdef!dosyntax     #1{!let<!nonterminal!syntaxbody{#1}!endgroup}
+
+!egroup
+
+% end of wave
+
+\setupinteraction
+  [state=start,
+   focus=standard,
+   style=,
+   color=,
+   contrastcolor=]
+
+\placebookmarks
+  [chapter,section,subsection]
+
+\setuplist
+  [chapter,section,subsection,subsubsection]
+  [interaction=all]
+
+\setuplist
+  [chapter]
+  [style=bold,
+   color=maincolor]
+
+% Hans doesn't like the bookmarks opening by default so we comment this:
+%
+% \setupinteractionscreen
+%   [option=bookmark]
+
+\stopenvironment

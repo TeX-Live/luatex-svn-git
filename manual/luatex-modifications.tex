@@ -1,0 +1,499 @@
+\environment luatex-style
+\environment luatex-logos
+
+\startcomponent luatex-modifications
+
+\startchapter[reference=modifications,title={Modifications}]
+
+\startsection[title=The merged engines]
+
+\startsubsection[title=The need for change]
+
+The first version of \LUATEX\ only had a few extra primitives and it was largely
+the same as \PDFTEX. Then we merged substantial parts of \ALEPH\ into the code
+and got more primitives. When we got more stable teh decision was made to clean
+up the rather hybrid nature of the program. This means that some primnitives have
+been promoted to core primitives, often with a different name, and that others
+were removed. This made it possible to start cleaning up the code base. We will
+describe most in following paragraphs.
+
+Besides the expected changes caused by new functionality, there are a number of
+not|-|so|-|expected changes. These are sometimes a side|-|effect of a new
+(conflicting) feature, or, more often than not, a change neccessary to clean up
+the internal interfaces. These will also be mentioned.
+
+\stopsubsection
+
+\startsubsection[title=Changes from \TEX\ 3.1415926]
+
+Of course it all starts with traditional \TEX. Even if we started with \PDFTEX,
+most still comes from the original. But we divert a bit.
+
+\startitemize
+
+\startitem
+    The current code base is written in \CCODE, not \PASCAL. We use \CWEB\
+    when possible.
+\stopitem
+
+\startitem
+    See \in {chapter} [languages] for many small changes related to paragraph
+    building, language handling and hyphenation. The most important change is
+    that adding a brace group in the middle of a word (like in \type {of{}fice})
+    does not prevent ligature creation.
+\stopitem
+
+\startitem
+    There is no pool file, all strings are embedded during compilation.
+\stopitem
+
+\startitem
+    The specifier \type {plus 1 fillll} does not generate an error. The extra
+    \quote{l} is simply typeset.
+\stopitem
+
+\startitem
+    The upper limit to \type {\endlinechar} and \type {\newlinechar} is 127.
+\stopitem
+
+\startitem
+    The hz optimization code has been partially redone so that we no longer need
+    to create extra font instances. The front- and backend have been decoupled and
+    more efficient (\PDF) code is generated.
+\stopitem
+
+\stopitemize
+
+\stopsubsection
+
+\startsubsection[title=Changes from \ETEX\ 2.2]
+
+Being the de factor standard extension of course we provide the \ETEX\
+functionality, but with a few small adaptions.
+
+\startitemize
+
+\startitem
+    The \ETEX\ functionality is always present and enabled so the prepended
+    asterisk or \type {-etex} switch for \INITEX\ is not needed.
+\stopitem
+
+\startitem
+    The \TEXXET\ extension is not present, so the primitives \type
+    {\TeXXeTstate}, \type {\beginR}, \type {\beginL}, \type {\endR} and \type
+    {\endL} are missing.
+\stopitem
+
+\startitem
+    Some of the tracing information that is output by \ETEX's \type
+    {\tracingassigns} and \type {\tracingrestores} is not there.
+\stopitem
+
+\startitem
+    Register management in \LUATEX\ uses the \ALEPH\ model, so the maximum value
+    is 65535 and the implementation uses a flat array instead of the mixed
+    flat|\&|sparse model from \ETEX.
+\stopitem
+
+\startitem
+    The \type {\savinghyphcodes} command is a no|-|op. \in {Chapter} [languages]
+    explains why.
+\stopitem
+
+\startitem
+    When kpathsea is used to find files, \LUATEX\ uses the \type {ofm} file
+    format to search for font metrics. In turn, this means that \LUATEX\ looks at
+    the \type {OFMFONTS} configuration variable (like \OMEGA\ and \ALEPH) instead
+    of \type {TFMFONTS} (like \TEX\ and \PDFTEX). Likewise for virtual fonts
+    (\LUATEX\ uses the variable \type {OVFFONTS} instead of \type {VFFONTS}).
+\stopitem
+
+\stopitemize
+
+\stopsubsection
+
+\startsubsection[title=Changes from \PDFTEX\ 1.40]
+
+Because we want to produce \PDF\ the most natural starting point was the popular
+\PDFTEX\ program. We inherit the stable features, dropped most of the
+experimental code and promoted some functionality to core \LUATEX\ functionality
+which in turn triggered renaming primitives.
+
+\startitemize
+
+\startitem
+    The (experimental) support for snap nodes has been removed, because it is
+    much more natural to build this functionality on top of node processing and
+    attributes. The associated primitives that are now gone are: \type
+    {\pdfsnaprefpoint}, \type {\pdfsnapy}, and \type {\pdfsnapycomp}.
+\stopitem
+
+\startitem
+    The (experimental) support for specialized spacing around nodes has also been
+    removed. The associated primitives that are now gone are: \type
+    {\pdfadjustinterwordglue}, \type {\pdfprependkern}, and \type {\pdfappendkern}, as
+    well as the five supporting primitives \type {\knbscode}, \type {\stbscode}, \type
+    {\shbscode}, \type {\knbccode}, and \type {\knaccode}.
+\stopitem
+
+\startitem
+    A number of \quote {pdftex primitives} have been removed as they can be
+    implemented using \LUA:
+
+    \start \raggedright
+    \type {\pdfelapsedtime}, \type {\pdfescapehex}, \type {\pdfescapename}, \type
+    {\pdfescapestring}, \type {\pdffiledump}, \type {\pdffilemoddate}, \type
+    {\pdffilesize}, \type {\pdfforcepagebox}, \type {\pdflastmatch}, \type
+    {\pdfmatch}, \type {\pdfmdfivesum}, \type {\pdfmovechars}, \type
+    {\pdfoptionalwaysusepdfpagebox}, \type {\pdfoptionpdfinclusionerrorlevel},
+    \type {\pdfresettimer}, \type {\pdfshellescape}, \type {\pdfstrcmp} and \type
+    {\pdfunescapehex}
+    \par \stop
+\stopitem
+
+\startitem
+    The version related primitives \type {\pdftexbanner}, \type {\pdftexversion}
+    and \type {\pdftexrevision} are no longer present as there is no longer a
+    strict relationship with \PDFTEX\ development.
+\stopitem
+
+\startitem
+    The experimental snapper mechanism has been removed and therefore also the
+    primitives:
+
+    \start \raggedright
+    \type {\pdfignoreddimen}, \type {\pdffirstlineheight}, \type
+    {\pdfeachlineheight}, \type {\pdfeachlinedepth} and \type
+    {\pdflastlinedepth}
+    \par \stop
+\stopitem
+
+\startitem
+    The experimental primitives \type {\primitive}, \type {\ifprimitive}, \type
+    {\ifabsnum} and \type {\ifabsdim} are promoted to core primitives. The \type
+    {\pdf*} prefixed originals are not available.
+\stopitem
+
+\startitem
+    The \PNG\ transparency fix from 1.40.6 is not applied as high|-|level
+    support is pending.
+\stopitem
+
+\startitem
+    Two extra token lists are provides, \type {\pdfxformresources} and \type
+    {\pdfxformattr}, as an alternative to \type {\pdfxform} keywords.
+\stopitem
+
+\startitem
+    The current version of \LUATEX\ no longer replaces and|/|or merges fonts in
+    embedded pdf files with fonts of the enveloping \PDF\ document. This
+    regression may be temporary, depending on how the rewritten font backend will
+    look like.
+\stopitem
+
+\startitem
+    The primitives \type {\pdfpagewidth} and \type {\pdfpageheight} have been removed
+    because \type {\pagewidth} and \type {\pageheight} have that purpose.
+\stopitem
+
+\startitem
+    The primitives \type {\pdfnormaldeviate}, \type {\pdfuniformdeviate}, \type
+    {\pdfsetrandomseed} and \type {\pdfrandomseed} have been promoted to core
+    primitives without \type {pdf} prefix so the original commands are no longer
+    recognized.
+\stopitem
+
+\startitem
+    The primitives \type {\ifincsname}, \type {\expanded} and \type {\quitvmode} are now
+    core primitives.
+\stopitem
+
+\startitem
+    As the hz and protrusion mechanism are part of the core the related
+    primitives \type {\lpcode}, \type {\rpcode}, \type {\efcode}, \type
+    {\leftmarginkern}, \type {\rightmarginkern} are promoted to core primitives. The
+    two commands \type {\protrudechars} and \type {\adjustspacing} replace their
+    prefixed with \type {\pdf} originals.
+\stopitem
+
+\startitem
+    The \type {\tagcode} primitive is promoted to core primitive.
+\stopitem
+
+\startitem
+    The \type {\letterspacefont} feature is now part of the core but will not be
+    changed (improved). We just provide it for legacy use.
+\stopitem
+
+\startitem
+    The \type {\pdfnoligatures} primitive is now \type {\ignoreligaturesinfont}.
+\stopitem
+
+\startitem
+    The \type {\pdffontexpand} primitive is now \type {\expandglyphsinfont}.
+\stopitem
+
+\startitem
+    Because position tracking is also available in \DVI\ mode the
+    \type {\savepos}, \type {\lastxpos} and \type {\lastypos} commands now
+    replace their \type {pdf} prefixed originals.
+\stopitem
+
+\startitem
+    Candidates for removal are \type {\pdfcolorstackinit} and \type
+    {\pdfcolorstack}.
+\stopitem
+
+\startitem
+    Candidates for replacement are \type {\pdfoutput} (\type {\outputmode}) and
+    \type {\pdfmatrix} (something with a normal syntax).
+\stopitem
+
+\stopitemize
+
+\stopsubsection
+
+\startsubsection[title=Changes from \ALEPH\ RC4]
+
+Because we wanted proper directional typesetting the \ALEPH\ mechanisms looked
+most attractive. These are rather close to the ones provided by \OMEGA, so what
+we say next applies to both these programs.
+
+\startitemize
+
+\startitem
+    The extended 16-bit math primitives (\type {\omathcode} etc.) have been
+    removed.
+\stopitem
+
+\startitem
+    The \OCP\ processing is no longer supported at all. As a consequence, the
+    following primitives have been removed:
+
+    \start \raggedright
+    \type {\ocp}, \type {\externalocp}, \type {\ocplist}, \type {\pushocplist},
+    \type {\popocplist}, \type {\clearocplists}, \type {\addbeforeocplist}, \type
+    {\addafterocplist}, \type {\removebeforeocplist}, \type {\removeafterocplist}
+    and \type {\ocptracelevel}
+    \par \stop
+\stopitem
+
+\startitem
+    \LUATEX\ only understands 4~of the 16~direction specifiers of \ALEPH: \type
+    {TLT} (latin), \type {TRT} (arabic), \type {RTT} (cjk), \type {LTL}
+    (mongolian). All other direction specifiers generate an error.
+\stopitem
+
+\startitem
+    The input translations from \ALEPH\ are not implemented, the related
+    primitives are not available:
+
+    \start \raggedright
+    \type {\DefaultInputMode}, \type {\noDefaultInputMode}, \type {\noInputMode},
+    \type {\InputMode}, \type {\DefaultOutputMode}, \type {\noDefaultOutputMode},
+    \type {\noOutputMode}, \type {\OutputMode}, \type {\DefaultInputTranslation},
+    \type {\noDefaultInputTranslation}, \type {\noInputTranslation}, \type
+    {\InputTranslation}, \type {\DefaultOutputTranslation}, \type
+    {\noDefaultOutputTranslation}, \type {\noOutputTranslation} and \type
+    {\OutputTranslation}
+    \par \stop
+\stopitem
+
+\startitem
+    Several bugs hav ebeen fixed. The \type {\hoffset} bug when \type {\pagedir TRT}
+    is gone, removing the need for an explicit fix to \type {\hoffset}. Also bug
+    causing \type {\fam} to fail for family numbers above 15 is fixed. A fair amount
+    of other minor bugs are fixed as well, most of these related to \type
+    {\tracingcommands} output.
+\stopitem
+
+\startitem
+    The scanner for direction specifications now allows an optional space after
+    the direction is completely parsed.
+\stopitem
+
+\startitem
+    The \type {^^} notation can come in five and six item repetitions also, to
+    insert characters that do not fit in the BMP.
+\stopitem
+
+\startitem
+    Glues {\it immediately after} direction change commands are not legal
+    breakpoints.
+\stopitem
+
+\startitem
+    Several mechanisms that need to be right|-|to|-|left aware have been
+    improved. For instance placement of formula numbers.
+\stopitem
+
+\startitem
+    The page dimension related primitives \type {\pagewidth} and \type {\pageheight} have
+    been promoted to core primitives.
+\stopitem
+
+\startitem
+    The primitives \type {\charwd}, \type {\charht}, \type {\chardp} and \type {\charit}
+    have been removes as we have the \ETEX\ variants \type {\fontchar*}.
+\stopitem
+
+\startitem
+    The two dimension registers \type {\pagerightoffset} and \type
+    {\pagebottomoffset} are now core primitives.
+\stopitem
+
+\startitem
+    The direction related primitives \type {\pagedir}, \type {\bodydir}, \type
+    {\pardir}, \type {\textdir}, \type {\mathdir} and \type {\boxdir} are now
+    core primitives.
+\stopitem
+
+\startitem
+    The promotion of primitives to core primitives as well as the removed of all
+    others mean that the initialization namespace \type {aleph} is gone.
+\stopitem
+
+\stopitemize
+
+\stopsubsection
+
+\startsubsection[title=Changes from standard \WEBC]
+
+The compilation framework is \WEBC\ and we keep using that but without the
+\PASCAL\ to \CCODE\ step. This framework also provides some common features that
+deal with reading bytes from files and locating files in \TDS. This is what we do
+different:
+
+\startitemize
+
+\startitem
+    There is no mltex support.
+\stopitem
+
+\startitem
+    There is no enctex support.
+\stopitem
+
+\startitem
+    The following commandline switches are silently ignored, even in non|-|\LUA\
+    mode: \type {-8bit}, \type {-translate-file}, \type {-mltex}, \type {-enc}
+    and \type {-etex}.
+\stopitem
+
+\startitem
+    The \type {\openout} whatsits are not written to the log file.
+\stopitem
+
+\startitem
+    Some of the so|-|called web2c extensions are hard to set up in non|-|\KPSE\
+    mode because \type {texmf.cnf} is not read: \type {shell-escape} is off (but
+    that is not a problem because of \LUA's \type {os.execute}), and the paranoia
+    checks on \type {openin} and \type {openout} do not happen (however, it is
+    easy for a \LUA\ script to do this itself by overloading \type {io.open}).
+\stopitem
+
+\startitem
+    The \quote{E} option does not do anything useful.
+\stopitem
+
+\stopitemize
+
+\stopsubsection
+
+\stopsection
+
+\startsection[title=Implementation notes]
+
+\startsubsection[title=Memory allocation]
+
+The single internal memory heap that traditional \TEX\ used for tokens and nodes
+is split into two separate arrays. Each of these will grow dynamically when
+needed.
+
+The \type {texmf.cnf} settings related to main memory are no longer used (these
+are: \type {main_memory}, \type {mem_bot}, \type {extra_mem_top} and \type
+{extra_mem_bot}). \quote {Out of main memory} errors can still occur, but the
+limiting factor is now the amount of RAM in your system, not a predefined limit.
+
+Also, the memory (de)allocation routines for nodes are completely rewritten. The
+relevant code now lives in the C file \type {texnode.c}, and basically uses a
+dozen or so \quote {avail} lists instead of a doubly|-|linked model. An extra
+function layer is added so that the code can ask for nodes by type instead of
+directly requisitioning a certain amount of memory words.
+
+Because of the split into two arrays and the resulting differences in the data
+structures, some of the macros have been duplicated. For instance, there are now
+\type {vlink} and \type {vinfo} as well as \type {token_link} and \type
+{token_info}. All access to the variable memory array is now hidden behind a
+macro called \type {vmem}.
+
+The implementation of the growth of two arrays (via reallocation) introduces a
+potential pitfall: the memory arrays should never be used as the left hand side
+of a statement that can modify the array in question.
+
+The input line buffer and pool size are now also reallocated when needed, and the
+\type {texmf.cnf} settings \type {buf_size} and \type {pool_size} are silently
+ignored.
+
+\stopsubsection
+
+\startsubsection[title=Sparse arrays]
+
+The \type {\mathcode}, \type {\delcode}, \type {\catcode}, \type {\sfcode}, \type {\lccode}
+and \type {\uccode} tables are now sparse arrays that are implemented in~\CCODE.
+They are no longer part of the \TEX\ \quote {equivalence table} and because each
+had 1.1 million entries with a few memory words each, this makes a major
+difference in memory usage.
+
+The \type {\catcode}, \type {\sfcode}, \type {\lccode} and \type {\uccode} assignments do
+not yet show up when using the etex tracing routines \type {\tracingassigns} and
+\type {\tracingrestores} (code simply not written yet).
+
+A side|-|effect of the current implementation is that \type {\global} is now more
+expensive in terms of processing than non|-|global assignments.
+
+See \type {mathcodes.c} and \type {textcodes.c} if you are interested in the
+details.
+
+Also, the glyph ids within a font are now managed by means of a sparse array and
+glyph ids can go up to index $2^{21}-1$.
+
+\stopsubsection
+
+\startsubsection[title=Simple single-character csnames]
+
+Single|-|character commands are no longer treated specially in the internals,
+they are stored in the hash just like the multiletter csnames.
+
+The code that displays control sequences explicitly checks if the length is one
+when it has to decide whether or not to add a trailing space.
+
+Active characters are internally implemented as a special type of multi|-|letter
+control sequences that uses a prefix that is otherwise impossible to obtain.
+
+\stopsubsection
+
+\startsubsection[title=Compressed format]
+
+The format is passed through zlib, allowing it to shrink to roughly half of the
+size it would have had in uncompressed form. This takes a bit more \CPU\ cycles
+but much less disk \IO, so it should still be faster.
+
+\stopsubsection
+
+\startsubsection[title=Binary file reading]
+
+All of the internal code is changed in such a way that if one of the \type
+{read_xxx_file} callbacks is not set, then the file is read by a C function using
+basically the same convention as the callback: a single read into a buffer big
+enough to hold the entire file contents. While this uses more memory than the
+previous code (that mostly used \type {getc} calls), it can be quite a bit faster
+(depending on your I/O subsystem).
+
+\stopsubsection
+
+\stopsection
+
+\stopchapter
+
+\stopcomponent

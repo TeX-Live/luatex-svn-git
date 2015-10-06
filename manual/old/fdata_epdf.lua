@@ -1,4 +1,4 @@
--- $Id$
+-- $Id: fdata_epdf.lua 4559 2013-01-20 19:58:26Z hhenkel $
 
 local fdata_epdf = {
   functions = {
