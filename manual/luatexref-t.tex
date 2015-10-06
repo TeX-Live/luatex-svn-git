@@ -699,8 +699,8 @@ a $
 
 \subsection{\tex{matheqnogapstep} (0.81)}
 
-By default \TEX\ will add one quad between the equation and the number. This 
-is hardcoded. A new primitive can control this: 
+By default \TEX\ will add one quad between the equation and the number. This
+is hardcoded. A new primitive can control this:
 
 \startsyntax
 \matheqnogapstep = 1000
@@ -6311,11 +6311,7 @@ tex.pagetopoffset
 tex.pagewidth
 tex.parindent
 tex.pdfdestmargin
-tex.pdfeachlinedepth
-tex.pdfeachlineheight
-tex.pdffirstlineheight
 tex.pdfhorigin
-tex.pdflastlinedepth
 tex.pdflinkmargin
 tex.pdfpageheight
 tex.pdfpagewidth
@@ -6461,24 +6457,6 @@ value.
 
 The special (lua-only) case of \type{tex.fontidentifier} returns the
 \type{csname} string that matches a font id number (if there is one).
-
-The \PDFTEX\ related primitives will be removed from versions after 0.80. All the
-version related details are available in the \type {status} table at the \LUA\
-end, for instance one can say:
-
-\starttyping
-\let\pdftexbanner  \luatexbanner
-\let\pdftexversion \luatexversion
-\let\pdftexrevision\luatexrevision
-\stoptyping
-
-% or maybe in the future:
-%
-% \starttyping
-% \def\pdftexbanner  {\directlua{tex.write(status.banner)}}
-% \def\pdftexversion {\directlua{tex.write(status.luatex_version}}
-% \def\pdftexrevision{\directlua{tex.write(status.luatex_revision}}
-% \stoptyping
 
 if these are really needed in a macro package.
 
@@ -7232,10 +7210,6 @@ The understood parameters are as follows:
 \NC hsize                    \NC number   \NC in scaled points \NC \NR
 \NC leftskip                 \NC glue_spec node   \NC \NC \NR
 \NC rightskip                \NC glue_spec node   \NC \NC \NR
-\NC pdfeachlineheight        \NC number   \NC in scaled points \NC \NR
-\NC pdfeachlinedepth         \NC number   \NC in scaled points \NC \NR
-\NC pdffirstlineheight       \NC number   \NC in scaled points \NC \NR
-\NC pdflastlinedepth         \NC number   \NC in scaled points \NC \NR
 \NC pdfignoreddimen          \NC number   \NC in scaled points \NC \NR
 \NC parshape                 \NC table   \NC \NC \NR
 \stoptabulate
@@ -10639,10 +10613,12 @@ has also been removed. The associated primitives that are now gone are:
 as well as the five supporting primitives \tex{knbscode}, \tex{stbscode},
 \tex{shbscode}, \tex{knbccode}, and \tex{knaccode}.
 
-\item A number of \quote{utility functions} is removed:
+\item A number of \quote{pdftex primitives} have been removed:
 
-\startcolumns[n=3]
+\startcolumns[n=2,balance=yes]
 \starttyping
+\pdfeachlinedepth
+\pdfeachlineheight
 \pdfelapsedtime
 \pdfescapehex
 \pdfescapename
@@ -10650,33 +10626,31 @@ as well as the five supporting primitives \tex{knbscode}, \tex{stbscode},
 \pdffiledump
 \pdffilemoddate
 \pdffilesize
+\pdffirstlineheight
+\pdfforcepagebox
+\pdfignoreddimen
+\pdflastlinedepth
 \pdflastmatch
 \pdfmatch
 \pdfmdfivesum
+\pdfmovechars
+\pdfoptionalwaysusepdfpagebox
+\pdfoptionpdfinclusionerrorlevel
 \pdfresettimer
 \pdfshellescape
 \pdfstrcmp
+\pdftexbanner
+\pdftexrevision
+\pdftexversion
 \pdfunescapehex
 \stoptyping
+
 \stopcolumns
-
-\item The four primitives that were already marked obsolete in \PDFTEX~1.40
-have been removed since \LUATEX~0.42:
-
-\startcolumns[n=2]
-\starttyping
-\pdfoptionalwaysusepdfpagebox
-\pdfoptionpdfinclusionerrorlevel
-\pdfforcepagebox
-\pdfmovechars
-\stoptyping
-\stopcolumns
-
 
 \item A few other experimental primitives are also provided without the
       extra  \luatex {pdf} prefix, so they can also be called like this:
 
-\startcolumns[n=3]
+\startcolumns[n=2,balance=yes]
 \starttyping
 \primitive
 \ifprimitive
@@ -10684,8 +10658,6 @@ have been removed since \LUATEX~0.42:
 \ifabsdim
 \stoptyping
 \stopcolumns
-
-\item The \tex{pdftexversion} was set to 200, but from \LUATEX~0.80.0 returns the luatex version and is declared as obsolete (i.e. it will disappear).
 
 \item The PNG transparency fix from 1.40.6 is not applied
 (high-level support is pending)
