@@ -220,7 +220,7 @@ halfword last_rightmost_char;
 halfword next_char_p;           /* pointer to the next char of an implicit kern */
 halfword prev_char_p;           /* pointer to the previous char of an implicit kern */
 
-@ This procedure is called repeatedly from inside the line break algorithm. 
+@ This procedure is called repeatedly from inside the line break algorithm.
 @c
 void set_prev_char_p(halfword p)
 {
@@ -541,29 +541,27 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                     p = q;
                 }
                 break;
+            case dir_node:
+                /* DIR: Adjust the dir stack for the |hpack| routine */
+                if (dir_dir(p) >= 0) {
+                    hpack_dir = dir_dir(p);
+                    push_dir_node(p,dir_ptr1);
+                } else {
+                    pop_dir_node(dir_ptr1);
+                    if (dir_ptr1 != null)
+                        hpack_dir = dir_dir(dir_ptr1);
+                }
+                break;
             case whatsit_node:
                 /* Incorporate a whatsit node into an hbox */
-                if (subtype(p) == dir_node) {
-                    /* DIR: Adjust the dir stack for the |hpack| routine */
-                    if (dir_dir(p) >= 0) {
-                        hpack_dir = dir_dir(p);
-                        push_dir_node(p,dir_ptr1);
-                    } else {
-                        pop_dir_node(dir_ptr1);
-                        if (dir_ptr1 != null)
-                            hpack_dir = dir_dir(dir_ptr1);
-                    }
-
-                } else {
-                    if ((subtype(p) == pdf_refxform_node)
-                        || (subtype(p) == pdf_refximage_node)) {
-                        x += width(p);
-                        s = 0;
-                        if (height(p) - s > h)
-                            h = height(p) - s;
-                        if (depth(p) + s > d)
-                            d = depth(p) + s;
-                    }
+                if ((subtype(p) == pdf_refxform_node)
+                    || (subtype(p) == pdf_refximage_node)) {
+                    x += width(p);
+                    s = 0;
+                    if (height(p) - s > h)
+                        h = height(p) - s;
+                    if (depth(p) + s > d)
+                        d = depth(p) + s;
                 }
                 break;
             case glue_node:

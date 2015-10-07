@@ -215,19 +215,19 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
             case math_node:
                 w += surround(q);
                 break;
+            case dir_node:
+                if (dir_dir(q) >= 0)
+                    dir_nest++;
+                else
+                    dir_nest--;
+                if (dir_nest == 0) {
+                    enddir_ptr = q;
+                    dir_cur_h(enddir_ptr) = w;
+                    q = null;
+                }
+                break;
             case whatsit_node:
-                if (subtype(q) == dir_node) {
-                    if (dir_dir(q) >= 0)
-                        dir_nest++;
-                    else
-                        dir_nest--;
-                    if (dir_nest == 0) {
-                        enddir_ptr = q;
-                        dir_cur_h(enddir_ptr) = w;
-                        q = null;
-                    }
-                } else if ((subtype(q) == pdf_refxform_node)
-                           || (subtype(q) == pdf_refximage_node))
+                if ((subtype(q) == pdf_refxform_node) || (subtype(q) == pdf_refximage_node))
                     w += width(q);
                 break;
             default:
@@ -293,8 +293,6 @@ void out_what(PDF pdf, halfword p)
                 }
             }
         }
-        break;
-    case dir_node:             /* in a vlist */
         break;
     case local_par_node:
     case cancel_boundary_node:
@@ -479,6 +477,40 @@ void hlist_out(PDF pdf, halfword this_box)
                 }
                 goto FIN_RULE;
                 break;
+            case dir_node:
+                /* Output a reflection instruction if the direction has changed */
+                if (dir_dir(p) >= 0) {
+                    /* Calculate the needed width to the matching |enddir|, return the |enddir| node,
+                       with width info */
+                    enddir_ptr =
+                        calculate_width_to_enddir(p, cur_glue, cur_g,
+                                                  this_box);
+                    if (textdir_parallel(dir_dir(p), localpos.dir)) {
+                        dir_cur_h(enddir_ptr) += cur.h;
+                        if (textdir_opposite(dir_dir(p), localpos.dir))
+                            cur.h = dir_cur_h(enddir_ptr);
+                    } else
+                        dir_cur_h(enddir_ptr) = cur.h;
+                    if (enddir_ptr != p) {  /* only if it is an enddir */
+                        dir_cur_v(enddir_ptr) = cur.v;
+                        dir_refpos_h(enddir_ptr) = refpos->pos.h;
+                        dir_refpos_v(enddir_ptr) = refpos->pos.v;
+                        dir_dir(enddir_ptr) = localpos.dir - 64;    /* negative: mark it as |enddir| */
+                    }
+                    /* fake a nested |hlist_out| */
+                    synch_pos_with_cur(pdf->posstruct, refpos, cur);
+                    refpos->pos = pdf->posstruct->pos;
+                    localpos.dir = dir_dir(p);
+                    cur.h = 0;
+                    cur.v = 0;
+                } else {
+                    refpos->pos.h = dir_refpos_h(p);
+                    refpos->pos.v = dir_refpos_v(p);
+                    localpos.dir = dir_dir(p) + 64;
+                    cur.h = dir_cur_h(p);
+                    cur.v = dir_cur_v(p);
+                }
+                break;
             case whatsit_node:
                 /* Output the whatsit node |p| in |hlist_out| */
                 switch (subtype(p)) {
@@ -524,40 +556,6 @@ void hlist_out(PDF pdf, halfword this_box)
                     }
                     backend_out_whatsit[subtype(p)] (pdf, p);
                     cur.h += width(p);
-                    break;
-                case dir_node:
-                    /* Output a reflection instruction if the direction has changed */
-                    if (dir_dir(p) >= 0) {
-                        /* Calculate the needed width to the matching |enddir|, return the |enddir| node,
-                           with width info */
-                        enddir_ptr =
-                            calculate_width_to_enddir(p, cur_glue, cur_g,
-                                                      this_box);
-                        if (textdir_parallel(dir_dir(p), localpos.dir)) {
-                            dir_cur_h(enddir_ptr) += cur.h;
-                            if (textdir_opposite(dir_dir(p), localpos.dir))
-                                cur.h = dir_cur_h(enddir_ptr);
-                        } else
-                            dir_cur_h(enddir_ptr) = cur.h;
-                        if (enddir_ptr != p) {  /* only if it is an enddir */
-                            dir_cur_v(enddir_ptr) = cur.v;
-                            dir_refpos_h(enddir_ptr) = refpos->pos.h;
-                            dir_refpos_v(enddir_ptr) = refpos->pos.v;
-                            dir_dir(enddir_ptr) = localpos.dir - 64;    /* negative: mark it as |enddir| */
-                        }
-                        /* fake a nested |hlist_out| */
-                        synch_pos_with_cur(pdf->posstruct, refpos, cur);
-                        refpos->pos = pdf->posstruct->pos;
-                        localpos.dir = dir_dir(p);
-                        cur.h = 0;
-                        cur.v = 0;
-                    } else {
-                        refpos->pos.h = dir_refpos_h(p);
-                        refpos->pos.v = dir_refpos_v(p);
-                        localpos.dir = dir_dir(p) + 64;
-                        cur.h = dir_cur_h(p);
-                        cur.v = dir_cur_v(p);
-                    }
                     break;
                 default:
                     out_what(pdf, p);

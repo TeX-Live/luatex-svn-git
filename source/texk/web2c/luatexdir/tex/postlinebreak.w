@@ -254,15 +254,14 @@ void ext_post_line_break(int paragraph_dir,
         if (have_directional) {
             halfword e;
             halfword p;
-            for (e = vlink(temp_head); e != null && e != cur_break(cur_p);
-                 e = vlink(e)) {
-                if (type(e) != whatsit_node || subtype(e) != dir_node)
-                    continue;
-                if (dir_dir(e) >= 0) {
-                    dir_ptr = do_push_dir_node(dir_ptr, e);
-                } else if (dir_ptr != null
-                           && dir_dir(dir_ptr) == (dir_dir(e) + 64)) {
-                    dir_ptr = do_pop_dir_node(dir_ptr);
+            for (e = vlink(temp_head); e != null && e != cur_break(cur_p); e = vlink(e)) {
+                if (type(e) == dir_node) {
+                    if (dir_dir(e) >= 0) {
+                        dir_ptr = do_push_dir_node(dir_ptr, e);
+                    } else if (dir_ptr != null
+                               && dir_dir(dir_ptr) == (dir_dir(e) + 64)) {
+                        dir_ptr = do_pop_dir_node(dir_ptr);
+                    }
                 }
             }
             assert(e == cur_break(cur_p));

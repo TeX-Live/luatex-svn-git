@@ -1870,6 +1870,16 @@ ext_do_line_break(int paragraph_dir,
             case rule_node:
                 active_width[1] += width(cur_p);
                 break;
+            case dir_node: /* DIR: Adjust the dir stack for the |line_break| routine; */
+                if (dir_dir(cur_p) >= 0) {
+                    line_break_dir = dir_dir(cur_p);
+                    push_dir_node(cur_p,dir_ptr);   /* adds to |dir_ptr| */
+                } else {
+                    pop_dir_node(dir_ptr);
+                    if (dir_ptr != null)
+                        line_break_dir = dir_dir(dir_ptr);
+                }
+                break;
             case whatsit_node:
                 /* Advance past a whatsit node in the |line_break| loop; */
                 switch (subtype(cur_p)) {
@@ -1880,16 +1890,6 @@ ext_do_line_break(int paragraph_dir,
                     internal_left_box_width = local_box_left_width(cur_p);
                     internal_right_box = local_box_right(cur_p);
                     internal_right_box_width = local_box_right_width(cur_p);
-                    break;
-                case dir_node: /* DIR: Adjust the dir stack for the |line_break| routine; */
-                    if (dir_dir(cur_p) >= 0) {
-                        line_break_dir = dir_dir(cur_p);
-                        push_dir_node(cur_p,dir_ptr);   /* adds to |dir_ptr| */
-                    } else {
-                        pop_dir_node(dir_ptr);
-                        if (dir_ptr != null)
-                            line_break_dir = dir_dir(dir_ptr);
-                    }
                     break;
                 case pdf_refxform_node:
                 case pdf_refximage_node:

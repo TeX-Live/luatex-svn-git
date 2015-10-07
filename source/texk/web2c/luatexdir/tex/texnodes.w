@@ -149,7 +149,7 @@ const char *node_fields_whatsit_local_par[] =
     { "attr", "pen_inter", "pen_broken", "dir",
     "box_left", "box_left_width", "box_right", "box_right_width", NULL
 };
-const char *node_fields_whatsit_dir[] =
+const char *node_fields_dir[] =
     { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
 
 const char *node_fields_whatsit_pdf_literal[] =
@@ -201,7 +201,7 @@ node_info node_data[] = {
     {ins_node, ins_node_size, node_fields_insert, "ins"},
     {mark_node, mark_node_size, node_fields_mark, "mark"},
     {adjust_node, adjust_node_size, node_fields_adjust, "adjust"},
-    {fake_node, fake_node_size, NULL, fake_node_name},  /* don't touch this! */
+    {dir_node, dir_node_size, node_fields_dir, "dir"},
     {disc_node, disc_node_size, node_fields_disc, "disc"},
     {whatsit_node, -1, NULL, "whatsit"},
     {math_node, math_node_size, node_fields_math, "math"},
@@ -268,7 +268,7 @@ node_info whatsit_node_data[] = {
     {fake_node, fake_node_size, NULL, fake_node_name},
     {local_par_node, local_par_size, node_fields_whatsit_local_par,
      "local_par"},
-    {dir_node, dir_node_size, node_fields_whatsit_dir, "dir"},
+    {fake_node, fake_node_size, NULL, fake_node_name},
     {pdf_literal_node, write_node_size, node_fields_whatsit_pdf_literal,
      "pdf_literal"},
     {fake_node, fake_node_size, NULL, fake_node_name},
@@ -824,9 +824,10 @@ halfword copy_node(const halfword p)
     case glue_spec_node:
         glue_ref_count(r) = null;
         break;
+    case dir_node:
+        break;
     case whatsit_node:
         switch (subtype(p)) {
-        case dir_node:
         case local_par_node:
             break;
         case write_node:
@@ -1147,11 +1148,11 @@ void flush_node(halfword p)
         }
         return ;
         break ;
+    case dir_node:
+        break;
     case whatsit_node:
         switch (subtype(p)) {
 
-        case dir_node:
-            break;
         case open_node:
         case write_node:
         case close_node:
@@ -1398,6 +1399,8 @@ void check_node(halfword p)
         dorangetest(p, ins_ptr(p), var_mem_max);
         check_glue_ref(split_top_ptr(p));
         break;
+        case dir_node:
+        break;
     case whatsit_node:
         switch (subtype(p)) {
         case special_node:
@@ -1458,7 +1461,6 @@ void check_node(halfword p)
                 break;
             }
             break;
-        case dir_node:
         case open_node:
         case write_node:
         case close_node:
@@ -2541,17 +2543,6 @@ static void show_whatsit_node(int p)
         tprint_esc("special");
         print_mark(write_tokens(p));
         break;
-    case dir_node:
-        if (dir_dir(p) < 0) {
-            tprint_esc("enddir");
-            print_char(' ');
-            print_dir(dir_dir(p) + 64);
-        } else {
-            tprint_esc("begindir");
-            print_char(' ');
-            print_dir(dir_dir(p));
-        }
-        break;
     case local_par_node:
         tprint_esc("whatsit");
         append_char('.');
@@ -2975,6 +2966,17 @@ void show_node_list(int p)
                 tprint("); float cost ");
                 print_int(float_cost(p));
                 node_list_display(ins_ptr(p));  /* recursive call */
+                break;
+            case dir_node:
+                if (dir_dir(p) < 0) {
+                    tprint_esc("enddir");
+                    print_char(' ');
+                    print_dir(dir_dir(p) + 64);
+                } else {
+                    tprint_esc("begindir");
+                    print_char(' ');
+                    print_dir(dir_dir(p));
+                }
                 break;
             case whatsit_node:
                 show_whatsit_node(p);

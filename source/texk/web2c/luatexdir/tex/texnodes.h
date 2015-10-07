@@ -284,8 +284,8 @@ typedef enum {
     ins_node,
     mark_node,
     adjust_node,
-    /* 6 used to be ligatures */
-    disc_node = 7,
+    dir_node,                   /* 6 used to be ligatures */
+    disc_node,
     whatsit_node,
     math_node,
     glue_node,                  /* 10 */
@@ -440,8 +440,8 @@ typedef enum {
     /*language_node,              OBSOLETE*/
     /*set_language_code,          OBSOLETE*/
     local_par_node=6,
-    dir_node,
-    pdf_literal_node,
+    /* was dir */
+    pdf_literal_node=8,
     pdf_obj_code,
     pdf_refobj_node,            /* 10 */
     pdf_xform_code,
@@ -704,8 +704,14 @@ extern pointer actual_box_width(pointer r, scaled base_width);
 /* TH: these two defines still need checking. The node ordering in luatex is not
    quite the same as in tex82 */
 
+/*
 #  define precedes_break(a) (type((a))<math_node && \
                             (type(a)!=whatsit_node || (subtype(a)!=dir_node && subtype(a)!=local_par_node)))
+*/
+
+#  define precedes_break(a) (type((a))<math_node && \
+                            (type(a)!=whatsit_node || (subtype(a)!=local_par_node)))
+
 #  define non_discardable(a) (type((a))<math_node)
 
 /* from luanode.c */
