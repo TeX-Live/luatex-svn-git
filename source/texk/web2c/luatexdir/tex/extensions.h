@@ -56,9 +56,6 @@ extern scaledpos pdf_last_pos;
 extern halfword concat_tokens(halfword q, halfword r);
 extern int pdf_retval;
 
-extern halfword make_local_par_node(void);
-
-
 /*
 The \.{\\pagediscards} and \.{\\splitdiscards} commands share the
 command code |un_vbox| with \.{\\unvbox} and \.{\\unvcopy}, they are

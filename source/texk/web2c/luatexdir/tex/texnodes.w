@@ -145,7 +145,7 @@ const char *node_fields_whatsit_write[] = { "attr", "stream", "data", NULL };
 const char *node_fields_whatsit_close[] = { "attr", "stream", NULL };
 const char *node_fields_whatsit_special[] = { "attr", "data", NULL };
 
-const char *node_fields_whatsit_local_par[] =
+const char *node_fields_local_par[] =
     { "attr", "pen_inter", "pen_broken", "dir",
     "box_left", "box_left_width", "box_right", "box_right_width", NULL
 };
@@ -201,7 +201,7 @@ node_info node_data[] = {
     {ins_node, ins_node_size, node_fields_insert, "ins"},
     {mark_node, mark_node_size, node_fields_mark, "mark"},
     {adjust_node, adjust_node_size, node_fields_adjust, "adjust"},
-    {dir_node, dir_node_size, node_fields_dir, "dir"},
+    {fake_node, fake_node_size, NULL, fake_node_name},
     {disc_node, disc_node_size, node_fields_disc, "disc"},
     {whatsit_node, -1, NULL, "whatsit"},
     {math_node, math_node_size, node_fields_math, "math"},
@@ -254,6 +254,8 @@ node_info node_data[] = {
     {delta_node, delta_node_size, NULL, "delta"},
     {passive_node, passive_node_size, NULL, "passive"},
     {shape_node, variable_node_size, NULL, "shape"},
+    {dir_node, dir_node_size, node_fields_dir, "dir"},
+    {local_par_node, local_par_size, node_fields_local_par,"local_par"},
     {-1, -1, NULL, NULL}
 };
 
@@ -266,37 +268,24 @@ node_info whatsit_node_data[] = {
     {special_node, special_node_size, node_fields_whatsit_special, "special"},
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {local_par_node, local_par_size, node_fields_whatsit_local_par,
-     "local_par"},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {pdf_literal_node, write_node_size, node_fields_whatsit_pdf_literal,
-     "pdf_literal"},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {pdf_refobj_node, pdf_refobj_node_size, node_fields_whatsit_pdf_refobj,
-     "pdf_refobj"},
+    {pdf_literal_node, write_node_size, node_fields_whatsit_pdf_literal, "pdf_literal"},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {pdf_refxform_node, pdf_refxform_node_size,
-     node_fields_whatsit_pdf_refxform, "pdf_refxform"},
+    {pdf_refobj_node, pdf_refobj_node_size, node_fields_whatsit_pdf_refobj, "pdf_refobj"},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {pdf_refximage_node, pdf_refximage_node_size,
-     node_fields_whatsit_pdf_refximage, "pdf_refximage"},
-    {pdf_annot_node, pdf_annot_node_size, node_fields_whatsit_pdf_annot,
-     "pdf_annot"},
-    {pdf_start_link_node, pdf_annot_node_size,
-     node_fields_whatsit_pdf_start_link, "pdf_start_link"},
-    {pdf_end_link_node, pdf_end_link_node_size,
-     node_fields_whatsit_pdf_end_link, "pdf_end_link"},
+    {pdf_refxform_node, pdf_refxform_node_size, node_fields_whatsit_pdf_refxform, "pdf_refxform"},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {pdf_dest_node, pdf_dest_node_size, node_fields_whatsit_pdf_dest,
-     "pdf_dest"},
-    {pdf_thread_node, pdf_thread_node_size, node_fields_whatsit_pdf_thread,
-     "pdf_thread"},
-    {pdf_start_thread_node, pdf_thread_node_size,
-     node_fields_whatsit_pdf_start_thread, "pdf_start_thread"},
-    {pdf_end_thread_node, pdf_end_thread_node_size,
-     node_fields_whatsit_pdf_end_thread, "pdf_end_thread"},
-    {save_pos_node, save_pos_node_size,
-     node_fields_whatsit_save_pos, "save_pos"},
+    {pdf_refximage_node, pdf_refximage_node_size, node_fields_whatsit_pdf_refximage, "pdf_refximage"},
+    {pdf_annot_node, pdf_annot_node_size, node_fields_whatsit_pdf_annot, "pdf_annot"},
+    {pdf_start_link_node, pdf_annot_node_size, node_fields_whatsit_pdf_start_link, "pdf_start_link"},
+    {pdf_end_link_node, pdf_end_link_node_size, node_fields_whatsit_pdf_end_link, "pdf_end_link"},
+    {fake_node, fake_node_size, NULL, fake_node_name},
+    {pdf_dest_node, pdf_dest_node_size, node_fields_whatsit_pdf_dest, "pdf_dest"},
+    {pdf_thread_node, pdf_thread_node_size, node_fields_whatsit_pdf_thread, "pdf_thread"},
+    {pdf_start_thread_node, pdf_thread_node_size, node_fields_whatsit_pdf_start_thread, "pdf_start_thread"},
+    {pdf_end_thread_node, pdf_end_thread_node_size, node_fields_whatsit_pdf_end_thread, "pdf_end_thread"},
+    {save_pos_node, save_pos_node_size, node_fields_whatsit_save_pos, "save_pos"},
     {pdf_thread_data_node, pdf_thread_node_size, NULL, "pdf_thread_data"},
     {pdf_link_data_node, pdf_annot_node_size, NULL, "pdf_link_data"},
     {fake_node, fake_node_size, NULL, fake_node_name},
@@ -308,23 +297,16 @@ node_info whatsit_node_data[] = {
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {late_lua_node, late_lua_node_size, node_fields_whatsit_late_lua,
-     "late_lua"},
+    {late_lua_node, late_lua_node_size, node_fields_whatsit_late_lua, "late_lua"},
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {pdf_colorstack_node, pdf_colorstack_node_size,
-     node_fields_whatsit_pdf_colorstack, "pdf_colorstack"},
-    {pdf_setmatrix_node, pdf_setmatrix_node_size,
-     node_fields_whatsit_pdf_setmatrix, "pdf_setmatrix"},
-    {pdf_save_node, pdf_save_node_size, node_fields_whatsit_pdf_save,
-     "pdf_save"},
-    {pdf_restore_node, pdf_restore_node_size, node_fields_whatsit_pdf_restore,
-     "pdf_restore"},
-    {cancel_boundary_node, cancel_boundary_size,
-     node_fields_whatsit_cancel_boundary, "cancel_boundary"},
-    {user_defined_node, user_defined_node_size,
-     node_fields_whatsit_user_defined, "user_defined"},
+    {pdf_colorstack_node, pdf_colorstack_node_size, node_fields_whatsit_pdf_colorstack, "pdf_colorstack"},
+    {pdf_setmatrix_node, pdf_setmatrix_node_size, node_fields_whatsit_pdf_setmatrix, "pdf_setmatrix"},
+    {pdf_save_node, pdf_save_node_size, node_fields_whatsit_pdf_save, "pdf_save"},
+    {pdf_restore_node, pdf_restore_node_size, node_fields_whatsit_pdf_restore, "pdf_restore"},
+    {cancel_boundary_node, cancel_boundary_size, node_fields_whatsit_cancel_boundary, "cancel_boundary"},
+    {user_defined_node, user_defined_node_size, node_fields_whatsit_user_defined, "user_defined"},
     {-1, -1, NULL, NULL}
 };
 
@@ -825,11 +807,10 @@ halfword copy_node(const halfword p)
         glue_ref_count(r) = null;
         break;
     case dir_node:
+    case local_par_node:
         break;
     case whatsit_node:
         switch (subtype(p)) {
-        case local_par_node:
-            break;
         case write_node:
         case special_node:
             add_token_ref(write_tokens(p));
@@ -1149,6 +1130,7 @@ void flush_node(halfword p)
         return ;
         break ;
     case dir_node:
+    case local_par_node:
         break;
     case whatsit_node:
         switch (subtype(p)) {
@@ -1399,8 +1381,6 @@ void check_node(halfword p)
         dorangetest(p, ins_ptr(p), var_mem_max);
         check_glue_ref(split_top_ptr(p));
         break;
-        case dir_node:
-        break;
     case whatsit_node:
         switch (subtype(p)) {
         case special_node:
@@ -1473,8 +1453,6 @@ void check_node(halfword p)
         case pdf_end_link_node:
         case pdf_end_thread_node:
         case save_pos_node:
-        case local_par_node:
-            break;
         default:
             confusion("ext3");
         }
@@ -1550,6 +1528,8 @@ void check_node(halfword p)
     case delta_node:
     case passive_node:
     case expr_node:
+    case dir_node:
+    case local_par_node:
         break;
     default:
         fprintf(stdout, "check_node: type is %d\n", type(p));
@@ -2543,41 +2523,6 @@ static void show_whatsit_node(int p)
         tprint_esc("special");
         print_mark(write_tokens(p));
         break;
-    case local_par_node:
-        tprint_esc("whatsit");
-        append_char('.');
-        print_ln();
-        print_current_string();
-        tprint_esc("localinterlinepenalty");
-        print_char('=');
-        print_int(local_pen_inter(p));
-        print_ln();
-        print_current_string();
-        tprint_esc("localbrokenpenalty");
-        print_char('=');
-        print_int(local_pen_broken(p));
-        print_ln();
-        print_current_string();
-        tprint_esc("localleftbox");
-        if (local_box_left(p) == null) {
-            tprint("=null");
-        } else {
-            append_char('.');
-            show_node_list(local_box_left(p));
-            decr(cur_length);
-        }
-        print_ln();
-        print_current_string();
-        tprint_esc("localrightbox");
-        if (local_box_right(p) == null) {
-            tprint("=null");
-        } else {
-            append_char('.');
-            show_node_list(local_box_right(p));
-            decr(cur_length);
-        }
-        decr(cur_length);
-        break;
     case pdf_literal_node:
         show_pdf_literal(p);
         break;
@@ -2977,6 +2922,41 @@ void show_node_list(int p)
                     print_char(' ');
                     print_dir(dir_dir(p));
                 }
+                break;
+            case local_par_node:
+                tprint_esc("whatsit");
+                append_char('.');
+                print_ln();
+                print_current_string();
+                tprint_esc("localinterlinepenalty");
+                print_char('=');
+                print_int(local_pen_inter(p));
+                print_ln();
+                print_current_string();
+                tprint_esc("localbrokenpenalty");
+                print_char('=');
+                print_int(local_pen_broken(p));
+                print_ln();
+                print_current_string();
+                tprint_esc("localleftbox");
+                if (local_box_left(p) == null) {
+                    tprint("=null");
+                } else {
+                    append_char('.');
+                    show_node_list(local_box_left(p));
+                    decr(cur_length);
+                }
+                print_ln();
+                print_current_string();
+                tprint_esc("localrightbox");
+                if (local_box_right(p) == null) {
+                    tprint("=null");
+                } else {
+                    append_char('.');
+                    show_node_list(local_box_right(p));
+                    decr(cur_length);
+                }
+                decr(cur_length);
                 break;
             case whatsit_node:
                 show_whatsit_node(p);
@@ -3686,3 +3666,27 @@ However, other references to the nodes are made symbolically in terms of
 the \.{WEB} macro definitions above, so that format changes will leave
 \TeX's other algorithms intact.
 @^system dependencies@>
+
+@ @c
+halfword make_local_par_node(void)
+/* This function creates a |local_paragraph| node */
+{
+    halfword p, q;
+    p = new_node(local_par_node,0);
+    local_pen_inter(p) = local_inter_line_penalty;
+    local_pen_broken(p) = local_broken_penalty;
+    if (local_left_box != null) {
+        q = copy_node_list(local_left_box);
+        local_box_left(p) = q;
+        local_box_left_width(p) = width(local_left_box);
+    }
+    if (local_right_box != null) {
+        q = copy_node_list(local_right_box);
+        local_box_right(p) = q;
+        local_box_right_width(p) = width(local_right_box);
+    }
+    local_par_dir(p) = par_direction;
+    return p;
+}
+
+

@@ -2554,26 +2554,6 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
         } else {
             lua_pushnil(L);
         }
-    } else if (t == local_par_node) {
-        if (lua_key_eq(s, pen_inter)) {
-            lua_pushnumber(L, local_pen_inter(n));
-        } else if (lua_key_eq(s, pen_broken)) {
-            lua_pushnumber(L, local_pen_broken(n));
-        } else if (lua_key_eq(s, dir)) {
-            lua_push_dir_par(L, local_par_dir(n));
-        } else if (lua_key_eq(s, box_left)) {
-            /* can be: fast_metatable_or_nil(local_box_left(n)) */
-            nodelib_pushlist(L, local_box_left(n));
-        } else if (lua_key_eq(s, box_left_width)) {
-            lua_pushnumber(L, local_box_left_width(n));
-        } else if (lua_key_eq(s, box_right)) {
-            /* can be: fast_metatable_or_nil(local_box_right(n)) */
-            nodelib_pushlist(L, local_box_right(n));
-        } else if (lua_key_eq(s, box_right_width)) {
-            lua_pushnumber(L, local_box_right_width(n));
-        } else {
-            lua_pushnil(L);
-        }
     } else if (t == pdf_literal_node) {
         if (lua_key_eq(s, mode)) {
             lua_pushnumber(L, pdf_literal_mode(n));
@@ -2975,6 +2955,26 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         } else {
             lua_pushnil(L);
         }
+    } else if (t == local_par_node) {
+        if (lua_key_eq(s, pen_inter)) {
+            lua_pushnumber(L, local_pen_inter(n));
+        } else if (lua_key_eq(s, pen_broken)) {
+            lua_pushnumber(L, local_pen_broken(n));
+        } else if (lua_key_eq(s, dir)) {
+            lua_push_dir_par(L, local_par_dir(n));
+        } else if (lua_key_eq(s, box_left)) {
+            /* can be: fast_metatable_or_nil(local_box_left(n)) */
+            nodelib_pushlist(L, local_box_left(n));
+        } else if (lua_key_eq(s, box_left_width)) {
+            lua_pushnumber(L, local_box_left_width(n));
+        } else if (lua_key_eq(s, box_right)) {
+            /* can be: fast_metatable_or_nil(local_box_right(n)) */
+            nodelib_pushlist(L, local_box_right(n));
+        } else if (lua_key_eq(s, box_right_width)) {
+            lua_pushnumber(L, local_box_right_width(n));
+        } else {
+            lua_pushnil(L);
+        }
     } else if (t == whatsit_node) {
         if (lua_key_eq(s, subtype)) {
             lua_pushnumber(L, subtype(n));
@@ -3313,24 +3313,6 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
                 lua_pushnumber(L, user_node_value(n));
                 break;
             }
-        } else {
-            lua_pushnil(L);
-        }
-    } else if (t == local_par_node) {
-        if (lua_key_eq(s, pen_inter)) {
-            lua_pushnumber(L, local_pen_inter(n));
-        } else if (lua_key_eq(s, pen_broken)) {
-            lua_pushnumber(L, local_pen_broken(n));
-        } else if (lua_key_eq(s, dir)) {
-            lua_push_dir_par(L, local_par_dir(n));
-        } else if (lua_key_eq(s, box_left)) {
-            nodelib_pushdirect_or_nil(local_box_left(n));
-        } else if (lua_key_eq(s, box_left_width)) {
-            lua_pushnumber(L, local_box_left_width(n));
-        } else if (lua_key_eq(s, box_right)) {
-            nodelib_pushdirect_or_nil(local_box_right(n));
-        } else if (lua_key_eq(s, box_right_width)) {
-            lua_pushnumber(L, local_box_right_width(n));
         } else {
             lua_pushnil(L);
         }
@@ -3708,6 +3690,24 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             lua_pushnumber(L, dir_dvi_ptr(n));
         } else if (lua_key_eq(s, dir_h)) {
             lua_pushnumber(L, dir_dvi_h(n));
+        } else {
+            lua_pushnil(L);
+        }
+    } else if (t == local_par_node) {
+        if (lua_key_eq(s, pen_inter)) {
+            lua_pushnumber(L, local_pen_inter(n));
+        } else if (lua_key_eq(s, pen_broken)) {
+            lua_pushnumber(L, local_pen_broken(n));
+        } else if (lua_key_eq(s, dir)) {
+            lua_push_dir_par(L, local_par_dir(n));
+        } else if (lua_key_eq(s, box_left)) {
+            nodelib_pushdirect_or_nil(local_box_left(n));
+        } else if (lua_key_eq(s, box_left_width)) {
+            lua_pushnumber(L, local_box_left_width(n));
+        } else if (lua_key_eq(s, box_right)) {
+            nodelib_pushdirect_or_nil(local_box_right(n));
+        } else if (lua_key_eq(s, box_right_width)) {
+            lua_pushnumber(L, local_box_right_width(n));
         } else {
             lua_pushnil(L);
         }
@@ -4618,24 +4618,6 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
         } else {
             return nodelib_cantset(L, n, s);
         }
-    } else if (t == local_par_node) {
-        if (lua_key_eq(s, pen_inter)) {
-            local_pen_inter(n) = (halfword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, pen_broken)) {
-            local_pen_broken(n) = (halfword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, dir)) {
-            local_par_dir(n) = nodelib_getdir(L, 3, 1);
-        } else if (lua_key_eq(s, box_left)) {
-            local_box_left(n) = nodelib_getlist(L, 3);
-        } else if (lua_key_eq(s, box_left_width)) {
-            local_box_left_width(n) = (halfword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, box_right)) {
-            local_box_right(n) = nodelib_getlist(L, 3);
-        } else if (lua_key_eq(s, box_right_width)) {
-            local_box_right_width(n) = (halfword) lua_tointeger(L, 3);
-        } else {
-            return nodelib_cantset(L, n, s);
-        }
     } else if (t == pdf_start_link_node) {
         if (lua_key_eq(s, width)) {
             width(n) = (halfword) lua_tointeger(L, 3);
@@ -4911,6 +4893,24 @@ static int lua_nodelib_fast_setfield(lua_State * L)
             dir_dvi_ptr(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, dir_h)) {
             dir_dvi_h(n) = (halfword) lua_tointeger(L, 3);
+        } else {
+            return nodelib_cantset(L, n, s);
+        }
+    } else if (t == local_par_node) {
+        if (lua_key_eq(s, pen_inter)) {
+            local_pen_inter(n) = (halfword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, pen_broken)) {
+            local_pen_broken(n) = (halfword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, dir)) {
+            local_par_dir(n) = nodelib_getdir(L, 3, 1);
+        } else if (lua_key_eq(s, box_left)) {
+            local_box_left(n) = nodelib_getlist(L, 3);
+        } else if (lua_key_eq(s, box_left_width)) {
+            local_box_left_width(n) = (halfword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, box_right)) {
+            local_box_right(n) = nodelib_getlist(L, 3);
+        } else if (lua_key_eq(s, box_right_width)) {
+            local_box_right_width(n) = (halfword) lua_tointeger(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -5364,24 +5364,6 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
         } else {
             return nodelib_cantset(L, n, s);
         }
-    } else if (t == local_par_node) {
-        if (lua_key_eq(s, pen_inter)) {
-            local_pen_inter(n) = (halfword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, pen_broken)) {
-            local_pen_broken(n) = (halfword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, dir)) {
-            local_par_dir(n) = nodelib_getdir(L, 3, 1);
-        } else if (lua_key_eq(s, box_left)) {
-            local_box_left(n) = nodelib_getlist(L, 3);
-        } else if (lua_key_eq(s, box_left_width)) {
-            local_box_left_width(n) = (halfword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, box_right)) {
-            local_box_right(n) = nodelib_getlist(L, 3);
-        } else if (lua_key_eq(s, box_right_width)) {
-            local_box_right_width(n) = (halfword) lua_tointeger(L, 3);
-        } else {
-            return nodelib_cantset(L, n, s);
-        }
     } else if (t == pdf_start_link_node) {
         if (lua_key_eq(s, width)) {
             width(n) = (halfword) lua_tointeger(L, 3);
@@ -5794,6 +5776,24 @@ static int lua_nodelib_direct_setfield(lua_State * L)
             subtype(n) = (quarterword) lua_tointeger(L, 3);
         } else {
             lua_nodelib_direct_setfield_whatsit(L, n, s);
+        }
+    } else if (t == local_par_node) {
+        if (lua_key_eq(s, pen_inter)) {
+            local_pen_inter(n) = (halfword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, pen_broken)) {
+            local_pen_broken(n) = (halfword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, dir)) {
+            local_par_dir(n) = nodelib_getdir(L, 3, 1);
+        } else if (lua_key_eq(s, box_left)) {
+            local_box_left(n) = nodelib_getlist(L, 3);
+        } else if (lua_key_eq(s, box_left_width)) {
+            local_box_left_width(n) = (halfword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, box_right)) {
+            local_box_right(n) = nodelib_getlist(L, 3);
+        } else if (lua_key_eq(s, box_right_width)) {
+            local_box_right_width(n) = (halfword) lua_tointeger(L, 3);
+        } else {
+            return nodelib_cantset(L, n, s);
         }
     } else if (t == simple_noad) {
         if (lua_key_eq(s, subtype)) {

@@ -292,7 +292,7 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
 int visible_last_node_type(int n)
 {
     int i = type(n);
-    if (i == whatsit_node && subtype(n) == local_par_node)
+    if (i == local_par_node)
         return -1;
     if (i == glyph_node) {
         if (is_ligature(n))

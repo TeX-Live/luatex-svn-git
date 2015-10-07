@@ -544,9 +544,6 @@ void close_files_and_terminate(void)
     case OMODE_DVI:
         finish_dvi_file(pdf, luatex_version, get_luatexrevision());
         break;
-    case OMODE_LUA:
-        finish_lua_file(pdf);
-        break;
     default:
         assert(0);
     }

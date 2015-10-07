@@ -575,7 +575,7 @@ void ext_post_line_break(int paragraph_dir,
                     q = vlink(r);
                     if (q == cur_break(cur_p) || is_char_node(q))
                         break;
-                    if (!((type(q) == whatsit_node) && (subtype(q) == local_par_node))) {
+                    if (!((type(q) == local_par_node))) {
                         if (non_discardable(q) || (type(q) == kern_node && subtype(q) != explicit))
                             break;
                     }

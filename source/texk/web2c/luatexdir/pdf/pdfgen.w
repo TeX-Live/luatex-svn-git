@@ -146,14 +146,12 @@ PDF init_pdf_struct(PDF pdf)
     memset(pdf->os, 0, sizeof(os_struct));
     os->buf[PDFOUT_BUF] = new_strbuf(inf_pdfout_buf_size, sup_pdfout_buf_size);
     os->buf[OBJSTM_BUF] = new_strbuf(inf_objstm_buf_size, sup_objstm_buf_size);
-    os->buf[LUASTM_BUF] = new_strbuf(0, 0);
     os->obj = xtalloc(PDF_OS_MAX_OBJS, os_obj_data);
     os->cur_objstm = 0;
-    os->trigger_luastm = false;
 
     os->curbuf = PDFOUT_BUF;
     pdf->buf = os->buf[os->curbuf];
-    
+
     /* Later  ttf_seek_outbuf(TABDIR_OFF + n * 4 * TTF_ULONG_SIZE) */
     /* in ttf_init_font will need 236 bytes, so we start with 256 bytes as in pdftex. */
     pdf->fb = new_strbuf(256, 100000000);
@@ -235,20 +233,14 @@ static output_mode get_o_mode(void)
 {
     output_mode o_mode;
     if (pdf_output > 0) {
-    /* ls-hh: for the moment disabled ... incomplete old experiment */
-    /* 
-        if (pdf_output == 2009)
-            o_mode = OMODE_LUA;
-        else
-    */
-            o_mode = OMODE_PDF;
+        o_mode = OMODE_PDF;
     } else
         o_mode = OMODE_DVI;
     return o_mode;
 }
 
 @ |fix_o_mode| freezes |pdf->o_mode| as soon as anything goes through
-the backend, be it \.{PDF}, \.{DVI}, or \.{Lua}.
+the backend, be it \.{PDF} or \.{DVI}.
 
 @c
 void fix_o_mode(PDF pdf)
@@ -415,10 +407,6 @@ void pdf_flush(PDF pdf)
         if (saved_pdf_gone > pdf->gone)
             pdf_error("file size", "File size exceeds architectural limits (pdf_gone wraps around)");
         break;
-    case LUASTM_BUF:
-        luaL_addsize(&(os->b), strbuf_offset(pdf->buf));
-        pdf->buf->p = pdf->buf->data = (unsigned char *) luaL_prepbuffer(&(os->b));     /* for next stream piece */
-        break;
     case OBJSTM_BUF:
         break;
     default:
@@ -444,7 +432,6 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
 {
     os_struct *os = pdf->os;
     strbuf_s *obuf = os->buf[OBJSTM_BUF];
-    assert(os->curbuf != LUASTM_BUF);
     assert(pdf_os_threshold >= OBJSTM_ALWAYS);
     if (pdf->objcompresslevel >= pdf_os_threshold)
         pdf_buffer_select(pdf, OBJSTM_BUF);
@@ -455,9 +442,6 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
     case PDFOUT_BUF:
         obj_offset(pdf, k) = pdf_offset(pdf);
         obj_os_idx(pdf, k) = PDF_OS_MAX_OBJS;   /* mark it as not included in any ObjStm */
-        break;
-    case LUASTM_BUF:
-        assert(0);
         break;
     case OBJSTM_BUF:
         if (os->cur_objstm == 0) {
@@ -499,11 +483,6 @@ void pdf_room(PDF pdf, int n)
             strbuf_room(buf, (size_t) n);       /* grow it if possible */
         else
             pdf_flush(pdf);
-        break;
-    case LUASTM_BUF:
-        if ((size_t) n > buf->size)
-            overflow("PDF output buffer", (unsigned) buf->size);
-        pdf_flush(pdf);
         break;
     case OBJSTM_BUF:
         strbuf_room(buf, (size_t) n);   /* just grow it */
@@ -635,23 +614,12 @@ void pdf_print_str(PDF pdf, const char *s)
 void pdf_begin_stream(PDF pdf)
 {
     os_struct *os = pdf->os;
-    strbuf_s *lbuf = os->buf[LUASTM_BUF];
     assert(os->curbuf == PDFOUT_BUF);
     assert(pdf->buf == os->buf[os->curbuf]);
     assert(pdf->zip_write_state == NO_ZIP);
     pdf_puts(pdf, "\nstream\n");
     pdf_save_offset(pdf);
     pdf_flush(pdf);
-
-    if (callback_defined(pdf_stream_filter_callback)) {
-    /*if (os->trigger_luastm) {*/
-        os->trigger_luastm = false;     /* this was just a trigger */
-        luaL_buffinit(Luas, &(os->b));
-        lbuf->p = lbuf->data = (unsigned char *) luaL_prepbuffer(&(os->b));
-        lbuf->size = lbuf->limit = LUAL_BUFFERSIZE;
-        os->curbuf = LUASTM_BUF;
-        pdf->buf = os->buf[os->curbuf];
-    }
     if (pdf->stream_deflate) {
         assert(pdf->compress_level > 0);
         pdf->zip_write_state = ZIP_WRITING;
@@ -674,9 +642,6 @@ void pdf_end_stream(PDF pdf)
 
 
     os_struct *os = pdf->os;
-    /*  Old code,                             */
-    /*  strbuf_s *lbuf = os->buf[LUASTM_BUF]; */
-    strbuf_const_s *lbuf = (strbuf_const_s * )os->buf[LUASTM_BUF];
     const_lstring ls;
     int callback_id ;
     assert(pdf->buf == os->buf[os->curbuf]);
@@ -685,33 +650,6 @@ void pdf_end_stream(PDF pdf)
         if (pdf->zip_write_state == ZIP_WRITING)
             pdf->zip_write_state = ZIP_FINISH;
         pdf_flush(pdf);         /* sets pdf->last_byte */
-        break;
-    case LUASTM_BUF:
-        luaL_addsize(&(os->b), strbuf_offset(os->buf[LUASTM_BUF]));
-        luaL_pushresult(&(os->b));
-        /* now the complete page stream is on the Lua stack */
-        /* TODO: pagestream filter callback here */
-
-        callback_id = callback_defined(pdf_stream_filter_callback);
-        if (callback_id > 0) {
-            run_callback(callback_id, "S->S");
-        }
-
-        ls.s = lua_tolstring(Luas, -1, &ls.l);
-        /* lbuf->data = (unsigned char *) ls.s; */
-        lbuf->data = (unsigned const char *) ls.s;
-        lbuf->p = lbuf->data + ls.l;
-        os->curbuf = LUASTM_BUF;
-        pdf->buf = os->buf[os->curbuf];
-        if (pdf->zip_write_state == ZIP_WRITING) {
-            pdf->zip_write_state = ZIP_FINISH;
-            write_zip(pdf);
-        } else
-            write_nozip(pdf);
-        lua_pop(Luas, 1);
-        os->curbuf = PDFOUT_BUF;
-        pdf->buf = os->buf[os->curbuf];
-        assert(pdf->buf->data == pdf->buf->p);
         break;
     case OBJSTM_BUF:
         assert(0);
@@ -1128,8 +1066,6 @@ void ensure_output_state(PDF pdf, output_state s)
             case OMODE_PDF:
                 ensure_output_file_open(pdf, ".pdf");
                 break;
-            case OMODE_LUA:
-                break;
             default:
                 assert(0);
             }
@@ -1141,8 +1077,6 @@ void ensure_output_state(PDF pdf, output_state s)
                 break;
             case OMODE_PDF:
                 ensure_pdf_header_written(pdf);
-                break;
-            case OMODE_LUA:
                 break;
             default:
                 assert(0);
@@ -1377,9 +1311,6 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
     case PDFOUT_BUF:
         pdf_printf(pdf, "%d 0 obj\n", (int) i);
         break;
-    case LUASTM_BUF:
-        assert(0);
-        break;
     case OBJSTM_BUF:
         if (pdf->compress_level == 0)
             pdf_printf(pdf, "%% %d 0 obj\n", (int) i);  /* debugging help */
@@ -1399,9 +1330,6 @@ void pdf_end_obj(PDF pdf)
     switch (os->curbuf) {
     case PDFOUT_BUF:
         pdf_puts(pdf, "\nendobj\n");    /* end a PDF object */
-        break;
-    case LUASTM_BUF:
-        assert(0);
         break;
     case OBJSTM_BUF:
         os->idx++;              /* = number of objects collected so far in ObjStm */
@@ -1750,9 +1678,6 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
         case OMODE_PDF:
             m = "PDF";
             break;
-        case OMODE_LUA:
-            m = "Lua";
-            break;
         default:
             assert(0);
         }
@@ -1880,7 +1805,6 @@ void pdf_begin_page(PDF pdf)
     /* Start stream of page/form contents */
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
-    pdf->os->trigger_luastm = false;    /* if it's true, the page stream goes through Lua */
     pdf_begin_stream(pdf);
     if (global_shipping_mode == SHIPPING_PAGE) {
         /* Adjust transformation matrix for the magnification ratio */
@@ -1932,10 +1856,10 @@ const char *get_pdf_table_string(const char *s)
     lua_rawget(Luas, -2);     /* s? t ... */
     if (lua_isstring(Luas, -1)) {       /* s t ... */
         ls.s = lua_tolstring(Luas, -1, &ls.l);
-	/*  s is  supposed to be anchored (e.g in the registry)
-	    so it's not garbage collected */
+    /*  s is  supposed to be anchored (e.g in the registry)
+        so it's not garbage collected */
         lua_pop(Luas, 2);           /* ... */
-	return ls.s;
+        return ls.s;
     }
     lua_pop(Luas, 2);           /* ... */
     return NULL ;

@@ -2245,9 +2245,7 @@ static int tex_run_linebreak(lua_State * L)
     j = check_isnode(L, 1);     /* the value */
     vlink(temp_head) = *j;
     p = *j;
-    if ((!is_char_node(vlink(*j)))
-        && ((type(vlink(*j)) == whatsit_node)
-            && (subtype(vlink(*j)) == local_par_node))) {
+    if ((!is_char_node(vlink(*j))) && ((type(vlink(*j)) == local_par_node))) {
         paragraph_dir = local_par_dir(vlink(*j));
     }
 

@@ -93,15 +93,6 @@ static void init_dvi_backend_functions(void)
     p->whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
 }
 
-@ @c
-static void init_lua_backend_functions(void)
-{
-    backend_struct *p = &backend[OMODE_LUA];
-    p->name = strdup("Lua");
-    p->node_fu[rule_node] = &lua_place_rule;    /* 2 */
-    p->node_fu[glyph_node] = &lua_place_glyph;  /* 37 */
-    p->whatsit_fu[late_lua_node] = &late_lua;   /* 35 */
-}
 
 @ @c
 void init_backend_functionpointers(output_mode o_mode)
@@ -122,7 +113,6 @@ void init_backend_functionpointers(output_mode o_mode)
         init_none_backend_functions();
         init_dvi_backend_functions();
         init_pdf_backend_functions();
-        init_lua_backend_functions();
     }
     backend_out = backend[o_mode].node_fu;
     backend_out_whatsit = backend[o_mode].whatsit_fu;
@@ -294,7 +284,6 @@ void out_what(PDF pdf, halfword p)
             }
         }
         break;
-    case local_par_node:
     case cancel_boundary_node:
     case user_defined_node:
         break;

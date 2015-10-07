@@ -184,9 +184,7 @@ void line_break(boolean d, int line_break_context)
         }
     }
     if (callback_id == 0) {
-        if ((!is_char_node(vlink(temp_head)))
-            && ((type(vlink(temp_head)) == whatsit_node)
-                && (subtype(vlink(temp_head)) == local_par_node)))
+        if ((!is_char_node(vlink(temp_head))) && ((type(vlink(temp_head)) == local_par_node)))
             paragraph_dir = local_par_dir(vlink(temp_head));
         else
             assert(0);              /* |paragraph_dir = 0|; */
@@ -217,8 +215,8 @@ void line_break(boolean d, int line_break_context)
                           int_par(inter_line_penalty_code),
                           int_par(club_penalty_code),
                           equiv(club_penalties_loc),
-			  (d ? equiv(display_widow_penalties_loc) : equiv(widow_penalties_loc)),
-			  (d ? int_par(display_widow_penalty_code) : int_par(widow_penalty_code)),
+                          (d ? equiv(display_widow_penalties_loc) : equiv(widow_penalties_loc)),
+                          (d ? int_par(display_widow_penalty_code) : int_par(widow_penalty_code)),
                           int_par(broken_penalty_code),
                           final_par_glue);
     }
@@ -1801,9 +1799,8 @@ ext_do_line_break(int paragraph_dir,
         auto_breaking = true;
         cur_p = vlink(temp_head);
         /* LOCAL: Initialize with first |local_paragraph| node */
-        if ((cur_p != null) && (type(cur_p) == whatsit_node)
-            && (subtype(cur_p) == local_par_node)) {
-	    alink(cur_p) = temp_head; /* this used to be an assert, but may as well force it */
+        if ((cur_p != null) && (type(cur_p) == local_par_node)) {
+            alink(cur_p) = temp_head; /* this used to be an assert, but may as well force it */
             internal_pen_inter = local_pen_inter(cur_p);
             internal_pen_broken = local_pen_broken(cur_p);
             init_internal_left_box = local_box_left(cur_p);
@@ -1880,17 +1877,17 @@ ext_do_line_break(int paragraph_dir,
                         line_break_dir = dir_dir(dir_ptr);
                 }
                 break;
+            case local_par_node:   /* LOCAL: Advance past a |local_paragraph| node; */
+                internal_pen_inter = local_pen_inter(cur_p);
+                internal_pen_broken = local_pen_broken(cur_p);
+                internal_left_box = local_box_left(cur_p);
+                internal_left_box_width = local_box_left_width(cur_p);
+                internal_right_box = local_box_right(cur_p);
+                internal_right_box_width = local_box_right_width(cur_p);
+                break;
             case whatsit_node:
                 /* Advance past a whatsit node in the |line_break| loop; */
                 switch (subtype(cur_p)) {
-                case local_par_node:   /* LOCAL: Advance past a |local_paragraph| node; */
-                    internal_pen_inter = local_pen_inter(cur_p);
-                    internal_pen_broken = local_pen_broken(cur_p);
-                    internal_left_box = local_box_left(cur_p);
-                    internal_left_box_width = local_box_left_width(cur_p);
-                    internal_right_box = local_box_right(cur_p);
-                    internal_right_box_width = local_box_right_width(cur_p);
-                    break;
                 case pdf_refxform_node:
                 case pdf_refximage_node:
                     active_width[1] += width(cur_p);

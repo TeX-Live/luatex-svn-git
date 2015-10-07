@@ -21,12 +21,19 @@
 #ifndef DIRECTIONS_H
 #  define DIRECTIONS_H
 
+/* hh: this will become just (i'll do bit that with taco):
+
+positive: 0 1 2 3
+negative: 8 9 A B
+
+*/
+
 #  define dir_TLT  0
 #  define dir_TRT  4
 #  define dir_LTL  9
 #  define dir_RTT  24
 
-extern const char *dir_strings[128]; /* will go */
+extern const char *dir_strings[128]; /* can be less or can even go */
 
 #  define is_mirrored(a) 0
 

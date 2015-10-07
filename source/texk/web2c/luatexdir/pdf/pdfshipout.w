@@ -185,7 +185,6 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             dvi = refpoint.pos;
             break;
         case OMODE_PDF:
-        case OMODE_LUA:
             refpoint.pos.h = pdf_h_origin;
             refpoint.pos.v = pdf->page_size.v - pdf_v_origin;
             break;
@@ -270,10 +269,6 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     case OMODE_PDF:
         pdf_begin_page(pdf);
         break;
-    case OMODE_LUA:
-        assert(shipping_mode == SHIPPING_PAGE);
-        lua_begin_page(pdf);
-        break;
     default:
         assert(0);
     }
@@ -301,9 +296,6 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         break;
     case OMODE_PDF:
         pdf_end_page(pdf);
-        break;
-    case OMODE_LUA:
-        lua_end_page(pdf);
         break;
     default:
         assert(0);

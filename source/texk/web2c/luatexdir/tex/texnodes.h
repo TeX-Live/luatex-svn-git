@@ -284,8 +284,8 @@ typedef enum {
     ins_node,
     mark_node,
     adjust_node,
-    dir_node,                   /* 6 used to be ligatures */
-    disc_node,
+    /* 6 used to be ligatures */
+    disc_node = 7,
     whatsit_node,
     math_node,
     glue_node,                  /* 10 */
@@ -337,9 +337,11 @@ typedef enum {
     delta_node,
     passive_node,
     shape_node,
+    dir_node,
+    local_par_node,
 } node_types;
 
-#  define MAX_NODE_TYPE 58
+#  define MAX_NODE_TYPE 60
 
 #  define last_known_node temp_node     /* used by \lastnodetype */
 
@@ -439,9 +441,9 @@ typedef enum {
     special_node,
     /*language_node,              OBSOLETE*/
     /*set_language_code,          OBSOLETE*/
-    local_par_node=6,
+    /* was localpar */
     /* was dir */
-    pdf_literal_node=8,
+    pdf_literal_node = 8,
     pdf_obj_code,
     pdf_refobj_node,            /* 10 */
     pdf_xform_code,
@@ -469,7 +471,7 @@ typedef enum {
     set_random_seed_code,
     pdf_glyph_to_unicode_code,
     late_lua_node,              /* 35 */
-    save_cat_code_table_code =37,
+    save_cat_code_table_code = 37,
     init_cat_code_table_code,
     pdf_colorstack_node,
     pdf_setmatrix_node,         /*40 */
@@ -705,12 +707,14 @@ extern pointer actual_box_width(pointer r, scaled base_width);
    quite the same as in tex82 */
 
 /*
+
 #  define precedes_break(a) (type((a))<math_node && \
                             (type(a)!=whatsit_node || (subtype(a)!=dir_node && subtype(a)!=local_par_node)))
 */
 
-#  define precedes_break(a) (type((a))<math_node && \
-                            (type(a)!=whatsit_node || (subtype(a)!=local_par_node)))
+/* so what comes before math (as we have put dir_node and local_par_node to the end) */
+
+#  define precedes_break(a) (type((a))<math_node)
 
 #  define non_discardable(a) (type((a))<math_node)
 
@@ -804,6 +808,14 @@ extern halfword new_penalty(int m);
 extern int lua_properties_enabled ;
 extern int lua_properties_level ;
 extern int lua_properties_use_metatable ;
+
+#define local_inter_line_penalty int_par(local_inter_line_penalty_code)
+#define local_broken_penalty int_par(local_broken_penalty_code)
+#define local_left_box equiv(local_left_box_base)
+#define local_right_box equiv(local_right_box_base)
+#define par_direction int_par(par_direction_code)
+
+extern halfword make_local_par_node(void);
 
 #endif
 

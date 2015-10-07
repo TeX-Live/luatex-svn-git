@@ -36,14 +36,7 @@
 #define box(A) eqtb[box_base+(A)].hh.rh
 #define global_defs int_par(global_defs_code)
 #define cat_code_table int_par(cat_code_table_code)
-#define par_direction int_par(par_direction_code)
 #define toks(A) equiv(toks_base+(A))
-
-#define local_inter_line_penalty int_par(local_inter_line_penalty_code)
-#define local_broken_penalty int_par(local_broken_penalty_code)
-#define local_left_box equiv(local_left_box_base)
-#define local_right_box equiv(local_right_box_base)
-
 
 @ The program above includes a bunch of ``hooks'' that allow further
 capabilities to be added without upsetting \TeX's basic structure.
@@ -555,7 +548,7 @@ void scan_pdf_ext_toks(void)
 
 @  We need to check whether the referenced object exists.
 
-finds the node preceding the rightmost node |e|; |s| is some node before |e| 
+finds the node preceding the rightmost node |e|; |s| is some node before |e|
 @c
 halfword prev_rightmost(halfword s, halfword e)
 {
@@ -586,7 +579,7 @@ int pdf_last_ximage_pages;
 int pdf_last_ximage_colordepth;
 int pdf_last_annot;
 
-@ pdflastlink needs an extra global variable 
+@ pdflastlink needs an extra global variable
 
 @c
 int pdf_last_link;
@@ -612,30 +605,6 @@ halfword concat_tokens(halfword q, halfword r)
 
 @ @c
 int pdf_retval;                 /* global multi-purpose return value */
-
-@ @c
-halfword make_local_par_node(void)
-/* This function creates a |local_paragraph| node */
-{
-    halfword p, q;
-    p = new_node(whatsit_node, local_par_node);
-    local_pen_inter(p) = local_inter_line_penalty;
-    local_pen_broken(p) = local_broken_penalty;
-    if (local_left_box != null) {
-        q = copy_node_list(local_left_box);
-        local_box_left(p) = q;
-        local_box_left_width(p) = width(local_left_box);
-    }
-    if (local_right_box != null) {
-        q = copy_node_list(local_right_box);
-        local_box_right(p) = q;
-        local_box_right_width(p) = width(local_right_box);
-    }
-    local_par_dir(p) = par_direction;
-    return p;
-}
-
-
 
 @ The \eTeX\ features available in extended mode are grouped into two
 categories:  (1)~Some of them are permanently enabled and have no
@@ -1209,7 +1178,7 @@ int shellenabledp;
 int restrictedshell;
 char *output_comment;
 
-@ Are we printing extra info as we read the format file? 
+@ Are we printing extra info as we read the format file?
 
 @c
 boolean debug_format_file;
