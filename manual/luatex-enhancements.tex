@@ -1,0 +1,708 @@
+\environment luatex-style
+\environment luatex-logos
+
+\startcomponent luatex-enhancements
+
+\startchapter[reference=enhancements,title={Basic \TEX\ enhancements}]
+
+\section{Introduction}
+
+From day one, \LUATEX\ has offered extra features compared to the superset of
+\PDFTEX\ and \ALEPH. That has not been limited to the possibility to execute
+\LUA\ code via \type {\directlua}, but \LUATEX\ also adds functionality via new
+\TEX-side primitives.
+
+When \LUATEX\ starts up in \quote {iniluatex} mode (\type {luatex -ini}), it
+defines only the primitive commands known by \TEX82 and the one extra command
+\type {\directlua}. As is fitting, a \LUA\ function has to be called to add the
+extra primitives to the user environment. The simplest method to get access to
+all of the new primitive commands is by adding this line to the format generation
+file:
+
+\starttyping
+\directlua { tex.enableprimitives('',tex.extraprimitives()) }
+\stoptyping
+
+But be aware that the curly braces may not have the proper \type {\catcode}
+assigned to them at this early time (giving a \quote {Missing number} error), so
+it may be needed to put these assignments before the above line:
+
+\starttyping
+\catcode `\{=1
+\catcode `\}=2
+\stoptyping
+
+More fine-grained primitives control is possible, you can look up the details in
+\in {section} [luaprimitives]. For simplicity's sake, this manual assumes that you
+have executed the \type {\directlua} command as given above.
+
+The startup behavior documented above is considered stable in the sense that
+there will not be backward|-|incompatible changes any more. However, we can
+decide to promite some primitives to the \LUATEX\ namespace. For instance, after
+version 0.80.1 we promoted some rather generic \PDFTEX\ primitives to core
+\LUATEX\ ones, and the ones inherited frome \ALEPH\ (\OMEGA) are also promoted.
+Effectively this means that we now have the \type {tex}, \type {etex}, \type
+{luatex} and \type {pdftex} (sub)sets left.
+
+\section{Version information}
+
+There are three new primitives to test the version of \LUATEX:
+
+\starttabulate[|l|p|p|]
+\NC \bf primitive           \NC \bf explanation                           \NC \bf value          \NC \NR
+\NC \type {\luatexbanner}   \NC the banner reported on the command line   \NC \luatexbanner      \NC \NR
+\NC \type {\luatexversion}  \NC a combination of major and minor number   \NC \the\luatexversion \NC \NR
+\NC \type {\luatexrevision} \NC the revision number, the current value is \NC \luatexrevision    \NC \NR
+\stoptabulate
+
+The official \LUATEX\ version is defined as follows:
+
+\startitemize
+\startitem
+    The major version is the integer result of \type {\luatexversion} divided by
+    100. The primitive is an \quote {internal variable}, so you may need to prefix
+    its use with \type {\the} depending on the context.
+\stopitem
+\startitem
+    The minor version is the two-digit result of \type {\luatexversion} modulo 100.
+\stopitem
+\startitem
+    The revision is the given by \type {\luatexrevision}. This primitive expands to
+    a positive integer.
+\stopitem
+\startitem
+    The full version number consists of the major version, minor version and
+    revision, separated by dots.
+\stopitem
+\stopitemize
+
+\section{\UNICODE\ text support}
+
+Text input and output is now considered to be \UNICODE\ text, so input characters
+can use the full range of \UNICODE\ ($2^{20}+2^{16}-1 = \hbox{0x10FFFF}$). Later
+chapters will talk of characters and glyphs. Although these are not
+interchangeable, they are closely related. During typesetting, a character is
+always converted to a suitable graphic representation of that character in a
+specific font. However, while processing a list of to|-|be|-|typeset nodes, its
+contents may still be seen as a character. Inside \LUATEX\ there is no clear
+separation between the two concepts. Because the subtype of a glyph node can be
+changed in \LUA\ it is lso up to the user.
+
+A few primitives are affected by this, all in a similar fashion: each of them has
+to accommodate for a larger range of acceptable numbers. For instance, \type
+{\char} now accepts values between~0 and $1{,}114{,}111$. This should not be a
+problem for well|-|behaved input files, but it could create incompatibilities for
+input that would have generated an error when processed by older \TEX|-|based
+engines. The affected commands with an altered initial (left of the equals sign)
+or secondary (right of the equals sign) value are: \type {\char}, \type
+{\lccode}, \type {\uccode}, \type {\catcode}, \type {\sfcode}, \type {\efcode},
+\type {\lpcode}, \type {\rpcode}, \type {\chardef}.
+
+As far as the core engine is concerned, all input and output to text files is
+\UTF-8 encoded. Input files can be pre|-|processed using the \type {reader}
+callback. This will be explained in a later chapter.
+
+Output in byte|-|sized chunks can be achieved by using characters just outside of
+the valid \UNICODE\ range, starting at the value $1{,}114{,}112$ (0x110000). When
+the time comes to print a character $c>=1{,}114{,}112$, \LUATEX\ will actually
+print the single byte corresponding to $c$ minus 1{,}114{,}112.
+
+Output to the terminal uses \type {^^} notation for the lower control range
+($c<32$), with the exception of \type {^^I}, \type {^^J} and \type {^^M}. These
+are considered \quote {safe} and therefore printed as-is.
+
+Normalization of the \UNICODE\ input can be handled by a macro package during
+callback processing (this will be explained in \in{section}[iocallback]).
+
+\section{Extended tables}
+
+All traditional \TEX\ and \ETEX\ registers can be 16-bit numbers. The affected
+commands are:
+
+\startfourcolumns
+\starttyping
+\count
+\dimen
+\skip
+\muskip
+\marks
+\toks
+\countdef
+\dimendef
+\skipdef
+\muskipdef
+\toksdef
+\insert
+\box
+\unhbox
+\unvbox
+\copy
+\unhcopy
+\unvcopy
+\wd
+\ht
+\dp
+\setbox
+\vsplit
+\stoptyping
+\stopfourcolumns
+
+The glyph properties \type {\efcode}, \type {\lpcode} and \type {\rpcode},
+introduced in \PDFTEX\ that deal with font expansion (hz) and character
+protruding, are also 16-bit. Because font memory management has been rewritten,
+these character properties are no longer shared among fonts instances that
+originate from the same metric file.
+
+\section{Attributes}
+
+\subsection{Attribute registers}
+
+Attributes are a completely new concept in \LUATEX. Syntactically, they behave a
+lot like counters: attributes obey \TEX's nesting stack and can be used after
+\type {\the} etc.\ just like the normal \type {\count} registers.
+
+\startsyntax
+\attribute <16-bit number> <optional equals> <32-bit number>!crlf
+\attributedef <csname> <optional equals> <16-bit number>
+\stopsyntax
+
+Conceptually, an attribute is either \quote {set} or \quote {unset}. Unset
+attributes have a special negative value to indicate that they are unset, that
+value is the lowest legal value: \type {-"7FFFFFFF} in hexadecimal, a.k.a.
+$-2147483647$ in decimal. It follows that the value \type {-"7FFFFFFF} cannot be
+used as a legal attribute value, but you {\it can\/} assign \type {-"7FFFFFFF} to
+\quote {unset} an attribute. All attributes start out in this \quote {unset}
+state in \INITEX.
+
+Attributes can be used as extra counter values, but their usefulness comes mostly
+from the fact that the numbers and values of all \quote {set} attributes are
+attached to all nodes created in their scope. These can then be queried from any
+\LUA\ code that deals with node processing. Further information about how to use
+attributes for node list processing from \LUA\ is given in~\in {chapter}[nodes].
+
+\subsection{Box attributes}
+
+Nodes typically receive the list of attributes that is in effect when they are
+created. This moment can be quite asynchronous. For example: in paragraph
+building, the individual line boxes are created after the \type {\par} command has
+been processed, so they will receive the list of attributes that is in effect
+then, not the attributes that were in effect in, say, the first or third line of
+the paragraph.
+
+Similar situations happen in \LUATEX\ regularly. A few of the more obvious
+problematic cases are dealt with: the attributes for nodes that are created
+during hyphenation, kerning and ligaturing borrow their attributes from their
+surrounding glyphs, and it is possible to influence box attributes directly.
+
+When you assemble a box in a register, the attributes of the nodes contained in
+the box are unchanged when such a box is placed, unboxed, or copied. In this
+respect attributes act the same as characters that have been converted to
+references to glyphs in fonts. For instance, when you use attributes to implement
+color support, each node carries information about its eventual color. In that
+case, unless you implement mechanisms that deal with it, applying a color to
+already boxed material will have no effect. Keep in mind that this
+incompatibility is mostly due to the fact that separate specials and literals are
+a more unnatural approach to colors than attributes.
+
+It is possible to fine-tune the list of attributes that are applied to a \type
+{hbox}, \type {vbox} or \type {vtop} by the use of the keyword \type {attr}. An
+example:
+
+\starttyping
+\attribute2=5
+\setbox0=\hbox {Hello}
+\setbox2=\hbox attr1=12 attr2=-"7FFFFFFF{Hello}
+\stoptyping
+
+This will set the attribute list of box~2 to $1=12$, and the attributes of box~0
+will be $2=5$. As you can see, assigning the maximum negative value causes an
+attribute to be ignored.
+
+The \type {attr} keyword(s) should come before a \type {to} or \type {spread}, if
+that is also specified.
+
+\section{\LUA\ related primitives}
+
+\subsection{\type {\directlua}}
+
+In order to merge \LUA\ code with \TEX\ input, a few new primitives are needed.
+The primitive \type {\directlua} is used to execute \LUA\ code immediately. The
+syntax is
+
+\startsyntax
+\directlua <general text>!crlf
+\directlua name <general text> <general text>!crlf
+\directlua <16-bit number> <general text>
+\stopsyntax
+
+The last \syntax {<general text>} is expanded fully, and then fed into the \LUA\
+interpreter. After reading and expansion has been applied to the \syntax
+{<general text>}, the resulting token list is converted to a string as if it was
+displayed using \type {\the\toks}. On the \LUA\ side, each \type {\directlua}
+block is treated as a separate chunk. In such a chunk you can use the \type
+{local} directive to keep your variables from interfering with those used by the
+macro package.
+
+The conversion to and from a token list means that you normally can not use \LUA\
+line comments (starting with \type {--}) within the argument. As there typically
+will be only one \quote {line} the first line comment will run on until the end
+of the input. You will either need to use \TEX|-|style line comments (starting
+with \%), or change the \TEX\ category codes locally. Another possibility is to
+say:
+
+\starttyping
+\begingroup
+\endlinechar=10
+\directlua ...
+\endgroup
+\stoptyping
+
+Then \LUA\ line comments can be used, since \TEX\ does not replace line endings
+with spaces.
+
+The \syntax {name <general text>} specifies the name of the \LUA\ chunk, mainly
+shown in the stack backtrace of error messages created by \LUA\ code. The \syntax
+{<general text>} is expanded fully, thus macros can be used to generate the chunk
+name, i.e.
+
+\starttyping
+\directlua name{\jobname:\the\inputlineno} ...
+\stoptyping
+
+to include the name of the input file as well as the input line into the chunk
+name.
+
+Likewise, the \syntax {<16-bit number>} designates a name of a \LUA\ chunk, but
+in this case the name will be taken from the \type {lua.name} array (see the
+documentation of the \type {lua} table further in this manual).
+
+The chunk name should not start with a \type {@}, or it will be displayed as a
+file name (this is a quirk in the current \LUA\ implementation).
+
+The \type {\directlua} command is expandable. Since it passes \LUA\ code to the
+\LUA\ interpreter its expansion from the \TEX\ viewpoint is usually empty.
+However, there are some \LUA\ functions that produce material to be read by \TEX,
+the so called print functions. The most simple use of these is \type
+{tex.print(<string> s)}. The characters of the string \type {s} will be placed on
+the \TEX\ input buffer, that is, \quote {before \TEX's eyes} to be read by \TEX\
+immediately. For example:
+
+\startbuffer
+\count10=20
+a\directlua{tex.print(tex.count[10]+5)}b
+\stopbuffer
+
+\typebuffer
+
+expands to
+
+\getbuffer
+
+Here is another example:
+
+\startbuffer
+$\pi = \directlua{tex.print(math.pi)}$
+\stopbuffer
+
+\typebuffer
+
+will result in
+
+\getbuffer
+
+Note that the expansion of \type {\directlua} is a sequence of characters, not of
+tokens, contrary to all \TEX\ commands. So formally speaking its expansion is
+null, but it places material on a pseudo-file to be immediately read by \TEX, as
+\ETEX's \type {\scantokens}. For a description of print functions look at \in
+{section} [sec:luaprint].
+
+Because the \syntax {<general text>} is a chunk, the normal \LUA\ error handling
+is triggered if there is a problem in the included code. The \LUA\ error messages
+should be clear enough, but the contextual information is still pretty bad.
+Often, you will only see the line number of the right brace at the end of the
+code.
+
+While on the subject of errors: some of the things you can do inside \LUA\ code
+can break up \LUATEX\ pretty bad. If you are not careful while working with the
+node list interface, you may even end up with assertion errors from within the
+\TEX\ portion of the executable.
+
+The behavior documented in the above subsection is considered stable in the sense
+that there will not be backward-incompatible changes any more.
+
+\subsection{\type {\latelua}}
+
+\type {\latelua} stores \LUA\ code in a whatsit that will be processed at the time
+of shipping out. Its intended use is a cross between \type {\pdfliteral} and
+\type {\write}. Within the \LUA\ code you can print \PDF\ statements directly to the
+\PDF\ file via \type {pdf.print}, or you can write to other output streams via
+\type {texio.write} or simply using \LUA\ I/O routines.
+
+\startsyntax
+\latelua <general text>!crlf
+\latelua name <general text> <general text>!crlf
+\latelua <16-bit number> <general text>
+\stopsyntax
+
+Expansion of macros etcetera in the final \type {<general text>} is delayed until
+just before the whatsit is executed (like in \type {\write}). With regard to \PDF\
+output stream \type {\latelua} behaves as \type {\pdfliteral page}. The \syntax {name
+<general text>} and \syntax {<16-bit number>} behave in the same way as they do
+for \type {\directlua}
+
+\subsection{\type {\luaescapestring}}
+
+This primitive converts a \TEX\ token sequence so that it can be safely used as
+the contents of a \LUA\ string: embedded backslashes, double and single quotes,
+and newlines and carriage returns are escaped. This is done by prepending an
+extra token consisting of a backslash with category code~12, and for the line
+endings, converting them to \type {n} and \type {r} respectively. The token
+sequence is fully expanded.
+
+\startsyntax
+\luaescapestring <general text>
+\stopsyntax
+
+Most often, this command is not actually the best way to deal with the
+differences between the \TEX\ and \LUA. In very short bits of \LUA\
+code it is often not needed, and for longer stretches of \LUA\ code it
+is easier to keep the code in a separate file and load it using \LUA's
+\type {dofile}:
+
+\starttyping
+\directlua { dofile('mysetups.lua') }
+\stoptyping
+
+\subsection{\type {\luafunction}}
+
+The \type {\directlua} commands involves tokenization of its argument (after
+picking up an optional name or number specification). The tokenlist is then
+converted into a string and given to \LUA\ to turn into a function that is
+called. The overhead is rather small but when you use this primitive hundreds or
+thousands of times, it can become noticeable. For this reason there is a variant
+call available: \type {\luafunction}. This command is used as follows:
+
+\starttyping
+\directlua {
+    local t = lua.get_functions_table()
+    t[1] = function() tex.print("!") end
+    t[2] = function() tex.print("?") end
+}
+
+\luafunction1
+\luafunction2
+\stoptyping
+
+Of course the functions can also be defined in a separate file. There is no limit
+on the number of functions apart from normal \LUA\ limitations. Of course there
+is the limitation of no arguments but that would involve parsing and thereby give
+no gain. The function, when called in fact gets one argument, being the index, so
+in the following example the number \type {8} gets typeset.
+
+\starttyping
+\directlua {
+    local t = lua.get_functions_table()
+    t[8] = function(slot) tex.print(slot) end
+}
+\stoptyping
+
+\section{\type {\clearmarks}}
+
+This primitive complements the \ETEX\ mark primitives and clears a mark class
+completely, resetting all three connected mark texts to empty. It is an
+immediate command.
+
+\startsyntax
+\clearmarks <16-bit number>
+\stopsyntax
+
+\section{\type {\noligs} and \type {\nokerns}}
+
+These primitives prohibit ligature and kerning insertion at the time when the
+initial node list is built by \LUATEX's main control loop. They are part of a
+temporary trick and will be removed in the near future. For now, you need to
+enable these primitives when you want to do node list processing of \quote
+{characters}, where \TEX's normal processing would get in the way.
+
+\startsyntax
+\noligs <integer>!crlf
+\nokerns <integer>
+\stopsyntax
+
+These primitives can now be implemented by overloading the ligature building and
+kerning functions, i.e.\ by assigning dummy functions to their associated
+callbacks.
+
+\section{\type {\formatname}}
+
+The \type {\formatname} syntax is identical to \type {\jobname}. In \INITEX, the
+expansion is empty. Otherwise, the expansion is the value that \type {\jobname} had
+during the \INITEX\ run that dumped the currently loaded format.
+
+\section{\type {\scantextokens}}
+
+The syntax of \type {\scantextokens} is identical to \type {\scantokens}. This
+primitive is a slightly adapted version of \ETEX's \type {\scantokens}. The
+differences are:
+
+\startitemize
+\startitem
+    The last (and usually only) line does not have a \type {\endlinechar}
+    appended.
+\stopitem
+\startitem
+    \type {\scantextokens} never raises an EOF error, and it does not execute
+    \type {\everyeof} tokens.
+\stopitem
+\startitem
+    The \quote{\unknown\ while end of file \unknown} error tests are not
+    executed, allowing the expansion to end on a different grouping level or
+    while a conditional is still incomplete.
+\stopitem
+\stopitemize
+
+\section {Alignments}
+
+\subsection{\tex {alignmark}}
+
+This primitive duplicates the functionality of \type {#} inside alignment
+preambles.
+
+\subsection{\tex {aligntab}}
+
+This primitive duplicates the functionality of \type {&} inside alignments and
+preambles.
+
+\section{Catcode tables}
+
+Catcode tables are a new feature that allows you to switch to a predefined
+catcode regime in a single statement. You can have a practically unlimited number
+of different tables. This subsystem is backward compatible: if you never use the
+following commands, your document will not notice any difference in behavior
+compared to traditional \TEX. The contents of each catcode table is independent
+from any other catcode tables, and their contents is stored and retrieved from
+the format file.
+
+\subsection{\type {\catcodetable}}
+
+\startsyntax
+\catcodetable <15-bit number>
+\stopsyntax
+
+The primitive \type {\catcodetable} switches to a different catcode table. Such a
+table has to be previously created using one of the two primitives below, or it
+has to be zero. Table zero is initialized by \INITEX.
+
+\subsection{\type {\initcatcodetable}}
+
+\startsyntax
+\initcatcodetable <15-bit number>
+\stopsyntax
+
+The primitive \type {\initcatcodetable} creates a new table with catcodes identical
+to those defined by \INITEX:
+
+\starttabulate[|r|l|l|l|l|]
+\NC  0 \NC \type {\letterbackslash}       \NC         \NC \type {escape}       \NC\NR
+\NC  5 \NC \type {\letterhat\letterhat M} \NC return  \NC \type {car_ret}      \NC (this name may change) \NC\NR
+\NC  9 \NC \type {\letterhat\letterhat @} \NC null    \NC \type {ignore}       \NC\NR
+\NC 10 \NC \type {<space>}                \NC space   \NC \type {spacer}       \NC\NR
+\NC 11 \NC \type {a} -- \type {z}         \NC         \NC \type {letter}       \NC\NR
+\NC 11 \NC \type {A} -- \type {Z}         \NC         \NC \type {letter}       \NC\NR
+\NC 12 \NC everything else                \NC         \NC \type {other}        \NC\NR
+\NC 14 \NC \type {\letterpercent}         \NC         \NC \type {comment}      \NC\NR
+\NC 15 \NC \type {\letterhat\letterhat ?} \NC delete  \NC \type {invalid_char} \NC\NR
+\stoptabulate
+
+The new catcode table is allocated globally: it will not go away after the
+current group has ended. If the supplied number is identical to the currently
+active table, an error is raised.
+
+\subsection{\type {\savecatcodetable}}
+
+\startsyntax
+\savecatcodetable <15-bit number>
+\stopsyntax
+
+\type {\savecatcodetable} copies the current set of catcodes to a new table with
+the requested number. The definitions in this new table are all treated as if
+they were made in the outermost level.
+
+The new table is allocated globally: it will not go away after the current group
+has ended. If the supplied number is the currently active table, an error is
+raised.
+
+\section{Suppressing errors}
+
+\subsection{\type {\suppressfontnotfounderror}}
+
+\startsyntax
+\suppressfontnotfounderror = 1
+\stopsyntax
+
+If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
+about font metrics that are not found. Instead it will silently skip the font
+assignment, making the requested csname for the font \type {\ifx} equal to
+\type {\nullfont}, so that it can be tested against that without bothering the user.
+
+\subsection{\type {\suppresslongerror}}
+
+\startsyntax
+\suppresslongerror = 1
+\stopsyntax
+
+If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
+about \type {\par} commands encountered in contexts where that is normally
+prohibited (most prominently in the arguments of non-long macros).
+
+\subsection{\type {\suppressifcsnameerror}}
+
+\startsyntax
+\suppressifcsnameerror = 1
+\stopsyntax
+
+If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
+about non-expandable commands appearing in the middle of a \type {\ifcsname}
+expansion. Instead, it will keep getting expanded tokens from the input until it
+encounters an \type {\endcsname} command. Use with care! This command is
+experimental: if the input expansion is unbalanced wrt. \type {\csname} \ldots
+\type {\endcsname} pairs, the \LUATEX\ process may hang indefinitely.
+
+\subsection{\type {\suppressoutererror}}
+
+\startsyntax
+\suppressoutererror = 1
+\stopsyntax
+
+If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
+about \type {\outer} commands encountered in contexts where that is normally
+prohibited.
+
+\subsection{\type {\suppressmathparerror}}
+
+The following setting will permit \par tokens in a math formula:
+
+\startsyntax
+\suppressmathparerror = 1
+\stopsyntax
+
+So, the next code is valid then:
+
+\starttyping
+$ x + 1 =
+
+a $
+\stoptyping
+
+\section{\type {\matheqnogapstep}}
+
+By default \TEX\ will add one quad between the equation and the number. This is
+hardcoded. A new primitive can control this:
+
+\startsyntax
+\matheqnogapstep = 1000
+\stopsyntax
+
+Because a math quad from the math text font is used instead of a dimension, we
+use a step to control the size. A value of zero will suppress the gap. The step
+is divided by 1000 which is the usual way to mimmick floating point factors in
+\TEX.
+
+\section{\type {\outputbox}}
+
+\startsyntax
+\outputbox = 65535
+\stopsyntax
+
+This new integer parameter allows you to alter the number of the box that will be
+used to store the page sent to the output routine. Its default value is 255, and
+the acceptable range is from 0 to 65535.
+
+\section{\type {\fontid}}
+
+\startsyntax
+\fontid\font
+\stopsyntax
+
+This primitive expands into a number. It is not a register so there is no need to
+prefix with \type {\number} (and using \type {\the} gives an error). The currently
+used font id is \fontid\font. Here are some more:
+
+\starttabulate[|l|c|]
+\NC \type {\bf} \NC \bf \fontid\font \NC \NR
+\NC \type {\it} \NC \it \fontid\font \NC \NR
+\NC \type {\bi} \NC \bi \fontid\font \NC \NR
+\stoptabulate
+
+These numbers depend on the macro package used because each one has its own way
+of dealing with fonts. They can also differ per run, as they can depend on the
+order of loading fonts. For instance, when in \CONTEXT\ virtual math \UNICODE\
+fonts are used, we can easily get over a hundred ids in use. Not all ids have to
+be bound to a real font, after all it's just a number.
+
+\section{\type {\gleaders}}
+
+This type of leaders is anchored to the origin of the box to be shipped out. So
+they are like normal \type {\leaders} in that they align nicely, except that the
+alignment is based on the {\it largest\/} enclosing box instead of the {\it
+smallest\/}. The \type {g} stresses this global nature.
+
+\section{\type {\Uchar}}
+
+The expandable command \type {\Uchar} reads a number between~0 and $1{,}114{,}111$
+and expands to the associated \UNICODE\ character.
+
+\section{\type {\hyphenationmin}}
+
+This primitive can be used to set the minimal word length, so setting it to a value
+of~$5$ means that only words of 6 characters and more will be hyphenated, of course
+within the constraints of the \type {\lefthyphenmin} and \type {\righthyphenmin}
+values (as stored in the glyph node). This primitive accepts a number and stores
+the value with the language.
+
+\section{Debugging}
+
+If \type {\tracingonline} is larger than~2, the node list display will also print
+the node number of the nodes.
+
+\section{Images and Forms}
+
+\LUATEX\ accepts optional dimension parameters for \type {\pdfrefximage} and
+\type {\pdfrefxform} in the same format as for \type {\pdfximage}. With images,
+these dimensions are then used instead of the ones given to \type {\pdfximage}
+but the original dimensions are not overwritten, so that a \type {\pdfrefximage}
+without dimensions still provides the image with dimensions defined by \type
+{\pdfximage}. These optional parameters are not implemented for \type
+{\pdfxform}.
+
+\starttyping
+\pdfrefximage width 20mm height 10mm depth 5mm \pdflastximage
+\pdfrefxform  width 20mm height 10mm depth 5mm \pdflastxform
+\stoptyping
+
+\section{File syntax}
+
+\LUATEX\ will accept a braced argument as a file name:
+
+\starttyping
+\input {plain}
+\openin 0 {plain}
+\stoptyping
+
+This allows for embedded spaces, without the need for double quotes. Macro
+expansion takes place inside the argument.
+
+\section{Font syntax}
+
+\LUATEX\ will accept a braced argument as a font name:
+
+\starttyping
+\font\myfont = {cmr10}
+\stoptyping
+
+This allows for embedded spaces, without the need for double quotes. Macro
+expansion takes place inside the argument.
+
+\stopchapter
+
+\stopcomponent
