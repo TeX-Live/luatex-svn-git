@@ -6,9 +6,10 @@ Luatex beta-0.81.0 was released 2015100722 (5350)
 ==============================================================
 
 
-
 * A couple of primitives are removed, renamed and/or promoted to core (luatex) primitives. 
-Here's a summary. It might demand some adaption in the way macro packages initialize so we will mention them here explicitly in advance. As shown below, a simple way to get backward compatibility is to \let old ones to new ones. So,
+Here's a summary. It might demand some adaption in the way macro packages initialize so
+we will mention them here explicitly in advance. 
+As shown below, a simple way to get backward compatibility is to \let old ones to new ones. So,
 
    Updating to this version also might demand an update in the
    macro package that you use!
