@@ -1,0 +1,671 @@
+\environment luatex-style
+\environment luatex-logos
+
+\startcomponent luatex-math
+
+\startchapter[reference=math,title={Math}]
+
+The handling of mathematics in \LUATEX\ differs quite a bit from how \TEX82 (and
+therefore \PDFTEX) handles math. First, \LUATEX\ adds primitives and extends some
+others so that \UNICODE\ input can be used easily. Second, all of \TEX82's
+internal special values (for example for operator spacing) have been made
+accessible and changeable via control sequences. Third, there are extensions that
+make it easier to use \OPENTYPE\ math fonts. And finally, there are some
+extensions that have been proposed in the past that are now added to the engine.
+
+\section{The current math style}
+
+It is possible to discover the math style that will be used for a formula in an
+expandable fashion (while the math list is still being read). To make this
+possible, \LUATEX\ adds the new primitive: \type {\mathstyle}. This is a \quote
+{convert command} like e.g. \type {\romannumeral}: its value can only be read,
+not set.
+
+\subsection{\type {\mathstyle}}
+
+The returned value is between 0 and 7 (in math mode), or $-1$ (all other modes).
+For easy testing, the eight math style commands have been altered so that the can
+be used as numeric values, so you can write code like this:
+
+\starttyping
+\ifnum\mathstyle=\textstyle
+    \message{normal text style}
+\else \ifnum\mathstyle=\crampedtextstyle
+    \message{cramped text style}
+\fi \fi
+\stoptyping
+
+\subsection{\type {\Ustack}}
+
+There are a few math commands in \TEX\ where the style that will be used is not
+known straight from the start. These commands (\type {\over}, \type {\atop},
+\type {\overwithdelims}, \type {\atopwithdelims}) would therefore normally return
+wrong values for \type {\mathstyle}. To fix this, \LUATEX\ introduces a special
+prefix command: \type {\Ustack}:
+
+\starttyping
+$\Ustack {a \over b}$
+\stoptyping
+
+The \type {\Ustack} command will scan the next brace and start a new math group
+with the correct (numerator) math style.
+
+\section{Unicode math characters}
+
+Character handling is now extended up to the full \UNICODE\ range (the \type {\U}
+prefix), which is compatible with \XETEX.
+
+The math primitives from \TEX\ are kept as they are, except for the ones that
+convert from input to math commands: \type {mathcode}, and \type {delcode}. These
+two now allow for a 21-bit character argument on the left hand side of the equals
+sign.
+
+Some of the new \LUATEX\ primitives read more than one separate value. This is
+shown in the tables below by a plus sign in the second column.
+
+The input for such primitives would look like this:
+
+\starttyping
+\def\overbrace{\Umathaccent 0 1 "23DE }
+\stoptyping
+
+Altered \TEX82 primitives:
+
+\starttabulate[|l|l|l|]
+\NC \bf primitive  \NC \bf value range (in hex) \NC \NR
+\NC \type {\mathcode} \NC 0--10FFFF = 0--8000      \NC \NR
+\NC \type {\delcode}  \NC 0--10FFFF = 0--FFFFFF    \NC \NR
+\stoptabulate
+
+Unaltered:
+
+\starttabulate[|l|l|l|]
+\NC \bf primitive     \NC \bf value range (in hex) \NC \NR
+\NC \type {\mathchardef} \NC 0--8000                  \NC \NR
+\NC \type {\mathchar}    \NC 0--7FFF                  \NC \NR
+\NC \type {\mathaccent}  \NC 0--7FFF                  \NC \NR
+\NC \type {\delimiter}   \NC 0--7FFFFFF               \NC \NR
+\NC \type {\radical}     \NC 0--7FFFFFF               \NC \NR
+\stoptabulate
+
+New primitives that are compatible with \XETEX:
+
+\starttabulate[|l|l|l|l|]
+\NC \bf primitive             \NC \bf value range (in hex)             \NC \NR
+\NC \type {\Umathchardef}        \NC 0+0+0--7+FF+10FFFF$^1$               \NC \NR
+\NC \type {\Umathcharnumdef}$^5$ \NC -80000000--7FFFFFFF$^3$              \NC \NR
+\NC \type {\Umathcode}           \NC 0--10FFFF = 0+0+0--7+FF+10FFFF$^1$   \NC \NR
+\NC \type {\Udelcode}            \NC 0--10FFFF = 0+0--FF+10FFFF$^2$       \NC \NR
+\NC \type {\Umathchar}           \NC 0+0+0--7+FF+10FFFF                   \NC \NR
+\NC \type {\Umathaccent}         \NC 0+0+0--7+FF+10FFFF$^{2,4}$           \NC \NR
+\NC \type {\Udelimiter}          \NC 0+0+0--7+FF+10FFFF$^2$               \NC \NR
+\NC \type {\Uradical}            \NC 0+0--FF+10FFFF$^2$                   \NC \NR
+\NC \type {\Umathcharnum}        \NC -80000000--7FFFFFFF$^3$              \NC \NR
+\NC \type {\Umathcodenum}        \NC 0--10FFFF = -80000000--7FFFFFFF$^3$  \NC \NR
+\NC \type {\Udelcodenum}         \NC 0--10FFFF = -80000000--7FFFFFFF$^3$  \NC \NR
+\stoptabulate
+
+Note 1: \type {\Umathchardef<csname>="8"0"0} and \type
+{\Umathchardef<number>="8"0"0} are also accepted.
+
+Note 2: The new primitives that deal with delimiter-style objects do not set up a
+\quote {large family}. Selecting a suitable size for display purposes is expected
+to be dealt with by the font via the \type {\Umathoperatorsize} parameter (more
+information can be found in a following section).
+
+Note 3: For these three primitives, all information is packed into a single
+signed integer. For the first two (\type {\Umathcharnum} and \type {\Umathcodenum}),
+the lowest 21 bits are the character code, the 3 bits above that represent the
+math class, and the family data is kept in the topmost bits (This means that the
+values for math families 128--255 are actually negative). For \type {\Udelcodenum}
+there is no math class; the math family information is stored in the bits
+directly on top of the character code. Using these three commands is not as
+natural as using the two- and three-value commands, so unless you know exactly
+what you are doing and absolutely require the speedup resulting from the faster
+input scanning, it is better to use the verbose commands instead.
+
+Note 4: The \type {\Umathaccent} command accepts optional keywords to control
+various details regarding math accents. See \in {section} [mathacc] below for
+details.
+
+New primitives that exist in \LUATEX\ only (all of these will be explained
+in following sections):
+
+\starttabulate[|l|l|l|l|]
+\NC \bf primitive         \NC \bf value range (in hex) \NC \NR
+\NC \type {\Uroot}           \NC 0+0--FF+10FFFF$^2$       \NC \NR
+\NC \type {\Uoverdelimiter}  \NC 0+0--FF+10FFFF$^2$       \NC \NR
+\NC \type {\Uunderdelimiter} \NC 0+0--FF+10FFFF$^2$       \NC \NR
+\NC \type {\Udelimiterover}  \NC 0+0--FF+10FFFF$^2$       \NC \NR
+\NC \type {\Udelimiterunder} \NC 0+0--FF+10FFFF$^2$       \NC \NR
+\stoptabulate
+
+\section{Cramped math styles}
+
+\LUATEX\ has four new primitives to set the cramped math styles directly:
+
+\starttyping
+\crampeddisplaystyle
+\crampedtextstyle
+\crampedscriptstyle
+\crampedscriptscriptstyle
+\stoptyping
+
+These additional commands are not all that valuable on their own, but they come
+in handy as arguments to the math parameter settings that will be added shortly.
+
+\section{Math parameter settings}
+
+In \LUATEX, the font dimension parameters that \TEX\ used in math typesetting are
+now accessible via primitive commands. In fact, refactoring of the math engine
+has resulted in many more parameters than were accessible before.
+
+\starttabulate
+\NC \bf primitive name              \NC \bf description \NC \NR
+\NC \type {\Umathquad}               \NC the width of 18mu's \NC \NR
+\NC \type {\Umathaxis}               \NC height of the vertical center axis of
+                                        the math formula above the baseline \NC \NR
+\NC \type {\Umathoperatorsize}       \NC minimum size of large operators in display mode \NC \NR
+\NC \type {\Umathoverbarkern}        \NC vertical clearance above the rule \NC \NR
+\NC \type {\Umathoverbarrule}        \NC the width of the rule \NC \NR
+\NC \type {\Umathoverbarvgap}        \NC vertical clearance below the rule \NC \NR
+\NC \type {\Umathunderbarkern}       \NC vertical clearance below the rule \NC \NR
+\NC \type {\Umathunderbarrule}       \NC the width of the rule \NC \NR
+\NC \type {\Umathunderbarvgap}       \NC vertical clearance above the rule \NC \NR
+\NC \type {\Umathradicalkern}        \NC vertical clearance above the rule \NC \NR
+\NC \type {\Umathradicalrule}        \NC the width of the rule \NC \NR
+\NC \type {\Umathradicalvgap}        \NC vertical clearance below the rule \NC \NR
+\NC \type {\Umathradicaldegreebefore}\NC the forward kern that takes place before placement of
+                                        the radical degree \NC \NR
+\NC \type {\Umathradicaldegreeafter} \NC the backward kern that takes place after placement of
+                                        the radical degree \NC \NR
+\NC \type {\Umathradicaldegreeraise} \NC this is the percentage of the total height and depth of
+                                        the radical sign that the degree is raised by. It is
+                                        expressed in \type {percents}, so 60\% is expressed as the
+                                        integer $60$. \NC \NR
+\NC \type {\Umathstackvgap}          \NC vertical clearance between the two
+                                        elements in a \type {\atop} stack \NC \NR
+\NC \type {\Umathstacknumup}         \NC numerator shift upward in \type {\atop} stack \NC \NR
+\NC \type {\Umathstackdenomdown}     \NC denominator shift downward in \type {\atop} stack \NC \NR
+\NC \type {\Umathfractionrule}       \NC the width of the rule in a \type {\over} \NC \NR
+\NC \type {\Umathfractionnumvgap}    \NC vertical clearance between the numerator and the rule \NC \NR
+\NC \type {\Umathfractionnumup}      \NC numerator shift upward in \type {\over} \NC \NR
+\NC \type {\Umathfractiondenomvgap}  \NC vertical clearance between the denominator and the rule \NC \NR
+\NC \type {\Umathfractiondenomdown}  \NC denominator shift downward in \type {\over} \NC \NR
+\NC \type {\Umathfractiondelsize}    \NC minimum delimiter size for \type {\...withdelims} \NC \NR
+\NC \type {\Umathlimitabovevgap}     \NC vertical clearance for limits above operators \NC \NR
+\NC \type {\Umathlimitabovebgap}     \NC vertical baseline clearance for limits above operators \NC \NR
+\NC \type {\Umathlimitabovekern}     \NC space reserved at the top of the limit \NC \NR
+\NC \type {\Umathlimitbelowvgap}     \NC vertical clearance for limits below operators \NC \NR
+\NC \type {\Umathlimitbelowbgap}     \NC vertical baseline clearance for limits below operators \NC \NR
+\NC \type {\Umathlimitbelowkern}     \NC space reserved at the bottom of the limit \NC \NR
+\NC \type {\Umathoverdelimitervgap}  \NC vertical clearance for limits above delimiters \NC \NR
+\NC \type {\Umathoverdelimiterbgap}  \NC vertical baseline clearance for limits above delimiters \NC \NR
+\NC \type {\Umathunderdelimitervgap} \NC vertical clearance for limits below delimiters \NC \NR
+\NC \type {\Umathunderdelimiterbgap} \NC vertical baseline clearance for limits below delimiters \NC \NR
+\NC \type {\Umathsubshiftdrop}       \NC subscript drop for boxes and subformulas \NC \NR
+\NC \type {\Umathsubshiftdown}       \NC subscript drop for characters \NC \NR
+\NC \type {\Umathsupshiftdrop}       \NC superscript drop (raise, actually) for boxes and subformulas \NC \NR
+\NC \type {\Umathsupshiftup}         \NC superscript raise for characters \NC \NR
+\NC \type {\Umathsubsupshiftdown}    \NC subscript drop in the presence of a superscript \NC \NR
+\NC \type {\Umathsubtopmax}          \NC the top of standalone subscripts cannot be higher than this
+                                        above the baseline \NC \NR
+\NC \type {\Umathsupbottommin}       \NC the bottom of standalone superscripts cannot be less than
+                                        this above the baseline \NC \NR
+\NC \type {\Umathsupsubbottommax}    \NC the bottom of the superscript of a combined super- and subscript
+                                        be at least as high as this above the baseline \NC \NR
+\NC \type {\Umathsubsupvgap}         \NC vertical clearance between super- and subscript \NC \NR
+\NC \type {\Umathspaceafterscript}   \NC additional space added after a super- or subscript \NC \NR
+\NC \type {\Umathconnectoroverlapmin}\NC minimum overlap between parts in an extensible recipe \NC \NR
+\stoptabulate
+
+Each of the parameters in this section can be set by a command like this:
+
+\starttyping
+\Umathquad\displaystyle=1em
+\stoptyping
+
+they obey grouping, and you can use \type {\the\Umathquad\displaystyle} if
+needed.
+
+\section{Font-based Math Parameters}
+
+While it is nice to have these math parameters available for tweaking, it would
+be tedious to have to set each of them by hand. For this reason, \LUATEX\
+initializes a bunch of these parameters whenever you assign a font identifier to
+a math family based on either the traditional math font dimensions in the font
+(for assignments to math family~2 and~3 using \TFM|-|based fonts like \type
+{cmsy} and \type {cmex}), or based on the named values in a potential \type
+{MathConstants} table when the font is loaded via Lua. If there is a \type
+{MathConstants} table, this takes precedence over font dimensions, and in that
+case no attention is paid to which family is being assigned to: the \type
+{MathConstants} tables in the last assigned family sets all parameters.
+
+In the table below, the one|-|letter style abbreviations and symbolic tfm font
+dimension names match those using in the \TeX book. Assignments to \type
+{\textfont} set the values for the cramped and uncramped display and text styles.
+Use \type {\scriptfont} for the script styles, and \type {\scriptscriptfont} for the
+scriptscript styles (totalling eight parameters for three font sizes). In the
+\TFM\ case, assignments only happen in family~2 and family~3 (and of course only
+for the parameters for which there are font dimensions).
+
+Besides the parameters below, \LUATEX\ also looks at the \quote {space} font
+dimension parameter. For math fonts, this should be set to zero.
+
+\start
+
+\switchtobodyfont[8pt]
+
+\starttabulate[|l|l|l|p|]
+\NC \bf variable                   \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC \NR
+\NC \type {\Umathaxis}                \NC --                    \NC AxisHeight                               \NC axis_height \NC \NR
+\NC \type {\Umathoperatorsize}        \NC D, D'                 \NC DisplayOperatorMinHeight                 \NC $^6$ \NC \NR
+\NC \type {\Umathfractiondelsize}     \NC D, D'                 \NC FractionDelimiterDisplayStyleSize$^9$    \NC delim1 \NC \NR
+\NC "                              \NC T, T', S, S', SS, SS' \NC FractionDelimiterSize$^9$                \NC delim2 \NC \NR
+\NC \type {\Umathfractiondenomdown}   \NC D, D'                 \NC FractionDenominatorDisplayStyleShiftDown \NC denom1 \NC \NR
+\NC "                              \NC T, T', S, S', SS, SS' \NC FractionDenominatorShiftDown             \NC denom2 \NC \NR
+\NC \type {\Umathfractiondenomvgap}   \NC D, D'                 \NC FractionDenominatorDisplayStyleGapMin    \NC 3*default_rule_thickness \NC \NR
+\NC "                              \NC T, T', S, S', SS, SS' \NC FractionDenominatorGapMin                \NC default_rule_thickness \NC \NR
+\NC \type {\Umathfractionnumup}       \NC D, D'                 \NC FractionNumeratorDisplayStyleShiftUp     \NC num1 \NC \NR
+\NC "                              \NC T, T', S, S', SS, SS' \NC FractionNumeratorShiftUp                 \NC num2 \NC \NR
+\NC \type {\Umathfractionnumvgap}     \NC D, D'                 \NC FractionNumeratorDisplayStyleGapMin      \NC 3*default_rule_thickness \NC \NR
+\NC "                              \NC T, T', S, S', SS, SS' \NC FractionNumeratorGapMin                  \NC default_rule_thickness \NC \NR
+\NC \type {\Umathfractionrule}        \NC --                    \NC FractionRuleThickness                    \NC default_rule_thickness \NC \NR
+\NC \type {\Umathlimitabovebgap}      \NC --                    \NC UpperLimitBaselineRiseMin                \NC big_op_spacing3 \NC \NR
+\NC \type {\Umathlimitabovekern}      \NC --                    \NC 0$^1$                                    \NC big_op_spacing5 \NC \NR
+\NC \type {\Umathlimitabovevgap}      \NC --                    \NC UpperLimitGapMin                         \NC big_op_spacing1 \NC \NR
+\NC \type {\Umathlimitbelowbgap}      \NC --                    \NC LowerLimitBaselineDropMin                \NC big_op_spacing4 \NC \NR
+\NC \type {\Umathlimitbelowkern}      \NC --                    \NC 0$^1$                                    \NC big_op_spacing5 \NC \NR
+\NC \type {\Umathlimitbelowvgap}      \NC --                    \NC LowerLimitGapMin                         \NC big_op_spacing2 \NC \NR
+\NC \type {\Umathoverdelimitervgap}   \NC --                    \NC StretchStackGapBelowMin                  \NC big_op_spacing1 \NC \NR
+\NC \type {\Umathoverdelimiterbgap}   \NC --                    \NC StretchStackTopShiftUp                   \NC big_op_spacing3 \NC \NR
+\NC \type {\Umathunderdelimitervgap}  \NC--                     \NC StretchStackGapAboveMin                  \NC big_op_spacing2 \NC \NR
+\NC \type {\Umathunderdelimiterbgap}  \NC--                     \NC StretchStackBottomShiftDown              \NC big_op_spacing4 \NC \NR
+\NC \type {\Umathoverbarkern}         \NC --                    \NC OverbarExtraAscender                     \NC default_rule_thickness \NC \NR
+\NC \type {\Umathoverbarrule}         \NC --                    \NC OverbarRuleThickness                     \NC default_rule_thickness \NC \NR
+\NC \type {\Umathoverbarvgap}         \NC --                    \NC OverbarVerticalGap                       \NC 3*default_rule_thickness \NC \NR
+\NC \type {\Umathquad}                \NC --                    \NC <font_size(f)>$^1$                       \NC math_quad \NC \NR
+\NC \type {\Umathradicalkern}         \NC --                    \NC RadicalExtraAscender                     \NC default_rule_thickness \NC \NR
+\NC \type {\Umathradicalrule}         \NC --                    \NC RadicalRuleThickness                     \NC <not set>$^2$ \NC \NR
+\NC \type {\Umathradicalvgap}         \NC D, D'                 \NC RadicalDisplayStyleVerticalGap           \NC (default_rule_thickness+\crlf
+                                                                                                              (abs(math_x_height)/4))$^3$ \NC \NR
+\NC "                              \NC T, T', S, S', SS, SS' \NC RadicalVerticalGap                       \NC (default_rule_thickness+\crlf
+                                                                                                              (abs(default_rule_thickness)/4))$^3$ \NC \NR
+\NC \type {\Umathradicaldegreebefore} \NC --                    \NC RadicalKernBeforeDegree                  \NC <not set>$^2$ \NC \NR
+\NC \type {\Umathradicaldegreeafter}  \NC --                    \NC RadicalKernAfterDegree                   \NC <not set>$^2$ \NC \NR
+\NC \type {\Umathradicaldegreeraise}  \NC --                    \NC RadicalDegreeBottomRaisePercent          \NC <not set>$^{2,7}$ \NC \NR
+\NC \type {\Umathspaceafterscript}    \NC --                    \NC SpaceAfterScript                         \NC script_space$^4$ \NC \NR
+\NC \type {\Umathstackdenomdown}      \NC D, D'                 \NC StackBottomDisplayStyleShiftDown         \NC denom1 \NC \NR
+\NC "                              \NC T, T', S, S', SS, SS' \NC StackBottomShiftDown                     \NC denom2 \NC \NR
+\NC \type {\Umathstacknumup}          \NC D, D'                 \NC StackTopDisplayStyleShiftUp              \NC num1 \NC \NR
+\NC "                              \NC T, T', S, S', SS, SS' \NC StackTopShiftUp                          \NC num3 \NC \NR
+\NC \type {\Umathstackvgap}           \NC D, D'                 \NC StackDisplayStyleGapMin                  \NC 7*default_rule_thickness \NC \NR
+\NC "                              \NC T, T', S, S', SS, SS' \NC StackGapMin                              \NC 3*default_rule_thickness \NC \NR
+\NC \type {\Umathsubshiftdown}        \NC --                    \NC SubscriptShiftDown                       \NC sub1 \NC \NR
+\NC \type {\Umathsubshiftdrop}        \NC --                    \NC SubscriptBaselineDropMin                 \NC sub_drop \NC \NR
+\NC \type {\Umathsubsupshiftdown}     \NC --                    \NC SubscriptShiftDownWithSuperscript$^8$    \NC \NC \NR
+\NC                                \NC                       \NC \quad\ or SubscriptShiftDown             \NC sub2 \NC \NR
+\NC \type {\Umathsubtopmax}           \NC --                    \NC SubscriptTopMax                          \NC (abs(math_x_height * 4) / 5) \NC \NR
+\NC \type {\Umathsubsupvgap}          \NC --                    \NC SubSuperscriptGapMin                     \NC 4*default_rule_thickness \NC \NR
+\NC \type {\Umathsupbottommin}        \NC --                    \NC SuperscriptBottomMin                     \NC (abs(math_x_height) / 4) \NC \NR
+\NC \type {\Umathsupshiftdrop}        \NC --                    \NC SuperscriptBaselineDropMax               \NC sup_drop \NC \NR
+\NC \type {\Umathsupshiftup}          \NC D                     \NC SuperscriptShiftUp                       \NC sup1 \NC \NR
+\NC "                              \NC T, S, SS,             \NC SuperscriptShiftUp                       \NC sup2 \NC \NR
+\NC "                              \NC D', T', S', SS'       \NC SuperscriptShiftUpCramped                \NC sup3 \NC \NR
+\NC \type {\Umathsupsubbottommax}     \NC --                    \NC SuperscriptBottomMaxWithSubscript        \NC (abs(math_x_height * 4) / 5) \NC \NR
+\NC \type {\Umathunderbarkern}        \NC --                    \NC UnderbarExtraDescender                   \NC default_rule_thickness \NC \NR
+\NC \type {\Umathunderbarrule}        \NC --                    \NC UnderbarRuleThickness                    \NC default_rule_thickness \NC \NR
+\NC \type {\Umathunderbarvgap}        \NC --                    \NC UnderbarVerticalGap                      \NC 3*default_rule_thickness \NC \NR
+\NC \type {\Umathconnectoroverlapmin} \NC --                    \NC MinConnectorOverlap                      \NC 0$^5$ \NC \NR
+\stoptabulate
+
+\stop
+
+Note 1: \OPENTYPE\ fonts set \type {\Umathlimitabovekern} and \type
+{\Umathlimitbelowkern} to zero and set \type {\Umathquad} to the font size of the
+used font, because these are not supported in the \type {MATH} table,
+
+Note 2: \TFM\ fonts do not set \type {\Umathradicalrule} because \TEX82\ uses the
+height of the radical instead. When this parameter is indeed not set when
+\LUATEX\ has to typeset a radical, a backward compatibility mode will kick in
+that assumes that an oldstyle \TEX\ font is used. Also, they do not set \type
+{\Umathradicaldegreebefore}, \type {\Umathradicaldegreeafter}, and \type
+{\Umathradicaldegreeraise}. These are then automatically initialized to
+$5/18$quad, $-10/18$quad, and 60.
+
+Note 3: If tfm fonts are used, then the \type {\Umathradicalvgap} is not set until
+the first time \LUATEX\ has to typeset a formula because this needs parameters
+from both family2 and family3. This provides a partial backward compatibility
+with \TEX82, but that compatibility is only partial: once the \type
+{\Umathradicalvgap} is set, it will not be recalculated any more.
+
+Note 4: (also if tfm fonts are used) A similar situation arises wrt. \type
+{\Umathspaceafterscript}: it is not set until the first time \LUATEX\ has to
+typeset a formula. This provides some backward compatibility with \TEX82. But
+once the \type {\Umathspaceafterscript} is set, \type {\scriptspace} will never be
+looked at again.
+
+Note 5: Tfm fonts set \type {\Umathconnectoroverlapmin} to zero because \TEX82\
+always stacks extensibles without any overlap.
+
+Note 6: The \type {\Umathoperatorsize} is only used in \type {\displaystyle}, and is
+only set in \OPENTYPE\ fonts. In \TFM\ font mode, it is artificially set to one
+scaled point more than the initial attempt's size, so that always the \quote
+{first next} will be tried, just like in \TEX82.
+
+Note 7: The \type {\Umathradicaldegreeraise} is a special case because it is the
+only parameter that is expressed in a percentage instead of as a number of scaled
+points.
+
+Note 8: \type {SubscriptShiftDownWithSuperscript} does not actually exist in the
+\quote {standard} Opentype Math font Cambria, but it is useful enough to be
+added.
+
+Note 9: \type {FractionDelimiterDisplayStyleSize} and \type
+{FractionDelimiterSize} do not actually exist in the \quote {standard} Opentype
+Math font Cambria, but were useful enough to be added.
+
+\section{Math spacing setting}
+
+Besides the parameters mentioned in the previous sections, there are also 64 new
+primitives to control the math spacing table (as explained in Chapter~18 of the
+\TEX book). The primitive names are a simple matter of combining two math atom
+types, but for completeness' sake, here is the whole list:
+
+\starttwocolumns
+\starttyping
+\Umathordordspacing
+\Umathordopspacing
+\Umathordbinspacing
+\Umathordrelspacing
+\Umathordopenspacing
+\Umathordclosespacing
+\Umathordpunctspacing
+\Umathordinnerspacing
+\Umathopordspacing
+\Umathopopspacing
+\Umathopbinspacing
+\Umathoprelspacing
+\Umathopopenspacing
+\Umathopclosespacing
+\Umathoppunctspacing
+\Umathopinnerspacing
+\Umathbinordspacing
+\Umathbinopspacing
+\Umathbinbinspacing
+\Umathbinrelspacing
+\Umathbinopenspacing
+\Umathbinclosespacing
+\Umathbinpunctspacing
+\Umathbininnerspacing
+\Umathrelordspacing
+\Umathrelopspacing
+\Umathrelbinspacing
+\Umathrelrelspacing
+\Umathrelopenspacing
+\Umathrelclosespacing
+\Umathrelpunctspacing
+\Umathrelinnerspacing
+\Umathopenordspacing
+\Umathopenopspacing
+\Umathopenbinspacing
+\Umathopenrelspacing
+\Umathopenopenspacing
+\Umathopenclosespacing
+\Umathopenpunctspacing
+\Umathopeninnerspacing
+\Umathcloseordspacing
+\Umathcloseopspacing
+\Umathclosebinspacing
+\Umathcloserelspacing
+\Umathcloseopenspacing
+\Umathcloseclosespacing
+\Umathclosepunctspacing
+\Umathcloseinnerspacing
+\Umathpunctordspacing
+\Umathpunctopspacing
+\Umathpunctbinspacing
+\Umathpunctrelspacing
+\Umathpunctopenspacing
+\Umathpunctclosespacing
+\Umathpunctpunctspacing
+\Umathpunctinnerspacing
+\Umathinnerordspacing
+\Umathinneropspacing
+\Umathinnerbinspacing
+\Umathinnerrelspacing
+\Umathinneropenspacing
+\Umathinnerclosespacing
+\Umathinnerpunctspacing
+\Umathinnerinnerspacing
+\stoptyping
+\stoptwocolumns
+
+These parameters are of type \type {\muskip}, so setting a parameter can be done
+like this:
+
+\starttyping
+\Umathopordspacing\displaystyle=4mu plus 2mu
+\stoptyping
+
+They are all initialized by initex to the values mentioned in the table in
+Chapter~18 of the \TEX book.
+
+Note 1: for ease of use as well as for backward compatibility, \type
+{\thinmuskip}, \type {\medmuskip} and \type {\thickmuskip} are treated
+especially. In their case a pointer to the corresponding internal parameter is
+saved, not the actual \type {\muskip} value. This means that any later changes to
+one of these three parameters will be taken into account.
+
+Note 2: Careful readers will realise that there are also primitives for the items
+marked \type {*} in the \TEX book. These will not actually be used as those
+combinations of atoms cannot actually happen, but it seemed better not to break
+orthogonality. They are initialized to zero.
+
+\section[mathacc]{Math accent handling}
+
+\LUATEX\ supports both top accents and bottom accents in math mode, and math
+accents stretch automatically (if this is supported by the font the accent comes
+from, of course). Bottom and combined accents as well as fixed-width math accents
+are controlled by optional keywords following \type {\Umathaccent}.
+
+The keyword \type {bottom} after \type {\Umathaccent} signals that a bottom accent
+is needed, and the keyword \type {both} signals that both a top and a bottom
+accent are needed (in this case two accents need to be specified, of course).
+
+Then the set of three integers defining the accent is read. This set of integers
+can be prefixed by the \type {fixed} keyword to indicate that a non-stretching
+variant is requested (in case of both accents, this step is repeated).
+
+A simple example:
+
+\starttyping
+\Umathaccent both fixed 0 0 "20D7 fixed 0 0 "20D7 {example}
+\stoptyping
+
+If a math top accent has to be placed and the accentee is a character and has a
+non-zero \type {top_accent} value, then this value will be used to place the
+accent instead of the \type {\skewchar} kern used by \TEX82.
+
+The \type {top_accent} value represents a vertical line somewhere in the
+accentee. The accent will be shifted horizontally such that its own \type
+{top_accent} line coincides with the one from the accentee. If the \type
+{top_accent} value of the accent is zero, then half the width of the accent
+followed by its italic correction is used instead.
+
+The vertical placement of a top accent depends on the \type {x_height} of the
+font of the accentee (as explained in the \TEX book), but if value that turns out
+to be zero and the font had a MathConstants table, then \type {AccentBaseHeight}
+is used instead.
+
+If a math bottom accent has to be placed, the \type {bot_accent} value is checked
+instead of \type {top_accent}. Because bottom accents do not exist in \TEX82, the
+\type {\skewchar} kern is ignored.
+
+The vertical placement of a bottom accent is straight below the accentee, no
+correction takes place.
+
+\section{Math root extension}
+
+The new primitive \type {\Uroot} allows the construction of a radical noad
+including a degree field. Its syntax is an extension of \type {\Uradical}:
+
+\starttyping
+\Uradical <fam integer> <char integer> <radicand>
+\Uroot    <fam integer> <char integer> <degree> <radicand>
+\stoptyping
+
+The placement of the degree is controlled by the math parameters \type
+{\Umathradicaldegreebefore}, \type {\Umathradicaldegreeafter}, and \type
+{\Umathradicaldegreeraise}. The degree will be typeset in \type
+{\scriptscriptstyle}.
+
+\section{Math kerning in super- and subscripts}
+
+The character fields in a lua-loaded OpenType math font can have a \quote
+{mathkern} table. The format of this table is the same as the \quote {mathkern}
+table that is returned by the \type {fontloader} library, except that all height
+and kern values have to be specified in actual scaled points.
+
+When a super- or subscript has to be placed next to a math item, \LUATEX\ checks
+whether the super- or subscript and the nucleus are both simple character items.
+If they are, and if the fonts of both character imtes are OpenType fonts (as
+opposed to legacy \TEX\ fonts), then \LUATEX\ will use the OpenType MATH
+algorithm for deciding on the horizontal placement of the super- or subscript.
+
+This works as follows:
+
+\startitemize
+    \startitem
+        The vertical position of the script is calculated.
+    \stopitem
+    \startitem
+        The default horizontal position is flat next to the base character.
+    \stopitem
+    \startitem
+        For superscripts, the italic correction of the base character is added.
+    \stopitem
+    \startitem
+        For a superscript, two vertical values are calculated: the bottom of the
+        script (after shifting up), and the top of the base. For a subscript, the two
+        values are the top of the (shifted down) script, and the bottom of the base.
+    \stopitem
+    \startitem
+        For each of these two locations:
+        \startitemize
+            \startitem
+                find the mathkern value at this height for the base (for a subscript
+                placement, this is the bottom_right corner, for a superscript
+                placement the top_right corner)
+            \stopitem
+            \startitem
+                find the mathkern value at this height for the script (for a
+                subscript placement, this is the top_left corner, for a superscript
+                placement the bottom_left corner)
+            \stopitem
+            \startitem
+                add the found values together to get a preliminary result.
+            \stopitem
+        \stopitemize
+    \stopitem
+    \startitem
+        The horizontal kern to be applied is the smallest of the two results from
+        previous step.
+    \stopitem
+\stopitemize
+
+The mathkern value at a specific height is the kern value that is specified by the
+next higher height and kern pair, or the highest one in the character (if there is no
+value high enough in the character), or simply zero (if the character has no mathkern
+pairs at all).
+
+\section{Scripts on horizontally extensible items like arrows}
+
+The primitives \type {\Uunderdelimiter} and \type {\Uoverdelimiter} allow the
+placement of a subscript or superscript on an automatically extensible item and
+\type {\Udelimiterunder} and \type {\Udelimiterover} allow the placement of an
+automatically extensible item as a subscript or superscript on a nucleus. The
+input:
+
+% these produce radical noads .. in fact the code base has the numbers wrong for
+% quite a while, so no one seems to use this
+
+\startbuffer
+$\Uoverdelimiter  0 "2194 {\hbox{\strut  overdelimiter}}$
+$\Uunderdelimiter 0 "2194 {\hbox{\strut underdelimiter}}$
+$\Udelimiterover  0 "2194 {\hbox{\strut  delimiterover}}$
+$\Udelimiterunder 0 "2194 {\hbox{\strut delimiterunder}}$
+\stopbuffer
+
+\typebuffer will render this:
+
+\blank \startnarrower \getbuffer \stopnarrower \blank
+
+The vertical placements are controlled by \type {\Umathunderdelimiterbgap}, \type
+{\Umathunderdelimitervgap}, \type {\Umathoverdelimiterbgap}, and \type
+{\Umathoverdelimitervgap} in a similar way as limit placements on large operators.
+The superscript in \type {\Uoverdelimiter} is typeset in a suitable scripted style,
+the subscript in \type {\Uunderdelimiter} is cramped as well.
+
+\section {Extensible delimiters}
+
+\LUATEX\ internally uses a structure that supports \OPENTYPE\ \quote
+{MathVariants} as well as \TFM\ \quote {extensible recipes}.
+
+\section{Other Math changes}
+
+\subsection {Verbose versions of single-character math commands}
+
+\LUATEX\ defines six new primitives that have the same function as
+\type {^}, \type {_}, \type {$}, and \type {$$}. %$
+
+\starttabulate[|l|l|l|l|]
+\NC \bf primitive           \NC \bf explanation \NC \NR
+\NC \type {\Usuperscript}      \NC Duplicates the functionality of \type {^} \NC \NR
+\NC \type {\Usubscript}        \NC Duplicates the functionality of \type {_} \NC \NR
+\NC \type {\Ustartmath}        \NC Duplicates the functionality of \type {$}, % $
+                                   when used in non-math mode. \NC \NR
+\NC \type {\Ustopmath}         \NC Duplicates the functionality of \type {$}, % $
+                                   when used in inline math mode. \NC \NR
+\NC \type {\Ustartdisplaymath} \NC Duplicates the functionality of \type {$$}, % $$
+                                   when used in non-math mode. \NC \NR
+\NC \type {\Ustopdisplaymath}  \NC Duplicates the functionality of \type {$$}, % $$
+                                   when used in display math mode. \NC \NR
+\stoptabulate
+
+The \type {\Ustopmath} and \type {\Ustopdisplaymath} primitives check if the current
+math mode is the correct one (inline vs.\ displayed), but you can freely intermix
+the four mathon|/|mathoff commands with explicit dollar sign(s).
+
+\subsection{Allowed math commands in non-math modes}
+
+The commands \type {\mathchar}, and \type {\Umathchar} and control sequences that
+are the result of \type {\mathchardef} or \type {\Umathchardef} are also
+acceptable in the horizontal and vertical modes. In those cases, the \type
+{\textfont} from the requested math family is used.
+
+\section{Math todo}
+
+The following items are still todo.
+
+\startitemize
+\startitem
+    Pre-scripts.
+\stopitem
+\startitem
+    Multi-story stacks.
+\stopitem
+\startitem
+    Flattened accents for high characters (maybe).
+\stopitem
+\startitem
+    Better control over the spacing around displays and handling of equation numbers.
+\stopitem
+\startitem
+    Support for multi|-|line displays using \MATHML\ style alignment points.
+\stopitem
+\stopitemize
+
+\stopchapter
+
+\stopcomponent

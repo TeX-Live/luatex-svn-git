@@ -1,0 +1,86 @@
+\environment luatex-style
+\environment luatex-logos
+
+\startcomponent luatex-introduction
+
+\startchapter[title=Introduction]
+
+This book will eventually become the reference manual of \LUATEX. At the moment,
+it simply reports the behavior of the executable matching the snapshot or beta
+release date in the title page.
+
+Features may come and go. The current version of \LUATEX\ can be used for
+production (in fact it is used in production by the authors) but users cannot
+depend on complete stability, nor on functionality staying the same. This means
+that when you update your binary, you also need to check if something fundamental
+has changed. Normally this is communicated in articles or messages to a mailing
+list. We're still not at version 1 but when we reach that state the interface
+will be stable. Of course we then can decide to move towards version 2 with
+different properties.
+
+Don't expect \LUATEX\ to behave the same as \PDFTEX ! Although the core
+functionality of that 8 bit engine is present, \LUATEX\ can behave different due
+to not only its 32 bit character: there is native \UTF\ input, support for wide
+fonts, and the math machinery is tuned for \OPENTYPE\ math. Also, the log output
+can differ (and will likely differ more as we move forward).
+
+\LUATEX\ consists of a number of interrelated but (still) distinguishable parts.
+The organization of the source code is adapted so that it cna glue all these
+components together. We continue cleaning up side effects of the accumulated
+code in \TEX\ engines (especially code that is not needed any longer).
+
+\startitemize[packed]
+    \startitem
+        Most of \PDFTEX\ version 1.40.9, converted to C (with patches from later
+        releases). Some experimental features have been removed and some utility
+        macros are not inherited as their functionality can be done in \LUA. We
+        still use the \type {\pdf*} primitive namespace.
+    \stopitem
+    \startitem
+        The direction model and some other bits from \ALEPH\ RC4 (derived from
+        \OMEGA) is included. The related primitives are part of core \LUATEX.
+    \stopitem
+    \startitem
+        We currently use \LUA\ 5.2.*. At some point we might decide to move to
+        5.3.* but that is yet to be decided.
+    \stopitem
+    \startitem
+        There are few \LUA\ libraries that we consider part of the core \LUA\
+        machinery.
+    \stopitem
+    \startitem
+        There are additional \LUA\ libraries that interface to the internals of
+        \TEX.
+    \stopitem
+    \startitem
+        There are various \TEX\ extensions but only those that cannot be done
+        using the \LUA\ interfaces.
+    \stopitem
+    \startitem
+        The fontloader uses parts of \FONTFORGE\ 2008.11.17 combined with
+        additionaL code specific for usage in a \TEX\ engine.
+    \stopitem
+    \startitem
+        the \METAPOST\ library
+    \stopitem
+\stopitemize
+
+Neither \ALEPH's I/O translation processes, nor tcx files, nor \ENCTEX\ can be
+used, these encoding|-|related functions are superseded by a \LUA|-|based
+solution (reader callbacks).
+
+The yearly \TEXLIVE\ version is the stable version, any version between them is
+considered beta. Keep in mind that new (or changed) features also need to be
+reflected in the macro package that you use.
+
+\blank[3*big]
+
+\starttabulate
+\NC \LUATEX   \EQ Version \number\luatexversion.\luatexrevision \NC \NR
+\NC \CONTEXT  \EQ \contextversion \NC \NR
+\NC timestamp \EQ \currentdate \NC \NR
+\stoptabulate
+
+\stopchapter
+
+\stopcomponent
