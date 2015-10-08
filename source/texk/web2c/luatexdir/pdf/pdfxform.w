@@ -36,7 +36,8 @@ void pdf_place_form(PDF pdf, halfword p)
     scaled x, y;
     pdffloat cm[6];
     pdfstructure *q = pdf->pstruct;
-    int r = 6, objnum = pdf_xform_objnum(p);
+    int r = 6;
+    int objnum = rule_objnum(p);
     nat.wd = obj_xform_width(pdf, objnum);
     nat.ht = obj_xform_height(pdf, objnum);
     nat.dp = obj_xform_depth(pdf, objnum);
@@ -102,12 +103,11 @@ void scan_pdfxform(PDF pdf)
 
 void scan_pdfrefxform(PDF pdf)
 {
-    int transform = 0;
     scaled_whd alt_rule, dim, nat;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     scan_int();
     check_obj_type(pdf, obj_type_xform, cur_val);
-    new_whatsit(pdf_refxform_node);
+    tail_append(new_rule(box_rule));
     nat.wd = obj_xform_width(pdf, cur_val);
     nat.ht = obj_xform_height(pdf, cur_val);
     nat.dp = obj_xform_depth(pdf, cur_val);
@@ -120,6 +120,5 @@ void scan_pdfrefxform(PDF pdf)
     width(tail) = dim.wd;
     height(tail) = dim.ht;
     depth(tail) = dim.dp;
-    pdf_xform_transform(tail) = transform;      /* not implemented yet */
-    pdf_xform_objnum(tail) = cur_val;
+    rule_objnum(tail) = cur_val;
 }

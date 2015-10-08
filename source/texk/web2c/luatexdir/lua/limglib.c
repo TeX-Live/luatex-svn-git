@@ -1,5 +1,5 @@
 /* limglib.c
-   
+
    Copyright 2006-2013 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -558,12 +558,12 @@ static halfword img_to_node(image * a)
     ad = img_dict(a);
     assert(ad != NULL);
     assert(img_objnum(ad) != 0);
-    n = new_node(whatsit_node, pdf_refximage_node);
-    pdf_ximage_index(n) = img_index(ad);
+    n = new_rule(image_rule);
+    rule_objnum(n) = img_objnum(ad);
     width(n) = img_width(a);
     height(n) = img_height(a);
     depth(n) = img_depth(a);
-    pdf_ximage_transform(n) = img_transform(a);
+    rule_transform(n) = img_transform(a);
     return n;
 }
 

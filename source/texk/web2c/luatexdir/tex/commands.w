@@ -708,10 +708,10 @@ void initialize_commands(void)
     primitive_pdftex("pdfrestore", extension_cmd, pdf_restore_node, 0);
     primitive_pdftex("pdfobj", extension_cmd, pdf_obj_code, 0);
     primitive_pdftex("pdfrefobj", extension_cmd, pdf_refobj_node, 0);
-    primitive_pdftex("pdfxform", extension_cmd, pdf_xform_code, 0);
-    primitive_pdftex("pdfrefxform", extension_cmd, pdf_refxform_node, 0);
-    primitive_pdftex("pdfximage", extension_cmd, pdf_ximage_code, 0);
-    primitive_pdftex("pdfrefximage", extension_cmd, pdf_refximage_node, 0);
+    primitive_pdftex("saveboxresource", extension_cmd, save_box_resource_code, 0);
+    primitive_luatex("useboxresource", extension_cmd, use_box_resource_code, 0);
+    primitive_pdftex("saveimageresource", extension_cmd, save_image_resource_code, 0);
+    primitive_pdftex("useimageresource", extension_cmd, use_image_resource_code, 0);
     primitive_pdftex("pdfannot", extension_cmd, pdf_annot_node, 0);
     primitive_pdftex("pdfstartlink", extension_cmd, pdf_start_link_node, 0);
     primitive_pdftex("pdfendlink", extension_cmd, pdf_end_link_node, 0);

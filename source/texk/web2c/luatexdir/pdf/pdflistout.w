@@ -67,8 +67,6 @@ static void init_pdf_backend_functions(void)
     p->whatsit_fu[special_node] = &pdf_special; /* 3 */
     p->whatsit_fu[pdf_literal_node] = &pdf_out_literal; /* 8 */
     p->whatsit_fu[pdf_refobj_node] = &pdf_ref_obj;      /* 10 */
-    p->whatsit_fu[pdf_refxform_node] = &pdf_place_form; /* 12 */
-    p->whatsit_fu[pdf_refximage_node] = &pdf_place_image;       /* 14 */
     p->whatsit_fu[pdf_annot_node] = &do_annot;  /* 15 */
     p->whatsit_fu[pdf_start_link_node] = &do_link;      /* 16 */
     p->whatsit_fu[pdf_end_link_node] = &end_link;       /* 17 */
@@ -215,10 +213,6 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
                     dir_cur_h(enddir_ptr) = w;
                     q = null;
                 }
-                break;
-            case whatsit_node:
-                if ((subtype(q) == pdf_refxform_node) || (subtype(q) == pdf_refximage_node))
-                    w += width(q);
                 break;
             default:
                 break;
@@ -519,32 +513,6 @@ void hlist_out(PDF pdf, halfword this_box)
                 case pdf_start_thread_node:
                 case pdf_thread_node:  /* |do_thread(pdf, p, this_box, cur);| */
                     backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
-                    break;
-                case pdf_refxform_node:        /* |pdf_place_form(pdf, pdf_xform_objnum(p));| */
-                case pdf_refximage_node:       /* |pdf_place_image(pdf, pdf_ximage_idx(p));| */
-                    /* Output a Form node in a hlist */
-                    /* Output an Image node in a hlist */
-                    switch (localpos.dir) {
-                    case dir_TLT:
-                        pos_down(depth(p));
-                        break;
-                    case dir_TRT:
-                        pos_left(width(p));
-                        pos_down(depth(p));
-                        break;
-                    case dir_LTL:
-                        pos_left(height(p));
-                        pos_down(width(p));
-                        break;
-                    case dir_RTT:
-                        pos_left(depth(p));
-                        pos_down(width(p));
-                        break;
-                    default:
-                        assert(0);
-                    }
-                    backend_out_whatsit[subtype(p)] (pdf, p);
-                    cur.h += width(p);
                     break;
                 default:
                     out_what(pdf, p);
@@ -932,31 +900,6 @@ void vlist_out(PDF pdf, halfword this_box)
                 case pdf_thread_node:  /* |do_thread(pdf, p, this_box, cur);| */
                     backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
                     break;
-                case pdf_refxform_node:        /* |pdf_place_form(pdf, pdf_xform_objnum(p));| */
-                case pdf_refximage_node:       /* |pdf_place_image(pdf, pdf_ximage_idx(p));| */
-                    /* Output a Form node in a vlist */
-                    /* Output an Image node in a vlist */
-                    switch (localpos.dir) {
-                    case dir_TLT:
-                        pos_down(height(p) + depth(p));
-                        break;
-                    case dir_TRT:
-                        pos_left(width(p));
-                        pos_down(height(p) + depth(p));
-                        break;
-                    case dir_LTL:
-                        pos_down(width(p));
-                        break;
-                    case dir_RTT:
-                        pos_left(height(p) + depth(p));
-                        pos_down(width(p));
-                        break;
-                    default:
-                        assert(0);
-                    }
-                    backend_out_whatsit[subtype(p)] (pdf, p);
-                    cur.v += height(p) + depth(p);
-                    break;
                 default:
                     out_what(pdf, p);
                 }
@@ -981,7 +924,7 @@ void vlist_out(PDF pdf, halfword this_box)
                 }
                 rule.ht = rule.ht + cur_g;
                 if (subtype(p) >= a_leaders) {
-                    /* (\pdfTeX) Output leaders in a vlist, |goto fin_rule| if a rule or to |next_p| if done */
+                    /* (\pdfTeX) Output leaders in a vlist, |goto fin_rulefin_rule| if a rule or to |next_p| if done */
                     leader_box = leader_ptr(p);
                     if (type(leader_box) == rule_node) {
                         rule.wd = width(leader_box);

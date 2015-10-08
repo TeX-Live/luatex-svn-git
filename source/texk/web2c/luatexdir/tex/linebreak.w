@@ -1885,15 +1885,6 @@ ext_do_line_break(int paragraph_dir,
                 internal_right_box = local_box_right(cur_p);
                 internal_right_box_width = local_box_right_width(cur_p);
                 break;
-            case whatsit_node:
-                /* Advance past a whatsit node in the |line_break| loop; */
-                switch (subtype(cur_p)) {
-                case pdf_refxform_node:
-                case pdf_refximage_node:
-                    active_width[1] += width(cur_p);
-                }
-                /* / Advance past a whatsit node in the |line_break| loop/; */
-                break;
             case glue_node:
                 /* If node |cur_p| is a legal breakpoint, call |try_break|;
                    then update the active widths by including the glue in
@@ -2036,6 +2027,8 @@ ext_do_line_break(int paragraph_dir,
                               double_hyphen_demerits, final_hyphen_demerits,
                               first_p, cur_p);
                 break;
+            case whatsit_node:
+                /* / Advance past a whatsit node in the |line_break| loop/; */
             case mark_node:
             case ins_node:
             case adjust_node:

@@ -194,15 +194,15 @@ void do_extension(PDF pdf)
                                   "`\\pdfobj reserveobjnum' cannot be used with \\immediate");
                     pdf_write_obj(pdf, pdf_last_obj);
                     break;
-                case pdf_xform_code:
-                    check_o_mode(pdf, "\\immediate\\pdfxform", 1 << OMODE_PDF,
+                case save_box_resource_code:
+                    check_o_mode(pdf, "\\immediate\\saveboxresource", 1 << OMODE_PDF,
                                  true);
                     do_extension(pdf);  /* scan form and set |pdf_last_xform| */
                     pdf_cur_form = pdf_last_xform;
                     ship_out(pdf, obj_xform_box(pdf, pdf_last_xform), SHIPPING_FORM);
                     break;
-                case pdf_ximage_code:
-                    check_o_mode(pdf, "\\immediate\\pdfximage", 1 << OMODE_PDF,
+                case save_image_resource_code:
+                    check_o_mode(pdf, "\\immediate\\saveimageresource", 1 << OMODE_PDF,
                                  true);
                     do_extension(pdf);  /* scan image and set |pdf_last_ximage| */
                     pdf_write_image(pdf, pdf_last_ximage);
@@ -393,14 +393,14 @@ void do_extension(PDF pdf)
         check_o_mode(pdf, "\\pdfrefobj", 1 << OMODE_PDF, false);
         scan_refobj(pdf);
         break;
-    case pdf_refxform_node:
-        /* Implement \.{\\pdfrefxform} */
-        check_o_mode(pdf, "\\pdfrefxform", 1 << OMODE_PDF, false);
+    case use_box_resource_code:
+        /* Implement \.{\\useboxresource} */
+        check_o_mode(pdf, "\\useboxresource", 1 << OMODE_PDF, false);
         scan_pdfrefxform(pdf);
         break;
-    case pdf_refximage_node:
-        /* Implement \.{\\pdfrefximage} */
-        check_o_mode(pdf, "\\pdfrefximage", 1 << OMODE_PDF, false);
+    case use_image_resource_code:
+        /* Implement \.{\\useimageresource} */
+        check_o_mode(pdf, "\\useimageresource", 1 << OMODE_PDF, false);
         scan_pdfrefximage(pdf);
         break;
     case save_pos_node:
@@ -430,14 +430,14 @@ void do_extension(PDF pdf)
         scan_pdf_ext_toks();
         pdf_trailer_toks = concat_tokens(pdf_trailer_toks, def_ref);
         break;
-    case pdf_xform_code:
-        /* Implement \.{\\pdfxform} */
-        check_o_mode(pdf, "\\pdfxform", 1 << OMODE_PDF, false);
+    case save_box_resource_code:
+        /* Implement \.{\\saveboxresource} */
+        check_o_mode(pdf, "\\saveboxresource", 1 << OMODE_PDF, false);
         scan_pdfxform(pdf);
         break;
-    case pdf_ximage_code:
-        /* Implement \.{\\pdfximage} */
-        check_o_mode(pdf, "\\pdfximage", 1 << OMODE_PDF, false);
+    case save_image_resource_code:
+        /* Implement \.{\\saveimageresource} */
+        check_o_mode(pdf, "\\saveimageresource", 1 << OMODE_PDF, false);
         /* png, jpeg, and pdf image handling depends on this done so early: */
         fix_pdf_minorversion(pdf);
         scan_pdfximage(pdf);
@@ -563,14 +563,14 @@ halfword prev_rightmost(halfword s, halfword e)
     return p;
 }
 
-@ \.{\\pdfxform} and \.{\\pdfrefxform} are similiar to \.{\\pdfobj} and
+@ \.{\\pdfxform} and \.{\\useboxresource} are similiar to \.{\\pdfobj} and
   \.{\\pdfrefobj}
 
 @c
 int pdf_last_xform;
 
-@ \.{\\pdfximage} and \.{\\pdfrefximage} are similiar to \.{\\pdfxform} and
-  \.{\\pdfrefxform}. As we have to scan |<rule spec>| quite often, it is better
+@ \.{\\pdfximage} and \.{\\useimageresource} are similiar to \.{\\pdfxform} and
+  \.{\\useimageresource}. As we have to scan |<rule spec>| quite often, it is better
   have a |rule_node| that holds the most recently scanned |<rule spec>|.
 
 @c

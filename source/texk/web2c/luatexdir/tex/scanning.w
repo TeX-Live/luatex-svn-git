@@ -1796,7 +1796,7 @@ found (in any order).
 halfword scan_rule_spec(void)
 {
     halfword q;                 /* the rule node being created */
-    q = new_rule();             /* |width|, |depth|, and |height| all equal |null_flag| now */
+    q = new_rule(normal_rule);  /* |width|, |depth|, and |height| all equal |null_flag| now */
     if (cur_cmd == vrule_cmd) {
         width(q) = default_rule;
         rule_dir(q) = body_direction;

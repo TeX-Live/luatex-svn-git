@@ -552,18 +552,6 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                         hpack_dir = dir_dir(dir_ptr1);
                 }
                 break;
-            case whatsit_node:
-                /* Incorporate a whatsit node into an hbox */
-                if ((subtype(p) == pdf_refxform_node)
-                    || (subtype(p) == pdf_refximage_node)) {
-                    x += width(p);
-                    s = 0;
-                    if (height(p) - s > h)
-                        h = height(p) - s;
-                    if (depth(p) + s > d)
-                        d = depth(p) + s;
-                }
-                break;
             case glue_node:
                 /* Incorporate glue into the horizontal totals */
                 g = glue_ptr(p);
@@ -746,7 +734,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                     && (-x - total_shrink[normal] > dimen_par(hfuzz_code))) {
                     while (vlink(q) != null)
                         q = vlink(q);
-                    vlink(q) = new_rule();
+                    vlink(q) = new_rule(normal_rule);
                     rule_dir(vlink(q)) = box_dir(r);
                     width(vlink(q)) = dimen_par(overfull_rule_code);
                 }
@@ -871,17 +859,6 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                     siz.ht = height(p) - s;
                 if (depth(p) + s > siz.dp)
                     siz.dp = depth(p) + s;
-                break;
-            case whatsit_node:
-                if ((subtype(p) == pdf_refxform_node)
-                    || (subtype(p) == pdf_refximage_node)) {
-                    siz.wd += width(p);
-                    s = 0;
-                    if (height(p) - s > siz.ht)
-                        siz.ht = height(p) - s;
-                    if (depth(p) + s > siz.dp)
-                        siz.dp = depth(p) + s;
-                }
                 break;
             case glue_node:
                 g = glue_ptr(p);
@@ -1013,17 +990,6 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
                     s = shift_amount(p);
                 if (width(p) + s > w)
                     w = width(p) + s;
-                break;
-            case whatsit_node:
-                /* Incorporate a whatsit node into a vbox */
-                if ((subtype(p) == pdf_refxform_node)
-                    || (subtype(p) == pdf_refximage_node)) {
-                    x += d + height(p);
-                    d = depth(p);
-                    s = 0;
-                    if (width(p) + s > w)
-                        w = width(p) + s;
-                }
                 break;
             case glue_node:
                 /* Incorporate glue into the vertical totals */
@@ -1443,12 +1409,6 @@ halfword vert_break(halfword p, scaled h, scaled d)
                 goto NOT_FOUND;
                 break;
             case whatsit_node:
-                /* Process whatsit |p| in |vert_break| loop, |goto not_found| */
-                if ((subtype(p) == pdf_refxform_node)
-                    || (subtype(p) == pdf_refximage_node)) {
-                    cur_height = cur_height + prev_dp + height(p);
-                    prev_dp = depth(p);
-                }
                 goto NOT_FOUND;
                 break;
             case glue_node:

@@ -73,7 +73,7 @@ const char *node_fields_list[] =
     "glue_order", "glue_sign", "glue_set", "head", NULL
 };
 const char *node_fields_rule[] =
-    { "attr", "width", "depth", "height", "dir", NULL };
+    { "attr", "width", "depth", "height", "dir", "objnum", NULL };
 const char *node_fields_insert[] =
     { "attr", "cost", "depth", "height", "spec", "head", NULL };
 const char *node_fields_mark[] = { "attr", "class", "mark", NULL };
@@ -155,10 +155,6 @@ const char *node_fields_dir[] =
 const char *node_fields_whatsit_pdf_literal[] =
     { "attr", "mode", "data", NULL };
 const char *node_fields_whatsit_pdf_refobj[] = { "attr", "objnum", NULL };
-const char *node_fields_whatsit_pdf_refxform[] =
-    { "attr", "width", "depth", "height", "objnum", NULL };
-const char *node_fields_whatsit_pdf_refximage[] =
-    { "attr", "width", "depth", "height", "transform", "index", NULL };
 const char *node_fields_whatsit_pdf_annot[] =
     { "attr", "width", "depth", "height", "objnum", "data", NULL };
 const char *node_fields_whatsit_pdf_start_link[] =
@@ -274,9 +270,9 @@ node_info whatsit_node_data[] = {
     {fake_node, fake_node_size, NULL, fake_node_name},
     {pdf_refobj_node, pdf_refobj_node_size, node_fields_whatsit_pdf_refobj, "pdf_refobj"},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {pdf_refxform_node, pdf_refxform_node_size, node_fields_whatsit_pdf_refxform, "pdf_refxform"},
     {fake_node, fake_node_size, NULL, fake_node_name},
-    {pdf_refximage_node, pdf_refximage_node_size, node_fields_whatsit_pdf_refximage, "pdf_refximage"},
+    {fake_node, fake_node_size, NULL, fake_node_name},
+    {fake_node, fake_node_size, NULL, fake_node_name},
     {pdf_annot_node, pdf_annot_node_size, node_fields_whatsit_pdf_annot, "pdf_annot"},
     {pdf_start_link_node, pdf_annot_node_size, node_fields_whatsit_pdf_start_link, "pdf_start_link"},
     {pdf_end_link_node, pdf_end_link_node_size, node_fields_whatsit_pdf_end_link, "pdf_end_link"},
@@ -1142,8 +1138,6 @@ void flush_node(halfword p)
         case pdf_restore_node:
         case cancel_boundary_node:
         case pdf_refobj_node:
-        case pdf_refxform_node:
-        case pdf_refximage_node:
         case pdf_end_link_node:
         case pdf_end_thread_node:
         case save_pos_node:
@@ -1448,8 +1442,6 @@ void check_node(halfword p)
         case pdf_restore_node:
         case cancel_boundary_node:
         case pdf_refobj_node:
-        case pdf_refxform_node:
-        case pdf_refximage_node:
         case pdf_end_link_node:
         case pdf_end_thread_node:
         case save_pos_node:
@@ -2588,19 +2580,6 @@ static void show_whatsit_node(int p)
             lua_pop(Luas, 1);
         }
         break;
-    case pdf_refxform_node:
-    case pdf_refximage_node:
-        if (subtype(p) == pdf_refxform_node)
-            tprint_esc("pdfrefxform");
-        else
-            tprint_esc("pdfrefximage");
-        tprint("(");
-        print_scaled(height(p));
-        print_char('+');
-        print_scaled(depth(p));
-        tprint(")x");
-        print_scaled(width(p));
-        break;
     case pdf_annot_node:
         tprint_esc("pdfannot");
         show_pdftex_whatsit_rule_spec(p);
@@ -2891,7 +2870,13 @@ void show_node_list(int p)
                 break;
             case rule_node:
                 /* Display rule |p|; */
-                tprint_esc("rule(");
+                if (subtype(p) == normal_rule) {
+                    tprint_esc("rule(");
+                } else if (subtype(p) == box_rule) {
+                    tprint_esc("box(");
+                } else if (subtype(p) == image_rule) {
+                    tprint_esc("image(");
+                }
                 print_rule_dimen(height(p));
                 print_char('+');
                 print_rule_dimen(depth(p));
@@ -3153,13 +3138,6 @@ pointer actual_box_width(pointer r, scaled base_width)
             if (subtype(p) >= a_leaders)
                 goto found;
             break;
-        case whatsit_node:
-            if ((subtype(p) == pdf_refxform_node)
-                || (subtype(p) == pdf_refximage_node))
-                d = width(p);
-            else
-                d = 0;
-            break;
         default:
             d = 0;
             break;
@@ -3289,10 +3267,10 @@ makes all the dimensions ``running,'' so you have to change the
 ones that are not allowed to run.
 
 @c
-halfword new_rule(void)
+halfword new_rule(int s)
 {
     halfword p;                 /* the new node */
-    p = new_node(rule_node, 0); /* the |subtype| is not used */
+    p = new_node(rule_node,s);
     return p;
 }
 

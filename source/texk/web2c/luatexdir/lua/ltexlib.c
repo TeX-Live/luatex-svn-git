@@ -2550,9 +2550,6 @@ void init_tex_table(lua_State * L)
     lua_setglobal(L, "tex");
 }
 
-
-
-
 static const struct luaL_Reg texlib[] = {
     {"run", tex_run_main},      /* may be needed  */
     {"finish", tex_run_end},    /* may be needed  */

@@ -463,7 +463,7 @@ void scan_pdfrefximage(PDF pdf)
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     scan_int();
     check_obj_type(pdf, obj_type_ximage, cur_val);
-    new_whatsit(pdf_refximage_node);
+    tail_append(new_rule(image_rule));
     idict = idict_array[obj_data_ptr(pdf, cur_val)];
     if (alt_rule.wd != null_flag || alt_rule.ht != null_flag
         || alt_rule.dp != null_flag)
@@ -473,8 +473,8 @@ void scan_pdfrefximage(PDF pdf)
     width(tail) = dim.wd;
     height(tail) = dim.ht;
     depth(tail) = dim.dp;
-    pdf_ximage_transform(tail) = transform;
-    pdf_ximage_index(tail) = img_index(idict);
+    rule_transform(tail) = transform;
+    rule_objnum(tail) = img_index(idict);
 }
 
 @ |tex_scale()| sequence of decisions:

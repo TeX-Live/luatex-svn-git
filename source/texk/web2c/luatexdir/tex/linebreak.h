@@ -70,14 +70,12 @@ extern halfword find_protchar_right(halfword l, halfword r);
 
 /* skipable nodes at the margins during character protrusion */
 
-#  define cp_skipable(a) ((! is_char_node((a))) &&                        \
+#  define cp_skipable(a) ((! is_char_node((a))) &&                      \
                         ((type((a)) == ins_node)                        \
                          || (type((a)) == mark_node)                    \
                          || (type((a)) == adjust_node)                  \
                          || (type((a)) == penalty_node)                 \
-                         || ((type((a)) == whatsit_node) &&             \
-                             (subtype((a)) != pdf_refximage_node) &&    \
-                             (subtype((a)) != pdf_refxform_node))       \
+                         || (type((a)) == whatsit_node)                 \
                          /* reference to an image or XObject form */    \
                          || ((type((a)) == disc_node) &&                \
                              (vlink_pre_break(a) == null) &&            \

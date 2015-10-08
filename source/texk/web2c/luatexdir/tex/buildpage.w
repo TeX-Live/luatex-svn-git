@@ -403,15 +403,7 @@ void build_page(void)
             }
             break;
         case whatsit_node:
-            /* Prepare to move whatsit |p| to the current page,
-               then |goto contribute| */
-            if ((subtype(p) == pdf_refxform_node)
-                || (subtype(p) == pdf_refximage_node)) {
-                page_total = page_total + page_depth + height(p);
-                page_depth = depth(p);
-            }
             goto CONTRIBUTE;
-
             break;
         case glue_node:
             if (page_contents < box_there)

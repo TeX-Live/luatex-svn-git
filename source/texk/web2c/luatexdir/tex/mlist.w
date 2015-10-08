@@ -924,7 +924,7 @@ static pointer math_clone(pointer q)
 static pointer do_fraction_rule(scaled t, pointer att)
 {
     pointer p;                  /* the new node */
-    p = new_rule();
+    p = new_rule(normal_rule);
     rule_dir(p) = math_direction;
     height(p) = t;
     depth(p) = 0;

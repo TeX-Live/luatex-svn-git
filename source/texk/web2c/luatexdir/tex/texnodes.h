@@ -214,10 +214,18 @@ typedef enum {
 #  define glue_shrink      shift_amount
 #  define span_count       subtype
 
-#  define rule_node_size 7
-#  define rule_dir(a)      vlink((a)+5)
-#  define synctex_tag_rule(a)  vinfo((a)+6)
-#  define synctex_line_rule(a) vlink((a)+6)
+typedef enum {
+    normal_rule = 0,
+    box_rule,
+    image_rule,
+} rule_subtypes;
+
+#  define rule_node_size 9
+#  define rule_dir(a)          vlink((a)+5)
+#  define rule_objnum(a)       vlink((a)+6)
+#  define rule_transform(a)    vlink((a)+7)
+#  define synctex_tag_rule(a)  vinfo((a)+8)
+#  define synctex_line_rule(a) vlink((a)+8)
 
 #  define mark_node_size 3
 #  define mark_ptr(a)      vlink((a)+2)
@@ -446,10 +454,10 @@ typedef enum {
     pdf_literal_node = 8,
     pdf_obj_code,
     pdf_refobj_node,            /* 10 */
-    pdf_xform_code,
-    pdf_refxform_node,
-    pdf_ximage_code,
-    pdf_refximage_node,
+    save_box_resource_code,
+    use_box_resource_code,
+    save_image_resource_code,
+    use_image_resource_code,
     pdf_annot_node,
     pdf_start_link_node,
     pdf_end_link_node,
@@ -582,8 +590,6 @@ typedef enum {
 
 #  define pdf_obj_objnum(a)    vinfo((a) + 2)
 
-#  define pdf_refxform_node_size  6
-#  define pdf_refximage_node_size 6
 #  define pdf_annot_node_size 8
 #  define pdf_dest_node_size 8
 #  define pdf_thread_node_size 8
@@ -604,11 +610,6 @@ destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinat
 #  define pdf_literal_data(a)  vlink((a)+2)
 #  define pdf_literal_mode(a)  type((a)+2)
 #  define pdf_literal_type(a)  subtype((a)+2)
-
-#  define pdf_ximage_index(a)     vinfo((a) + 5)        /* /Im* number and image index in array */
-#  define pdf_ximage_transform(a) vlink((a) + 5)
-#  define pdf_xform_objnum(a)     vinfo((a) + 5)
-#  define pdf_xform_transform(a)  vlink((a) + 5)
 
 #  define pdf_annot_data(a)       vinfo((a) + 6)
 #  define pdf_link_attr(a)        vinfo((a) + 6)
@@ -789,7 +790,7 @@ extern int max_used_attr;
 extern halfword attr_list_cache;
 
 extern halfword new_null_box(void);
-extern halfword new_rule(void);
+extern halfword new_rule(int s);
 extern halfword new_glyph(int f, int c);
 extern quarterword norm_min(int h);
 extern halfword new_char(int f, int c);
