@@ -27,10 +27,10 @@
 #define TeX
 
 int luatex_svn = luatex_svn_revision;
-int luatex_version = 81;        /* \.{\\luatexversion}  */
-int luatex_revision = '1';      /* \.{\\luatexrevision}  */
+int luatex_version = 82;        /* \.{\\luatexversion}  */
+int luatex_revision = '0';      /* \.{\\luatexrevision}  */
 int luatex_date_info = 2015100800;     /* the compile date is now hardwired */
-const char *luatex_version_string = "beta-0.81.1";
+const char *luatex_version_string = "beta-0.82.0";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>

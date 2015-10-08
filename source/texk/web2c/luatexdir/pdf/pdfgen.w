@@ -633,17 +633,7 @@ void pdf_begin_stream(PDF pdf)
 @c
 void pdf_end_stream(PDF pdf)
 {
-    typedef struct strbuf_const_s_ {
-    unsigned const char *data;   /* a PDF stream buffer */
-    unsigned const char *p;     /* pointer to the next character in the PDF stream buffer */
-    size_t size;                /* currently allocated size of the PDF stream buffer, grows dynamically */
-    size_t limit;               /* maximum allowed PDF stream buffer size */
-    } strbuf_const_s;
-
-
     os_struct *os = pdf->os;
-    const_lstring ls;
-    int callback_id ;
     assert(pdf->buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:

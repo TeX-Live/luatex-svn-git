@@ -49,7 +49,6 @@ extern halfword prev_rightmost(halfword s, halfword e);
 extern int pdf_last_xform;
 extern int pdf_last_ximage;
 extern int pdf_last_ximage_pages;
-extern int pdf_last_ximage_colordepth;
 extern int pdf_last_annot;
 extern int pdf_last_link;
 extern scaledpos pdf_last_pos;

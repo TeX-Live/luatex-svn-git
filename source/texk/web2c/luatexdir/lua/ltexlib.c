@@ -1299,7 +1299,6 @@ static int do_convert(lua_State * L, int cur_code)
     switch (cur_code) {
     case pdf_creation_date_code:       /* ? */
     case pdf_insert_ht_code:   /* arg <register int> */
-    case pdf_ximage_bbox_code: /* arg 2 ints */
     case lua_code:             /* arg complex */
     case lua_escape_string_code:       /* arg token list */
     case pdf_colorstack_init_code:     /* arg complex */
@@ -1424,7 +1423,6 @@ static int do_lastitem(lua_State * L, int cur_code)
     case last_x_pos_code:
     case last_y_pos_code:
     case pdf_retval_code:
-    case pdf_last_ximage_colordepth_code:
     case random_seed_code:
     case pdf_last_link_code:
     case luatex_version_code:

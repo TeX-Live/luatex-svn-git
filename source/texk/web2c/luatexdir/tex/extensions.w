@@ -576,7 +576,6 @@ int pdf_last_xform;
 @c
 int pdf_last_ximage;
 int pdf_last_ximage_pages;
-int pdf_last_ximage_colordepth;
 int pdf_last_annot;
 
 @ pdflastlink needs an extra global variable

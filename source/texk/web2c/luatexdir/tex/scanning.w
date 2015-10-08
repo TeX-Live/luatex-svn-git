@@ -193,7 +193,7 @@ static void negate_cur_val(boolean delete_glue)
 
 @ Some of the internal items can be fetched both routines,
 and these have been split off into the next routine, that
-returns true if the command code was understood 
+returns true if the command code was understood
 
 @c
 static boolean short_scan_something_internal(int cmd, int chr, int level,
@@ -315,7 +315,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         cur_chr = chr;
         /* Fetch an item in the current node, if appropriate */
         /* Here is where \.{\\lastpenalty}, \.{\\lastkern}, and \.{\\lastskip} are
-           implemented. The reference count for \.{\\lastskip} will be updated later. 
+           implemented. The reference count for \.{\\lastskip} will be updated later.
 
            We also handle \.{\\inputlineno} and \.{\\badness} here, because they are
            legal in similar contexts. */
@@ -344,7 +344,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 /* This code for reducing |cur_val_level| and\slash or negating the
                    result is similar to the one for all the other cases of
                    |scan_something_internal|, with the difference that |scan_expr| has
-                   already increased the reference count of a glue specification. 
+                   already increased the reference count of a glue specification.
                  */
                 while (cur_val_level > level) {
                     downgrade_cur_val(true);
@@ -447,9 +447,6 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     break;
                 case pdf_retval_code:
                     cur_val = pdf_retval;
-                    break;
-                case pdf_last_ximage_colordepth_code:
-                    cur_val = pdf_last_ximage_colordepth;
                     break;
                 case random_seed_code:
                     cur_val = random_seed;
@@ -588,7 +585,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
 
 @ First, here is a short routine that is called from lua code. All
 the  real work is delegated to |short_scan_something_internal| that
-is shared between this routine and |scan_something_internal|. 
+is shared between this routine and |scan_something_internal|.
 
 @c
 void scan_something_simple(halfword cmd, halfword subitem)
@@ -852,9 +849,9 @@ void scan_something_internal(int level, boolean negative)
 |scan_eight_bit_int| is superceded by |scan_register_num| and
 |scan_mark_num|. It may become split up even further in the future.
 
-Many of the |restricted classes| routines are the essentially 
+Many of the |restricted classes| routines are the essentially
 the same except for the upper limit and the error message, so it makes
-sense to combine these all into one function. 
+sense to combine these all into one function.
 
 @c
 void scan_limited_int(int max, const char *name)
@@ -1263,7 +1260,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
         /* Scan for (f)\.{fil} units; |goto attach_fraction| if found */
         /* In traditional TeX, a specification like `\.{filllll}' or `\.{fill L L
            L}' will lead to two error messages (one for each additional keyword
-           \.{"l"}). 
+           \.{"l"}).
            Not so for luatex, it just parses the construct in reverse. */
         if (scan_keyword("filll")) {
             cur_order = filll;
@@ -1498,7 +1495,7 @@ void scan_glue(int level)
     cur_val = q;
 }
 
-@ This is an omega routine 
+@ This is an omega routine
 @c
 void scan_scaled(void)
 {                               /* sets |cur_val| to a scaled value */
@@ -1862,7 +1859,7 @@ void scan_font_ident(void)
 }
 
 @ The |scan_general_text| procedure is much like |scan_toks(false,false)|,
-but will be invoked via |expand|, i.e., recursively. 
+but will be invoked via |expand|, i.e., recursively.
 
 The token list (balanced text) created by |scan_general_text| begins
 at |link(temp_token_head)| and ends at |cur_val|.  (If |cur_val=temp_token_head|,
@@ -2140,8 +2137,8 @@ typedef enum {
   ($2^{31}-1$) in absolute value, dimensions must not exceed |max_dimen|
   ($2^{30}-1$).  We avoid the absolute value of an integer, because this
   might fail for the value $-2^{31}$ using 32-bit arithmetic.
- 
-@   clear a number or dimension and set |arith_error| 
+
+@   clear a number or dimension and set |arith_error|
 
 @c
 #define num_error(A) do {			\
@@ -2149,8 +2146,8 @@ typedef enum {
 	A=0;					\
     } while (0)
 
- 
-@   clear a glue spec and set |arith_error| 
+
+@   clear a glue spec and set |arith_error|
 
 @c
 #define glue_error(A) do {				\

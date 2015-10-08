@@ -125,7 +125,7 @@
 #define HEADER_PDF "%PDF-1."
 #define MAX_HEADER (sizeof(HEADER_PNG)-1)
 #define HEADER_PDF_MEMSTREAM "data:application/pdf," /* see epdf.h */
-#define LEN_PDF_MEMSTREAM      21 /* see epdf.h */   
+#define LEN_PDF_MEMSTREAM      21 /* see epdf.h */
 
 
 static void check_type_by_header(image_dict * idict)
@@ -133,7 +133,7 @@ static void check_type_by_header(image_dict * idict)
     int i;
     FILE *file = NULL;
     char header[MAX_HEADER];
-    char prefix[LEN_PDF_MEMSTREAM+1]; 
+    char prefix[LEN_PDF_MEMSTREAM+1];
 
     assert(idict != NULL);
     if (img_type(idict) != IMG_TYPE_NONE)       /* nothing to do */
@@ -143,7 +143,7 @@ static void check_type_by_header(image_dict * idict)
     /* Like                                                */
     /* file = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);*/
     /* but we also check for a memstream object            */
-    assert(img_filepath(idict) && FOPEN_RBIN_MODE); 
+    assert(img_filepath(idict) && FOPEN_RBIN_MODE);
     file = fopen(img_filepath(idict), FOPEN_RBIN_MODE);
     if (file == NULL) {
         /* check the prefix of   img_filepath(idict) */
@@ -450,7 +450,6 @@ void scan_pdfximage(PDF pdf)
     img_transform(idict) = transform;
     pdf_last_ximage = img_objnum(idict);
     pdf_last_ximage_pages = img_totalpages(idict);
-    pdf_last_ximage_colordepth = img_colordepth(idict);
 }
 
 @ @c

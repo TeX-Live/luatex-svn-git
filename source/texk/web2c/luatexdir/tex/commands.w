@@ -316,7 +316,6 @@ void initialize_commands(void)
     primitive_luatex("lastxpos", last_item_cmd, last_x_pos_code, 0);
     primitive_luatex("lastypos", last_item_cmd, last_y_pos_code, 0);
     primitive_pdftex("pdfretval", last_item_cmd, pdf_retval_code, 0);
-    primitive_pdftex("pdflastximagecolordepth", last_item_cmd, pdf_last_ximage_colordepth_code, 0);
     primitive_luatex("randomseed", last_item_cmd, random_seed_code, 0);
     primitive_pdftex("pdflastlink", last_item_cmd, pdf_last_link_code, 0);
 
@@ -350,7 +349,6 @@ void initialize_commands(void)
     primitive_tex("jobname", convert_cmd, job_name_code, 0);
     primitive_luatex("formatname", convert_cmd, format_name_code, 0);
     primitive_pdftex("pdfinsertht", convert_cmd, pdf_insert_ht_code, 0);
-    primitive_pdftex("pdfximagebbox", convert_cmd, pdf_ximage_bbox_code, 0);
     primitive_luatex("Uchar", convert_cmd, uchar_code, 0);
 
     primitive_tex("if", if_test_cmd, if_char_code, 0);

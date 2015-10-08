@@ -482,7 +482,7 @@ boolean scan_keyword(const char *s)
     int saved_align_state = align_state;
     if (strlen(s) == 0)        /* was assert (strlen(s) > 1); */
       return false ;           /* but not with newtokenlib  zero keyword simply doesn't match  */
-    p = backup_head;           
+    p = backup_head;
     token_link(p) = null;
     k = s;
     while (*k) {
@@ -1751,7 +1751,6 @@ void conv_toks(void)
     int sn;                     /* lua chunk name */
     str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
     int i = 0;                  /* first temp integer */
-    int j = 0;                  /* second temp integer */
     int c = cur_chr;            /* desired type of conversion */
     str_number str;
     /* Scan the argument for command |c| */
@@ -1925,16 +1924,6 @@ void conv_toks(void)
     case pdf_insert_ht_code:
         scan_register_num();
         break;
-    case pdf_ximage_bbox_code:
-        scan_int();
-        check_obj_type(static_pdf, obj_type_ximage, cur_val);
-        i = obj_data_ptr(static_pdf, cur_val);
-        scan_int();
-        j = cur_val;
-        if ((j < 1) || (j > 4))
-            pdf_error("pdfximagebbox", "invalid parameter");
-        break;
-        /* Cases of 'Scan the argument for command |c|' */
     case eTeX_revision_code:
         break;
     default:
@@ -1997,27 +1986,6 @@ void conv_toks(void)
                 print_scaled(height(p));
             else
                 print_char('0');
-            tprint("pt");
-            break;
-        case pdf_ximage_bbox_code:
-            if (is_pdf_image(i)) {
-                switch (j) {
-                case 1:
-                    print_scaled(epdf_orig_x(i));
-                    break;
-                case 2:
-                    print_scaled(epdf_orig_y(i));
-                    break;
-                case 3:
-                    print_scaled(epdf_orig_x(i) + epdf_xsize(i));
-                    break;
-                case 4:
-                    print_scaled(epdf_orig_y(i) + epdf_ysize(i));
-                    break;
-                }
-            } else {
-                print_scaled(0);
-            }
             tprint("pt");
             break;
         case pdf_creation_date_code:

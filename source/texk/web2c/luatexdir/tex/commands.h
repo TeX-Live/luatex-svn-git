@@ -1,5 +1,5 @@
 /* commands.h
-   
+
    Copyright 2008 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -95,7 +95,7 @@ typedef enum {
     hmove_cmd,                  /* horizontal motion ( \.{\\moveleft}, \.{\\moveright} ) */
     vmove_cmd,                  /* vertical motion ( \.{\\raise}, \.{\\lower} ) */
     un_hbox_cmd,                /* unglue a box ( \.{\\unhbox}, \.{\\unhcopy} ) */
-    un_vbox_cmd,                /* unglue a box ( \.{\\unvbox}, \.{\\unvcopy} or 
+    un_vbox_cmd,                /* unglue a box ( \.{\\unvbox}, \.{\\unvcopy} or
                                    \.{\\pagediscards}, \.{\\splitdiscards} ) */
     remove_item_cmd,            /* nullify last item ( \.{\\unpenalty}, \.{\\unkern}, \.{\\unskip} ) */
     hskip_cmd,                  /* horizontal glue ( \.{\\hskip}, \.{\\hfil}, etc.~) */
@@ -196,7 +196,7 @@ typedef enum {
     undefined_cs_cmd,           /* initial state of most |eq_type| fields */
     expand_after_cmd,           /* special expansion ( \.{\\expandafter} ) */
     no_expand_cmd,              /* special nonexpansion ( \.{\\noexpand} ) */
-    input_cmd,                  /* input a source file ( \.{\\input}, \.{\\endinput} or 
+    input_cmd,                  /* input a source file ( \.{\\input}, \.{\\endinput} or
                                    \.{\\scantokens} or \.{\\scantextokens} ) */
     if_test_cmd,                /* conditional text ( \.{\\if}, \.{\\ifcase}, etc.~) */
     fi_or_else_cmd,             /* delimiters for conditionals ( \.{\\else}, etc.~) */
@@ -247,8 +247,8 @@ typedef enum {
     uniform_deviate_code,       /* command code for \.{\\uniformdeviate} */
     normal_deviate_code,        /* command code for \.{\\normaldeviate} */
     pdf_insert_ht_code,         /* command code for \.{\\pdfinsertht} */
-    pdf_ximage_bbox_code,       /* command code for \.{\\pdfximagebbox} */
-    lua_code,                   /* command code for \.{\\directlua} */
+    /* image bbox */
+    lua_code=20,                /* command code for \.{\\directlua} */
     lua_escape_string_code,     /* command code for \.{\\luaescapestring} */
     pdf_colorstack_init_code,   /* command code for \.{\\pdfcolorstackinit} */
     luatex_revision_code,       /* command code for \.{\\luatexrevision} */
@@ -276,11 +276,11 @@ typedef enum {
     pdf_last_ximage_code,       /* code for \.{\\pdflastximage} */
     pdf_last_ximage_pages_code, /* code for \.{\\pdflastximagepages} */
     pdf_last_annot_code,        /* code for \.{\\pdflastannot} */
-    last_x_pos_code,        /* code for \.{\\lastxpos} */
-    last_y_pos_code,        /* code for \.{\\lastypos} */
+    last_x_pos_code,            /* code for \.{\\lastxpos} */
+    last_y_pos_code,            /* code for \.{\\lastypos} */
     pdf_retval_code,            /* global multi-purpose return value */
-    pdf_last_ximage_colordepth_code,    /* code for \.{\\pdflastximagecolordepth} */
-    random_seed_code,           /* code for \.{\\pdfrandomseed} */
+    /* color depth */
+    random_seed_code=16,        /* code for \.{\\pdfrandomseed} */
     pdf_last_link_code,         /* code for \.{\\pdflastlink} */
     luatex_version_code,        /* code for \.{\\luatexversion} */
     eTeX_minor_version_code,    /* code for \.{\\eTeXminorversion} */
