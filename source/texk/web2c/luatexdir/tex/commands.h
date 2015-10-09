@@ -272,9 +272,9 @@ typedef enum {
     input_line_no_code,         /* code for \.{\\inputlineno} */
     badness_code,               /* code for \.{\\badness} */
     pdf_last_obj_code,          /* code for \.{\\pdflastobj} */
-    pdf_last_xform_code,        /* code for \.{\\pdflastxform} */
-    pdf_last_ximage_code,       /* code for \.{\\pdflastximage} */
-    pdf_last_ximage_pages_code, /* code for \.{\\pdflastximagepages} */
+    last_saved_box_resource_index_code,   /* code for \.{\\lastsavedboxresourceindex} */
+    last_saved_image_resource_index_code, /* code for \.{\\lastsavedimageresourceindex} */
+    last_saved_image_resource_pages_code, /* code for \.{\\lastsavedimageresourcepages} */
     pdf_last_annot_code,        /* code for \.{\\pdflastannot} */
     last_x_pos_code,            /* code for \.{\\lastxpos} */
     last_y_pos_code,            /* code for \.{\\lastypos} */

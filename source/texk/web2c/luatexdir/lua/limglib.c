@@ -559,7 +559,7 @@ static halfword img_to_node(image * a)
     assert(ad != NULL);
     assert(img_objnum(ad) != 0);
     n = new_rule(image_rule);
-    rule_objnum(n) = img_objnum(ad);
+    rule_index(n) = img_objnum(ad);
     width(n) = img_width(a);
     height(n) = img_height(a);
     depth(n) = img_depth(a);

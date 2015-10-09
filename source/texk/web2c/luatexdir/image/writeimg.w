@@ -474,7 +474,7 @@ void scan_pdfrefximage(PDF pdf)
     height(tail) = dim.ht;
     depth(tail) = dim.dp;
     rule_transform(tail) = transform;
-    rule_objnum(tail) = img_index(idict);
+    rule_index(tail) = img_index(idict);
 }
 
 @ |tex_scale()| sequence of decisions:

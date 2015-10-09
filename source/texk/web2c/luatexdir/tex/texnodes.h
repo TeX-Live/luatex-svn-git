@@ -222,7 +222,7 @@ typedef enum {
 
 #  define rule_node_size 9
 #  define rule_dir(a)          vlink((a)+5)
-#  define rule_objnum(a)       vlink((a)+6)
+#  define rule_index(a)        vlink((a)+6)
 #  define rule_transform(a)    vlink((a)+7)
 #  define synctex_tag_rule(a)  vinfo((a)+8)
 #  define synctex_line_rule(a) vlink((a)+8)

@@ -427,13 +427,13 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 case pdf_last_obj_code:
                     cur_val = pdf_last_obj;
                     break;
-                case pdf_last_xform_code:
+                case last_saved_box_resource_index_code:
                     cur_val = pdf_last_xform;
                     break;
-                case pdf_last_ximage_code:
+                case last_saved_image_resource_index_code:
                     cur_val = pdf_last_ximage;
                     break;
-                case pdf_last_ximage_pages_code:
+                case last_saved_image_resource_pages_code:
                     cur_val = pdf_last_ximage_pages;
                     break;
                 case pdf_last_annot_code:

@@ -37,7 +37,7 @@ void pdf_place_form(PDF pdf, halfword p)
     pdffloat cm[6];
     pdfstructure *q = pdf->pstruct;
     int r = 6;
-    int objnum = rule_objnum(p);
+    int objnum = rule_index(p);
     nat.wd = obj_xform_width(pdf, objnum);
     nat.ht = obj_xform_height(pdf, objnum);
     nat.dp = obj_xform_depth(pdf, objnum);
@@ -120,5 +120,5 @@ void scan_pdfrefxform(PDF pdf)
     width(tail) = dim.wd;
     height(tail) = dim.ht;
     depth(tail) = dim.dp;
-    rule_objnum(tail) = cur_val;
+    rule_index(tail) = cur_val;
 }

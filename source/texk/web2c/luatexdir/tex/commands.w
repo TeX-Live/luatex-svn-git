@@ -309,9 +309,9 @@ void initialize_commands(void)
     primitive_tex("badness", last_item_cmd, badness_code, 0);
     primitive_luatex("luatexversion", last_item_cmd, luatex_version_code, 0);
     primitive_pdftex("pdflastobj", last_item_cmd, pdf_last_obj_code, 0);
-    primitive_pdftex("pdflastxform", last_item_cmd, pdf_last_xform_code, 0);
-    primitive_pdftex("pdflastximage", last_item_cmd, pdf_last_ximage_code, 0);
-    primitive_pdftex("pdflastximagepages", last_item_cmd, pdf_last_ximage_pages_code, 0);
+    primitive_pdftex("lastsavedboxresourceindex", last_item_cmd, last_saved_box_resource_index_code, 0);
+    primitive_pdftex("lastsavedimageresourceindex", last_item_cmd, last_saved_image_resource_index_code, 0);
+    primitive_pdftex("lastsavedimageresourcepages", last_item_cmd, last_saved_image_resource_pages_code, 0);
     primitive_pdftex("pdflastannot", last_item_cmd, pdf_last_annot_code, 0);
     primitive_luatex("lastxpos", last_item_cmd, last_x_pos_code, 0);
     primitive_luatex("lastypos", last_item_cmd, last_y_pos_code, 0);

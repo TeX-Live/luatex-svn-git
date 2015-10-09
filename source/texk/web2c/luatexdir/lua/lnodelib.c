@@ -2913,8 +2913,8 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             lua_pushnumber(L, depth(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, rule_dir(n));
-        } else if (lua_key_eq(s, objnum)) {
-            lua_pushnumber(L, rule_objnum(n));
+        } else if (lua_key_eq(s, index)) {
+            lua_pushnumber(L, rule_index(n));
         } else if (lua_key_eq(s, transform)) {
             lua_pushnumber(L,rule_transform(n));
         } else {
@@ -3629,8 +3629,8 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             lua_pushnumber(L, depth(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, rule_dir(n));
-        } else if (lua_key_eq(s, objnum)) {
-            lua_pushnumber(L, rule_objnum(n));
+        } else if (lua_key_eq(s, index)) {
+            lua_pushnumber(L, rule_index(n));
         } else if (lua_key_eq(s, transform)) {
             lua_pushnumber(L,rule_transform(n));
         } else {

@@ -204,7 +204,7 @@ void do_extension(PDF pdf)
                 case save_image_resource_code:
                     check_o_mode(pdf, "\\immediate\\saveimageresource", 1 << OMODE_PDF,
                                  true);
-                    do_extension(pdf);  /* scan image and set |pdf_last_ximage| */
+                    do_extension(pdf);  /* scan image and set |lastsavedimageresourceindex| */
                     pdf_write_image(pdf, pdf_last_ximage);
                     break;
                 default:
@@ -569,7 +569,7 @@ halfword prev_rightmost(halfword s, halfword e)
 @c
 int pdf_last_xform;
 
-@ \.{\\pdfximage} and \.{\\useimageresource} are similiar to \.{\\pdfxform} and
+@ \.{\\saveimageresource} and \.{\\useimageresource} are similiar to \.{\\saveboxresource} and
   \.{\\useimageresource}. As we have to scan |<rule spec>| quite often, it is better
   have a |rule_node| that holds the most recently scanned |<rule spec>|.
 
