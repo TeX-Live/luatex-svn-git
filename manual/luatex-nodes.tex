@@ -194,12 +194,18 @@ subtypes~0, 4, and~5.
 
 \subsubsection{rule nodes}
 
+\subsubsubsection{normal rules}
+
 Valid fields: \showfields{rule}\crlf
 Id: \showid{rule}
 
+We have three subtypes. Subtype~0 is just a normal rule, a rectangle
+filled with ink. Subtype~1 is a reusable box, while subtype_2 is an
+image.
+
 \starttabulate[|lT|l|p|]
 \NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
-\NC subtype     \NC number          \NC unused \NC \NR
+\NC subtype     \NC number          \NC 0, 1 or 2 \NC \NR
 \NC attr        \NC \syntax{<node>} \NC \NC \NR
 \NC width       \NC number          \NC the width of the rule; the special value
                                         $-1073741824$ is used for \quote
@@ -210,7 +216,13 @@ Id: \showid{rule}
                                         negative) \NC \NR
 \NC dir         \NC string          \NC the direction of this rule,
                                         see~\in[dirnodes] \NC \NR
+\NC index       \NC number          \NC an optional index that can be referred
+                                        to (only for subtypes 1 and~2 and
+                                        backend specific). \NC \NR
 \stoptabulate
+
+The subtypes 1 and~2 replace the xform and ximage whatsits and in nodelists they
+behave like rules of subtype_0 when it comes to dimensions.
 
 \subsubsection{ins nodes}
 
@@ -363,7 +375,6 @@ Id: \showid{kern}
 \NC attr        \NC \syntax{<node>} \NC \NC \NR
 \NC kern        \NC number          \NC \NC \NR
 \stoptabulate
-
 
 \subsubsection{penalty nodes}
 
@@ -840,39 +851,6 @@ Id: \showid{whatsit,pdf_refobj}
 \NC attr        \NC \syntax{<node>} \NC \NC \NR
 \NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
 \stoptabulate
-
-\subsubsection{pdf_refxform nodes}
-
-Valid fields: \showfields{whatsit,pdf_refxform}\crlf
-Id: \showid{whatsit,pdf_refxform}.
-
-\starttabulate[|lT|l|p|]
-\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
-\NC attr        \NC \syntax{<node>} \NC \NC \NR
-\NC width       \NC number          \NC \NC \NR
-\NC height      \NC number          \NC \NC \NR
-\NC depth       \NC number          \NC \NC \NR
-\NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
-\stoptabulate
-
-Be aware that \type {pdf_refxform} nodes have dimensions that are used by \LUATEX.
-
-\subsubsection{pdf_refximage nodes}
-
-Valid fields: \showfields{whatsit,pdf_refximage}\crlf
-Id: \showid{whatsit,pdf_refximage}
-
-\starttabulate[|lT|l|p|]
-\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
-\NC attr        \NC \syntax{<node>} \NC \NC \NR
-\NC width       \NC number          \NC \NC \NR
-\NC height      \NC number          \NC \NC \NR
-\NC depth       \NC number          \NC \NC \NR
-\NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
-\stoptabulate
-
-Be aware that \type {pdf_refximage} nodes have dimensions that are used by
-\LUATEX.
 
 \subsubsection{pdf_annot nodes}
 

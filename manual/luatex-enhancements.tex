@@ -667,13 +667,33 @@ the node number of the nodes.
 
 \section{Images and Forms}
 
-\LUATEX\ accepts optional dimension parameters for \type {\pdfrefximage} and
-\type {\pdfrefxform} in the same format as for \type {\pdfximage}. With images,
-these dimensions are then used instead of the ones given to \type {\pdfximage}
-but the original dimensions are not overwritten, so that a \type {\pdfrefximage}
-without dimensions still provides the image with dimensions defined by \type
-{\pdfximage}. These optional parameters are not implemented for \type
-{\pdfxform}.
+These two concepts are now core concepts and no longer whatsits. They are in fact
+now implemented as rules with special properties. Normal rules have subtype~0,
+saved boxes have subtype~1 and images have subtype~2. This has the positive side
+effect that whenever we need to take content with dimensions into account, when we
+look at rule nodes, we automatically also deal with these two types.
+
+The syntax of the \type {\save...resource} is the same as in \PDFTEX\ but you
+should consider them to be backend specific. This means that a macro package
+should treat them as such and check for the current output mode if applicable.
+Here are the equivalents:
+
+\starttabulate[|l|l|]
+\NC \type {\saveboxresource}             \EQ \type {\pdfxform}           \NC \NR
+\NC \type {\saveimageresource}           \EQ \type {\pdfximage}          \NC \NR
+\NC \type {\useboxresource}              \EQ \type {\pdfrefxform}        \NC \NR
+\NC \type {\useimageresource}            \EQ \type {\pdfrefximage}       \NC \NR
+\NC \type {\lastsavedboxresourceindex}   \EQ \type {\pdflastxform}       \NC \NR
+\NC \type {\lastsavedimageresourceindex} \EQ \type {\pdflastximage}      \NC \NR
+\NC \type {\lastsavedimageresourcepages} \EQ \type {\pdflastximagepages} \NC \NR
+\stoptabulate
+
+\LUATEX\ accepts optional dimension parameters for \type {\use...resource} in the
+same format as for rules. With images, these dimensions are then used instead of
+the ones given to \type {\useimageresource} but the original dimensions are not
+overwritten, so that a \type {\useimageresource} without dimensions still
+provides the image with dimensions defined by \type {\saveimageresource}. These
+optional parameters are not implemented for \type {\saveboxresource}.
 
 \starttyping
 \pdfrefximage width 20mm height 10mm depth 5mm \pdflastximage

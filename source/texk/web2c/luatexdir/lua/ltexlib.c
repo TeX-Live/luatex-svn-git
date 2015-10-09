@@ -2540,7 +2540,7 @@ static int tex_show_context(lua_State * L)
 
 static int tex_save_box_resource(lua_State * L)
 {
-    halfword boxnumber;
+    halfword boxnumber, boxdata;
     int index, attributes, resources;
     /* box attributes resources */
     boxnumber  = (halfword) lua_tonumber(L,1);
@@ -2549,17 +2549,16 @@ static int tex_save_box_resource(lua_State * L)
     lua_pushvalue(L, 3);
     resources = luaL_ref(L, LUA_REGISTRYINDEX);
     /* more or less same as scanner variant */
+    boxdata = box(boxnumber);
     static_pdf->xform_count++;
     index = pdf_create_obj(static_pdf, obj_type_xform, static_pdf->xform_count);
     set_obj_data_ptr(static_pdf, index, pdf_get_mem(static_pdf, pdfmem_xform_size));
-
     set_obj_xform_attr_str(static_pdf, index, attributes);
     set_obj_xform_resources_str(static_pdf, index, resources);
-
-    set_obj_xform_box(static_pdf, index, (int) boxnumber);
-    set_obj_xform_width(static_pdf, index, width(boxnumber));
-    set_obj_xform_height(static_pdf, index, height(boxnumber));
-    set_obj_xform_depth(static_pdf, index, depth(boxnumber));
+    set_obj_xform_box(static_pdf, index, (int) boxdata);
+    set_obj_xform_width(static_pdf, index, width(boxdata));
+    set_obj_xform_height(static_pdf, index, height(boxdata));
+    set_obj_xform_depth(static_pdf, index, depth(boxdata));
     box(boxnumber) = null;
     pdf_last_xform = index;
     lua_pushnumber(L, index);

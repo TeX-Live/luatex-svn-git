@@ -282,9 +282,9 @@ extern char **environ;
   lua_rawget(L, -1+n)
 
 /*
-Unfortunately floor is already redefined as 
+Unfortunately floor is already redefined as
 #define floor ((integer)floor((double)(a)))
-so 
+so
 #define lua_uroundnumber(a,b) (unsigned int)floor((double)(lua_tonumber(a,b)+0.5))
 is useless.
 */
@@ -608,6 +608,7 @@ make_lua_key(registry);\
 make_lua_key(renew);\
 make_lua_key(rep);\
 make_lua_key(replace);\
+make_lua_key(resources);\
 make_lua_key(right);\
 make_lua_key(right_boundary);\
 make_lua_key(right_protruding);\
@@ -683,6 +684,8 @@ make_lua_key(vtop);\
 make_lua_key(width);\
 make_lua_key(writable);\
 make_lua_key(x_height);\
+make_lua_key(xformresources);\
+make_lua_key(xformattributes);\
 make_lua_key(xoffset);\
 make_lua_key(xyz_zoom);\
 make_lua_key(yoffset)
@@ -895,6 +898,7 @@ init_lua_key(registry);\
 init_lua_key(renew);\
 init_lua_key(rep);\
 init_lua_key(replace);\
+init_lua_key(resources);\
 init_lua_key(right);\
 init_lua_key(right_boundary);\
 init_lua_key(right_protruding);\
@@ -969,6 +973,8 @@ init_lua_key(vtop);\
 init_lua_key(width);\
 init_lua_key(writable);\
 init_lua_key(x_height);\
+init_lua_key(xformresources);\
+init_lua_key(xformattributes);\
 init_lua_key(xoffset);\
 init_lua_key(xyz_zoom);\
 init_lua_key(yoffset);\
@@ -1040,7 +1046,7 @@ extern FILE *_cairo_win32_tmpfile( void );
 #define max_experimental_code 1
 #define MAX_EXPERIMENTAL_CODE_SIZE max_experimental_code+1
 /* to be indexed by i with 1<= i <=max_experimental_code */
-extern int experimental_code[MAX_EXPERIMENTAL_CODE_SIZE] ; 
+extern int experimental_code[MAX_EXPERIMENTAL_CODE_SIZE] ;
 
 
 #endif                          /* LUATEX_API_H */
@@ -1274,6 +1280,7 @@ use_lua_key(registry);
 use_lua_key(renew);
 use_lua_key(rep);
 use_lua_key(replace);
+use_lua_key(resources);
 use_lua_key(right);
 use_lua_key(right_boundary);
 use_lua_key(right_protruding);
@@ -1349,6 +1356,8 @@ use_lua_key(vtop);
 use_lua_key(width);
 use_lua_key(writable);
 use_lua_key(x_height);
+use_lua_key(xformresources);
+use_lua_key(xformattributes);
 use_lua_key(xoffset);
 use_lua_key(xyz_zoom);
 use_lua_key(yoffset);

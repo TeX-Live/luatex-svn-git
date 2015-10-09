@@ -4279,6 +4279,17 @@ The preferred interface is now \type {pdf.setpageattributes}, \type
 properties and \type {pdf.getpageattributes}, \type {pdf.getpageattributes}
 and \type {pdf.getpageresources} for querying them.
 
+\subsection{\type {pdf.<set/get>xformattributes}, \type {pdf.<set/get>xformresources}}
+
+These variables offer a read|-|write interface to related token lists. The value
+types are strings. The variables have no interaction with the corresponding
+\PDFTEX\ token registers \type {\pdfxformattr} and \type {\pdfxformresources}. They
+are written out to the \PDF\ file directly after the \PDFTEX\ token registers.
+
+The preferred interface is now \type {pdf.setxformattributes} and \type
+{pdf.setxformattributes} for setting these properties and \type
+{pdf.getxformattributes} and \type {pdf.getxformresources} for querying them.
+
 \subsection{\type {pdf.h}, \type {pdf.v}}
 
 These are the \type {h} and \type {v} values that define the current location on
@@ -5234,6 +5245,14 @@ invalid as well. To prevent this from happening, always use \type
 
 \starttyping
 tex.box[0] = node.copy_list(tex.box[2])
+\stoptyping
+
+The following function will register a box for reuse (this is modelled after so
+called xforms in \PDF). You can (re)use the box with \type {\useboxresource} or
+by creating a rule node with subtype~2.
+
+\starttyping
+local index = tex.setboxresource(n,attributes,resources)
 \stoptyping
 
 \subsection{Math parameters}

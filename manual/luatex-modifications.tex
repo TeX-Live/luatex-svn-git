@@ -257,6 +257,32 @@ which in turn triggered renaming primitives.
 
 \stopitemize
 
+One change involves the so called xforms and ximages. In \PDFTEX\ these are
+implemented as so called whatsits. But contrary to other whatsits they have
+dimensions that need to be taken into account when for instance calculating
+optimal linebreaks. In \LUATEX\ these are now promoted to normal nodes, which
+simplifies code that needs those dimensions.
+
+Another reason for promotion is that these are useful concepts. Backends can
+provide the ability to use content that has been rendered in several places,
+and images are also common. For that reason we also changed the names:
+
+\starttabulate[|l|l|]
+\NC \bf new name                         \NC \bf old name \NC \NR
+\NC \type {\saveboxresource}             \NC \type {\pdfxform}           \NC \NR
+\NC \type {\saveimageresource}           \NC \type {\pdfximage}          \NC \NR
+\NC \type {\useboxresource}              \NC \type {\pdfrefxform}        \NC \NR
+\NC \type {\useimageresource}            \NC \type {\pdfrefximage}       \NC \NR
+\NC \type {\lastsavedboxresourceindex}   \NC \type {\pdflastxform}       \NC \NR
+\NC \type {\lastsavedimageresourceindex} \NC \type {\pdflastximage}      \NC \NR
+\NC \type {\lastsavedimageresourcepages} \NC \type {\pdflastximagepages} \NC \NR
+\stoptabulate
+
+There are a few \type {\pdf...} primitives that relate to this but these are
+typical backend specific ones. The index that gets returned is to be considered
+as \quote {just a number} and although it still has the same meaning (object
+related) as before, you should not depend on that.
+
 \stopsubsection
 
 \startsubsection[title=Changes from \ALEPH\ RC4]

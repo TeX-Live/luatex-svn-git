@@ -538,6 +538,7 @@ static int l_get_pdf_value(lua_State * L, int key)
     lua_rawget(L,-2);
     return 1;
 }
+
 static int l_get_pageresources(lua_State * L) {
     return l_get_pdf_value(L,lua_key_index(pageresources));
 }
@@ -556,12 +557,15 @@ static int l_get_info(lua_State * L) {
 static int l_get_names(lua_State * L) {
     return l_get_pdf_value(L,lua_key_index(names));
 }
-
-
 static int l_get_trailer(lua_State * L) {
     return l_get_pdf_value(L,lua_key_index(trailer));
 }
-
+static int l_get_xformresources(lua_State * L) {
+    return l_get_pdf_value(L,lua_key_index(xformresources));
+}
+static int l_get_xformattributes(lua_State * L) {
+    return l_get_pdf_value(L,lua_key_index(xformattributes));
+}
 
 static int getpdf(lua_State * L)
 {
@@ -612,6 +616,7 @@ static int l_set_pdf_value(lua_State * L, int key)
     }
     return 0;
 }
+
 static int l_set_pageresources(lua_State * L) {
     return l_set_pdf_value(L,lua_key_index(pageresources));
 }
@@ -633,7 +638,12 @@ static int l_set_names(lua_State * L) {
 static int l_set_trailer(lua_State * L) {
     return l_set_pdf_value(L,lua_key_index(trailer));
 }
-
+static int l_set_xformresources(lua_State * L) {
+    return l_set_pdf_value(L,lua_key_index(xformresources));
+}
+static int l_set_xformattributes(lua_State * L) {
+    return l_set_pdf_value(L,lua_key_index(xformattributes));
+}
 
 static int setpdf(lua_State * L)
 {
@@ -790,6 +800,8 @@ static const struct luaL_Reg pdflib[] = {
     {"setpageresources", l_set_pageresources},
     {"setpageattributes", l_set_pageattributes},
     {"setpagesattributes", l_set_pagesattributes},
+    {"setxformresources", l_set_xformresources},
+    {"setxformattributes", l_set_xformattributes},
     {"getcatalog", l_get_catalog},
     {"getinfo", l_get_info},
     {"getnames", l_get_names},
@@ -797,6 +809,8 @@ static const struct luaL_Reg pdflib[] = {
     {"getpageresources", l_get_pageresources},
     {"getpageattributes", l_get_pageattributes},
     {"getpagesattributes", l_get_pagesattributes},
+    {"getxformresources", l_get_xformresources},
+    {"getxformattributes", l_get_xformattributes},
     {NULL, NULL}                /* sentinel */
 };
 

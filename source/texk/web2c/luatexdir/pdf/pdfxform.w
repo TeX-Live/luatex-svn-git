@@ -66,6 +66,8 @@ void pdf_place_form(PDF pdf, halfword p)
     addto_page_resources(pdf, obj_type_xform, objnum);
 }
 
+/* we will store token lists as strings too */
+
 @ @c
 void scan_pdfxform(PDF pdf)
 {
