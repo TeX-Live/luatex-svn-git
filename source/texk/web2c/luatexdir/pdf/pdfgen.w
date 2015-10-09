@@ -1773,6 +1773,10 @@ void pdf_begin_page(PDF pdf)
             delete_token_ref(obj_xform_attr(pdf, pdf_cur_form));
             set_obj_xform_attr(pdf, pdf_cur_form, null);
         }
+        if (obj_xform_attr_str(pdf, pdf_cur_form) != null) {
+            lua_pdf_literal(pdf, obj_xform_attr_str(pdf, pdf_cur_form));
+            luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_attr_str(pdf, pdf_cur_form));
+        }
         pdf_add_name(pdf, "BBox");
         pdf_begin_array(pdf);
         pdf_add_bp(pdf, -form_margin);
@@ -2066,6 +2070,10 @@ void pdf_end_page(PDF pdf)
             pdf_print_toks(pdf, obj_xform_resources(pdf, pdf_cur_form));
             delete_token_ref(obj_xform_resources(pdf, pdf_cur_form));
             set_obj_xform_resources(pdf, pdf_cur_form, null);
+        }
+        if (obj_xform_resources_str(pdf, pdf_cur_form) != null) {
+            lua_pdf_literal(pdf, obj_xform_resources_str(pdf, pdf_cur_form));
+            luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_resources_str(pdf, pdf_cur_form));
         }
     }
 
