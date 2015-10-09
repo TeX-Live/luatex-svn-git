@@ -309,9 +309,9 @@ void initialize_commands(void)
     primitive_tex("badness", last_item_cmd, badness_code, 0);
     primitive_luatex("luatexversion", last_item_cmd, luatex_version_code, 0);
     primitive_pdftex("pdflastobj", last_item_cmd, pdf_last_obj_code, 0);
-    primitive_pdftex("lastsavedboxresourceindex", last_item_cmd, last_saved_box_resource_index_code, 0);
-    primitive_pdftex("lastsavedimageresourceindex", last_item_cmd, last_saved_image_resource_index_code, 0);
-    primitive_pdftex("lastsavedimageresourcepages", last_item_cmd, last_saved_image_resource_pages_code, 0);
+    primitive_luatex("lastsavedboxresourceindex", last_item_cmd, last_saved_box_resource_index_code, 0);
+    primitive_luatex("lastsavedimageresourceindex", last_item_cmd, last_saved_image_resource_index_code, 0);
+    primitive_luatex("lastsavedimageresourcepages", last_item_cmd, last_saved_image_resource_pages_code, 0);
     primitive_pdftex("pdflastannot", last_item_cmd, pdf_last_annot_code, 0);
     primitive_luatex("lastxpos", last_item_cmd, last_x_pos_code, 0);
     primitive_luatex("lastypos", last_item_cmd, last_y_pos_code, 0);
@@ -708,10 +708,10 @@ void initialize_commands(void)
     primitive_pdftex("pdfrestore", extension_cmd, pdf_restore_node, 0);
     primitive_pdftex("pdfobj", extension_cmd, pdf_obj_code, 0);
     primitive_pdftex("pdfrefobj", extension_cmd, pdf_refobj_node, 0);
-    primitive_pdftex("saveboxresource", extension_cmd, save_box_resource_code, 0);
+    primitive_luatex("saveboxresource", extension_cmd, save_box_resource_code, 0);
     primitive_luatex("useboxresource", extension_cmd, use_box_resource_code, 0);
-    primitive_pdftex("saveimageresource", extension_cmd, save_image_resource_code, 0);
-    primitive_pdftex("useimageresource", extension_cmd, use_image_resource_code, 0);
+    primitive_luatex("saveimageresource", extension_cmd, save_image_resource_code, 0);
+    primitive_luatex("useimageresource", extension_cmd, use_image_resource_code, 0);
     primitive_pdftex("pdfannot", extension_cmd, pdf_annot_node, 0);
     primitive_pdftex("pdfstartlink", extension_cmd, pdf_start_link_node, 0);
     primitive_pdftex("pdfendlink", extension_cmd, pdf_end_link_node, 0);
