@@ -59,8 +59,6 @@
 #define pdf_v_origin       dimen_par(pdf_v_origin_code)
 #define pdf_px_dimen       dimen_par(pdf_px_dimen_code)
 
-#define pdf_image_resolution   int_par(pdf_image_resolution_code)
-
 #define math_eqno_gap_step     int_par(math_eqno_gap_step_code)
 
 #define escape_char int_par(escape_char_code)
@@ -2898,7 +2896,7 @@ void assign_internal_value(int a, halfword p, int val)
                 word_define(p, val);
             }
             break;
-        case pdf_compress_level_code:
+/*        case pdf_compress_level_code:
             static_pdf->compress_level = val;
             word_define(p, val);
             break;
@@ -2906,6 +2904,7 @@ void assign_internal_value(int a, halfword p, int val)
             static_pdf->objcompresslevel = val;
             word_define(p, val);
             break;
+*/
         case language_code:
             if (val < 0) {
 	        word_define(int_base + cur_lang_code, -1);
@@ -3665,7 +3664,7 @@ void initialize(void)
         font_bytes = 0;
         pdf_h_origin = one_inch;
         pdf_v_origin = one_inch;
-        pdf_compress_level = 9;
+     /* pdf_compress_level = 9;
         pdf_objcompresslevel = 0;
         pdf_decimal_digits = 3;
         pdf_image_resolution = 72;
@@ -3674,6 +3673,7 @@ void initialize(void)
         pdf_image_gamma = 2200;
         pdf_image_hicolor = 1;
         pdf_image_apply_gamma = 0;
+     */
         pdf_px_dimen = one_bp;
         math_eqno_gap_step = 1000 ;
         cs_text(frozen_protection) = maketexstring("inaccessible");

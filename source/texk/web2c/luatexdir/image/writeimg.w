@@ -38,10 +38,6 @@
 #include "lua.h"          /* for |LUA_NOREF| */
 #include "lauxlib.h"
 
-@ @c
-#define pdf_image_resolution int_par(pdf_image_resolution_code)
-#define pdf_pagebox int_par(pdf_pagebox_code)
-
 @* Patch ImageTypeDetection 2003/02/08 by Heiko Oberdiek.
 
   Function |readimage| performs some basic initializations.

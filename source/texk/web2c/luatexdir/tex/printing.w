@@ -419,9 +419,9 @@ void tprint(const char *sss)
                 term_offset=0;
             }
             if (s != newlinechar) {
-                if ((s>=0x20)||(s==0x0A)||(s==0x0D)||(s==0x09)) {       
+                if ((s>=0x20)||(s==0x0A)||(s==0x0D)||(s==0x09)) {
                     buffer[i++] = s;
-                } else {                                                
+                } else {
                     buffer[i++] = '^';
                     buffer[i++] = '^';
                     buffer[i++] = s+64;
@@ -474,7 +474,7 @@ void print_banner(const char *v, int ver)
             wterm(' ');
             fprintf(term_out,"Number of bits used by the hash function (" my_name "): %d",LUAI_HASHLIMIT);
         print_ln();
-        } 
+        }
         if (shellenabledp) {
             wterm(' ');
             if (restrictedshell)
@@ -499,7 +499,7 @@ void log_banner(const char *v, int ver)
     if (ver < 0)
         fprintf(log_file, "This is " MyName ", Version %s ", v);
     else
-        fprintf(log_file, "This is " MyName ", Version %s%s (rev %d) ", v, 
+        fprintf(log_file, "This is " MyName ", Version %s%s (rev %d) ", v,
 	                  WEB2CVERSION, ver);
     print(format_ident);
     print_char(' ');
@@ -834,7 +834,7 @@ void print_font_identifier(internal_font_number f)
         tprint_esc("FONT");
         print_int(f);
     }
-    if (int_par(pdf_tracing_fonts_code) > 0) {
+    if (int_par(tracing_fonts_code) > 0) {
         tprint(" (");
         print_font_name(f);
         if (font_size(f) != font_dsize(f)) {

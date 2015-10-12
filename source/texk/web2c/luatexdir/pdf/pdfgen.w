@@ -266,9 +266,10 @@ void fix_pdf_minorversion(PDF pdf)
             char msg[256];
             (void) snprintf(msg, 255, "LuaTeX error (illegal pdfminorversion %d)", (int) pdf_minor_version);
             tex_error(msg, hlp);
-            pdf_minor_version = 4;
+            pdf->minor_version = 4;
+        } else {
+            pdf->minor_version = pdf_minor_version;
         }
-        pdf->minor_version = pdf_minor_version;
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != pdf_minor_version)
