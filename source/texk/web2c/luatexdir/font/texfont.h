@@ -112,8 +112,6 @@ extern extinfo *new_variant(int glyph, int startconnect, int endconnect,
 
 extern scaled_whd get_charinfo_whd(internal_font_number f, int c);
 
-
-
 typedef struct texfont {
     int _font_size;
     int _font_dsize;
@@ -197,7 +195,6 @@ typedef enum {
 extern const char *font_type_strings[];
 extern const char *font_format_strings[];
 extern const char *font_embedding_strings[];
-
 
 #  define font_checksum(a)          font_tables[a]->_font_checksum
 #  define set_font_checksum(a,b)    font_checksum(a) = b
@@ -333,7 +330,6 @@ boolean cmp_font_area(int, str_number);
 
 #  define pdf_font_attr(a)            font_tables[a]->_pdf_font_attr
 #  define set_pdf_font_attr(a,b)      pdf_font_attr(a) = b
-
 
 #  define left_boundarychar  -1
 #  define right_boundarychar -2
@@ -606,6 +602,7 @@ extern int vf_packet_bytes(charinfo * co);
 extern charinfo *copy_charinfo(charinfo * ci);
 
 /* this function is in vfovf.c for the moment */
+
 extern int make_vf_table(lua_State * L, const char *name, scaled s);
 
 /* some bits of the old interface, used by e.g. writet3.c */
@@ -616,5 +613,23 @@ extern int make_vf_table(lua_State * L, const char *name, scaled s);
 #  define get_charwidth(f,c) (char_exists(f,c) ? char_width(f,c) : 0)
 #  define get_charheight(f,c) (char_exists(f,c) ? char_height(f,c) : 0)
 #  define get_chardepth(f,c) (char_exists(f,c) ? char_depth(f,c) : 0)
+
+/* moved from pdffont.h */
+
+extern int pk_dpi;              /* PK pixel density value from \.{texmf.cnf} */
+
+extern internal_font_number tfm_lookup(char *s, scaled fs);
+
+extern int fix_expand_value(internal_font_number f, int e);
+
+extern void set_expand_params(internal_font_number f, boolean auto_expand,
+                              int stretch_limit, int shrink_limit,
+                              int font_step);
+
+extern void read_expand_font(void);
+extern void new_letterspaced_font(small_number a);
+extern void make_font_copy(small_number a);
+
+extern void glyph_to_unicode(void);
 
 #endif                          /* TEXFONT_H */

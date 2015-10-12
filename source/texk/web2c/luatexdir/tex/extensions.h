@@ -31,7 +31,9 @@ extern scaled neg_ht;
 
 extern halfword write_loc;
 
-extern void do_extension(PDF pdf);
+extern void do_extension(PDF pdf, int immediate);
+extern void do_pdf_extension(PDF pdf, int immediate);
+extern void do_pdf_resource(PDF pdf, int immediate, int code);
 
 /* Three extra node types carry information from |main_control|. */
 
@@ -43,7 +45,7 @@ type of the value depends on the |user_node_type| field.
 */
 
 extern void new_whatsit(int s);
-extern void new_write_whatsit(int w);
+extern void new_write_whatsit(int w, int check);
 extern void scan_pdf_ext_toks(void);
 extern halfword prev_rightmost(halfword s, halfword e);
 extern int pdf_last_xform;
@@ -80,6 +82,10 @@ extern halfword last_line_fill; /* the |par_fill_skip| glue node of the new para
 #  define get_tex_attribute_register(j) attribute(j)
 #  define get_tex_box_register(j) box(j)
 
+extern int  get_tex_extension_count_register(const char *s, int d);
+extern int  get_tex_extension_dimen_register(const char *s, int d);
+// extern char get_tex_extension_toks_register (const char *s, const char *d);
+
 extern int set_tex_dimen_register(int j, scaled v);
 extern int set_tex_skip_register(int j, halfword v);
 extern int set_tex_count_register(int j, scaled v);
@@ -109,5 +115,52 @@ extern int shellenabledp;
 extern int restrictedshell;
 extern char *output_comment;
 extern boolean debug_format_file;
+
+typedef enum {
+    /* traditional extensions */
+    open_code = 0,
+    write_code,
+    close_code,
+    reserved_extension_code, // 3: we moved special below immediate //
+    reserved_immediate_code, // 4: same number as main codes, expectec value //
+    /* backend specific implementations */
+    special_code,
+    save_box_resource_code,
+    use_box_resource_code,
+    save_image_resource_code,
+    use_image_resource_code,
+} extension_codes ;
+
+/* for the  moment there */
+
+typedef enum {
+    /* reserved, first needs to be larger than max extension_codes */
+    pdf_extension_code = 32,
+    pdf_literal_code,
+    pdf_dest_code,
+    pdf_annot_code,
+    pdf_save_code,
+    pdf_restore_code,
+    pdf_setmatrix_code,
+    pdf_obj_code,
+    pdf_refobj_code,
+    pdf_colorstack_code,
+    pdf_start_link_code,
+    pdf_end_link_code,
+    pdf_link_data_code,
+    pdf_start_thread_code,
+    pdf_end_thread_code,
+    pdf_thread_code,
+    pdf_outline_code,
+    pdf_glyph_to_unicode_code,
+    pdf_catalog_code,
+    pdf_font_attr_code,
+    pdf_map_file_code,
+    pdf_map_line_code,
+    pdf_include_chars_code,
+    pdf_info_code,
+    pdf_names_code,
+    pdf_trailer_code,
+} pdf_extension_codes;
 
 #endif

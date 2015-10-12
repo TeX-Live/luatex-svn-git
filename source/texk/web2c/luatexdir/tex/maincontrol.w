@@ -627,7 +627,72 @@ static void run_after_group (void) {
 
 @ @c
 static void run_extension (void) {
-    do_extension(static_pdf);
+    do_extension(static_pdf,0);
+}
+
+static void run_normal (void) {
+{
+    switch (cur_chr) {
+    case save_pos_code:
+        new_whatsit(save_pos_node);
+        break;
+    case save_cat_code_table_code:
+        scan_int();
+        if ((cur_val < 0) || (cur_val > 0x7FFF)) {
+            print_err("Invalid \\catcode table");
+            help1("All \\catcode table ids must be between 0 and 0x7FFF");
+            error();
+        } else {
+            if (cur_val == cat_code_table) {
+                print_err("Invalid \\catcode table");
+                help1("You cannot overwrite the current \\catcode table");
+                error();
+            } else {
+                copy_cat_codes(cat_code_table, cur_val);
+            }
+        }
+        break;
+    case init_cat_code_table_code:
+        scan_int();
+        if ((cur_val < 0) || (cur_val > 0x7FFF)) {
+            print_err("Invalid \\catcode table");
+            help1("All \\catcode table ids must be between 0 and 0x7FFF");
+            error();
+        } else {
+            if (cur_val == cat_code_table) {
+                print_err("Invalid \\catcode table");
+                help1("You cannot overwrite the current \\catcode table");
+                error();
+            } else {
+                initex_cat_codes(cur_val);
+            }
+        }
+        break;
+    case set_random_seed_code:
+        /*  Negative random seed values are silently converted to positive ones */
+        scan_int();
+        if (cur_val < 0)
+            negate(cur_val);
+        random_seed = cur_val;
+        init_randoms(random_seed);
+        break;
+    case late_lua_code:
+        new_whatsit(late_lua_node); /* type == normal */
+        late_lua_name(tail) = scan_lua_state();
+        (void) scan_toks(false, false);
+        late_lua_data(tail) = def_ref;
+        break;
+    case expand_font_code:
+        read_expand_font();
+        break;
+    default:
+        confusion("int1");
+        break;
+    }
+}
+
+
+
 }
 
 
@@ -828,7 +893,7 @@ static void init_main_control (void) {
     any_mode(set_font_cmd, prefixed_command);
     any_mode(def_font_cmd, prefixed_command);
     any_mode(letterspace_font_cmd, prefixed_command);
-    any_mode(pdf_copy_font_cmd, prefixed_command);
+    any_mode(copy_font_cmd, prefixed_command);
     any_mode(register_cmd, prefixed_command);
     any_mode(advance_cmd, prefixed_command);
     any_mode(multiply_cmd, prefixed_command);
@@ -847,6 +912,7 @@ static void init_main_control (void) {
     any_mode(message_cmd,issue_message);
     any_mode(case_shift_cmd, shift_case);
     any_mode(xray_cmd, show_whatever);
+    any_mode(normal_cmd, run_normal);
     any_mode(extension_cmd, run_extension);
 }
 
@@ -2703,7 +2769,7 @@ void prefixed_command(void)
     case letterspace_font_cmd:
         new_letterspaced_font((small_number) a);
         break;
-    case pdf_copy_font_cmd:
+    case copy_font_cmd:
         make_font_copy((small_number) a);
         break;
     case set_interaction_cmd:

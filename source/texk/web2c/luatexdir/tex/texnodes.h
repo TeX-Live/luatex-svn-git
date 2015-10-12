@@ -441,62 +441,47 @@ typedef enum {
 #  define large_char(A) vlink((A)+3)    /* |character| for ``large'' delimiter */
 
 
+/* we should have the codes in a separate enum: extension_codes */
+
 /* be careful: must be in sync with whatsit_node_data[] ! (at least) */
+
 typedef enum {
     open_node = 0,
     write_node,
     close_node,
     special_node,
-    /*language_node,              OBSOLETE*/
-    /*set_language_code,          OBSOLETE*/
-    /* was localpar */
-    /* was dir */
-    pdf_literal_node = 8,
-    pdf_obj_code,
-    pdf_refobj_node,            /* 10 */
-    save_box_resource_code,
-    use_box_resource_code,
-    save_image_resource_code,
-    use_image_resource_code,
+    use_box_resource_node,
+    use_image_resource_node,
+    save_pos_node,
+    late_lua_node,
+    cancel_boundary_node,
+    user_defined_node,
+    /* todo: a different list */
+    pdf_literal_node = 16,
+    pdf_refobj_node,
     pdf_annot_node,
     pdf_start_link_node,
     pdf_end_link_node,
-    pdf_outline_code,
     pdf_dest_node,
-    pdf_thread_node,            /* 20 */
+    pdf_thread_node,
     pdf_start_thread_node,
     pdf_end_thread_node,
- save_pos_node,
     pdf_thread_data_node,
     pdf_link_data_node,
-    pdf_names_code,
-    pdf_font_attr_code,
-    pdf_include_chars_code,
-    pdf_map_file_code,
-    pdf_map_line_code,          /* 30 */
-    pdf_trailer_code,
-    font_expand_code,
-    set_random_seed_code,
-    pdf_glyph_to_unicode_code,
-    late_lua_node,              /* 35 */
-    save_cat_code_table_code = 37,
-    init_cat_code_table_code,
     pdf_colorstack_node,
-    pdf_setmatrix_node,         /*40 */
+    pdf_setmatrix_node,
     pdf_save_node,
     pdf_restore_node,
-    cancel_boundary_node,
-    user_defined_node           /* 44 */
 } whatsit_types;
 
-#  define MAX_WHATSIT_TYPE 44
+#  define MAX_WHATSIT_TYPE 26
 
 #  define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
 #  define  get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
 
 
-#  define pdf_info_code pdf_thread_data_node
-#  define pdf_catalog_code  pdf_link_data_node
+// #  define pdf_info_code pdf_thread_data_node
+// #  define pdf_catalog_code  pdf_link_data_node
 
 #  define GLYPH_CHARACTER     (1 << 0)
 #  define GLYPH_LIGATURE      (1 << 1)

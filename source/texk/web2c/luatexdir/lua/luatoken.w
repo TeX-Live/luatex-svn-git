@@ -84,6 +84,7 @@ command_item command_names[] = {
     {"vcenter", vcenter_cmd, NULL},
     {"case_shift", case_shift_cmd, NULL},
     {"message", message_cmd, NULL},
+    {"normal", normal_cmd, NULL},
     {"extension", extension_cmd, NULL},
     {"in_stream", in_stream_cmd, NULL},
     {"begin_group", begin_group_cmd, NULL},
@@ -140,7 +141,8 @@ command_item command_names[] = {
     {"hyph_data", hyph_data_cmd, NULL},
     {"set_interaction", set_interaction_cmd, NULL},
     {"letterspace_font", letterspace_font_cmd, NULL},
-    {"pdf_copy_font", pdf_copy_font_cmd, NULL},
+    {"expand_font",expand_font_cmd, NULL},
+    {"copy_font", copy_font_cmd, NULL},
     {"undefined_cs", undefined_cs_cmd, NULL},
     {"expand_after", expand_after_cmd, NULL},
     {"no_expand", no_expand_cmd, NULL},
@@ -301,7 +303,7 @@ void tokenlist_to_luastring(lua_State * L, int p)
     char *s;
     s = tokenlist_to_cstring(p, 1, &l);
     lua_pushlstring(L, s, (size_t) l);
-    free(s);    
+    free(s);
 }
 
 
