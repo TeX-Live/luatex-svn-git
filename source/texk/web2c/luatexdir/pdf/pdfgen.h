@@ -66,12 +66,7 @@ written bytes.
             ff = A;                             \
     } while (0)
 
-typedef enum { NOT_SHIPPING, SHIPPING_PAGE, SHIPPING_FORM } shipping_mode_e;
-
-extern int pdf_output_option;
-extern int pdf_output_value;
-extern int pdf_draftmode_option;
-extern int pdf_draftmode_value;
+typedef enum { NOT_SHIPPING, SHIPPING_PAGE, SHIPPING_FORM } shipping_mode_e; /* needs pdf_prefix */
 
 extern scaled one_hundred_inch;
 extern scaled one_inch;

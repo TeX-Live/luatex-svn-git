@@ -130,7 +130,7 @@ void initialize_commands(void)
     primitive_luatex("noligs", assign_int_cmd, int_base + disable_lig_code, int_base);
     primitive_luatex("catcodetable", assign_int_cmd, int_base + cat_code_table_code, int_base);
     primitive_luatex("outputbox", assign_int_cmd, int_base + output_box_code, int_base);
-    primitive_pdftex("pdfoutput", assign_int_cmd, int_base + pdf_output_code, int_base);
+    primitive_luatex("outputmode", assign_int_cmd, int_base + output_mode_code, int_base);
     primitive_pdftex("pdfcompresslevel", assign_int_cmd, int_base + pdf_compress_level_code, int_base);
     primitive_pdftex("pdfobjcompresslevel", assign_int_cmd, int_base + pdf_objcompresslevel_code, int_base);
     primitive_pdftex("pdfdecimaldigits", assign_int_cmd, int_base + pdf_decimal_digits_code, int_base);
@@ -149,7 +149,7 @@ void initialize_commands(void)
     primitive_luatex("protrudechars", assign_int_cmd, int_base + protrude_chars_code, int_base);
     primitive_pdftex("pdftracingfonts", assign_int_cmd, int_base + pdf_tracing_fonts_code, int_base);
     primitive_pdftex("pdfgentounicode", assign_int_cmd, int_base + pdf_gen_tounicode_code, int_base);
-    primitive_pdftex("pdfdraftmode", assign_int_cmd, int_base + pdf_draftmode_code, int_base);
+    primitive_luatex("draftmode", assign_int_cmd, int_base + draft_mode_code, int_base);
     primitive_pdftex("pdfinclusioncopyfonts", assign_int_cmd, int_base + pdf_inclusion_copy_font_code, int_base);
     primitive_pdftex("pdfreplacefont", assign_int_cmd, int_base + pdf_replace_font_code, int_base);
     primitive_tex("parindent", assign_dimen_cmd, dimen_base + par_indent_code, dimen_base);

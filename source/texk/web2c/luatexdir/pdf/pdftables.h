@@ -122,7 +122,6 @@ extern void undump_pdftex_data(PDF pdf);
 /* interface definitions for eqtb locations */
 #  define pdf_compress_level       int_par(pdf_compress_level_code)
 #  define pdf_decimal_digits       int_par(pdf_decimal_digits_code)
-#  define pdf_draftmode            int_par(pdf_draftmode_code)
 #  define pdf_gamma                int_par(pdf_gamma_code)
 #  define pdf_gen_tounicode        int_par(pdf_gen_tounicode_code)
 #  define pdf_image_apply_gamma    int_par(pdf_image_apply_gamma_code)
@@ -133,7 +132,6 @@ extern void undump_pdftex_data(PDF pdf);
 #  define pdf_minor_version        int_par(pdf_minor_version_code)
 #  define pdf_move_chars           int_par(pdf_move_chars_code)
 #  define pdf_objcompresslevel     int_par(pdf_objcompresslevel_code)
-#  define pdf_output               int_par(pdf_output_code)
 #  define pdf_pk_mode              equiv(pdf_pk_mode_loc)
 #  define pdf_pk_resolution        int_par(pdf_pk_resolution_code)
 #  define pdf_replace_font         int_par(pdf_replace_font_code)

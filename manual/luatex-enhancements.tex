@@ -700,6 +700,19 @@ optional parameters are not implemented for \type {\saveboxresource}.
 \pdfrefxform  width 20mm height 10mm depth 5mm \pdflastxform
 \stoptyping
 
+\section{\type {\outputmode} and \type {\draftmode}}
+
+The \type {\outputmode} variable tells \LUATEX\ what it has to produce:
+
+\starttabulate[|l|l|]
+\NC \type {0} \NC \DVI\ code \NC \NR
+\NC \type {1} \NC \PDF\ code \NC \NR
+\stoptabulate
+
+The value of the \type {\draftmode} counter signals the backend if it should
+output less. The \PDF\ backend accepts a value of~$1$, while the \DVI\ backend
+ignores the value.
+
 \section{File syntax}
 
 \LUATEX\ will accept a braced argument as a file name:

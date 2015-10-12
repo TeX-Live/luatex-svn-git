@@ -436,11 +436,17 @@ void main_body(void)
         while ((iloc < ilimit) && (buffer[iloc] == ' '))
             incr(iloc);
     }
-    if (pdf_output_option != 0)
-        int_par(pdf_output_code) = pdf_output_value;
-    if (pdf_draftmode_option != 0)
-        pdf_draftmode = static_pdf->draftmode = pdf_draftmode_value;
+    if (output_mode_option != 0)
+        int_par(output_mode_code) = output_mode_value;
+    if (draft_mode_option != 0) {
+        int_par(draft_mode_code) = draft_mode_value;
+    }
+    /* this is specific for the pdf backend */
+    if (int_par(draft_mode_code) != 0) { /* should move */
+        static_pdf->draftmode = int_par(draft_mode_code);
+    }
     pdf_init_map_file((char *) pdftex_map);
+    /* */
     if (end_line_char_inactive)
         decr(ilimit);
     else
@@ -529,6 +535,7 @@ void close_files_and_terminate(void)
         }
     }
     wake_up_terminal();
+    /* rubish, these pdf arguments, passed, needs to be fixed, e.g. with a dummy in dvi */
     ensure_output_state(pdf, ST_OMODE_FIX);
     switch (pdf->o_mode) {
     case OMODE_NONE:           /* during initex run */
@@ -536,8 +543,7 @@ void close_files_and_terminate(void)
     case OMODE_PDF:
         if (history == fatal_error_stop) {
             remove_pdffile(pdf);
-            print_err
-                (" ==> Fatal error occurred, no output PDF file produced!");
+            print_err(" ==> Fatal error occurred, no output PDF file produced!");
         } else
             finish_pdf_file(pdf, luatex_version, get_luatexrevision());
         break;

@@ -27,7 +27,7 @@
 #include "lua/luatex-api.h"
 
 /* internalized strings: see luatex-api.h */
-set_make_keys; 
+set_make_keys;
 
 
 @
@@ -370,20 +370,19 @@ static void parse_options(int ac, char **av)
             restrictedshell = 1;
 
         } else if (ARGUMENT_IS("output-format")) {
-            pdf_output_option = 1;
+            output_mode_option = 1;
             if (strcmp(optarg, "dvi") == 0) {
-                pdf_output_value = 0;
+                output_mode_value = 0;
             } else if (strcmp(optarg, "pdf") == 0) {
-                pdf_output_value = 2;
+                output_mode_value = 1;
             } else {
-                WARNING1("Ignoring unknown value `%s' for --output-format",
-                         optarg);
-                pdf_output_option = 0;
+                WARNING1("Ignoring unknown value `%s' for --output-format",optarg);
+                output_mode_option = 0;
             }
 
         } else if (ARGUMENT_IS("draftmode")) {
-            pdf_draftmode_option = 1;
-            pdf_draftmode_value = 1;
+            draft_mode_option = 1;
+            draft_mode_value = 1;
 
         } else if (ARGUMENT_IS("mktex")) {
             kpse_maketex_option(optarg, true);

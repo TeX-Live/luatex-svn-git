@@ -38,10 +38,10 @@ PDF static_pdf = NULL;
 
 @ commandline interface
 @c
-int pdf_output_option;
-int pdf_output_value;
-int pdf_draftmode_option;
-int pdf_draftmode_value;
+int output_mode_option;
+int output_mode_value;
+int draft_mode_option;
+int draft_mode_value;
 
 halfword pdf_info_toks;         /* additional keys of Info dictionary */
 halfword pdf_catalog_toks;      /* additional keys of Catalog dictionary */
@@ -232,7 +232,7 @@ int pdf_get_mem(PDF pdf, int s)
 static output_mode get_o_mode(void)
 {
     output_mode o_mode;
-    if (pdf_output > 0) {
+    if (int_par(output_mode_code) > 0) {
         o_mode = OMODE_PDF;
     } else
         o_mode = OMODE_DVI;
@@ -249,7 +249,7 @@ void fix_o_mode(PDF pdf)
     if (pdf->o_mode == OMODE_NONE)
         pdf->o_mode = o_mode;
     else if (pdf->o_mode != o_mode)
-        pdf_error("setup", "\\pdfoutput can only be changed before anything is written to the output");
+        pdf_error("setup", "\\outputmode can only be changed before anything is written to the output");
 }
 
 @ This ensures that |pdfminorversion| is set only before any bytes have
@@ -273,8 +273,8 @@ void fix_pdf_minorversion(PDF pdf)
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != pdf_minor_version)
             pdf_error("setup", "\\pdfminorversion cannot be changed after data is written to the PDF file");
-        if (pdf->draftmode != pdf_draftmode)
-            pdf_error("setup", "\\pdfdraftmode cannot be changed after data is written to the PDF file");
+        if (pdf->draftmode != int_par(draft_mode_code))
+            pdf_error("setup", "\\draftmode cannot be changed after data is written to the PDF file");
     }
     if (pdf->draftmode != 0) {
         pdf->compress_level = 0;        /* re-fix it, might have been changed inbetween */
@@ -959,7 +959,7 @@ void pdf_rectangle(PDF pdf, halfword r)
 static void init_pdf_outputparameters(PDF pdf)
 {
     assert(pdf->o_mode == OMODE_PDF);
-    pdf->draftmode = fix_int(pdf_draftmode, 0, 1);
+    pdf->draftmode = fix_int(int_par(draft_mode_code), 0, 1);
     pdf->compress_level = fix_int(pdf_compress_level, 0, 9);
     pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
     pdf->gamma = fix_int(pdf_gamma, 0, 1000000);
@@ -1672,7 +1672,7 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
             assert(0);
         }
         snprintf(warn_string, 99, "not allowed in %s mode (\\pdfpoutput = %d)",
-                 m, (int) pdf_output);
+                 m, (int) int_par(output_mode_code));
         if (strict)
             pdf_error(s, warn_string);
         else

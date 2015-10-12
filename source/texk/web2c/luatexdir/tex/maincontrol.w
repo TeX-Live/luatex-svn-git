@@ -3609,8 +3609,7 @@ void initialize(void)
         pdf_image_hicolor = 1;
         pdf_image_apply_gamma = 0;
         pdf_px_dimen = one_bp;
-        pdf_draftmode = 0;
-	math_eqno_gap_step = 1000 ;
+        math_eqno_gap_step = 1000 ;
         cs_text(frozen_protection) = maketexstring("inaccessible");
         format_ident = maketexstring(" (INITEX)");
         cs_text(end_write) = maketexstring("endwrite");

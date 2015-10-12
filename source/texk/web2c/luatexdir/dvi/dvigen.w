@@ -37,7 +37,6 @@
 
 #define mode cur_list.mode_field        /* current mode */
 
-#define pdf_output int_par(pdf_output_code)
 #define mag int_par(mag_code)
 #define tracing_output int_par(tracing_output_code)
 #define tracing_stats int_par(tracing_stats_code)

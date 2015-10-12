@@ -21,6 +21,19 @@
 #ifndef LUATEX_API_H
 #  define LUATEX_API_H 1
 
+/* output modes, a bad place but this compiles at least */
+
+typedef enum { OMODE_NONE, OMODE_DVI, OMODE_PDF } output_mode;
+
+#  define MAX_OMODE 3           /* largest index in enum output_mode */
+
+extern int output_mode_option;
+extern int output_mode_value;
+extern int draft_mode_option;
+extern int draft_mode_value;
+
+/* till here */
+
 #  include <stdlib.h>
 #  include <stdio.h>
 #  include <stdarg.h>

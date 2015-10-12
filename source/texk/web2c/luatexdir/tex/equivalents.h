@@ -277,40 +277,33 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define disable_kern_code 62
 #  define cat_code_table_code 63
 #  define output_box_code 64
-#  define cur_lang_code 65      /* current language id */
+#  define cur_lang_code 65            /* current language id */
 #  define ex_hyphen_char_code 66
-#  define hyphenation_min_code 67 /* minimum word length */
+#  define hyphenation_min_code 67     /* minimum word length */
 #  define adjust_spacing_code 68      /*level of spacing adjusting */
 #  define protrude_chars_code 69      /*protrude chars at left/right edge of paragraphs */
+#  define output_mode_code 70         /*switch on PDF output if positive */
+#  define draft_mode_code 71
 
-#  define pdftex_first_integer_code 70  /*base for \pdfTeX's integer parameters */
-#  define pdf_output_code (pdftex_first_integer_code + 0)
-                                                        /*switch on PDF output if positive */
-#  define pdf_compress_level_code (pdftex_first_integer_code + 1)
-                                                                /*compress level of streams */
-#  define pdf_decimal_digits_code (pdftex_first_integer_code + 2)
-                                                                /*digits after the decimal point of numbers */
-#  define pdf_image_resolution_code (pdftex_first_integer_code + 3)     /*default image resolution */
-#  define pdf_pk_resolution_code (pdftex_first_integer_code + 4)        /*default resolution of PK font */
-#  define pdf_unique_resname_code (pdftex_first_integer_code + 5)
-                                                                /*generate unique names for resouces */
-#  define pdf_minor_version_code (pdftex_first_integer_code + 6)        /*fractional part of the PDF version produced */
-#  define pdf_pagebox_code (pdftex_first_integer_code + 7)      /*default pagebox to use for PDF inclusion */
-#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 8) /*if the PDF inclusion should treat pdfs
-                                                                           newer than |pdf_minor_version| as an error */
-#  define pdf_gamma_code (pdftex_first_integer_code + 9)
-#  define pdf_image_gamma_code (pdftex_first_integer_code + 10)
-#  define pdf_image_hicolor_code (pdftex_first_integer_code + 11)
-#  define pdf_image_apply_gamma_code (pdftex_first_integer_code + 12)
-#  define pdf_tracing_fonts_code (pdftex_first_integer_code + 13)
-                                                                /*level of font detail in log */
-#  define pdf_objcompresslevel_code (pdftex_first_integer_code + 14)    /*activate object streams */
-#  define pdf_gen_tounicode_code (pdftex_first_integer_code + 15)
-                                                                /*generate ToUnicode for fonts? */
-#  define pdf_draftmode_code (pdftex_first_integer_code + 16)   /*switch on draftmode if positive */
-#  define pdf_replace_font_code (pdftex_first_integer_code + 17)        /*generate ToUnicode for fonts? */
-#  define pdf_inclusion_copy_font_code (pdftex_first_integer_code + 18) /*generate ToUnicode for fonts? */
-#  define pdf_int_pars (pdftex_first_integer_code + 19) /*total number of \pdfTeX's integer parameters */
+#  define pdftex_first_integer_code 72                                  /*base for \pdfTeX's integer parameters */
+#  define pdf_compress_level_code (pdftex_first_integer_code + 0)       /*compress level of streams */
+#  define pdf_decimal_digits_code (pdftex_first_integer_code + 1)       /*digits after the decimal point of numbers */
+#  define pdf_image_resolution_code (pdftex_first_integer_code + 2)     /*default image resolution */
+#  define pdf_pk_resolution_code (pdftex_first_integer_code + 3)        /*default resolution of PK font */
+#  define pdf_unique_resname_code (pdftex_first_integer_code + 4)       /*generate unique names for resouces */
+#  define pdf_minor_version_code (pdftex_first_integer_code + 5)        /*fractional part of the PDF version produced */
+#  define pdf_pagebox_code (pdftex_first_integer_code + 6)              /*default pagebox to use for PDF inclusion */
+#  define pdf_inclusion_errorlevel_code (pdftex_first_integer_code + 7) /*if the PDF inclusion should treat pdfs newer than |pdf_minor_version| as an error */
+#  define pdf_gamma_code (pdftex_first_integer_code + 8)
+#  define pdf_image_gamma_code (pdftex_first_integer_code + 9)
+#  define pdf_image_hicolor_code (pdftex_first_integer_code + 10)
+#  define pdf_image_apply_gamma_code (pdftex_first_integer_code + 11)
+#  define pdf_tracing_fonts_code (pdftex_first_integer_code + 12)       /*level of font detail in log */
+#  define pdf_objcompresslevel_code (pdftex_first_integer_code + 13)    /*activate object streams */
+#  define pdf_gen_tounicode_code (pdftex_first_integer_code + 14)       /*generate ToUnicode for fonts? */
+#  define pdf_replace_font_code (pdftex_first_integer_code + 15)        /*generate ToUnicode for fonts? */
+#  define pdf_inclusion_copy_font_code (pdftex_first_integer_code + 16) /*generate ToUnicode for fonts? */
+#  define pdf_int_pars (pdftex_first_integer_code + 17)                 /*total number of \pdfTeX's integer parameters */
 #  define etex_first_integer_code (pdf_int_pars)        /*base for \eTeX's integer parameters */
 #  define tracing_assigns_code (etex_first_integer_code)        /*show assignments */
 #  define tracing_groups_code (etex_first_integer_code+1)       /*show save/restore groups */
