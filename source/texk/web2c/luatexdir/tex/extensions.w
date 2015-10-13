@@ -125,6 +125,11 @@ halfword write_loc;             /* |eqtb| address of \.{\\write} */
 the |do_extension| routine is called.
 
 @c
+int last_saved_image_index ;
+int last_saved_image_pages ;
+int last_saved_box_index ;
+scaledpos last_position = { 0, 0 };
+
 void do_pdf_extension(PDF pdf, int immediate)
 {
     int i, k;                   /* all-purpose integers */
@@ -332,15 +337,15 @@ void do_pdf_resource(PDF pdf, int immediate, int code)
         case save_box_resource_code:
             scan_pdfxform(pdf);
             if (immediate) {
-                pdf_cur_form = pdf_last_xform;
-                ship_out(pdf, obj_xform_box(pdf, pdf_last_xform), SHIPPING_FORM);
+                pdf_cur_form = last_saved_box_index;
+                ship_out(pdf, obj_xform_box(pdf, last_saved_box_index), SHIPPING_FORM);
             }
             break;
         case save_image_resource_code:
             fix_pdf_minorversion(pdf);
             scan_pdfximage(pdf);
             if (immediate) {
-                pdf_write_image(pdf, pdf_last_ximage);
+                pdf_write_image(pdf, last_saved_image_index);
             }
             break;
     }
@@ -515,27 +520,12 @@ halfword prev_rightmost(halfword s, halfword e)
     return p;
 }
 
-@ \.{\\pdfxform} and \.{\\useboxresource} are similiar to \.{\\pdfobj} and
-  \.{\\pdfrefobj}
-
-@c
-int pdf_last_xform;
-
-@ \.{\\saveimageresource} and \.{\\useimageresource} are similiar to \.{\\saveboxresource} and
-  \.{\\useimageresource}. As we have to scan |<rule spec>| quite often, it is better
-  have a |rule_node| that holds the most recently scanned |<rule spec>|.
-
-@c
-int pdf_last_ximage;
-int pdf_last_ximage_pages;
 int pdf_last_annot;
 
 @ pdflastlink needs an extra global variable
 
 @c
 int pdf_last_link;
-scaledpos pdf_last_pos = { 0, 0 };
-
 
 @ To implement primitives as \.{\\pdfinfo}, \.{\\pdfcatalog} or
 \.{\\pdfnames} we need to concatenate tokens lists.

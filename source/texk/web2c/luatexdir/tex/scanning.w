@@ -424,35 +424,23 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 case luatex_version_code:
                     cur_val = get_luatexversion();
                     break;
-                case pdf_last_obj_code:
-                    cur_val = pdf_last_obj;
-                    break;
                 case last_saved_box_resource_index_code:
-                    cur_val = pdf_last_xform;
+                    cur_val = last_saved_box_index;
                     break;
                 case last_saved_image_resource_index_code:
-                    cur_val = pdf_last_ximage;
+                    cur_val = last_saved_image_index;
                     break;
                 case last_saved_image_resource_pages_code:
-                    cur_val = pdf_last_ximage_pages;
-                    break;
-                case pdf_last_annot_code:
-                    cur_val = pdf_last_annot;
+                    cur_val = last_saved_image_pages;
                     break;
                 case last_x_pos_code:
-                    cur_val = pdf_last_pos.h;
+                    cur_val = last_position.h;
                     break;
                 case last_y_pos_code:
-                    cur_val = pdf_last_pos.v;
-                    break;
-                case pdf_retval_code:
-                    cur_val = pdf_retval;
+                    cur_val = last_position.v;
                     break;
                 case random_seed_code:
                     cur_val = random_seed;
-                    break;
-                case pdf_last_link_code:
-                    cur_val = pdf_last_link;
                     break;
                 case eTeX_version_code:
                     cur_val = eTeX_version;
@@ -500,7 +488,19 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                         cur_val = shrink_order(q);
                     delete_glue_ref(q);
                     break;
-
+                /* backend */
+                case pdf_last_link_code:
+                    cur_val = pdf_last_link;
+                    break;
+                case pdf_retval_code:
+                    cur_val = pdf_retval;
+                    break;
+                case pdf_last_obj_code:
+                    cur_val = pdf_last_obj;
+                    break;
+                case pdf_last_annot_code:
+                    cur_val = pdf_last_annot;
+                    break;
                 }               /* there are no other cases */
                 cur_val_level = int_val_level;
             }

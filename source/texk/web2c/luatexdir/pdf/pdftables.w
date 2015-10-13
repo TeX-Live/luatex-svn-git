@@ -29,7 +29,7 @@ const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] =
     "bead", "beads", "objstm", "others"
 };
 
-@ AVL sort oentry into |avl_table[]| 
+@ AVL sort entry into |avl_table[]|
 @c
 static int compare_info(const void *pa, const void *pb, void *param)
 {
@@ -113,7 +113,7 @@ static int avl_find_str_obj(PDF pdf, int t, char *s)
     return p->objptr;
 }
 
-@ Create an object with type |t| and identifier |i| 
+@ Create an object with type |t| and identifier |i|
 
 @c
 int pdf_create_obj(PDF pdf, int t, int i)
@@ -204,7 +204,7 @@ int pdf_get_obj(PDF pdf, int t, int i, boolean byname)
     return r;
 }
 
-@ object checking 
+@ object checking
 @c
 void check_obj_exists(PDF pdf, int objnum)
 {
@@ -366,8 +366,8 @@ void dump_pdftex_data(PDF pdf)
     x = pdf->head_tab[obj_type_ximage];
     dump_int(x);
     dump_int(pdf_last_obj);
-    dump_int(pdf_last_xform);
-    dump_int(pdf_last_ximage);
+    dump_int(last_saved_box_index);
+    dump_int(last_saved_image_index);
 }
 
 @ And restoring the pdftex data structures from the format. The
@@ -434,6 +434,6 @@ void undump_pdftex_data(PDF pdf)
     undump_int(x);
     pdf->head_tab[obj_type_ximage] = x;
     undump_int(pdf_last_obj);
-    undump_int(pdf_last_xform);
-    undump_int(pdf_last_ximage);
+    undump_int(last_saved_box_index);
+    undump_int(last_saved_image_index);
 }

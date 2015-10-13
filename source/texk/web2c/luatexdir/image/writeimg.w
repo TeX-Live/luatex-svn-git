@@ -444,8 +444,8 @@ void scan_pdfximage(PDF pdf)
     img_attr(idict) = attr;
     img_dimen(idict) = alt_rule;
     img_transform(idict) = transform;
-    pdf_last_ximage = img_objnum(idict);
-    pdf_last_ximage_pages = img_totalpages(idict);
+    last_saved_image_index = img_objnum(idict);
+    last_saved_image_pages = img_totalpages(idict);
 }
 
 @ @c

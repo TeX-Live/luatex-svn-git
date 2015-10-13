@@ -420,12 +420,7 @@ static void parse_options(int ac, char **av)
                  "the terms of the GNU General Public License, version 2 or (at your option)\n"
                  "any later version. For more information about these matters, see the file\n"
                  "named COPYING and the LuaTeX source.\n\n"
-#ifdef LuajitTeX
-                 "LuaTeX is Copyright 2015 Taco Hoekwater, the LuaTeX Team.\n"
-                 "Libraries and JIT extensions by Luigi Scarso, the LuaTeX SwigLib team.\n");
-#else
-                 "Copyright 2015 Taco Hoekwater, the LuaTeX Team.\n");
-#endif
+                 "LuaTeX is Copyright 2015 Taco Hoekwater and the LuaTeX Team.\n");
             /* *INDENT-ON* */
             uexit(0);
         } else if (ARGUMENT_IS("credits")) {
@@ -433,33 +428,19 @@ static void parse_options(int ac, char **av)
             initversionstring(&versions);
             print_version_banner();
             /* *INDENT-OFF* */
-            puts("\n\nThe LuaTeX team is Hans Hagen, Hartmut Henkel, Taco Hoekwater.\n"
+            puts("\n\nThe LuaTeX team is Hans Hagen, Hartmut Henkel, Taco Hoekwater, Luigi Scarso.\n\n"
                  MyName " merges and builds upon (parts of) the code from these projects:\n\n"
-                 "tex       by Donald Knuth\n"
-                 "etex      by Peter Breitenlohner, Phil Taylor and friends\n"
-                 "omega     by John Plaice and Yannis Haralambous\n"
-                 "aleph     by Giuseppe Bilotta\n"
-                 "pdftex    by Han The Thanh and friends\n"
-                 "kpathsea  by Karl Berry, Olaf Weber and others\n"
-                 "lua       by Roberto Ierusalimschy, Waldemar Celes\n"
-                 "             and Luiz Henrique de Figueiredo\n"
-                 "metapost  by John Hobby, Taco Hoekwater and friends.\n"
-                 "poppler   by Derek Noonburg, Kristian H\\ogsberg (partial)\n"
-#ifdef LuajitTeX
-                 "fontforge by George Williams (partial)\n"
-                 "luajit    by Mike Pall\n\n"
-#else
-                 "fontforge by George Williams (partial)\n\n"
-#endif
-                 "Some extensions to lua and additional lua libraries are used, as well as\n"
-                 "libraries for graphic inclusion. More details can be found in the source.\n"
-                 "Code development was sponsored by a grant from Colorado State University\n"
-#ifdef LuajitTeX
-                 "via the 'oriental tex' project, the TeX User Groups, and donations.\n"
-                 "The additional libraries and the LuaJIT extensions are provided by the LuaTeX SwigLib project.\n");
-#else
-                 "via the 'oriental tex' project, the TeX User Groups, and donations.\n");
-#endif
+                 "tex       : Donald Knuth\n"
+                 "etex      : Peter Breitenlohner, Phil Taylor and friends\n"
+                 "omega     : John Plaice and Yannis Haralambous\n"
+                 "aleph     : Giuseppe Bilotta\n"
+                 "pdftex    : Han The Thanh and friends\n"
+                 "kpathsea  : Karl Berry, Olaf Weber and others\n"
+                 "lua       : Roberto Ierusalimschy, Waldemar Celes and Luiz Henrique de Figueiredo\n"
+                 "metapost  : John Hobby, Taco Hoekwater and friends.\n"
+                 "poppler   : Derek Noonburg, Kristian H\\ogsberg (partial)\n"
+                 "fontforge : George Williams (partial)\n"
+                 "luajit    : Mike Pall (used in LuajitTeX)\n");
             /* *INDENT-ON* */
             puts(versions);
             uexit(0);

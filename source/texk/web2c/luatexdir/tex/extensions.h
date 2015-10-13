@@ -48,12 +48,8 @@ extern void new_whatsit(int s);
 extern void new_write_whatsit(int w, int check);
 extern void scan_pdf_ext_toks(void);
 extern halfword prev_rightmost(halfword s, halfword e);
-extern int pdf_last_xform;
-extern int pdf_last_ximage;
-extern int pdf_last_ximage_pages;
 extern int pdf_last_annot;
 extern int pdf_last_link;
-extern scaledpos pdf_last_pos;
 extern halfword concat_tokens(halfword q, halfword r);
 extern int pdf_retval;
 
@@ -115,6 +111,11 @@ extern int shellenabledp;
 extern int restrictedshell;
 extern char *output_comment;
 extern boolean debug_format_file;
+
+extern int last_saved_box_index ;
+extern int last_saved_image_index ;
+extern int last_saved_image_pages ;
+extern scaledpos last_position ;
 
 typedef enum {
     /* traditional extensions */

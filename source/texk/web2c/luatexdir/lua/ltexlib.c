@@ -2558,7 +2558,7 @@ static int tex_save_box_resource(lua_State * L)
     set_obj_xform_height(static_pdf, index, height(boxdata));
     set_obj_xform_depth(static_pdf, index, depth(boxdata));
     box(boxnumber) = null;
-    pdf_last_xform = index;
+    last_saved_box_index = index;
     lua_pushnumber(L, index);
     return 1;
 }

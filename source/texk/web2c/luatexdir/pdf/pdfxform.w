@@ -97,7 +97,7 @@ void scan_pdfxform(PDF pdf)
     set_obj_xform_height(pdf, k, height(p));
     set_obj_xform_depth(pdf, k, depth(p));
     box(cur_val) = null;
-    pdf_last_xform = k;
+    last_saved_box_index = k;
 }
 
 @ @c
