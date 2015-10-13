@@ -478,7 +478,7 @@ typedef enum {
     pdf_restore_node,
 } whatsit_types;
 
-#  define MAX_WHATSIT_TYPE 26
+#  define MAX_WHATSIT_TYPE 31
 
 #  define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
 #  define  get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
