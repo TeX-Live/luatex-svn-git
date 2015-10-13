@@ -220,6 +220,14 @@ typedef enum {
     image_rule,
 } rule_subtypes;
 
+/*
+#  define rule_node_size 9
+#  define rule_dir(a)          vlink((a)+5)
+#  define rule_index(a)        vlink((a)+6)
+#  define rule_transform(a)    vlink((a)+7)
+#  define synctex_tag_rule(a)  vinfo((a)+8)
+#  define synctex_line_rule(a) vlink((a)+8)
+*/
 
 #  define rule_node_size 8
 #  define rule_dir(a)          vlink((a)+5)
@@ -227,9 +235,6 @@ typedef enum {
 #  define rule_transform(a)    vlink((a)+6)
 #  define synctex_tag_rule(a)  vinfo((a)+7)
 #  define synctex_line_rule(a) vlink((a)+7)
-
-
-
 
 #  define mark_node_size 3
 #  define mark_ptr(a)      vlink((a)+2)

@@ -39,7 +39,7 @@ extern void do_pdf_resource(PDF pdf, int immediate, int code);
 
 /*
 User defined whatsits can be inserted into node lists to pass data
-along from one lua call to anotherb without interference from the
+along from one lua call to another without interference from the
 typesetting engine itself. Each has an id, a type, and a value. The
 type of the value depends on the |user_node_type| field.
 */
