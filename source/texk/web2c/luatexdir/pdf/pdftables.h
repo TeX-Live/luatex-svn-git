@@ -119,7 +119,8 @@ extern void undump_pdftex_data(PDF pdf);
 #  define set_height(A, B) height(A) = (B)
 #  define set_depth(A, B) depth(A) = (B)
 
-/* interface definitions for eqtb locations */
+/* pdf backend definitions */
+
 #  define pdf_compress_level       get_tex_extension_count_register("pdfcompresslevel",         9)
 #  define pdf_decimal_digits       get_tex_extension_count_register("pdfdecimaldigits",         3)
 #  define pdf_image_resolution     get_tex_extension_count_register("pdfimageresolution",      72)
@@ -135,7 +136,19 @@ extern void undump_pdftex_data(PDF pdf);
 #  define pdf_objcompresslevel     get_tex_extension_count_register("pdfobjcompresslevel",      0)
 #  define pdf_inclusion_copy_font  get_tex_extension_count_register("pdfinclusioncopyfonts",    0)
 #  define pdf_gen_tounicode        get_tex_extension_count_register("pdfgentounicode",          0)
-#  define pdf_pk_mode              equiv(pdf_pk_mode_loc)
 #  define pdf_replace_font         get_tex_extension_count_register("pdfreplacefont",           0)
+
+#  define pdf_h_origin             get_tex_extension_dimen_register("pdfhorigin",        one_inch)
+#  define pdf_v_origin             get_tex_extension_dimen_register("pdfvorigin",        one_inch)
+#  define pdf_thread_margin        get_tex_extension_dimen_register("pdfthreadmargin",          0)
+#  define pdf_dest_margin          get_tex_extension_dimen_register("pdfdestmargin",            0)
+#  define pdf_link_margin          get_tex_extension_dimen_register("pdflinkmargin",            0)
+
+#  define pdf_page_attr            get_tex_extension_toks_register("pdfpageattr")
+#  define pdf_page_resources       get_tex_extension_toks_register("pdfpageresources")
+#  define pdf_pages_attr           get_tex_extension_toks_register("pdfpagesattr")
+#  define pdf_xform_attr           get_tex_extension_toks_register("pdfxformattr")
+#  define pdf_xform_resources      get_tex_extension_toks_register("pdfxformresources")
+#  define pdf_pk_mode              get_tex_extension_toks_register("pdfpkmode")
 
 #endif                          /* PDFTABLES_H */

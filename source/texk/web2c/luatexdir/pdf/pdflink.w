@@ -22,9 +22,6 @@
 
 #include "ptexlib.h"
 
-@ @c
-#define pdf_link_margin          dimen_par(pdf_link_margin_code)
-
 @ To implement nested link annotations, we need a stack to hold copy of
 |pdf_start_link_node|'s that are being written out, together with their box
 nesting level.

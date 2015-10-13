@@ -59,12 +59,6 @@ void initialize_commands(void)
     primitive_tex("everyjob", assign_toks_cmd, every_job_loc, local_base);
     primitive_tex("everycr", assign_toks_cmd, every_cr_loc, local_base);
     primitive_tex("errhelp", assign_toks_cmd, err_help_loc, local_base);
-primitive_pdftex("pdfpagesattr", assign_toks_cmd, pdf_pages_attr_loc, local_base);
-primitive_pdftex("pdfpageattr", assign_toks_cmd, pdf_page_attr_loc, local_base);
-primitive_pdftex("pdfpageresources", assign_toks_cmd, pdf_page_resources_loc, local_base);
-primitive_pdftex("pdfxformattr", assign_toks_cmd, pdf_xform_attr_loc, local_base);
-primitive_pdftex("pdfxformresources", assign_toks_cmd, pdf_xform_resources_loc, local_base);
-primitive_pdftex("pdfpkmode", assign_toks_cmd, pdf_pk_mode_loc, local_base);
 
     /* The integer parameter names must be entered into the hash table */
 
@@ -156,14 +150,9 @@ primitive_pdftex("pdfpkmode", assign_toks_cmd, pdf_pk_mode_loc, local_base);
     primitive_tex("hoffset", assign_dimen_cmd, dimen_base + h_offset_code, dimen_base);
     primitive_tex("voffset", assign_dimen_cmd, dimen_base + v_offset_code, dimen_base);
     primitive_tex("emergencystretch", assign_dimen_cmd, dimen_base + emergency_stretch_code, dimen_base);
-primitive_pdftex("pdfhorigin", assign_dimen_cmd, dimen_base + pdf_h_origin_code, dimen_base);
-primitive_pdftex("pdfvorigin", assign_dimen_cmd, dimen_base + pdf_v_origin_code, dimen_base);
     primitive_luatex("pagewidth", assign_dimen_cmd, dimen_base + page_width_code, dimen_base);
     primitive_luatex("pageheight", assign_dimen_cmd, dimen_base + page_height_code, dimen_base);
-primitive_pdftex("pdflinkmargin", assign_dimen_cmd, dimen_base + pdf_link_margin_code, dimen_base);
-primitive_pdftex("pdfdestmargin", assign_dimen_cmd, dimen_base + pdf_dest_margin_code, dimen_base);
-primitive_pdftex("pdfthreadmargin", assign_dimen_cmd, dimen_base + pdf_thread_margin_code, dimen_base);
-primitive_pdftex("pdfpxdimen", assign_dimen_cmd, dimen_base + pdf_px_dimen_code, dimen_base);
+    primitive_luatex("pxdimen", assign_dimen_cmd, dimen_base + px_dimen_code, dimen_base);
 
     /* Many of \TeX's primitives need no |equiv|, since they are identifiable
        by their |eq_type| alone. These primitives are loaded into the hash table

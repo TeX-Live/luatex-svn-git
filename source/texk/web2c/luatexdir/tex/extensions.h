@@ -82,9 +82,9 @@ extern halfword last_line_fill; /* the |par_fill_skip| glue node of the new para
 #  define get_tex_attribute_register(j) attribute(j)
 #  define get_tex_box_register(j) box(j)
 
-extern int  get_tex_extension_count_register(const char *s, int d);
-extern int  get_tex_extension_dimen_register(const char *s, int d);
-// extern char get_tex_extension_toks_register (const char *s, const char *d);
+extern int get_tex_extension_count_register(const char *s, int d);
+extern int get_tex_extension_dimen_register(const char *s, int d);
+extern int get_tex_extension_toks_register (const char *s);
 
 extern int set_tex_dimen_register(int j, scaled v);
 extern int set_tex_skip_register(int j, halfword v);

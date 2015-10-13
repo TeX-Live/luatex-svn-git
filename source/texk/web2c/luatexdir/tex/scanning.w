@@ -1306,7 +1306,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     } else if (scan_keyword("ex")) {
         v = (x_height(get_cur_font()));
     } else if (scan_keyword("px")) {
-        v = dimen_par(pdf_px_dimen_code);
+        v = dimen_par(px_dimen_code);
     } else {
         goto NOT_FOUND;
     }

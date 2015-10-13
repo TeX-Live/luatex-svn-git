@@ -23,11 +23,10 @@
 #include "ptexlib.h"
 
 @ @c
-#define pdf_thread_margin        dimen_par(pdf_thread_margin_code)
 #define page_width dimen_par(page_width_code)
 #define page_height dimen_par(page_height_code)
 
-@ Threads are handled in similar way as link annotations 
+@ Threads are handled in similar way as link annotations
 @c
 void append_bead(PDF pdf, halfword p)
 {
@@ -140,7 +139,7 @@ void end_thread(PDF pdf, halfword p)
     pdf->last_thread = null;
 }
 
-@ The following function are needed for outputing article thread. 
+@ The following function are needed for outputing article thread.
 @c
 void thread_title(PDF pdf, int t)
 {

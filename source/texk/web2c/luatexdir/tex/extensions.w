@@ -842,14 +842,12 @@ int get_tex_extension_count_register(const char *s, int d)
     int k;
     int cs;
     cs = string_lookup(s,strlen(s));
-    if ((cs == undefined_control_sequence || cs == undefined_cs_cmd)) {
+    if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
         return d;
-    } else {
-        k = (equiv(cs) - count_base);
-        if ((k<0) || (k>65535))
-            return d;
-        return (int) get_tex_count_register(k);
-    }
+    k = (equiv(cs) - count_base);
+    if ((k<0) || (k>65535))
+        return d;
+    return (int) get_tex_count_register(k);
 }
 
 int get_tex_extension_dimen_register(const char *s, int d)
@@ -857,35 +855,26 @@ int get_tex_extension_dimen_register(const char *s, int d)
     int k;
     int cs;
     cs = string_lookup(s,strlen(s));
-    if ((cs == undefined_control_sequence || cs == undefined_cs_cmd)) {
+    if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
         return d;
-    } else {
-        k = (equiv(cs) - dimen_base);
-        if ((k<0) || (k>65535))
-            return d;
-        return (int) get_tex_dimen_register(k);
-    }
+    k = (equiv(cs) - scaled_base);
+    if ((k<0) || (k>65535))
+        return d;
+    return (int) get_tex_dimen_register(k);
 }
 
-// char get_tex_extension_toks_register(const char *s, char d)
-// {
-//     int k;
-//     int cs;
-//     str_number s;
-//     s = get_nullstr();
-//     cs = string_lookup(s,strlen(s));
-//     if ((cs == undefined_control_sequence || cs == undefined_cs_cmd)) {
-//         return d;
-//     } else {
-//         k = (equiv(cs) - toks_base);
-//         if ((k<0) || (k>65535))
-//             return d;
-//         if (toks(k) != null) {
-//             s = tokens_to_string(toks(k));
-//         }
-//         return s;
-//     }
-// }
+int get_tex_extension_toks_register(const char *s)
+{
+    int k;
+    int cs;
+    cs = string_lookup(s,strlen(s));
+    if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
+        return null;
+    k = (equiv(cs) - toks_base);
+    if ((k<0) || (k>65535))
+        return null;
+    return toks(k); /* a pointer to a token list */
+}
 
 int set_tex_dimen_register(int j, scaled v)
 {

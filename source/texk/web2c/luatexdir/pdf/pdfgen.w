@@ -959,6 +959,7 @@ void pdf_rectangle(PDF pdf, halfword r)
 @ @c
 static void init_pdf_outputparameters(PDF pdf)
 {
+    int pk_mode;
     assert(pdf->o_mode == OMODE_PDF);
     pdf->draftmode = fix_int(int_par(draft_mode_code), 0, 1);
     pdf->compress_level = fix_int(pdf_compress_level, 0, 9);
@@ -987,8 +988,9 @@ static void init_pdf_outputparameters(PDF pdf)
     pdf->pk_scale_factor =
         divide_scaled(72, pdf->pk_resolution, 5 + pdf->decimal_digits);
     if (!callback_defined(read_pk_file_callback)) {
-        if (pdf_pk_mode != null) {
-            char *s = tokenlist_to_cstring(pdf_pk_mode, true, NULL);
+        pk_mode = pdf_pk_mode; /* lookup once */
+        if (pk_mode != null) {
+            char *s = tokenlist_to_cstring(pk_mode, true, NULL);
             kpse_init_prog("PDFTEX", (unsigned) pdf->pk_resolution, s, nil);
             xfree(s);
         } else {
@@ -1733,12 +1735,10 @@ char *get_resname_prefix(PDF pdf)
 @ @c
 #define mag int_par(mag_code)
 
-#define pdf_xform_attr equiv(pdf_xform_attr_loc)
-#define pdf_xform_resources equiv(pdf_xform_resources_loc)
-
 void pdf_begin_page(PDF pdf)
 {
     pdffloat f;
+    int xform_attributes;
     scaled form_margin = 0;     /* was one_bp until SVN4066 */
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     init_pdf_pagecalculations(pdf);
@@ -1767,8 +1767,9 @@ void pdf_begin_page(PDF pdf)
         pdf_begin_dict(pdf);
         pdf_dict_add_name(pdf, "Type", "XObject");
         pdf_dict_add_name(pdf, "Subtype", "Form");
-        if (pdf_xform_attr != null)
-            pdf_print_toks(pdf, pdf_xform_attr);
+        xform_attributes = pdf_xform_attr; /* lookup once */
+        if (xform_attributes != null)
+            pdf_print_toks(pdf, xform_attributes);
         if (obj_xform_attr(pdf, pdf_cur_form) != null) {
             pdf_print_toks(pdf, obj_xform_attr(pdf, pdf_cur_form));
             delete_token_ref(obj_xform_attr(pdf, pdf_cur_form));
@@ -1861,8 +1862,8 @@ const char *get_pdf_table_string(const char *s)
 }
 
 @ @c
-#define pdf_page_attr equiv(pdf_page_attr_loc)
-#define pdf_page_resources equiv(pdf_page_resources_loc)
+// #define pdf_page_attr equiv(pdf_page_attr_loc)
+// #define pdf_page_resources equiv(pdf_page_resources_loc)
 
 void pdf_end_page(PDF pdf)
 {
@@ -1873,6 +1874,8 @@ void pdf_end_page(PDF pdf)
     pdf_object_list *annot_list, *bead_list, *link_list, *ol, *ol1;
     scaledpos save_cur_page_size;       /* to save |pdf->page_size| during flushing pending forms */
     shipping_mode_e save_shipping_mode;
+    int xform_resources;
+    int page_resources, page_attributes;
     int procset = PROCSET_PDF;
 
     /* Finish stream of page/form contents */
@@ -1908,8 +1911,9 @@ void pdf_end_page(PDF pdf)
         pdf_add_mag_bp(pdf, pdf->page_size.h);
         pdf_add_mag_bp(pdf, pdf->page_size.v);
         pdf_end_array(pdf);
-        if (pdf_page_attr != null)
-            pdf_print_toks(pdf, pdf_page_attr);
+        page_attributes = pdf_page_attr ; /* lookup once */
+        if (page_attributes != null)
+            pdf_print_toks(pdf, page_attributes);
         print_pdf_table_string(pdf, "pageattributes");
         pdf_dict_add_ref(pdf, "Parent", pdf->last_pages);
         if (pdf->img_page_group_val != 0) {
@@ -2061,12 +2065,14 @@ void pdf_end_page(PDF pdf)
     pdf_begin_dict(pdf);
     /* Print additional resources */
     if (global_shipping_mode == SHIPPING_PAGE) {
-        if (pdf_page_resources != null)
-            pdf_print_toks(pdf, pdf_page_resources);
+        page_resources = pdf_page_resources; /* lookup once */
+        if (page_resources != null)
+            pdf_print_toks(pdf, page_resources);
         print_pdf_table_string(pdf, "pageresources");
     } else {
-        if (pdf_xform_resources != null)
-            pdf_print_toks(pdf, pdf_xform_resources);
+        xform_resources = pdf_xform_resources; /* lookup once */
+        if (xform_resources != null)
+            pdf_print_toks(pdf, xform_resources);
         if (obj_xform_resources(pdf, pdf_cur_form) != null) {
             pdf_print_toks(pdf, obj_xform_resources(pdf, pdf_cur_form));
             delete_token_ref(obj_xform_resources(pdf, pdf_cur_form));

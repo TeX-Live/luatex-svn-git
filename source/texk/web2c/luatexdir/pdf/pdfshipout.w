@@ -33,8 +33,6 @@
 #define page_right_offset dimen_par(page_right_offset_code)
 #define page_top_offset dimen_par(page_top_offset_code)
 #define page_width dimen_par(page_width_code)
-#define pdf_h_origin dimen_par(pdf_h_origin_code)
-#define pdf_v_origin dimen_par(pdf_v_origin_code)
 #define tracing_output int_par(tracing_output_code)
 #define tracing_stats int_par(tracing_stats_code)
 #define v_offset dimen_par(v_offset_code)
@@ -180,6 +178,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
 
         switch (pdf->o_mode) {
         case OMODE_DVI:
+            /* hh: how can we end up here? */
             refpoint.pos.h = one_true_inch;
             refpoint.pos.v = pdf->page_size.v - one_true_inch;
             dvi = refpoint.pos;

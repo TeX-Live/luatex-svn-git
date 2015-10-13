@@ -470,7 +470,7 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
         v = (x_height(get_cur_font()));
     } else if (strncmp(s, "px", 2) == 0) {
         s += 2;
-        v = dimen_par(pdf_px_dimen_code);
+        v = dimen_par(px_dimen_code);
     } else {
         goto NOT_FOUND;
     }
@@ -762,8 +762,6 @@ static int getskip(lua_State * L)
     lua_nodelib_push_fast(L, j);
     return 1;
 }
-
-
 
 static int vsetcount(lua_State * L, int is_global)
 {

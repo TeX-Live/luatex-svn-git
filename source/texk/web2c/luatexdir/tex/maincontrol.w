@@ -55,11 +55,9 @@
 #define page_top_offset dimen_par(page_top_offset_code)
 #define page_right_offset dimen_par(page_right_offset_code)
 #define page_bottom_offset dimen_par(page_bottom_offset_code)
-#define pdf_h_origin       dimen_par(pdf_h_origin_code)
-#define pdf_v_origin       dimen_par(pdf_v_origin_code)
-#define pdf_px_dimen       dimen_par(pdf_px_dimen_code)
+#define px_dimen dimen_par(px_dimen_code)
 
-#define math_eqno_gap_step     int_par(math_eqno_gap_step_code)
+#define math_eqno_gap_step int_par(math_eqno_gap_step_code)
 
 #define escape_char int_par(escape_char_code)
 #define max_dead_cycles int_par(max_dead_cycles_code)
@@ -3662,19 +3660,18 @@ void initialize(void)
         cs_text(frozen_primitive) = maketexstring("primitive");
         create_null_font();
         font_bytes = 0;
-        pdf_h_origin = one_inch;
-        pdf_v_origin = one_inch;
-     /* pdf_compress_level = 9;
-        pdf_objcompresslevel = 0;
-        pdf_decimal_digits = 3;
-        pdf_image_resolution = 72;
-        pdf_minor_version = 4;
-        pdf_gamma = 1000;
-        pdf_image_gamma = 2200;
-        pdf_image_hicolor = 1;
-        pdf_image_apply_gamma = 0;
-     */
-        pdf_px_dimen = one_bp;
+        /* pdf_h_origin           = one_inch; */
+        /* pdf_v_origin           = one_inch; */
+        /* pdf_compress_level     =    9;     */
+        /* pdf_objcompresslevel   =    0;     */
+        /* pdf_decimal_digits     =    3;     */
+        /* pdf_image_resolution   =   72;     */
+        /* pdf_minor_version      =    4;     */
+        /* pdf_gamma              = 1000;     */
+        /* pdf_image_gamma        = 2200;     */
+        /* pdf_image_hicolor      =    1;     */
+        /* pdf_image_apply_gamma  =    0;     */
+        px_dimen = one_bp;
         math_eqno_gap_step = 1000 ;
         cs_text(frozen_protection) = maketexstring("inaccessible");
         format_ident = maketexstring(" (INITEX)");
