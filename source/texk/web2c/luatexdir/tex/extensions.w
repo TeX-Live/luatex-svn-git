@@ -407,7 +407,7 @@ void do_extension(PDF pdf, int immediate)
         break;
     case close_code:
         p = tail;
-        new_write_whatsit(close_node_size,0);
+        new_write_whatsit(close_node_size,1);
         write_tokens(tail) = null;
         if (immediate) {
             out_what(pdf, tail);
