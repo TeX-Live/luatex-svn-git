@@ -38,6 +38,7 @@ PDF static_pdf = NULL;
 
 @ commandline interface
 @c
+int output_mode_used;
 int output_mode_option;
 int output_mode_value;
 int draft_mode_option;
@@ -138,7 +139,7 @@ PDF init_pdf_struct(PDF pdf)
     memset(pdf, 0, sizeof(pdf_output_file));
     pdf->job_name = makecstring(job_name);
 
-    pdf->o_mode = OMODE_NONE;   /* will be set by |fix_o_mode()| */
+    output_mode_used = OMODE_NONE;   /* will be set by |fix_o_mode()| */
     pdf->o_state = ST_INITIAL;
 
     /* init PDF and object stream writing */
@@ -226,10 +227,10 @@ int pdf_get_mem(PDF pdf, int s)
     return ret;
 }
 
-@ |get_o_mode| translates from |pdf_output| to |o_mode|.
+@ there are defined in |luatex-api.h|, so we need |luatex-api.c|:
 
 @c
-static output_mode get_o_mode(void)
+output_mode get_o_mode(void)
 {
     output_mode o_mode;
     if (int_par(output_mode_code) > 0) {
@@ -239,16 +240,12 @@ static output_mode get_o_mode(void)
     return o_mode;
 }
 
-@ |fix_o_mode| freezes |pdf->o_mode| as soon as anything goes through
-the backend, be it \.{PDF} or \.{DVI}.
-
-@c
-void fix_o_mode(PDF pdf)
+void fix_o_mode()
 {
     output_mode o_mode = get_o_mode();
-    if (pdf->o_mode == OMODE_NONE)
-        pdf->o_mode = o_mode;
-    else if (pdf->o_mode != o_mode)
+    if (output_mode_used == OMODE_NONE)
+        output_mode_used = o_mode;
+    else if (output_mode_used != o_mode)
         pdf_error("setup", "\\outputmode can only be changed before anything is written to the output");
 }
 
@@ -960,7 +957,7 @@ void pdf_rectangle(PDF pdf, halfword r)
 static void init_pdf_outputparameters(PDF pdf)
 {
     int pk_mode;
-    assert(pdf->o_mode == OMODE_PDF);
+    assert(output_mode_used == OMODE_PDF);
     pdf->draftmode = fix_int(int_par(draft_mode_code), 0, 1);
     pdf->compress_level = fix_int(pdf_compress_level, 0, 9);
     pdf->decimal_digits = fix_int(pdf_decimal_digits, 0, 4);
@@ -1016,7 +1013,7 @@ static void ensure_output_file_open(PDF pdf, const char *ext)
     if (job_name == 0)
         open_log_file();
     fn = pack_job_name(ext);
-    if (pdf->draftmode == 0 || pdf->o_mode == OMODE_DVI) {
+    if (pdf->draftmode == 0 || output_mode_used == OMODE_DVI) {
         while (!lua_b_open_out(&pdf->file, fn))
             fn = prompt_file_name("file name for output", ext);
     }
@@ -1027,7 +1024,7 @@ static void ensure_output_file_open(PDF pdf, const char *ext)
 static void ensure_pdf_header_written(PDF pdf)
 {
     assert(pdf->o_state == ST_FILE_OPEN);
-    assert(pdf->o_mode == OMODE_PDF);
+    assert(output_mode_used == OMODE_PDF);
     /* Initialize variables for \.{PDF} output */
     fix_pdf_minorversion(pdf);
     init_pdf_outputparameters(pdf);
@@ -1049,10 +1046,10 @@ void ensure_output_state(PDF pdf, output_state s)
             ensure_output_state(pdf, s - 1);
         switch (s - 1) {
         case ST_INITIAL:
-            fix_o_mode(pdf);
+            fix_o_mode();
             break;
         case ST_OMODE_FIX:
-            switch (pdf->o_mode) {
+            switch (output_mode_used) {
             case OMODE_DVI:
                 ensure_output_file_open(pdf, ".dvi");
                 break;
@@ -1064,7 +1061,7 @@ void ensure_output_state(PDF pdf, output_state s)
             }
             break;
         case ST_FILE_OPEN:
-            switch (pdf->o_mode) {
+            switch (output_mode_used) {
             case OMODE_DVI:
                 ensure_dvi_header_written(pdf);
                 break;
@@ -1655,14 +1652,14 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
     const char *m = NULL;
 
     /* in warn mode (strict == false):
-       only check, don't do |fix_o_mode()| here! |pdf->o_mode| is left
+       only check, don't do |fix_o_mode()| here! |output_mode_used| is left
        in possibly wrong state until real output, ok.
      */
 
-    if (pdf->o_mode == OMODE_NONE)
+    if (output_mode_used == OMODE_NONE)
         o_mode = get_o_mode();
     else
-        o_mode = pdf->o_mode;
+        o_mode = output_mode_used;
     if (!((1 << o_mode) & o_mode_bitpattern)) { /* warning or error */
         switch (o_mode) {
         case OMODE_DVI:

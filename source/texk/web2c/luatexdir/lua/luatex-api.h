@@ -23,14 +23,21 @@
 
 /* output modes, a bad place but this compiles at least */
 
-typedef enum { OMODE_NONE, OMODE_DVI, OMODE_PDF } output_mode;
+typedef enum { OMODE_NONE, OMODE_DVI, OMODE_PDF } output_mode ;
 
-#  define MAX_OMODE 3           /* largest index in enum output_mode */
+#  define MAX_OMODE 2           /* largest index in enum output_mode */
 
+extern int output_mode_used;
 extern int output_mode_option;
 extern int output_mode_value;
 extern int draft_mode_option;
 extern int draft_mode_value;
+
+/* get_o_mode translates from output_mode to output_mode_used */
+/* fix_o_mode freezes output_mode as soon as anything goes through the backend */
+
+extern output_mode get_o_mode(void);
+extern void fix_o_mode(void);
 
 /* till here */
 

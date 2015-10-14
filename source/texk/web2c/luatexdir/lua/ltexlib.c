@@ -1296,28 +1296,30 @@ static int do_convert(lua_State * L, int cur_code)
     char *str = NULL;
     switch (cur_code) {
     case pdf_creation_date_code:       /* ? */
-    case pdf_insert_ht_code:   /* arg <register int> */
-    case lua_code:             /* arg complex */
+    case pdf_insert_ht_code:           /* arg <register int> */
+    case lua_code:                     /* arg complex */
     case lua_escape_string_code:       /* arg token list */
     case pdf_colorstack_init_code:     /* arg complex */
     case left_margin_kern_code:        /* arg box */
     case right_margin_kern_code:       /* arg box */
+    case string_code:                  /* arg token */
+    case meaning_code:                 /* arg token */
+case pdf_last_obj_code:
+case pdf_last_annot_code:
+case pdf_retval_code:
+case pdf_last_link_code:
         break;
-    case string_code:          /* arg token */
-    case meaning_code:         /* arg token */
-        break;
-
-        /* the next fall through, and come from 'official' indices! */
-    case font_name_code:       /* arg fontid */
-    case font_identifier_code: /* arg fontid */
-    case pdf_font_name_code:   /* arg fontid */
-    case pdf_font_objnum_code: /* arg fontid */
-    case pdf_font_size_code:   /* arg fontid */
-    case uniform_deviate_code: /* arg int */
-    case number_code:          /* arg int */
-    case roman_numeral_code:   /* arg int */
-    case pdf_page_ref_code:    /* arg int */
-    case pdf_xform_name_code:  /* arg int */
+    /* the next fall through, and come from 'official' indices! */
+    case font_name_code:               /* arg fontid */
+    case font_identifier_code:         /* arg fontid */
+    case pdf_font_name_code:           /* arg fontid */
+    case pdf_font_objnum_code:         /* arg fontid */
+    case pdf_font_size_code:           /* arg fontid */
+    case uniform_deviate_code:         /* arg int */
+    case number_code:                  /* arg int */
+    case roman_numeral_code:           /* arg int */
+    case pdf_page_ref_code:            /* arg int */
+    case pdf_xform_name_code:          /* arg int */
         if (lua_gettop(L) < 1) {
             /* error */
         }
@@ -1413,16 +1415,12 @@ static int do_lastitem(lua_State * L, int cur_code)
     case last_node_type_code:
     case input_line_no_code:
     case badness_code:
-    case pdf_last_obj_code:
     case last_saved_box_resource_index_code:
     case last_saved_image_resource_index_code:
     case last_saved_image_resource_pages_code:
-    case pdf_last_annot_code:
     case last_x_pos_code:
     case last_y_pos_code:
-    case pdf_retval_code:
     case random_seed_code:
-    case pdf_last_link_code:
     case luatex_version_code:
     case eTeX_minor_version_code:
     case eTeX_version_code:

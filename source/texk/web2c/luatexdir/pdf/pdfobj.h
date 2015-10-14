@@ -54,8 +54,6 @@
 
 /**********************************************************************/
 
-extern int pdf_last_obj;
-
 extern void init_obj_obj(PDF pdf, int k);
 extern void pdf_write_obj(PDF pdf, int n);
 extern void scan_obj(PDF pdf);

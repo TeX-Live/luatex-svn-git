@@ -236,20 +236,12 @@ typedef enum {
     etex_code,                  /* command code for \.{\\eTeXVersion} */
     format_name_code,           /* command code for \.{\\AlephVersion} */
     luatex_banner_code,         /* command code for \.{\\luatexbanner}: */
-    pdf_font_name_code,         /* command code for \.{\\pdffontname} */
-    pdf_font_objnum_code,       /* command code for \.{\\pdffontobjnum} */
-    pdf_font_size_code,         /* command code for \.{\\pdffontsize} */
-    pdf_page_ref_code,          /* command code for \.{\\pdfpageref} */
-    pdf_xform_name_code,        /* command code for \.{\\pdfxformname} */
     left_margin_kern_code,      /* command code for \.{\\leftmarginkern} */
     right_margin_kern_code,     /* command code for \.{\\rightmarginkern} */
-    pdf_creation_date_code,     /* command code for \.{\\pdfcreationdate} */
     uniform_deviate_code,       /* command code for \.{\\uniformdeviate} */
     normal_deviate_code,        /* command code for \.{\\normaldeviate} */
-    pdf_insert_ht_code,         /* command code for \.{\\pdfinsertht} */
     lua_code,                   /* command code for \.{\\directlua} */
     lua_escape_string_code,     /* command code for \.{\\luaescapestring} */
-    pdf_colorstack_init_code,   /* command code for \.{\\pdfcolorstackinit} */
     luatex_revision_code,       /* command code for \.{\\luatexrevision} */
     luatex_date_code,           /* command code for \.{\\luatexdate} */
     math_style_code,            /* command code for \.{\\mathstyle} */
@@ -263,6 +255,21 @@ typedef enum {
 } convert_codes;
 
 typedef enum {
+    pdf_font_name_code = 32,    /* command code for \.{\\pdffontname} */
+    pdf_font_objnum_code,       /* command code for \.{\\pdffontobjnum} */
+    pdf_font_size_code,         /* command code for \.{\\pdffontsize} */
+    pdf_page_ref_code,          /* command code for \.{\\pdfpageref} */
+    pdf_xform_name_code,        /* command code for \.{\\pdfxformname} */
+    pdf_creation_date_code,     /* command code for \.{\\pdfcreationdate} */
+    pdf_insert_ht_code,         /* command code for \.{\\pdfinsertht} */
+    pdf_colorstack_init_code,   /* command code for \.{\\pdfcolorstackinit} */
+    pdf_last_obj_code,
+    pdf_last_annot_code,
+    pdf_retval_code,
+    pdf_last_link_code,
+} convert_codes_pdf;
+
+typedef enum {
     lastpenalty_code = 0,                 /* code for \.{\\lastpenalty} */
     lastattr_code,                        /* not used */
     lastkern_code,                        /* code for \.{\\lastkern} */
@@ -270,16 +277,16 @@ typedef enum {
     last_node_type_code,                  /* code for \.{\\lastnodetype} */
     input_line_no_code,                   /* code for \.{\\inputlineno} */
     badness_code,                         /* code for \.{\\badness} */
-    pdf_last_obj_code,                    /* code for \.{\\pdflastobj} */
+old_pdf_last_obj_code,                    /* code for \.{\\pdflastobj} */
     last_saved_box_resource_index_code,   /* code for \.{\\lastsavedboxresourceindex} */
     last_saved_image_resource_index_code, /* code for \.{\\lastsavedimageresourceindex} */
     last_saved_image_resource_pages_code, /* code for \.{\\lastsavedimageresourcepages} */
-    pdf_last_annot_code,                  /* code for \.{\\pdflastannot} */
+old_pdf_last_annot_code,                  /* code for \.{\\pdflastannot} */
     last_x_pos_code,                      /* code for \.{\\lastxpos} */
     last_y_pos_code,                      /* code for \.{\\lastypos} */
-    pdf_retval_code,                      /* global multi-purpose return value */
+old_pdf_retval_code,                      /* global multi-purpose return value */
     random_seed_code,                     /* code for \.{\\pdfrandomseed} */
-    pdf_last_link_code,                   /* code for \.{\\pdflastlink} */
+old_pdf_last_link_code,                   /* code for \.{\\pdflastlink} */
     luatex_version_code,                  /* code for \.{\\luatexversion} */
     eTeX_minor_version_code,              /* code for \.{\\eTeXminorversion} */
     eTeX_version_code,                    /* code for \.{\\eTeXversion} */

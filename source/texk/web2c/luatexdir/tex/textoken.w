@@ -1681,6 +1681,26 @@ int conv_toks_pdf(halfword c)
     str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
     int i = 0;                  /* first temp integer */
     switch (c) {
+        case pdf_last_link_code:
+            push_selector;
+            print_int(pdf_last_link);
+            pop_selector;
+            break;
+        case pdf_retval_code:
+            push_selector;
+            print_int(pdf_retval);
+            pop_selector;
+            break;
+        case pdf_last_obj_code:
+            push_selector;
+            print_int(pdf_last_obj);
+            pop_selector;
+            break;
+        case pdf_last_annot_code:
+            push_selector;
+            print_int(pdf_last_annot);
+            pop_selector;
+            break;
         case pdf_insert_ht_code:
             scan_register_num();
             push_selector;
@@ -2025,7 +2045,7 @@ void conv_toks(void)
         break;
     default:
         /* backend */
-        switch (int_par(output_mode_code)) {
+        switch (get_o_mode()) {
             case OMODE_DVI:
                 done = conv_toks_dvi(c);
                 break;
@@ -2033,7 +2053,7 @@ void conv_toks(void)
                 done = conv_toks_pdf(c);
                 break;
             default:
-                done = false;
+                done = 0;
                 break;
         }
         if (! done)
@@ -2067,6 +2087,18 @@ int the_convert_string_pdf(halfword c, int i)
 {
     int ff;
     switch(c) {
+        case pdf_last_link_code:
+            print_int(pdf_last_link);
+            break;
+        case pdf_retval_code:
+            print_int(pdf_retval);
+            break;
+        case pdf_last_obj_code:
+            print_int(pdf_last_obj);
+            break;
+        case pdf_last_annot_code:
+            print_int(pdf_last_annot);
+            break;
         case pdf_font_name_code:
         case pdf_font_objnum_code:
             set_ff(i);
@@ -2155,7 +2187,7 @@ str_number the_convert_string(halfword c, int i)
             break;
         default:
             /* backend */
-            switch (int_par(output_mode_code)) {
+            switch (get_o_mode()) {
                 case OMODE_DVI:
                     done = the_convert_string_dvi(c,i);
                     break;

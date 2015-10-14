@@ -56,8 +56,8 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     refpoint.pos.v = 0;
 
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
-    fix_o_mode(pdf);            /* this is only for complaining if \.{\\pdfoutput} has changed */
-    init_backend_functionpointers(pdf->o_mode);
+    fix_o_mode();            /* this is only for complaining if \.{\\pdfoutput} has changed */
+    init_backend_functionpointers(output_mode_used);
 
     pdf->f_cur = null_font;
 
@@ -176,7 +176,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         /* Think in upright page/paper coordinates (page origin = lower left edge).
            First preset |refpoint.pos| to the DVI origin (near upper left page edge). */
 
-        switch (pdf->o_mode) {
+        switch (output_mode_used) {
         case OMODE_DVI:
             /* hh: how can we end up here? */
             refpoint.pos.h = one_true_inch;
@@ -218,7 +218,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         cur.v = height(p);
         synch_pos_with_cur(pdf->posstruct, &refpoint, cur);
     } else {                    /* shipping a /Form */
-        assert(pdf->o_mode == OMODE_PDF);
+        assert(output_mode_used == OMODE_PDF);
         pdf->posstruct->dir = box_dir(p);
         switch (pdf->posstruct->dir) {
         case dir_TLT:
@@ -260,7 +260,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
 
     shipbox_refpos = pdf->posstruct->pos;       /* for \.{\\gleaders} */
 
-    switch (pdf->o_mode) {
+    switch (output_mode_used) {
     case OMODE_DVI:
         assert(shipping_mode == SHIPPING_PAGE);
         dvi_begin_page(pdf);
@@ -289,7 +289,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
 
     /* Finish shipping */
 
-    switch (pdf->o_mode) {
+    switch (output_mode_used) {
     case OMODE_DVI:
         dvi_end_page(pdf);
         break;

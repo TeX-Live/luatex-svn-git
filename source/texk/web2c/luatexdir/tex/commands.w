@@ -281,16 +281,12 @@ void initialize_commands(void)
     primitive_tex("inputlineno", last_item_cmd, input_line_no_code, 0);
     primitive_tex("badness", last_item_cmd, badness_code, 0);
     primitive_luatex("luatexversion", last_item_cmd, luatex_version_code, 0);
-primitive_pdftex("pdflastobj", last_item_cmd, pdf_last_obj_code, 0);
     primitive_luatex("lastsavedboxresourceindex", last_item_cmd, last_saved_box_resource_index_code, 0);
     primitive_luatex("lastsavedimageresourceindex", last_item_cmd, last_saved_image_resource_index_code, 0);
     primitive_luatex("lastsavedimageresourcepages", last_item_cmd, last_saved_image_resource_pages_code, 0);
-primitive_pdftex("pdflastannot", last_item_cmd, pdf_last_annot_code, 0);
     primitive_luatex("lastxpos", last_item_cmd, last_x_pos_code, 0);
     primitive_luatex("lastypos", last_item_cmd, last_y_pos_code, 0);
-primitive_pdftex("pdfretval", last_item_cmd, pdf_retval_code, 0);
     primitive_luatex("randomseed", last_item_cmd, random_seed_code, 0);
-primitive_pdftex("pdflastlink", last_item_cmd, pdf_last_link_code, 0);
 
     primitive_tex("number", convert_cmd, number_code, 0);
     primitive_tex("romannumeral", convert_cmd, roman_numeral_code, 0);
@@ -302,16 +298,9 @@ primitive_pdftex("pdflastlink", last_item_cmd, pdf_last_link_code, 0);
     primitive_luatex("luatexrevision", convert_cmd, luatex_revision_code, 0);
     primitive_luatex("luatexdatestamp", convert_cmd, luatex_date_code, 0);
     primitive_luatex("luatexbanner", convert_cmd, luatex_banner_code, 0);
-primitive_pdftex("pdffontname", convert_cmd, pdf_font_name_code, 0);
-primitive_pdftex("pdffontobjnum", convert_cmd, pdf_font_objnum_code, 0);
-primitive_pdftex("pdffontsize", convert_cmd, pdf_font_size_code, 0);
-primitive_pdftex("pdfpageref", convert_cmd, pdf_page_ref_code, 0);
     primitive_luatex("leftmarginkern", convert_cmd, left_margin_kern_code, 0);
     primitive_luatex("rightmarginkern", convert_cmd, right_margin_kern_code, 0);
-primitive_pdftex("pdfxformname", convert_cmd, pdf_xform_name_code, 0);
-primitive_pdftex("pdfcreationdate", convert_cmd, pdf_creation_date_code, 0);
     primitive_luatex("uniformdeviate", convert_cmd, uniform_deviate_code, 0);
-primitive_pdftex("pdfcolorstackinit", convert_cmd, pdf_colorstack_init_code, 0);
     primitive_luatex("normaldeviate", convert_cmd, normal_deviate_code, 0);
     primitive_core("directlua", convert_cmd, lua_code, 0);
     primitive_luatex("luafunction", convert_cmd, lua_function_code, 0);
@@ -320,7 +309,6 @@ primitive_pdftex("pdfcolorstackinit", convert_cmd, pdf_colorstack_init_code, 0);
     primitive_luatex("expanded", convert_cmd, expanded_code, 0);
     primitive_tex("jobname", convert_cmd, job_name_code, 0);
     primitive_luatex("formatname", convert_cmd, format_name_code, 0);
-primitive_pdftex("pdfinsertht", convert_cmd, pdf_insert_ht_code, 0);
     primitive_luatex("Uchar", convert_cmd, uchar_code, 0);
 
     primitive_tex("if", if_test_cmd, if_char_code, 0);
@@ -683,6 +671,19 @@ primitive_pdftex("pdfinsertht", convert_cmd, pdf_insert_ht_code, 0);
     primitive_luatex("setrandomseed", normal_cmd, set_random_seed_code, 0);
     primitive_luatex("latelua", normal_cmd, late_lua_code, 0);
     primitive_pdftex("pdfextension", extension_cmd, pdf_extension_code, 0);
+
+primitive_pdftex("pdflastobj", convert_cmd, pdf_last_obj_code, 0);
+primitive_pdftex("pdflastannot", convert_cmd, pdf_last_annot_code, 0);
+primitive_pdftex("pdfretval", convert_cmd, pdf_retval_code, 0);
+primitive_pdftex("pdflastlink", convert_cmd, pdf_last_link_code, 0);
+primitive_pdftex("pdffontname", convert_cmd, pdf_font_name_code, 0);
+primitive_pdftex("pdffontobjnum", convert_cmd, pdf_font_objnum_code, 0);
+primitive_pdftex("pdffontsize", convert_cmd, pdf_font_size_code, 0);
+primitive_pdftex("pdfpageref", convert_cmd, pdf_page_ref_code, 0);
+primitive_pdftex("pdfxformname", convert_cmd, pdf_xform_name_code, 0);
+primitive_pdftex("pdfcreationdate", convert_cmd, pdf_creation_date_code, 0);
+primitive_pdftex("pdfcolorstackinit", convert_cmd, pdf_colorstack_init_code, 0);
+primitive_pdftex("pdfinsertht", convert_cmd, pdf_insert_ht_code, 0);
 
     /*
         some of the internal integer parameters are not associated with actual

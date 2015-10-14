@@ -447,22 +447,26 @@ void do_extension(int immediate)
     case save_box_resource_code:
     case save_image_resource_code:
         /* if (.. == OMODE_PDF) */
-        switch (int_par(output_mode_code)) {
+        switch (get_o_mode()) {
             case OMODE_DVI:
                 do_resource_dvi(0,cur_chr);
                 break;
             case OMODE_PDF:
                 do_resource_pdf(0,cur_chr);
                 break;
+            default:
+                break;
         }
         break;
     case pdf_extension_code:
-        switch (int_par(output_mode_code)) {
+        switch (get_o_mode()) {
             case OMODE_DVI:
                 do_extension_dvi(0);
                 break;
             case OMODE_PDF:
                 do_extension_pdf(0);
+                break;
+            default:
                 break;
         }
         break;
@@ -540,12 +544,12 @@ halfword prev_rightmost(halfword s, halfword e)
     return p;
 }
 
-int pdf_last_annot;
-
-@ pdflastlink needs an extra global variable
+@ the pdflast* need extra global variables
 
 @c
+int pdf_last_annot;
 int pdf_last_link;
+int pdf_last_obj;
 
 @ To implement primitives as \.{\\pdfinfo}, \.{\\pdfcatalog} or
 \.{\\pdfnames} we need to concatenate tokens lists.

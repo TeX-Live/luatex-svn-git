@@ -194,7 +194,6 @@ extern void print_pdf_table_string(PDF pdf, const char *s);
 extern const char *get_pdf_table_string(const char *s);
 extern int get_pdf_table_bool(PDF, const char *, int);
 
-extern void fix_o_mode(PDF pdf);
 extern void ensure_output_state(PDF pdf, output_state s);
 extern PDF init_pdf_struct(PDF pdf);
 

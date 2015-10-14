@@ -54,6 +54,7 @@ extern void scan_pdf_ext_toks(void);
 extern halfword prev_rightmost(halfword s, halfword e);
 extern int pdf_last_annot;
 extern int pdf_last_link;
+extern int pdf_last_obj;
 extern halfword concat_tokens(halfword q, halfword r);
 extern int pdf_retval;
 

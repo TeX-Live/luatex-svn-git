@@ -44,7 +44,7 @@ static void missing_backend_function(PDF pdf, halfword p)
     else
         s = "node";
     n = get_node_name(type(p), subtype(p));
-    b = backend[pdf->o_mode].name;
+    b = backend[output_mode_used].name;
     snprintf(backend_string, strlen(b) + 10, "%s back-end", b);
     snprintf(err_string, 59, "no output function for \"%s\" %s", n, s);
     pdf_error(backend_string, err_string);
@@ -328,7 +328,7 @@ void hlist_out(PDF pdf, halfword this_box)
     if (cur_s > max_push)
         max_push = cur_s;
 
-    if (pdf->o_mode == OMODE_DVI) {
+    if (output_mode_used == OMODE_DVI) {
         if (cur_s > 0) {        /* DVI! */
             dvi_push();         /* DVI! */
             save_dvi = dvi;     /* DVI! */
@@ -729,7 +729,7 @@ void hlist_out(PDF pdf, halfword this_box)
     if (int_par(synctex_code))
         synctextsilh(this_box);
 
-    if (pdf->o_mode == OMODE_DVI) {
+    if (output_mode_used == OMODE_DVI) {
         prune_movements(save_loc);      /* DVI! */
         if (cur_s > 0) {        /* DVI! */
             dvi_pop(save_loc);  /* DVI! */
@@ -783,7 +783,7 @@ void vlist_out(PDF pdf, halfword this_box)
     if (cur_s > max_push)
         max_push = cur_s;
 
-    if (pdf->o_mode == OMODE_DVI) {
+    if (output_mode_used == OMODE_DVI) {
         if (cur_s > 0) {        /* DVI! */
             dvi_push();         /* DVI! */
             save_dvi = dvi;     /* DVI! */
@@ -1061,7 +1061,7 @@ void vlist_out(PDF pdf, halfword this_box)
     if (int_par(synctex_code))
         synctextsilv(this_box);
 
-    if (pdf->o_mode == OMODE_DVI) {
+    if (output_mode_used == OMODE_DVI) {
         prune_movements(save_loc);      /* DVI! */
         if (cur_s > 0) {        /* DVI! */
             dvi_pop(save_loc);  /* DVI! */

@@ -23,8 +23,6 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-int pdf_last_obj;
-
 @ write a raw PDF object
 
 @c
