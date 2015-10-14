@@ -252,6 +252,7 @@ typedef enum {
     font_id_code,               /* command code for \.{\\fontid} */
     uchar_code,                 /* command code for \.{\\Uchar} */
     lua_function_code,          /* command code for \.{\\luafunction} */
+    insert_ht_code,             /* command code for \.{\\insertht} */
     /* backend */
     dvi_feedback_code,
     pdf_feedback_code,
@@ -264,7 +265,6 @@ typedef enum {
     pdf_page_ref_code,          /* command code for \.{\\pdfpageref} */
     pdf_xform_name_code,        /* command code for \.{\\pdfxformname} */
     pdf_creation_date_code,     /* command code for \.{\\pdfcreationdate} */
-    pdf_insert_ht_code,         /* command code for \.{\\pdfinsertht} */
     pdf_colorstack_init_code,   /* command code for \.{\\pdfcolorstackinit} */
     pdf_last_obj_code,
     pdf_last_annot_code,

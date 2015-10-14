@@ -1671,7 +1671,6 @@ int conv_toks_dvi(halfword c)
 int conv_toks_pdf(halfword c)
 {
     int old_setting;            /* holds |selector| setting */
-    halfword p;
     int save_scanner_status;    /* |scanner_status| upon entry */
     halfword save_def_ref;      /* |def_ref| upon entry, important if inside `\.{\\message}' */
     halfword save_warning_index;
@@ -1679,13 +1678,11 @@ int conv_toks_pdf(halfword c)
     str_number s;               /* first temp string */
     int ff;                     /* for use with |set_ff| */
     str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
-    int i = 0;                  /* first temp integer */
 
          if (scan_keyword("lastlink"))       c = pdf_last_link_code;
     else if (scan_keyword("retval"))         c = pdf_retval_code;
     else if (scan_keyword("lastobj"))        c = pdf_last_obj_code;
     else if (scan_keyword("lastannot"))      c = pdf_last_annot_code;
-    else if (scan_keyword("insertht"))       c = pdf_insert_ht_code;
     else if (scan_keyword("xformname"))      c = pdf_xform_name_code;
     else if (scan_keyword("creationdate"))   c = pdf_creation_date_code;
     else if (scan_keyword("fontname"))       c = pdf_font_name_code;
@@ -1713,20 +1710,6 @@ int conv_toks_pdf(halfword c)
         case pdf_last_annot_code:
             push_selector;
             print_int(pdf_last_annot);
-            pop_selector;
-            break;
-        case pdf_insert_ht_code:
-            scan_register_num();
-            push_selector;
-            i = cur_val;
-            p = page_ins_head;
-            while (i >= subtype(vlink(p)))
-                p = vlink(p);
-            if (subtype(p) == i)
-                print_scaled(height(p));
-            else
-                print_char('0');
-            tprint("pt");
             pop_selector;
             break;
         case pdf_xform_name_code:
@@ -1836,6 +1819,7 @@ void conv_toks(void)
     int c = cur_chr;            /* desired type of conversion */
     str_number str;
     int done = 1;
+    int i = 0;
     /* Scan the argument for command |c| */
     switch (c) {
     case uchar_code:
@@ -2057,6 +2041,20 @@ void conv_toks(void)
         tprint(eTeX_revision);
         pop_selector;
         break;
+    case insert_ht_code:
+        scan_register_num();
+        push_selector;
+        i = cur_val;
+        p = page_ins_head;
+        while (i >= subtype(vlink(p)))
+            p = vlink(p);
+        if (subtype(p) == i)
+            print_scaled(height(p));
+        else
+            print_char('0');
+        tprint("pt");
+        pop_selector;
+        break;
     case dvi_feedback_code:
         if (get_o_mode() == OMODE_DVI)
             done = conv_toks_dvi(c);
@@ -2112,14 +2110,13 @@ int the_convert_string_pdf(halfword c, int i)
     else if (scan_keyword("retval"))         c = pdf_retval_code;
     else if (scan_keyword("lastobj"))        c = pdf_last_obj_code;
     else if (scan_keyword("lastannot"))      c = pdf_last_annot_code;
-/*  else if (scan_keyword("insertht"))       c = pdf_insert_ht_code; */
     else if (scan_keyword("xformname"))      c = pdf_xform_name_code;
-/*  else if (scan_keyword("creationdate"))   c = pdf_creation_date_code; */
+/*  else if (scan_keyword("creationdate"))   c = pdf_creation_date_code;*/
     else if (scan_keyword("fontname"))       c = pdf_font_name_code;
     else if (scan_keyword("fontobjnum"))     c = pdf_font_objnum_code;
     else if (scan_keyword("fontsize"))       c = pdf_font_size_code;
     else if (scan_keyword("pageref"))        c = pdf_page_ref_code;
-/*  else if (scan_keyword("colorstackinit")) c = pdf_colorstack_init_code; */
+/*  else if (scan_keyword("colorstackinit")) c = pdf_colorstack_init_code;*/
 
     switch(c) {
         case pdf_last_link_code:
