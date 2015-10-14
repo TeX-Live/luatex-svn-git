@@ -670,20 +670,10 @@ void initialize_commands(void)
     primitive_luatex("initcatcodetable", normal_cmd, init_cat_code_table_code, 0);
     primitive_luatex("setrandomseed", normal_cmd, set_random_seed_code, 0);
     primitive_luatex("latelua", normal_cmd, late_lua_code, 0);
+ /* primitive_luatex("dviextension", extension_cmd, dvi_extension_code, 0); */
+ /* primitive_luatex("dvifeedback", convert_cmd, dvi_feedback_code, 0); */
     primitive_pdftex("pdfextension", extension_cmd, pdf_extension_code, 0);
-
-primitive_pdftex("pdflastobj", convert_cmd, pdf_last_obj_code, 0);
-primitive_pdftex("pdflastannot", convert_cmd, pdf_last_annot_code, 0);
-primitive_pdftex("pdfretval", convert_cmd, pdf_retval_code, 0);
-primitive_pdftex("pdflastlink", convert_cmd, pdf_last_link_code, 0);
-primitive_pdftex("pdffontname", convert_cmd, pdf_font_name_code, 0);
-primitive_pdftex("pdffontobjnum", convert_cmd, pdf_font_objnum_code, 0);
-primitive_pdftex("pdffontsize", convert_cmd, pdf_font_size_code, 0);
-primitive_pdftex("pdfpageref", convert_cmd, pdf_page_ref_code, 0);
-primitive_pdftex("pdfxformname", convert_cmd, pdf_xform_name_code, 0);
-primitive_pdftex("pdfcreationdate", convert_cmd, pdf_creation_date_code, 0);
-primitive_pdftex("pdfcolorstackinit", convert_cmd, pdf_colorstack_init_code, 0);
-primitive_pdftex("pdfinsertht", convert_cmd, pdf_insert_ht_code, 0);
+    primitive_pdftex("pdffeedback", convert_cmd, pdf_feedback_code, 0);
 
     /*
         some of the internal integer parameters are not associated with actual

@@ -252,6 +252,9 @@ typedef enum {
     font_id_code,               /* command code for \.{\\fontid} */
     uchar_code,                 /* command code for \.{\\Uchar} */
     lua_function_code,          /* command code for \.{\\luafunction} */
+    /* backend */
+    dvi_feedback_code,
+    pdf_feedback_code,
 } convert_codes;
 
 typedef enum {

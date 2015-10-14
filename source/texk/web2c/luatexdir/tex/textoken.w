@@ -1680,6 +1680,20 @@ int conv_toks_pdf(halfword c)
     int ff;                     /* for use with |set_ff| */
     str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
     int i = 0;                  /* first temp integer */
+
+         if (scan_keyword("lastlink"))       c = pdf_last_link_code;
+    else if (scan_keyword("retval"))         c = pdf_retval_code;
+    else if (scan_keyword("lastobj"))        c = pdf_last_obj_code;
+    else if (scan_keyword("lastannot"))      c = pdf_last_annot_code;
+    else if (scan_keyword("insertht"))       c = pdf_insert_ht_code;
+    else if (scan_keyword("xformname"))      c = pdf_xform_name_code;
+    else if (scan_keyword("creationdate"))   c = pdf_creation_date_code;
+    else if (scan_keyword("fontname"))       c = pdf_font_name_code;
+    else if (scan_keyword("fontobjnum"))     c = pdf_font_objnum_code;
+    else if (scan_keyword("fontsize"))       c = pdf_font_size_code;
+    else if (scan_keyword("pageref"))        c = pdf_page_ref_code;
+    else if (scan_keyword("colorstackinit")) c = pdf_colorstack_init_code;
+
     switch (c) {
         case pdf_last_link_code:
             push_selector;
@@ -1725,7 +1739,7 @@ int conv_toks_pdf(halfword c)
         case pdf_creation_date_code:
             ins_list(string_to_toks(getcreationdate(static_pdf)));
             /* no further action */
-            return 0;
+            return 2;
             break;
         case pdf_font_name_code:
             scan_font_ident();
@@ -2043,21 +2057,28 @@ void conv_toks(void)
         tprint(eTeX_revision);
         pop_selector;
         break;
+    case dvi_feedback_code:
+        if (get_o_mode() == OMODE_DVI)
+            done = conv_toks_dvi(c);
+        else
+            done = 0;
+        if (done==0)
+            confusion("feedback");
+        else if (done==2)
+            return;
+        break;
+    case pdf_feedback_code:
+        if (get_o_mode() == OMODE_PDF)
+            done = conv_toks_pdf(c);
+        else
+            done = 0;
+        if (done==0)
+            confusion("feedback");
+        else if (done==2)
+            return;
+        break;
     default:
-        /* backend */
-        switch (get_o_mode()) {
-            case OMODE_DVI:
-                done = conv_toks_dvi(c);
-                break;
-            case OMODE_PDF:
-                done = conv_toks_pdf(c);
-                break;
-            default:
-                done = 0;
-                break;
-        }
-        if (! done)
-            confusion("convert");
+        confusion("convert");
         break;
     }
 
@@ -2086,6 +2107,20 @@ int the_convert_string_dvi(halfword c, int i)
 int the_convert_string_pdf(halfword c, int i)
 {
     int ff;
+
+         if (scan_keyword("lastlink"))       c = pdf_last_link_code;
+    else if (scan_keyword("retval"))         c = pdf_retval_code;
+    else if (scan_keyword("lastobj"))        c = pdf_last_obj_code;
+    else if (scan_keyword("lastannot"))      c = pdf_last_annot_code;
+/*  else if (scan_keyword("insertht"))       c = pdf_insert_ht_code; */
+    else if (scan_keyword("xformname"))      c = pdf_xform_name_code;
+/*  else if (scan_keyword("creationdate"))   c = pdf_creation_date_code; */
+    else if (scan_keyword("fontname"))       c = pdf_font_name_code;
+    else if (scan_keyword("fontobjnum"))     c = pdf_font_objnum_code;
+    else if (scan_keyword("fontsize"))       c = pdf_font_size_code;
+    else if (scan_keyword("pageref"))        c = pdf_page_ref_code;
+/*  else if (scan_keyword("colorstackinit")) c = pdf_colorstack_init_code; */
+
     switch(c) {
         case pdf_last_link_code:
             print_int(pdf_last_link);
@@ -2185,19 +2220,20 @@ str_number the_convert_string(halfword c, int i)
         case font_identifier_code:
             print_font_identifier(i);
             break;
+        case dvi_feedback_code:
+            if (get_o_mode() == OMODE_DVI)
+                done = the_convert_string_dvi(c,i);
+            else
+                done = false;
+            break;
+        case pdf_feedback_code:
+            if (get_o_mode() == OMODE_PDF)
+                done = the_convert_string_pdf(c,i);
+            else
+                done = false;
+            break;
         default:
-            /* backend */
-            switch (get_o_mode()) {
-                case OMODE_DVI:
-                    done = the_convert_string_dvi(c,i);
-                    break;
-                case OMODE_PDF:
-                    done = the_convert_string_pdf(c,i);
-                    break;
-                default:
-                    done = false;
-                    break;
-            }
+            done = false;
             break;
     }
     if (done)

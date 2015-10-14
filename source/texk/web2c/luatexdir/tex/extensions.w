@@ -327,9 +327,9 @@ void do_extension_pdf(int immediate)
     }
 }
 
+
 void do_resource_dvi(int immediate, int code)
 {
-    /* nothing */
 }
 
 void do_resource_pdf(int immediate, int code)
@@ -446,7 +446,6 @@ void do_extension(int immediate)
     case use_image_resource_code:
     case save_box_resource_code:
     case save_image_resource_code:
-        /* if (.. == OMODE_PDF) */
         switch (get_o_mode()) {
             case OMODE_DVI:
                 do_resource_dvi(0,cur_chr);
@@ -458,17 +457,13 @@ void do_extension(int immediate)
                 break;
         }
         break;
+    case dvi_extension_code: /* not used yet */
+        if (get_o_mode() == OMODE_DVI)
+            do_extension_dvi(0);
+        break;
     case pdf_extension_code:
-        switch (get_o_mode()) {
-            case OMODE_DVI:
-                do_extension_dvi(0);
-                break;
-            case OMODE_PDF:
-                do_extension_pdf(0);
-                break;
-            default:
-                break;
-        }
+        if (get_o_mode() == OMODE_PDF)
+            do_extension_pdf(0);
         break;
     default:
         if (immediate) {

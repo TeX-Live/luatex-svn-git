@@ -39,6 +39,9 @@ extern void do_extension_pdf(int immediate);
 extern void do_resource_dvi(int immediate, int code);
 extern void do_resource_pdf(int immediate, int code);
 
+extern void do_feedback_dvi();
+extern void do_feedback_pdf();
+
 /* Three extra node types carry information from |main_control|. */
 
 /*
@@ -127,22 +130,24 @@ typedef enum {
     open_code = 0,
     write_code,
     close_code,
-    reserved_extension_code, // 3: we moved special below immediate //
-    reserved_immediate_code, // 4: same number as main codes, expectec value //
+    reserved_extension_code, /* 3: we moved special below immediate */
+    reserved_immediate_code, /* 4: same number as main codes, expectec value */
     /* backend specific implementations */
     special_code,
     save_box_resource_code,
     use_box_resource_code,
     save_image_resource_code,
     use_image_resource_code,
+    /* backend */
+    dvi_extension_code,
+    pdf_extension_code,
 } extension_codes ;
 
 /* for the  moment there */
 
 typedef enum {
     /* reserved, first needs to be larger than max extension_codes */
-    pdf_extension_code = 32,
-    pdf_literal_code,
+    pdf_literal_code = 32,
     pdf_dest_code,
     pdf_annot_code,
     pdf_save_code,
@@ -168,5 +173,9 @@ typedef enum {
     pdf_names_code,
     pdf_trailer_code,
 } pdf_extension_codes;
+
+typedef enum {
+    dvi_literal_code = 32, /* alias for special */
+} dvi_extension_codes;
 
 #endif
