@@ -132,13 +132,21 @@ scaledpos last_position = { 0, 0 };
 
 void do_extension_dvi(int immediate)
 {
+    if (scan_keyword("literal")) {
+        new_whatsit(special_node);
+        write_stream(tail) = null;
+        scan_toks(false, true);
+        write_tokens(tail) = def_ref;
+    } else {
+        pdf_error("ext1", "unknown \\dviextension");
+    }
 }
 
 void do_extension_pdf(int immediate)
 {
-    int i, k;                   /* all-purpose integers */
+    int i, k;
 
-    i = 0 ; /* maybe a avl hash lookup */
+    i = 0 ;
          if (scan_keyword("literal"))        i = pdf_literal_code ;
     else if (scan_keyword("dest"))           i = pdf_dest_code ;
     else if (scan_keyword("annot"))          i = pdf_annot_code ;
@@ -457,7 +465,7 @@ void do_extension(int immediate)
                 break;
         }
         break;
-    case dvi_extension_code: /* not used yet */
+    case dvi_extension_code:
         if (get_o_mode() == OMODE_DVI)
             do_extension_dvi(0);
         break;

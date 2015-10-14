@@ -1825,7 +1825,7 @@ void conv_toks(void)
     case uchar_code:
         scan_char_num();
         push_selector;
-        print_int(cur_val);
+        print(cur_val);
         pop_selector;
         break;
     case number_code:

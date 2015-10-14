@@ -671,8 +671,8 @@ void initialize_commands(void)
     primitive_luatex("setrandomseed", normal_cmd, set_random_seed_code, 0);
     primitive_luatex("latelua", normal_cmd, late_lua_code, 0);
     primitive_luatex("insertht", convert_cmd, insert_ht_code, 0);
- /* primitive_luatex("dviextension", extension_cmd, dvi_extension_code, 0); */
- /* primitive_luatex("dvifeedback", convert_cmd, dvi_feedback_code, 0); */
+    primitive_luatex("dviextension", extension_cmd, dvi_extension_code, 0);
+    primitive_luatex("dvifeedback", convert_cmd, dvi_feedback_code, 0);
     primitive_pdftex("pdfextension", extension_cmd, pdf_extension_code, 0);
     primitive_pdftex("pdffeedback", convert_cmd, pdf_feedback_code, 0);
 
