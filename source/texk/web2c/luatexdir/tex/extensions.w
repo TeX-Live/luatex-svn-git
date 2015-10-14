@@ -130,10 +130,13 @@ int last_saved_image_pages ;
 int last_saved_box_index ;
 scaledpos last_position = { 0, 0 };
 
-void do_pdf_extension(PDF pdf, int immediate)
+void do_extension_dvi(int immediate)
+{
+}
+
+void do_extension_pdf(int immediate)
 {
     int i, k;                   /* all-purpose integers */
-    check_o_mode(pdf, "\\pdfextension", 1 << OMODE_PDF, false);
 
     i = 0 ; /* maybe a avl hash lookup */
          if (scan_keyword("literal"))        i = pdf_literal_code ;
@@ -175,10 +178,10 @@ void do_pdf_extension(PDF pdf, int immediate)
             set_pdf_literal_data(tail, def_ref);
             break;
         case pdf_dest_code:
-            scan_pdfdest(pdf);
+            scan_pdfdest(static_pdf);
             break;
         case pdf_annot_code:
-            scan_annot(pdf);
+            scan_annot(static_pdf);
             break;
         case pdf_setmatrix_code:
             new_whatsit(pdf_setmatrix_node);
@@ -192,15 +195,15 @@ void do_pdf_extension(PDF pdf, int immediate)
             new_whatsit(pdf_restore_node);
             break;
         case pdf_obj_code:
-            scan_obj(pdf);
+            scan_obj(static_pdf);
             if (immediate) {
-                if (obj_data_ptr(pdf, pdf_last_obj) == 0)   /* this object has not been initialized yet */
+                if (obj_data_ptr(static_pdf, pdf_last_obj) == 0)   /* this object has not been initialized yet */
                     pdf_error("ext1","`\\pdfextension obj reserveobjnum' cannot be used with \\immediate");
-                pdf_write_obj(pdf, pdf_last_obj);
+                pdf_write_obj(static_pdf, pdf_last_obj);
             }
             break;
         case pdf_refobj_code:
-            scan_refobj(pdf);
+            scan_refobj(static_pdf);
             break;
         case pdf_colorstack_code:
             scan_int();
@@ -249,7 +252,7 @@ void do_pdf_extension(PDF pdf, int immediate)
             }
             break;
         case pdf_start_link_code:
-            scan_startlink(pdf);
+            scan_startlink(static_pdf);
             break;
         case pdf_end_link_code:
             if (abs(mode) == vmode)
@@ -264,13 +267,13 @@ void do_pdf_extension(PDF pdf, int immediate)
             new_whatsit(pdf_end_thread_node);
             break;
         case pdf_outline_code:
-            scan_pdfoutline(pdf);
+            scan_pdfoutline(static_pdf);
             break;
         case pdf_glyph_to_unicode_code:
             glyph_to_unicode();
             break;
         case pdf_catalog_code:
-            scan_pdfcatalog(pdf);
+            scan_pdfcatalog(static_pdf);
             break;
         case pdf_font_attr_code:
             /*
@@ -300,7 +303,7 @@ void do_pdf_extension(PDF pdf, int immediate)
             delete_token_ref(def_ref);
             break;
         case pdf_include_chars_code:
-            pdf_include_chars(pdf);
+            pdf_include_chars(static_pdf);
             break;
         case pdf_info_code:
             scan_pdf_ext_toks();
@@ -324,28 +327,32 @@ void do_pdf_extension(PDF pdf, int immediate)
     }
 }
 
-void do_pdf_resource(PDF pdf, int immediate, int code)
+void do_resource_dvi(int immediate, int code)
 {
-    check_o_mode(pdf, "box|image resource", 1 << OMODE_PDF, false);
+    /* nothing */
+}
+
+void do_resource_pdf(int immediate, int code)
+{
     switch (code) {
         case use_box_resource_code:
-            scan_pdfrefxform(pdf);
+            scan_pdfrefxform(static_pdf);
             break;
         case use_image_resource_code:
-            scan_pdfrefximage(pdf);
+            scan_pdfrefximage(static_pdf);
             break;
         case save_box_resource_code:
-            scan_pdfxform(pdf);
+            scan_pdfxform(static_pdf);
             if (immediate) {
                 pdf_cur_form = last_saved_box_index;
-                ship_out(pdf, obj_xform_box(pdf, last_saved_box_index), SHIPPING_FORM);
+                ship_out(static_pdf, obj_xform_box(static_pdf, last_saved_box_index), SHIPPING_FORM);
             }
             break;
         case save_image_resource_code:
-            fix_pdf_minorversion(pdf);
-            scan_pdfximage(pdf);
+            fix_pdf_minorversion(static_pdf);
+            scan_pdfximage(static_pdf);
             if (immediate) {
-                pdf_write_image(pdf, last_saved_image_index);
+                pdf_write_image(static_pdf, last_saved_image_index);
             }
             break;
     }
@@ -371,7 +378,7 @@ void do_pdf_resource(PDF pdf, int immediate, int code)
 
 /* extensions are backend related */
 
-void do_extension(PDF pdf, int immediate)
+void do_extension(int immediate)
 {
     int k;                   /* all-purpose integers */
     halfword p;              /* all-purpose pointer */
@@ -385,7 +392,7 @@ void do_extension(PDF pdf, int immediate)
         open_area(tail) = cur_area;
         open_ext(tail) = cur_ext;
         if (immediate) {
-            out_what(pdf, tail);
+            out_what(static_pdf, tail);
             flush_node_list(tail);
             tail = p;
             vlink(p) = null;
@@ -404,7 +411,7 @@ void do_extension(PDF pdf, int immediate)
         scan_toks(false, false);
         write_tokens(tail) = def_ref;
         if (immediate) {
-            out_what(pdf, tail);
+            out_what(static_pdf, tail);
             flush_node_list(tail);
             tail = p;
             vlink(p) = null;
@@ -415,7 +422,7 @@ void do_extension(PDF pdf, int immediate)
         new_write_whatsit(close_node_size,1);
         write_tokens(tail) = null;
         if (immediate) {
-            out_what(pdf, tail);
+            out_what(static_pdf, tail);
             flush_node_list(tail);
             tail = p;
             vlink(p) = null;
@@ -433,18 +440,31 @@ void do_extension(PDF pdf, int immediate)
         break;
     case immediate_code:
         get_x_token();
-        do_extension(pdf,1);
+        do_extension(1);
         break;
     case use_box_resource_code:
     case use_image_resource_code:
     case save_box_resource_code:
     case save_image_resource_code:
         /* if (.. == OMODE_PDF) */
-        do_pdf_resource(pdf,0,cur_chr);
+        switch (int_par(output_mode_code)) {
+            case OMODE_DVI:
+                do_resource_dvi(0,cur_chr);
+                break;
+            case OMODE_PDF:
+                do_resource_pdf(0,cur_chr);
+                break;
+        }
         break;
     case pdf_extension_code:
-        /* if (.. == OMODE_PDF) */
-        do_pdf_extension(pdf,0) ;
+        switch (int_par(output_mode_code)) {
+            case OMODE_DVI:
+                do_extension_dvi(0);
+                break;
+            case OMODE_PDF:
+                do_extension_pdf(0);
+                break;
+        }
         break;
     default:
         if (immediate) {

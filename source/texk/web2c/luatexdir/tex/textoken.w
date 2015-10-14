@@ -19,7 +19,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ @c
@@ -1532,7 +1531,7 @@ at the value |p| that is returned. (If |p=temp_token_head|, the list is empty.)
 symbols that |lua| considers special while scanning a literal string
 
 @c
-static halfword lua_str_toks(lstring b)
+halfword lua_str_toks(lstring b)
 {                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
     halfword p;                 /* tail of the token list */
     halfword q;                 /* new node being added to the token list via |store_new_token| */
@@ -1623,88 +1622,6 @@ static void print_job_name(void)
    the code |c|. The function exists because lua code and tex code can
    both call it to convert something.
 
-@c
-static boolean print_convert_string(halfword c, int i)
-{
-    int ff;                     /* for use with |set_ff| */
-    boolean ret = true;
-    switch (c) {
-    case number_code:
-        print_int(i);
-        break;
-    case uchar_code:
-        print(i);
-        break;
-    case roman_numeral_code:
-        print_roman_int(i);
-        break;
-    case etex_code:
-        tprint(eTeX_version_string);
-        break;
-    case luatex_revision_code:
-        print(get_luatexrevision());
-        break;
-    case luatex_date_code:
-        print_int(get_luatex_date_info());
-        break;
-    case luatex_banner_code:
-        tprint(luatex_banner);
-        break;
-    case uniform_deviate_code:
-        print_int(unif_rand(i));
-        break;
-    case normal_deviate_code:
-        print_int(norm_rand());
-        break;
-    case format_name_code:
-        print(format_name);
-        break;
-    case job_name_code:
-        print_job_name();
-        break;
-    case font_name_code:
-        append_string((unsigned char *) font_name(i),
-                      (unsigned) strlen(font_name(i)));
-        if (font_size(i) != font_dsize(i)) {
-            tprint(" at ");
-            print_scaled(font_size(i));
-            tprint("pt");
-        }
-        break;
-    case font_id_code:
-        print_int(i);
-        break;
-    case math_style_code:
-        print_math_style();
-        break;
-    case pdf_font_name_code:
-    case pdf_font_objnum_code:
-        set_ff(i);
-        if (c == pdf_font_name_code)
-            print_int(obj_info(static_pdf, pdf_font_num(ff)));
-        else
-            print_int(pdf_font_num(ff));
-        break;
-    case pdf_font_size_code:
-        print_scaled(font_size(i));
-        tprint("pt");
-        break;
-    case pdf_page_ref_code:
-        print_int(pdf_get_obj(static_pdf, obj_type_page, i, false));
-        break;
-    case pdf_xform_name_code:
-        print_int(obj_info(static_pdf, i));
-        break;
-    case eTeX_revision_code:
-        tprint(eTeX_revision);
-        break;
-    default:
-        ret = false;
-        break;
-    }
-    return ret;
-}
-
 @ @c
 int scan_lua_state(void) /* hh-ls: optional name or number (not optional name optional number) */
 {
@@ -1728,8 +1645,6 @@ int scan_lua_state(void) /* hh-ls: optional name or number (not optional name op
     return sn;
 }
 
-
-
 @ The procedure |conv_toks| uses |str_toks| to insert the token list
 for |convert| functions into the scanner; `\.{\\outer}' control sequences
 are allowed to follow `\.{\\string}' and `\.{\\meaning}'.
@@ -1739,6 +1654,140 @@ any pending string in its output. In order to save such a pending string,
 we have to create a temporary string that is destroyed immediately after.
 
 @c
+#define push_selector { \
+    old_setting = selector; \
+    selector = new_string; \
+}
+
+#define pop_selector { \
+    selector = old_setting; \
+}
+
+int conv_toks_dvi(halfword c)
+{
+    return 0;
+}
+
+int conv_toks_pdf(halfword c)
+{
+    int old_setting;            /* holds |selector| setting */
+    halfword p;
+    int save_scanner_status;    /* |scanner_status| upon entry */
+    halfword save_def_ref;      /* |def_ref| upon entry, important if inside `\.{\\message}' */
+    halfword save_warning_index;
+    boolean bool;               /* temp boolean */
+    str_number s;               /* first temp string */
+    int ff;                     /* for use with |set_ff| */
+    str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
+    int i = 0;                  /* first temp integer */
+    switch (c) {
+        case pdf_insert_ht_code:
+            scan_register_num();
+            push_selector;
+            i = cur_val;
+            p = page_ins_head;
+            while (i >= subtype(vlink(p)))
+                p = vlink(p);
+            if (subtype(p) == i)
+                print_scaled(height(p));
+            else
+                print_char('0');
+            tprint("pt");
+            pop_selector;
+            break;
+        case pdf_xform_name_code:
+            scan_int();
+            check_obj_type(static_pdf, obj_type_xform, cur_val);
+            push_selector;
+            print_int(obj_info(static_pdf, cur_val));
+            pop_selector;
+            break;
+        case pdf_creation_date_code:
+            ins_list(string_to_toks(getcreationdate(static_pdf)));
+            /* no further action */
+            return 0;
+            break;
+        case pdf_font_name_code:
+            scan_font_ident();
+            if (cur_val == null_font)
+                pdf_error("font", "invalid font identifier");
+            pdf_check_vf(cur_val);
+            if (!font_used(cur_val))
+                pdf_init_font(static_pdf, cur_val);
+            push_selector;
+            set_ff(cur_val);
+            print_int(obj_info(static_pdf, pdf_font_num(ff)));
+            pop_selector;
+            break;
+        case pdf_font_objnum_code:
+            scan_font_ident();
+            if (cur_val == null_font)
+                pdf_error("font", "invalid font identifier");
+            pdf_check_vf(cur_val);
+            if (!font_used(cur_val))
+                pdf_init_font(static_pdf, cur_val);
+            push_selector;
+            set_ff(cur_val);
+            print_int(pdf_font_num(ff));
+            pop_selector;
+            break;
+        case pdf_font_size_code:
+            scan_font_ident();
+            if (cur_val == null_font)
+                pdf_error("font", "invalid font identifier");
+            push_selector;
+            print_scaled(font_size(cur_val));
+            tprint("pt");
+            pop_selector;
+            break;
+        case pdf_page_ref_code:
+            scan_int();
+            if (cur_val <= 0)
+                pdf_error("pageref", "invalid page number");
+            push_selector;
+            print_int(pdf_get_obj(static_pdf, obj_type_page, cur_val, false));
+            pop_selector;
+            break;
+        case pdf_colorstack_init_code:
+            bool = scan_keyword("page");
+            if (scan_keyword("direct"))
+                cur_val = direct_always;
+            else if (scan_keyword("page"))
+                cur_val = direct_page;
+            else
+                cur_val = set_origin;
+            save_scanner_status = scanner_status;
+            save_warning_index = warning_index;
+            save_def_ref = def_ref;
+            u = save_cur_string();
+            scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
+            s = tokens_to_string(def_ref);
+            delete_token_ref(def_ref);
+            def_ref = save_def_ref;
+            warning_index = save_warning_index;
+            scanner_status = save_scanner_status;
+            cur_val = newcolorstack(s, cur_val, bool);
+            flush_str(s);
+            cur_val_level = int_val_level;
+            if (cur_val < 0) {
+                print_err("Too many color stacks");
+                help2("The number of color stacks is limited to 32768.",
+                      "I'll use the default color stack 0 here.");
+                error();
+                cur_val = 0;
+                restore_cur_string(u);
+            }
+            push_selector;
+            print_int(cur_val);
+            pop_selector;
+            break;
+        default:
+            return 0;
+            break;
+    }
+    return 1;
+}
+
 void conv_toks(void)
 {
     int old_setting;            /* holds |selector| setting */
@@ -1750,105 +1799,146 @@ void conv_toks(void)
     str_number s;               /* first temp string */
     int sn;                     /* lua chunk name */
     str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
-    int i = 0;                  /* first temp integer */
     int c = cur_chr;            /* desired type of conversion */
     str_number str;
+    int done = 1;
     /* Scan the argument for command |c| */
     switch (c) {
     case uchar_code:
         scan_char_num();
+        push_selector;
+        print_int(cur_val);
+        pop_selector;
         break;
     case number_code:
+        scan_int();
+        push_selector;
+        print_int(cur_val);
+        pop_selector;
+        break;
     case roman_numeral_code:
         scan_int();
+        push_selector;
+        print_roman_int(cur_val);
+        pop_selector;
         break;
     case string_code:
+        save_scanner_status = scanner_status;
+        scanner_status = normal;
+        get_token();
+        scanner_status = save_scanner_status;
+        push_selector;
+        if (cur_cs != 0)
+            sprint_cs(cur_cs);
+        else
+            print(cur_chr);
+        pop_selector;
+        break;
     case meaning_code:
         save_scanner_status = scanner_status;
         scanner_status = normal;
         get_token();
         scanner_status = save_scanner_status;
+        push_selector;
+        print_meaning();
+        pop_selector;
         break;
     case etex_code:
+        push_selector;
+        tprint(eTeX_version_string);
+        pop_selector;
         break;
     case font_name_code:
+        scan_font_ident();
+        push_selector;
+        append_string((unsigned char *) font_name(cur_val),(unsigned) strlen(font_name(cur_val)));
+        if (font_size(cur_val) != font_dsize(cur_val)) {
+            tprint(" at ");
+            print_scaled(font_size(cur_val));
+            tprint("pt");
+        }
+        pop_selector;
+        break;
     case font_id_code:
         scan_font_ident();
+        push_selector;
+        print_int(cur_val);
+        pop_selector;
         break;
     case luatex_revision_code:
+        push_selector;
+        print(get_luatexrevision());
+        pop_selector;
+        break;
     case luatex_date_code:
+        push_selector;
+        print_int(get_luatex_date_info());
+        pop_selector;
+        break;
     case luatex_banner_code:
-        break;
-    case pdf_font_name_code:
-    case pdf_font_objnum_code:
-    case pdf_font_size_code:
-        scan_font_ident();
-        if (cur_val == null_font)
-            pdf_error("font", "invalid font identifier");
-        if (c != pdf_font_size_code) {
-            pdf_check_vf(cur_val);
-            if (!font_used(cur_val))
-                pdf_init_font(static_pdf, cur_val);
-        }
-        break;
-    case pdf_page_ref_code:
-        scan_int();
-        if (cur_val <= 0)
-            pdf_error("pageref", "invalid page number");
+        push_selector;
+        tprint(luatex_banner);
+        pop_selector;
         break;
     case left_margin_kern_code:
+        scan_int();
+        if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
+            pdf_error("marginkern", "a non-empty hbox expected");
+        push_selector;
+        p = list_ptr(box(cur_val));
+        if ((p != null) && (!is_char_node(p)) && (type(p) == glue_node) && (subtype(p) == left_skip_code + 1))
+            p = vlink(p);
+        if ((p != null) && (!is_char_node(p)) && (type(p) == margin_kern_node) && (subtype(p) == left_side))
+            print_scaled(width(p));
+        else
+            print_char('0');
+        tprint("pt");
+        pop_selector;
+        break;
     case right_margin_kern_code:
         scan_int();
         if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
             pdf_error("marginkern", "a non-empty hbox expected");
-        break;
-    case pdf_xform_name_code:
-        scan_int();
-        check_obj_type(static_pdf, obj_type_xform, cur_val);
-        break;
-    case pdf_creation_date_code:
-        ins_list(string_to_toks(getcreationdate(static_pdf)));
-        return;
+        push_selector;
+        q = list_ptr(box(cur_val));
+        p = null;
+        if (q != null) {
+            p = prev_rightmost(q, null);
+            if ((p != null) && (!is_char_node(p)) && (type(p) == glue_node) && (subtype(p) == right_skip_code + 1))
+                p = prev_rightmost(q, p);
+        }
+        if ((p != null) && (!is_char_node(p)) && (type(p) == margin_kern_node) && (subtype(p) == right_side))
+            print_scaled(width(p));
+        else
+            print_char('0');
+        tprint("pt");
+        pop_selector;
         break;
     case format_name_code:
+        if (job_name == 0)
+            open_log_file();
+        push_selector;
+        print(format_name);
+        pop_selector;
+        break;
     case job_name_code:
         if (job_name == 0)
             open_log_file();
-        break;
-    case pdf_colorstack_init_code:
-        bool = scan_keyword("page");
-        if (scan_keyword("direct"))
-            cur_val = direct_always;
-        else if (scan_keyword("page"))
-            cur_val = direct_page;
-        else
-            cur_val = set_origin;
-        save_scanner_status = scanner_status;
-        save_warning_index = warning_index;
-        save_def_ref = def_ref;
-        u = save_cur_string();
-        scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
-        s = tokens_to_string(def_ref);
-        delete_token_ref(def_ref);
-        def_ref = save_def_ref;
-        warning_index = save_warning_index;
-        scanner_status = save_scanner_status;
-        cur_val = newcolorstack(s, cur_val, bool);
-        flush_str(s);
-        cur_val_level = int_val_level;
-        if (cur_val < 0) {
-            print_err("Too many color stacks");
-            help2("The number of color stacks is limited to 32768.",
-                  "I'll use the default color stack 0 here.");
-            error();
-            cur_val = 0;
-            restore_cur_string(u);
-        }
+        push_selector;
+        print_job_name();
+        pop_selector;
         break;
     case uniform_deviate_code:
         scan_int();
+        push_selector;
+        print_int(unif_rand(cur_val));
+        pop_selector;
         break;
     case normal_deviate_code:
+        scan_int();
+        push_selector;
+        print_int(norm_rand());
+        pop_selector;
         break;
     case lua_escape_string_code:
         {
@@ -1872,8 +1962,12 @@ void conv_toks(void)
             free(escstr.s);
             return;
         }
+        /* no further action */
         break;
     case math_style_code:
+        push_selector;
+        print_math_style();
+        pop_selector;
         break;
     case expanded_code:
         save_scanner_status = scanner_status;
@@ -1886,6 +1980,7 @@ void conv_toks(void)
         ins_list(token_link(def_ref));
         def_ref = save_def_ref;
         restore_cur_string(u);
+        /* no further action */
         return;
         break;
     case lua_code:
@@ -1905,6 +2000,7 @@ void conv_toks(void)
         restore_cur_string(u);  /* TODO: check this, was different */
         if (luacstrings > 0)
             lua_string_start();
+        /* no further action */
         return;
         break;
     case lua_function_code:
@@ -1919,88 +2015,32 @@ void conv_toks(void)
             if (luacstrings > 0)
                 lua_string_start();
         }
+        /* no further action */
         return;
         break;
-    case pdf_insert_ht_code:
-        scan_register_num();
-        break;
     case eTeX_revision_code:
+        push_selector;
+        tprint(eTeX_revision);
+        pop_selector;
         break;
     default:
-        confusion("convert");
+        /* backend */
+        switch (int_par(output_mode_code)) {
+            case OMODE_DVI:
+                done = conv_toks_dvi(c);
+                break;
+            case OMODE_PDF:
+                done = conv_toks_pdf(c);
+                break;
+            default:
+                done = false;
+                break;
+        }
+        if (! done)
+            confusion("convert");
         break;
     }
 
-    old_setting = selector;
-    selector = new_string;
-
-    /* Print the result of command |c| */
-    if (!print_convert_string(c, cur_val)) {
-        switch (c) {
-        case string_code:
-            if (cur_cs != 0)
-                sprint_cs(cur_cs);
-            else
-                print(cur_chr);
-            break;
-        case meaning_code:
-            print_meaning();
-            break;
-        case left_margin_kern_code:
-            p = list_ptr(box(cur_val));
-            if ((p != null) && (!is_char_node(p)) &&
-                (type(p) == glue_node) && (subtype(p) == left_skip_code + 1))
-                p = vlink(p);
-            if ((p != null) && (!is_char_node(p)) &&
-                (type(p) == margin_kern_node) && (subtype(p) == left_side))
-                print_scaled(width(p));
-            else
-                print_char('0');
-            tprint("pt");
-            break;
-        case right_margin_kern_code:
-            q = list_ptr(box(cur_val));
-            p = null;
-            if (q != null) {
-                p = prev_rightmost(q, null);
-                if ((p != null) && (!is_char_node(p)) && (type(p) == glue_node)
-                    && (subtype(p) == right_skip_code + 1))
-                    p = prev_rightmost(q, p);
-            }
-            if ((p != null) && (!is_char_node(p)) &&
-                (type(p) == margin_kern_node) && (subtype(p) == right_side))
-                print_scaled(width(p));
-            else
-                print_char('0');
-            tprint("pt");
-            break;
-        case pdf_colorstack_init_code:
-            print_int(cur_val);
-            break;
-        case pdf_insert_ht_code:
-            i = cur_val;
-            p = page_ins_head;
-            while (i >= subtype(vlink(p)))
-                p = vlink(p);
-            if (subtype(p) == i)
-                print_scaled(height(p));
-            else
-                print_char('0');
-            tprint("pt");
-            break;
-        case pdf_creation_date_code:
-        case lua_escape_string_code:
-        case lua_code:
-        case lua_function_code:
-        case expanded_code:
-            break;
-        default:
-            confusion("convert");
-            break;
-        }
-    }
-
-    selector = old_setting;
     str = make_string();
     (void) str_toks(str_lstring(str));
     flush_str(str);
@@ -2018,18 +2058,118 @@ boolean is_convert(halfword c)
     return (c == convert_cmd);
 }
 
+int the_convert_string_dvi(halfword c, int i)
+{
+    return 0;
+}
+
+int the_convert_string_pdf(halfword c, int i)
+{
+    int ff;
+    switch(c) {
+        case pdf_font_name_code:
+        case pdf_font_objnum_code:
+            set_ff(i);
+            if (c == pdf_font_name_code)
+                print_int(obj_info(static_pdf, pdf_font_num(ff)));
+            else
+                print_int(pdf_font_num(ff));
+            break;
+        case pdf_font_size_code:
+            print_scaled(font_size(i));
+            tprint("pt");
+            break;
+        case pdf_page_ref_code:
+            print_int(pdf_get_obj(static_pdf, obj_type_page, i, false));
+            break;
+        case pdf_xform_name_code:
+            print_int(obj_info(static_pdf, i));
+            break;
+        default:
+            return 0;
+            break;
+    }
+    return 1;
+}
+
 str_number the_convert_string(halfword c, int i)
 {
     int old_setting;            /* saved |selector| setting */
     str_number ret = 0;
+    boolean done = true ;
     old_setting = selector;
     selector = new_string;
-    if (print_convert_string(c, i)) {
-        ret = make_string();
-    } else if (c == font_identifier_code) {
-        print_font_identifier(i);
-        ret = make_string();
+    switch (c) {
+        case number_code:
+            print_int(i);
+            break;
+        case uchar_code:
+            print(i);
+            break;
+        case roman_numeral_code:
+            print_roman_int(i);
+            break;
+        case etex_code:
+            tprint(eTeX_version_string);
+            break;
+        case luatex_revision_code:
+            print(get_luatexrevision());
+            break;
+        case luatex_date_code:
+            print_int(get_luatex_date_info());
+            break;
+        case luatex_banner_code:
+            tprint(luatex_banner);
+            break;
+        case uniform_deviate_code:
+            print_int(unif_rand(i));
+            break;
+        case normal_deviate_code:
+            print_int(norm_rand());
+            break;
+        case format_name_code:
+            print(format_name);
+            break;
+        case job_name_code:
+            print_job_name();
+            break;
+        case font_name_code:
+            append_string((unsigned char *) font_name(i),(unsigned) strlen(font_name(i)));
+            if (font_size(i) != font_dsize(i)) {
+                tprint(" at ");
+                print_scaled(font_size(i));
+                tprint("pt");
+            }
+            break;
+        case font_id_code:
+            print_int(i);
+            break;
+        case math_style_code:
+            print_math_style();
+            break;
+        case eTeX_revision_code:
+            tprint(eTeX_revision);
+            break;
+        case font_identifier_code:
+            print_font_identifier(i);
+            break;
+        default:
+            /* backend */
+            switch (int_par(output_mode_code)) {
+                case OMODE_DVI:
+                    done = the_convert_string_dvi(c,i);
+                    break;
+                case OMODE_PDF:
+                    done = the_convert_string_pdf(c,i);
+                    break;
+                default:
+                    done = false;
+                    break;
+            }
+            break;
     }
+    if (done)
+        ret = make_string();
     selector = old_setting;
     return ret;
 }

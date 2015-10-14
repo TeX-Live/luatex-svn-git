@@ -31,9 +31,13 @@ extern scaled neg_ht;
 
 extern halfword write_loc;
 
-extern void do_extension(PDF pdf, int immediate);
-extern void do_pdf_extension(PDF pdf, int immediate);
-extern void do_pdf_resource(PDF pdf, int immediate, int code);
+extern void do_extension(int immediate);
+
+extern void do_extension_dvi(int immediate);
+extern void do_extension_pdf(int immediate);
+
+extern void do_resource_dvi(int immediate, int code);
+extern void do_resource_pdf(int immediate, int code);
 
 /* Three extra node types carry information from |main_control|. */
 

@@ -623,7 +623,7 @@ static void run_after_group (void) {
 
 @ @c
 static void run_extension (void) {
-    do_extension(static_pdf,0);
+    do_extension(0);
 }
 
 static void run_normal (void) {
