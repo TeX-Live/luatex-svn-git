@@ -859,6 +859,19 @@ int get_tex_extension_count_register(const char *s, int d)
     return (int) get_tex_count_register(k);
 }
 
+void set_tex_extension_count_register(const char *s, int d)
+{
+    int k;
+    int cs;
+    cs = string_lookup(s,strlen(s));
+    if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
+        return;
+    k = (equiv(cs) - count_base);
+    if ((k<0) || (k>65535))
+        return;
+    get_tex_count_register(k) = d;
+}
+
 int get_tex_extension_dimen_register(const char *s, int d)
 {
     int k;
@@ -870,6 +883,19 @@ int get_tex_extension_dimen_register(const char *s, int d)
     if ((k<0) || (k>65535))
         return d;
     return (int) get_tex_dimen_register(k);
+}
+
+void set_tex_extension_dimen_register(const char *s, int d)
+{
+    int k;
+    int cs;
+    cs = string_lookup(s,strlen(s));
+    if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
+        return;
+    k = (equiv(cs) - scaled_base);
+    if ((k<0) || (k>65535))
+        return;
+    get_tex_dimen_register(k) = d;
 }
 
 int get_tex_extension_toks_register(const char *s)

@@ -2894,15 +2894,6 @@ void assign_internal_value(int a, halfword p, int val)
                 word_define(p, val);
             }
             break;
-/*        case pdf_compress_level_code:
-            static_pdf->compress_level = val;
-            word_define(p, val);
-            break;
-        case pdf_objcompresslevel_code:
-            static_pdf->objcompresslevel = val;
-            word_define(p, val);
-            break;
-*/
         case language_code:
             if (val < 0) {
 	        word_define(int_base + cur_lang_code, -1);
@@ -3660,17 +3651,6 @@ void initialize(void)
         cs_text(frozen_primitive) = maketexstring("primitive");
         create_null_font();
         font_bytes = 0;
-        /* pdf_h_origin           = one_inch; */
-        /* pdf_v_origin           = one_inch; */
-        /* pdf_compress_level     =    9;     */
-        /* pdf_objcompresslevel   =    0;     */
-        /* pdf_decimal_digits     =    3;     */
-        /* pdf_image_resolution   =   72;     */
-        /* pdf_minor_version      =    4;     */
-        /* pdf_gamma              = 1000;     */
-        /* pdf_image_gamma        = 2200;     */
-        /* pdf_image_hicolor      =    1;     */
-        /* pdf_image_apply_gamma  =    0;     */
         px_dimen = one_bp;
         math_eqno_gap_step = 1000 ;
         cs_text(frozen_protection) = maketexstring("inaccessible");

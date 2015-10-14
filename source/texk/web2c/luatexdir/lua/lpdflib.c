@@ -20,6 +20,7 @@
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
+#include "pdf/pdftables.h"
 
 static int luapdfprint(lua_State * L)
 {
@@ -775,42 +776,122 @@ static int l_hasmatrix(lua_State * L)
     return 1 ;
 }
 
+static int l_get_lastlink(lua_State * L)
+{
+    lua_pushnumber(L, (pdf_last_link));
+    return 1 ;
+}
+
+static int l_get_retval(lua_State * L)
+{
+    lua_pushnumber(L, (pdf_retval));
+    return 1 ;
+}
+
+static int l_get_lastobj(lua_State * L)
+{
+    lua_pushnumber(L, (pdf_last_obj));
+    return 1 ;
+}
+
+static int l_get_lastannot(lua_State * L)
+{
+    lua_pushnumber(L, (pdf_last_annot));
+    return 1 ;
+}
+
+/* maybe:
+
+    get_fontname    : set_ff(i)  obj_info(static_pdf, pdf_font_num(ff))
+    get_fontobjnum  : set_ff(i)  pdf_font_num(ff)
+    get_fontsize    : font_size(i)
+    get_xformname   : obj_info(static_pdf, i)
+
+*/
+
+static int l_get_compresslevel(lua_State * L)
+{
+    lua_pushnumber(L, (pdf_compress_level));
+    return 1 ;
+}
+
+static int l_get_objcompresslevel(lua_State * L)
+{
+    lua_pushnumber(L, (pdf_objcompresslevel));
+    return 1 ;
+}
+
+static int l_set_compresslevel(lua_State * L)
+{
+    int c ;
+    if (lua_isnumber(L, 1)) {
+        c = (int) lua_tointeger(L, 1);
+        if (c<0)
+            c = 0 ;
+        else if (c>9)
+            c = 9 ;
+        set_pdf_objcompresslevel(c);
+    }
+    return 0 ;
+}
+
+static int l_set_objcompresslevel(lua_State * L)
+{
+    int c ;
+    if (lua_isnumber(L, 1)) {
+        c = (int) lua_tointeger(L, 1);
+        if (c<0)
+            c = 0 ;
+        else if (c>9)
+            c = 9 ;
+        set_pdf_compress_level(c);
+    }
+    return 0 ;
+}
 
 static const struct luaL_Reg pdflib[] = {
-    {"immediateobj", l_immediateobj},
-    {"mapfile", l_mapfile},
-    {"mapline", l_mapline},
-    {"maxobjnum", l_maxobjnum},
-    {"obj", l_obj},
-    {"objtype", l_objtype},
-    {"pageref", l_pageref},
-    {"print", luapdfprint},
-    {"refobj", l_refobj},
-    {"registerannot", l_registerannot},
-    {"reserveobj", l_reserveobj},
-    {"getpos", l_getpos},
-    {"gethpos", l_gethpos},
-    {"getvpos", l_getvpos},
-    {"getmatrix", l_getmatrix},
-    {"hasmatrix", l_hasmatrix},
-    {"setcatalog", l_set_catalog},
-    {"setinfo", l_set_info},
-    {"setnames", l_set_names},
-    {"settrailer", l_set_trailer},
-    {"setpageresources", l_set_pageresources},
-    {"setpageattributes", l_set_pageattributes},
-    {"setpagesattributes", l_set_pagesattributes},
-    {"setxformresources", l_set_xformresources},
-    {"setxformattributes", l_set_xformattributes},
-    {"getcatalog", l_get_catalog},
-    {"getinfo", l_get_info},
-    {"getnames", l_get_names},
-    {"gettrailer", l_get_trailer},
-    {"getpageresources", l_get_pageresources},
-    {"getpageattributes", l_get_pageattributes},
-    {"getpagesattributes", l_get_pagesattributes},
-    {"getxformresources", l_get_xformresources},
-    {"getxformattributes", l_get_xformattributes},
+    { "immediateobj", l_immediateobj },
+    { "mapfile", l_mapfile },
+    { "mapline", l_mapline },
+    { "maxobjnum", l_maxobjnum },
+    { "obj", l_obj },
+    { "objtype", l_objtype },
+    { "pageref", l_pageref },
+    { "print", luapdfprint },
+    { "refobj", l_refobj },
+    { "registerannot", l_registerannot },
+    { "reserveobj", l_reserveobj },
+    { "getpos", l_getpos },
+    { "gethpos", l_gethpos },
+    { "getvpos", l_getvpos },
+    { "getmatrix", l_getmatrix },
+    { "hasmatrix", l_hasmatrix },
+    { "setcatalog", l_set_catalog },
+    { "setinfo", l_set_info },
+    { "setnames", l_set_names },
+    { "settrailer", l_set_trailer },
+    { "setpageresources", l_set_pageresources },
+    { "setpageattributes", l_set_pageattributes },
+    { "setpagesattributes", l_set_pagesattributes },
+    { "setxformresources", l_set_xformresources },
+    { "setxformattributes", l_set_xformattributes },
+    { "getcatalog", l_get_catalog },
+    { "getinfo", l_get_info },
+    { "getnames", l_get_names },
+    { "gettrailer", l_get_trailer },
+    { "getpageresources", l_get_pageresources },
+    { "getpageattributes", l_get_pageattributes },
+    { "getpagesattributes", l_get_pagesattributes },
+    { "getxformresources", l_get_xformresources },
+    { "getxformattributes", l_get_xformattributes },
+    { "getlastlink", l_get_lastlink },
+    { "getretval", l_get_retval },
+    { "getlastobj", l_get_lastobj },
+    { "getlastannot", l_get_lastannot },
+    { "getcompresslevel", l_get_compresslevel },
+    { "getobjcompresslevel", l_get_objcompresslevel },
+    { "setcompresslevel", l_set_compresslevel },
+    { "setobjcompresslevel", l_set_objcompresslevel },
     {NULL, NULL}                /* sentinel */
 };
 

@@ -183,9 +183,9 @@ typedef enum {
 #  define kern_node_size 5
 #  define explicit 1            /*|subtype| of kern nodes from \.{\\kern} and \.{\\/} */
 #  define acc_kern 2            /*|subtype| of kern nodes from accents */
-#  define synctex_tag_kern(a)  vinfo((a)+3)
-#  define synctex_line_kern(a) vlink((a)+3)
-#  define ex_kern(a)           vinfo((a)+4)     /* expansion factor (hz) */
+#  define ex_kern(a)           vinfo((a)+3)     /* expansion factor (hz) */
+#  define synctex_tag_kern(a)  vinfo((a)+4)
+#  define synctex_line_kern(a) vlink((a)+4)
 
 #  define box_node_size 9
 
@@ -219,15 +219,6 @@ typedef enum {
     box_rule,
     image_rule,
 } rule_subtypes;
-
-/*
-#  define rule_node_size 9
-#  define rule_dir(a)          vlink((a)+5)
-#  define rule_index(a)        vlink((a)+6)
-#  define rule_transform(a)    vlink((a)+7)
-#  define synctex_tag_rule(a)  vinfo((a)+8)
-#  define synctex_line_rule(a) vlink((a)+8)
-*/
 
 #  define rule_node_size 8
 #  define rule_dir(a)          vlink((a)+5)

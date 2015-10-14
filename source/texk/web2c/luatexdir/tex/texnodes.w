@@ -527,32 +527,34 @@ halfword new_node(int i, int j)
     default:
         break;
     }
-    /* handle synctex extension */
-    switch (i) {
-    case math_node:
-        synctex_tag_math(n) = cur_input.synctex_tag_field;
-        synctex_line_math(n) = line;
-        break;
-    case glue_node:
-        synctex_tag_glue(n) = cur_input.synctex_tag_field;
-        synctex_line_glue(n) = line;
-        break;
-    case kern_node:
-        if (j != 0) {
-            synctex_tag_kern(n) = cur_input.synctex_tag_field;
-            synctex_line_kern(n) = line;
+    if (int_par(synctex_code)) {
+        /* handle synctex extension */
+        switch (i) {
+        case math_node:
+            synctex_tag_math(n) = cur_input.synctex_tag_field;
+            synctex_line_math(n) = line;
+            break;
+        case glue_node:
+            synctex_tag_glue(n) = cur_input.synctex_tag_field;
+            synctex_line_glue(n) = line;
+            break;
+        case kern_node:
+            if (j != 0) {
+                synctex_tag_kern(n) = cur_input.synctex_tag_field;
+                synctex_line_kern(n) = line;
+            }
+            break;
+        case hlist_node:
+        case vlist_node:
+        case unset_node:
+            synctex_tag_box(n) = cur_input.synctex_tag_field;
+            synctex_line_box(n) = line;
+            break;
+        case rule_node:
+            synctex_tag_rule(n) = cur_input.synctex_tag_field;
+            synctex_line_rule(n) = line;
+            break;
         }
-        break;
-    case hlist_node:
-    case vlist_node:
-    case unset_node:
-        synctex_tag_box(n) = cur_input.synctex_tag_field;
-        synctex_line_box(n) = line;
-        break;
-    case rule_node:
-        synctex_tag_rule(n) = cur_input.synctex_tag_field;
-        synctex_line_rule(n) = line;
-        break;
     }
     /* take care of attributes */
     if (nodetype_has_attributes(i)) {
@@ -682,16 +684,18 @@ halfword copy_node(const halfword p)
     (void) memcpy((void *) (varmem + r), (void *) (varmem + p),
                   (sizeof(memory_word) * (unsigned) i));
 
-    /* handle synctex extension */
-   switch (type(p)) {
-    case math_node:
-        synctex_tag_math(r) = cur_input.synctex_tag_field;
-        synctex_line_math(r) = line;
-        break;
-    case kern_node:
-        synctex_tag_kern(r) = cur_input.synctex_tag_field;
-        synctex_line_kern(r) = line;
-        break;
+    if (int_par(synctex_code)) {
+        /* handle synctex extension */
+        switch (type(p)) {
+        case math_node:
+            synctex_tag_math(r) = cur_input.synctex_tag_field;
+            synctex_line_math(r) = line;
+            break;
+        case kern_node:
+            synctex_tag_kern(r) = cur_input.synctex_tag_field;
+            synctex_line_kern(r) = line;
+            break;
+        }
     }
     if (nodetype_has_attributes(type(p))) {
         add_node_attr_ref(node_attr(p));

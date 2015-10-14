@@ -86,9 +86,11 @@ extern halfword last_line_fill; /* the |par_fill_skip| glue node of the new para
 #  define get_tex_attribute_register(j) attribute(j)
 #  define get_tex_box_register(j) box(j)
 
-extern int get_tex_extension_count_register(const char *s, int d);
-extern int get_tex_extension_dimen_register(const char *s, int d);
-extern int get_tex_extension_toks_register (const char *s);
+extern int  get_tex_extension_count_register(const char *s, int d);
+extern void set_tex_extension_count_register(const char *s, int d);
+extern int  get_tex_extension_dimen_register(const char *s, int d);
+extern void set_tex_extension_dimen_register(const char *s, int d);
+extern int  get_tex_extension_toks_register (const char *s);
 
 extern int set_tex_dimen_register(int j, scaled v);
 extern int set_tex_skip_register(int j, halfword v);
@@ -130,8 +132,8 @@ typedef enum {
     open_code = 0,
     write_code,
     close_code,
-    reserved_extension_code, /* 3: we moved special below immediate */
-    reserved_immediate_code, /* 4: same number as main codes, expectec value */
+    reserved_extension_code, // 3: we moved special below immediate //
+    reserved_immediate_code, // 4: same number as main codes, expectec value //
     /* backend specific implementations */
     special_code,
     save_box_resource_code,

@@ -2132,12 +2132,12 @@ int the_convert_string_pdf(halfword c, int i)
             print_int(pdf_last_annot);
             break;
         case pdf_font_name_code:
+            set_ff(i);
+            print_int(obj_info(static_pdf, pdf_font_num(ff)));
+            break;
         case pdf_font_objnum_code:
             set_ff(i);
-            if (c == pdf_font_name_code)
-                print_int(obj_info(static_pdf, pdf_font_num(ff)));
-            else
-                print_int(pdf_font_num(ff));
+            print_int(pdf_font_num(ff));
             break;
         case pdf_font_size_code:
             print_scaled(font_size(i));

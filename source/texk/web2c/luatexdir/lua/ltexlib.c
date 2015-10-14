@@ -1289,7 +1289,7 @@ static int settex(lua_State * L)
     return 0;
 }
 
-/* todo: merge into below */
+/* todo: some will to the pdf namespace  .. ignore > 31 */
 
 static int do_convert(lua_State * L, int cur_code)
 {
@@ -1297,42 +1297,43 @@ static int do_convert(lua_State * L, int cur_code)
     int i = -1;
     char *str = NULL;
     switch (cur_code) {
-    case insert_ht_code:               /* arg <register int> */
-    case lua_code:                     /* arg complex */
-    case lua_escape_string_code:       /* arg token list */
-    case left_margin_kern_code:        /* arg box */
-    case right_margin_kern_code:       /* arg box */
-    case string_code:                  /* arg token */
-    case meaning_code:                 /* arg token */
-case pdf_colorstack_init_code:     /* arg complex */
-case pdf_creation_date_code:       /* ? */
-case pdf_last_obj_code:
-case pdf_last_annot_code:
-case pdf_retval_code:
-case pdf_last_link_code:
-        break;
-    /* the next fall through, and come from 'official' indices! */
-    case font_name_code:               /* arg fontid */
-    case font_identifier_code:         /* arg fontid */
-case pdf_font_name_code:           /* arg fontid */
-case pdf_font_objnum_code:         /* arg fontid */
-case pdf_font_size_code:           /* arg fontid */
-    case uniform_deviate_code:         /* arg int */
-    case number_code:                  /* arg int */
-    case roman_numeral_code:           /* arg int */
-case pdf_page_ref_code:            /* arg int */
-case pdf_xform_name_code:          /* arg int */
-    if (lua_gettop(L) < 1) {
-        /* error */
+        /* ignored (yet) */
+
+        case insert_ht_code:               /* arg <register int> */
+        case lua_code:                     /* arg complex */
+        case lua_escape_string_code:       /* arg token list */
+        case left_margin_kern_code:        /* arg box */
+        case right_margin_kern_code:       /* arg box */
+        case string_code:                  /* arg token */
+        case meaning_code:                 /* arg token */
+            break;
+
+        /* the next fall through, and come from 'official' indices! */
+
+        case font_name_code:               /* arg fontid */
+        case font_identifier_code:         /* arg fontid */
+        case uniform_deviate_code:         /* arg int */
+        case number_code:                  /* arg int */
+        case roman_numeral_code:           /* arg int */
+
+            if (lua_gettop(L) < 1) {
+                /* error */
+            }
+            i=(int)lua_tonumber(L, 1);
+
+            /* these fall through! */
+
+        default:
+            /* no backend here */
+            if (cur_code < 32) {
+                texstr = the_convert_string(cur_code, i);
+                if (texstr) {
+                    str = makecstring(texstr);
+                    flush_str(texstr);
+                }
+            }
     }
-    i=(int)lua_tonumber(L, 1);  /* these fall through! */
-    default:
-        texstr = the_convert_string(cur_code, i);
-        if (texstr) {
-            str = makecstring(texstr);
-            flush_str(texstr);
-        }
-    }
+    /* end */
     if (str) {
         lua_pushstring(L, str);
         free(str);
@@ -1341,7 +1342,6 @@ case pdf_xform_name_code:          /* arg int */
     }
     return 1;
 }
-
 
 static int do_scan_internal(lua_State * L, int cur_cmd1, int cur_code)
 {
