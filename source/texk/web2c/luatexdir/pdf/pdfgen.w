@@ -240,7 +240,7 @@ output_mode get_o_mode(void)
     return o_mode;
 }
 
-void fix_o_mode()
+void fix_o_mode(void)
 {
     output_mode o_mode = get_o_mode();
     if (output_mode_used == OMODE_NONE)
