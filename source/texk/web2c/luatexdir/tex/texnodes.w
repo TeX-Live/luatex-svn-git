@@ -255,7 +255,7 @@ node_info node_data[] = {
     {-1, -1, NULL, NULL}
 };
 
-#define last_normal_node shape_node
+#define last_normal_node local_par_node
 
 node_info whatsit_node_data[] = {
     {open_node, open_node_size, node_fields_whatsit_open, "open"},
@@ -293,7 +293,7 @@ node_info whatsit_node_data[] = {
     {-1, -1, NULL, NULL}
 };
 
-#define last_whatsit_node user_defined_node
+#define last_whatsit_node pdf_restore_node
 
 /* hh: experiment */
 
