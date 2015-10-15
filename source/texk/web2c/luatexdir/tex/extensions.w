@@ -390,96 +390,103 @@ void do_extension(int immediate)
 {
     int k;                   /* all-purpose integers */
     halfword p;              /* all-purpose pointer */
-    switch (cur_chr) {
-    case open_code:
-        p = tail;
-        new_write_whatsit(open_node_size,1);
-        scan_optional_equals();
-        scan_file_name();
-        open_name(tail) = cur_name;
-        open_area(tail) = cur_area;
-        open_ext(tail) = cur_ext;
-        if (immediate) {
-            out_what(static_pdf, tail);
-            flush_node_list(tail);
-            tail = p;
-            vlink(p) = null;
+    if (cur_cmd == extension_cmd) {
+        /* these have their own range starting at 0 */
+        switch (cur_chr) {
+        case open_code:
+            p = tail;
+            new_write_whatsit(open_node_size,1);
+            scan_optional_equals();
+            scan_file_name();
+            open_name(tail) = cur_name;
+            open_area(tail) = cur_area;
+            open_ext(tail) = cur_ext;
+            if (immediate) {
+                out_what(static_pdf, tail);
+                flush_node_list(tail);
+                tail = p;
+                vlink(p) = null;
+            }
+            break;
+        case write_code:
+            /*
+                When `\.{\\write 12\{...\}}' appears, we scan the token list `\.{\{...\}}'
+                without expanding its macros; the macros will be expanded later when this
+                token list is rescanned.
+            */
+            p = tail;
+            k = cur_cs;
+            new_write_whatsit(write_node_size,0);
+            cur_cs = k;
+            scan_toks(false, false);
+            write_tokens(tail) = def_ref;
+            if (immediate) {
+                out_what(static_pdf, tail);
+                flush_node_list(tail);
+                tail = p;
+                vlink(p) = null;
+            }
+            break;
+        case close_code:
+            p = tail;
+            new_write_whatsit(close_node_size,1);
+            write_tokens(tail) = null;
+            if (immediate) {
+                out_what(static_pdf, tail);
+                flush_node_list(tail);
+                tail = p;
+                vlink(p) = null;
+            }
+            break;
+        case special_code:
+            /*
+                When `\.{\\special\{...\}}' appears, we expand the macros in the token
+                list as in \.{\\xdef} and \.{\\mark}.
+            */
+            new_whatsit(special_node);
+            write_stream(tail) = null;
+            p = scan_toks(false, true);
+            write_tokens(tail) = def_ref;
+            break;
+        case immediate_code:
+            get_x_token();
+            do_extension(1);
+            break;
+        case use_box_resource_code:
+        case use_image_resource_code:
+        case save_box_resource_code:
+        case save_image_resource_code:
+            switch (get_o_mode()) {
+                case OMODE_DVI:
+                    do_resource_dvi(0,cur_chr);
+                    break;
+                case OMODE_PDF:
+                    do_resource_pdf(0,cur_chr);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        /* backend extensions have their own range starting at 32 */
+        case dvi_extension_code:
+            if (get_o_mode() == OMODE_DVI)
+                do_extension_dvi(0);
+            break;
+        case pdf_extension_code:
+            if (get_o_mode() == OMODE_PDF)
+                do_extension_pdf(0);
+            break;
+        default:
+            if (immediate) {
+                back_input();
+            } else {
+                confusion("ext1x");
+            }
+            break;
         }
-        break;
-    case write_code:
-        /*
-            When `\.{\\write 12\{...\}}' appears, we scan the token list `\.{\{...\}}'
-            without expanding its macros; the macros will be expanded later when this
-            token list is rescanned.
-        */
-        p = tail;
-        k = cur_cs;
-        new_write_whatsit(write_node_size,0);
-        cur_cs = k;
-        scan_toks(false, false);
-        write_tokens(tail) = def_ref;
-        if (immediate) {
-            out_what(static_pdf, tail);
-            flush_node_list(tail);
-            tail = p;
-            vlink(p) = null;
-        }
-        break;
-    case close_code:
-        p = tail;
-        new_write_whatsit(close_node_size,1);
-        write_tokens(tail) = null;
-        if (immediate) {
-            out_what(static_pdf, tail);
-            flush_node_list(tail);
-            tail = p;
-            vlink(p) = null;
-        }
-        break;
-    case special_code:
-        /*
-            When `\.{\\special\{...\}}' appears, we expand the macros in the token
-            list as in \.{\\xdef} and \.{\\mark}.
-        */
-        new_whatsit(special_node);
-        write_stream(tail) = null;
-        p = scan_toks(false, true);
-        write_tokens(tail) = def_ref;
-        break;
-    case immediate_code:
-        get_x_token();
-        do_extension(1);
-        break;
-    case use_box_resource_code:
-    case use_image_resource_code:
-    case save_box_resource_code:
-    case save_image_resource_code:
-        switch (get_o_mode()) {
-            case OMODE_DVI:
-                do_resource_dvi(0,cur_chr);
-                break;
-            case OMODE_PDF:
-                do_resource_pdf(0,cur_chr);
-                break;
-            default:
-                break;
-        }
-        break;
-    case dvi_extension_code:
-        if (get_o_mode() == OMODE_DVI)
-            do_extension_dvi(0);
-        break;
-    case pdf_extension_code:
-        if (get_o_mode() == OMODE_PDF)
-            do_extension_pdf(0);
-        break;
-    default:
-        if (immediate) {
-            back_input();
-        } else {
-            confusion("ext1x");
-        }
-        break;
+    } else {
+        /* no extension command, quite certainly following \immediate */
+        back_input();
     }
 }
 

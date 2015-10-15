@@ -133,7 +133,7 @@ typedef enum {
     write_code,
     close_code,
     reserved_extension_code, // 3: we moved special below immediate //
-    reserved_immediate_code, // 4: same number as main codes, expectec value //
+    reserved_immediate_code, // 4: same number as main codes, expected value //
     /* backend specific implementations */
     special_code,
     save_box_resource_code,
