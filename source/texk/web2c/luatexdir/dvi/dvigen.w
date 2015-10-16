@@ -1246,7 +1246,7 @@ void ensure_dvi_header_written(PDF pdf)
     unsigned l;
     unsigned s;                 /* index into |str_pool| */
     int old_setting;            /* saved |selector| setting */
-    assert(pdf->o_mode == OMODE_DVI);
+    assert(output_mode_used == OMODE_DVI);
     assert(pdf->o_state == ST_FILE_OPEN);
 
     if (half_buf == 0) {
