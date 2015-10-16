@@ -660,6 +660,21 @@ within the constraints of the \type {\lefthyphenmin} and \type {\righthyphenmin}
 values (as stored in the glyph node). This primitive accepts a number and stores
 the value with the language.
 
+\section{\type {\boundary} and \type {\noboundary}}
+
+The \type {\noboundary} commands used to inject a whatsit node but now injects a normal
+node with type \type {boundary} and subtype~0. In addition you can say:
+
+\starttyping
+x\boundary 123\relax y
+\stoptyping
+
+This has the same effect but the subtype is now~1 and the value~123 is stored. The
+traditional ligature builder still sees this as a cancel boundary directive but at the
+\LUA\ end you can implement different behaviour. The added benefit of passing this
+value is a side effect of the generalization.
+
+
 \section{Debugging}
 
 If \type {\tracingonline} is larger than~2, the node list display will also print

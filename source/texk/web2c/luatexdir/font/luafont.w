@@ -188,7 +188,7 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
        lua_pushstring(L, "bot_accent")	;
        lua_pushnumber(L, get_charinfo_bot_accent(co));
        lua_rawset(L, -3);
-    }      
+    }
 
     if (get_charinfo_ef(co) != 0) {
         lua_pushstring(L, "expansion_factor");
@@ -700,7 +700,7 @@ static char *n_string_field_copy(lua_State * L, int name_index, const char *dflt
 
 static const char *n_string_field(lua_State * L, int name_index)
 {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /* fetch the stringptr */ 
+    lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /* fetch the stringptr */
     lua_rawget(L, -2);
     return lua_tostring(L,-1);
 }
@@ -1061,7 +1061,7 @@ static void read_lua_math_parameters(lua_State * L, int f)
 
 static void store_math_kerns(lua_State * L, int index, charinfo * co, int id)
 {
-    int l, k; 
+    int l, k;
     scaled ht, krn;
     lua_rawgeti(L, LUA_REGISTRYINDEX, index);lua_rawget(L, -2);
     if (lua_istable(L, -1) && ((k = (int) lua_rawlen(L, -1)) > 0)) {
@@ -1121,14 +1121,14 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
         else
             set_charinfo_name(co, NULL);
         /* n_string_field leaves a value on stack*/
-        lua_pop(L,1); 
+        lua_pop(L,1);
         s = n_string_field(L, lua_key_index(tounicode));
         if (s != NULL)
             set_charinfo_tounicode(co, xstrdup(s));
         else
             set_charinfo_tounicode(co, NULL);
 	/* n_string_field leaves a value on stack*/
-        lua_pop(L,1); 
+        lua_pop(L,1);
         if (has_math) {
             j = lua_numeric_field_by_index(L, lua_key_index(top_accent), INT_MIN);
             set_charinfo_top_accent(co, j);
@@ -1378,13 +1378,13 @@ int font_from_lua(lua_State * L, int f)
     else if (lua_key_eq(ss, renew))
         save_ref = 0;
     /* n_string_field leaves a value on stack*/
-    lua_pop(L,1); 
+    lua_pop(L,1);
 
     /* the table is at stack index -1 */
     /*if (luaS_width_index == 0)
         init_font_string_pointers(L);
     */
- 
+
     s = n_string_field_copy(L,lua_key_index(area), "");
     set_font_area(f, s);
     s = n_string_field_copy(L, lua_key_index(filename), NULL);
@@ -1828,7 +1828,7 @@ static halfword handle_lig_nest(halfword root, halfword cur)
 static halfword handle_lig_word(halfword cur)
 {
     halfword right = null;
-    if (type(cur) == whatsit_node && subtype(cur) == cancel_boundary_node) {
+    if (type(cur) == boundary_node) {
         halfword prev = alink(cur);
         halfword fwd = vlink(cur);
         /* no need to uncouple |cur|, it is freed */
@@ -1920,8 +1920,7 @@ static halfword handle_lig_word(halfword cur)
                 }
                 /* we are finished with the |pre_break| */
                 handle_lig_nest(pre_break(fwd), vlink_pre_break(fwd));
-            } else if (type(fwd) == whatsit_node
-                       && subtype(fwd) == cancel_boundary_node) {
+            } else if (type(fwd) == boundary_node) {
                 halfword next = vlink(fwd);
                 try_couple_nodes(cur, next);
                 flush_node(fwd);
@@ -2019,7 +2018,7 @@ static halfword handle_lig_word(halfword cur)
                           \.{{a-}{b}{AB} {-}{}{}} 'c'
                          */
                         /* is it tail necessary ? */
-                        halfword last1 = vlink(next), tail ; 
+                        halfword last1 = vlink(next), tail ;
                         uncouple_node(next);
                         try_couple_nodes(fwd, last1);
                         /* \.{{a-}{b}{AB} {-}{c}{}} */
@@ -2092,9 +2091,7 @@ halfword handle_ligaturing(halfword head, halfword tail)
     cur = vlink(prev);
 
     while (cur != null) {
-        if (type(cur) == glyph_node ||
-            (type(cur) == whatsit_node
-             && subtype(cur) == cancel_boundary_node)) {
+        if (type(cur) == glyph_node || (type(cur) == boundary_node)) {
             cur = handle_lig_word(cur);
         }
         prev = cur;

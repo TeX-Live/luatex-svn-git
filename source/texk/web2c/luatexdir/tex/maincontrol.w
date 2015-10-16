@@ -246,11 +246,18 @@ static void run_app_space (void) {
     }
 }
 
-@ Append a |cancel_boundary_node|
+@ Append a |boundary_node|
 @c
 static void run_no_boundary (void) {
-    new_whatsit(cancel_boundary_node);
+    new_node(boundary_node,cancel_boundary);
 }
+static void run_boundary (void) {
+    halfword n ;
+    scan_int();
+    n = new_node(boundary_node,user_boundary);
+    boundary_value(n) = cur_val;
+}
+
 
 @ @c
 static void run_char_ghost (void) {
@@ -718,12 +725,14 @@ static void init_main_control (void) {
     jump_table[hmode + spacer_cmd] = run_app_space;
     jump_table[hmode + ex_space_cmd] = run_app_space;
     jump_table[mmode + ex_space_cmd] = run_app_space;
+    jump_table[hmode + boundary_cmd] = run_boundary;
     jump_table[hmode + no_boundary_cmd] = run_no_boundary;
     jump_table[hmode + char_ghost_cmd] = run_char_ghost;
     jump_table[mmode + char_ghost_cmd] = run_char_ghost;
     any_mode(relax_cmd, run_relax);
     jump_table[vmode + spacer_cmd] = run_relax;
     jump_table[mmode + spacer_cmd] = run_relax;
+    jump_table[mmode + boundary_cmd] = run_relax;
     jump_table[mmode + no_boundary_cmd] = run_relax;
     any_mode(ignore_spaces_cmd,run_ignore_spaces);
     jump_table[vmode + stop_cmd] = run_stop;
@@ -802,6 +811,7 @@ static void init_main_control (void) {
     jump_table[vmode + hskip_cmd] = run_new_graf;
     jump_table[vmode + valign_cmd] = run_new_graf;
     jump_table[vmode + ex_space_cmd] = run_new_graf;
+    jump_table[vmode + boundary_cmd] = run_new_graf;
     jump_table[vmode + no_boundary_cmd] = run_new_graf;
     jump_table[vmode + par_end_cmd] = run_par_end_vmode;
     jump_table[hmode + par_end_cmd] = run_par_end_hmode;

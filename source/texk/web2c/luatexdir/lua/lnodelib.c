@@ -3224,6 +3224,14 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         } else {
             lua_pushnil(L);
         }
+    } else if (t == boundary_node) {
+        if (lua_key_eq(s, subtype)) {
+            lua_pushnumber(L, subtype(n));
+        } else if (lua_key_eq(s, value)) {
+            lua_pushnumber(L, boundary_value(n));
+        } else {
+            lua_pushnil(L);
+        }
     } else {
         lua_pushnil(L);
     }
@@ -3889,6 +3897,14 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         }
  /* } else if (t == attribute_list_node) { */
  /*     lua_pushnil(L); */
+    } else if (t == boundary_node) {
+        if (lua_key_eq(s, subtype)) {
+            lua_pushnumber(L, subtype(n));
+        } else if (lua_key_eq(s, value)) {
+            lua_pushnumber(L, boundary_value(n));
+        } else {
+            lua_pushnil(L);
+        }
     } else {
         lua_pushnil(L);
     }
@@ -4627,7 +4643,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
             return nodelib_cantset(L, n, s);
         }
     } else if ((t == pdf_end_link_node) || (t == pdf_end_thread_node) || (t == save_pos_node) ||
-               (t == pdf_save_node)     || (t == pdf_restore_node)    || (t == cancel_boundary_node)) {
+               (t == pdf_save_node)     || (t == pdf_restore_node)) {
         return nodelib_cantset(L, n, s);
     } else {
         /* do nothing */
@@ -5117,6 +5133,14 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         } else {
             return nodelib_cantset(L, n, s);
         }
+    } else if (t == boundary_node) {
+        if (lua_key_eq(s, subtype)) {
+            subtype(n) = (quarterword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, value)) {
+            boundary_value(n) = lua_tointeger(L, 3);
+        } else {
+            return nodelib_cantset(L, n, s);
+        }
     } else {
         return luaL_error(L, "You can't assign to this %s node (%d)\n", node_data[t].name, n);
     }
@@ -5349,7 +5373,7 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
             return nodelib_cantset(L, n, s);
         }
     } else if ((t == pdf_end_link_node) || (t == pdf_end_thread_node) || (t == save_pos_node) ||
-               (t == pdf_save_node)     || (t == pdf_restore_node)    || (t == cancel_boundary_node)) {
+               (t == pdf_save_node)     || (t == pdf_restore_node)) {
         return nodelib_cantset(L, n, s);
     } else {
         /* do nothing */
@@ -5965,6 +5989,14 @@ static int lua_nodelib_direct_setfield(lua_State * L)
     } else if (t == attribute_list_node) {
         if (lua_key_eq(s, subtype)) {
             /* dummy subtype */
+        } else {
+            return nodelib_cantset(L, n, s);
+        }
+    } else if (t == boundary_node) {
+        if (lua_key_eq(s, subtype)) {
+            subtype(n) = (quarterword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, value)) {
+            boundary_value(n) = lua_tointeger(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }

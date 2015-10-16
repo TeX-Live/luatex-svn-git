@@ -402,6 +402,7 @@ void build_page(void)
 
             }
             break;
+        case boundary_node:
         case whatsit_node:
             goto CONTRIBUTE;
             break;

@@ -278,7 +278,6 @@ void out_what(PDF pdf, halfword p)
             }
         }
         break;
-    case cancel_boundary_node:
     case user_defined_node:
         break;
     default:

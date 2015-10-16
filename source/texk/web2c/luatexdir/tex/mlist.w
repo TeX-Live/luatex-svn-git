@@ -3405,6 +3405,7 @@ static void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         case ins_node:
         case mark_node:
         case adjust_node:
+        case boundary_node:
         case whatsit_node:
         case penalty_node:
         case disc_node:

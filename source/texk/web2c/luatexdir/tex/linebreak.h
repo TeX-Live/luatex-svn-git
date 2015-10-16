@@ -75,6 +75,7 @@ extern halfword find_protchar_right(halfword l, halfword r);
                          || (type((a)) == mark_node)                    \
                          || (type((a)) == adjust_node)                  \
                          || (type((a)) == penalty_node)                 \
+                         || (type((a)) == boundary_node)                \
                          || (type((a)) == whatsit_node)                 \
                          /* reference to an image or XObject form */    \
                          || ((type((a)) == disc_node) &&                \

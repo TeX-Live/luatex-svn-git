@@ -68,10 +68,8 @@ extern void undump_node_mem(void);
 
 #  define node_size(a)       varmem[(a)].hh.v.LH
 
-#  define rlink(a)           vlink((a)+1)
-                                        /* aka alink() */
-#  define llink(a)           vinfo((a)+1)
-                                        /* overlaps with node_attr() */
+#  define rlink(a)           vlink((a)+1) /* aka alink() */
+#  define llink(a)           vinfo((a)+1) /* overlaps with node_attr() */
 
 #  define add_glue_ref(a) glue_ref_count(a)++   /* new reference to a glue spec */
 
@@ -90,8 +88,7 @@ extern void undump_node_mem(void);
 #  define attribute_node_size 2
 
 
-#  define attr_list_ref(a)   vinfo((a)+1)
-                                        /* the reference count */
+#  define attr_list_ref(a)   vinfo((a)+1) /* the reference count */
 #  define assign_attribute_ref(n,p) do { node_attr(n) = p;attr_list_ref(p)++;} while (0)
 #  define attribute_id(a)    vinfo((a)+1)
 #  define attribute_value(a) vlink((a)+1)
@@ -134,9 +131,9 @@ typedef enum {
 
 /* normal nodes */
 
-#  define inf_bad  10000        /* infinitely bad value */
-#  define inf_penalty inf_bad   /*``infinite'' penalty value */
-#  define eject_penalty -(inf_penalty)  /*``negatively infinite'' penalty value */
+#  define inf_bad  10000                /* infinitely bad value */
+#  define inf_penalty inf_bad           /* ``infinite'' penalty value */
+#  define eject_penalty -(inf_penalty)  /* ``negatively infinite'' penalty value */
 
 #  define penalty_node_size 3
 #  define penalty(a)       vlink((a)+2)
@@ -147,8 +144,9 @@ typedef enum {
 #  define synctex_tag_glue(a)  vinfo((a)+3)
 #  define synctex_line_glue(a) vlink((a)+3)
 
-/* disc nodes could eventually be smaller, because the indirect
-   pointers are not really needed (8 instead of 10).
+/*
+    disc nodes could eventually be smaller, because the indirect
+    pointers are not really needed (8 instead of 10).
  */
 
 #  define disc_node_size 11
@@ -181,17 +179,17 @@ typedef enum {
 #  define tlink_no_break(a)   tlink(no_break_head(a))
 
 #  define kern_node_size 5
-#  define explicit 1            /*|subtype| of kern nodes from \.{\\kern} and \.{\\/} */
-#  define acc_kern 2            /*|subtype| of kern nodes from accents */
-#  define ex_kern(a)           vinfo((a)+3)     /* expansion factor (hz) */
+#  define explicit 1                         /* |subtype| of kern nodes from \.{\\kern} and \.{\\/} */
+#  define acc_kern 2                         /* |subtype| of kern nodes from accents */
+#  define ex_kern(a)           vinfo((a)+3)  /* expansion factor (hz) */
 #  define synctex_tag_kern(a)  vinfo((a)+4)
 #  define synctex_line_kern(a) vlink((a)+4)
 
 #  define box_node_size 9
 
 #  define HLIST_SUBTYPE_UNKNOWN 0
-#  define HLIST_SUBTYPE_LINE 1  /* paragraph lines */
-#  define HLIST_SUBTYPE_HBOX 2  /* \.{\\hbox} */
+#  define HLIST_SUBTYPE_LINE 1          /* paragraph lines */
+#  define HLIST_SUBTYPE_HBOX 2          /* \.{\\hbox} */
 #  define HLIST_SUBTYPE_INDENT 3        /* indentation box */
 #  define HLIST_SUBTYPE_ALIGNROW 4      /* row from a \.{\\halign} or \.{\\valign} */
 #  define HLIST_SUBTYPE_ALIGNCELL 5     /* cell from a \.{\\halign} or \.{\\valign} */
@@ -208,8 +206,8 @@ typedef enum {
 #  define synctex_tag_box(a)  vinfo((a)+8)
 #  define synctex_line_box(a) vlink((a)+8)
 
-
 /* unset nodes */
+
 #  define glue_stretch(a)  varmem[(a)+7].cint
 #  define glue_shrink      shift_amount
 #  define span_count       subtype
@@ -265,6 +263,7 @@ typedef enum {
 #  define margin_char(a)  vlink((a)+3)
 
 /*@# {|subtype| of marginal kerns}*/
+
 #  define left_side 0
 #  define right_side 1
 
@@ -287,13 +286,13 @@ typedef enum {
 
 typedef enum {
     hlist_node = 0,
-    vlist_node = 1,
+    vlist_node,
     rule_node,
     ins_node,
     mark_node,
-    adjust_node,
-    /* 6 used to be ligatures */
-    disc_node = 7,
+    adjust_node,                /*  5 */
+    boundary_node,
+    disc_node,
     whatsit_node,
     math_node,
     glue_node,                  /* 10 */
@@ -349,7 +348,7 @@ typedef enum {
     local_par_node,
 } node_types;
 
-#  define MAX_NODE_TYPE 60
+#  define MAX_NODE_TYPE 61
 
 #  define last_known_node temp_node     /* used by \lastnodetype */
 
@@ -369,22 +368,22 @@ typedef enum {
 #  define nodetype_has_attributes(t) (((t)<=glyph_node) && ((t)!=unset_node))
 
 #  define nodetype_has_subtype(t) ((t)!=action_node && (t)!=attribute_list_node && (t)!=attribute_node && (t)!=glue_spec_node)
-#  define nodetype_has_prev(t)   nodetype_has_subtype((t))
+#  define nodetype_has_prev(t) nodetype_has_subtype((t))
 
-/* style and choice nodes */
-/* style nodes can be smaller, the information is encoded in |subtype|,
-   but choice nodes are on-the-spot converted to style nodes */
+/*
+    style and choice nodes; style nodes can be smaller, the information is encoded in
+    |subtype|, but choice nodes are on-the-spot converted to style nodes
+*/
 
-#  define style_node_size 4     /* number of words in a style node */
-
-#  define display_mlist(a) vinfo((a)+2) /* mlist to be used in display style */
-#  define text_mlist(a) vlink((a)+2)    /* mlist to be used in text style */
-#  define script_mlist(a) vinfo((a)+3)  /* mlist to be used in script style */
-#  define script_script_mlist(a) vlink((a)+3)   /* mlist to be used in scriptscript style */
+#  define style_node_size 4                   /* number of words in a style node */
+#  define display_mlist(a) vinfo((a)+2)       /* mlist to be used in display style */
+#  define text_mlist(a) vlink((a)+2)          /* mlist to be used in text style */
+#  define script_mlist(a) vinfo((a)+3)        /* mlist to be used in script style */
+#  define script_script_mlist(a) vlink((a)+3) /* mlist to be used in scriptscript style */
 
 /* regular noads */
 
-#  define noad_size 4           /* number of words in a normal noad */
+#  define noad_size 4                   /* number of words in a normal noad */
 #  define new_hlist(a) vlink((a)+2)     /* the translation of an mlist */
 #  define nucleus(a)   vinfo((a)+2)     /* the |nucleus| field of a noad */
 #  define supscr(a)    vlink((a)+3)     /* the |supscr| field of a noad */
@@ -393,9 +392,9 @@ typedef enum {
 /* accent noads */
 /* like a regular noad, but with two extra fields. */
 
-#  define accent_noad_size 5    /*number of |mem| words in an accent noad */
-#  define accent_chr(a) vinfo((a)+4)    /* the |accent_chr| field of an accent noad */
-#  define bot_accent_chr(a) vlink((a)+4)        /* the |bot_accent_chr| field of an accent noad */
+#  define accent_noad_size 5             /* number of |mem| words in an accent noad */
+#  define accent_chr(a) vinfo((a)+4)     /* the |accent_chr| field of an accent noad */
+#  define bot_accent_chr(a) vlink((a)+4) /* the |bot_accent_chr| field of an accent noad */
 
 /* left and right noads */
 
@@ -410,36 +409,35 @@ typedef enum {
 
 /* fraction noads */
 
-#  define fraction_noad_size 5  /*number of |mem| words in a fraction noad */
-#  define thickness(a)       vlink((a)+2)       /* |thickness| field in a fraction noad */
-#  define numerator(a)       vlink((a)+3)       /*|numerator| field in a fraction noad */
-#  define denominator(a)     vinfo((a)+3)       /*|denominator| field in a fraction noad */
-#  define left_delimiter(a)  vlink((a)+4)       /* first delimiter field of a noad */
-#  define right_delimiter(a) vinfo((a)+4)       /* second delimiter field of a fraction noad */
+#  define fraction_noad_size 5            /* number of |mem| words in a fraction noad */
+#  define thickness(a)       vlink((a)+2) /* |thickness| field in a fraction noad */
+#  define numerator(a)       vlink((a)+3) /* |numerator| field in a fraction noad */
+#  define denominator(a)     vinfo((a)+3) /* |denominator| field in a fraction noad */
+#  define left_delimiter(a)  vlink((a)+4) /* first delimiter field of a noad */
+#  define right_delimiter(a) vinfo((a)+4) /* second delimiter field of a fraction noad */
 
 /* radical noads */
 /* this is like a fraction, but it only stores a |left_delimiter| */
-#  define radical_noad_size 5   /*number of |mem| words in a radical noad */
 
-#  define degree(a) vinfo((a)+4)        /* the root degree in a radical noad */
+#  define radical_noad_size 5         /*number of |mem| words in a radical noad */
+#  define degree(a) vinfo((a)+4)      /* the root degree in a radical noad */
 
 #  define math_kernel_node_size 3
 
 /* accessors for the |nucleus|-style node fields */
+
 #  define math_fam(a)       vinfo((a)+2)
 #  define math_character(a) vlink((a)+2)
 #  define math_list(a) vlink((a)+2)
 
 /* accessors for the |delimiter|-style two-word subnode fields */
 
-#  define math_shield_node_size 4
-                                /* not used yet */
+#  define math_shield_node_size 4       /* not used yet */
 
 #  define small_fam(A)  vinfo((A)+2)    /* |fam| for ``small'' delimiter */
 #  define small_char(A) vlink((A)+2)    /* |character| for ``small'' delimiter */
 #  define large_fam(A)  vinfo((A)+3)    /* |fam| for ``large'' delimiter */
 #  define large_char(A) vlink((A)+3)    /* |character| for ``large'' delimiter */
-
 
 /* we should have the codes in a separate enum: extension_codes */
 
@@ -454,7 +452,6 @@ typedef enum {
     use_image_resource_node,
     save_pos_node,
     late_lua_node,
-    cancel_boundary_node,
     user_defined_node,
     /* todo: a different list */
     pdf_literal_node = 16,
@@ -479,10 +476,6 @@ typedef enum {
 #  define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
 #  define  get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
 
-
-// #  define pdf_info_code pdf_thread_data_node
-// #  define pdf_catalog_code  pdf_link_data_node
-
 #  define GLYPH_CHARACTER     (1 << 0)
 #  define GLYPH_LIGATURE      (1 << 1)
 #  define GLYPH_GHOST         (1 << 2)
@@ -495,10 +488,10 @@ typedef enum {
 
 #  define is_simple_character(p) (is_character(p) && !is_ligature(p) && !is_ghost(p))
 
-#  define is_leftboundary(p)         (is_ligature(p) && ((subtype(p)) & GLYPH_LEFT  ))
+#  define is_leftboundary(p)     (is_ligature(p) && ((subtype(p)) & GLYPH_LEFT  ))
 #  define is_rightboundary(p)    (is_ligature(p) && ((subtype(p)) & GLYPH_RIGHT ))
-#  define is_leftghost(p)            (is_ghost(p)    && ((subtype(p)) & GLYPH_LEFT  ))
-#  define is_rightghost(p)           (is_ghost(p)    && ((subtype(p)) & GLYPH_RIGHT ))
+#  define is_leftghost(p)        (is_ghost(p)    && ((subtype(p)) & GLYPH_LEFT  ))
+#  define is_rightghost(p)       (is_ghost(p)    && ((subtype(p)) & GLYPH_RIGHT ))
 
 #  define set_is_glyph(p)         subtype(p) = (quarterword) (subtype(p) & ~GLYPH_CHARACTER)
 #  define set_is_character(p)     subtype(p) = (quarterword) (subtype(p) | GLYPH_CHARACTER)
@@ -515,6 +508,13 @@ typedef enum {
 #  define set_is_leftghost(p)     { set_to_ghost(p);    subtype(p) |= GLYPH_LEFT;  }
 #  define set_is_rightghost(p)    { set_to_ghost(p);    subtype(p) |= GLYPH_RIGHT; }
 
+typedef enum {
+    cancel_boundary = 0,
+    user_boundary
+} boundary_types ;
+
+#  define boundary_size 3
+#  define boundary_value(a) vinfo((a)+2)
 
 #  define special_node_size 3
 
@@ -557,9 +557,9 @@ typedef enum {
 #  define local_box_right_width(a) vinfo((a)+4)
 #  define local_par_dir(a)         vinfo((a)+5)
 
-
 /* type of literal data */
-#  define lua_refid_literal      1      /* not a |normal| string */
+
+#  define lua_refid_literal 1 /* not a |normal| string */
 
 /* literal ctm types */
 
@@ -570,23 +570,25 @@ typedef enum {
     scan_special,
 } ctm_transform_modes;
 
-
 #  define pdf_refobj_node_size 3
 
-#  define pdf_obj_objnum(a)    vinfo((a) + 2)
+#  define pdf_obj_objnum(a) vinfo((a) + 2)
 
 #  define pdf_annot_node_size 8
 #  define pdf_dest_node_size 8
 #  define pdf_thread_node_size 8
 
 /*
-when a whatsit node representing annotation is created, words |1..3| are
-width, height and depth of this annotation; after shipping out words |1..4|
-are rectangle specification of annotation. For whatsit node representing
-destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinations
+    when a whatsit node representing annotation is created, words |1..3| are
+    width, height and depth of this annotation; after shipping out words |1..4|
+    are rectangle specification of annotation. For whatsit node representing
+    destination |pdf_ann_left| and |pdf_ann_top| are used for some types of destinations
 */
 
-/* coordinates of destinations/threads/annotations (in whatsit node) */
+/*
+    coordinates of destinations/threads/annotations (in whatsit node)
+*/
+
 #  define pdf_ann_left(a)      varmem[(a) + 2].cint
 #  define pdf_ann_top(a)       varmem[(a) + 3].cint
 #  define pdf_ann_right(a)     varmem[(a) + 4].cint
@@ -640,15 +642,13 @@ typedef enum {
 #  define user_node_id(a)    vlink((a)+2)
 #  define user_node_value(a) vinfo((a)+3)
 
-#  define cancel_boundary_size   3
-
-#  define active_node_size 4    /*number of words in extended active nodes */
-#  define fitness subtype       /*|very_loose_fit..tight_fit| on final line for this break */
-#  define break_node(a) vlink((a)+1)    /*pointer to the corresponding passive node */
-#  define line_number(a) vinfo((a)+1)   /*line that begins at this breakpoint */
+#  define active_node_size 4                    /*number of words in extended active nodes */
+#  define fitness subtype                       /*|very_loose_fit..tight_fit| on final line for this break */
+#  define break_node(a) vlink((a)+1)            /*pointer to the corresponding passive node */
+#  define line_number(a) vinfo((a)+1)           /*line that begins at this breakpoint */
 #  define total_demerits(a) varmem[(a)+2].cint  /* the quantity that \TeX\ minimizes */
-#  define active_short(a) vinfo(a+3)    /* |shortfall| of this line */
-#  define active_glue(a)  vlink(a+3)    /*corresponding glue stretch or shrink */
+#  define active_short(a) vinfo(a+3)            /* |shortfall| of this line */
+#  define active_glue(a)  vlink(a+3)            /*corresponding glue stretch or shrink */
 
 #  define passive_node_size 7
 #  define cur_break(a)                   vlink((a)+1)   /*in passive node, points to position of this breakpoint */
@@ -663,7 +663,7 @@ typedef enum {
 #  define passive_right_box_width(a)     vinfo((a)+5)
 #  define serial(a)                      vlink((a)+6)   /* serial number for symbolic identification */
 
-#  define delta_node_size 10    /* 8 fields, stored in a+1..9 */
+#  define delta_node_size 10 /* 8 fields, stored in a+1..9 */
 
 #  define couple_nodes(a,b) {assert(b!=null);vlink(a)=b;alink(b)=a;}
 #  define try_couple_nodes(a,b) if (b==null) vlink(a)=b; else {couple_nodes(a,b);}
@@ -688,17 +688,21 @@ extern void print_short_node_contents(halfword n);
 extern void show_node_list(int i);
 extern pointer actual_box_width(pointer r, scaled base_width);
 
-
-/* TH: these two defines still need checking. The node ordering in luatex is not
-   quite the same as in tex82 */
+/*
+    TH: these two defines still need checking. The node ordering in luatex is not
+    quite the same as in tex82
+*/
 
 /*
 
-#  define precedes_break(a) (type((a))<math_node && \
-                            (type(a)!=whatsit_node || (subtype(a)!=dir_node && subtype(a)!=local_par_node)))
+#  define precedes_break(a) \
+#      (type((a))<math_node && (type(a)!=whatsit_node || (subtype(a)!=dir_node && subtype(a)!=local_par_node)))
+
 */
 
-/* so what comes before math (as we have put dir_node and local_par_node to the end) */
+/*
+    so what comes before math (as we have put dir_node and local_par_node to the end)
+*/
 
 #  define precedes_break(a) (type((a))<math_node)
 
@@ -738,24 +742,24 @@ typedef enum {
     filll
 } glue_orders;
 
-#  define zero_glue       0
-#  define sfi_glue        zero_glue+glue_spec_size
-#  define fil_glue        sfi_glue+glue_spec_size
-#  define fill_glue       fil_glue+glue_spec_size
-#  define ss_glue         fill_glue+glue_spec_size
-#  define fil_neg_glue    ss_glue+glue_spec_size
-#  define page_ins_head   fil_neg_glue+glue_spec_size
-#  define contrib_head    page_ins_head+temp_node_size
-#  define page_head       contrib_head+temp_node_size
-#  define temp_head       page_head+temp_node_size
-#  define hold_head       temp_head+temp_node_size
-#  define adjust_head     hold_head+temp_node_size
-#  define pre_adjust_head adjust_head+temp_node_size
-#  define active          pre_adjust_head+temp_node_size
-#  define align_head      active+active_node_size
-#  define end_span        align_head+temp_node_size
-#  define begin_point     end_span+span_node_size
-#  define end_point       begin_point+glyph_node_size
+#  define zero_glue        0
+#  define sfi_glue         zero_glue+glue_spec_size
+#  define fil_glue         sfi_glue+glue_spec_size
+#  define fill_glue        fil_glue+glue_spec_size
+#  define ss_glue          fill_glue+glue_spec_size
+#  define fil_neg_glue     ss_glue+glue_spec_size
+#  define page_ins_head    fil_neg_glue+glue_spec_size
+#  define contrib_head     page_ins_head+temp_node_size
+#  define page_head        contrib_head+temp_node_size
+#  define temp_head        page_head+temp_node_size
+#  define hold_head        temp_head+temp_node_size
+#  define adjust_head      hold_head+temp_node_size
+#  define pre_adjust_head  adjust_head+temp_node_size
+#  define active           pre_adjust_head+temp_node_size
+#  define align_head       active+active_node_size
+#  define end_span         align_head+temp_node_size
+#  define begin_point      end_span+span_node_size
+#  define end_point        begin_point+glyph_node_size
 #  define var_mem_stat_max (end_point+glyph_node_size-1)
 
 #  define stretching 1

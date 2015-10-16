@@ -140,6 +140,7 @@ PDF init_pdf_struct(PDF pdf)
     pdf->job_name = makecstring(job_name);
 
     output_mode_used = OMODE_NONE;   /* will be set by |fix_o_mode()| */
+    pdf->o_mode = output_mode_used; /* used by synctex, we need to use output_mode_used there */
     pdf->o_state = ST_INITIAL;
 
     /* init PDF and object stream writing */
@@ -243,10 +244,12 @@ output_mode get_o_mode(void)
 void fix_o_mode(void)
 {
     output_mode o_mode = get_o_mode();
-    if (output_mode_used == OMODE_NONE)
+    if (output_mode_used == OMODE_NONE) {
         output_mode_used = o_mode;
-    else if (output_mode_used != o_mode)
+        static_pdf->o_mode = output_mode_used; /* used by synctex, we need to use output_mode_used there */
+    } else if (output_mode_used != o_mode) {
         pdf_error("setup", "\\outputmode can only be changed before anything is written to the output");
+    }
 }
 
 @ This ensures that |pdfminorversion| is set only before any bytes have
@@ -1660,6 +1663,7 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
         o_mode = get_o_mode();
     else
         o_mode = output_mode_used;
+    pdf->o_mode = output_mode_used; /* used by synctex, we need to use output_mode_used there */
     if (!((1 << o_mode) & o_mode_bitpattern)) { /* warning or error */
         switch (o_mode) {
         case OMODE_DVI:

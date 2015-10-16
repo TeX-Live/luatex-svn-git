@@ -1308,6 +1308,7 @@ halfword prune_page_top(halfword p, boolean s)
                 width(temp_ptr) = 0;
             p = null;
             break;
+        case boundary_node:
         case whatsit_node:
         case mark_node:
         case ins_node:
@@ -1408,6 +1409,7 @@ halfword vert_break(halfword p, scaled h, scaled d)
                 prev_dp = depth(p);
                 goto NOT_FOUND;
                 break;
+            case boundary_node:
             case whatsit_node:
                 goto NOT_FOUND;
                 break;

@@ -91,6 +91,7 @@ command_item command_names[] = {
     {"end_group", end_group_cmd, NULL},
     {"omit", omit_cmd, NULL},
     {"ex_space", ex_space_cmd, NULL},
+    {"boundary", boundary_cmd, NULL},
     {"no_boundary", no_boundary_cmd, NULL},
     {"radical", radical_cmd, NULL},
     {"super_sub_script", super_sub_script_cmd, NULL},

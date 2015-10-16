@@ -2027,6 +2027,7 @@ ext_do_line_break(int paragraph_dir,
                               double_hyphen_demerits, final_hyphen_demerits,
                               first_p, cur_p);
                 break;
+            case boundary_node:
             case whatsit_node:
                 /* / Advance past a whatsit node in the |line_break| loop/; */
             case mark_node:
