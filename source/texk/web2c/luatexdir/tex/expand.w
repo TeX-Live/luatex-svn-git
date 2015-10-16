@@ -57,7 +57,7 @@ recursive calls don't invalidate them.
 @^recursion@>
 
 @c
-boolean is_in_csname = false;
+int is_in_csname = 0;
 
 @ @c
 void expand(void)
@@ -320,7 +320,7 @@ void manufacture_csname(void)
     lstring *ss;
     r = get_avail();
     p = r;                      /* head of the list of characters */
-    is_in_csname = true;
+    is_in_csname += 1;
     do {
         get_x_token();
         if (cur_cs == 0)
@@ -330,7 +330,7 @@ void manufacture_csname(void)
         /* Complain about missing \.{\\endcsname} */
         complain_missing_csname();
     }
-    is_in_csname = false;
+    is_in_csname -= 1;
     /* Look up the characters of list |r| in the hash table, and set |cur_cs| */
 
     ss = tokenlist_to_lstring(r, true);
