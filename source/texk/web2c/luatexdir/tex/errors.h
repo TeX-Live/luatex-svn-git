@@ -100,4 +100,12 @@ extern void flush_err(void);
 
 extern void char_warning(internal_font_number f, int c);
 
+/*
+    these will become normal_error and normal_warning contrary to tex_error that has
+    additional help
+*/
+
+extern void pdf_error(const char *t, const char *p);
+extern void pdf_warning(const char *t, const char *p, boolean pr, boolean ap);
+
 #endif

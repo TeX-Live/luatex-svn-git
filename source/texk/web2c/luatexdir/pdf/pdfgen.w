@@ -1607,43 +1607,6 @@ void remove_pdffile(PDF pdf)
     }
 }
 
-@ @c
-void pdf_error(const char *t, const char *p)
-{
-    normalize_selector();
-    print_err("LuaTeX error");
-    if (t != NULL) {
-        tprint(" (");
-        tprint(t);
-        tprint(")");
-    }
-    tprint(": ");
-    if (p != NULL)
-        tprint(p);
-    succumb();
-}
-
-@ @c
-void pdf_warning(const char *t, const char *p, boolean prepend_nl,
-                 boolean append_nl)
-{
-    if (prepend_nl)
-        print_ln();
-    tprint("LuaTeX warning");
-    if (t != NULL) {
-        tprint(" (");
-        tprint(t);
-        tprint(")");
-    }
-    tprint(": ");
-    if (p != NULL)
-        tprint(p);
-    if (append_nl)
-        print_ln();
-    if (history == spotless)
-        history = warning_issued;
-}
-
 @ Use |check_o_mode()| in the backend-specific "Implement..." chunks
 
 @c

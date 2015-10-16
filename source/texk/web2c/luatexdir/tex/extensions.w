@@ -560,6 +560,7 @@ halfword prev_rightmost(halfword s, halfword e)
 int pdf_last_annot;
 int pdf_last_link;
 int pdf_last_obj;
+int pdf_retval;                 /* global multi-purpose return value */
 
 @ To implement primitives as \.{\\pdfinfo}, \.{\\pdfcatalog} or
 \.{\\pdfnames} we need to concatenate tokens lists.
@@ -577,9 +578,6 @@ halfword concat_tokens(halfword q, halfword r)
     free_avail(r);
     return q;
 }
-
-@ @c
-int pdf_retval;                 /* global multi-purpose return value */
 
 @ The \eTeX\ features available in extended mode are grouped into two
 categories:  (1)~Some of them are permanently enabled and have no

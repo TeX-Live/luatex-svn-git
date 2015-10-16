@@ -488,21 +488,6 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                         cur_val = shrink_order(q);
                     delete_glue_ref(q);
                     break;
-                /* backend */
-/*
-                case pdf_last_link_code:
-                    cur_val = pdf_last_link;
-                    break;
-                case pdf_retval_code:
-                    cur_val = pdf_retval;
-                    break;
-                case pdf_last_obj_code:
-                    cur_val = pdf_last_obj;
-                    break;
-                case pdf_last_annot_code:
-                    cur_val = pdf_last_annot;
-                    break;
-*/
                 }               /* there are no other cases */
                 cur_val_level = int_val_level;
             }

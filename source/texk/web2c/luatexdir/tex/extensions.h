@@ -42,6 +42,11 @@ extern void do_resource_pdf(int immediate, int code);
 extern void do_feedback_dvi();
 extern void do_feedback_pdf();
 
+extern int pdf_last_annot;
+extern int pdf_last_link;
+extern int pdf_last_obj;
+extern int pdf_retval;
+
 /* Three extra node types carry information from |main_control|. */
 
 /*
@@ -55,11 +60,8 @@ extern void new_whatsit(int s);
 extern void new_write_whatsit(int w, int check);
 extern void scan_pdf_ext_toks(void);
 extern halfword prev_rightmost(halfword s, halfword e);
-extern int pdf_last_annot;
-extern int pdf_last_link;
-extern int pdf_last_obj;
+
 extern halfword concat_tokens(halfword q, halfword r);
-extern int pdf_retval;
 
 /*
 The \.{\\pagediscards} and \.{\\splitdiscards} commands share the

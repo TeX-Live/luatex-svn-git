@@ -2111,12 +2111,12 @@ int the_convert_string_pdf(halfword c, int i)
     else if (scan_keyword("lastobj"))        c = pdf_last_obj_code;
     else if (scan_keyword("lastannot"))      c = pdf_last_annot_code;
     else if (scan_keyword("xformname"))      c = pdf_xform_name_code;
-/*  else if (scan_keyword("creationdate"))   c = pdf_creation_date_code;*/
+ /* else if (scan_keyword("creationdate"))   c = pdf_creation_date_code; */
     else if (scan_keyword("fontname"))       c = pdf_font_name_code;
     else if (scan_keyword("fontobjnum"))     c = pdf_font_objnum_code;
     else if (scan_keyword("fontsize"))       c = pdf_font_size_code;
     else if (scan_keyword("pageref"))        c = pdf_page_ref_code;
-/*  else if (scan_keyword("colorstackinit")) c = pdf_colorstack_init_code;*/
+ /* else if (scan_keyword("colorstackinit")) c = pdf_colorstack_init_code; */
 
     switch(c) {
         case pdf_last_link_code:

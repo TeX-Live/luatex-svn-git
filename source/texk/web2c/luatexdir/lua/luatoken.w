@@ -19,7 +19,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 

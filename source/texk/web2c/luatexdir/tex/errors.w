@@ -671,3 +671,45 @@ void char_warning(internal_font_number f, int c)
         int_par(tracing_online_code) = old_setting;
     }
 }
+
+/*
+    these will become normal_error and normal_warning contrary to tex_error that has
+    additional help
+*/
+
+@ @c
+void pdf_error(const char *t, const char *p)
+{
+    normalize_selector();
+    print_err("LuaTeX error");
+    if (t != NULL) {
+        tprint(" (");
+        tprint(t);
+        tprint(")");
+    }
+    tprint(": ");
+    if (p != NULL)
+        tprint(p);
+    succumb();
+}
+
+@ @c
+void pdf_warning(const char *t, const char *p, boolean prepend_nl,
+                 boolean append_nl)
+{
+    if (prepend_nl)
+        print_ln();
+    tprint("LuaTeX warning");
+    if (t != NULL) {
+        tprint(" (");
+        tprint(t);
+        tprint(")");
+    }
+    tprint(": ");
+    if (p != NULL)
+        tprint(p);
+    if (append_nl)
+        print_ln();
+    if (history == spotless)
+        history = warning_issued;
+}

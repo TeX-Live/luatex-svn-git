@@ -182,8 +182,6 @@ extern char *convertStringToPDFString(const char *in, int len);
 extern void init_start_time(PDF);
 extern char *getcreationdate(PDF);
 
-extern void pdf_error(const char *t, const char *p);
-extern void pdf_warning(const char *t, const char *p, boolean pr, boolean ap);
 extern void check_o_mode(PDF pdf, const char *s, int o_mode, boolean errorflag);
 
 extern void set_job_id(PDF, int, int, int, int);

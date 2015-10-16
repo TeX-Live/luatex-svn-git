@@ -281,16 +281,12 @@ typedef enum {
     last_node_type_code,                  /* code for \.{\\lastnodetype} */
     input_line_no_code,                   /* code for \.{\\inputlineno} */
     badness_code,                         /* code for \.{\\badness} */
-old_pdf_last_obj_code,                    /* code for \.{\\pdflastobj} */
     last_saved_box_resource_index_code,   /* code for \.{\\lastsavedboxresourceindex} */
     last_saved_image_resource_index_code, /* code for \.{\\lastsavedimageresourceindex} */
     last_saved_image_resource_pages_code, /* code for \.{\\lastsavedimageresourcepages} */
-old_pdf_last_annot_code,                  /* code for \.{\\pdflastannot} */
     last_x_pos_code,                      /* code for \.{\\lastxpos} */
     last_y_pos_code,                      /* code for \.{\\lastypos} */
-old_pdf_retval_code,                      /* global multi-purpose return value */
     random_seed_code,                     /* code for \.{\\pdfrandomseed} */
-old_pdf_last_link_code,                   /* code for \.{\\pdflastlink} */
     luatex_version_code,                  /* code for \.{\\luatexversion} */
     eTeX_minor_version_code,              /* code for \.{\\eTeXminorversion} */
     eTeX_version_code,                    /* code for \.{\\eTeXversion} */
