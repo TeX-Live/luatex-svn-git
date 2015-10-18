@@ -444,6 +444,7 @@ typedef enum {
 /* be careful: must be in sync with whatsit_node_data[] ! (at least) */
 
 typedef enum {
+    /* core */
     open_node = 0,
     write_node,
     close_node,
@@ -453,7 +454,9 @@ typedef enum {
     save_pos_node,
     late_lua_node,
     user_defined_node,
-    /* todo: a different list */
+    /* dvi backend */
+    dvi_literal_node = 15,
+    /* pdf backend */
     pdf_literal_node = 16,
     pdf_refobj_node,
     pdf_annot_node,
@@ -470,6 +473,11 @@ typedef enum {
     pdf_save_node,
     pdf_restore_node,
 } whatsit_types;
+
+#  define backend_first_dvi_whatsit 15
+#  define backend_last_dvi_whatsit  15
+#  define backend_first_pdf_whatsit 16
+#  define backend_last_pdf_whatsit  30
 
 #  define MAX_WHATSIT_TYPE 31
 
@@ -733,6 +741,15 @@ extern char *sprint_node_mem_usage(void);
 extern halfword raw_glyph_node(void);
 extern halfword new_glyph_node(void);
 extern int valid_node(halfword);
+
+extern void flush_node_wrapup_dvi(halfword);
+extern void flush_node_wrapup_pdf(halfword);
+extern void copy_node_wrapup_dvi(halfword, halfword); /* original target */
+extern void copy_node_wrapup_pdf(halfword, halfword); /* original target */
+extern void check_node_wrapup_dvi(halfword);
+extern void check_node_wrapup_pdf(halfword);
+extern void show_node_wrapup_dvi(halfword);
+extern void show_node_wrapup_pdf(halfword);
 
 typedef enum {
     normal_g = 0,

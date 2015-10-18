@@ -115,14 +115,18 @@ const char *node_fields_attribute[]       = { "number", "value", NULL };
 const char *node_fields_glue_spec[]       = { "width", "stretch", "shrink", "stretch_order", "shrink_order", "ref_count",
                                               "writable", NULL };
 const char *node_fields_attribute_list[]  = { NULL };
-const char *node_fields_whatsit_open[]    = { "attr", "stream", "name", "area", "ext", NULL };
-const char *node_fields_whatsit_write[]   = { "attr", "stream", "data", NULL };
-const char *node_fields_whatsit_close[]   = { "attr", "stream", NULL };
-const char *node_fields_whatsit_special[] = { "attr", "data", NULL };
 const char *node_fields_local_par[]       = { "attr", "pen_inter", "pen_broken", "dir", "box_left", "box_left_width", "box_right",
                                               "box_right_width", NULL };
 const char *node_fields_dir[]             = { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
 const char *node_fields_boundary[]        = { "attr", "value", NULL };
+
+const char *node_fields_whatsit_open[]             = { "attr", "stream", "name", "area", "ext", NULL };
+const char *node_fields_whatsit_write[]            = { "attr", "stream", "data", NULL };
+const char *node_fields_whatsit_close[]            = { "attr", "stream", NULL };
+const char *node_fields_whatsit_special[]          = { "attr", "data", NULL };
+const char *node_fields_whatsit_save_pos[]         = { "attr", NULL };
+const char *node_fields_whatsit_late_lua[]         = { "attr", "reg", "data", "name", "string", NULL };
+const char *node_fields_whatsit_user_defined[]     = { "attr", "user_id", "type", "value", NULL };
 
 const char *node_fields_whatsit_pdf_literal[]      = { "attr", "mode", "data", NULL };
 const char *node_fields_whatsit_pdf_refobj[]       = { "attr", "objnum", NULL };
@@ -133,13 +137,10 @@ const char *node_fields_whatsit_pdf_dest[]         = { "attr", "width", "depth",
 const char *node_fields_whatsit_pdf_thread[]       = { "attr", "width", "depth", "height",  "named_id", "thread_id", "thread_attr", NULL };
 const char *node_fields_whatsit_pdf_start_thread[] = { "attr", "width", "depth", "height", "named_id", "thread_id", "thread_attr", NULL };
 const char *node_fields_whatsit_pdf_end_thread[]   = { "attr", NULL };
-const char *node_fields_whatsit_save_pos[]         = { "attr", NULL };
-const char *node_fields_whatsit_late_lua[]         = { "attr", "reg", "data", "name", "string", NULL };
 const char *node_fields_whatsit_pdf_colorstack[]   = { "attr", "stack", "cmd", "data", NULL };
 const char *node_fields_whatsit_pdf_setmatrix[]    = { "attr", "data", NULL };
 const char *node_fields_whatsit_pdf_save[]         = { "attr", NULL };
 const char *node_fields_whatsit_pdf_restore[]      = { "attr", NULL };
-const char *node_fields_whatsit_user_defined[]     = { "attr", "user_id", "type", "value", NULL };
 
 node_info node_data[] = {
     {hlist_node, box_node_size, node_fields_list, "hlist"},
@@ -225,6 +226,8 @@ node_info whatsit_node_data[] = {
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
     {fake_node, fake_node_size, NULL, fake_node_name},
+    /* here starts the dvi backend section, todo: a separate list  */
+    /* nothing for dvi */
     /* here starts the pdf backend section, todo: a separate list  */
     {pdf_literal_node, write_node_size, node_fields_whatsit_pdf_literal, "pdf_literal"},
     {pdf_refobj_node, pdf_refobj_node_size, node_fields_whatsit_pdf_refobj, "pdf_refobj"},
@@ -241,6 +244,7 @@ node_info whatsit_node_data[] = {
     {pdf_setmatrix_node, pdf_setmatrix_node_size, node_fields_whatsit_pdf_setmatrix, "pdf_setmatrix"},
     {pdf_save_node, pdf_save_node_size, node_fields_whatsit_pdf_save, "pdf_save"},
     {pdf_restore_node, pdf_restore_node_size, node_fields_whatsit_pdf_restore, "pdf_restore"},
+    /* done */
     {-1, -1, NULL, NULL}
 };
 
@@ -617,10 +621,98 @@ halfword copy_node_list(halfword p)
 } while (0)
 
 @ make a dupe of a single node
+
 @c
+
+/*
+    at some point we can use function pointers as in the backend itself:
+
+    typedef void (*copy_function) ();
+    copy_function *copy_functions;
+    xmalloc((MAX_WHATSIT_TYPE + 1) * sizeof(copy_function));
+*/
+
+static void copy_node_wrapup_core(halfword p, halfword r)
+{
+    halfword s ;
+    switch (subtype(p)) {
+        case write_node:
+        case special_node:
+            add_token_ref(write_tokens(p));
+            break;
+        case late_lua_node:
+            copy_late_lua(r, p);
+            break;
+        case user_defined_node:
+            switch (user_node_type(p)) {
+            case 'a':
+                add_node_attr_ref(user_node_value(p));
+                break;
+            case 'l':
+                copy_user_lua(r, p);
+                break;
+            case 'n':
+                s = copy_node_list(user_node_value(p));
+                user_node_value(r) = s;
+                break;
+            case 's':
+                /* |add_string_ref(user_node_value(p));| *//* if this was mpost .. */
+                break;
+            case 't':
+                add_token_ref(user_node_value(p));
+                break;
+            }
+            break;
+        default:
+            break ;
+    }
+}
+
+void copy_node_wrapup_dvi(halfword p, halfword r)
+{
+}
+
+void copy_node_wrapup_pdf(halfword p, halfword r)
+{
+    switch(subtype(p)) {
+        case pdf_literal_node:
+            copy_pdf_literal(r, p);
+            break;
+        case pdf_colorstack_node:
+            if (pdf_colorstack_cmd(p) <= colorstack_data)
+                add_token_ref(pdf_colorstack_data(p));
+            break;
+        case pdf_setmatrix_node:
+            add_token_ref(pdf_setmatrix_data(p));
+            break;
+        case pdf_annot_node:
+            add_token_ref(pdf_annot_data(p));
+            break;
+        case pdf_start_link_node:
+            if (pdf_link_attr(r) != null)
+                add_token_ref(pdf_link_attr(r));
+            add_action_ref(pdf_link_action(r));
+            break;
+        case pdf_dest_node:
+            if (pdf_dest_named_id(p) > 0)
+                add_token_ref(pdf_dest_id(p));
+            break;
+        case pdf_thread_node:
+        case pdf_start_thread_node:
+            if (pdf_thread_named_id(p) > 0)
+                add_token_ref(pdf_thread_id(p));
+            if (pdf_thread_attr(p) != null)
+                add_token_ref(pdf_thread_attr(p));
+            break;
+        default:
+            break;
+    }
+}
+
 halfword copy_node(const halfword p)
 {
     halfword r;                 /* current node being fabricated for new list */
+    halfword w ;                /* whatsit subtype */
     register halfword s;        /* a helper variable for copying into variable mem  */
     register int i;
     if (copy_error(p)) {
@@ -749,69 +841,13 @@ halfword copy_node(const halfword p)
     case boundary_node:
         break;
     case whatsit_node:
-        switch (subtype(p)) {
-        /* frontend code */
-        case write_node:
-        case special_node:
-            add_token_ref(write_tokens(p));
-            break;
-        case user_defined_node:
-            switch (user_node_type(p)) {
-            case 'a':
-                add_node_attr_ref(user_node_value(p));
-                break;
-            case 'l':
-                copy_user_lua(r, p);
-                break;
-            case 'n':
-                s = copy_node_list(user_node_value(p));
-                user_node_value(r) = s;
-                break;
-            case 's':
-                /* |add_string_ref(user_node_value(p));| *//* if this was mpost .. */
-                break;
-            case 't':
-                add_token_ref(user_node_value(p));
-                break;
-            }
-            break;
-        /* dvi backend code */
-            /* nothing here */
-        /* pdf backend code */
-        case pdf_literal_node:
-            copy_pdf_literal(r, p);
-            break;
-        case pdf_colorstack_node:
-            if (pdf_colorstack_cmd(p) <= colorstack_data)
-                add_token_ref(pdf_colorstack_data(p));
-            break;
-        case pdf_setmatrix_node:
-            add_token_ref(pdf_setmatrix_data(p));
-            break;
-        case late_lua_node:
-            copy_late_lua(r, p);
-            break;
-        case pdf_annot_node:
-            add_token_ref(pdf_annot_data(p));
-            break;
-        case pdf_start_link_node:
-            if (pdf_link_attr(r) != null)
-                add_token_ref(pdf_link_attr(r));
-            add_action_ref(pdf_link_action(r));
-            break;
-        case pdf_dest_node:
-            if (pdf_dest_named_id(p) > 0)
-                add_token_ref(pdf_dest_id(p));
-            break;
-        case pdf_thread_node:
-        case pdf_start_thread_node:
-            if (pdf_thread_named_id(p) > 0)
-                add_token_ref(pdf_thread_id(p));
-            if (pdf_thread_attr(p) != null)
-                add_token_ref(pdf_thread_attr(p));
-            break;
-        default:
-            break;
+        w = subtype(p) ;
+        if (w >= backend_first_pdf_whatsit) {
+            copy_node_wrapup_pdf(p,r);
+        } else if (w >= backend_first_dvi_whatsit) {
+            copy_node_wrapup_dvi(p,r);
+        } else {
+            copy_node_wrapup_core(p,r);
         }
         break;
     }
@@ -1014,63 +1050,10 @@ int copy_error(halfword p)
 } while (0)
 
 @ @c
-void flush_node(halfword p)
+
+static void flush_node_wrapup_core(halfword p)
 {
-
-    if (p == null)              /* legal, but no-op */
-        return;
-
-#ifdef DEBUG
-    fprintf(DEBUG_OUT, "Free-ing %s node %d\n",
-            get_node_name(type(p), subtype(p)), (int) p);
-#endif
-    if (free_error(p))
-        return;
-
-    switch (type(p)) {
-    case glyph_node:
-        free_sub_list(lig_ptr(p));
-        break;
-    case glue_node:
-        delete_glue_ref(glue_ptr(p));
-        free_sub_list(leader_ptr(p));
-        break;
-    case hlist_node:
-    case vlist_node:
-    case unset_node:
-        free_sub_list(list_ptr(p));
-        break;
-    case disc_node:
-        free_sub_list(vlink(pre_break(p)));
-        free_sub_list(vlink(post_break(p)));
-        free_sub_list(vlink(no_break(p)));
-// why not: free_sub_list(pre_break(p));
-// why not: free_sub_list(post_break(p));
-// why not: free_sub_list(no_break(p));
-        break;
-    case rule_node:
-    case kern_node:
-    case math_node:
-    case penalty_node:
-        break;
-    case glue_spec_node:
-        /* this allows free-ing of lua-allocated glue specs */
-        if (valid_node(p)) {
-            if (glue_ref_count(p)!=null) {
-                decr(glue_ref_count(p));
-            } else {
-                free_node(p, get_node_size(type(p), subtype(p)));
-            }
-        }
-        return ;
-        break ;
-    case dir_node:
-    case local_par_node:
-    case boundary_node:
-        break;
-    case whatsit_node:
-        switch (subtype(p)) {
-        /* frontend code */
+    switch (subtype(p)) {
         case open_node:
         case write_node:
         case close_node:
@@ -1112,9 +1095,16 @@ void flush_node(halfword p)
                 break;
             }
             break;
-        /* dvi backend code */
-            /* nothing here */
-        /* pdf backend code */
+    }
+}
+
+void flush_node_wrapup_dvi(halfword p)
+{
+}
+
+void flush_node_wrapup_pdf(halfword p)
+{
+    switch(subtype(p)) {
         case pdf_save_node:
         case pdf_restore_node:
         case pdf_refobj_node:
@@ -1154,10 +1144,69 @@ void flush_node(halfword p)
             if (pdf_thread_attr(p) != null)
                 delete_token_ref(pdf_thread_attr(p));
             break;
-        /* end of backend code */
-        default:
-            confusion("ext3");
-            return;
+    }
+}
+
+void flush_node(halfword p)
+{
+    halfword w;
+    if (p == null)              /* legal, but no-op */
+        return;
+
+#ifdef DEBUG
+    fprintf(DEBUG_OUT, "Free-ing %s node %d\n",
+            get_node_name(type(p), subtype(p)), (int) p);
+#endif
+    if (free_error(p))
+        return;
+
+    switch (type(p)) {
+    case glyph_node:
+        free_sub_list(lig_ptr(p));
+        break;
+    case glue_node:
+        delete_glue_ref(glue_ptr(p));
+        free_sub_list(leader_ptr(p));
+        break;
+    case hlist_node:
+    case vlist_node:
+    case unset_node:
+        free_sub_list(list_ptr(p));
+        break;
+    case disc_node:
+        /* watch the start at temp node hack */
+        free_sub_list(vlink(pre_break(p)));
+        free_sub_list(vlink(post_break(p)));
+        free_sub_list(vlink(no_break(p)));
+        break;
+    case rule_node:
+    case kern_node:
+    case math_node:
+    case penalty_node:
+        break;
+    case glue_spec_node:
+        /* this allows free-ing of lua-allocated glue specs */
+        if (valid_node(p)) {
+            if (glue_ref_count(p)!=null) {
+                decr(glue_ref_count(p));
+            } else {
+                free_node(p, get_node_size(type(p), subtype(p)));
+            }
+        }
+        return ;
+        break ;
+    case dir_node:
+    case local_par_node:
+    case boundary_node:
+        break;
+    case whatsit_node:
+        w = subtype(p) ;
+        if (w >= backend_first_pdf_whatsit) {
+            flush_node_wrapup_pdf(p);
+        } else if (w >= backend_first_dvi_whatsit) {
+            flush_node_wrapup_dvi(p);
+        } else {
+            flush_node_wrapup_core(p);
         }
         break;
     case ins_node:
@@ -1290,29 +1339,9 @@ static int test_count = 1;
 #define check_attribute_ref(a)  { dorangetest(p,a,var_mem_max); }
 #define check_token_ref(a)      assert(1)
 
-void check_node(halfword p)
+static void check_node_wrapup_core(halfword p)
 {
-
-    switch (type(p)) {
-    case glyph_node:
-        dorangetest(p, lig_ptr(p), var_mem_max);
-        break;
-    case glue_node:
-        check_glue_ref(glue_ptr(p));
-        dorangetest(p, leader_ptr(p), var_mem_max);
-        break;
-    case hlist_node:
-    case vlist_node:
-    case unset_node:
-    case align_record_node:
-        dorangetest(p, list_ptr(p), var_mem_max);
-        break;
-    case ins_node:
-        dorangetest(p, ins_ptr(p), var_mem_max);
-        check_glue_ref(split_top_ptr(p));
-        break;
-    case whatsit_node:
-        switch (subtype(p)) {
+    switch (subtype(p)) {
         /* frontend code */
         case special_node:
             check_token_ref(write_tokens(p));
@@ -1340,11 +1369,18 @@ void check_node(halfword p)
         case write_node:
         case close_node:
         case save_pos_node:
-            confusion("ext3");
+            confusion("ext3"); /* why */
             break;
-        /* dvi backend code */
-            /* nothing here */
-        /* pdf backend code */
+    }
+}
+
+void check_node_wrapup_dvi(halfword p)
+{
+}
+
+void check_node_wrapup_pdf(halfword p)
+{
+    switch (subtype(p)) {
         case pdf_literal_node:
             if (pdf_literal_type(p) == normal)
                 check_token_ref(pdf_literal_data(p));
@@ -1386,9 +1422,42 @@ void check_node(halfword p)
         case pdf_refobj_node:
         case pdf_end_link_node:
         case pdf_end_thread_node:
-        /* end of backend code */
+            break;
         default:
             confusion("ext3");
+            break;
+    }
+}
+
+void check_node(halfword p)
+{
+    halfword w ;
+    switch (type(p)) {
+    case glyph_node:
+        dorangetest(p, lig_ptr(p), var_mem_max);
+        break;
+    case glue_node:
+        check_glue_ref(glue_ptr(p));
+        dorangetest(p, leader_ptr(p), var_mem_max);
+        break;
+    case hlist_node:
+    case vlist_node:
+    case unset_node:
+    case align_record_node:
+        dorangetest(p, list_ptr(p), var_mem_max);
+        break;
+    case ins_node:
+        dorangetest(p, ins_ptr(p), var_mem_max);
+        check_glue_ref(split_top_ptr(p));
+        break;
+    case whatsit_node:
+        w = subtype(p) ;
+        if (w >= backend_first_pdf_whatsit) {
+            check_node_wrapup_pdf(p);
+        } else if (w >= backend_first_dvi_whatsit) {
+            check_node_wrapup_dvi(p);
+        } else {
+            check_node_wrapup_core(p);
         }
         break;
     case margin_kern_node:
@@ -2439,254 +2508,257 @@ static void print_write_whatsit(const char *s, pointer p)
 
 
 @ @c
-static void show_whatsit_node(int p)
+
+static void show_node_wrapup_core(int p)
 {
     switch (subtype(p)) {
-    /* frontend code */
-    case open_node:
-        print_write_whatsit("openout", p);
-        print_char('=');
-        print_file_name(open_name(p), open_area(p), open_ext(p));
-        break;
-    case write_node:
-        print_write_whatsit("write", p);
-        print_mark(write_tokens(p));
-        break;
-    case close_node:
-        print_write_whatsit("closeout", p);
-        break;
-    case special_node:
-        tprint_esc("special");
-        print_mark(write_tokens(p));
-        break;
-    case late_lua_node:
-        show_late_lua(p);
-        break;
-    case save_pos_node:
-        tprint_esc("savepos");
-        break;
-    case user_defined_node:
-        tprint_esc("whatsit");
-        print_int(user_node_id(p));
-        print_char('=');
-        switch (user_node_type(p)) {
-        case 'a':
-            tprint("<>");
+        case open_node:
+            print_write_whatsit("openout", p);
+            print_char('=');
+            print_file_name(open_name(p), open_area(p), open_ext(p));
             break;
-        case 'n':
-            tprint("[");
-            show_node_list(user_node_value(p));
-            tprint("]");
+        case write_node:
+            print_write_whatsit("write", p);
+            print_mark(write_tokens(p));
             break;
-        case 's':
-            print_char('"');
-            print(user_node_value(p));
-            print_char('"');
+        case close_node:
+            print_write_whatsit("closeout", p);
             break;
-        case 't':
-            print_mark(user_node_value(p));
+        case special_node:
+            tprint_esc("special");
+            print_mark(write_tokens(p));
             break;
-        default:               /* only 'd' */
-            print_int(user_node_value(p));
+        case late_lua_node:
+            show_late_lua(p);
             break;
-        }
-        break;
-    /* dvi backend code */
-        /* nothing here */
-    /* pdf backend code */
-    case pdf_literal_node:
-        show_pdf_literal(p);
-        break;
-    case pdf_colorstack_node:
-        tprint_esc("pdfcolorstack ");
-        print_int(pdf_colorstack_stack(p));
-        switch (pdf_colorstack_cmd(p)) {
-        case colorstack_set:
-            tprint(" set ");
+        case save_pos_node:
+            tprint_esc("savepos");
             break;
-        case colorstack_push:
-            tprint(" push ");
+        case user_defined_node:
+            tprint_esc("whatsit");
+            print_int(user_node_id(p));
+            print_char('=');
+            switch (user_node_type(p)) {
+            case 'a':
+                tprint("<>");
+                break;
+            case 'n':
+                tprint("[");
+                show_node_list(user_node_value(p));
+                tprint("]");
+                break;
+            case 's':
+                print_char('"');
+                print(user_node_value(p));
+                print_char('"');
+                break;
+            case 't':
+                print_mark(user_node_value(p));
+                break;
+            default:               /* only 'd' */
+                print_int(user_node_value(p));
+                break;
+            }
             break;
-        case colorstack_pop:
-            tprint(" pop");
+    }
+}
+
+void show_node_wrapup_dvi(int p)
+{
+}
+
+void show_node_wrapup_pdf(int p)
+{
+    switch (subtype(p)) {
+        case pdf_literal_node:
+            show_pdf_literal(p);
             break;
-        case colorstack_current:
-            tprint(" current");
+        case pdf_colorstack_node:
+            tprint_esc("pdfcolorstack ");
+            print_int(pdf_colorstack_stack(p));
+            switch (pdf_colorstack_cmd(p)) {
+            case colorstack_set:
+                tprint(" set ");
+                break;
+            case colorstack_push:
+                tprint(" push ");
+                break;
+            case colorstack_pop:
+                tprint(" pop");
+                break;
+            case colorstack_current:
+                tprint(" current");
+                break;
+            default:
+                confusion("pdfcolorstack");
+                break;
+            }
+            if (pdf_colorstack_cmd(p) <= colorstack_data)
+                print_mark(pdf_colorstack_data(p));
             break;
-        default:
-            confusion("pdfcolorstack");
+        case pdf_setmatrix_node:
+            tprint_esc("pdfsetmatrix");
+            print_mark(pdf_setmatrix_data(p));
             break;
-        }
-        if (pdf_colorstack_cmd(p) <= colorstack_data)
-            print_mark(pdf_colorstack_data(p));
-        break;
-    case pdf_setmatrix_node:
-        tprint_esc("pdfsetmatrix");
-        print_mark(pdf_setmatrix_data(p));
-        break;
-    case pdf_save_node:
-        tprint_esc("pdfsave");
-        break;
-    case pdf_restore_node:
-        tprint_esc("pdfrestore");
-        break;
-    case pdf_refobj_node:
-        tprint_esc("pdfrefobj");
-        if (obj_obj_is_stream(static_pdf, pdf_obj_objnum(p))) {
-            if (obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)) != LUA_NOREF) {
-                tprint(" attr");
+        case pdf_save_node:
+            tprint_esc("pdfsave");
+            break;
+        case pdf_restore_node:
+            tprint_esc("pdfrestore");
+            break;
+        case pdf_refobj_node:
+            tprint_esc("pdfrefobj");
+            if (obj_obj_is_stream(static_pdf, pdf_obj_objnum(p))) {
+                if (obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)) != LUA_NOREF) {
+                    tprint(" attr");
+                    lua_rawgeti(Luas, LUA_REGISTRYINDEX,
+                                obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)));
+                    print_char(' ');
+                    tprint((const char *) lua_tostring(Luas, -1));
+                    lua_pop(Luas, 1);
+                }
+                tprint(" stream");
+            }
+            if (obj_obj_is_file(static_pdf, pdf_obj_objnum(p)))
+                tprint(" file");
+            if (obj_obj_data(static_pdf, pdf_obj_objnum(p)) != LUA_NOREF) {
                 lua_rawgeti(Luas, LUA_REGISTRYINDEX,
-                            obj_obj_stream_attr(static_pdf, pdf_obj_objnum(p)));
+                            obj_obj_data(static_pdf, pdf_obj_objnum(p)));
                 print_char(' ');
                 tprint((const char *) lua_tostring(Luas, -1));
                 lua_pop(Luas, 1);
             }
-            tprint(" stream");
-        }
-        if (obj_obj_is_file(static_pdf, pdf_obj_objnum(p)))
-            tprint(" file");
-        if (obj_obj_data(static_pdf, pdf_obj_objnum(p)) != LUA_NOREF) {
-            lua_rawgeti(Luas, LUA_REGISTRYINDEX,
-                        obj_obj_data(static_pdf, pdf_obj_objnum(p)));
-            print_char(' ');
-            tprint((const char *) lua_tostring(Luas, -1));
-            lua_pop(Luas, 1);
-        }
-        break;
-    case pdf_annot_node:
-        tprint_esc("pdfannot");
-        show_pdftex_whatsit_rule_spec(p);
-        print_mark(pdf_annot_data(p));
-        break;
-    case pdf_start_link_node:
-        tprint_esc("pdfstartlink");
-        show_pdftex_whatsit_rule_spec(p);
-        if (pdf_link_attr(p) != null) {
-            tprint(" attr");
-            print_mark(pdf_link_attr(p));
-        }
-        tprint(" action");
-        if (pdf_action_type(pdf_link_action(p)) == pdf_action_user) {
-            tprint(" user");
-            print_mark(pdf_action_tokens(pdf_link_action(p)));
-            return;
-        }
-        if (pdf_action_file(pdf_link_action(p)) != null) {
-            tprint(" file");
-            print_mark(pdf_action_file(pdf_link_action(p)));
-        }
-        switch (pdf_action_type(pdf_link_action(p))) {
-        case pdf_action_goto:
-            if (pdf_action_named_id(pdf_link_action(p)) > 0) {
-                tprint(" goto name");
-                print_mark(pdf_action_id(pdf_link_action(p)));
-            } else {
-                tprint(" goto num");
-                print_int(pdf_action_id(pdf_link_action(p)));
-            }
             break;
-        case pdf_action_page:
-            tprint(" page");
-            print_int(pdf_action_id(pdf_link_action(p)));
-            print_mark(pdf_action_tokens(pdf_link_action(p)));
-            break;
-        case pdf_action_thread:
-            if (pdf_action_named_id(pdf_link_action(p)) > 0) {
-                tprint(" thread name");
-                print_mark(pdf_action_id(pdf_link_action(p)));
-            } else {
-                tprint(" thread num");
-                print_int(pdf_action_id(pdf_link_action(p)));
-            }
-            break;
-        default:
-            normal_error("pdf backend", "unknown action type for link");
-            break;
-        }
-        break;
-    case pdf_end_link_node:
-        tprint_esc("pdfendlink");
-        break;
-    case pdf_dest_node:
-        tprint_esc("pdfdest");
-        if (pdf_dest_named_id(p) > 0) {
-            tprint(" name");
-            print_mark(pdf_dest_id(p));
-        } else {
-            tprint(" num");
-            print_int(pdf_dest_id(p));
-        }
-        print_char(' ');
-        switch (pdf_dest_type(p)) {
-        case pdf_dest_xyz:
-            tprint("xyz");
-            if (pdf_dest_xyz_zoom(p) != null) {
-                tprint(" zoom");
-                print_int(pdf_dest_xyz_zoom(p));
-            }
-            break;
-        case pdf_dest_fitbh:
-            tprint("fitbh");
-            break;
-        case pdf_dest_fitbv:
-            tprint("fitbv");
-            break;
-        case pdf_dest_fitb:
-            tprint("fitb");
-            break;
-        case pdf_dest_fith:
-            tprint("fith");
-            break;
-        case pdf_dest_fitv:
-            tprint("fitv");
-            break;
-        case pdf_dest_fitr:
-            tprint("fitr");
+        case pdf_annot_node:
+            tprint_esc("pdfannot");
             show_pdftex_whatsit_rule_spec(p);
+            print_mark(pdf_annot_data(p));
             break;
-        case pdf_dest_fit:
-            tprint("fit");
+        case pdf_start_link_node:
+            tprint_esc("pdfstartlink");
+            show_pdftex_whatsit_rule_spec(p);
+            if (pdf_link_attr(p) != null) {
+                tprint(" attr");
+                print_mark(pdf_link_attr(p));
+            }
+            tprint(" action");
+            if (pdf_action_type(pdf_link_action(p)) == pdf_action_user) {
+                tprint(" user");
+                print_mark(pdf_action_tokens(pdf_link_action(p)));
+                return;
+            }
+            if (pdf_action_file(pdf_link_action(p)) != null) {
+                tprint(" file");
+                print_mark(pdf_action_file(pdf_link_action(p)));
+            }
+            switch (pdf_action_type(pdf_link_action(p))) {
+            case pdf_action_goto:
+                if (pdf_action_named_id(pdf_link_action(p)) > 0) {
+                    tprint(" goto name");
+                    print_mark(pdf_action_id(pdf_link_action(p)));
+                } else {
+                    tprint(" goto num");
+                    print_int(pdf_action_id(pdf_link_action(p)));
+                }
+                break;
+            case pdf_action_page:
+                tprint(" page");
+                print_int(pdf_action_id(pdf_link_action(p)));
+                print_mark(pdf_action_tokens(pdf_link_action(p)));
+                break;
+            case pdf_action_thread:
+                if (pdf_action_named_id(pdf_link_action(p)) > 0) {
+                    tprint(" thread name");
+                    print_mark(pdf_action_id(pdf_link_action(p)));
+                } else {
+                    tprint(" thread num");
+                    print_int(pdf_action_id(pdf_link_action(p)));
+                }
+                break;
+            default:
+                normal_error("pdf backend", "unknown action type for link");
+                break;
+            }
+            break;
+        case pdf_end_link_node:
+            tprint_esc("pdfendlink");
+            break;
+        case pdf_dest_node:
+            tprint_esc("pdfdest");
+            if (pdf_dest_named_id(p) > 0) {
+                tprint(" name");
+                print_mark(pdf_dest_id(p));
+            } else {
+                tprint(" num");
+                print_int(pdf_dest_id(p));
+            }
+            print_char(' ');
+            switch (pdf_dest_type(p)) {
+            case pdf_dest_xyz:
+                tprint("xyz");
+                if (pdf_dest_xyz_zoom(p) != null) {
+                    tprint(" zoom");
+                    print_int(pdf_dest_xyz_zoom(p));
+                }
+                break;
+            case pdf_dest_fitbh:
+                tprint("fitbh");
+                break;
+            case pdf_dest_fitbv:
+                tprint("fitbv");
+                break;
+            case pdf_dest_fitb:
+                tprint("fitb");
+                break;
+            case pdf_dest_fith:
+                tprint("fith");
+                break;
+            case pdf_dest_fitv:
+                tprint("fitv");
+                break;
+            case pdf_dest_fitr:
+                tprint("fitr");
+                show_pdftex_whatsit_rule_spec(p);
+                break;
+            case pdf_dest_fit:
+                tprint("fit");
+                break;
+            default:
+                tprint("unknown!");
+                break;
+            }
+            break;
+        case pdf_thread_node:
+        case pdf_start_thread_node:
+            if (subtype(p) == pdf_thread_node)
+                tprint_esc("pdfthread");
+            else
+                tprint_esc("pdfstartthread");
+            tprint("(");
+            print_rule_dimen(height(p));
+            print_char('+');
+            print_rule_dimen(depth(p));
+            tprint(")x");
+            print_rule_dimen(width(p));
+            if (pdf_thread_attr(p) != null) {
+                tprint(" attr");
+                print_mark(pdf_thread_attr(p));
+            }
+            if (pdf_thread_named_id(p) > 0) {
+                tprint(" name");
+                print_mark(pdf_thread_id(p));
+            } else {
+                tprint(" num");
+                print_int(pdf_thread_id(p));
+            }
+            break;
+        case pdf_end_thread_node:
+            tprint_esc("pdfendthread");
             break;
         default:
-            tprint("unknown!");
             break;
-        }
-        break;
-    case pdf_thread_node:
-    case pdf_start_thread_node:
-        if (subtype(p) == pdf_thread_node)
-            tprint_esc("pdfthread");
-        else
-            tprint_esc("pdfstartthread");
-        tprint("(");
-        print_rule_dimen(height(p));
-        print_char('+');
-        print_rule_dimen(depth(p));
-        tprint(")x");
-        print_rule_dimen(width(p));
-        if (pdf_thread_attr(p) != null) {
-            tprint(" attr");
-            print_mark(pdf_thread_attr(p));
-        }
-        if (pdf_thread_named_id(p) > 0) {
-            tprint(" name");
-            print_mark(pdf_thread_id(p));
-        } else {
-            tprint(" num");
-            print_int(pdf_thread_id(p));
-        }
-        break;
-    case pdf_end_thread_node:
-        tprint_esc("pdfendthread");
-        break;
-    /* end of backend code */
-    default:
-        tprint("whatsit?");
-        break;
     }
 }
-
-
 
 @  Now we are ready for |show_node_list| itself. This procedure has been
   written to be ``extra robust'' in the sense that it should not crash or get
@@ -2713,6 +2785,7 @@ static void show_whatsit_node(int p)
 void show_node_list(int p)
 {                               /* prints a node list symbolically */
     int n;                      /* the number of items already printed at this level */
+    halfword w;
     real g;                     /* a glue ratio, as a floating point number */
     if ((int) cur_length > depth_threshold) {
         if (p > null)
@@ -2900,7 +2973,14 @@ void show_node_list(int p)
                 }
                 break;
             case whatsit_node:
-                show_whatsit_node(p);
+                w = subtype(p) ;
+                if (w >= backend_first_pdf_whatsit) {
+                    show_node_wrapup_pdf(p);
+                } else if (w >= backend_first_dvi_whatsit) {
+                    show_node_wrapup_dvi(p);
+                } else {
+                    show_node_wrapup_core(p);
+                }
                 break;
             case glue_node:
                 /* Display glue |p|; */
