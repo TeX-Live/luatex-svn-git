@@ -267,8 +267,8 @@ void luainterpreter(void)
     /* our own libraries */
     luaopen_ff(L);
     luaopen_tex(L);
+    luaopen_oldtoken(L);
     luaopen_token(L);
-    luaopen_newtoken(L);
     luaopen_node(L);
     luaopen_texio(L);
     luaopen_kpse(L);
@@ -371,7 +371,7 @@ void unhide_lua_value(lua_State * L, const char *name, const char *item, int r)
 
 @ @c
 int lua_traceback(lua_State * L)
-{ 
+{
     lua_getglobal(L, "debug");
     if (!lua_istable(L, -1)) {
         lua_pop(L, 1);

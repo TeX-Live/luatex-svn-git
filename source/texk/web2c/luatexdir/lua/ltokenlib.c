@@ -1,5 +1,5 @@
 /* ltokenlib.c
-   
+
    Copyright 2006-2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -277,8 +277,8 @@ static const struct luaL_Reg tokenlib[] = {
     {NULL, NULL}                /* sentinel */
 };
 
-int luaopen_token(lua_State * L)
+int luaopen_oldtoken(lua_State * L)
 {
-    luaL_register(L, "token", tokenlib);
+    luaL_register(L, "oldtoken", tokenlib);
     return 1;
 }

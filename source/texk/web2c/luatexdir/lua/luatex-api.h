@@ -132,8 +132,8 @@ extern int luaopen_vf(lua_State * L);
 extern int font_to_lua(lua_State * L, int f);
 extern int font_from_lua(lua_State * L, int f); /* return is boolean */
 
+extern int luaopen_oldtoken(lua_State * L);
 extern int luaopen_token(lua_State * L);
-extern int luaopen_newtoken(lua_State * L);
 extern void tokenlist_to_lua(lua_State * L, int p);
 extern void tokenlist_to_luastring(lua_State * L, int p);
 extern int tokenlist_from_lua(lua_State * L);
@@ -227,8 +227,8 @@ extern void init_tex_table(lua_State * L);
 
 extern int tex_table_id;
 extern int pdf_table_id;
-extern int newtoken_table_id;
 extern int token_table_id;
+extern int oldtoken_table_id;
 extern int node_table_id;
 extern int main_initialize(void);
 
@@ -552,8 +552,9 @@ make_lua_key(log);\
 make_lua_key(lua);\
 make_lua_key(lua_functions);\
 make_lua_key(luatex);\
-make_lua_key(luatex_newtoken);\
 make_lua_key(luatex_node);\
+make_lua_key(luatex_oldtoken);\
+make_lua_key(luatex_token);\
 make_lua_key(mLTL);\
 make_lua_key(mRTT);\
 make_lua_key(mTLT);\
@@ -853,8 +854,11 @@ init_lua_key(list);\
 init_lua_key(local_box);\
 init_lua_key(log);\
 init_lua_key(lua);\
+init_lua_key(lua_functions);\
 init_lua_key(luatex);\
-init_lua_key(luatex_newtoken);\
+init_lua_key(luatex_node);\
+init_lua_key(luatex_oldtoken);\
+init_lua_key(luatex_token);\
 init_lua_key(mark);\
 init_lua_key(math);\
 init_lua_key(math_choice);\
@@ -1224,8 +1228,9 @@ use_lua_key(log);
 use_lua_key(lua);
 use_lua_key(lua_functions);
 use_lua_key(luatex);
-use_lua_key(luatex_newtoken);
 use_lua_key(luatex_node);
+use_lua_key(luatex_oldtoken);
+use_lua_key(luatex_token);
 use_lua_key(mLTL);
 use_lua_key(mRTT);
 use_lua_key(mTLT);

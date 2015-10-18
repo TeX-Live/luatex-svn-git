@@ -5929,7 +5929,10 @@ This function behaves like \type {texio.write}, but make sure that the given
 strings will appear at the beginning of a new line. You can pass a single empty
 string if you only want to move to the next line.
 
-\section[luatokens]{The \type {token} library}
+\section[luatokens]{The \type {oldtoken} library (obsolete)}
+
+{\em Nota Bene: This library will disappear soon. It is replaced by the \type
+{token} library, that used to be called \type {newroken}.}
 
 The \type {token} table contains interface functions to \TEX's handling of
 tokens. These functions are most useful when combined with the \type
@@ -5948,49 +5951,49 @@ consists of three numeric entries:
                                           {equivalence table} \NC \NR
 \stoptabulate
 
-\subsection{\type {token.get_next}}
+\subsection{\type {oldtoken.get_next}}
 
 \startfunctioncall
-token t = token.get_next()
+token t = oldtoken.get_next()
 \stopfunctioncall
 
 This fetches the next input token from the current input source, without
 expansion.
 
-\subsection{\type {token.is_expandable}}
+\subsection{\type {oldtoken.is_expandable}}
 
 \startfunctioncall
-<boolean> b = token.is_expandable(<token> t)
+<boolean> b = oldtoken.is_expandable(<token> t)
 \stopfunctioncall
 
 This tests if the token \type {t} could be expanded.
 
-\subsection{\type {token.expand}}
+\subsection{\type {oldtoken.expand}}
 
 \startfunctioncall
-token.expand(<token> t)
+oldtoken.expand(<token> t)
 \stopfunctioncall
 
 If a token is expandable, this will expand one level of it, so that the first
 token of the expansion will now be the next token to be read by \type
-{token.get_next()}.
+{oldtoken.get_next()}.
 
-\subsection{\type {token.is_activechar}}
+\subsection{\type {oldtoken.is_activechar}}
 
 \startfunctioncall
-<boolean> b = token.is_activechar(<token> t)
+<boolean> b = oldtoken.is_activechar(<token> t)
 \stopfunctioncall
 
 This is a special test that is sometimes handy. Discovering whether some control
 sequence is the result of an active character turned out to be very hard
 otherwise.
 
-\subsection{\type {token.create}}
+\subsection{\type {oldtoken.create}}
 
 \startfunctioncall
-token t = token.create(<string> csname)
-token t = token.create(<number> charcode)
-token t = token.create(<number> charcode, <number> catcode)
+token t = oldtoken.create(<string> csname)
+token t = oldtoken.create(<number> charcode)
+token t = oldtoken.create(<number> charcode, <number> catcode)
 \stopfunctioncall
 
 This is the token factory. If you feed it a string, then it is the name of a
@@ -6002,17 +6005,17 @@ optional second number gives its category code. This means it is possible to
 overrule a character's category code, with a few exceptions: the category codes~0
 (escape), 9~(ignored), 13~(active), 14~(comment), and 15 (invalid) cannot occur
 inside a token. The values~0, 9, 14 and~15 are therefore illegal as input to
-\type {token.create()}, and active characters will be resolved immediately.
+\type {oldtoken.create()}, and active characters will be resolved immediately.
 
 Note: unknown string sequences and never defined active characters will result in
 a token representing an \quote {undefined control sequence} with a near|-|random
 name. It is {\em not} possible to define brand new control sequences using
-\type {token.create}!
+\type {oldtoken.create}!
 
-\subsection{\type {token.command_name}}
+\subsection{\type {oldtoken.command_name}}
 
 \startfunctioncall
-<string> commandname = token.command_name(<token> t)
+<string> commandname = oldtoken.command_name(<token> t)
 \stopfunctioncall
 
 This returns the name associated with the \quote {command} value of the token in
@@ -6020,19 +6023,19 @@ This returns the name associated with the \quote {command} value of the token in
 primitives. For instance, all \type {\ifxxx} tests are grouped under \type
 {if_test}, and the \quote {command modifier} defines which test is to be run.
 
-\subsection{\type {token.command_id}}
+\subsection{\type {oldtoken.command_id}}
 
 \startfunctioncall
-<number> i = token.command_id(<string> commandname)
+<number> i = oldtoken.command_id(<string> commandname)
 \stopfunctioncall
 
 This returns a number that is the inverse operation of the previous command, to
 be used as the first item in a token table.
 
-\subsection{\type {token.csname_name}}
+\subsection{\type {oldtoken.csname_name}}
 
 \startfunctioncall
-<string> csname = token.csname_name(<token> t)
+<string> csname = oldtoken.csname_name(<token> t)
 \stopfunctioncall
 
 This returns the name associated with the \quote {equivalence table} value of the
@@ -6043,20 +6046,20 @@ Keep in mind that there are potentially two control sequences that return the
 same csname string: single character control sequences and active characters have
 the same \quote {name}.
 
-\subsection{\type {token.csname_id}}
+\subsection{\type {oldtoken.csname_id}}
 
 \startfunctioncall
-<number> i = token.csname_id(<string> csname)
+<number> i = oldtoken.csname_id(<string> csname)
 \stopfunctioncall
 
 This returns a number that is the inverse operation of the previous command, to
 be used as the third item in a token table.
 
-\subsection{The \type {newtoken} libray}
+\subsection{The \type {token} libray}
 
 The current \type {token} library will be replaced by a new one that is more
 flexible and powerful. The transition takes place in steps. In version 0.80 we
-have \type {newtoken} and in version 0.85 the old lib will be replaced
+have \type {token} and in version 0.85 the old lib will be replaced
 completely. So if you use this new mechanism in production code you need to be
 aware of incompatible updates between 0.80 and 0.90. Because the related in- and
 output code will also be cleaned up and rewritten you should be aware of
@@ -6071,7 +6074,7 @@ parsers without too much overhead. It's up to macro package writers to see how
 they can benefit from this as the main principle behind \LUATEX\ is to provide a
 minimal set of tools and no solutions.
 
-The current functions in the \type {newtoken} namespace are given in the next
+The current functions in the \type {token} namespace are given in the next
 table:
 
 \starttabulate[|lT|lT|p|]
@@ -6116,9 +6119,9 @@ following definition:
 we get:
 
 \starttabulate[|l|Tl|l|]
-\NC \type {\directlua{newtoken.scan_string()}{foo}} \NC \directlua{context("{\\red\\type {"..newtoken.scan_string().."}}")} {foo} \NC full expansion \NR
-\NC \type {\directlua{newtoken.scan_string()}foo}   \NC \directlua{context("{\\red\\type {"..newtoken.scan_string().."}}")} foo   \NC letters and others \NR
-\NC \type {\directlua{newtoken.scan_string()}\foo}  \NC \directlua{context("{\\red\\type {"..newtoken.scan_string().."}}")}\foo   \NC meaning \NR
+\NC \type {\directlua{token.scan_string()}{foo}} \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")} {foo} \NC full expansion \NR
+\NC \type {\directlua{token.scan_string()}foo}   \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")} foo   \NC letters and others \NR
+\NC \type {\directlua{token.scan_string()}\foo}  \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")}\foo   \NC meaning \NR
 \stoptabulate
 
 The \type {\foo} case only gives the meaning, but one can pass an already
@@ -6129,8 +6132,8 @@ do expand.
 The \type {scan_word} scanner can be used to implement for instance a number scanner:
 
 \starttyping
-function newtokens.scan_number(base)
-    return tonumber(newtoken.scan_word(),base)
+function token.scan_number(base)
+    return tonumber(token.scan_word(),base)
 end
 \stoptyping
 
@@ -6140,7 +6143,7 @@ in the input.
 The creator function can be used as follows:
 
 \starttyping
-local t = newtoken("relax")
+local t = token("relax")
 \stoptyping
 
 This gives back a token object that has the properties of the \type {\relax}
@@ -6189,7 +6192,7 @@ You can also do this:
 \starttyping
 \directlua {
     function mymacro()
-        local d = newtoken.scan_dimen()
+        local d = token.scan_dimen()
         ...
     end
 }

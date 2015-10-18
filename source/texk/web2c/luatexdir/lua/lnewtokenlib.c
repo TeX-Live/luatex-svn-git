@@ -64,7 +64,7 @@ typedef struct saved_tex_scanner {
 
 static lua_token *check_istoken(lua_State * L, int ud);
 
-#define TOKEN_METATABLE  "luatex_newtoken"
+#define TOKEN_METATABLE  "luatex_token"
 
 #define DEBUG 0
 #define DEBUG_OUT stdout
@@ -95,7 +95,7 @@ static lua_token *maybe_istoken(lua_State * L, int ud)
     lua_token *p = lua_touserdata(L, ud);
     if (p != NULL) {
         if (lua_getmetatable(L, ud)) {
-            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_newtoken));
+            lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_token));
             lua_gettable(L, LUA_REGISTRYINDEX);
             if (!lua_rawequal(L, -1, -2))
                 p = NULL;
@@ -126,7 +126,7 @@ static void make_new_token(lua_State * L, int cmd, int chr, int cs)
     fast_get_avail(thetok->token);
     tok = (cs ? cs_token_flag + cs : token_val(cmd, chr));
     set_token_info(thetok->token, tok);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_newtoken));
+    lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_token));
     lua_gettable(L, LUA_REGISTRYINDEX);
     lua_setmetatable(L, -2);
 }
@@ -136,7 +136,7 @@ static void push_token(lua_State * L, int tok)
     lua_token *thetok = lua_newuserdata(L, sizeof(lua_token));
     thetok->origin = LUA_ORIGIN;
     thetok->token = tok;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_newtoken));
+    lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_token));
     lua_gettable(L, LUA_REGISTRYINDEX);
     lua_setmetatable(L, -2);
 }
@@ -729,11 +729,11 @@ static const struct luaL_Reg tokenlib_m[] = {
 
 
 
-int luaopen_newtoken(lua_State * L)
+int luaopen_token(lua_State * L)
 {
     /* the main metatable of token userdata */
     luaL_newmetatable(L, TOKEN_METATABLE);
     luaL_register(L, NULL, tokenlib_m);
-    luaL_register(L, "newtoken", tokenlib);
+    luaL_register(L, "token", tokenlib);
     return 1;
 }

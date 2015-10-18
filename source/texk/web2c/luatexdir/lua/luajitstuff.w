@@ -225,24 +225,24 @@ static int luatex_dofile (lua_State *L) {
 void luainterpreter(void)
 {
     lua_State *L;
-        
+
     if (jithash_hashname==NULL){
-	/* default lua51 */ 
+	/* default lua51 */
 	luajittex_choose_hash_function = 0;
         jithash_hashname = (char *) xmalloc(strlen("lua51")+1);
-        jithash_hashname = strcpy ( jithash_hashname, "lua51"); 
+        jithash_hashname = strcpy ( jithash_hashname, "lua51");
     } else {
       if (strcmp((const char*)jithash_hashname,"lua51")==0){
 	luajittex_choose_hash_function = 0;
       }else if (strcmp((const char*)jithash_hashname,"luajit20")==0){
 	luajittex_choose_hash_function = 1;
       } else {
-	/* default lua51 */ 
+	/* default lua51 */
 	luajittex_choose_hash_function = 0;
-	jithash_hashname = strcpy ( jithash_hashname, "lua51"); 
+	jithash_hashname = strcpy ( jithash_hashname, "lua51");
       }
     }
-    
+
 
     L = luaL_newstate() ;
     /*L = lua_newstate(my_luaalloc, NULL);*/
@@ -311,8 +311,8 @@ void luainterpreter(void)
     /* our own libraries */
     luaopen_ff(L);
     luaopen_tex(L);
-    luaopen_newtoken(L);
     luaopen_token(L);
+    luaopen_oldtoken(L);
     luaopen_node(L);
     luaopen_texio(L);
     luaopen_kpse(L);
@@ -632,7 +632,7 @@ int luaL_typerror (void *LL, int narg, const char *tname)
   lua_State *L = (lua_State *)LL;
   const char *msg = lua_pushfstring(L, "%s expected, got %s",
                                     tname, luaL_typename(L, narg));
-  return luaL_argerror(L, narg, msg);	
+  return luaL_argerror(L, narg, msg);
 }
 */
 
@@ -640,7 +640,7 @@ int luaL_typerror (void *LL, int narg, const char *tname)
 /*
 
 
-Compatibility layer for luatex lua5.2 
+Compatibility layer for luatex lua5.2
 
 */
 
@@ -680,7 +680,7 @@ LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
 @ @c
 LUALIB_API char *luaL_prepbuffsize (luaL_Buffer *B, size_t sz) {
   lua_State *L = B->L;
-  if (sz > LUAL_BUFFERSIZE ) 
+  if (sz > LUAL_BUFFERSIZE )
 	luaL_error(L, "buffer too large");
   return luaL_prepbuffer(B) ;
 }
