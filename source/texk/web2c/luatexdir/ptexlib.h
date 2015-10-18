@@ -149,25 +149,25 @@ size_t          T##_limit
 
 #  define str_prefix(s1, s2)  (strncmp((s1), (s2), strlen(s2)) == 0)
 
-/* that was ptexmac.h */
-
 #  include "tex/mainbody.h"
 #  include "tex/expand.h"
 #  include "tex/conditional.h"
-#  include "pdf/pdftypes.h"
 
-/* synctex */
+#  include "pdf/pdftypes.h" /* the backend data structure, shared between dvi and pdf */
+
 #  include "synctex.h"
 
 #  include "utils/avlstuff.h"
 #  include "utils/managed-sa.h"
+
 #  include "image/writeimg.h"
+
 #  include "dvi/dvigen.h"
+
+#  include "pdf/pdftables.h"
 #  include "pdf/pdfpagetree.h"
 #  include "pdf/pdfgen.h"
 #  include "pdf/pdfpage.h"
-#  include "pdf/pdftables.h"
-
 #  include "pdf/pdfaction.h"
 #  include "pdf/pdfannot.h"
 #  include "pdf/pdfcolorstack.h"
@@ -194,8 +194,10 @@ size_t          T##_limit
 
 #  include "font/luatexfont.h"
 #  include "font/mapfile.h"
+
 #  include "utils/utils.h"
 #  include "utils/unistring.h"
+
 #  include "image/writejbig2.h"
 #  include "image/pdftoepdf.h"
 
