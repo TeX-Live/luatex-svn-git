@@ -1467,7 +1467,7 @@ No new control sequences will be defined except during a call of
 void get_token(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok| */
     no_new_control_sequence = false;
-    get_token_lua();
+    get_next(); /* get_token_lua(); */
     no_new_control_sequence = true;
     if (cur_cs == 0)
         cur_tok = token_val(cur_cmd, cur_chr);

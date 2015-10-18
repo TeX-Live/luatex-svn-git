@@ -297,7 +297,7 @@ static void run_ignore_spaces (void) {
     } else {
         int t = scanner_status;
         scanner_status = normal;
-        get_token_lua();
+        get_next(); /* get_token_lua(); */
         scanner_status = t;
         cur_cs = prim_lookup(cs_text(cur_cs));
         if (cur_cs != undefined_primitive) {

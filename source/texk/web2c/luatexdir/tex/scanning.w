@@ -2021,7 +2021,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
             /* Here we insert an entire token list created by |the_toks| without
                expanding it further. */
             while (1) {
-                get_token_lua();
+                get_next(); /* get_token_lua(); */
                 if (cur_cmd >= call_cmd) {
                     if (token_info(token_link(cur_chr)) == protected_token) {
                         cur_cmd = relax_cmd;
