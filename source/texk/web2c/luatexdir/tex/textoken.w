@@ -1663,10 +1663,94 @@ we have to create a temporary string that is destroyed immediately after.
     selector = old_setting; \
 }
 
+int conv_var_dvi(halfword c)
+{
+    return 0;
+}
+
+#define backend_dimen(A) eqtb[scaled_base+(A)].hh.rh
+#define backend_count(A) eqtb[count_base+(A)].hh.rh
+
+#define get_backend_count(cur_cs,name,index,default) { \
+    no_new_control_sequence = false; \
+    cur_cs = string_lookup(name,strlen(name)); \
+    no_new_control_sequence = true; \
+    if (eq_type(cur_cs) == undefined_cs_cmd) { \
+        primitive_tex(name, assign_int_cmd, int_base + index, int_base); \
+        backend_count(cur_cs) = default ; \
+    } \
+    cur_tok = cur_cs + cs_token_flag; \
+    back_input(); \
+}
+
+#define get_backend_dimen(cur_cs,name,index,default) { \
+    no_new_control_sequence = false; \
+    cur_cs = string_lookup(name,strlen(name)); \
+    no_new_control_sequence = true; \
+    if (eq_type(cur_cs) == undefined_cs_cmd) { \
+        primitive_tex(name, assign_dimen_cmd, dimen_base + index, dimen_base); \
+        backend_dimen(cur_cs) = default ; \
+    } \
+    cur_tok = cur_cs + cs_token_flag; \
+    back_input(); \
+}
+
+#define get_backend_toks(cur_cs,name,index) { \
+    no_new_control_sequence = false; \
+    cur_cs = string_lookup(name,strlen(name)); \
+    no_new_control_sequence = true; \
+    if (eq_type(cur_cs) == undefined_cs_cmd) { \
+        primitive_tex(name, assign_toks_cmd, index, local_base); \
+    } \
+    cur_tok = cur_cs + cs_token_flag; \
+    back_input(); \
+}
+
+int conv_var_pdf(halfword c)
+{
+    /* todo: optimize order, but hardly any access */
+
+         if (scan_keyword("compresslevel"))       { get_backend_count(cur_cs,"pdf_compresslevel",       backend_int_base   +  1, 9); }
+    else if (scan_keyword("decimaldigits"))       { get_backend_count(cur_cs,"pdf_decimaldigits",       backend_int_base   +  2, 3); }
+    else if (scan_keyword("imageresolution"))     { get_backend_count(cur_cs,"pdf_imageresolution",     backend_int_base   +  3, 72); }
+    else if (scan_keyword("pkresolution"))        { get_backend_count(cur_cs,"pdf_pkresolution",        backend_int_base   +  4, 72); }
+    else if (scan_keyword("uniqueresname"))       { get_backend_count(cur_cs,"pdf_uniqueresname",       backend_int_base   +  5, 0); }
+    else if (scan_keyword("minorversion"))        { get_backend_count(cur_cs,"pdf_minorversion",        backend_int_base   +  6, 4); }
+    else if (scan_keyword("pagebox"))             { get_backend_count(cur_cs,"pdf_pagebox",             backend_int_base   +  7, 0); }
+    else if (scan_keyword("inclusionerrorlevel")) { get_backend_count(cur_cs,"pdf_inclusionerrorlevel", backend_int_base   +  8, 0); }
+    else if (scan_keyword("gamma"))               { get_backend_count(cur_cs,"pdf_gamma",               backend_int_base   +  9, 1000); }
+    else if (scan_keyword("imageapplygamma"))     { get_backend_count(cur_cs,"pdf_imageapplygamma",     backend_int_base   + 10, 0); }
+    else if (scan_keyword("imagegamma"))          { get_backend_count(cur_cs,"pdf_imagegamma",          backend_int_base   + 11, 2200); }
+    else if (scan_keyword("imagehicolor"))        { get_backend_count(cur_cs,"pdf_imagehicolor",        backend_int_base   + 12, 1); }
+    else if (scan_keyword("objcompresslevel"))    { get_backend_count(cur_cs,"pdf_objcompresslevel",    backend_int_base   + 13, 0); }
+    else if (scan_keyword("inclusioncopyfonts"))  { get_backend_count(cur_cs,"pdf_inclusioncopyfonts",  backend_int_base   + 14, 0); }
+    else if (scan_keyword("gentounicode"))        { get_backend_count(cur_cs,"pdf_gentounicode",        backend_int_base   + 15, 0); }
+    else if (scan_keyword("replacefont"))         { get_backend_count(cur_cs,"pdf_replacefont",         backend_int_base   + 16, 0); }
+
+    else if (scan_keyword("horigin"))             { get_backend_dimen(cur_cs,"pdf_horigin",             backend_dimen_base +  1, one_inch); }
+    else if (scan_keyword("vorigin"))             { get_backend_dimen(cur_cs,"pdf_vorigin",             backend_dimen_base +  2, one_inch); }
+    else if (scan_keyword("threadmargin"))        { get_backend_dimen(cur_cs,"pdf_threadmargin",        backend_dimen_base +  3, 0); }
+    else if (scan_keyword("destmargin"))          { get_backend_dimen(cur_cs,"pdf_destmargin",          backend_dimen_base +  4, 0); }
+    else if (scan_keyword("linkmargin"))          { get_backend_dimen(cur_cs,"pdf_linkmargin",          backend_dimen_base +  5, 0); }
+
+    else if (scan_keyword("pageattr"))            { get_backend_toks (cur_cs,"pdf_pageattr",            backend_toks_base  +  1); }
+    else if (scan_keyword("pageresources"))       { get_backend_toks (cur_cs,"pdf_pageresources",       backend_toks_base  +  2); }
+    else if (scan_keyword("pagesattr"))           { get_backend_toks (cur_cs,"pdf_pagesattr",           backend_toks_base  +  3); }
+    else if (scan_keyword("xformattr"))           { get_backend_toks (cur_cs,"pdf_xformattr",           backend_toks_base  +  4); }
+    else if (scan_keyword("xformresources"))      { get_backend_toks (cur_cs,"pdf_xformresources",      backend_toks_base  +  5); }
+    else if (scan_keyword("pkmode"))              { get_backend_toks (cur_cs,"pdf_pkmode",              backend_toks_base  +  6); }
+
+    else
+        return 0;
+    return 1;
+}
+
 int conv_toks_dvi(halfword c)
 {
     return 0;
 }
+
+/* codes not really needed but cleaner when testing */
 
 int conv_toks_pdf(halfword c)
 {
@@ -1727,7 +1811,7 @@ int conv_toks_pdf(halfword c)
         case pdf_font_name_code:
             scan_font_ident();
             if (cur_val == null_font)
-                pdf_error("font", "invalid font identifier");
+                normal_error("pdf backend", "invalid font identifier when asking 'fontname'");
             pdf_check_vf(cur_val);
             if (!font_used(cur_val))
                 pdf_init_font(static_pdf, cur_val);
@@ -1739,7 +1823,7 @@ int conv_toks_pdf(halfword c)
         case pdf_font_objnum_code:
             scan_font_ident();
             if (cur_val == null_font)
-                pdf_error("font", "invalid font identifier");
+                normal_error("pdf backend", "invalid font identifier when asking 'objnum'");
             pdf_check_vf(cur_val);
             if (!font_used(cur_val))
                 pdf_init_font(static_pdf, cur_val);
@@ -1751,7 +1835,7 @@ int conv_toks_pdf(halfword c)
         case pdf_font_size_code:
             scan_font_ident();
             if (cur_val == null_font)
-                pdf_error("font", "invalid font identifier");
+                normal_error("pdf backend", "invalid font identifier when asking 'fontsize'");
             push_selector;
             print_scaled(font_size(cur_val));
             tprint("pt");
@@ -1760,7 +1844,7 @@ int conv_toks_pdf(halfword c)
         case pdf_page_ref_code:
             scan_int();
             if (cur_val <= 0)
-                pdf_error("pageref", "invalid page number");
+                normal_error("pdf backend", "invalid page number when asking 'pageref'");
             push_selector;
             print_int(pdf_get_obj(static_pdf, obj_type_page, cur_val, false));
             pop_selector;
@@ -1901,7 +1985,7 @@ void conv_toks(void)
     case left_margin_kern_code:
         scan_int();
         if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
-            pdf_error("marginkern", "a non-empty hbox expected");
+            normal_error("marginkern", "a non-empty hbox expected");
         push_selector;
         p = list_ptr(box(cur_val));
         if ((p != null) && (!is_char_node(p)) && (type(p) == glue_node) && (subtype(p) == left_skip_code + 1))
@@ -1916,7 +2000,7 @@ void conv_toks(void)
     case right_margin_kern_code:
         scan_int();
         if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
-            pdf_error("marginkern", "a non-empty hbox expected");
+            normal_error("marginkern", "a non-empty hbox expected");
         push_selector;
         q = list_ptr(box(cur_val));
         p = null;
@@ -2024,7 +2108,7 @@ void conv_toks(void)
     case lua_function_code:
         scan_int();
         if (cur_val <= 0) {
-            pdf_error("luafunction", "invalid number");
+            normal_error("luafunction", "invalid number");
         } else {
             u = save_cur_string();
             luacstrings = 0;
@@ -2055,13 +2139,25 @@ void conv_toks(void)
         tprint("pt");
         pop_selector;
         break;
+    case dvi_variable_code:
+        done = conv_var_dvi(c);
+        if (done==0)
+            confusion("dvi variable");
+        return;
+        break;
+    case pdf_variable_code:
+        done = conv_var_pdf(c);
+        if (done==0)
+            confusion("pdf variable");
+        return;
+        break;
     case dvi_feedback_code:
         if (get_o_mode() == OMODE_DVI)
             done = conv_toks_dvi(c);
         else
             done = 0;
         if (done==0)
-            confusion("feedback");
+            confusion("dvi feedback");
         else if (done==2)
             return;
         break;
@@ -2071,7 +2167,7 @@ void conv_toks(void)
         else
             done = 0;
         if (done==0)
-            confusion("feedback");
+            confusion("pdf feedback");
         else if (done==2)
             return;
         break;
@@ -2375,11 +2471,10 @@ void read_toks(int n, halfword r, halfword j)
 
 @ @c
 str_number tokens_to_string(halfword p)
-{                               /* return a string from tokens list */
+{   /* return a string from tokens list */
     int old_setting;
     if (selector == new_string)
-        pdf_error("tokens",
-                  "tokens_to_string() called while selector = new_string");
+        normal_error("tokens","tokens_to_string() called while selector = new_string");
     old_setting = selector;
     selector = new_string;
     show_token_list(token_link(p), null, -1);

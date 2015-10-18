@@ -161,6 +161,9 @@ extern str_number the_convert_string(halfword c, int i);
 extern int conv_toks_dvi(halfword c); /* plugin */
 extern int conv_toks_pdf(halfword c); /* plugin */
 
+extern int conv_var_dvi(halfword c); /* plugin */
+extern int conv_var_pdf(halfword c); /* plugin */
+
 extern int the_convert_string_dvi(halfword c, int i); /* plugin */
 extern int the_convert_string_pdf(halfword c, int i); /* plugin */
 

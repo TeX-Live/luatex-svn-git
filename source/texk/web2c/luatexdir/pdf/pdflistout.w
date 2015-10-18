@@ -47,7 +47,7 @@ static void missing_backend_function(PDF pdf, halfword p)
     b = backend[output_mode_used].name;
     snprintf(backend_string, strlen(b) + 10, "%s back-end", b);
     snprintf(err_string, 59, "no output function for \"%s\" %s", n, s);
-    pdf_error(backend_string, err_string);
+    normal_error(backend_string, err_string);
 }
 
 @ @c

@@ -2600,7 +2600,7 @@ static void show_whatsit_node(int p)
             }
             break;
         default:
-            pdf_error("displaying", "unknown action type");
+            normal_error("pdf backend", "unknown action type for link");
             break;
         }
         break;

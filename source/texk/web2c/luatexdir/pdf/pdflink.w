@@ -51,9 +51,9 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
     if (type(p) == vlist_node)
-        pdf_error("ext4", "\\pdfstartlink ended up in vlist");
+        normal_error("pdf backend", "'startlink' ended up in vlist");
     if (global_shipping_mode == SHIPPING_FORM)
-        pdf_error("ext4", "link annotations cannot be inside an XForm");
+        normal_error("pdf backend", "link annotations cannot be inside an XForm");
     assert(type(parent_box) == hlist_node);
     if (is_obj_scheduled(pdf, pdf_link_objnum(p)))
         pdf_link_objnum(p) = pdf_create_obj(pdf, obj_type_others, 0);
@@ -72,13 +72,11 @@ void end_link(PDF pdf, halfword p)
     halfword q;
     scaledpos pos = pdf->posstruct->pos;
     if (type(p) == vlist_node)
-        pdf_error("ext4", "\\pdfendlink ended up in vlist");
+        normal_error("pdf backend","'endlink' ended up in vlist");
     if (pdf->link_stack_ptr < 1)
-        pdf_error("ext4",
-                  "pdf link_stack empty, \\pdfendlink used without \\pdfstartlink?");
+        normal_error("pdf backend","pdf link_stack empty, 'endlink' used without 'startlink'");
     if (pdf->link_stack[pdf->link_stack_ptr].nesting_level != cur_s)
-        pdf_error("ext4",
-                  "\\pdfendlink ended up in different nesting level than \\pdfstartlink");
+        normal_error("pdf backend","'endlink' ended up in different nesting level than 'startlink'");
 
     /* N.B.: test for running link must be done on |link_node| and not |ref_link_node|,
        as |ref_link_node| can be set by |do_link| or |append_link| already */
@@ -145,7 +143,7 @@ void scan_startlink(PDF pdf)
     int k;
     halfword r;
     if (abs(cur_list.mode_field) == vmode)
-        pdf_error("ext1", "\\pdfstartlink cannot be used in vertical mode");
+        normal_error("pdf backend", "startlink cannot be used in vertical mode");
     k = pdf_create_obj(pdf, obj_type_others, 0);
     new_annot_whatsit(pdf_start_link_node);
     set_pdf_link_attr(cur_list.tail_field, null);

@@ -91,7 +91,7 @@ void scan_pdfxform(PDF pdf)
     scan_int();
     p = box(cur_val);
     if (p == null)
-        pdf_error("ext1", "\\pdfxform cannot be used with a void box");
+        normal_error("pdf backend", "xforms cannot be used with a void box");
     set_obj_xform_box(pdf, k, p);       /* save pointer to the box */
     set_obj_xform_width(pdf, k, width(p));
     set_obj_xform_height(pdf, k, height(p));

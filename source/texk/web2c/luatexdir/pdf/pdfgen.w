@@ -248,7 +248,7 @@ void fix_o_mode(void)
         output_mode_used = o_mode;
         static_pdf->o_mode = output_mode_used; /* used by synctex, we need to use output_mode_used there */
     } else if (output_mode_used != o_mode) {
-        pdf_error("setup", "\\outputmode can only be changed before anything is written to the output");
+        normal_error("pdf backend", "\\outputmode can only be changed before anything is written to the output");
     }
 }
 
@@ -273,9 +273,9 @@ void fix_pdf_minorversion(PDF pdf)
     } else {
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != pdf_minor_version)
-            pdf_error("setup", "\\pdfminorversion cannot be changed after data is written to the PDF file");
+            normal_error("pdf backend", "minorversion cannot be changed after data is written to the PDF file");
         if (pdf->draftmode != int_par(draft_mode_code))
-            pdf_error("setup", "\\draftmode cannot be changed after data is written to the PDF file");
+            normal_error("pdf backend", "draftmode cannot be changed after data is written to the PDF file");
     }
     if (pdf->draftmode != 0) {
         pdf->compress_level = 0;        /* re-fix it, might have been changed inbetween */
@@ -406,7 +406,7 @@ void pdf_flush(PDF pdf)
             pdf->zip_write_state = NO_ZIP;
         strbuf_seek(pdf->buf, 0);
         if (saved_pdf_gone > pdf->gone)
-            pdf_error("file size", "File size exceeds architectural limits (pdf_gone wraps around)");
+            normal_error("pdf backend", "file size exceeds architectural limits (pdf_gone wraps around)");
         break;
     case OBJSTM_BUF:
         break;
@@ -976,9 +976,7 @@ static void init_pdf_outputparameters(PDF pdf)
         pdf->os_enable = true;
     } else {
         if (pdf->objcompresslevel > 0) {
-            pdf_warning("Object streams",
-                        "\\pdfobjcompresslevel > 0 requires \\pdfminorversion > 4. Object streams disabled now.",
-                        true, true);
+            normal_warning("pdf backend","objcompresslevel > 0 requires minorversion > 4", true, true);
             pdf->objcompresslevel = 0;
         }
         pdf->os_enable = false;
@@ -1610,7 +1608,7 @@ void remove_pdffile(PDF pdf)
 @ Use |check_o_mode()| in the backend-specific "Implement..." chunks
 
 @c
-void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
+void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict) /* s ignored now */
 {
 
     char warn_string[100];
@@ -1638,12 +1636,12 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
         default:
             assert(0);
         }
-        snprintf(warn_string, 99, "not allowed in %s mode (\\pdfpoutput = %d)",
-                 m, (int) int_par(output_mode_code));
+        snprintf(warn_string, 99, "%s not allowed in %s mode (outputmode = %d)",
+                 s, m, (int) int_par(output_mode_code));
         if (strict)
-            pdf_error(s, warn_string);
+            normal_error("pdf backend", warn_string);
         else
-            pdf_warning(s, warn_string, true, true);
+            normal_warning("pdf backend", warn_string, true, true);
     } else if (strict)
         ensure_output_state(pdf, ST_HEADER_WRITTEN);
 }
@@ -1845,10 +1843,8 @@ void pdf_end_page(PDF pdf)
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
     if (pos_stack_used > 0) {
-        luatex_fail("%u unmatched \\pdfsave after %s shipout",
-                    (unsigned int) pos_stack_used,
-                    ((global_shipping_mode ==
-                      SHIPPING_PAGE) ? "page" : "form"));
+        luatex_fail("%u unmatched 'save' after %s shipout", (unsigned int) pos_stack_used,
+            ((global_shipping_mode == SHIPPING_PAGE) ? "page" : "form"));
     }
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
@@ -2121,7 +2117,7 @@ static void check_nonexisting_destinations(PDF pdf)
     int k;
     for (k = pdf->head_tab[obj_type_dest]; k != 0; k = obj_link(pdf, k)) {
         if (obj_dest_ptr(pdf, k) == null) {
-            pdf_warning("dest", NULL, false, false);
+            normal_warning("pdf backend", "dest ", false, false);
             if (obj_info(pdf, k) < 0) {
                 tprint("name{");
                 print(-obj_info(pdf, k));
@@ -2155,7 +2151,7 @@ static void check_nonexisting_pages(PDF pdf)
     /* search from the end backward until the last real page is found */
     for (p = avl_t_last(&t, page_tree);
          p != NULL && obj_aux(pdf, p->objptr) == 0; p = avl_t_prev(&t)) {
-        pdf_warning("dest", "Page ", false, false);
+        normal_warning("pdf backend", "Page ", false, false);
         print_int(obj_info(pdf, p->objptr));
         tprint(" has been referenced but does not exist!");
         print_ln();
@@ -2316,13 +2312,13 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                                &&
                                (!str_eq_str
                                 (pdf_font_attr(i), pdf_font_attr(k)))) {
-                        pdf_warning("\\pdffontattr", "fonts ", false, false);
+                        normal_warning("pdf backend","fontattr in ", false, false);
                         print_font_identifier(i);
                         tprint(" and ");
                         print_font_identifier(k);
-                        tprint
-                            (" have conflicting attributes; I will ignore the attributes assigned to ");
+                        tprint(" have conflicting attributes; the attributes assigned to ");
                         print_font_identifier(i);
+                        tprint(" are ignored");
                         print_ln();
                         print_ln();
                     }
@@ -2536,9 +2532,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
         if (pdf->draftmode == 0)
             close_file(pdf->file);
         else
-            pdf_warning(NULL,
-                        "\\pdfdraftmode enabled, not changing output pdf",
-                        true, true);
+            normal_warning("pdf backend","draftmode enabled, not changing output pdf",true, true);
     }
 
     if (callback_id == 0) {
@@ -2572,9 +2566,9 @@ void scan_pdfcatalog(PDF pdf)
     pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
     if (scan_keyword("openaction")) {
         if (pdf_catalog_openaction != 0) {
-            pdf_error("ext1", "duplicate of openaction");
+            normal_error("pdf backend", "duplicate of openaction");
         } else {
-            check_o_mode(pdf, "\\pdfcatalog", 1 << OMODE_PDF, true);
+            check_o_mode(pdf, "catalog", 1 << OMODE_PDF, true);
             p = scan_action(pdf);
             pdf_catalog_openaction = pdf_create_obj(pdf, obj_type_others, 0);
             pdf_begin_obj(pdf, pdf_catalog_openaction, OBJSTM_ALWAYS);

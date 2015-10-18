@@ -21,7 +21,7 @@
 #ifndef PDFXFORM_H
 #  define PDFXFORM_H
 
-/* data structure for \.{\\pdfxform} and \.{\\pdfrefxform} */
+/* data structure for box resources */
 
 #  define pdfmem_xform_size        8    /* size of memory in |pdf->mem| which |obj_data_ptr| holds */
 

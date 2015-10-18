@@ -105,7 +105,7 @@ extern void char_warning(internal_font_number f, int c);
     additional help
 */
 
-extern void pdf_error(const char *t, const char *p);
-extern void pdf_warning(const char *t, const char *p, boolean pr, boolean ap);
+extern void normal_error(const char *t, const char *p);
+extern void normal_warning(const char *t, const char *p, boolean pr, boolean ap);
 
 #endif

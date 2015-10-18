@@ -56,7 +56,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     refpoint.pos.v = 0;
 
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
-    fix_o_mode();            /* this is only for complaining if \.{\\pdfoutput} has changed */
+    fix_o_mode();            /* this is only for complaining if \.{\\outputmode} has changed */
     init_backend_functionpointers(output_mode_used);
 
     pdf->f_cur = null_font;
@@ -103,10 +103,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
 
     /* Ship box |p| out */
     if (shipping_mode == SHIPPING_PAGE && box_dir(p) != page_direction)
-        pdf_warning("\\shipout",
-                    "\\pagedir != \\bodydir; "
-                    "\\box\\outputbox may be placed wrongly on the page.", true,
-                    true);
+        normal_warning("backend","pagedir differs from bodydir, the output may be placed wrongly on the page", true, true);
     /* Update the values of |max_h| and |max_v|; but if the page is too large, |goto done| */
     /* Sometimes the user will generate a huge page because other error messages
        are being ignored. Such pages are not output to the \.{dvi} file, since they

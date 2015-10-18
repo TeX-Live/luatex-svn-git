@@ -138,7 +138,7 @@ void do_extension_dvi(int immediate)
         scan_toks(false, true);
         write_tokens(tail) = def_ref;
     } else {
-        pdf_error("ext1", "unknown \\dviextension");
+        normal_error("dvi backend", "unknown \\dviextension");
     }
 }
 
@@ -206,7 +206,7 @@ void do_extension_pdf(int immediate)
             scan_obj(static_pdf);
             if (immediate) {
                 if (obj_data_ptr(static_pdf, pdf_last_obj) == 0)   /* this object has not been initialized yet */
-                    pdf_error("ext1","`\\pdfextension obj reserveobjnum' cannot be used with \\immediate");
+                    normal_error("pdf backend","\\pdfextension obj 'reserveobjnum' cannot be used with \\immediate");
                 pdf_write_obj(static_pdf, pdf_last_obj);
             }
             break;
@@ -264,7 +264,7 @@ void do_extension_pdf(int immediate)
             break;
         case pdf_end_link_code:
             if (abs(mode) == vmode)
-                pdf_error("ext1", "\\pdfextension endlink cannot be used in vertical mode");
+                normal_error("pdf backend", "\\pdfextension endlink cannot be used in vertical mode");
             new_whatsit(pdf_end_link_node);
             break;
         case pdf_start_thread_code:
@@ -292,7 +292,7 @@ void do_extension_pdf(int immediate)
             scan_font_ident();
             k = cur_val;
             if (k == null_font)
-                pdf_error("font", "invalid font identifier");
+                normal_error("pdf backend", "invalid font identifier");
             scan_pdf_ext_toks();
             set_pdf_font_attr(k, tokens_to_string(def_ref));
             if (str_length(pdf_font_attr(k)) == 0) {
@@ -330,7 +330,7 @@ void do_extension_pdf(int immediate)
             pdf_trailer_toks = concat_tokens(pdf_trailer_toks, def_ref);
             break;
         default:
-            pdf_error("ext1", "unknown \\pdfextension");
+            normal_error("pdf backend", "unknown \\pdfextension keyword");
             break ;
     }
 }
@@ -562,8 +562,8 @@ int pdf_last_link;
 int pdf_last_obj;
 int pdf_retval;                 /* global multi-purpose return value */
 
-@ To implement primitives as \.{\\pdfinfo}, \.{\\pdfcatalog} or
-\.{\\pdfnames} we need to concatenate tokens lists.
+@ To implement primitives as \.{\\pdfextension info}, \.{\\pdfextension catalog} or
+\.{\\pdfextension names} we need to concatenate tokens lists.
 
 @c
 halfword concat_tokens(halfword q, halfword r)
@@ -861,67 +861,47 @@ defines are not available.
 
 int get_tex_extension_count_register(const char *s, int d)
 {
-    int k;
     int cs;
     cs = string_lookup(s,strlen(s));
     if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
         return d;
-    k = (equiv(cs) - count_base);
-    if ((k<0) || (k>65535))
-        return d;
-    return (int) get_tex_count_register(k);
+    return (int) get_tex_count_register((equiv(cs) - count_base));
 }
 
 void set_tex_extension_count_register(const char *s, int d)
 {
-    int k;
     int cs;
     cs = string_lookup(s,strlen(s));
     if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
         return;
-    k = (equiv(cs) - count_base);
-    if ((k<0) || (k>65535))
-        return;
-    get_tex_count_register(k) = d;
+    get_tex_count_register((equiv(cs) - count_base)) = d;
 }
 
 int get_tex_extension_dimen_register(const char *s, int d)
 {
-    int k;
     int cs;
     cs = string_lookup(s,strlen(s));
     if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
         return d;
-    k = (equiv(cs) - scaled_base);
-    if ((k<0) || (k>65535))
-        return d;
-    return (int) get_tex_dimen_register(k);
+    return (int) get_tex_dimen_register((equiv(cs) - scaled_base));
 }
 
 void set_tex_extension_dimen_register(const char *s, int d)
 {
-    int k;
     int cs;
     cs = string_lookup(s,strlen(s));
     if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
         return;
-    k = (equiv(cs) - scaled_base);
-    if ((k<0) || (k>65535))
-        return;
-    get_tex_dimen_register(k) = d;
+    get_tex_dimen_register((equiv(cs) - scaled_base)) = d;
 }
 
 int get_tex_extension_toks_register(const char *s)
 {
-    int k;
     int cs;
     cs = string_lookup(s,strlen(s));
     if ((cs == undefined_control_sequence || cs == undefined_cs_cmd))
         return null;
-    k = (equiv(cs) - toks_base);
-    if ((k<0) || (k>65535))
-        return null;
-    return toks(k); /* a pointer to a token list */
+    return toks((equiv(cs) - toks_base)); /* a pointer to a token list */
 }
 
 int set_tex_dimen_register(int j, scaled v)

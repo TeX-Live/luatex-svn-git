@@ -32,8 +32,8 @@ void pdf_write_obj(PDF pdf, int k)
     const_lstring st;
     size_t li;                  /* index into |data.s| */
     int saved_compress_level = pdf->compress_level;
-    int os_threshold = OBJSTM_ALWAYS;   /* gives compressed objects for \.{\\pdfobjcompresslevel} >= |OBJSTM_ALWAYS| */
-    int l = 0;                  /* possibly a lua registry reference */
+    int os_threshold = OBJSTM_ALWAYS;   /* gives compressed objects for \.{\\pdfvariable objcompresslevel} >= |OBJSTM_ALWAYS| */
+    int l = 0;                          /* possibly a lua registry reference */
     int ll = 0;
     data.s = NULL;
     if (obj_obj_pdfcompresslevel(pdf, k) > -1)  /* -1 = "unset" */
@@ -78,21 +78,21 @@ void pdf_write_obj(PDF pdf, int k)
             res = run_callback(callback_id, "S->bSd", fnam, &file_opened, &data.s, &ll);
             data.l = (size_t) ll;
             if (!file_opened)
-                pdf_error("ext5", "cannot open file for embedding");
+                normal_error("pdf backend", "cannot open file for embedding");
         } else {
             byte_file f;        /* the data file's FILE* */
             if (!fnam)
                 fnam = st.s;
             if (!luatex_open_input(&f, fnam, kpse_tex_format, FOPEN_RBIN_MODE, true))
-                pdf_error("ext5", "cannot open file for embedding");
+                normal_error("pdf backend", "cannot open file for embedding");
             res = read_data_file(f, &data.s, &ll);
             data.l = (size_t) ll;
             close_file(f);
         }
         if (data.l == 0L)
-            pdf_error("ext5", "empty file for embedding");
+            normal_error("pdf backend", "empty file for embedding");
         if (!res)
-            pdf_error("ext5", "error reading file for embedding");
+            normal_error("pdf backend", "error reading file for embedding");
         tprint("<<");
         tprint(st.s);
         pdf_out_block(pdf, (const char *) data.s, data.l);
@@ -130,11 +130,11 @@ void init_obj_obj(PDF pdf, int k)
     obj_obj_objstm_threshold(pdf, k) = OBJSTM_UNSET;  /* unset */
 }
 
-@ The \.{\\pdfobj} primitive is used to create a ``raw'' object in the PDF
+@ The \.{\\pdfextension obj} primitive is used to create a ``raw'' object in the PDF
    output file. The object contents will be hold in memory and will be written
-   out only when the object is referenced by \.{\\pdfrefobj}. When \.{\\pdfobj}
-   is used with \.{\\immediate}, the object contents will be written out
-   immediately. Objects referenced in the current page are appended into
+   out only when the object is referenced by \.{\\pdfextension refobj}. When
+   \.{\\pdfextension obj} is used with \.{\\immediate}, the object contents will be
+   written out immediately. Objects referenced in the current page are appended into
    |pdf_obj_list|.
 
 @c

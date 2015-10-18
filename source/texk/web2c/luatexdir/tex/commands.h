@@ -257,16 +257,18 @@ typedef enum {
     /* backend */
     dvi_feedback_code,
     pdf_feedback_code,
+    dvi_variable_code,
+    pdf_variable_code,
 } convert_codes;
 
 typedef enum {
-    pdf_font_name_code = 32,    /* command code for \.{\\pdffontname} */
-    pdf_font_objnum_code,       /* command code for \.{\\pdffontobjnum} */
-    pdf_font_size_code,         /* command code for \.{\\pdffontsize} */
-    pdf_page_ref_code,          /* command code for \.{\\pdfpageref} */
-    pdf_xform_name_code,        /* command code for \.{\\pdfxformname} */
-    pdf_creation_date_code,     /* command code for \.{\\pdfcreationdate} */
-    pdf_colorstack_init_code,   /* command code for \.{\\pdfcolorstackinit} */
+    pdf_font_name_code = 32,    /* command code for \.{\\pdffeedback fontname} */
+    pdf_font_objnum_code,       /* command code for \.{\\pdffeedback fontobjnum} */
+    pdf_font_size_code,         /* command code for \.{\\pdffeedback fontsize} */
+    pdf_page_ref_code,          /* command code for \.{\\pdffeedback pageref} */
+    pdf_xform_name_code,        /* command code for \.{\\pdffeedback xformname} */
+    pdf_creation_date_code,     /* command code for \.{\\pdffeedback creationdate} */
+    pdf_colorstack_init_code,   /* command code for \.{\\pdffeedback colorstackinit} */
     pdf_last_obj_code,
     pdf_last_annot_code,
     pdf_retval_code,
@@ -286,7 +288,7 @@ typedef enum {
     last_saved_image_resource_pages_code, /* code for \.{\\lastsavedimageresourcepages} */
     last_x_pos_code,                      /* code for \.{\\lastxpos} */
     last_y_pos_code,                      /* code for \.{\\lastypos} */
-    random_seed_code,                     /* code for \.{\\pdfrandomseed} */
+    random_seed_code,                     /* code for \.{\\randomseed} */
     luatex_version_code,                  /* code for \.{\\luatexversion} */
     eTeX_minor_version_code,              /* code for \.{\\eTeXminorversion} */
     eTeX_version_code,                    /* code for \.{\\eTeXversion} */

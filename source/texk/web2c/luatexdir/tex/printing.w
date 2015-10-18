@@ -218,7 +218,7 @@ The first 256 entries above the 17th unicode plane are used for a
 special trick: when \TeX\ has to print items in that range, it will
 instead print the character that results from substracting 0x110000
 from that value. This allows byte-oriented output to things like
-\.{\\specials} and \.{\\pdfliterals}. Todo: Perhaps it would be useful
+\.{\\specials} and \.{\\pdfextension literals}. Todo: Perhaps it would be useful
 to do the same substraction while typesetting.
 
 @c
@@ -260,8 +260,7 @@ void print(int s)
             } else if (s >= 0x110000) {
                 int c = s - 0x110000;
                 if (c >= 256) {
-                    pdf_warning("print", "bad raw byte to print (c=",
-                                true, false);
+                    normal_warning("print", "bad raw byte to print (c=", true, false);
                     print_int(c);
                     tprint("), skipped.");
                     print_ln();

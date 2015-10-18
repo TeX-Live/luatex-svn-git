@@ -956,7 +956,6 @@ scaled calc_char_width(internal_font_number f, int c, int ex)
 {
     charinfo *ci = char_info(f, c);
     scaled w = get_charinfo_width(ci);
-    //printf("ex=%d\n",ex);
     if (ex != 0)
         w = round_xn_over_d(w, 1000 + ex, 1000);
     return w;
@@ -1868,10 +1867,10 @@ void read_expand_font(void)
     scan_font_ident();
     f = cur_val;
     if (f == null_font)
-        pdf_error("font expansion", "invalid font identifier");
-    //if (pdf_font_blink(f) != null_font)
-    //    pdf_error("font expansion",
-    //              "\\fontexpand cannot be used this way (the base font has been expanded)");
+        normal_error("font expansion", "invalid font identifier");
+    /*if (pdf_font_blink(f) != null_font)*/
+    /*    normal_error("font expansion",*/
+    /*              "\\fontexpand cannot be used this way (the base font has been expanded)");*/
     scan_optional_equals();
     scan_int();
     stretch_limit = fix_int(cur_val, 0, 1000);
@@ -1880,7 +1879,7 @@ void read_expand_font(void)
     scan_int();
     font_step = fix_int(cur_val, 0, 100);
     if (font_step == 0)
-        pdf_error("font expansion", "invalid step");
+        normal_error("font expansion", "invalid step");
     stretch_limit = stretch_limit - stretch_limit % font_step;
     if (stretch_limit < 0)
         stretch_limit = 0;
@@ -1888,7 +1887,7 @@ void read_expand_font(void)
     if (shrink_limit < 0)
         shrink_limit = 0;
     if ((stretch_limit == 0) && (shrink_limit == 0))
-        pdf_error("font expansion", "invalid limit(s)");
+        normal_error("font expansion", "invalid limit(s)");
     auto_expand = false;
     if (scan_keyword("autoexpand")) {
         auto_expand = true;
@@ -1901,29 +1900,23 @@ void read_expand_font(void)
     if (font_step(f) != 0) {
         /* this font has been expanded, ensure the expansion parameters are identical */
         if (font_step(f) != font_step)
-            pdf_error("font expansion",
-                      "font has been expanded with different expansion step");
+            normal_error("font expansion","font has been expanded with different expansion step");
 
         if (((font_max_stretch(f) == 0) && (stretch_limit != 0)) ||
             ((font_max_stretch(f) > 0)
              && (font_max_stretch(f) != stretch_limit)))
-            pdf_error("font expansion",
-                      "font has been expanded with different stretch limit");
+            normal_error("font expansion","font has been expanded with different stretch limit");
 
         if (((font_max_shrink(f) == 0) && (shrink_limit != 0)) ||
             ((font_max_shrink(f) > 0)
              && (font_max_shrink(f) != shrink_limit)))
-            pdf_error("font expansion",
-                      "font has been expanded with different shrink limit");
+            normal_error("font expansion","font has been expanded with different shrink limit");
 
         if (font_auto_expand(f) != auto_expand)
-            pdf_error("font expansion",
-                      "font has been expanded with different auto expansion value");
+            normal_error("font expansion","font has been expanded with different auto expansion value");
     } else {
         if (font_used(f))
-            pdf_warning("font expansion",
-                        "font should be expanded before its first use", true,
-                        true);
+            normal_warning("font expansion", "font should be expanded before its first use", true, true);
         set_expand_params(f, auto_expand, stretch_limit, shrink_limit,
                           font_step);
     }

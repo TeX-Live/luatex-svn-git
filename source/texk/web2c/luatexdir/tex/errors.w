@@ -678,10 +678,10 @@ void char_warning(internal_font_number f, int c)
 */
 
 @ @c
-void pdf_error(const char *t, const char *p)
+void normal_error(const char *t, const char *p)
 {
     normalize_selector();
-    print_err("LuaTeX error");
+    print_err("error ");
     if (t != NULL) {
         tprint(" (");
         tprint(t);
@@ -694,12 +694,12 @@ void pdf_error(const char *t, const char *p)
 }
 
 @ @c
-void pdf_warning(const char *t, const char *p, boolean prepend_nl,
+void normal_warning(const char *t, const char *p, boolean prepend_nl,
                  boolean append_nl)
 {
     if (prepend_nl)
         print_ln();
-    tprint("LuaTeX warning");
+    tprint("warning ");
     if (t != NULL) {
         tprint(" (");
         tprint(t);

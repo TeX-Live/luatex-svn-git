@@ -1,4 +1,4 @@
-% packaging.w
+4% packaging.w
 %
 % Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 %
@@ -337,7 +337,7 @@ void do_subst_font(halfword p, int ex_ratio)
     if (is_char_node(p)) {
         r = p;
     } else {
-        pdf_error("font expansion", "invalid node type");
+        normal_error("font expansion", "invalid node type");
         return;
     }
     f = font(r);
@@ -387,7 +387,7 @@ halfword new_margin_kern(scaled w, halfword p, int side)
     k = new_node(margin_kern_node, side);
     width(k) = w;
     if (p == null)
-        pdf_error("margin kerning", "invalid pointer to marginal char node");
+        normal_error("margin kerning", "invalid pointer to marginal char node");
     q = new_char(font(p), character(p));
     margin_char(k) = q;
     return k;

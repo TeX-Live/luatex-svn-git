@@ -196,7 +196,7 @@ void pdf_include_chars(PDF pdf)
     scan_font_ident();
     f = cur_val;
     if (f == null_font)
-        pdf_error("font", "invalid font identifier");
+        normal_error("pdf backend", "invalid font identifier for 'includechars'");
     pdf_check_vf(cur_val);
     if (!font_used(f))
         pdf_init_font(pdf, f);

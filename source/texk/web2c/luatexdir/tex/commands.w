@@ -674,8 +674,10 @@ void initialize_commands(void)
     primitive_luatex("insertht", convert_cmd, insert_ht_code, 0);
     primitive_luatex("dviextension", extension_cmd, dvi_extension_code, 0);
     primitive_luatex("dvifeedback", convert_cmd, dvi_feedback_code, 0);
+    primitive_luatex("dvivariable", convert_cmd, dvi_variable_code, 0);
     primitive_luatex("pdfextension", extension_cmd, pdf_extension_code, 0);
     primitive_luatex("pdffeedback", convert_cmd, pdf_feedback_code, 0);
+    primitive_luatex("pdfvariable", convert_cmd, pdf_variable_code, 0);
 
     /*
         some of the internal integer parameters are not associated with actual
@@ -684,7 +686,6 @@ void initialize_commands(void)
 
     primitive_no("nolocalwhatsits", assign_int_cmd, int_base + no_local_whatsits_code, int_base);
     primitive_no("nolocaldirs", assign_int_cmd, int_base + no_local_dirs_code, int_base);
-
 
 
 @ @c

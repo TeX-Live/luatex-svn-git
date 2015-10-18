@@ -713,7 +713,7 @@ void pdf_dict_add_img_filename(PDF pdf, image_dict * idict)
     pdf_printf(pdf, " (%s)", convertStringToPDFString(p, strlen(p)));
 }
 
-@ To allow the use of \.{\\pdfrefximage} inside saved boxes in -ini mode,
+@ To allow the use of box resources inside saved boxes in -ini mode,
 the information in the array has to be (un)dumped with the format.
 The next two routines take care of that.
 

@@ -21,7 +21,7 @@
 #ifndef PDFOBJ_H
 #  define PDFOBJ_H
 
-/* data structure for \.{\\pdfobj} and \.{\\pdfrefobj} */
+/* data structure for \.{\\pdfextension obj} and \.{\\pdfextension refobj} */
 
 #  define set_pdf_obj_objnum(A, B) pdf_obj_objnum(A) = (B)
 

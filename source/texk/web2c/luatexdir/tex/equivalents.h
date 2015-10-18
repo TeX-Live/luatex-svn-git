@@ -132,7 +132,7 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define frozen_relax (frozen_control_sequence+7)                      /* permanent `\.{\\relax}' */
 #  define end_write (frozen_control_sequence+8)                         /* permanent `\.{\\endwrite}' */
 #  define frozen_dont_expand (frozen_control_sequence+9 )               /* permanent `\.{\\notexpanded:}' */
-#  define frozen_primitive (frozen_control_sequence+11 )                /* permanent `\.{\\pdfprimitive}' */
+#  define frozen_primitive (frozen_control_sequence+11 )                /* permanent `\.{\\primitive}' */
 #  define frozen_special (frozen_control_sequence+12 )                  /* permanent `\.{\\special}' */
 #  define frozen_null_font (frozen_control_sequence+13 )                /* permanent `\.{\\nullfont}' */
 #  define font_id_base (frozen_null_font-font_base )                    /* begins table of |number_fonts| permanent font identifiers */
@@ -175,7 +175,12 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define err_help_loc (local_base+9)                                   /* points to token list for \.{\\errhelp} */
 #  define every_eof_loc (local_base+10)                                 /* points to token list for \.{\\everyeof} */
 
-#  define toks_base (local_base+11)                                     /* table of |number_regs| token list registers */
+/* define toks_base (local_base+11) */                                  /* table of |number_regs| token list registers */
+
+#  define backend_toks_base (local_base+11)
+#  define backend_toks_last (backend_toks_base+10)
+
+#  define toks_base (backend_toks_last+1)                               /* table of |number_regs| token list registers */
 
 #  define etex_pen_base (toks_base+number_regs)                         /* start of table of \eTeX's penalties */
 #  define inter_line_penalties_loc (etex_pen_base)                      /* additional penalties between lines */
@@ -288,13 +293,19 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define math_eqno_gap_step_code (etex_first_integer_code+14)          /* factor/1000 used for distance between eq and eqno */
 #  define synctex_code (etex_first_integer_code+15)                     /* is synctex file generation enabled ?  */
 
-#  define tex_int_pars (synctex_code+1)                                 /* total number of integer parameters */
+/* define tex_int_pars (synctex_code+1) */                              /* total number of integer parameters */
+
+#  define backend_int_base (synctex_code+1)
+#  define backend_int_last (backend_int_base+20)
+
+#  define tex_int_pars (backend_int_last+1)                             /* total number of integer parameters */
 
 #  define page_direction_code (tex_int_pars)
 #  define body_direction_code (tex_int_pars+1)
 #  define par_direction_code (tex_int_pars+2)
 #  define text_direction_code (tex_int_pars+3)
 #  define math_direction_code (tex_int_pars+4)
+
 #  define int_pars (tex_int_pars+5)                                     /* total number of integer parameters */
 
 #  define dir_base (int_base+tex_int_pars)
@@ -332,7 +343,12 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define page_width_code 26                                            /* page width of the output */
 #  define page_height_code 27                                           /* page height of the output */
 
-#  define dimen_pars (page_height_code + 1)                             /* total number of dimension parameters */
+/* define dimen_pars (page_height_code + 1) */                          /* total number of dimension parameters */
+
+#  define backend_dimen_base (page_height_code+1)
+#  define backend_dimen_last (backend_dimen_base+10)
+
+#  define dimen_pars (backend_dimen_last + 1)                           /* total number of dimension parameters */
 
 #  define scaled_base (dimen_base+dimen_pars)                           /* table of |number_regs| user-defined \.{\\dimen} registers */
 #  define eqtb_size (scaled_base+biggest_reg)                           /* largest subscript of |eqtb| */

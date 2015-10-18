@@ -209,7 +209,7 @@ int pdf_get_obj(PDF pdf, int t, int i, boolean byname)
 void check_obj_exists(PDF pdf, int objnum)
 {
     if (objnum < 0 || objnum > pdf->obj_ptr)
-        pdf_error("ext1", "cannot find referenced object");
+        normal_error("pdf backend", "cannot find referenced object");
 }
 
 void check_obj_type(PDF pdf, int t, int objnum)
@@ -224,7 +224,7 @@ void check_obj_type(PDF pdf, int t, int objnum)
         s = (char *) xtalloc(128, char);
         snprintf(s, 127, "referenced object has wrong type %s; should be %s",
                  pdf_obj_typenames[u], pdf_obj_typenames[t]);
-        pdf_error("ext1", s);
+        normal_error("pdf backend", s);
     }
 }
 

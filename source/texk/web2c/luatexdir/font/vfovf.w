@@ -125,7 +125,7 @@ typedef struct vf_stack_record {
     scaled stack_w, stack_x, stack_y, stack_z;
 } vf_stack_record;
 
-@ get a byte from\.{VF} file 
+@ get a byte from\.{VF} file
 @c
 #define vf_byte(a)                                     \
 {                                                      \
@@ -150,7 +150,7 @@ typedef struct vf_stack_record {
 }
 
 
-@ read |k| bytes as an integer from \.{VF} file 
+@ read |k| bytes as an integer from \.{VF} file
 beware: the |vf_read()| macro differs from |vf_read()| in vftovp.web for 1...3 byte words.
 @c
 #define vf_read(k, l)                            \
@@ -181,7 +181,7 @@ beware: the |vf_read()| macro differs from |vf_read()| in vftovp.web for 1...3 b
 void pdf_check_vf(internal_font_number f)
 {
     if (font_type(f) == virtual_font_type)
-        pdf_error("font", "command cannot be used with virtual font");
+        normal_error("font", "command cannot be used with virtual font");
 }
 
 static void
@@ -202,7 +202,7 @@ vf_local_font_warning(internal_font_number f, internal_font_number k,
 }
 
 
-@ process a local font in \.{VF} file 
+@ process a local font in \.{VF} file
 @c
 static internal_font_number
 vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
@@ -331,7 +331,7 @@ static int open_vf_file(const char *fn, unsigned char **vbuffer, int *vsize)
 #define append_packet(k) vpackets[vf_np++] = (eight_bits)(k)
 
 @ life is easier if all internal font commands are fnt4 and
-   all character commands are set4 or put4 
+   all character commands are set4 or put4
 
 @c
 #define append_fnt_set(k)            \
@@ -349,7 +349,7 @@ static int open_vf_file(const char *fn, unsigned char **vbuffer, int *vsize)
     append_packet((k & 0x000000FF));       \
 }
 
-@ some of these things happen twice, adding a define is simplest 
+@ some of these things happen twice, adding a define is simplest
 
 @c
 #define test_checksum()  { vf_byte(tmp_b0); vf_byte(tmp_b1);    \
@@ -1464,7 +1464,7 @@ letter_space_font(internal_font_number f, int e, boolean nolig)
 
     /* create the corresponding virtual font */
     set_font_type(k, virtual_font_type);
-   
+
     for (c=font_bc(k);c<=font_ec(k);c++) {
        if (quick_char_exists(k, c)) {
            int half_w;
@@ -1498,7 +1498,7 @@ letter_space_font(internal_font_number f, int e, boolean nolig)
        set_font_param(k, quad_code, -round_xn_over_d(quad(k), 1000-e, 1000));
     } else {
        set_font_param(k, quad_code, round_xn_over_d(quad(k), 1000+e, 1000));
-    } 
+    }
 #endif
     return k;
 }

@@ -304,14 +304,14 @@ static short hlist_stack_level = 0;
 static void push_node(halfword p)
 {
     if (hlist_stack_level >= max_hlist_stack)
-        pdf_error("push_node", "stack overflow");
+        normal_error("push_node","stack overflow");
     hlist_stack[hlist_stack_level++] = p;
 }
 
 static halfword pop_node(void)
 {
     if (hlist_stack_level <= 0) /* would point to some bug */
-        pdf_error("pop_node", "stack underflow (internal error)");
+        normal_error("pop_node","stack underflow (internal error)");
     return hlist_stack[--hlist_stack_level];
 }
 
@@ -331,23 +331,20 @@ static boolean check_expand_pars(internal_font_number f)
     if (cur_font_step < 0)
         cur_font_step = font_step(f);
     else if (cur_font_step != font_step(f))
-        pdf_error("font expansion",
-                  "using fonts with different step of expansion in one paragraph is not allowed");
+        normal_error("font expansion","using fonts with different step of expansion in one paragraph is not allowed");
     m = font_max_stretch(f);
     if (m != 0) {
         if (max_stretch_ratio < 0)
             max_stretch_ratio = m;
         else if (max_stretch_ratio != m)
-            pdf_error("font expansion",
-                      "using fonts with different limit of expansion in one paragraph is not allowed");
+            normal_error("font expansion","using fonts with different limit of expansion in one paragraph is not allowed");
     }
     m = font_max_shrink(f);
     if (m != 0) {
         if (max_shrink_ratio < 0)
             max_shrink_ratio = -m;
         else if (max_shrink_ratio != -m)
-            pdf_error("font expansion",
-                      "using fonts with different limit of expansion in one paragraph is not allowed");
+            normal_error("font expansion","using fonts with different limit of expansion in one paragraph is not allowed");
     }
     return true;
 }
