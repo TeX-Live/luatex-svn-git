@@ -249,13 +249,18 @@ static void run_app_space (void) {
 @ Append a |boundary_node|
 @c
 static void run_no_boundary (void) {
-    new_node(boundary_node,cancel_boundary);
+    halfword n ;
+    n = new_node(boundary_node,cancel_boundary);
+    couple_nodes(tail, n);
+    tail = n;
 }
 static void run_boundary (void) {
     halfword n ;
-    scan_int();
     n = new_node(boundary_node,user_boundary);
+    scan_int();
     boundary_value(n) = cur_val;
+    couple_nodes(tail, n);
+    tail = n;
 }
 
 
