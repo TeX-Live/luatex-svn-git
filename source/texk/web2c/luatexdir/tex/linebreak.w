@@ -194,10 +194,6 @@ void line_break(boolean d, int line_break_context)
                           int_par(tolerance_code),
                           dimen_par(emergency_stretch_code),
                           int_par(looseness_code),
-                          /*
-                          int_par(hyphen_penalty_code),
-                          int_par(ex_hyphen_penalty_code),
-                          */
                           int_par(adjust_spacing_code),
                           equiv(par_shape_loc),
                           int_par(adj_demerits_code),
@@ -772,8 +768,7 @@ Replacement texts and discretionary texts are supposed to contain
 only character nodes, kern nodes, and box or rule nodes.
 
 @c
-static void add_to_widths(halfword s, int line_break_dir,
-                          int adjust_spacing, scaled * widths)
+static void add_to_widths(halfword s, int line_break_dir, int adjust_spacing, scaled * widths)
 {
     while (s != null) {
         if (is_char_node(s)) {
@@ -790,7 +785,7 @@ static void add_to_widths(halfword s, int line_break_dir,
                 widths[1] += pack_width(line_break_dir, box_dir(s), s, false);
                 break;
             case kern_node:
-                if ((adjust_spacing > 1) && (subtype(s) == normal)) {
+                if ((adjust_spacing == 2) && (subtype(s) == normal)) {
                     add_kern_stretch(widths[8], s);
                     add_kern_shrink(widths[9], s);
                 }
@@ -814,8 +809,7 @@ It is used only once, but deserves it own function because of orthogonality
 with the |add_to_widths| function.
 
 @c
-static void sub_from_widths(halfword s, int line_break_dir,
-                            int adjust_spacing, scaled * widths)
+static void sub_from_widths(halfword s, int line_break_dir, int adjust_spacing, scaled * widths)
 {
     while (s != null) {
         /* Subtract the width of node |s| from |break_width|; */
@@ -833,7 +827,7 @@ static void sub_from_widths(halfword s, int line_break_dir,
                 widths[1] -= pack_width(line_break_dir, box_dir(s), s, false);
                 break;
             case kern_node:
-                if ((adjust_spacing > 1) && (subtype(s) == normal)) {
+                if ((adjust_spacing == 2) && (subtype(s) == normal)) {
                     sub_kern_stretch(widths[8], s);
                     sub_kern_shrink(widths[9], s);
                 }
@@ -874,9 +868,7 @@ static void sub_from_widths(halfword s, int line_break_dir,
 
 @c
 static void
-compute_break_width(int break_type, int line_break_dir, int adjust_spacing,
-                    halfword p
-                    /*, halfword s */ )
+compute_break_width(int break_type, int line_break_dir, int adjust_spacing, halfword p)
 {
     halfword s;                 /* glue and other 'whitespace' to be skipped after a break
                                  * used if unhyphenated, or |post_break==empty| */
@@ -909,10 +901,8 @@ compute_break_width(int break_type, int line_break_dir, int adjust_spacing,
            path, as we are talking about the breaking on {\it this} position.
          */
 
-        sub_from_widths(vlink_no_break(p), line_break_dir, adjust_spacing,
-                        break_width);
-        add_to_widths(vlink_post_break(p), line_break_dir, adjust_spacing,
-                      break_width);
+        sub_from_widths(vlink_no_break(p), line_break_dir, adjust_spacing, break_width);
+        add_to_widths(vlink_post_break(p), line_break_dir, adjust_spacing, break_width);
         do_one_seven_eight(add_disc_width_to_break_width);
         if (vlink_post_break(p) == null) {
             s = vlink(p);       /* no |post_break|: 'skip' any 'whitespace' following */
@@ -1158,8 +1148,7 @@ ext_try_break(int pi,
                 if (no_break_yet) {
                     no_break_yet = false;
                     do_all_eight(set_break_width_to_background);
-                    compute_break_width(break_type, line_break_dir,
-                                        adjust_spacing, cur_p);
+                    compute_break_width(break_type, line_break_dir, adjust_spacing, cur_p);
                 }
                 /* Insert a delta node to prepare for breaks at |cur_p|; */
                 /* We use the fact that |type(active)<>delta_node|. */
@@ -1321,7 +1310,7 @@ ext_try_break(int pi,
             }
             shortfall += (left_pw(l1) + right_pw(o));
         }
-        if ((shortfall != 0) && (adjust_spacing > 1)) {
+        if ((shortfall != 0) && (adjust_spacing == 2)) {
             margin_kern_stretch = 0;
             margin_kern_shrink = 0;
             if (protrude_chars > 1) {
@@ -1340,15 +1329,13 @@ ext_try_break(int pi,
             if ((shortfall > 0)
                 && ((total_font_stretch + margin_kern_stretch) > 0)) {
                 if ((total_font_stretch + margin_kern_stretch) > shortfall)
-                    shortfall = ((total_font_stretch + margin_kern_stretch) /
-                                 (max_stretch_ratio / cur_font_step)) / 2;
+                    shortfall = ((total_font_stretch + margin_kern_stretch) / (max_stretch_ratio / cur_font_step)) / 2;
                 else
                     shortfall -= (total_font_stretch + margin_kern_stretch);
             } else if ((shortfall < 0)
                        && ((total_font_shrink + margin_kern_shrink) > 0)) {
                 if ((total_font_shrink + margin_kern_shrink) > -shortfall)
-                    shortfall = -((total_font_shrink + margin_kern_shrink) /
-                                  (max_shrink_ratio / cur_font_step)) / 2;
+                    shortfall = -((total_font_shrink + margin_kern_shrink) / (max_shrink_ratio / cur_font_step)) / 2;
                 else
                     shortfall += (total_font_shrink + margin_kern_shrink);
             }
@@ -1625,10 +1612,6 @@ ext_do_line_break(int paragraph_dir,
                   int tolerance,
                   scaled emergency_stretch,
                   int looseness,
-                  /*
-                  int hyphen_penalty,
-                  int ex_hyphen_penalty,
-                  */
                   int adjust_spacing,
                   halfword par_shape_ptr,
                   int adj_demerits,
@@ -1917,7 +1900,7 @@ ext_do_line_break(int paragraph_dir,
                     kern_break();
                 } else {
                     active_width[1] += width(cur_p);
-                    if ((adjust_spacing > 1) && (subtype(cur_p) == normal)) {
+                    if ((adjust_spacing == 2) && (subtype(cur_p) == normal)) {
                         add_kern_stretch(active_width[8], cur_p);
                         add_kern_shrink(active_width[9], cur_p);
                     }
@@ -1955,8 +1938,7 @@ ext_do_line_break(int paragraph_dir,
                                       double_hyphen_demerits,
                                       final_hyphen_demerits, first_p, cur_p);
                     } else {
-                        add_to_widths(s, line_break_dir, adjust_spacing,
-                                      disc_width);
+                        add_to_widths(s, line_break_dir, adjust_spacing, disc_width);
                         do_one_seven_eight(add_disc_width_to_active_width);
                         ext_try_break(actual_penalty, hyphenated_node,
                                       line_break_dir, adjust_spacing,
@@ -1975,8 +1957,7 @@ ext_do_line_break(int paragraph_dir,
                             assert(type(vlink(cur_p)) == disc_node &&
                                    subtype(vlink(cur_p)) == select_disc);
                             s = vlink_pre_break(vlink(cur_p));
-                            add_to_widths(s, line_break_dir, adjust_spacing,
-                                          disc_width);
+                            add_to_widths(s, line_break_dir, adjust_spacing, disc_width);
                             ext_try_break(actual_penalty, hyphenated_node,
                                           line_break_dir, adjust_spacing,
                                           par_shape_ptr, adj_demerits,
@@ -1993,8 +1974,7 @@ ext_do_line_break(int paragraph_dir,
                             do_one_seven_eight(reset_disc_width);
                             /* add select |no_break| to |active_width| */
                             s = vlink_no_break(vlink(cur_p));
-                            add_to_widths(s, line_break_dir, adjust_spacing,
-                                          disc_width);
+                            add_to_widths(s, line_break_dir, adjust_spacing, disc_width);
                             ext_try_break(actual_penalty, hyphenated_node,
                                           line_break_dir, adjust_spacing,
                                           par_shape_ptr, adj_demerits,
@@ -2009,8 +1989,7 @@ ext_do_line_break(int paragraph_dir,
                     }
                 }
                 s = vlink_no_break(cur_p);
-                add_to_widths(s, line_break_dir, adjust_spacing,
-                              active_width);
+                add_to_widths(s, line_break_dir, adjust_spacing, active_width);
                 break;
             case math_node:
                 auto_breaking = (subtype(cur_p) == after);

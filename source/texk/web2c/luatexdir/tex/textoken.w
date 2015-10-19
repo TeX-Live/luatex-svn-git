@@ -1000,7 +1000,8 @@ static boolean process_sup_mark(void)
     if (cur_chr == buffer[iloc]) {
         int c, cc;
         if (iloc < ilimit) {
-            if ((cur_chr == buffer[iloc + 1]) && (cur_chr == buffer[iloc + 2])
+            if (   (cur_chr == buffer[iloc + 1])
+                && (cur_chr == buffer[iloc + 2])
                 && (cur_chr == buffer[iloc + 3])
                 && (cur_chr == buffer[iloc + 4])
                 && ((iloc + 10) <= ilimit)) {
@@ -1019,8 +1020,10 @@ static boolean process_sup_mark(void)
                     return true;
                 }
             }
-            if ((cur_chr == buffer[iloc + 1]) && (cur_chr == buffer[iloc + 2])
-                && (cur_chr == buffer[iloc + 3]) && ((iloc + 8) <= ilimit)) {
+            if (   (cur_chr == buffer[iloc + 1])
+                && (cur_chr == buffer[iloc + 2])
+                && (cur_chr == buffer[iloc + 3])
+                && ((iloc + 8) <= ilimit)) {
                 int ccc, cccc, ccccc;   /* constituents of a possible expanded code */
                 c = buffer[iloc + 4];
                 cc = buffer[iloc + 5];
@@ -1034,7 +1037,8 @@ static boolean process_sup_mark(void)
                     return true;
                 }
             }
-            if ((cur_chr == buffer[iloc + 1]) && (cur_chr == buffer[iloc + 2])
+            if (   (cur_chr == buffer[iloc + 1])
+                && (cur_chr == buffer[iloc + 2])
                 && ((iloc + 6) <= ilimit)) {
                 int ccc, cccc;  /* constituents of a possible expanded code */
                 c = buffer[iloc + 3];
@@ -1722,6 +1726,7 @@ int conv_var_pdf(halfword c)
     else if (scan_keyword("imageapplygamma"))     { get_backend_count(cur_cs,"pdf_imageapplygamma",     backend_int_base   + 10, 0); }
     else if (scan_keyword("imagegamma"))          { get_backend_count(cur_cs,"pdf_imagegamma",          backend_int_base   + 11, 2200); }
     else if (scan_keyword("imagehicolor"))        { get_backend_count(cur_cs,"pdf_imagehicolor",        backend_int_base   + 12, 1); }
+    else if (scan_keyword("imageaddfilename"))    { get_backend_count(cur_cs,"pdf_imageaddfilename",    backend_int_base   + 12, 1); }
     else if (scan_keyword("objcompresslevel"))    { get_backend_count(cur_cs,"pdf_objcompresslevel",    backend_int_base   + 13, 0); }
     else if (scan_keyword("inclusioncopyfonts"))  { get_backend_count(cur_cs,"pdf_inclusioncopyfonts",  backend_int_base   + 14, 0); }
     else if (scan_keyword("gentounicode"))        { get_backend_count(cur_cs,"pdf_gentounicode",        backend_int_base   + 15, 0); }

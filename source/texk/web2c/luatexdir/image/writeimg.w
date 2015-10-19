@@ -697,20 +697,25 @@ void pdf_dict_add_img_filename(PDF pdf, image_dict * idict)
 {
     char s[21], *p;
     assert(idict != NULL);
-    /* for now PTEX.FileName only for PDF, but prepared for JPG, PNG, ... */
-    if ((img_type(idict) != IMG_TYPE_PDF) || (img_type(idict) != IMG_TYPE_PDFMEMSTREAM))
-        return;
-    if (img_visiblefilename(idict) != NULL) {
-        if (strlen(img_visiblefilename(idict)) == 0)
-            return;             /* empty string blocks PTEX.FileName output */
-        else
-            p = img_visiblefilename(idict);
-    } else
-        p = img_filepath(idict);
-    // write additional information
-    snprintf(s, 20, "%s.FileName", pdfkeyprefix);
-    pdf_add_name(pdf, s);
-    pdf_printf(pdf, " (%s)", convertStringToPDFString(p, strlen(p)));
+    if (pdf_image_addfilename>0) {
+        /* for now PTEX.FileName only for PDF, but prepared for JPG, PNG, ... */
+        if (! ( (img_type(idict) == IMG_TYPE_PDF) || (img_type(idict) == IMG_TYPE_PDFMEMSTREAM) ))
+            return;
+        if (img_visiblefilename(idict) != NULL) {
+            if (strlen(img_visiblefilename(idict)) == 0) {
+                return; /* empty string blocks PTEX.FileName output */
+            } else {
+                p = img_visiblefilename(idict);
+            }
+        } else {
+            /* unset so let's use the default */
+            p = img_filepath(idict);
+        }
+        // write additional information
+        snprintf(s, 20, "%s.FileName", pdfkeyprefix);
+        pdf_add_name(pdf, s);
+        pdf_printf(pdf, " (%s)", convertStringToPDFString(p, strlen(p)));
+    }
 }
 
 @ To allow the use of box resources inside saved boxes in -ini mode,

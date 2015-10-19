@@ -297,9 +297,9 @@ void luacstring_close(int n)
 
 /* local (static) versions */
 
-#define check_index_range(j,s)						\
-  if (j<0 || j > 65535) {							\
-    luaL_error(L, "incorrect index value %d for tex.%s()", (int)j, s);  }
+#define check_index_range(j,s) \
+  if (j<0 || j > 65535) { \
+    luaL_error(L, "incorrect index specification for tex.%s()", s);  }
 
 
 static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,

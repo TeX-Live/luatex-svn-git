@@ -133,6 +133,7 @@ extern void undump_pdftex_data(PDF pdf);
 #  define pdf_image_apply_gamma    get_tex_extension_count_register("pdf_imageapplygamma",       0)
 #  define pdf_image_gamma          get_tex_extension_count_register("pdf_imagegamma",         2200)
 #  define pdf_image_hicolor        get_tex_extension_count_register("pdf_imagehicolor",          1)
+#  define pdf_image_addfilename    get_tex_extension_count_register("pdf_imageaddfilename",      1)
 #  define pdf_objcompresslevel     get_tex_extension_count_register("pdf_objcompresslevel",      0)
 #  define pdf_inclusion_copy_font  get_tex_extension_count_register("pdf_inclusioncopyfonts",    0)
 #  define pdf_gen_tounicode        get_tex_extension_count_register("pdf_gentounicode",          0)

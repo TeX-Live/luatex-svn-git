@@ -2610,44 +2610,48 @@ user-supplied and automatic ones.
 
 % hahe: i need to add r/w ro column...
 \starttabulate[|l|l|p|]
-\NC \bf field name\NC \bf type \NC description \NC \NR
-\NC attr          \NC string   \NC the image attributes for \LUATEX \NC \NR
-\NC bbox          \NC table    \NC table with 4 boundingbox dimensions
-                                   \type {llx}, \type {lly}, \type {urx},
-                                   and \type {ury} overruling the \type {pagebox}
-                                   entry\NC \NR
-\NC colordepth    \NC number   \NC the number of bits used by the color space\NC \NR
-\NC colorspace    \NC number   \NC the color space object number \NC \NR
-\NC depth         \NC number   \NC the image depth for \LUATEX\
-                                   (in scaled points)\NC \NR
-\NC filename      \NC string   \NC the image file name \NC \NR
-\NC filepath      \NC string   \NC the full (expanded) file name of the image\NC \NR
-\NC height        \NC number   \NC the image height for \LUATEX\
-                                   (in scaled points)\NC \NR
-\NC imagetype     \NC string   \NC one of \type {pdf}, \type {png}, \type {jpg}, \type {jp2},
-                                   \type {jbig2}, or \type {nil} \NC \NR
-\NC index         \NC number   \NC the \PDF\ image name suffix \NC \NR
-\NC objnum        \NC number   \NC the \PDF\ image object number \NC \NR
-\NC page          \NC ??       \NC the identifier for the requested image page
-                                   (type is number or string,
-                                   default is the number 1)\NC \NR
-\NC pagebox       \NC string   \NC the requested bounding box, one of
-                                   \type {none}, \type {media}, \type {crop},
-                                   \type {bleed}, \type {trim}, \type {art} \NC \NR
-\NC pages         \NC number   \NC the total number of available pages \NC \NR
-\NC rotation      \NC number   \NC the image rotation from included \PDF\ file,
-                                   in multiples of 90~deg. \NC \NR
-\NC stream        \NC string   \NC the raw stream data for an \type {/Xobject}
-                                   \type {/Form} object\NC \NR
-\NC transform     \NC number   \NC the image transform, integer number 0..7\NC \NR
-\NC width         \NC number   \NC the image width for \LUATEX\
-                                   (in scaled points)\NC \NR
-\NC xres          \NC number   \NC the horizontal natural image resolution
-                                   (in \DPI) \NC \NR
-\NC xsize         \NC number   \NC the natural image width \NC \NR
-\NC yres          \NC number   \NC the vertical natural image resolution
-                                   (in \DPI) \NC \NR
-\NC ysize         \NC number   \NC the natural image height \NC \NR
+\NC \bf field name \NC \bf type \NC description \NC \NR
+\NC attr           \NC string   \NC the image attributes for \LUATEX \NC \NR
+\NC bbox           \NC table    \NC table with 4 boundingbox dimensions
+                                    \type {llx}, \type {lly}, \type {urx},
+                                    and \type {ury} overruling the \type {pagebox}
+                                    entry\NC \NR
+\NC colordepth     \NC number   \NC the number of bits used by the color space\NC \NR
+\NC colorspace     \NC number   \NC the color space object number \NC \NR
+\NC depth          \NC number   \NC the image depth for \LUATEX\
+                                    (in scaled points)\NC \NR
+\NC filename       \NC string   \NC the image file name \NC \NR
+\NC filepath       \NC string   \NC the full (expanded) file name of the image\NC \NR
+\NC height         \NC number   \NC the image height for \LUATEX\
+                                    (in scaled points)\NC \NR
+\NC imagetype      \NC string   \NC one of \type {pdf}, \type {png}, \type {jpg}, \type {jp2},
+                                    \type {jbig2}, or \type {nil} \NC \NR
+\NC index          \NC number   \NC the \PDF\ image name suffix \NC \NR
+\NC objnum         \NC number   \NC the \PDF\ image object number \NC \NR
+\NC page           \NC ??       \NC the identifier for the requested image page
+                                    (type is number or string,
+                                    default is the number 1)\NC \NR
+\NC pagebox        \NC string   \NC the requested bounding box, one of
+                                    \type {none}, \type {media}, \type {crop},
+                                    \type {bleed}, \type {trim}, \type {art} \NC \NR
+\NC pages          \NC number   \NC the total number of available pages \NC \NR
+\NC rotation       \NC number   \NC the image rotation from included \PDF\ file,
+                                    in multiples of 90~deg. \NC \NR
+\NC stream         \NC string   \NC the raw stream data for an \type {/Xobject}
+                                    \type {/Form} object\NC \NR
+\NC transform      \NC number   \NC the image transform, integer number 0..7\NC \NR
+\NC width          \NC number   \NC the image width for \LUATEX\
+                                    (in scaled points)\NC \NR
+\NC xres           \NC number   \NC the horizontal natural image resolution
+                                    (in \DPI) \NC \NR
+\NC xsize          \NC number   \NC the natural image width \NC \NR
+\NC yres           \NC number   \NC the vertical natural image resolution
+                                    (in \DPI) \NC \NR
+\NC ysize          \NC number   \NC the natural image height \NC \NR
+\NC visiblefileame \NC string   \NC when set, this name will find its way in the
+                                    \PDF\ file as \type {PTEX} specification; when
+                                    an empty string is assigned nothing is written
+                                    to file, otherwise the natural filename is taken \NC \NR
 \stoptabulate
 
 A running (undefined) dimension in \type {width}, \type {height}, or \type
