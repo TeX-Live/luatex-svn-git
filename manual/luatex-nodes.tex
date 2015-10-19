@@ -35,36 +35,6 @@ nodes, but can be pointed to from within that list. They are not quite the same
 as regular nodes, but it is easier for the library routines to treat them as if
 they were.
 
-\subsubsection{glue_spec items}
-
-Skips are about the only type of data objects in traditional \TEX\ that are not a
-simple value. The structure that represents the glue components of a skip is
-called a \type {glue_spec}, and it has the following accessible fields:
-
-\starttabulate[|lT|l|p|]
-\NC \ssbf key     \NC \bf type \NC \bf explanation \NC \NR
-\NC width         \NC number   \NC \NC \NR
-\NC stretch       \NC number   \NC \NC \NR
-\NC stretch_order \NC number   \NC \NC \NR
-\NC shrink        \NC number   \NC \NC \NR
-\NC shrink_order  \NC number   \NC \NC \NR
-\NC writable      \NC boolean  \NC If this is true, you can't assign to this
-                                   \type {glue_spec} because it is one of the
-                                   preallocated special cases. \NC \NR
-\stoptabulate
-
-These objects are reference counted, so there is actually an extra read-only
-field named \type {ref_count} as well. This item type will likely disappear in
-the future, and the glue fields themselves will become part of the nodes
-referencing glue items.
-
-The effective width of some glue subtypes depends on the stretch or shrink needed
-to make the encapsulating box fit its dimensions. For instance, in a paragraph
-lines normally have glue representing spaces and these stretch of shrink to make
-the content fit in the available space. The \type {effective_glue} function that
-takes a glue node and a parent (hlist or vlist) returns the effective width of
-that glue item.
-
 \subsubsection{attribute_list and attribute items}
 
 The newly introduced attribute registers are non|-|trivial, because the value
@@ -322,6 +292,36 @@ Id: \showid{math}
 
 \subsubsection{glue nodes}
 
+Skips are about the only type of data objects in traditional \TEX\ that are not a
+simple value. The structure that represents the glue components of a skip is
+called a \type {glue_spec}, and it has the following accessible fields:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key     \NC \bf type \NC \bf explanation \NC \NR
+\NC width         \NC number   \NC \NC \NR
+\NC stretch       \NC number   \NC \NC \NR
+\NC stretch_order \NC number   \NC \NC \NR
+\NC shrink        \NC number   \NC \NC \NR
+\NC shrink_order  \NC number   \NC \NC \NR
+\NC writable      \NC boolean  \NC If this is true, you can't assign to this
+                                   \type {glue_spec} because it is one of the
+                                   preallocated special cases. \NC \NR
+\stoptabulate
+
+% These objects are reference counted, so there is actually an extra read|-|only
+% field named \type {ref_count} as well. This item type will likely disappear in
+% the future, and the glue fields themselves will become part of the nodes
+% referencing glue items.
+
+The effective width of some glue subtypes depends on the stretch or shrink needed
+to make the encapsulating box fit its dimensions. For instance, in a paragraph
+lines normally have glue representing spaces and these stretch of shrink to make
+the content fit in the available space. The \type {effective_glue} function that
+takes a glue node and a parent (hlist or vlist) returns the effective width of
+that glue item.
+
+A spec node is normally references to from a glue node:
+
 Valid fields: \showfields{glue}\crlf
 Id: \showid{glue}
 
@@ -334,6 +334,11 @@ Id: \showid{glue}
 \NC spec        \NC \syntax{<node>} \NC pointer to a glue_spec item \NC \NR
 \NC leader      \NC \syntax{<node>} \NC pointer to a box or rule for leaders \NC \NR
 \stoptabulate
+
+The indirect spec approach is an optimization in the original \TEX\ code. First
+of all it saves quite some memory because all these spaces that become glue now
+share the same specification, and zero testing is also faster because only the
+pointer has to be checked.
 
 The exact meanings of the subtypes are as follows:
 
@@ -361,6 +366,28 @@ The exact meanings of the subtypes are as follows:
 \NC 102 \NC \type {\xleaders}              \NC \NR
 \NC 103 \NC \type {\gleaders}              \NC \NR
 \stoptabulate
+
+For convenience we provide access to the spec fields directly so that you can
+avoid the spec lookup. So, the following fields can also be queried or set. When
+you set a field and no spec is set, a spec will automatically be created.
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key     \NC \bf type \NC \bf explanation \NC \NR
+\NC width         \NC number   \NC \NC \NR
+\NC stretch       \NC number   \NC \NC \NR
+\NC stretch_order \NC number   \NC \NC \NR
+\NC shrink        \NC number   \NC \NC \NR
+\NC shrink_order  \NC number   \NC \NC \NR
+\stoptabulate
+
+When you assign the properties to a spec using the above keys the advantage is
+that when needed a new spec is allocated. if you access the spec node directly
+you can get an error message with respect to a non|-|writable spec node.
+
+By using the accessors in the glue node you are more future proof as we might
+decide at some point to carry all information in the glue nodes themselves. Of
+course we can then also decide to make the spec field kind of virtual to keep
+compatibility (for a while).
 
 \subsubsection{kern nodes}
 

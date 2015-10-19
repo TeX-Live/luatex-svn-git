@@ -801,7 +801,7 @@ static void add_to_widths(halfword s, int line_break_dir,
             case disc_node:    /* TH temp */
                 break;
             default:
-                confusion("add_disc_widths");
+                confusion("invalid node found in discretionary"); /* todo: report type */
             }
         }
         s = vlink(s);
@@ -844,7 +844,7 @@ static void sub_from_widths(halfword s, int line_break_dir,
             case disc_node:    /* TH temp */
                 break;
             default:
-                confusion("sub_disc_widths");
+                confusion("invalid node found in discretionary"); /* todo: report type */
                 break;
             }
         }
