@@ -1680,6 +1680,7 @@ int conv_var_dvi(halfword c)
     cur_cs = string_lookup(name,strlen(name)); \
     no_new_control_sequence = true; \
     if (eq_type(cur_cs) == undefined_cs_cmd) { \
+        assert(index < backend_int_last); \
         primitive_tex(name, assign_int_cmd, int_base + index, int_base); \
         backend_count(cur_cs) = default ; \
     } \
@@ -1692,6 +1693,7 @@ int conv_var_dvi(halfword c)
     cur_cs = string_lookup(name,strlen(name)); \
     no_new_control_sequence = true; \
     if (eq_type(cur_cs) == undefined_cs_cmd) { \
+        assert(index < backend_dimen_last); \
         primitive_tex(name, assign_dimen_cmd, dimen_base + index, dimen_base); \
         backend_dimen(cur_cs) = default ; \
     } \
@@ -1704,6 +1706,7 @@ int conv_var_dvi(halfword c)
     cur_cs = string_lookup(name,strlen(name)); \
     no_new_control_sequence = true; \
     if (eq_type(cur_cs) == undefined_cs_cmd) { \
+        assert(index < backend_toks_last); \
         primitive_tex(name, assign_toks_cmd, index, local_base); \
     } \
     cur_tok = cur_cs + cs_token_flag; \
@@ -1757,6 +1760,9 @@ int conv_toks_dvi(halfword c)
 
 /* codes not really needed but cleaner when testing */
 
+#define pdftex_version  40  /* these values will not change any more */
+#define pdftex_revision "0" /* these values will not change any more */
+
 int conv_toks_pdf(halfword c)
 {
     int old_setting;            /* holds |selector| setting */
@@ -1779,6 +1785,8 @@ int conv_toks_pdf(halfword c)
     else if (scan_keyword("fontsize"))       c = pdf_font_size_code;
     else if (scan_keyword("pageref"))        c = pdf_page_ref_code;
     else if (scan_keyword("colorstackinit")) c = pdf_colorstack_init_code;
+    else if (scan_keyword("version"))        c = pdf_version_code;
+    else if (scan_keyword("revision"))       c = pdf_revision_code;
 
     switch (c) {
         case pdf_last_link_code:
@@ -1886,6 +1894,15 @@ int conv_toks_pdf(halfword c)
             push_selector;
             print_int(cur_val);
             pop_selector;
+            break;
+        case pdf_version_code:
+            push_selector;
+            print_int(pdftex_version);
+            pop_selector;
+            break;
+        case pdf_revision_code:
+            ins_list(string_to_toks(pdftex_revision));
+            return 2;
             break;
         default:
             return 0;

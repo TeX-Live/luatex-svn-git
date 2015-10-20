@@ -275,6 +275,8 @@ typedef enum {
     pdf_last_annot_code,
     pdf_retval_code,
     pdf_last_link_code,
+    pdf_version_code,
+    pdf_revision_code,
 } convert_codes_pdf;
 
 typedef enum {
