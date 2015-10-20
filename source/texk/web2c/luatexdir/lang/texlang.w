@@ -578,6 +578,11 @@ static const char *PAT_ERROR[] = {
     NULL
 };
 
+/*
+    The exceptions are taken as-is: no min values are taken into account. One can
+    add normal patterns on-the-fly if needed.
+*/
+
 static void do_exception(halfword wordstart, halfword r, char *replacement)
 {
     unsigned i;

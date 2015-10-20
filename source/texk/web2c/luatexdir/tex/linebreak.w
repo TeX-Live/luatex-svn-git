@@ -155,16 +155,16 @@ void line_break(boolean d, int line_break_context)
                                    addressof(cur_list.tail_field));
         if (callback_id > 0) {
             /* find the correct value for the |just_box| */
-	    halfword box_search = cur_list.tail_field;
+            halfword box_search = cur_list.tail_field;
             just_box  = null;
-	    if (box_search != null) {
+            if (box_search != null) {
                 do {
-	            if (type(box_search) == hlist_node) {
+                    if (type(box_search) == hlist_node) {
                        just_box = box_search;
                     }
                     box_search = vlink(box_search);
                 } while (box_search != null);
-	    }
+            }
             if (just_box == null) {
                 help3
                     ("A linebreaking routine should return a non-empty list of nodes",
@@ -176,8 +176,6 @@ void line_break(boolean d, int line_break_context)
         } else {
             if (int_par(tracing_paragraphs_code) > 0) {
                 begin_diagnostic();
-                tprint_nl
-                    ("Lua linebreak_filter failed, reverting to default on line ");
                 print_int(line);
                 end_diagnostic(true);
             }
