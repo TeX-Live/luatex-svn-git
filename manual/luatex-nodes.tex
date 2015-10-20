@@ -175,7 +175,7 @@ image.
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
-\NC subtype     \NC number          \NC 0, 1 or 2 \NC \NR
+\NC subtype     \NC number          \NC 0 upto 3 \NC \NR
 \NC attr        \NC \syntax{<node>} \NC \NC \NR
 \NC width       \NC number          \NC the width of the rule; the special value
                                         $-1073741824$ is used for \quote
@@ -192,7 +192,8 @@ image.
 \stoptabulate
 
 The subtypes 1 and~2 replace the xform and ximage whatsits and in nodelists they
-behave like rules of subtype_0 when it comes to dimensions.
+behave like rules of subtype_0 when it comes to dimensions. Subtype~3 only has
+dimensions.
 
 \subsubsection{ins nodes}
 

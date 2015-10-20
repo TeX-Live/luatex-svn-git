@@ -216,6 +216,7 @@ typedef enum {
     normal_rule = 0,
     box_rule,
     image_rule,
+    empty_rule,
 } rule_subtypes;
 
 #  define rule_node_size 8

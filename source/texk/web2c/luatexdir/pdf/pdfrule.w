@@ -29,8 +29,15 @@ void pdf_place_rule(PDF pdf, halfword q, scaledpos size)
     pdfpos dim;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
-  /*  (void) q; */
-    if (subtype(q) == normal_rule) {
+    /*  (void) q; */
+    if (subtype(q) == box_rule) {
+        pdf_place_form(pdf,q);
+    } else if (subtype(q) == image_rule) {
+        pdf_place_image(pdf,q);
+    } else if (subtype(q) == empty_rule) {
+        /* place nothing, only take space */
+    } else {
+        /* normal_rule or >= 100 being a leader rule */
         pdf_goto_pagemode(pdf);
         dim.h.m = i64round(size.h * p->k1);
         dim.h.e = p->pdf.h.e;
@@ -62,9 +69,5 @@ void pdf_place_rule(PDF pdf, halfword q, scaledpos size)
             pdf_puts(pdf, " re f\n");
         }
         pdf_puts(pdf, "Q\n");
-    } else if (subtype(q) == box_rule) {
-        pdf_place_form(pdf,q);
-    } else if (subtype(q) == image_rule) {
-        pdf_place_image(pdf,q);
- }
+    }
 }
