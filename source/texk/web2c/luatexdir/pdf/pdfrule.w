@@ -23,14 +23,13 @@
 #include "ptexlib.h"
 #include "pdf/pdfpage.h"
 
-/* hm, with leaders type(q) can be glue */
-
 @ @c
 void pdf_place_rule(PDF pdf, halfword q, scaledpos size)
 {
     pdfpos dim;
     pdfstructure *p = pdf->pstruct;
     scaledpos pos = pdf->posstruct->pos;
+    /*  (void) q; */
     if (subtype(q) == box_rule) {
         pdf_place_form(pdf,q);
     } else if (subtype(q) == image_rule) {
