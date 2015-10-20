@@ -1782,8 +1782,17 @@ found (in any order).
 @c
 halfword scan_rule_spec(void)
 {
-    halfword q;                 /* the rule node being created */
-    q = new_rule(normal_rule);  /* |width|, |depth|, and |height| all equal |null_flag| now */
+    /* |width|, |depth|, and |height| all equal |null_flag| now */
+    halfword q;
+    if (cur_cmd == no_vrule_cmd) {
+        q = new_rule(empty_rule);
+        cur_cmd = vrule_cmd;
+    } else if (cur_cmd == no_hrule_cmd) {
+        q = new_rule(empty_rule);
+        cur_cmd = hrule_cmd;
+    } else {
+        q = new_rule(normal_rule);
+    }
     if (cur_cmd == vrule_cmd) {
         width(q) = default_rule;
         rule_dir(q) = body_direction;

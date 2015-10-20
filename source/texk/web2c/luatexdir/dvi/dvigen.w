@@ -1052,13 +1052,19 @@ that a \.{DVI}-reading program will push onto its coordinate stack.
 @c
 void dvi_place_rule(PDF pdf, halfword q, scaledpos size)
 {
-    (void) q;
     synch_dvi_with_pos(pdf->posstruct->pos);
-    if (textdir_is_L(pdf->posstruct->dir)) {
-        dvi_out(set_rule);      /* movement optimization for |dir_*L*| */
-        dvi.h += size.h;
-    } else
-        dvi_out(put_rule);
+    if ((subtype(q) == box_rule) || (subtype(q) == image_rule) || (subtype(q) == empty_rule)) {
+        /* place nothing, only take space */
+        if (textdir_is_L(pdf->posstruct->dir))
+            dvi.h += size.h;
+    } else {
+        /* normal_rule or >= 100 being a leader rule */
+        if (textdir_is_L(pdf->posstruct->dir)) {
+            dvi_out(set_rule);      /* movement optimization for |dir_*L*| */
+            dvi.h += size.h;
+        } else
+            dvi_out(put_rule);
+    }
     dvi_four(size.v);
     dvi_four(size.h);
 }

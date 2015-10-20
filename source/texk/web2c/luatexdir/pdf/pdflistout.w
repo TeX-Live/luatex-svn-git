@@ -689,7 +689,14 @@ void hlist_out(PDF pdf, halfword this_box)
                 default:
                     assert(0);
                 }
-                backend_out[rule_node] (pdf, p, size);  /* |pdf_place_rule(pdf, p, rule.ht + rule.dp, rule.wd);| */
+                if (type(p) == glue_node) {
+                    q = leader_ptr(p);
+                    if ((q) && (type(q) == rule_node)) {
+                        backend_out[rule_node] (pdf, q, size);
+                    }
+                } else {
+                    backend_out[rule_node] (pdf, p, size);
+                }
             }
           MOVE_PAST:
             cur.h += rule.wd;
@@ -732,6 +739,7 @@ void vlist_out(PDF pdf, halfword this_box)
     glue_ord g_order;              /* applicable order of infinity for glue */
     int g_sign;                    /* selects type of glue */
     halfword p;                    /* current position in the vlist */
+    halfword q;                    /* temp */
     halfword leader_box;           /* the leader box being replicated */
     scaled leader_ht;              /* height of leader box being replicated */
     scaled lx;                     /* extra space between leader boxes */
@@ -1017,7 +1025,14 @@ void vlist_out(PDF pdf, halfword this_box)
                 default:
                     assert(0);
                 }
-                backend_out[rule_node] (pdf, p, size);
+                if (type(p) == glue_node) {
+                    q = leader_ptr(p);
+                    if ((q) && (type(q) == rule_node)) {
+                        backend_out[rule_node] (pdf, q, size);
+                    }
+                } else {
+                    backend_out[rule_node] (pdf, p, size);
+                }
             }
             cur.v += rule.ht + rule.dp;
             goto NEXTP;

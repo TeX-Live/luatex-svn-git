@@ -647,6 +647,14 @@ they are like normal \type {\leaders} in that they align nicely, except that the
 alignment is based on the {\it largest\/} enclosing box instead of the {\it
 smallest\/}. The \type {g} stresses this global nature.
 
+\section{\type {\nohrule} and \type {\novrule}}
+
+Because internally box resources and image resources are now stored as a special
+kind of rule, we also introduced an empty rule variant. Because introducing a new
+keyword can cause incompatibilities, two new primitives were introduced: \type
+{\nohrule} and \type {\novrule}. These can be used to reserve space. This is
+often more efficient than creating an empty box with fake dimensions).
+
 \section{\type {\Uchar}}
 
 The expandable command \type {\Uchar} reads a number between~0 and $1{,}114{,}111$

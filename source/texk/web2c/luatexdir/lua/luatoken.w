@@ -59,6 +59,8 @@ command_item command_names[] = {
     {"halign", halign_cmd, NULL},
     {"valign", valign_cmd, NULL},
     {"no_align", no_align_cmd, NULL},
+    {"novrule", no_vrule_cmd, NULL},
+    {"nohrule", no_hrule_cmd, NULL},
     {"vrule", vrule_cmd, NULL},
     {"hrule", hrule_cmd, NULL},
     {"insert", insert_cmd, NULL},

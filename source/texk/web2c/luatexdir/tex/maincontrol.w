@@ -780,9 +780,13 @@ static void init_main_control (void) {
     jump_table[mmode + un_vbox_cmd] =  insert_dollar_sign;
     jump_table[mmode + valign_cmd] =  insert_dollar_sign;
     jump_table[mmode + hrule_cmd] =  insert_dollar_sign;
+    jump_table[mmode + no_hrule_cmd] =  insert_dollar_sign;
     jump_table[vmode + hrule_cmd] = run_rule;
+    jump_table[vmode + no_hrule_cmd] = run_rule;
     jump_table[hmode + vrule_cmd] = run_rule;
+    jump_table[hmode + no_vrule_cmd] = run_rule;
     jump_table[mmode + vrule_cmd] = run_rule;
+    jump_table[mmode + no_vrule_cmd] = run_rule;
     jump_table[vmode + vskip_cmd] = append_glue;
     jump_table[hmode + hskip_cmd] = append_glue;
     jump_table[mmode + hskip_cmd] = append_glue;
@@ -811,6 +815,7 @@ static void init_main_control (void) {
     jump_table[vmode + math_shift_cs_cmd] = run_new_graf;
     jump_table[vmode + un_hbox_cmd] = run_new_graf;
     jump_table[vmode + vrule_cmd] = run_new_graf;
+    jump_table[vmode + no_vrule_cmd] = run_new_graf;
     jump_table[vmode + accent_cmd] = run_new_graf;
     jump_table[vmode + discretionary_cmd] = run_new_graf;
     jump_table[vmode + hskip_cmd] = run_new_graf;
@@ -823,6 +828,7 @@ static void init_main_control (void) {
     jump_table[hmode + stop_cmd] = head_for_vmode;
     jump_table[hmode + vskip_cmd] = head_for_vmode;
     jump_table[hmode + hrule_cmd] = head_for_vmode;
+    jump_table[hmode + no_hrule_cmd] = head_for_vmode;
     jump_table[hmode + un_vbox_cmd] = head_for_vmode;
     jump_table[hmode + halign_cmd] = head_for_vmode;
     any_mode(insert_cmd,begin_insert_or_adjust);
@@ -1477,8 +1483,9 @@ void scan_box(int box_context)
 
     if (cur_cmd == make_box_cmd) {
         begin_box(box_context);
-    } else if ((box_context >= leader_flag)
-               && ((cur_cmd == hrule_cmd) || (cur_cmd == vrule_cmd))) {
+    } else if ((box_context >= leader_flag) &&
+            ((cur_cmd == hrule_cmd) || (cur_cmd == vrule_cmd) ||
+             (cur_cmd == no_hrule_cmd) || (cur_cmd == no_vrule_cmd))) {
         cur_box = scan_rule_spec();
         box_end(box_context);
     } else {

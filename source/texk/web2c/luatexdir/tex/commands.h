@@ -109,6 +109,8 @@ typedef enum {
     no_align_cmd,               /* temporary escape from alignment ( \.{\\noalign} ) */
     vrule_cmd,                  /* vertical rule ( \.{\\vrule} ) */
     hrule_cmd,                  /* horizontal rule ( \.{\\hrule} ) */
+    no_vrule_cmd,               /* no rule, just reserve space ( \.{\\novrule} )*/
+    no_hrule_cmd,               /* no rule, just reserve space ( \.{\\nohrule} )*/
     insert_cmd,                 /* vlist inserted in box ( \.{\\insert} ) */
     vadjust_cmd,                /* vlist inserted in enclosing paragraph ( \.{\\vadjust} ) */
     ignore_spaces_cmd,          /* gobble |spacer| tokens ( \.{\\ignorespaces} ) */

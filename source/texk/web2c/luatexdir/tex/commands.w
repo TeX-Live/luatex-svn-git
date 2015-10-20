@@ -195,6 +195,8 @@ void initialize_commands(void)
     primitive_umath("Ustack", math_choice_cmd, 1, 0);
     primitive_tex("multiply", multiply_cmd, 0, 0);
     primitive_tex("noalign", no_align_cmd, 0, 0);
+    primitive_luatex("nohrule", no_vrule_cmd, 0, 0);
+    primitive_luatex("novrule", no_hrule_cmd, 0, 0);
     primitive_tex("boundary", boundary_cmd, 0, 0);
     primitive_tex("noboundary", no_boundary_cmd, 0, 0);
     primitive_tex("noexpand", no_expand_cmd, 0, 0);
