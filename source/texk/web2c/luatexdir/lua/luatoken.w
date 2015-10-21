@@ -87,6 +87,7 @@ command_item command_names[] = {
     {"message", message_cmd, NULL},
     {"normal", normal_cmd, NULL},
     {"extension", extension_cmd, NULL},
+    {"option", option_cmd, NULL},
     {"in_stream", in_stream_cmd, NULL},
     {"begin_group", begin_group_cmd, NULL},
     {"end_group", end_group_cmd, NULL},

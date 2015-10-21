@@ -273,6 +273,7 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define output_mode_code 70                                           /* switch on PDF output if positive */
 #  define draft_mode_code 71
 #  define tracing_fonts_code 72
+#  define math_option_code 73
 
 #  define etex_first_integer_code (tracing_fonts_code+1)                /* base for \eTeX's integer parameters */
 

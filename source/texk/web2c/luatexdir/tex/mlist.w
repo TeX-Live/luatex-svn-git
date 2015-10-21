@@ -78,6 +78,7 @@
 #define font_MATH_par(a,b)                                                  \
   (font_math_params(a)>=b ? font_math_param(a,b) : undefined_math_parameter)
 
+int math_compensate_italic = 0 ; /* $$\int\limits_{|}^{|}$$ */
 
 @ here are the math parameters that are font-dependant
 
@@ -2301,10 +2302,11 @@ the limits have been set above and below the operator. In that case,
 static scaled make_op(pointer q, int cur_style)
 {
     scaled delta;               /* offset between subscript and superscript */
-    pointer p, v, x, y, z;      /* temporary registers for box construction */
+    pointer p, v, x, y, z, n;   /* temporary registers for box construction */
     int c;                      /* register for character examination */
     scaled shift_up, shift_down;        /* dimensions for box calculation */
     scaled ok_size;
+    scaled dx ;
     if ((subtype(q) == op_noad_type_normal) && (cur_style < text_style))
         subtype(q) = op_noad_type_limits;
     if (type(nucleus(q)) == math_char_node) {
@@ -2389,13 +2391,28 @@ static scaled make_op(pointer q, int cur_style)
         reset_attributes(v, node_attr(q));
         type(v) = vlist_node;
         width(v) = width(y);
+        dx = 0 ;
+        if (math_compensate_italic) {
+            n = nucleus(q);
+            if ((n != null) && (type(n) == sub_box_node)) {
+                n = math_list(n);
+                if ((n != null) && (type(n) == hlist_node)) {
+                    n = list_ptr(n);
+                    if ((n != null) && (vlink(n) == null) && (type(n) == glyph_node)) {
+                        if (is_new_mathfont(font(n))) {
+                            dx = - char_italic(font(n),character(n));
+                        }
+                    }
+                }
+            }
+        }
         if (width(x) > width(v))
             width(v) = width(x);
         if (width(z) > width(v))
             width(v) = width(z);
-        x = rebox(x, width(v));
+        x = rebox(x, width(v)+dx);
         y = rebox(y, width(v));
-        z = rebox(z, width(v));
+        z = rebox(z, width(v)+dx);
         shift_amount(x) = half(delta);
         shift_amount(z) = -shift_amount(x);
         height(v) = height(y);

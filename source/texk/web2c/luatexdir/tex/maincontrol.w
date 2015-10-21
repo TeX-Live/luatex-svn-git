@@ -641,66 +641,79 @@ static void run_extension (void) {
 static void run_normal (void) {
 {
     switch (cur_chr) {
-    case save_pos_code:
-        new_whatsit(save_pos_node);
-        break;
-    case save_cat_code_table_code:
-        scan_int();
-        if ((cur_val < 0) || (cur_val > 0x7FFF)) {
-            print_err("Invalid \\catcode table");
-            help1("All \\catcode table ids must be between 0 and 0x7FFF");
-            error();
-        } else {
-            if (cur_val == cat_code_table) {
+        case save_pos_code:
+            new_whatsit(save_pos_node);
+            break;
+        case save_cat_code_table_code:
+            scan_int();
+            if ((cur_val < 0) || (cur_val > 0x7FFF)) {
                 print_err("Invalid \\catcode table");
-                help1("You cannot overwrite the current \\catcode table");
+                help1("All \\catcode table ids must be between 0 and 0x7FFF");
                 error();
             } else {
-                copy_cat_codes(cat_code_table, cur_val);
+                if (cur_val == cat_code_table) {
+                    print_err("Invalid \\catcode table");
+                    help1("You cannot overwrite the current \\catcode table");
+                    error();
+                } else {
+                    copy_cat_codes(cat_code_table, cur_val);
+                }
             }
-        }
-        break;
-    case init_cat_code_table_code:
-        scan_int();
-        if ((cur_val < 0) || (cur_val > 0x7FFF)) {
-            print_err("Invalid \\catcode table");
-            help1("All \\catcode table ids must be between 0 and 0x7FFF");
-            error();
-        } else {
-            if (cur_val == cat_code_table) {
+            break;
+        case init_cat_code_table_code:
+            scan_int();
+            if ((cur_val < 0) || (cur_val > 0x7FFF)) {
                 print_err("Invalid \\catcode table");
-                help1("You cannot overwrite the current \\catcode table");
+                help1("All \\catcode table ids must be between 0 and 0x7FFF");
                 error();
             } else {
-                initex_cat_codes(cur_val);
+                if (cur_val == cat_code_table) {
+                    print_err("Invalid \\catcode table");
+                    help1("You cannot overwrite the current \\catcode table");
+                    error();
+                } else {
+                    initex_cat_codes(cur_val);
+                }
             }
+            break;
+        case set_random_seed_code:
+            /*  Negative random seed values are silently converted to positive ones */
+            scan_int();
+            if (cur_val < 0)
+                negate(cur_val);
+            random_seed = cur_val;
+            init_randoms(random_seed);
+            break;
+        case late_lua_code:
+            new_whatsit(late_lua_node); /* type == normal */
+            late_lua_name(tail) = scan_lua_state();
+            (void) scan_toks(false, false);
+            late_lua_data(tail) = def_ref;
+            break;
+        case expand_font_code:
+            read_expand_font();
+            break;
+        default:
+            confusion("int1");
+            break;
         }
-        break;
-    case set_random_seed_code:
-        /*  Negative random seed values are silently converted to positive ones */
-        scan_int();
-        if (cur_val < 0)
-            negate(cur_val);
-        random_seed = cur_val;
-        init_randoms(random_seed);
-        break;
-    case late_lua_code:
-        new_whatsit(late_lua_node); /* type == normal */
-        late_lua_name(tail) = scan_lua_state();
-        (void) scan_toks(false, false);
-        late_lua_data(tail) = def_ref;
-        break;
-    case expand_font_code:
-        read_expand_font();
-        break;
-    default:
-        confusion("int1");
-        break;
     }
 }
 
-
-
+static void run_option(void) {
+    switch (cur_chr) {
+        case math_option_code:
+            if (scan_keyword("compensateitalic")) {
+                scan_int();
+                math_compensate_italic = cur_val;
+            } else {
+                normal_warning("mathoption","unknown key",false,false);
+            }
+            break;
+        default:
+            /* harmless */
+            break;
+    }
 }
 
 
@@ -931,6 +944,7 @@ static void init_main_control (void) {
     any_mode(xray_cmd, show_whatever);
     any_mode(normal_cmd, run_normal);
     any_mode(extension_cmd, run_extension);
+    any_mode(option_cmd, run_option);
 }
 
 @ And here is |main_control| itself.  It is quite short nowadays.

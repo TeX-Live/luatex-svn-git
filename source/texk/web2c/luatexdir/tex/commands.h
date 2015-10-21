@@ -135,6 +135,7 @@ typedef enum {
     message_cmd,                /* send to user ( \.{\\message}, \.{\\errmessage} ) */
     normal_cmd,                 /* general extensions to \TeX\ that don't fit into a category */
     extension_cmd,              /* extensions to \TeX\ ( \.{\\write}, \.{\\special}, etc.~) */
+    option_cmd,
     in_stream_cmd,              /* files for reading ( \.{\\openin}, \.{\\closein} ) */
     begin_group_cmd,            /* begin local grouping ( \.{\\begingroup} ) */
     end_group_cmd,              /* end local grouping ( \.{\\endgroup} ) */

@@ -680,6 +680,7 @@ void initialize_commands(void)
     primitive_luatex("pdfextension", extension_cmd, pdf_extension_code, 0);
     primitive_luatex("pdffeedback", convert_cmd, pdf_feedback_code, 0);
     primitive_luatex("pdfvariable", convert_cmd, pdf_variable_code, 0);
+    primitive_luatex("mathoption", option_cmd, math_option_code, 0);
 
     /*
         some of the internal integer parameters are not associated with actual

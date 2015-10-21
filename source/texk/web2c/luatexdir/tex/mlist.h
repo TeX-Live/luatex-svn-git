@@ -1,5 +1,5 @@
 /* mlist.h
-   
+
    Copyright 1996-2006 Han The Thanh <thanh@pdftex.org>
    Copyright 2006-2009 Taco Hoekwater <taco@luatex.org>
 
@@ -23,6 +23,8 @@
 #  define MLIST_H 1
 
 extern int cur_size;
+
+extern int math_compensate_italic ; /* $$\int\limits_{|}^{|}$$ */
 
 extern void run_mlist_to_hlist(halfword, int, boolean);
 extern void fixup_math_parameters(int fam_id, int size_id, int f, int lvl);
