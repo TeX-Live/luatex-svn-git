@@ -48,6 +48,7 @@
 
 @ @c
 int scan_math(pointer, int);
+int scan_math_style(pointer, int);
 pointer fin_mlist(pointer);
 
 #define pre_display_size dimen_par(pre_display_size_code)
@@ -1247,6 +1248,15 @@ that subformula into a given word of |mem|.
 @c
 #define get_next_nb_nr() do { get_x_token(); } while (cur_cmd==spacer_cmd||cur_cmd==relax_cmd)
 
+int scan_math_style(pointer p, int mstyle)
+{
+    back_input();
+    scan_left_brace();
+    set_saved_record(0, saved_math, 0, p);
+    incr(save_ptr);
+    push_math(math_group, mstyle);
+    return 1;
+}
 
 int scan_math(pointer p, int mstyle)
 {
@@ -2319,7 +2329,7 @@ void setup_math_style(void)
     tail_append(new_noad());
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;
-    (void) scan_math(nucleus(tail), num_style(m_style));
+    (void) scan_math_style(nucleus(tail), num_style(m_style));
 }
 
 
