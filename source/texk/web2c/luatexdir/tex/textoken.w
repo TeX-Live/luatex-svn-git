@@ -2010,9 +2010,10 @@ void conv_toks(void)
             normal_error("marginkern", "a non-empty hbox expected");
         push_selector;
         p = list_ptr(box(cur_val));
-        if ((p != null) && (!is_char_node(p)) && (type(p) == glue_node) && (subtype(p) == left_skip_code + 1))
+        while ((p != null) && (type(p) == glue_node)) {
             p = vlink(p);
-        if ((p != null) && (!is_char_node(p)) && (type(p) == margin_kern_node) && (subtype(p) == left_side))
+        }
+        if ((p != null) && (type(p) == margin_kern_node) && (subtype(p) == left_side))
             print_scaled(width(p));
         else
             print_char('0');
@@ -2024,14 +2025,32 @@ void conv_toks(void)
         if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
             normal_error("marginkern", "a non-empty hbox expected");
         push_selector;
-        q = list_ptr(box(cur_val));
-        p = null;
-        if (q != null) {
-            p = prev_rightmost(q, null);
-            if ((p != null) && (!is_char_node(p)) && (type(p) == glue_node) && (subtype(p) == right_skip_code + 1))
-                p = prev_rightmost(q, p);
+        p = list_ptr(box(cur_val));
+        if (p != null) {
+            p = tail_of_list(p);
+            /*
+                there can be a leftskip, rightskip, penalty and yes, also a disc node with a nesting
+                node that points to glue spec ... and we don't want to analyze that messy lot
+            */
+            while ((p != null) && (type(p) == glue_node)) {
+                p = alink(p);
+            }
+            if ((p != null) && ! ((type(p) == margin_kern_node) && (subtype(p) == right_side))) {
+                if (type(p) == disc_node) {
+                    q = alink(p);
+                    if ((q != null) && ((type(q) == margin_kern_node) && (subtype(q) == right_side))) {
+                        p = q;
+                    } else {
+                        /*
+                            officially we should look in the replace but currently protrusion doesn't
+                            work anyway with "foo\discretionary{}{}{bar-} " (no following char) so we
+                            don't need it now
+                        */
+                    }
+                }
+            }
         }
-        if ((p != null) && (!is_char_node(p)) && (type(p) == margin_kern_node) && (subtype(p) == right_side))
+        if ((p != null) && (type(p) == margin_kern_node) && (subtype(p) == right_side))
             print_scaled(width(p));
         else
             print_char('0');

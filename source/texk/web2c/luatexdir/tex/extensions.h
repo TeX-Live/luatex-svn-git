@@ -59,7 +59,6 @@ type of the value depends on the |user_node_type| field.
 extern void new_whatsit(int s);
 extern void new_write_whatsit(int w, int check);
 extern void scan_pdf_ext_toks(void);
-extern halfword prev_rightmost(halfword s, halfword e);
 
 extern halfword concat_tokens(halfword q, halfword r);
 

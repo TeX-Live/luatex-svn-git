@@ -537,23 +537,6 @@ void scan_pdf_ext_toks(void)
     (void) scan_toks(false, true);      /* like \.{\\special} */
 }
 
-@  We need to check whether the referenced object exists.
-
-finds the node preceding the rightmost node |e|; |s| is some node before |e|
-@c
-halfword prev_rightmost(halfword s, halfword e)
-{
-    halfword p = s;
-    if (p == null)
-        return null;
-    while (vlink(p) != e) {
-        p = vlink(p);
-        if (p == null)
-            return null;
-    }
-    return p;
-}
-
 @ the pdflast* need extra global variables
 
 @c
