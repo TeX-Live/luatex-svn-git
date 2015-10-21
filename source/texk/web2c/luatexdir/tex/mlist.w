@@ -78,7 +78,8 @@
 #define font_MATH_par(a,b)                                                  \
   (font_math_params(a)>=b ? font_math_param(a,b) : undefined_math_parameter)
 
-int math_compensate_italic = 0 ; /* $$\int\limits_{|}^{|}$$ */
+int math_compensate_italic  = 1 ; /* $$\int\limits_{|}^{|}$$ */
+int math_always_char_italic = 1 ;
 
 @ here are the math parameters that are font-dependant
 
@@ -3230,10 +3231,28 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta,
             *delta = char_italic(cur_f, cur_c);
             p = new_glyph(cur_f, cur_c);
             reset_attributes(p, node_attr(nucleus(q)));
-            if ((is_new_mathfont(cur_f) && get_char_cat_code(cur_c) == 11) ||
-                (!is_new_mathfont(cur_f) && type(nucleus(q)) == math_text_char_node && space(cur_f)) != 0) {
-                *delta = 0;     /* no italic correction in mid-word of text font */
-	    }
+
+            /* wrong () in 0
+                if ((is_new_mathfont(cur_f) && get_char_cat_code(cur_c) == 11) ||
+                    (!is_new_mathfont(cur_f) && type(nucleus(q)) == math_text_char_node && space(cur_f)) != 0) {
+                    *delta = 0;
+                }
+            */
+
+            if (is_new_mathfont(cur_f)) {
+                if (math_always_char_italic) {
+                    /* keep italic, but bad with two successive letters */
+                } else if (get_char_cat_code(cur_c) == 11) {
+                    /* no italic correction in mid-word of text font */
+                    *delta = 0;
+                }
+            } else {
+                /* no italic correction in mid-word of text font */
+                if (((type(nucleus(q))) == math_text_char_node) && (space(cur_f) != 0)) { /* was wrong () */
+                    *delta = 0;
+                }
+            }
+            /* so we only add italic correction when we have no scripts */
             if ((subscr(q) == null) && (supscr(q) == null) && (*delta != 0)) {
                 pointer x = new_kern(*delta);
                 reset_attributes(x, node_attr(nucleus(q)));

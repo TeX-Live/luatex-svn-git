@@ -706,6 +706,9 @@ static void run_option(void) {
             if (scan_keyword("compensateitalic")) {
                 scan_int();
                 math_compensate_italic = cur_val;
+            } else if (scan_keyword("alwayscharitalic")) {
+                scan_int();
+                math_always_char_italic = cur_val;
             } else {
                 normal_warning("mathoption","unknown key",false,false);
             }

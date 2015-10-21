@@ -24,7 +24,8 @@
 
 extern int cur_size;
 
-extern int math_compensate_italic ; /* $$\int\limits_{|}^{|}$$ */
+extern int math_compensate_italic ;  /* $$\int\limits_{|}^{|}$$ */
+extern int math_always_char_italic ; /* catcode"1D443=12 $$P( PP$$ \catcode"1D443=11 $$P( PP$$ */
 
 extern void run_mlist_to_hlist(halfword, int, boolean);
 extern void fixup_math_parameters(int fam_id, int size_id, int f, int lvl);
