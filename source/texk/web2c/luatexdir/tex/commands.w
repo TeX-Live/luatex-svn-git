@@ -315,6 +315,10 @@ void initialize_commands(void)
     primitive_luatex("formatname", convert_cmd, format_name_code, 0);
     primitive_luatex("Uchar", convert_cmd, uchar_code, 0);
 
+    primitive_luatex("Umathcharclass", convert_cmd, math_char_class_code, 0);
+    primitive_luatex("Umathcharfam", convert_cmd, math_char_fam_code, 0);
+    primitive_luatex("Umathcharslot", convert_cmd, math_char_slot_code, 0);
+
     primitive_tex("if", if_test_cmd, if_char_code, 0);
     primitive_tex("ifcat", if_test_cmd, if_cat_code, 0);
     primitive_tex("ifnum", if_test_cmd, if_int_code, 0);

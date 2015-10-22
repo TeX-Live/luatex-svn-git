@@ -1565,26 +1565,36 @@ void math_ac(void)
     if (cur_chr == 0) {         /* \.{\\mathaccent} */
         t = scan_mathchar(tex_mathcode);
     } else if (cur_chr == 1) {  /* \.{\\Umathaccent} */
-	if (scan_keyword("fixed")) {
-           subtype(tail) = 1;
-	   t = scan_mathchar(umath_mathcode);
-	} else if (scan_keyword("both")) {
-  	   if (scan_keyword("fixed")) {
-             subtype(tail) = 1;
-           }
-	   t = scan_mathchar(umath_mathcode);
-  	   if (scan_keyword("fixed")) {
-             subtype(tail) += 2;
-           }
-	   b = scan_mathchar(umath_mathcode);
-	} else if (scan_keyword("bottom")) {
-  	   if (scan_keyword("fixed")) {
-             subtype(tail) = 2;
-           }
-	   b = scan_mathchar(umath_mathcode);
-	} else {
-	   t = scan_mathchar(umath_mathcode);
-	}
+        if (scan_keyword("fixed")) {
+            /* top */
+            subtype(tail) = 1;
+            t = scan_mathchar(umath_mathcode);
+        } else if (scan_keyword("both")) {
+            /* top bottom */
+            if (scan_keyword("fixed")) {
+                subtype(tail) = 1;
+            }
+            t = scan_mathchar(umath_mathcode);
+            if (scan_keyword("fixed")) {
+                subtype(tail) += 2;
+            }
+            b = scan_mathchar(umath_mathcode);
+        } else if (scan_keyword("bottom")) {
+            /* bottom */
+            if (scan_keyword("fixed")) {
+                subtype(tail) = 2;
+            }
+            b = scan_mathchar(umath_mathcode);
+        } else if (scan_keyword("top")) {
+            /* top */
+            if (scan_keyword("fixed")) {
+                subtype(tail) = 1;
+            }
+            t = scan_mathchar(umath_mathcode);
+        } else {
+            /* top */
+            t = scan_mathchar(umath_mathcode);
+        }
     } else {
         confusion("math_ac");
     }

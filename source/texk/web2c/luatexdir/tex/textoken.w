@@ -2182,6 +2182,36 @@ void conv_toks(void)
         print_math_style();
         pop_selector;
         break;
+    case math_char_class_code:
+        {
+            mathcodeval mval;
+            scan_int();
+            mval = get_math_code(cur_val);
+            push_selector;
+            print_int(mval.class_value);
+            pop_selector;
+        }
+        break;
+    case math_char_fam_code:
+        {
+            mathcodeval mval;
+            scan_int();
+            mval = get_math_code(cur_val);
+            push_selector;
+            print_int(mval.family_value);
+            pop_selector;
+        }
+        break;
+    case math_char_slot_code:
+        {
+            mathcodeval mval;
+            scan_int();
+            mval = get_math_code(cur_val);
+            push_selector;
+            print_int(mval.character_value);
+            pop_selector;
+        }
+        break;
     case expanded_code:
         save_scanner_status = scanner_status;
         save_warning_index = warning_index;

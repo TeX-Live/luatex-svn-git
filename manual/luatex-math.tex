@@ -612,7 +612,36 @@ the subscript in \type {\Uunderdelimiter} is cramped as well.
 \LUATEX\ internally uses a structure that supports \OPENTYPE\ \quote
 {MathVariants} as well as \TFM\ \quote {extensible recipes}.
 
-\section{Other Math changes}
+\section {Extracting values}
+
+You can extract the components of a math character. Say that we have defined:
+
+\starttyping
+\Umathcode 1 2 3 4
+\stoptyping
+
+then
+
+\starttyping
+[\Umathcharclass1] [\Umathcharfam1] [\Umathcharslot1]
+\stoptyping
+
+will return:
+
+\starttyping
+[2] [3] [4]
+\stoptyping
+
+These commands are provides as convenience. before they came available you could
+do the following:
+
+\starttyping
+\def\Umathcharclass{\directlua{tex.print(tex.getmathcode(token.scan_int())[1])}}
+\def\Umathcharfam  {\directlua{tex.print(tex.getmathcode(token.scan_int())[2])}}
+\def\Umathcharslot {\directlua{tex.print(tex.getmathcode(token.scan_int())[3])}}
+\stoptyping
+
+\section {Other Math changes}
 
 \subsection {Verbose versions of single-character math commands}
 

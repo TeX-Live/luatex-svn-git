@@ -257,6 +257,9 @@ typedef enum {
     uchar_code,                 /* command code for \.{\\Uchar} */
     lua_function_code,          /* command code for \.{\\luafunction} */
     insert_ht_code,             /* command code for \.{\\insertht} */
+    math_char_class_code,
+    math_char_fam_code,
+    math_char_slot_code,
     /* backend */
     dvi_feedback_code,
     pdf_feedback_code,
