@@ -1523,21 +1523,6 @@ static int getfontidentifier(lua_State * L)
     return do_convert(L, font_identifier_code);
 }
 
-static int getpdffontname(lua_State * L)
-{
-    return do_convert(L, pdf_font_name_code);
-}
-
-static int getpdffontobjnum(lua_State * L)
-{
-    return do_convert(L, pdf_font_objnum_code);
-}
-
-static int getpdffontsize(lua_State * L)
-{
-    return do_convert(L, pdf_font_size_code);
-}
-
 static int getuniformdeviate(lua_State * L)
 {
     return do_convert(L, uniform_deviate_code);
@@ -1552,17 +1537,6 @@ static int getromannumeral(lua_State * L)
 {
     return do_convert(L, roman_numeral_code);
 }
-
-static int getpdfpageref(lua_State * L)
-{
-    return do_convert(L, pdf_page_ref_code);
-}
-
-static int getpdfxformname(lua_State * L)
-{
-    return do_convert(L, pdf_xform_name_code);
-}
-
 
 static int get_parshape(lua_State * L)
 {
@@ -1586,7 +1560,6 @@ static int get_parshape(lua_State * L)
     }
     return 1;
 }
-
 
 static int gettex(lua_State * L)
 {
@@ -1641,7 +1614,6 @@ static int gettex(lua_State * L)
     }
     return retval;
 }
-
 
 static int getlist(lua_State * L)
 {
@@ -2655,14 +2627,9 @@ static const struct luaL_Reg texlib[] = {
     {"sp", tex_scaledimen},
     {"fontname", getfontname},
     {"fontidentifier", getfontidentifier},
-    {"pdffontname", getpdffontname},
-    {"pdffontobjnum", getpdffontobjnum},
-    {"pdffontsize", getpdffontsize},
     {"uniformdeviate", getuniformdeviate},
     {"number", getnumber},
     {"romannumeral", getromannumeral},
-    {"pdfpageref", getpdfpageref},
-    {"pdfxformname", getpdfxformname},
     {"definefont", tex_definefont},
     {"hashtokens", tex_hashpairs},
     {"primitives", tex_primitives},
@@ -2682,7 +2649,8 @@ static const struct luaL_Reg texlib[] = {
     {"set_experimental_code",set_experimental_code},
     {"show_context", tex_show_context},
     {"saveboxresource", tex_save_box_resource},
-    {NULL, NULL}                /* sentinel */
+    /* sentinel */
+    {NULL, NULL}
 };
 
 int luaopen_tex(lua_State * L)

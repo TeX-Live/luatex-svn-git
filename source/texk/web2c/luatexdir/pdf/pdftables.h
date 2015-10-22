@@ -152,6 +152,7 @@ extern void undump_pdftex_data(PDF pdf);
 #  define pdf_xform_resources      get_tex_extension_toks_register("pdf_xformresources")
 #  define pdf_pk_mode              get_tex_extension_toks_register("pdf_pkmode")
 
+#  define set_pdf_minor_version(i)    set_tex_extension_count_register("pdf_minorversion",i)
 #  define set_pdf_compress_level(i)   set_tex_extension_count_register("pdf_compresslevel",i)
 #  define set_pdf_objcompresslevel(i) set_tex_extension_count_register("pdf_objcompresslevel",i)
 

@@ -849,6 +849,103 @@ static int l_set_objcompresslevel(lua_State * L)
     return 0 ;
 }
 
+/* pdf stuff */
+
+static int getpdffontname(lua_State * L)
+{
+    int c, ff ;
+    if (lua_isnumber(L, 1)) {
+        c = (int) lua_tointeger(L, 1);
+        pdf_check_vf(c);
+        if (!font_used(c))
+            pdf_init_font(static_pdf,c);
+        set_ff(c);
+        lua_pushnumber(L, (obj_info(static_pdf, pdf_font_num(ff))));
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
+static int getpdffontobjnum(lua_State * L)
+{
+    int c, ff ;
+    if (lua_isnumber(L, 1)) {
+        c = (int) lua_tointeger(L, 1);
+        pdf_check_vf(c);
+        if (!font_used(c))
+            pdf_init_font(static_pdf,c);
+        set_ff(c);
+        lua_pushnumber(L, (pdf_font_num(ff)));
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
+static int getpdffontsize(lua_State * L)
+{
+    int c;
+    if (lua_isnumber(L, 1)) {
+        c = (int) lua_tointeger(L, 1);
+        lua_pushnumber(L, (font_size(c)));
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
+static int getpdfpageref(lua_State * L)
+{
+    int c ;
+    if (lua_isnumber(L, 1)) {
+        c = (int) lua_tointeger(L, 1);
+        lua_pushnumber(L, (pdf_get_obj(static_pdf, obj_type_page, c, false)));
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
+static int getpdfxformname(lua_State * L)
+{
+    int c ;
+    if (lua_isnumber(L, 1)) {
+        c = (int) lua_tointeger(L, 1);
+        check_obj_type(static_pdf, obj_type_xform, c);
+        lua_pushnumber(L, (obj_info(static_pdf, c)));
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
+static int getpdfversion(lua_State * L)
+{
+    lua_pushnumber(L,1);
+    return 1 ;
+}
+
+static int getpdfminorversion(lua_State * L)
+{
+ /* lua_pushnumber(L,static_pdf->minor_version); */
+    lua_pushnumber(L,pdf_minor_version);
+    return 1 ;
+}
+
+static int setpdfminorversion(lua_State * L)
+{
+    int c ;
+    if (lua_isnumber(L, 1)) {
+        c = (int) lua_tointeger(L, 1);
+        if ((c >= 0) && (c <= 9)) {
+            static_pdf->minor_version = c;
+            set_pdf_minor_version(c);
+        }
+    }
+    return 0 ;
+}
+
 static const struct luaL_Reg pdflib[] = {
     { "immediateobj", l_immediateobj },
     { "mapfile", l_mapfile },
@@ -892,7 +989,17 @@ static const struct luaL_Reg pdflib[] = {
     { "getobjcompresslevel", l_get_objcompresslevel },
     { "setcompresslevel", l_set_compresslevel },
     { "setobjcompresslevel", l_set_objcompresslevel },
-    {NULL, NULL}                /* sentinel */
+    /* moved from tex table */
+    { "fontname", getpdffontname},
+    { "fontobjnum", getpdffontobjnum},
+    { "fontsize", getpdffontsize},
+    { "pageref", getpdfpageref},
+    { "xformname", getpdfxformname},
+    { "getversion", getpdfversion},
+    { "getminorversion", getpdfminorversion},
+    { "setminorversion", setpdfminorversion},
+    /* sentinel */
+    {NULL, NULL}
 };
 
 /**********************************************************************/
