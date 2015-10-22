@@ -339,494 +339,463 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
 {
     if (is_new_mathfont(f)) {   /* fix all known parameters */
 
-        DEFINE_MATH_PARAMETERS(math_param_quad, size_id, font_size(f), lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_quad, size_id, font_size(f), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_quad, size_id,
+            font_size(f), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_quad, size_id,
+            font_size(f), lvl);
         DEFINE_MATH_PARAMETERS(math_param_axis, size_id,
-                               font_MATH_par(f, AxisHeight), lvl);
+            font_MATH_par(f, AxisHeight), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_axis, size_id,
-                                font_MATH_par(f, AxisHeight), lvl);
+            font_MATH_par(f, AxisHeight), lvl);
         DEFINE_MATH_PARAMETERS(math_param_overbar_kern, size_id,
-                               font_MATH_par(f, OverbarExtraAscender), lvl);
+            font_MATH_par(f, OverbarExtraAscender), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_overbar_kern, size_id,
-                                font_MATH_par(f, OverbarExtraAscender), lvl);
+            font_MATH_par(f, OverbarExtraAscender), lvl);
         DEFINE_MATH_PARAMETERS(math_param_overbar_rule, size_id,
-                               font_MATH_par(f, OverbarRuleThickness), lvl);
+            font_MATH_par(f, OverbarRuleThickness), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_overbar_rule, size_id,
-                                font_MATH_par(f, OverbarRuleThickness), lvl);
+            font_MATH_par(f, OverbarRuleThickness), lvl);
         DEFINE_MATH_PARAMETERS(math_param_overbar_vgap, size_id,
-                               font_MATH_par(f, OverbarVerticalGap), lvl);
+            font_MATH_par(f, OverbarVerticalGap), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_overbar_vgap, size_id,
-                                font_MATH_par(f, OverbarVerticalGap), lvl);
+            font_MATH_par(f, OverbarVerticalGap), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_kern, size_id,
-                               font_MATH_par(f, UnderbarExtraDescender), lvl);
+            font_MATH_par(f, UnderbarExtraDescender), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_kern, size_id,
-                                font_MATH_par(f, UnderbarExtraDescender), lvl);
+            font_MATH_par(f, UnderbarExtraDescender), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_rule, size_id,
-                               font_MATH_par(f, UnderbarRuleThickness), lvl);
+            font_MATH_par(f, UnderbarRuleThickness), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_rule, size_id,
-                                font_MATH_par(f, UnderbarRuleThickness), lvl);
+            font_MATH_par(f, UnderbarRuleThickness), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_vgap, size_id,
-                               font_MATH_par(f, UnderbarVerticalGap), lvl);
+           font_MATH_par(f, UnderbarVerticalGap), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_vgap, size_id,
-                                font_MATH_par(f, UnderbarVerticalGap), lvl);
+            font_MATH_par(f, UnderbarVerticalGap), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
-                               font_MATH_par(f, StretchStackGapAboveMin), lvl);
+            font_MATH_par(f, StretchStackGapAboveMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
-                                font_MATH_par(f, StretchStackGapAboveMin), lvl);
+            font_MATH_par(f, StretchStackGapAboveMin), lvl);
         DEFINE_MATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
-                               font_MATH_par(f, StretchStackBottomShiftDown),
-                               lvl);
+            font_MATH_par(f, StretchStackBottomShiftDown), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
-                                font_MATH_par(f, StretchStackBottomShiftDown),
-                                lvl);
+            font_MATH_par(f, StretchStackBottomShiftDown), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_over_delimiter_vgap, size_id,
-                               font_MATH_par(f, StretchStackGapBelowMin), lvl);
+            font_MATH_par(f, StretchStackGapBelowMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_vgap, size_id,
-                                font_MATH_par(f, StretchStackGapBelowMin), lvl);
+            font_MATH_par(f, StretchStackGapBelowMin), lvl);
         DEFINE_MATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
-                               font_MATH_par(f, StretchStackTopShiftUp), lvl);
+            font_MATH_par(f, StretchStackTopShiftUp), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
-                                font_MATH_par(f, StretchStackTopShiftUp), lvl);
-
+            font_MATH_par(f, StretchStackTopShiftUp), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_stack_num_up, size_id,
-                               font_MATH_par(f, StackTopShiftUp), lvl);
+           font_MATH_par(f, StackTopShiftUp), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_stack_num_up, size_id,
-                                font_MATH_par(f, StackTopDisplayStyleShiftUp),
-                                lvl);
+            font_MATH_par(f, StackTopDisplayStyleShiftUp), lvl);
         DEFINE_MATH_PARAMETERS(math_param_stack_denom_down, size_id,
-                               font_MATH_par(f, StackBottomShiftDown), lvl);
+            font_MATH_par(f, StackBottomShiftDown), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_stack_denom_down, size_id,
-                                font_MATH_par(f,
-                                              StackBottomDisplayStyleShiftDown),
-                                lvl);
+            font_MATH_par(f, StackBottomDisplayStyleShiftDown), lvl);
         DEFINE_MATH_PARAMETERS(math_param_stack_vgap, size_id,
-                               font_MATH_par(f, StackGapMin), lvl);
+            font_MATH_par(f, StackGapMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_stack_vgap, size_id,
-                                font_MATH_par(f, StackDisplayStyleGapMin), lvl);
+            font_MATH_par(f, StackDisplayStyleGapMin), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_radical_kern, size_id,
-                               font_MATH_par(f, RadicalExtraAscender), lvl);
+            font_MATH_par(f, RadicalExtraAscender), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_kern, size_id,
-                                font_MATH_par(f, RadicalExtraAscender), lvl);
+            font_MATH_par(f, RadicalExtraAscender), lvl);
 
         DEFINE_DMATH_PARAMETERS(math_param_operator_size, size_id,
-                                font_MATH_par(f, DisplayOperatorMinHeight),
-                                lvl);
+            font_MATH_par(f, DisplayOperatorMinHeight), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_radical_rule, size_id,
-                               font_MATH_par(f, RadicalRuleThickness), lvl);
+            font_MATH_par(f, RadicalRuleThickness), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_rule, size_id,
-                                font_MATH_par(f, RadicalRuleThickness), lvl);
+            font_MATH_par(f, RadicalRuleThickness), lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_vgap, size_id,
-                               font_MATH_par(f, RadicalVerticalGap), lvl);
+            font_MATH_par(f, RadicalVerticalGap), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_vgap, size_id,
-                                font_MATH_par(f,
-                                              RadicalDisplayStyleVerticalGap),
-                                lvl);
+            font_MATH_par(f, RadicalDisplayStyleVerticalGap), lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_degree_before, size_id,
-                               font_MATH_par(f, RadicalKernBeforeDegree), lvl);
+            font_MATH_par(f, RadicalKernBeforeDegree), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_degree_before, size_id,
-                                font_MATH_par(f, RadicalKernBeforeDegree), lvl);
+            font_MATH_par(f, RadicalKernBeforeDegree), lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_degree_after, size_id,
-                               font_MATH_par(f, RadicalKernAfterDegree), lvl);
+            font_MATH_par(f, RadicalKernAfterDegree), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_degree_after, size_id,
-                                font_MATH_par(f, RadicalKernAfterDegree), lvl);
+            font_MATH_par(f, RadicalKernAfterDegree), lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, size_id,
-                               font_MATH_par(f,
-                                             RadicalDegreeBottomRaisePercent),
-                               lvl);
+            font_MATH_par(f, RadicalDegreeBottomRaisePercent), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_degree_raise, size_id,
-                                font_MATH_par(f,
-                                              RadicalDegreeBottomRaisePercent),
-                                lvl);
+            font_MATH_par(f, RadicalDegreeBottomRaisePercent), lvl);
+
         if (size_id == text_size) {
             def_math_param(math_param_sup_shift_up, display_style,
-                           font_MATH_par(f, SuperscriptShiftUp), lvl);
+                font_MATH_par(f, SuperscriptShiftUp), lvl);
             def_math_param(math_param_sup_shift_up, cramped_display_style,
-                           font_MATH_par(f, SuperscriptShiftUpCramped), lvl);
+                font_MATH_par(f, SuperscriptShiftUpCramped), lvl);
             def_math_param(math_param_sup_shift_up, text_style,
-                           font_MATH_par(f, SuperscriptShiftUp), lvl);
+                font_MATH_par(f, SuperscriptShiftUp), lvl);
             def_math_param(math_param_sup_shift_up, cramped_text_style,
-                           font_MATH_par(f, SuperscriptShiftUpCramped), lvl);
+                font_MATH_par(f, SuperscriptShiftUpCramped), lvl);
         } else if (size_id == script_size) {
             def_math_param(math_param_sup_shift_up, script_style,
-                           font_MATH_par(f, SuperscriptShiftUp), lvl);
+                font_MATH_par(f, SuperscriptShiftUp), lvl);
             def_math_param(math_param_sup_shift_up, cramped_script_style,
-                           font_MATH_par(f, SuperscriptShiftUpCramped), lvl);
+                font_MATH_par(f, SuperscriptShiftUpCramped), lvl);
         } else if (size_id == script_script_size) {
             def_math_param(math_param_sup_shift_up, script_script_style,
-                           font_MATH_par(f, SuperscriptShiftUp), lvl);
+                font_MATH_par(f, SuperscriptShiftUp), lvl);
             def_math_param(math_param_sup_shift_up, cramped_script_script_style,
-                           font_MATH_par(f, SuperscriptShiftUpCramped), lvl);
+                font_MATH_par(f, SuperscriptShiftUpCramped), lvl);
         }
 
         DEFINE_MATH_PARAMETERS(math_param_sub_shift_drop, size_id,
-                               font_MATH_par(f, SubscriptBaselineDropMin), lvl);
+            font_MATH_par(f, SubscriptBaselineDropMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sub_shift_drop, size_id,
-                                font_MATH_par(f, SubscriptBaselineDropMin),
-                                lvl);
+            font_MATH_par(f, SubscriptBaselineDropMin), lvl);
         DEFINE_MATH_PARAMETERS(math_param_sup_shift_drop, size_id,
-                               font_MATH_par(f, SuperscriptBaselineDropMax),
-                               lvl);
+            font_MATH_par(f, SuperscriptBaselineDropMax), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sup_shift_drop, size_id,
-                                font_MATH_par(f, SuperscriptBaselineDropMax),
-                                lvl);
+            font_MATH_par(f, SuperscriptBaselineDropMax), lvl);
         DEFINE_MATH_PARAMETERS(math_param_sub_shift_down, size_id,
-                               font_MATH_par(f, SubscriptShiftDown), lvl);
+            font_MATH_par(f, SubscriptShiftDown), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sub_shift_down, size_id,
-                                font_MATH_par(f, SubscriptShiftDown), lvl);
+            font_MATH_par(f, SubscriptShiftDown), lvl);
 
-        if (font_MATH_par(f, SubscriptShiftDownWithSuperscript) !=
-            undefined_math_parameter) {
+        if (font_MATH_par(f, SubscriptShiftDownWithSuperscript) != undefined_math_parameter) {
             DEFINE_MATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
-                                   font_MATH_par(f,
-                                                 SubscriptShiftDownWithSuperscript),
-                                   lvl);
+                font_MATH_par(f, SubscriptShiftDownWithSuperscript), lvl);
             DEFINE_DMATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
-                                    font_MATH_par(f,
-                                                  SubscriptShiftDownWithSuperscript),
-                                    lvl);
+                font_MATH_par(f, SubscriptShiftDownWithSuperscript), lvl);
         } else {
             DEFINE_MATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
-                                   font_MATH_par(f, SubscriptShiftDown), lvl);
+                font_MATH_par(f, SubscriptShiftDown), lvl);
             DEFINE_DMATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
-                                    font_MATH_par(f, SubscriptShiftDown), lvl);
+                font_MATH_par(f, SubscriptShiftDown), lvl);
         }
 
         DEFINE_MATH_PARAMETERS(math_param_sub_top_max, size_id,
-                               font_MATH_par(f, SubscriptTopMax), lvl);
+            font_MATH_par(f, SubscriptTopMax), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sub_top_max, size_id,
-                                font_MATH_par(f, SubscriptTopMax), lvl);
+            font_MATH_par(f, SubscriptTopMax), lvl);
         DEFINE_MATH_PARAMETERS(math_param_sup_bottom_min, size_id,
-                               font_MATH_par(f, SuperscriptBottomMin), lvl);
+            font_MATH_par(f, SuperscriptBottomMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sup_bottom_min, size_id,
-                                font_MATH_par(f, SuperscriptBottomMin), lvl);
+            font_MATH_par(f, SuperscriptBottomMin), lvl);
         DEFINE_MATH_PARAMETERS(math_param_sup_sub_bottom_max, size_id,
-                               font_MATH_par(f,
-                                             SuperscriptBottomMaxWithSubscript),
-                               lvl);
+            font_MATH_par(f, SuperscriptBottomMaxWithSubscript), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sup_sub_bottom_max, size_id,
-                                font_MATH_par(f,
-                                              SuperscriptBottomMaxWithSubscript),
-                                lvl);
+            font_MATH_par(f, SuperscriptBottomMaxWithSubscript), lvl);
         DEFINE_MATH_PARAMETERS(math_param_subsup_vgap, size_id,
-                               font_MATH_par(f, SubSuperscriptGapMin), lvl);
+            font_MATH_par(f, SubSuperscriptGapMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_subsup_vgap, size_id,
-                                font_MATH_par(f, SubSuperscriptGapMin), lvl);
+            font_MATH_par(f, SubSuperscriptGapMin), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_limit_above_vgap, size_id,
-                               font_MATH_par(f, UpperLimitGapMin), lvl);
+            font_MATH_par(f, UpperLimitGapMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_above_vgap, size_id,
-                                font_MATH_par(f, UpperLimitGapMin), lvl);
+            font_MATH_par(f, UpperLimitGapMin), lvl);
         DEFINE_MATH_PARAMETERS(math_param_limit_above_bgap, size_id,
-                               font_MATH_par(f, UpperLimitBaselineRiseMin),
-                               lvl);
+            font_MATH_par(f, UpperLimitBaselineRiseMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_above_bgap, size_id,
-                                font_MATH_par(f, UpperLimitBaselineRiseMin),
-                                lvl);
-        DEFINE_MATH_PARAMETERS(math_param_limit_above_kern, size_id, 0, lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_limit_above_kern, size_id, 0, lvl);
+            font_MATH_par(f, UpperLimitBaselineRiseMin), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_limit_above_kern, size_id,
+            0, lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_limit_above_kern, size_id,
+            0, lvl);
         DEFINE_MATH_PARAMETERS(math_param_limit_below_vgap, size_id,
-                               font_MATH_par(f, LowerLimitGapMin), lvl);
+            font_MATH_par(f, LowerLimitGapMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_below_vgap, size_id,
-                                font_MATH_par(f, LowerLimitGapMin), lvl);
+            font_MATH_par(f, LowerLimitGapMin), lvl);
         DEFINE_MATH_PARAMETERS(math_param_limit_below_bgap, size_id,
-                               font_MATH_par(f, LowerLimitBaselineDropMin),
-                               lvl);
+            font_MATH_par(f, LowerLimitBaselineDropMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_below_bgap, size_id,
-                                font_MATH_par(f, LowerLimitBaselineDropMin),
-                                lvl);
-        DEFINE_MATH_PARAMETERS(math_param_limit_below_kern, size_id, 0, lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_limit_below_kern, size_id, 0, lvl);
+            font_MATH_par(f, LowerLimitBaselineDropMin), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_limit_below_kern, size_id,
+            0, lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_limit_below_kern, size_id,
+            0, lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_fraction_rule, size_id,
-                               font_MATH_par(f, FractionRuleThickness), lvl);
+            font_MATH_par(f, FractionRuleThickness), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_rule, size_id,
-                                font_MATH_par(f, FractionRuleThickness), lvl);
+            font_MATH_par(f, FractionRuleThickness), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_num_vgap, size_id,
-                               font_MATH_par(f, FractionNumeratorGapMin), lvl);
+            font_MATH_par(f, FractionNumeratorGapMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_num_vgap, size_id,
-                                font_MATH_par(f,
-                                              FractionNumeratorDisplayStyleGapMin),
-                                lvl);
+            font_MATH_par(f, FractionNumeratorDisplayStyleGapMin), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_num_up, size_id,
-                               font_MATH_par(f, FractionNumeratorShiftUp), lvl);
+            font_MATH_par(f, FractionNumeratorShiftUp), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_num_up, size_id,
-                                font_MATH_par(f,
-                                              FractionNumeratorDisplayStyleShiftUp),
-                                lvl);
+            font_MATH_par(f, FractionNumeratorDisplayStyleShiftUp), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_denom_vgap, size_id,
-                               font_MATH_par(f, FractionDenominatorGapMin),
-                               lvl);
+            font_MATH_par(f, FractionDenominatorGapMin), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_denom_vgap, size_id,
-                                font_MATH_par(f,
-                                              FractionDenominatorDisplayStyleGapMin),
-                                lvl);
+            font_MATH_par(f,FractionDenominatorDisplayStyleGapMin), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_denom_down, size_id,
-                               font_MATH_par(f, FractionDenominatorShiftDown),
-                               lvl);
+            font_MATH_par(f, FractionDenominatorShiftDown), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_denom_down, size_id,
-                                font_MATH_par(f,
-                                              FractionDenominatorDisplayStyleShiftDown),
-                                lvl);
+            font_MATH_par(f, FractionDenominatorDisplayStyleShiftDown), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_fraction_del_size, size_id,
-                               font_MATH_par(f, FractionDelimiterSize), lvl);
+            font_MATH_par(f, FractionDelimiterSize), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size, size_id,
-                                font_MATH_par(f,
-                                              FractionDelimiterDisplayStyleSize),
-                                lvl);
+            font_MATH_par(f, FractionDelimiterDisplayStyleSize), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_space_after_script, size_id,
-                               font_MATH_par(f, SpaceAfterScript), lvl);
+            font_MATH_par(f, SpaceAfterScript), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_space_after_script, size_id,
-                                font_MATH_par(f, SpaceAfterScript), lvl);
+            font_MATH_par(f, SpaceAfterScript), lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_connector_overlap_min, size_id,
-                               font_MATH_par(f, MinConnectorOverlap), lvl);
+            font_MATH_par(f, MinConnectorOverlap), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_connector_overlap_min, size_id,
-                                font_MATH_par(f, MinConnectorOverlap), lvl);
-
+            font_MATH_par(f, MinConnectorOverlap), lvl);
 
     } else if (fam_id == 2 && is_old_mathfont(f, total_mathsy_params)) {
+
         /* fix old-style |sy| parameters */
-        DEFINE_MATH_PARAMETERS(math_param_quad, size_id, math_quad(size_id),
-                               lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_quad, size_id, math_quad(size_id),
-                                lvl);
-        DEFINE_MATH_PARAMETERS(math_param_axis, size_id, axis_height(size_id),
-                               lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_axis, size_id, axis_height(size_id),
-                                lvl);
-        DEFINE_MATH_PARAMETERS(math_param_stack_num_up, size_id, num3(size_id),
-                               lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_stack_num_up, size_id, num1(size_id),
-                                lvl);
+
+        DEFINE_MATH_PARAMETERS(math_param_quad, size_id,
+            math_quad(size_id), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_quad, size_id,
+            math_quad(size_id), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_axis, size_id,
+            axis_height(size_id), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_axis, size_id,
+            axis_height(size_id), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_stack_num_up, size_id,
+            num3(size_id), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_stack_num_up, size_id,
+            num1(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_stack_denom_down, size_id,
-                               denom2(size_id), lvl);
+            denom2(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_stack_denom_down, size_id,
-                                denom1(size_id), lvl);
+            denom1(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_num_up, size_id,
-                               num2(size_id), lvl);
+            num2(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_num_up, size_id,
-                                num1(size_id), lvl);
+            num1(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_denom_down, size_id,
-                               denom2(size_id), lvl);
+            denom2(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_denom_down, size_id,
-                                denom1(size_id), lvl);
+            denom1(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_del_size, size_id,
-                               delim2(size_id), lvl);
+            delim2(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size, size_id,
-                                delim1(size_id), lvl);
+            delim1(size_id), lvl);
         if (size_id == text_size) {
             def_math_param(math_param_sup_shift_up, display_style,
-                           sup1(size_id), lvl);
+                sup1(size_id), lvl);
             def_math_param(math_param_sup_shift_up, cramped_display_style,
-                           sup3(size_id), lvl);
-            def_math_param(math_param_sup_shift_up, text_style, sup2(size_id),
-                           lvl);
+                sup3(size_id), lvl);
+            def_math_param(math_param_sup_shift_up, text_style,
+                sup2(size_id), lvl);
             def_math_param(math_param_sup_shift_up, cramped_text_style,
-                           sup3(size_id), lvl);
+               sup3(size_id), lvl);
         } else if (size_id == script_size) {
             def_math_param(math_param_sub_shift_drop, display_style,
-                           sub_drop(size_id), lvl);
+                sub_drop(size_id), lvl);
             def_math_param(math_param_sub_shift_drop, cramped_display_style,
-                           sub_drop(size_id), lvl);
+                sub_drop(size_id), lvl);
             def_math_param(math_param_sub_shift_drop, text_style,
-                           sub_drop(size_id), lvl);
+                sub_drop(size_id), lvl);
             def_math_param(math_param_sub_shift_drop, cramped_text_style,
-                           sub_drop(size_id), lvl);
+                sub_drop(size_id), lvl);
             def_math_param(math_param_sup_shift_drop, display_style,
-                           sup_drop(size_id), lvl);
+                sup_drop(size_id), lvl);
             def_math_param(math_param_sup_shift_drop, cramped_display_style,
-                           sup_drop(size_id), lvl);
+                sup_drop(size_id), lvl);
             def_math_param(math_param_sup_shift_drop, text_style,
-                           sup_drop(size_id), lvl);
+                sup_drop(size_id), lvl);
             def_math_param(math_param_sup_shift_drop, cramped_text_style,
-                           sup_drop(size_id), lvl);
-            def_math_param(math_param_sup_shift_up, script_style, sup2(size_id),
-                           lvl);
+                sup_drop(size_id), lvl);
+            def_math_param(math_param_sup_shift_up, script_style,
+                sup2(size_id), lvl);
             def_math_param(math_param_sup_shift_up, cramped_script_style,
-                           sup3(size_id), lvl);
+                sup3(size_id), lvl);
         } else if (size_id == script_script_size) {
             def_math_param(math_param_sub_shift_drop, script_style,
-                           sub_drop(size_id), lvl);
+                sub_drop(size_id), lvl);
             def_math_param(math_param_sub_shift_drop, cramped_script_style,
-                           sub_drop(size_id), lvl);
+                sub_drop(size_id), lvl);
             def_math_param(math_param_sub_shift_drop, script_script_style,
-                           sub_drop(size_id), lvl);
+                sub_drop(size_id), lvl);
             def_math_param(math_param_sub_shift_drop,
-                           cramped_script_script_style, sub_drop(size_id), lvl);
+                cramped_script_script_style, sub_drop(size_id), lvl);
             def_math_param(math_param_sup_shift_drop, script_style,
-                           sup_drop(size_id), lvl);
+                sup_drop(size_id), lvl);
             def_math_param(math_param_sup_shift_drop, cramped_script_style,
-                           sup_drop(size_id), lvl);
+                sup_drop(size_id), lvl);
             def_math_param(math_param_sup_shift_drop, script_script_style,
-                           sup_drop(size_id), lvl);
+                sup_drop(size_id), lvl);
             def_math_param(math_param_sup_shift_drop,
-                           cramped_script_script_style, sup_drop(size_id), lvl);
+                cramped_script_script_style, sup_drop(size_id), lvl);
             def_math_param(math_param_sup_shift_up, script_script_style,
-                           sup2(size_id), lvl);
+                sup2(size_id), lvl);
             def_math_param(math_param_sup_shift_up, cramped_script_script_style,
-                           sup3(size_id), lvl);
+                sup3(size_id), lvl);
         }
+
         DEFINE_MATH_PARAMETERS(math_param_sub_shift_down, size_id,
-                               sub1(size_id), lvl);
+            sub1(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sub_shift_down, size_id,
-                                sub1(size_id), lvl);
+            sub1(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
-                               sub2(size_id), lvl);
+            sub2(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sub_sup_shift_down, size_id,
-                                sub2(size_id), lvl);
+            sub2(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_sub_top_max, size_id,
-                               (abs(math_x_height(size_id) * 4) / 5), lvl);
+            (abs(math_x_height(size_id) * 4) / 5), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sub_top_max, size_id,
-                                (abs(math_x_height(size_id) * 4) / 5), lvl);
+            (abs(math_x_height(size_id) * 4) / 5), lvl);
         DEFINE_MATH_PARAMETERS(math_param_sup_bottom_min, size_id,
-                               (abs(math_x_height(size_id)) / 4), lvl);
+            (abs(math_x_height(size_id)) / 4), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sup_bottom_min, size_id,
-                                (abs(math_x_height(size_id)) / 4), lvl);
+            (abs(math_x_height(size_id)) / 4), lvl);
         DEFINE_MATH_PARAMETERS(math_param_sup_sub_bottom_max, size_id,
-                               (abs(math_x_height(size_id) * 4) / 5), lvl);
+            (abs(math_x_height(size_id) * 4) / 5), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_sup_sub_bottom_max, size_id,
-                                (abs(math_x_height(size_id) * 4) / 5), lvl);
+            (abs(math_x_height(size_id) * 4) / 5), lvl);
 
-        /* The display-size |radical_vgap| is done twice because it needs
-           values from both the sy and the ex font. */
+        /*
+            The display-size |radical_vgap| is done twice because it needs
+            values from both the sy and the ex font.
+        */
+
         DEFINE_DMATH_PARAMETERS(math_param_radical_vgap, size_id,
-                                (default_rule_thickness(size_id) +
-                                 (abs(math_x_height(size_id)) / 4)), lvl);
-
+            (default_rule_thickness(size_id) + (abs(math_x_height(size_id)) / 4)), lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_degree_raise, size_id,
-                               60, lvl);
+            60, lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_degree_raise, size_id,
-                                60, lvl);
+            60, lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_degree_before, size_id,
-                               xn_over_d(get_math_quad_size(size_id), 5, 18),
-                               lvl);
+            xn_over_d(get_math_quad_size(size_id), 5, 18), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_degree_before, size_id,
-                                xn_over_d(get_math_quad_size(size_id), 5, 18),
-                                lvl);
+            xn_over_d(get_math_quad_size(size_id), 5, 18), lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_degree_after, size_id,
-                               (-xn_over_d
-                                (get_math_quad_size(size_id), 10, 18)), lvl);
+            (-xn_over_d (get_math_quad_size(size_id), 10, 18)), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_degree_after, size_id,
-                                (-xn_over_d
-                                 (get_math_quad_size(size_id), 10, 18)), lvl);
+            (-xn_over_d (get_math_quad_size(size_id), 10, 18)), lvl);
 
     } else if (fam_id == 3 && is_old_mathfont(f, total_mathex_params)) {
+
         /* fix old-style |ex| parameters */
+
         DEFINE_MATH_PARAMETERS(math_param_overbar_kern, size_id,
-                               default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_overbar_rule, size_id,
-                               default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_overbar_vgap, size_id,
-                               3 * default_rule_thickness(size_id), lvl);
+            3 * default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_overbar_kern, size_id,
-                                default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_overbar_rule, size_id,
-                                default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_overbar_vgap, size_id,
-                                3 * default_rule_thickness(size_id), lvl);
+            3 * default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_kern, size_id,
-                               default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_rule, size_id,
-                               default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_underbar_vgap, size_id,
-                               3 * default_rule_thickness(size_id), lvl);
+            3 * default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_kern, size_id,
-                                default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_rule, size_id,
-                                default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_underbar_vgap, size_id,
-                                3 * default_rule_thickness(size_id), lvl);
+            3 * default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_kern, size_id,
-                               default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_radical_kern, size_id,
-                                default_rule_thickness(size_id), lvl);
-
+            default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_radical_vgap, size_id,
-                               (default_rule_thickness(size_id) +
-                                (abs(default_rule_thickness(size_id)) / 4)),
-                               lvl);
-
+           (default_rule_thickness(size_id) + (abs(default_rule_thickness(size_id)) / 4)), lvl);
         DEFINE_MATH_PARAMETERS(math_param_stack_vgap, size_id,
-                               3 * default_rule_thickness(size_id), lvl);
+            3 * default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_stack_vgap, size_id,
-                                7 * default_rule_thickness(size_id), lvl);
+            7 * default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_rule, size_id,
-                               default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_rule, size_id,
-                                default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_num_vgap, size_id,
-                               default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_num_vgap, size_id,
-                                3 * default_rule_thickness(size_id), lvl);
+            3 * default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_fraction_denom_vgap, size_id,
-                               default_rule_thickness(size_id), lvl);
+            default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_denom_vgap, size_id,
-                                3 * default_rule_thickness(size_id), lvl);
+            3 * default_rule_thickness(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_limit_above_vgap, size_id,
-                               big_op_spacing1(size_id), lvl);
+            big_op_spacing1(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_above_vgap, size_id,
-                                big_op_spacing1(size_id), lvl);
+            big_op_spacing1(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_limit_above_bgap, size_id,
-                               big_op_spacing3(size_id), lvl);
+            big_op_spacing3(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_above_bgap, size_id,
-                                big_op_spacing3(size_id), lvl);
+            big_op_spacing3(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_limit_above_kern, size_id,
-                               big_op_spacing5(size_id), lvl);
+            big_op_spacing5(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_above_kern, size_id,
-                                big_op_spacing5(size_id), lvl);
+            big_op_spacing5(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_limit_below_vgap, size_id,
-                               big_op_spacing2(size_id), lvl);
+            big_op_spacing2(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_below_vgap, size_id,
-                                big_op_spacing2(size_id), lvl);
+            big_op_spacing2(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_limit_below_bgap, size_id,
-                               big_op_spacing4(size_id), lvl);
+            big_op_spacing4(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_below_bgap, size_id,
-                                big_op_spacing4(size_id), lvl);
+            big_op_spacing4(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_limit_below_kern, size_id,
-                               big_op_spacing5(size_id), lvl);
+           big_op_spacing5(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_below_kern, size_id,
-                                big_op_spacing5(size_id), lvl);
+            big_op_spacing5(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_subsup_vgap, size_id,
-                               4 * default_rule_thickness(size_id), lvl);
+            4 * default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_subsup_vgap, size_id,
-                                4 * default_rule_thickness(size_id), lvl);
-        /* All of the |space_after_script|s are done in |finalize_math_parameters| because the
-           \.{\\scriptspace} may have been altered by the user
-         */
-        DEFINE_MATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0,
-                               lvl);
-        DEFINE_DMATH_PARAMETERS(math_param_connector_overlap_min, size_id, 0,
-                                lvl);
+            4 * default_rule_thickness(size_id), lvl);
+
+        /*
+            All of the |space_after_script|s are done in |finalize_math_parameters|
+            because the \.{\\scriptspace} may have been altered by the user
+        */
+
+        DEFINE_MATH_PARAMETERS(math_param_connector_overlap_min, size_id,
+            0, lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_connector_overlap_min, size_id,
+            0, lvl);
 
         DEFINE_MATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
-                               big_op_spacing2(size_id), lvl);
+            big_op_spacing2(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_vgap, size_id,
-                                big_op_spacing2(size_id), lvl);
+            big_op_spacing2(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
-                               big_op_spacing4(size_id), lvl);
+            big_op_spacing4(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_under_delimiter_bgap, size_id,
-                                big_op_spacing4(size_id), lvl);
+            big_op_spacing4(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_over_delimiter_vgap, size_id,
-                               big_op_spacing1(size_id), lvl);
+            big_op_spacing1(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_vgap, size_id,
-                                big_op_spacing1(size_id), lvl);
+            big_op_spacing1(size_id), lvl);
         DEFINE_MATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
-                               big_op_spacing3(size_id), lvl);
+            big_op_spacing3(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_over_delimiter_bgap, size_id,
-                                big_op_spacing3(size_id), lvl);
+            big_op_spacing3(size_id), lvl);
 
-        /* The display-size |radical_vgap| is done twice because it needs
-           values from both the sy and the ex font. */
+        /*
+            The display-size |radical_vgap| is done twice because it needs
+            values from both the sy and the ex font.
+        */
+
         DEFINE_DMATH_PARAMETERS(math_param_radical_vgap, size_id,
-                                (default_rule_thickness(size_id) +
-                                 (abs(math_x_height(size_id)) / 4)), lvl);
+            (default_rule_thickness(size_id) + (abs(math_x_height(size_id)) / 4)), lvl);
+
     }
 }
 
@@ -838,29 +807,26 @@ static void finalize_math_parameters(void)
 {
     int saved_trace = int_par(tracing_assigns_code);
     int_par(tracing_assigns_code) = 0;
-    if (get_math_param(math_param_space_after_script, display_style) ==
-        undefined_math_parameter) {
+    if (get_math_param(math_param_space_after_script, display_style) == undefined_math_parameter) {
         def_math_param(math_param_space_after_script, display_style,
-                       script_space, level_one);
+            script_space, level_one);
         def_math_param(math_param_space_after_script, text_style,
-                       script_space, level_one);
+            script_space, level_one);
         def_math_param(math_param_space_after_script, script_style,
-                       script_space, level_one);
+            script_space, level_one);
         def_math_param(math_param_space_after_script, script_script_style,
-                       script_space, level_one);
+            script_space, level_one);
         def_math_param(math_param_space_after_script, cramped_display_style,
-                       script_space, level_one);
+            script_space, level_one);
         def_math_param(math_param_space_after_script, cramped_text_style,
-                       script_space, level_one);
+            script_space, level_one);
         def_math_param(math_param_space_after_script, cramped_script_style,
-                       script_space, level_one);
-        def_math_param(math_param_space_after_script,
-                       cramped_script_script_style, script_space, level_one);
+            script_space, level_one);
+        def_math_param(math_param_space_after_script, cramped_script_script_style,
+            script_space, level_one);
     }
     int_par(tracing_assigns_code) = saved_trace;
-
 }
-
 
 @ In order to convert mlists to hlists, i.e., noads to nodes, we need several
 subroutines that are conveniently dealt with now.
@@ -944,12 +910,12 @@ static pointer overbar(pointer b, scaled k, scaled t, scaled ht, pointer att)
 {
     pointer p, q;               /* nodes being constructed */
     p = new_kern(k);
-    couple_nodes(p,b);
     reset_attributes(p, att);
+    couple_nodes(p,b);
     q = do_fraction_rule(t, att);
     couple_nodes(q,p);
-    p = new_kern(ht);
     reset_attributes(p, att);
+    p = new_kern(ht);
     couple_nodes(p,q);
     q = vpackage(p, 0, additional, max_dimen, math_direction);
     reset_attributes(q, att);
@@ -997,7 +963,7 @@ static scaled stack_into_box(pointer b, internal_font_number f, int c)
     pointer p, q;               /* new node placed into |b| */
     p = char_box(f, c, node_attr(b));
     if (type(b) == vlist_node) {
-//        vlink(p) = list_ptr(b);
+/*        vlink(p) = list_ptr(b); */
 try_couple_nodes(p,list_ptr(b));
         list_ptr(b) = p;
         height(b) = height(p);
@@ -2149,14 +2115,16 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
     width(y) = 0;
     if (top_or_bot == TOP_CODE) {
         p = new_kern(-delta);
+        reset_attributes(p, node_attr(q));
         couple_nodes(p,x);
         couple_nodes(y,p);
     } else {
 #if 0
-           p = new_kern(-delta);
-           couple_nodes(x,p);
-           couple_nodes(p,y);
-           y = x;
+        p = new_kern(-delta);
+        reset_attributes(p, node_attr(q));
+        couple_nodes(x,p);
+        couple_nodes(p,y);
+        y = x;
 #endif
         couple_nodes(x,y);
         y = x;
@@ -2170,8 +2138,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c,
             /* Make the height of box |y| equal to |h| */
             p = new_kern(h - height(y));
             reset_attributes(p, node_attr(q));
-//            vlink(p) = list_ptr(y);
-try_couple_nodes(p,list_ptr(y));
+            try_couple_nodes(p,list_ptr(y));
             list_ptr(y) = p;
             height(y) = h;
         }
@@ -2264,6 +2231,7 @@ static void make_fraction(pointer q, int cur_style)
     reset_attributes(v, node_attr(q));
     if (thickness(q) == 0) {
         p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
+        reset_attributes(p, node_attr(q));
         couple_nodes(p,z);
     } else {
         y = do_fraction_rule(thickness(q), node_attr(q));
@@ -2272,6 +2240,7 @@ static void make_fraction(pointer q, int cur_style)
         couple_nodes(y,p);
         couple_nodes(p,z);
         p = new_kern((shift_up - depth(x)) - (math_axis(cur_size) + delta));
+        reset_attributes(p, node_attr(q));
         couple_nodes(p,y);
     }
     reset_attributes(p, node_attr(q));
@@ -2448,9 +2417,7 @@ static scaled make_op(pointer q, int cur_style)
             reset_attributes(p, node_attr(q));
             couple_nodes(p,x);
             list_ptr(v) = p;
-            height(v) =
-                height(v) + limit_above_kern(cur_style) + height(x) + depth(x) +
-                shift_up;
+            height(v) = height(v) + limit_above_kern(cur_style) + height(x) + depth(x) + shift_up;
         }
         if (subscr(q) == null) {
             list_ptr(z) = null;
@@ -2709,7 +2676,8 @@ static pointer attach_hkern_to_new_hlist(pointer q, scaled delta2)
 {
     pointer y;
     pointer z = new_kern(delta2);
-    if (new_hlist(q) == null) { /* this is somewhat weird */
+    if (new_hlist(q) == null) {
+        /* this is somewhat weird */
         new_hlist(q) = z;
     } else {
         y = new_hlist(q);
