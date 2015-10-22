@@ -1049,29 +1049,10 @@ init_lua_key_alias(term_and_log,"term and log")
     } \
 } while(0)
 
-
-
-
 #ifdef __MINGW32__
 extern FILE *_cairo_win32_tmpfile( void );
 #define tmpfile() _cairo_win32_tmpfile()
 #endif /* __MINGW32__ */
-
-
-
-/*
-* experimental code (no primitive):
-
-   0 = all
-   1 = retain math nodes
-
-*/
-
-#define max_experimental_code 1
-#define MAX_EXPERIMENTAL_CODE_SIZE max_experimental_code+1
-/* to be indexed by i with 1<= i <=max_experimental_code */
-extern int experimental_code[MAX_EXPERIMENTAL_CODE_SIZE] ;
-
 
 #endif                          /* LUATEX_API_H */
 

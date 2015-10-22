@@ -157,7 +157,8 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define thin_mu_skip_code 15                                          /* thin space in math formula */
 #  define med_mu_skip_code 16                                           /* medium space in math formula */
 #  define thick_mu_skip_code 17                                         /* thick space in math formula */
-#  define glue_pars 18                                                  /* total number of glue parameters */
+#  define math_skip_code 18
+#  define glue_pars 19                                                  /* total number of glue parameters */
 
 #  define skip_base (glue_base+glue_pars)                               /* table of |number_regs| ``skip'' registers */
 #  define mu_skip_base (skip_base+number_regs)                          /* table of |number_regs| ``muskip'' registers */
@@ -502,5 +503,11 @@ extern void show_save_groups(void);
 #  define level_one 1                                           /* outermost level for defined quantities */
 
 extern void show_eqtb(halfword n);
+
+/* more will move here */
+
+#define space_skip glue_par(space_skip_code)
+#define xspace_skip glue_par(xspace_skip_code)
+#define math_skip glue_par(math_skip_code)
 
 #endif

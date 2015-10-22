@@ -2486,41 +2486,6 @@ static int lua_math_random (lua_State *L)
   return 1;
 }
 
-
-
-/* Experimental code can either become permanent or disappear. It is
-undocumented and mostly present in the experimental branch but for
-practical reasons we also have the setup code in the regular binary.
-The experimental_code array is indexed by i with 1<= i <= max_experimental_code,
-position 0 is not used */
-int experimental_code[MAX_EXPERIMENTAL_CODE_SIZE] = { 0 };
-
-
-static int set_experimental_code(lua_State *L)
-{
-    int e, b, i ;
-
-    if (lua_isboolean(L,1)) {
-        e = 0 ;
-        b = lua_toboolean(L,1) ;
-    } else if (lua_isnumber(L,1) && lua_isboolean(L,2)) {
-        e = (int) lua_tonumber(L, 1);
-        b = lua_toboolean(L,2) ;
-    } else {
-        return luaL_error(L, "boolean or number and boolean expected");
-    }
-    if (e==0) {
-        for (i=1;i<=max_experimental_code;i++) {
-            experimental_code[i] = b;
-        }
-    } else if (0<e && e<=max_experimental_code  ) {
-        experimental_code[e] = b;
-    } else {
-      return luaL_error(L, "first number out of range");
-    }
-    return 0;
-}
-
 static int tex_run_main(lua_State * L)
 {
     (void) L;
@@ -2646,7 +2611,6 @@ static const struct luaL_Reg texlib[] = {
     {"normal_rand", tex_norm_rand},
     {"lua_math_randomseed", tex_init_rand}, /* syntactic sugar  */
     {"lua_math_random", lua_math_random},
-    {"set_experimental_code",set_experimental_code},
     {"show_context", tex_show_context},
     {"saveboxresource", tex_save_box_resource},
     /* sentinel */

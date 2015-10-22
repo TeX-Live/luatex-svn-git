@@ -712,11 +712,11 @@ static int line_diff;           /*the difference between the current line number
 #define kern_break() {  \
     if ((!is_char_node(vlink(cur_p))) && auto_breaking)  \
       if (type(vlink(cur_p))==glue_node)  \
-	  ext_try_break(0,unhyphenated_node, line_break_dir, adjust_spacing,	\
-                      par_shape_ptr, adj_demerits,  \
-                      tracing_paragraphs, protrude_chars,  \
-                      line_penalty, last_line_fit,  \
-                      double_hyphen_demerits,  final_hyphen_demerits,first_p,cur_p);  \
+          ext_try_break(0,unhyphenated_node, line_break_dir, adjust_spacing,	\
+                          par_shape_ptr, adj_demerits,  \
+                          tracing_paragraphs, protrude_chars,  \
+                          line_penalty, last_line_fit,  \
+                          double_hyphen_demerits,  final_hyphen_demerits,first_p,cur_p);  \
     if (type(cur_p)!=math_node) active_width[1]+=width(cur_p);  \
     else                        active_width[1]+=surround(cur_p);  \
   }
@@ -910,6 +910,15 @@ compute_break_width(int break_type, int line_break_dir, int adjust_spacing, half
     }
     while (s != null) {
         switch (type(s)) {
+        case math_node:
+            /* begin mathskip code */
+            if (math_skip == zero_glue) {
+                break_width[1] -= surround(s);
+                break;
+            } else {
+                /* fall through */
+            }
+            /* end mathskip code */
         case glue_node:
             /*Subtract glue from |break_width|; */
             {
@@ -920,9 +929,6 @@ compute_break_width(int break_type, int line_break_dir, int adjust_spacing, half
             }
             break;
         case penalty_node:
-            break;
-        case math_node:
-            break_width[1] -= surround(s);
             break;
         case kern_node:
             if (subtype(s) != explicit)
@@ -1863,6 +1869,16 @@ ext_do_line_break(int paragraph_dir,
                 internal_right_box = local_box_right(cur_p);
                 internal_right_box_width = local_box_right_width(cur_p);
                 break;
+            case math_node:
+                auto_breaking = (subtype(cur_p) == after);
+                /* begin mathskip code */
+                if (math_skip == zero_glue) {
+                    kern_break();
+                    break;
+                } else {
+                    /* fall through */
+                }
+                /* end mathskip code */
             case glue_node:
                 /* If node |cur_p| is a legal breakpoint, call |try_break|;
                    then update the active widths by including the glue in
@@ -1892,6 +1908,11 @@ ext_do_line_break(int paragraph_dir,
                 active_width[1] += width(q);
                 active_width[2 + stretch_order(q)] += stretch(q);
                 active_width[7] += shrink(q);
+                /* begin mathskip code */
+                if (type(cur_p)==math_node) {
+                    active_width[1]+=surround(cur_p);
+                }
+                /* end mathskip code */
                 break;
             case kern_node:
                 if (subtype(cur_p) == explicit) {
@@ -1988,10 +2009,6 @@ ext_do_line_break(int paragraph_dir,
                 }
                 s = vlink_no_break(cur_p);
                 add_to_widths(s, line_break_dir, adjust_spacing, active_width);
-                break;
-            case math_node:
-                auto_breaking = (subtype(cur_p) == after);
-                kern_break();
                 break;
             case penalty_node:
                 ext_try_break(penalty(cur_p), unhyphenated_node, line_break_dir,

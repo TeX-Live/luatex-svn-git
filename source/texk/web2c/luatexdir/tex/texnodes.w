@@ -787,6 +787,11 @@ halfword copy_node(const halfword p)
             assert(tlink_no_break(r) == null);
         }
         break;
+    case math_node:
+        if (glue_ptr(p) != zero_glue) {
+            add_glue_ref(glue_ptr(p));
+        }
+        break;
     case ins_node:
         add_glue_ref(split_top_ptr(p));
         copy_sub_list(ins_ptr(r),ins_ptr(p)) ;
@@ -1181,8 +1186,14 @@ void flush_node(halfword p)
         break;
     case rule_node:
     case kern_node:
-    case math_node:
     case penalty_node:
+        break;
+    case math_node:
+        /* begin mathskip code */
+        if (glue_ptr(p) != zero_glue) {
+            delete_glue_ref(glue_ptr(p));
+        }
+        /* end mathskip code */
         break;
     case glue_spec_node:
         /* this allows free-ing of lua-allocated glue specs */
@@ -1463,6 +1474,13 @@ void check_node(halfword p)
     case margin_kern_node:
         check_node(margin_char(p));
         break;
+    case math_node:
+        /* begin mathskip code */
+        if (glue_ptr(p) != zero_glue) {
+            check_glue_ref(glue_ptr(p));
+        }
+        /* end mathskip code */
+        break;
     case disc_node:
         dorangetest(p, vlink(pre_break(p)), var_mem_max);
         dorangetest(p, vlink(post_break(p)), var_mem_max);
@@ -1513,7 +1531,6 @@ void check_node(halfword p)
         break;
     case rule_node:
     case kern_node:
-    case math_node:
     case penalty_node:
     case mark_node:
     case style_node:
@@ -3151,8 +3168,14 @@ pointer actual_box_width(pointer r, scaled base_width)
             d = width(p);
             break;
         case math_node:
-            d = surround(p);
-            break;
+            /* begin mathskip code */
+            if (glue_ptr(p) == zero_glue) {
+                d = surround(p);
+                break;
+            } else {
+                /* fall through */
+            }
+            /* end mathskip code */
         case glue_node:
             /* We need to be careful that |w|, |v|, and |d| do not depend on any |glue_set|
                values, since such values are subject to system-dependent rounding.

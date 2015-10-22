@@ -35,6 +35,8 @@
 #define cur_fam int_par(cur_fam_code)
 #define text_direction int_par(text_direction_code)
 
+#define math_skip glue_par(math_skip_code)
+
 #define var_code 7
 
 @ TODO: not sure if this is the right order
@@ -822,6 +824,7 @@ the following program.
 Here is a little routine that needs to be done whenever a subformula
 is about to be processed. The parameter is a code like |math_group|.
 
+
 @c
 static void new_save_level_math(group_code c)
 {
@@ -882,7 +885,6 @@ void init_math(void)
         you_cant();
     }
 }
-
 
 @ We get into ordinary math mode from display math mode when `\.{\\eqno}' or
 `\.{\\leqno}' appears. In such cases |cur_chr| will be 0 or~1, respectively;
@@ -2267,6 +2269,12 @@ void after_math(void)
             check_inline_math_end();
         }
         tail_append(new_math(math_surround, before));
+        /* begin mathskip code */
+        if (math_skip != zero_glue) {
+            glue_ptr(tail) = math_skip;
+            add_glue_ref(math_skip);
+        }
+        /* end mathskip code */
         if (dir_math_save) {
             tail_append(new_dir(math_direction));
         }
@@ -2279,6 +2287,12 @@ void after_math(void)
         }
         dir_math_save = false;
         tail_append(new_math(math_surround, after));
+        /* begin mathskip code */
+        if (math_skip != zero_glue) {
+            glue_ptr(tail) = math_skip;
+            add_glue_ref(math_skip);
+        }
+        /* end mathskip code */
         space_factor = 1000;
         unsave_math();
     } else {

@@ -644,27 +644,35 @@ are the result of \type {\mathchardef} or \type {\Umathchardef} are also
 acceptable in the horizontal and vertical modes. In those cases, the \type
 {\textfont} from the requested math family is used.
 
-\section{Math todo}
+\section{Math surrounding skips}
 
-The following items are still todo.
+Inline math is surrounded by (optional) \type {\mathsurround} spacing but that is fixed
+dimension. There is now an additional parameter \type {\mathsurroundskip}. When set to a
+non|-|zero value (or zero with some stretch or shrink) this parameter will replace
+\type {\mathsurround}. By using an additional parameter instead of changing the nature
+of \type {\mathsurround}, we can remain compatible.
 
-\startitemize
-\startitem
-    Pre-scripts.
-\stopitem
-\startitem
-    Multi-story stacks.
-\stopitem
-\startitem
-    Flattened accents for high characters (maybe).
-\stopitem
-\startitem
-    Better control over the spacing around displays and handling of equation numbers.
-\stopitem
-\startitem
-    Support for multi|-|line displays using \MATHML\ style alignment points.
-\stopitem
-\stopitemize
+% \section{Math todo}
+%
+% The following items are still todo.
+%
+% \startitemize
+% \startitem
+%     Pre-scripts.
+% \stopitem
+% \startitem
+%     Multi-story stacks.
+% \stopitem
+% \startitem
+%     Flattened accents for high characters (maybe).
+% \stopitem
+% \startitem
+%     Better control over the spacing around displays and handling of equation numbers.
+% \stopitem
+% \startitem
+%     Support for multi|-|line displays using \MATHML\ style alignment points.
+% \stopitem
+% \stopitemize
 
 \stopchapter
 

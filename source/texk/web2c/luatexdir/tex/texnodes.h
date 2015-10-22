@@ -268,10 +268,12 @@ typedef enum {
 #  define left_side 0
 #  define right_side 1
 
+#  define before 0 /* |subtype| for math node that introduces a formula */
+#  define after 1  /* |subtype| for math node that winds up a formula */
+
 #  define math_node_size 4
-#  define surround(a)      vlink((a)+2)
-#  define before 0              /*|subtype| for math node that introduces a formula */
-#  define after 1               /*|subtype| for math node that winds up a formula */
+#  define surround(a)          vlink((a)+2)
+/* also:  glue_ptr(a)          vinfo((a)+2) */
 #  define synctex_tag_math(a)  vinfo((a)+3)
 #  define synctex_line_math(a) vlink((a)+3)
 

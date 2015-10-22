@@ -156,11 +156,38 @@ void ext_post_line_break(int paragraph_dir,
            list about to be justified. In the meanwhile |r| will point to the
            node we will use to insert end-of-line stuff after. |q==null| means
            we use the final position of |r| */
+
+        /* begin mathskip code */
+        if (temp_head != null) {
+                q = temp_head;
+                while(q != null) {
+                    if (type(q) == math_node) {
+                        surround(q) = 0 ;
+                        if (glue_ptr(q) != zero_glue) {
+                            delete_glue_ref(glue_ptr(q));
+                            glue_ptr(q) = zero_glue;
+                        }
+                        break;
+                    } else if ((type(q) == hlist_node) && (subtype(q) == HLIST_SUBTYPE_INDENT)) {
+                        /* go on */
+                    } else if (is_char_node(q)) {
+                        break;
+                    } else if (non_discardable(q)) {
+                        break;
+                    } else if (type(q) == kern_node && subtype(q) != explicit) {
+                        break;
+                    }
+                    q = vlink(q);
+                }
+            }
+        /* end mathskip code */
+
         r = cur_break(cur_p);
         q = null;
         disc_break = false;
         post_disc_break = false;
         glue_break = false;
+
 
         if (r == null) {
             for (r = temp_head; vlink(r) != null; r = vlink(r));
@@ -172,6 +199,14 @@ void ext_post_line_break(int paragraph_dir,
                 r = alink(r);
             }
             /* |r| refers to the node after which the dir nodes should be closed */
+        } else if (type(r) == math_node) {
+            surround(r) = 0;
+            /* begin mathskip code */
+            if (glue_ptr(r) != zero_glue) {
+                delete_glue_ref(glue_ptr(r));
+                glue_ptr(r) = zero_glue;
+            }
+            /* end mathskip code */
         } else if (type(r) == glue_node) {
             delete_glue_ref(glue_ptr(r));
             glue_ptr(r) = right_skip;
@@ -245,8 +280,6 @@ void ext_post_line_break(int paragraph_dir,
             disc_break = true;
         } else if (type(r) == kern_node) {
             width(r) = 0;
-        } else if (type(r) == math_node) {
-            surround(r) = 0;
         }
 
         /* DIR: Adjust the dir stack based on dir nodes in this line; */
@@ -258,8 +291,7 @@ void ext_post_line_break(int paragraph_dir,
                 if (type(e) == dir_node) {
                     if (dir_dir(e) >= 0) {
                         dir_ptr = do_push_dir_node(dir_ptr, e);
-                    } else if (dir_ptr != null
-                               && dir_dir(dir_ptr) == (dir_dir(e) + 64)) {
+                    } else if (dir_ptr != null && dir_dir(dir_ptr) == (dir_dir(e) + 64)) {
                         dir_ptr = do_pop_dir_node(dir_ptr);
                     }
                 }
@@ -382,8 +414,8 @@ void ext_post_line_break(int paragraph_dir,
         }
         if (left_skip != zero_glue) {
             r = new_glue(copy_node(left_skip));
-	    glue_ref_count(glue_ptr(r)) = null;
-	    subtype(r) = left_skip_code+1;
+            glue_ref_count(glue_ptr(r)) = null;
+            subtype(r) = left_skip_code+1;
             delete_attribute_ref(node_attr(r));
             node_attr(r) = node_attr(q);
             add_node_attr_ref(node_attr(r));
@@ -509,78 +541,50 @@ void ext_post_line_break(int paragraph_dir,
                |break_width| values are computed for non-discretionary
                breakpoints. */
             r = temp_head;
-            if (experimental_code[1]) {
-                /* hh-ls: This is a first step to improving symmetry and consistency in the node
-                list. This is normally no issue in tex, but in callbacks it matters. */
-
-                /* Normally we have a matching math open and math close node but when we cross a line
+            /*
+                Normally we have a matching math open and math close node but when we cross a line
                 the open node is removed, including any glue or penalties following it. This is however
                 not that nice for callbacks that rely on symmetry. Of course this only counts for one
                 liners, as we can still have only a begin or end node on a line. The end_of_math lua
                 helper is made robust against this although there you should be aware of the fact that
                 one can end up in the middle of math in callbacks that don't work on whole paragraphs,
                 but at least this branch makes sure that some proper analysis is possible. (todo: check
-                if math glyphs have the subtype marked done). */
+                if math glyphs have the subtype marked done).
 
-                halfword m = null ;
-                halfword mp, mn, rn ;
-                while (1) {
-                    q = vlink(r);
-                    if (! q) {
-                        /* unlikely */
+                Todo: turn math nodes into glues when mathskip otherwise remove them.
+            */
+            while (1) {
+                q = vlink(r);
+                /*
+                if (q == cur_break(cur_p) || is_char_node(q))
+                    break;
+                if (!((type(q) == local_par_node))) {
+                    if (non_discardable(q) || (type(q) == kern_node && subtype(q) != explicit))
                         break;
-                    } else if (q == cur_break(cur_p)) {
-                        /* quit */
-                        break;
-                    } else if (type(q) == glyph_node) {
-                        /* quit: is > math_code */
-                        break;
-                    } else if (type(q) == math_node) {
-                        /* we want to keep symmetry */
-                        surround(q) = 0 ;
-                        // fprintf(stdout,"KEEP MATH NODE\n");
-                        m = q ;
-                    } else if (type(q) == kern_node && subtype(q) != explicit) {
-                        /* quit: so we keep \kern but also auto kerns */
-                        break;
-                    } if (non_discardable(q)) {
-                        /* quit: < math_node */
-                        break;
-                    } else {
-                        /* skip: glue, penalty, (font)kern, noads, temp stuff, all kind of left-overs */
-                    }
-                    r = q;
                 }
-                if (m != null) {
-                    if (r == m) {
-                        /* [a] [b] [m=r] => [a] [b=r] */
-                        r = alink(m) ;
-                    } else {
-                        /* [a] [b] [m] [c] [r] [rn] => [a] [b] [c] [r] [m] [rn] */
-                        mp = alink(m) ;
-                        mn = vlink(m) ;
-                        rn = vlink(r) ;
-                        vlink(r) = m ;
-                        alink(m) = r ;
-                        if (rn) {
-                            alink(rn) = m ;
-                            vlink(m) = rn ;
-                        }
-                        vlink(mp) = mn ;
-                        alink(mn) = mp ;
+                */
+                if (type(q) == math_node) {
+                    /* begin mathskip code */
+                    surround(q) = 0 ;
+                    if (glue_ptr(q) != zero_glue) {
+                        delete_glue_ref(glue_ptr(q));
+                        glue_ptr(q) = zero_glue;
+                        add_glue_ref(glue_ptr(q));
                     }
+                    /* end mathskip code */
                 }
-            } else {
-                while (1) {
-                    q = vlink(r);
-                    if (q == cur_break(cur_p) || is_char_node(q))
-                        break;
-                    if (!((type(q) == local_par_node))) {
-                        if (non_discardable(q) || (type(q) == kern_node && subtype(q) != explicit))
-                            break;
-                    }
-                    r = q;
+                if (q == cur_break(cur_p)) {
+                    break;
+                } else if (is_char_node(q)) {
+                    break;
+                } else if (type(q) == local_par_node) {
+                    /* weird, in the middle somewhere */
+                } else if (non_discardable(q)) {
+                    break;
+                } else if (type(q) == kern_node && subtype(q) != explicit) {
+                    break;
                 }
+                r = q;
             }
             if (r != temp_head) {
                 vlink(r) = null;

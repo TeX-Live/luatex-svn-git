@@ -175,6 +175,15 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
             case kern_node:
                 w += width(q);
                 break;
+            case math_node:
+                /* begin mathskip code */
+                if (glue_ptr(q) == zero_glue) {
+                    w += surround(q);
+                    break;
+                } else {
+                    /* fall through: mathskip */
+                }
+                /* end mathskip code */
             case glue_node:
                 g = glue_ptr(q);
                 w += width(g) - cur_g;
@@ -197,9 +206,6 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue,
                 /* hh: the frontend should append already */
                 if (vlink(no_break(q)) != null)
                     w += simple_advance_width(no_break(q));
-                break;
-            case math_node:
-                w += surround(q);
                 break;
             case dir_node:
                 if (dir_dir(q) >= 0)
@@ -510,6 +516,18 @@ void hlist_out(PDF pdf, halfword this_box)
                     out_what(pdf, p);
                 }
                 break;
+            case math_node:
+                if (synctex) {
+                    synctexmath(p, this_box);
+                }
+                /* begin mathskip code */
+                if (glue_ptr(p) == zero_glue) {
+                    cur.h += surround(p);
+                    break;
+                } else {
+                    /* fall through: mathskip */
+                }
+                /* end mathskip code */
             case glue_node:
                 {
                     /* move right or output leaders, we use real multiplication */
@@ -644,11 +662,6 @@ void hlist_out(PDF pdf, halfword this_box)
                 if (synctex)
                     synctexkern(p, this_box);
                 cur.h += width(p);
-                break;
-            case math_node:
-                if (synctex)
-                    synctexmath(p, this_box);
-                cur.h += surround(p);
                 break;
             default:
                 break;

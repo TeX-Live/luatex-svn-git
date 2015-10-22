@@ -23,6 +23,8 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
+/* these will move to equivalents.h */
+
 @ @c
 #define explicit 1
 #define acc_kern 2
@@ -32,7 +34,6 @@
 #define tag_code 5
 #define auto_kern explicit
 #define no_lig_code 6
-
 
 #define prev_depth cur_list.prev_depth_field
 #define space_factor cur_list.space_factor_field
@@ -69,6 +70,7 @@
 #define looseness int_par(looseness_code)
 #define space_skip glue_par(space_skip_code)
 #define xspace_skip glue_par(xspace_skip_code)
+#define math_skip glue_par(math_skip_code)
 #define every_vbox equiv(every_vbox_loc)
 
 #define split_top_skip glue_par(split_top_skip_code)

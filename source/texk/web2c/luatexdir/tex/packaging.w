@@ -552,6 +552,15 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                         hpack_dir = dir_dir(dir_ptr1);
                 }
                 break;
+            case math_node:
+                /* begin mathskip code */
+                if (glue_ptr(p) == zero_glue) {
+                    x += surround(p);
+                    break;
+                } else {
+                    /* fall through: mathskip */
+                }
+                /* end mathskip code */
             case glue_node:
                 /* Incorporate glue into the horizontal totals */
                 g = glue_ptr(p);
@@ -608,9 +617,6 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                     }
                 }
                 x += width(p);
-                break;
-            case math_node:
-                x += surround(p);
                 break;
             case disc_node:
                 if (m == subst_ex_font)
@@ -860,6 +866,15 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                 if (depth(p) + s > siz.dp)
                     siz.dp = depth(p) + s;
                 break;
+            case math_node:
+                /* begin mathskip code */
+                if (glue_ptr(p) == zero_glue) {
+                    siz.wd += surround(p);
+                    break;
+                } else {
+                    /* fall through: mathskip */
+                }
+                /* end mathskip code */
             case glue_node:
                 g = glue_ptr(p);
                 siz.wd += width(g);
@@ -887,9 +902,6 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
             case margin_kern_node:
             case kern_node:
                 siz.wd += width(p);
-                break;
-            case math_node:
-                siz.wd += surround(p);
                 break;
             case disc_node:
                 xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order,
