@@ -1706,6 +1706,7 @@ static void t1_subset_end(PDF pdf)
 @c
 void writet1(PDF pdf, fd_entry * fd)
 {
+    cs_entry *ptr;
     fd_cur = fd;                /* |fd_cur| is global inside \.{writet1.w} */
     assert(fd_cur->fm != NULL);
     assert(is_type1(fd->fm));
@@ -1731,6 +1732,13 @@ void writet1(PDF pdf, fd_entry * fd)
     t1_subset_charstrings(pdf);
     t1_subset_end(pdf);
     t1_close_font_file(3);
+    for (ptr = subr_tab; ptr - subr_tab < subr_size; ptr++)
+            if (ptr->valid)
+                xfree(ptr->data);
+    /*xfree(subr_tab);
+    xfree(subr_array_start);
+    xfree(subr_array_end);
+*/
     xfree(t1_buffer);
 }
 

@@ -4761,7 +4761,7 @@ can\/} be set, it is possible to use \type {global} as the first argument to
 
 \startfunctioncall
 tex.set (<string> n, ...)
-tex.set ('global', <string> n, ...)
+tex.set ("global", <string> n, ...)
 ... = tex.get (<string> n)
 \stopfunctioncall
 
@@ -5142,6 +5142,14 @@ tex.setskip ('global',<number> n, <node> s)
 tex.setskip ('global',<string> s, <node> s)
 <node> s = tex.getskip (<number> n)
 <node> s = tex.getskip (<string> s)
+\stopfunctioncall
+
+We have similar setters for \type {count}, \type {dimen} and \type {toks}. For
+tokens registers we have an alternative where a catcode table is specified:
+
+\startfunctioncall
+tex.scantoks(0,3,"$e=mc^2$")
+tex.scantoks("global",0,"$\int\limits^1_2$")
 \stopfunctioncall
 
 In the function-based interface, it is possible to define values globally by

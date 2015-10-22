@@ -1250,6 +1250,7 @@ that subformula into a given word of |mem|.
 
 int scan_math_style(pointer p, int mstyle)
 {
+    get_next_nb_nr();
     back_input();
     scan_left_brace();
     set_saved_record(0, saved_math, 0, p);

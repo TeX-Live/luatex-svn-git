@@ -100,6 +100,7 @@ extern int set_tex_box_register(int j, scaled v);
 extern int set_tex_attribute_register(int j, scaled v);
 extern int get_tex_toks_register(int l);
 extern int set_tex_toks_register(int j, lstring s);
+extern int scan_tex_toks_register(int j, int c, lstring s);
 extern scaled get_tex_box_width(int j);
 extern int set_tex_box_width(int j, scaled v);
 extern scaled get_tex_box_height(int j);

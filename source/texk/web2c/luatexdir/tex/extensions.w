@@ -973,6 +973,22 @@ int set_tex_toks_register(int j, lstring s)
     return 0;
 }
 
+int scan_tex_toks_register(int j, int c, lstring s)
+{
+    halfword ref;
+    int a;
+    ref = get_avail();
+    (void) str_scan_toks(c,s);
+    set_token_ref_count(ref, 0);
+    set_token_link(ref, token_link(temp_token_head));
+    if (global_defs > 0)
+        a = 4;
+    else
+        a = 0;
+    define(j + toks_base, call_cmd, ref);
+    return 0;
+}
+
 scaled get_tex_box_width(int j)
 {
     halfword q = box(j);

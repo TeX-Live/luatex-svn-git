@@ -848,14 +848,25 @@ static int getattribute(lua_State * L)
     return 1;
 }
 
-static int vsettoks(lua_State * L, int is_global)
+/* todo: we can avoid memcpy as there is no need to go through the pool */
+
+/* use string_to_toks */
+
+static int settoks(lua_State * L)
 {
-    int i, err;
-    int k;
+    int i, err, k;
     lstring str;
     char *s;
     const char *ss;
+    int is_global = 0;
     int save_global_defs = int_par(global_defs_code);
+    int n = lua_gettop(L);
+    if (n == 3 && lua_isstring(L, 1)) {
+        const char *s = lua_tostring(L, 1);
+        if (lua_key_eq(s,global))
+            is_global = 1;
+    }
+    /* action : vsettoks(L, is_global); */
     if (is_global)
         int_par(global_defs_code) = 1;
     i = lua_gettop(L);
@@ -877,16 +888,41 @@ static int vsettoks(lua_State * L, int is_global)
     return 0;
 }
 
-static int settoks(lua_State * L)
+static int scantoks(lua_State * L)
 {
-    int isglobal = 0;
+    int i, err, k, c;
+    lstring str;
+    char *s;
+    const char *ss;
+    int is_global = 0;
+    int save_global_defs = int_par(global_defs_code);
     int n = lua_gettop(L);
-    if (n == 3 && lua_isstring(L, 1)) {
+    if (n == 4 && lua_isstring(L, 1)) {
         const char *s = lua_tostring(L, 1);
         if (lua_key_eq(s,global))
-            isglobal = 1;
+            is_global = 1;
     }
-    return vsettoks(L, isglobal);
+    /* action : vsettokscct(L, is_global); */
+    if (is_global)
+        int_par(global_defs_code) = 1;
+    i = lua_gettop(L);
+    if (!lua_isstring(L, i)) {
+        luaL_error(L, "unsupported value type");
+    }
+    ss = lua_tolstring(L, i, &str.l);
+    s = xmalloc (str.l+1);
+    memcpy (s, ss, str.l+1);
+    str.s = (unsigned char *)s;
+    k = get_item_index(L, (i - 2), toks_base);
+    c = (int) luaL_checkinteger(L, i - 1);
+    check_index_range(k, "settoks");
+    err = scan_tex_toks_register(k, c, str);
+    xfree(str.s);
+    int_par(global_defs_code) = save_global_defs;
+    if (err) {
+        luaL_error(L, "incorrect value");
+    }
+    return 0;
 }
 
 static int gettoks(lua_State * L)
@@ -2594,6 +2630,7 @@ static const struct luaL_Reg texlib[] = {
     {"setcount", setcount},
     {"getcount", getcount},
     {"settoks", settoks},
+    {"scantoks", scantoks},
     {"gettoks", gettoks},
     {"setbox", setbox},
     {"getbox", getbox},

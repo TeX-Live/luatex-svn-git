@@ -1550,8 +1550,7 @@ halfword lua_str_toks(lstring b)
         if (t == ' ') {
             t = space_token;
         } else {
-            if ((t == '\\') || (t == '"') || (t == '\'') || (t == 10)
-                || (t == 13))
+            if ((t == '\\') || (t == '"') || (t == '\'') || (t == 10) || (t == 13))
                 fast_store_new_token(other_token + '\\');
             if (t == 10)
                 t = 'n';
@@ -1587,6 +1586,77 @@ halfword str_toks(lstring s)
         else
             t = other_token + t;
         fast_store_new_token(t);
+    }
+    return p;
+}
+
+/*
+    hh: most of the converter is similar to the one i made for macro so at some point i
+    can make a helper; also todo: there is no need to go through the pool
+
+*/
+
+halfword str_scan_toks(int ct, lstring s)
+{                               /* changes the string |str_pool[b..pool_ptr]| to a token list */
+    halfword p;                 /* tail of the token list */
+    halfword q;                 /* new node being added to the token list via |store_new_token| */
+    halfword t;                 /* token being appended */
+    unsigned char *k, *l;       /* index into string */
+    int cc;
+    p = temp_token_head;
+    set_token_link(p, null);
+    k = s.s;
+    l = k + s.l;
+    while (k < l) {
+        t = pool_to_unichar(k);
+        k += utf8_size(t);
+        cc = get_cat_code(ct,t);
+            if (cc == 0) {
+                /* we have a potential control sequence so we check for it */
+                int _lname = 0 ;
+                int _s = 0 ;
+                int _c = 0 ;
+                halfword _cs = null ;
+                unsigned char *_name  = k ;
+                while (k < l) {
+                    t = (halfword) str2uni((const unsigned char *) k);
+                    _s = utf8_size(t);
+                    _c = get_cat_code(ct,t);
+                    if (_c == 11) {
+                        k += _s ;
+                        _lname = _lname + _s ;
+                    } else if (_c == 10) {
+                        /* we ignore a trailing space like normal scanning does */
+                        k += _s ;
+                        break ;
+                    } else {
+                        break ;
+                    }
+                }
+                if (_s > 0) {
+                    /* we have a potential \cs */
+                    _cs = string_lookup((const char *) _name, _lname);
+                    if (_cs == undefined_control_sequence) {
+                        /* let's play safe and backtrack */
+                        t = cc * (1<<21) + t ;
+                        k = _name ;
+                    } else {
+                        t = cs_token_flag + _cs;
+                    }
+                } else {
+                    /* just a character with some meaning, so \unknown becomes effectively */
+                    /* \\unknown assuming that \\ has some useful meaning of course        */
+                    t = cc * (1<<21) + t ;
+                    k = _name ;
+                }
+
+            } else {
+                /* whatever token, so for instance $x^2$ just works given a tex */
+                /* catcode regime */
+                t = cc * (1<<21) + t ;
+            }
+            fast_store_new_token(t);
+
     }
     return p;
 }

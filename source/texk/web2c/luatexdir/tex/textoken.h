@@ -27,9 +27,7 @@
 
 #  define left_brace_token 0x200000     /* $2^{21}\cdot|left_brace|$ */
 #  define right_brace_token 0x400000    /* $2^{21}\cdot|right_brace|$ */
-#  define left_brace_token 0x200000     /* $2^{21}\cdot|left_brace|$ */
 #  define left_brace_limit 0x400000     /* $2^{21}\cdot(|left_brace|+1)$ */
-#  define right_brace_token 0x400000    /* $2^{21}\cdot|right_brace|$ */
 #  define right_brace_limit 0x600000    /* $2^{21}\cdot(|right_brace|+1)$ */
 #  define math_shift_token 0x600000     /* $2^{21}\cdot|math_shift|$ */
 #  define tab_token 0x800000    /* $2^{21}\cdot|tab_mark|$ */
@@ -151,6 +149,7 @@ extern void firm_up_the_line(void);
 extern void get_token(void);
 
 extern halfword str_toks(lstring b);
+extern halfword str_scan_toks(int c, lstring b);
 extern void ins_the_toks(void);
 
 extern int scan_lua_state(void);

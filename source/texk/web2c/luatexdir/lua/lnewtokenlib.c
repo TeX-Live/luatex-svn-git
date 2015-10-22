@@ -659,7 +659,7 @@ static int set_macro(lua_State * L)
                     }
                 }
                 if (_s > 0) {
-                    /* we havea potential \cs */
+                    /* we have a potential \cs */
                     _cs = string_lookup(_name, _lname);
                     if (_cs == undefined_control_sequence) {
                         /* let's play safe and backtrack */
