@@ -146,6 +146,7 @@ command_item command_names[] = {
     {"letterspace_font", letterspace_font_cmd, NULL},
     {"expand_font",expand_font_cmd, NULL},
     {"copy_font", copy_font_cmd, NULL},
+    {"set_font_id", set_font_id_cmd, NULL},
     {"undefined_cs", undefined_cs_cmd, NULL},
     {"expand_after", expand_after_cmd, NULL},
     {"no_expand", no_expand_cmd, NULL},

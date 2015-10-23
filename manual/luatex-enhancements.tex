@@ -618,7 +618,7 @@ This new integer parameter allows you to alter the number of the box that will b
 used to store the page sent to the output routine. Its default value is 255, and
 the acceptable range is from 0 to 65535.
 
-\section{\type {\fontid}}
+\section{\type {\fontid} and \type {\setfontid}}
 
 \startsyntax
 \fontid\font
@@ -639,6 +639,9 @@ of dealing with fonts. They can also differ per run, as they can depend on the
 order of loading fonts. For instance, when in \CONTEXT\ virtual math \UNICODE\
 fonts are used, we can easily get over a hundred ids in use. Not all ids have to
 be bound to a real font, after all it's just a number.
+
+The primitive \type {\setfontid} can be used to enable a font with the given id
+(which of course needs to be a valid one).
 
 \section{\type {\gleaders}}
 

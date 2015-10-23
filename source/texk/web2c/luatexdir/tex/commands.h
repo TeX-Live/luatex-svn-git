@@ -198,6 +198,7 @@ typedef enum {
     letterspace_font_cmd,       /* letterspace a font ( \.{\\letterspacefont} ) */
     expand_font_cmd,            /* expand glyphs ( \.{\\expandglyphsinfont} ) */
     copy_font_cmd,              /* create a new font instance ( \.{\\copyfont} ) */
+    set_font_id_cmd,
     undefined_cs_cmd,           /* initial state of most |eq_type| fields */
     expand_after_cmd,           /* special expansion ( \.{\\expandafter} ) */
     no_expand_cmd,              /* special nonexpansion ( \.{\\noexpand} ) */
@@ -220,7 +221,7 @@ typedef enum {
     data_cmd,                   /* the equivalent is simply a halfword number */
 } tex_command_code;
 
-#  define max_command_cmd copy_font_cmd     /* the largest command code seen at |big_switch| */
+#  define max_command_cmd set_font_id_cmd     /* the largest command code seen at |big_switch| */
 #  define last_cmd data_cmd
 #  define max_non_prefixed_command last_item_cmd
 

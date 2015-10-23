@@ -646,6 +646,7 @@ void scan_something_internal(int level, boolean negative)
         case def_font_cmd:
         case letterspace_font_cmd:
         case copy_font_cmd:
+        case set_font_id_cmd:
             /* Fetch a token list or font identifier, provided that |level=tok_val| */
             if (level != tok_val_level) {
                 print_err("Missing number, treated as zero");
@@ -1833,7 +1834,7 @@ void scan_font_ident(void)
         get_x_token();
     } while (cur_cmd == spacer_cmd);
 
-    if ((cur_cmd == def_font_cmd) || (cur_cmd == letterspace_font_cmd) || (cur_cmd == copy_font_cmd)) {
+    if ((cur_cmd == def_font_cmd) || (cur_cmd == letterspace_font_cmd) || (cur_cmd == copy_font_cmd) || (cur_cmd == set_font_id_cmd)) {
         f = get_cur_font();
     } else if (cur_cmd == set_font_cmd) {
         f = cur_chr;

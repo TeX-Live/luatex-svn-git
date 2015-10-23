@@ -180,6 +180,7 @@ void initialize_commands(void)
     primitive_luatex("letterspacefont", letterspace_font_cmd, 0, 0);
     primitive_luatex("expandglyphsinfont", normal_cmd, expand_font_code, 0);
     primitive_luatex("copyfont", copy_font_cmd, 0, 0);
+    primitive_luatex("setfontid", set_font_id_cmd, 0, 0);
     primitive_tex("fontdimen", assign_font_dimen_cmd, 0, 0);
     primitive_tex("halign", halign_cmd, 0, 0);
     primitive_tex("hrule", hrule_cmd, 0, 0);
