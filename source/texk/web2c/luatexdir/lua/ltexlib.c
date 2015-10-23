@@ -2509,6 +2509,28 @@ static int tex_show_context(lua_State * L)
     return 0;
 }
 
+static int tex_set_line_number(lua_State * L)
+{
+    int b, l;
+    if (lua_isnumber(L, 1)) {
+        l = (int) lua_tonumber(L, 1);
+        if (lua_isboolean(L, 2)) {
+            b = lua_toboolean(L, -2);
+            if (b) {
+                line = line + l;
+            } else {
+                line = l;
+            }
+        }
+    }
+    return 0;
+}
+
+static int tex_get_line_number(lua_State * L) {
+    lua_pushnumber(L,line);
+    return 1;
+}
+
 static int tex_save_box_resource(lua_State * L)
 {
     halfword boxnumber, boxdata;
@@ -2613,6 +2635,8 @@ static const struct luaL_Reg texlib[] = {
     {"lua_math_random", lua_math_random},
     {"show_context", tex_show_context},
     {"saveboxresource", tex_save_box_resource},
+    {"getlinenumber", tex_get_line_number},
+    {"setlinenumber", tex_set_line_number},
     /* sentinel */
     {NULL, NULL}
 };
