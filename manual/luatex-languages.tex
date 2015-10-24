@@ -334,6 +334,23 @@ Differences between \LUATEX\ and \TEX82 that are a direct result of that:
 \stopitem
 \stopitemize
 
+Because we store penalties in the disc node the \type {\discretionary} command has
+been extended to accept an optional penalty specification, so you can do the
+following:
+
+\startbuffer
+\hsize1mm
+1:foo{\hyphenpenalty 10000\discretionary{}{}{}}bar\par
+2:foo\discretionary penalty 10000 {}{}{}bar\par
+3:foo\discretionary{}{}{}bar\par
+\stopbuffer
+
+\typebuffer
+
+This results in:
+
+\blank \start \getbuffer \stop \blank
+
 Inserted characters and ligatures inherit their attributes from the nearest glyph
 node item (usually the preceding one, but the following one for the items
 inserted at the left-hand side of a word).

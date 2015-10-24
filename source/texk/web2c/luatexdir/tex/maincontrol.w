@@ -1883,6 +1883,10 @@ void append_discretionary(void)
         disc_penalty(tail) = int_par(ex_hyphen_penalty_code);
     } else {
         /* \discretionary */
+        if (scan_keyword("penalty")) {
+            scan_int();
+            disc_penalty(tail) = cur_val;
+        }
         incr(save_ptr);
         set_saved_record(-1, saved_disc, 0, 0);
         new_save_level(disc_group);
