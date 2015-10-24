@@ -702,6 +702,7 @@ static void run_normal (void) {
     }
 }
 
+
 static void run_option(void) {
     switch (cur_chr) {
         case math_option_code:
@@ -711,6 +712,9 @@ static void run_option(void) {
             } else if (scan_keyword("alwayscharitalic")) {
                 scan_int();
                 math_always_char_italic = cur_val;
+            } else if (scan_keyword("nodelimitershift")) {
+                scan_int();
+                math_no_delimiter_shift = cur_val;
             } else {
                 normal_warning("mathoption","unknown key",false,false);
             }
@@ -929,7 +933,6 @@ static void init_main_control (void) {
     any_mode(def_font_cmd, prefixed_command);
     any_mode(letterspace_font_cmd, prefixed_command);
     any_mode(copy_font_cmd, prefixed_command);
-    any_mode(set_font_id_cmd, prefixed_command);
     any_mode(register_cmd, prefixed_command);
     any_mode(advance_cmd, prefixed_command);
     any_mode(multiply_cmd, prefixed_command);
@@ -2809,14 +2812,6 @@ void prefixed_command(void)
         break;
     case copy_font_cmd:
         make_font_copy((small_number) a);
-        break;
-    case set_font_id_cmd:
-        scan_int();
-        if (is_valid_font(cur_val)) {
-            set_cur_font((small_number) cur_val);
-        } else {
-            normal_error("\\setfontid","invalid id");
-        }
         break;
     case set_interaction_cmd:
         new_interaction();
