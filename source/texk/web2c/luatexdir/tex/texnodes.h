@@ -401,8 +401,11 @@ typedef enum {
 
 /* left and right noads */
 
-#  define fence_noad_size 3
-#  define delimiter(a)      vlink((a)+2)        /* |delimiter| field in left and right noads */
+#  define fence_noad_size 4
+#  define delimiter(a)       vlink((a)+2)        /* |delimiter| field in left and right noads */
+#  define delimiteraxis(a)   vinfo((a)+2)
+#  define delimiterheight(a) vlink((a)+3)
+#  define delimiterdepth(a)  vinfo((a)+3)
 
 /* subtype of fence noads */
 

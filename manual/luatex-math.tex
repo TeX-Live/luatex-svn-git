@@ -703,6 +703,37 @@ of \type {\mathsurround}, we can remain compatible.
 % \stopitem
 % \stopitemize
 
+\subsection {Delimiters}
+
+You can force delimiters to certain sizes by putting an empty box or rule next to
+it. The resulting delimiter will either be a character from the stepwise size
+range or an extensible. The latter can be quiote differently positioned that the
+characters as it depends on the fit aas well as the fact if the used characters
+in the font have depth or height. Commands like (plain \TEX s) \type {\big} need
+use this feature. In \LUATEX\ we provide a bit more control by supporting optional
+parameters \type {height}, \type {depth} and \type {axis}. The following example
+uses this:
+
+\startbuffer
+\normalleft   height 30pt depth 10pt      \Udelimiter "0 "0 "000028
+\quad x\quad
+\normalmiddle height 40pt depth 15pt      \Udelimiter "0 "0 "002016
+\quad x\quad
+\normalright  height 30pt depth 10pt      \Udelimiter "0 "0 "000029
+\quad \quad \quad
+\normalleft   height 30pt depth 10pt axis \Udelimiter "0 "0 "000028
+\quad x\quad
+\normalmiddle height 40pt depth 15pt axis \Udelimiter "0 "0 "002016
+\quad x\quad
+\normalright  height 30pt depth 10pt axis \Udelimiter "0 "0 "000029
+\stopbuffer
+
+\typebuffer
+
+\startlinecorrection
+\ruledhbox{\mathematics{\getbuffer}}
+\stoplinecorrection
+
 \subsection {Math options}
 
 The logic in the math engine is rather complex and there are often no universal
@@ -712,7 +743,7 @@ primitive \type {\mathoption} has been introduced (so that we don't end up with
 many new commands). The approach of options also permits us to see what effect a
 specific solution has.
 
-\subsubsection {\type {\mathoption compensateitalic}}
+\subsubsection {\type {\mathoption noitaliccompensation}}
 
 This option compensates placement for characters with a built|-|in italic
 correction.
@@ -725,22 +756,23 @@ correction.
 
 \typebuffer
 
-Gives:
+Gives (with computer modern that has such italics):
 
 \startlinecorrection[blank]
-    \startcombination[nx=2,ny=2]
-        {\mathoption compensateitalic 0\relax \mathematics{\getbuffer}}
-            {\type{0:inline}}
-        {\mathoption compensateitalic 0\relax \mathematics{\displaymath\getbuffer}}
-            {\type{0:display}}
-        {\mathoption compensateitalic 1\relax \mathematics{\getbuffer}}
-            {\type{1:inline}}
-        {\mathoption compensateitalic 1\relax \mathematics{\displaymath\getbuffer}}
-            {\type{1:display}}
+    \switchtobodyfont[modern]
+    \startcombination[nx=2,ny=2,distance=5em]
+        {\mathoption noitaliccompensation 0\relax \mathematics{\getbuffer}}
+            {\nohyphens\type{0:inline}}
+        {\mathoption noitaliccompensation 0\relax \mathematics{\displaymath\getbuffer}}
+            {\nohyphens\type{0:display}}
+        {\mathoption noitaliccompensation 1\relax \mathematics{\getbuffer}}
+            {\nohyphens\type{1:inline}}
+        {\mathoption noitaliccompensation 1\relax \mathematics{\displaymath\getbuffer}}
+            {\nohyphens\type{1:display}}
     \stopcombination
 \stoplinecorrection
 
-\subsubsection {\type {\mathoption alwayscharitalic}}
+\subsubsection {\type {\mathoption nocharitalic}}
 
 When two characters follow each other italic correction can interfere. The
 following example shows what this option does:
@@ -754,20 +786,45 @@ P( PP PQR
 
 \typebuffer
 
-Gives:
+Gives (with computer modern that has such italics):
+
+\startlinecorrection[blank]
+    \switchtobodyfont[modern]
+    \startcombination[nx=2,ny=2,distance=5em]
+        {\mathoption nocharitalic 0\relax \mathematics{\getbuffer}}
+            {\nohyphens\type{0:inline}}
+        {\mathoption nocharitalic 0\relax \mathematics{\displaymath\getbuffer}}
+            {\nohyphens\type{0:display}}
+        {\mathoption nocharitalic 1\relax \mathematics{\getbuffer}}
+            {\nohyphens\type{1:inline}}
+        {\mathoption nocharitalic 1\relax \mathematics{\displaymath\getbuffer}}
+            {\nohyphens\type{1:display}}
+    \stopcombination
+\stoplinecorrection
+
+\subsubsection {\type {\mathoption nodelimitershift}}
+
+When set to~1 a vertical delimiter will not be shifted relatiev to the math axis
+and its dimensions. This option can be handy when testing macros because this
+shifting can confuse testing.
+
+\startbuffer
+\dostepwiserecurse{6}{50}{2} {
+    \ruledhbox{$\normalleft\Udelimiter "0 "0 "002016
+    {\maincolor\vrule height #1pt width 2pt}
+    \normalright.$}
+}
+\stopbuffer
 
 \startlinecorrection[blank]
     \startcombination[nx=2,ny=2]
-        {\mathoption alwayscharitalic 0\relax \mathematics{\getbuffer}}
-            {\type{0:inline}}
-        {\mathoption alwayscharitalic 0\relax \mathematics{\displaymath\getbuffer}}
-            {\type{0:display}}
-        {\mathoption alwayscharitalic 1\relax \mathematics{\getbuffer}}
-            {\type{1:inline}}
-        {\mathoption alwayscharitalic 1\relax \mathematics{\displaymath\getbuffer}}
-            {\type{1:display}}
+        {\mathoption nodelimitershift 0 \mathematics{\getbuffer}} {\type{0}}
+        {\mathoption nodelimitershift 1 \mathematics{\getbuffer}} {\type{1}}
     \stopcombination
 \stoplinecorrection
+
+In this example you see the transition from normal stepwise larger symbols to
+extensibles. As said, this is only for debugging.
 
 \stopchapter
 

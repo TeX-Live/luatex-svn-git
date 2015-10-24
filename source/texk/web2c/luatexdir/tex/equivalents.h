@@ -274,9 +274,14 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define output_mode_code 70                                           /* switch on PDF output if positive */
 #  define draft_mode_code 71
 #  define tracing_fonts_code 72
-#  define math_option_code 73
 
-#  define etex_first_integer_code (tracing_fonts_code+1)                /* base for \eTeX's integer parameters */
+#  define math_no_italic_compensation_code 73
+#  define math_no_char_italic_code 74
+#  define math_no_delimiter_shift_code 75
+
+#  define math_option_code 76
+
+#  define etex_first_integer_code (math_option_code+1)                  /* base for \eTeX's integer parameters */
 
 #  define tracing_assigns_code (etex_first_integer_code)                /* show assignments */
 #  define tracing_groups_code (etex_first_integer_code+1)               /* show save/restore groups */

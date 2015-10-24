@@ -1898,7 +1898,25 @@ void math_left_right(void)
     pointer p;                  /* new noad */
     pointer q;                  /* resulting mlist */
     pointer r;                  /* temporary */
+    halfword ht = 0;
+    halfword dp = 0;
+    halfword ax = 0;
     t = cur_chr;
+
+    while (1) {
+        if (scan_keyword("height")) {
+           scan_dimen(false,false,false);
+           ht = cur_val ;
+        } else if (scan_keyword("depth")) {
+           scan_dimen(false,false,false);
+           dp = cur_val ;
+        } else if (scan_keyword("axis")) {
+           ax = 1 ;
+        } else {
+            break;
+        }
+    }
+
     if ((t != left_noad_side) && (cur_group != math_left_group)) {
         if (cur_group == math_shift_group) {
             scan_delimiter(null, no_mathcode);
@@ -1924,6 +1942,11 @@ void math_left_right(void)
         subtype(p) = (quarterword) t;
         r = new_node(delim_node, 0);
         delimiter(p) = r;
+
+        delimiterheight(p) = ht;
+        delimiterdepth(p) = dp;
+        delimiteraxis(p) = ax;
+
         scan_delimiter(delimiter(p), no_mathcode);
         if (t == left_noad_side) {
             q = p;

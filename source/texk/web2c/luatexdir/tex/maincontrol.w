@@ -702,19 +702,28 @@ static void run_normal (void) {
     }
 }
 
+/*
+    this is experimental and not used for production, only for testing and writing
+    macros
+
+*/
 
 static void run_option(void) {
+    int a = 0 ;
     switch (cur_chr) {
         case math_option_code:
-            if (scan_keyword("compensateitalic")) {
+            if (scan_keyword("noitaliccompensation")) {
                 scan_int();
-                math_compensate_italic = cur_val;
-            } else if (scan_keyword("alwayscharitalic")) {
+                word_define(int_base+math_no_italic_compensation_code, cur_val);
+                /* math_no_italic_compensation = cur_val; */
+            } else if (scan_keyword("nocharitalic")) {
                 scan_int();
-                math_always_char_italic = cur_val;
+                word_define(int_base+math_no_char_italic_code, cur_val);
+                /* math_no_char_italic = cur_val; */
             } else if (scan_keyword("nodelimitershift")) {
                 scan_int();
-                math_no_delimiter_shift = cur_val;
+                word_define(int_base+math_no_delimiter_shift_code, cur_val);
+                /* math_no_delimiter_shift = cur_val; */
             } else {
                 normal_warning("mathoption","unknown key",false,false);
             }
@@ -724,7 +733,6 @@ static void run_option(void) {
             break;
     }
 }
-
 
 @ For mode-independent commands, the following macro is useful.
 

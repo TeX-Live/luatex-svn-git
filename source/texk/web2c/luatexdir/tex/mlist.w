@@ -75,9 +75,13 @@
 #define font_MATH_par(a,b)                                                  \
   (font_math_params(a)>=b ? font_math_param(a,b) : undefined_math_parameter)
 
-int math_compensate_italic  = 1 ; /* $$\int\limits_{|}^{|}$$ */
-int math_always_char_italic = 1 ;
-int math_no_delimiter_shift = 0 ;
+/* int math_no_italic_compensation  = 0 ; */
+/* int math_no_char_italic          = 0 ; */
+/* int math_no_delimiter_shift      = 0 ; */
+
+#define math_no_italic_compensation int_par(math_no_italic_compensation_code)
+#define math_no_char_italic         int_par(math_no_char_italic_code)
+#define math_no_delimiter_shift     int_par(math_no_delimiter_shift_code)
 
 @ here are the math parameters that are font-dependant
 
@@ -2378,7 +2382,7 @@ static scaled make_op(pointer q, int cur_style)
         type(v) = vlist_node;
         width(v) = width(y);
         dx = 0 ;
-        if (math_compensate_italic) {
+        if (! math_no_italic_compensation) {
             n = nucleus(q);
             if ((n != null) && (type(n) == sub_box_node)) {
                 n = math_list(n);
@@ -2989,21 +2993,48 @@ the required size and returns the value |open_noad| or |close_noad|. The
 so they will have consistent sizes.
 
 @c
-static small_number make_left_right(pointer q, int style, scaled max_d,
-                                    scaled max_hv)
+static small_number make_left_right(pointer q, int style, scaled max_d, scaled max_hv)
 {
     scaled delta, delta1, delta2; /* dimensions used in the calculation */
-    pointer tmp;
+    pointer tmp, lst;
     setup_cur_size(style);
-    delta2 = max_d + math_axis(cur_size);
-    delta1 = max_hv + max_d - delta2;
-    if (delta2 > delta1)
-        delta1 = delta2; /* |delta1| is max distance from axis */
-    delta = (delta1 / 500) * delimiter_factor;
-    delta2 = delta1 + delta1 - delimiter_shortfall;
-    if (delta < delta2)
-        delta = delta2;
-    tmp = var_delimiter(delimiter(q), cur_size, delta, NULL, style);
+    if ((delimiterheight(q)!=0) || (delimiterdepth(q)!=0)) {
+        tmp = var_delimiter(delimiter(q), cur_size, delimiterheight(q) + delimiterdepth(q), NULL, style);
+        if (type(tmp) == hlist_node) {
+            /* just a character */
+            delta = delimiterdepth(q) - depth(tmp)
+                - half(delimiterdepth(q) + delimiterheight(q) - height(tmp) -depth(tmp)) ;
+        } else {
+            /* an extensible */
+            delta = delimiterdepth(q) ;
+        }
+        if (delimiteraxis(q)) {
+            delta = delta + math_axis(cur_size);
+            delimiterheight(q) = delimiterheight(q) - math_axis(cur_size) ;
+            delimiterdepth(q) = delimiterdepth(q) + math_axis(cur_size) ;
+        }
+        shift_amount(tmp) = delta ;
+        lst = new_node(hlist_node,0);
+        box_dir(lst) = dir_TLT ;
+        height(lst) = delimiterheight(q);
+        depth(lst) = delimiterdepth(q);
+        width(lst) = width(tmp);
+        list_ptr(lst) = tmp;
+        tmp = lst ;
+
+        /* todo attr */
+
+    } else {
+        delta2 = max_d + math_axis(cur_size);
+        delta1 = max_hv + max_d - delta2;
+        if (delta2 > delta1)
+            delta1 = delta2; /* |delta1| is max distance from axis */
+        delta = (delta1 / 500) * delimiter_factor;
+        delta2 = delta1 + delta1 - delimiter_shortfall;
+        if (delta < delta2)
+            delta = delta2;
+        tmp = var_delimiter(delimiter(q), cur_size, delta, NULL, style);
+    }
     delimiter(q) = null;
     assign_new_hlist(q, tmp);
     if (subtype(q) == left_noad_side)
@@ -3249,7 +3280,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_styl
                 }
             */
             if (is_new_mathfont(cur_f)) {
-                if (math_always_char_italic) {
+                if (! math_no_char_italic) {
                     /* keep italic, but bad with two successive letters */
                 } else if (get_char_cat_code(cur_c) == 11) {
                     /* no italic correction in mid-word of text font */
