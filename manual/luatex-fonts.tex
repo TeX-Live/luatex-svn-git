@@ -526,6 +526,11 @@ parameters to that command. The allowed commands and their arguments are:
 \NC comment           \NC any       \NC any       \NC the arguments of this command are ignored\NC\NR
 \stoptabulate
 
+When a font id is set to~0 then it will be replaced by the currently assigned
+font id. This prevents the need for hackery with future id's (normally one could
+use \type {font.nextid} but when more complex fonts are built in the meantime
+other instances could have been loaded.
+
 Here is a rather elaborate glyph commands example:
 
 \starttyping
