@@ -5269,8 +5269,16 @@ called xforms in \PDF). You can (re)use the box with \type {\useboxresource} or
 by creating a rule node with subtype~2.
 
 \starttyping
-local index = tex.setboxresource(n,attributes,resources)
+local index = tex.saveboxresource(n,attributes,resources)
 \stoptyping
+
+You can generate the reference (a rule type) with:
+
+\starttyping
+local reused = tex.useboxresource(n,wd,ht,dp)
+\stoptyping
+
+The dimensions are optional and the final ones are returned as extra values.
 
 \subsection{Math parameters}
 

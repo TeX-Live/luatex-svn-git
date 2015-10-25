@@ -72,7 +72,7 @@ int copy_error(halfword p);     /* define below */
 
 const char *node_fields_list[]            = { "attr", "width", "depth", "height", "dir", "shift", "glue_order", "glue_sign",
                                               "glue_set", "head", NULL };
-const char *node_fields_rule[]            = { "attr", "width", "depth", "height", "dir", "objnum", NULL };
+const char *node_fields_rule[]            = { "attr", "width", "depth", "height", "dir", "index", NULL };
 const char *node_fields_insert[]          = { "attr", "cost", "depth", "height", "spec", "head", NULL };
 const char *node_fields_mark[]            = { "attr", "class", "mark", NULL };
 const char *node_fields_adjust[]          = { "attr", "head", NULL };

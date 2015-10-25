@@ -2509,28 +2509,6 @@ static int tex_show_context(lua_State * L)
     return 0;
 }
 
-static int tex_set_line_number(lua_State * L)
-{
-    int b, l;
-    if (lua_isnumber(L, 1)) {
-        l = (int) lua_tonumber(L, 1);
-        if (lua_isboolean(L, 2)) {
-            b = lua_toboolean(L, -2);
-            if (b) {
-                line = line + l;
-            } else {
-                line = l;
-            }
-        }
-    }
-    return 0;
-}
-
-static int tex_get_line_number(lua_State * L) {
-    lua_pushnumber(L,line);
-    return 1;
-}
-
 static int tex_save_box_resource(lua_State * L)
 {
     halfword boxnumber, boxdata;
@@ -2556,6 +2534,46 @@ static int tex_save_box_resource(lua_State * L)
     last_saved_box_index = index;
     lua_pushnumber(L, index);
     return 1;
+}
+
+static int tex_use_box_resource(lua_State * L)
+{
+    halfword rule;
+    int index = 0;
+    scaled_whd alt, nat, dim;
+    int top = lua_gettop(L);
+    alt.wd = null_flag;
+    alt.ht = null_flag;
+    alt.dp = null_flag;
+    if (top == 0)
+        return 0;
+    index = lua_tonumber(L,1);
+    if (top>1)
+        alt.wd = (scaled) lua_tonumber(L,2);
+    if (top>2)
+        alt.ht = (scaled) lua_tonumber(L,3);
+    if (top>3)
+        alt.dp = (scaled) lua_tonumber(L,4);
+    /* sort of the same as backend */
+    check_obj_type(static_pdf, obj_type_xform, index);
+    nat.wd = obj_xform_width(static_pdf, index);
+    nat.ht = obj_xform_height(static_pdf, index);
+    nat.dp = obj_xform_depth(static_pdf, index);
+    if (alt.wd != null_flag || alt.ht != null_flag || alt.dp != null_flag) {
+        dim = tex_scale(nat, alt);
+    } else {
+        dim = nat;
+    }
+    rule = new_rule(box_rule);
+    rule_index(rule) = index;
+    width(rule) = dim.wd;
+    height(rule) = dim.ht;
+    depth(rule) = dim.dp;
+    nodelist_to_lua(L, rule);
+    lua_pushnumber(L, (int) dim.wd);
+    lua_pushnumber(L, (int) dim.ht);
+    lua_pushnumber(L, (int) dim.dp);
+    return 4;
 }
 
 void init_tex_table(lua_State * L)
@@ -2635,8 +2653,7 @@ static const struct luaL_Reg texlib[] = {
     {"lua_math_random", lua_math_random},
     {"show_context", tex_show_context},
     {"saveboxresource", tex_save_box_resource},
-    {"getlinenumber", tex_get_line_number},
-    {"setlinenumber", tex_set_line_number},
+    {"useboxresource", tex_use_box_resource},
     /* sentinel */
     {NULL, NULL}
 };

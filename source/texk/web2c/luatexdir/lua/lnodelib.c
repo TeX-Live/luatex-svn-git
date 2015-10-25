@@ -4882,6 +4882,8 @@ static int lua_nodelib_fast_setfield(lua_State * L)
             depth(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, dir)) {
             rule_dir(n) = nodelib_getdir(L, 3, 1);
+        } else if (lua_key_eq(s, index)) {
+            rule_index(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, transform)) {
             rule_transform(n) = (halfword) lua_tointeger(L, 3);
         } else {
@@ -5754,6 +5756,8 @@ static int lua_nodelib_direct_setfield(lua_State * L)
             depth(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, dir)) {
             rule_dir(n) = nodelib_getdir(L, 3, 1);
+        } else if (lua_key_eq(s, index)) {
+            rule_index(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, transform)) {
             rule_transform(n) = (halfword) lua_tointeger(L, 3);
         } else {
