@@ -34,6 +34,7 @@
 #define tag_code 5
 #define auto_kern explicit
 #define no_lig_code 6
+#define gp_code_base 7
 
 #define prev_depth cur_list.prev_depth_field
 #define space_factor cur_list.space_factor_field
@@ -941,6 +942,7 @@ static void init_main_control (void) {
     any_mode(def_font_cmd, prefixed_command);
     any_mode(letterspace_font_cmd, prefixed_command);
     any_mode(copy_font_cmd, prefixed_command);
+    any_mode(set_font_id_cmd, prefixed_command);
     any_mode(register_cmd, prefixed_command);
     any_mode(advance_cmd, prefixed_command);
     any_mode(multiply_cmd, prefixed_command);
@@ -2825,6 +2827,11 @@ void prefixed_command(void)
     case copy_font_cmd:
         make_font_copy((small_number) a);
         break;
+    case set_font_id_cmd:
+        scan_int();
+        if (is_valid_font(cur_val))
+            zset_cur_font(cur_val);
+        break ;
     case set_interaction_cmd:
         new_interaction();
         break;
