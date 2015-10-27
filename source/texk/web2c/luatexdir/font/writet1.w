@@ -1706,7 +1706,6 @@ static void t1_subset_end(PDF pdf)
 @c
 void writet1(PDF pdf, fd_entry * fd)
 {
-    cs_entry *ptr;
     fd_cur = fd;                /* |fd_cur| is global inside \.{writet1.w} */
     assert(fd_cur->fm != NULL);
     assert(is_type1(fd->fm));
