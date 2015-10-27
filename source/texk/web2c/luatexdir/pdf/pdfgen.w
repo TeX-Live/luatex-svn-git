@@ -883,19 +883,22 @@ static void destroy_page_resources_tree(PDF pdf)
 
 @* Subroutines to print out various PDF objects.
 
-@ print out an integer |n| with fixed width |w|; used for outputting cross-reference table
+@ print out an integer |n| with fixed width |w|; used for outputting cross-reference table.
+@ The specification says that an offset must take 10 bytes.
 @c
-static void pdf_print_fw_int(PDF pdf, longinteger n, size_t w)
+static void pdf_print_fw_int(PDF pdf, longinteger n)
 {
-    int k;                      /* $0\le k\le23$ */
-    unsigned char digits[24];
-    k = (int) w;
+    unsigned char digits[10];
+    int k = 10;
     do {
         k--;
         digits[k] = (unsigned char) ('0' + (n % 10));
         n /= 10;
     } while (k != 0);
-    pdf_out_block(pdf, (const char *) digits, w);
+    if (n!=0) 
+      /* the absolute  value of $n$ is greater than 9999999999 */
+      normal_error("pdf backend", "offset exceeds 10 bytes, try enabling object compression."; 
+    pdf_puts(pdf, (const char *) digits);
 }
 
 @ print out an integer |n| as a fixed number |w| of bytes; used for outputting \.{/XRef} cross-reference stream
@@ -2472,14 +2475,14 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                 pdf_puts(pdf, "xref\n");
                 pdf_puts(pdf, "0 ");
                 pdf_print_int_ln(pdf, pdf->obj_ptr + 1);
-                pdf_print_fw_int(pdf, obj_link(pdf, 0), 10);
+                pdf_print_fw_int(pdf, obj_link(pdf, 0));
                 pdf_puts(pdf, " 65535 f \n");
                 for (k = 1; k <= pdf->obj_ptr; k++) {
                     if (!is_obj_written(pdf, k)) {
-                        pdf_print_fw_int(pdf, obj_link(pdf, k), 10);
+                        pdf_print_fw_int(pdf, obj_link(pdf, k));
                         pdf_puts(pdf, " 00000 f \n");
                     } else {
-                        pdf_print_fw_int(pdf, obj_offset(pdf, k), 10);
+                        pdf_print_fw_int(pdf, obj_offset(pdf, k));
                         pdf_puts(pdf, " 00000 n \n");
                     }
                 }
