@@ -897,7 +897,7 @@ static void pdf_print_fw_int(PDF pdf, longinteger n)
     } while (k != 0);
     if (n!=0) 
       /* the absolute  value of $n$ is greater than 9999999999 */
-      normal_error("pdf backend", "offset exceeds 10 bytes, try enabling object compression."; 
+      normal_error("pdf backend", "offset exceeds 10 bytes, try enabling object compression."); 
     pdf_puts(pdf, (const char *) digits);
 }
 
