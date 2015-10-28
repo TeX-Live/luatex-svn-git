@@ -883,8 +883,8 @@ static void destroy_page_resources_tree(PDF pdf)
 
 @* Subroutines to print out various PDF objects.
 
-@ print out an integer |n| with fixed width |w|; used for outputting cross-reference table.
-@ The specification says that an offset must take 10 bytes.
+@ print out an integer |n| with fixed width |w|; used for outputting cross-reference table. The 
+specification says that an offset must take 10 bytes.
 @c
 static void pdf_print_fw_int(PDF pdf, longinteger n)
 {
