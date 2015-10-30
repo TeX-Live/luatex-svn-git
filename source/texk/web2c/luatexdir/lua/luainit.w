@@ -536,8 +536,8 @@ static char *find_filename(char *name, const char *envkey)
             }
             filename = xmalloc((unsigned) (strlen(dirname) + strlen(name) + 2));
             filename = concat3(dirname, "/", name);
+            xfree(dirname);
             if (is_readable(filename)) {
-                xfree(dirname);
                 return filename;
             }
             xfree(filename);
@@ -937,7 +937,10 @@ void lua_initialize(int ac, char **av)
 
     if (startup_filename != NULL) {
         given_file = xstrdup(startup_filename);
-        startup_filename = find_filename(startup_filename, "LUATEXDIR");
+        if (lua_only) {
+          xfree(startup_filename);
+        }
+        startup_filename = find_filename(given_file, "LUATEXDIR");
     }
     /* now run the file */
     if (startup_filename != NULL) {
