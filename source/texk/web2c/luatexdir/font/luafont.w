@@ -468,6 +468,8 @@ int font_to_lua(lua_State * L, int f)
     lua_setfield(L, -2, "direction");
     lua_pushnumber(L, font_encodingbytes(f));
     lua_setfield(L, -2, "encodingbytes");
+    lua_pushboolean(L, font_oldmath(f));
+    lua_setfield(L, -2, "oldmath");
     lua_pushnumber(L, font_tounicode(f));
     lua_setfield(L, -2, "tounicode");
 
@@ -1043,6 +1045,9 @@ static void read_lua_math_parameters(lua_State * L, int f)
             }
             lua_pop(L, 1);      /* pop value */
         }
+        set_font_oldmath(f,false);
+    } else {
+        set_font_oldmath(f,true);
     }
     lua_pop(L, 1);
 }
@@ -1403,6 +1408,8 @@ int font_from_lua(lua_State * L, int f)
     set_font_natural_dir(f, i);
     i = lua_numeric_field_by_index(L,lua_key_index(encodingbytes), 0);
     set_font_encodingbytes(f, (char) i);
+    i = n_boolean_field(L,lua_key_index(oldmath), 0);
+    set_font_oldmath(f, i);
     i = lua_numeric_field_by_index(L,lua_key_index(tounicode), 0);
     set_font_tounicode(f, (char) i);
 
@@ -1509,6 +1516,12 @@ int font_from_lua(lua_State * L, int f)
     read_lua_parameters(L, f);
     if (!no_math) {
         read_lua_math_parameters(L, f);
+        if (n_boolean_field(L, lua_key_index(oldmath), 0)) {
+            set_font_oldmath(f,true);
+        }
+
+    } else {
+        set_font_oldmath(f,true);
     }
     read_lua_cidinfo(L, f);
 

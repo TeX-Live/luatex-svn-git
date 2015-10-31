@@ -411,18 +411,17 @@ typedef enum {
 /* when dimensions then axis else noaxis */
 
 typedef enum {
-    delimiter_option_set = 0x01,
-    delimiter_axis       = 0x02 + 0x01,
-    delimiter_no_axis    = 0x04 + 0x01,
-    delimiter_exact      = 0x08 + 0x01,
-    delimiter_center     = 0x0F + 0x01,
+    noad_option_set     = 0x01,
+    noad_option_axis    = 0x02 + 0x01,
+    noad_option_no_axis = 0x04 + 0x01,
+    noad_option_exact   = 0x08 + 0x01,
+ /* noad_option_center  = 0x0F + 0x01, */
 } delimiter_options ;
 
-#  define delimiteroptionset(a) ((delimiteroptions(a) & delimiter_option_set) == delimiter_option_set)
-#  define delimiteraxis(a)      ((delimiteroptions(a) & delimiter_axis      ) == delimiter_axis      )
-#  define delimiternoaxis(a)    ((delimiteroptions(a) & delimiter_no_axis   ) == delimiter_no_axis   )
-#  define delimiterexact(a)     ((delimiteroptions(a) & delimiter_exact     ) == delimiter_exact     )
-#  define delimitercenter(a)    ((delimiteroptions(a) & delimiter_center    ) == delimiter_center    )
+#  define delimiteroptionset(a) ((delimiteroptions(a) & noad_option_set    ) == noad_option_set    )
+#  define delimiteraxis(a)      ((delimiteroptions(a) & noad_option_axis   ) == noad_option_axis   )
+#  define delimiternoaxis(a)    ((delimiteroptions(a) & noad_option_no_axis) == noad_option_no_axis)
+#  define delimiterexact(a)     ((delimiteroptions(a) & noad_option_exact  ) == noad_option_exact  )
 
 /* subtype of fence noads */
 
@@ -446,6 +445,9 @@ typedef enum {
 #  define radical_noad_size 7
 #  define radicalwidth(a)   vinfo((a)+4)
 #  define degree(a)         vlink((a)+6)   /* the root degree in a radical noad */
+#  define radicaloptions(a) vinfo((a)+6)
+
+#  define radicalexact(a)   ((radicaloptions(a) & noad_option_exact) == noad_option_exact)
 
 /* accessors for the |nucleus|-style node fields */
 

@@ -134,6 +134,7 @@ typedef struct texfont {
     char _font_touched;         /* internal information */
     int _font_cache_id;         /* internal information */
     char _font_encodingbytes;   /* 1 or 2 bytes */
+    boolean _font_oldmath;      /* default to false when MathConstants seen */
 
     int _font_slant;            /* a slant in ppt */
     int _font_extend;           /* an extension in ppt, or 1000 */
@@ -289,6 +290,9 @@ boolean cmp_font_area(int, str_number);
 
 #  define font_encodingbytes(a)       font_tables[a]->_font_encodingbytes
 #  define set_font_encodingbytes(a,b) font_encodingbytes(a) = b
+
+#  define font_oldmath(a)             font_tables[a]->_font_oldmath
+#  define set_font_oldmath(a,b)       font_oldmath(a) = b
 
 #  define font_slant(a)               font_tables[a]->_font_slant
 #  define set_font_slant(a,b)         font_slant(a) = b

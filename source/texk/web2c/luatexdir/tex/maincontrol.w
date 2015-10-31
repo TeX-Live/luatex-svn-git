@@ -721,6 +721,10 @@ static void run_option(void) {
                 scan_int();
                 word_define(int_base+math_no_char_italic_code, cur_val);
                 /* math_no_char_italic = cur_val; */
+            } else if (scan_keyword("old")) {
+                scan_int();
+                word_define(int_base+math_old_code, cur_val);
+                /* math_no_char_italic = cur_val; */
             } else {
                 normal_warning("mathoption","unknown key",false,false);
             }

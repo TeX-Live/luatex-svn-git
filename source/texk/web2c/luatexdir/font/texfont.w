@@ -1561,6 +1561,7 @@ static void dump_font_entry(texfont * f)
     dump_int(f->_font_touched);
     dump_int(f->_font_cache_id);
     dump_int(f->_font_encodingbytes);
+    dump_int(f->_font_oldmath);
     dump_int(f->_font_slant);
     dump_int(f->_font_extend);
     dump_int(f->font_max_shrink);
@@ -1735,6 +1736,7 @@ static void undump_font_entry(texfont * f)
     undump_int(x); f->_font_touched = (char)x;
     undump_int(x); f->_font_cache_id = x;
     undump_int(x); f->_font_encodingbytes = (char)x;
+    undump_int(x); f->_font_oldmath = x;
     undump_int(x); f->_font_slant = x;
     undump_int(x); f->_font_extend = x;
     undump_int(x); f->font_max_shrink = x;

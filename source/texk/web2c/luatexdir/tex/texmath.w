@@ -1507,13 +1507,21 @@ void math_radical(void)
 {
     halfword q;
     int chr_code = cur_chr;
+    halfword options = 0;
     tail_append(new_node(radical_noad, chr_code));
     q = new_node(delim_node, 0);
     left_delimiter(tail) = q;
-    if (scan_keyword("width")) {
-        scan_dimen(false,false,false);
-        radicalwidth(tail) = cur_val ;
+    while (1) {
+        if (scan_keyword("width")) {
+            scan_dimen(false,false,false);
+            radicalwidth(tail) = cur_val ;
+        } else if (scan_keyword("exact")) {
+            options = options | noad_option_exact ;
+        } else {
+            break;
+        }
     }
+    radicaloptions(tail) = options;
     if (chr_code == 0)          /* \.{\\radical} */
         scan_delimiter(left_delimiter(tail), tex_mathcode);
     else if (chr_code == 1)     /* \.{\\Uradical} */
@@ -1919,13 +1927,15 @@ void math_left_right(void)
             scan_dimen(false,false,false);
             dp = cur_val ;
         } else if (scan_keyword("axis")) {
-            options = options | delimiter_axis ;
+            options = options | noad_option_axis ;
         } else if (scan_keyword("noaxis")) {
-            options = options | delimiter_no_axis ;
+            options = options | noad_option_no_axis ;
         } else if (scan_keyword("exact")) {
-            options = options | delimiter_exact ;
+            options = options | noad_option_exact ;
+        /*
         } else if (scan_keyword("center")) {
-            options = options | delimiter_center ;
+            options = options | delimiter_option_center ;
+        */
         } else {
             break;
         }

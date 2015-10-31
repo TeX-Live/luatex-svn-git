@@ -51,11 +51,12 @@ to italics. Axis are another area of concern, as it looks like opentype math fon
 already apply that shift.
 
 @ @c
-#define is_new_mathfont(A) (font_math_params(A)>0)
-#define is_old_mathfont(A,B) (font_math_params(A)==0 && font_params(A)>=(B))
-
 #define math_no_italic_compensation int_par(math_no_italic_compensation_code)
 #define math_no_char_italic         int_par(math_no_char_italic_code)
+#define math_old                    int_par(math_old_code)
+
+#define is_new_mathfont(A)   ((font_math_params(A) >0) && (math_old == 0))
+#define is_old_mathfont(A,B) ((font_math_params(A)==0) && (font_params(A)>=(B)))
 
 @
 \def\LuaTeX{Lua\TeX}
@@ -186,7 +187,6 @@ SkewedFractionVerticalGap:
   so I would like to see an example first
 
 Also still TODO for OpenType Math:
-  * extensible large operators
   * prescripts
 
 @ this is not really a math parameter at all
@@ -1771,8 +1771,13 @@ placed so that the actual clearance is |psi| plus half the excess.
 static void make_hextension(pointer q, int cur_style)
 {
     pointer e;
-    e = do_delimiter(q, left_delimiter(q), cur_size, radicalwidth(q), true, cur_style, true, NULL, NULL);
+    boolean stack = false;
+    e = do_delimiter(q, left_delimiter(q), cur_size, radicalwidth(q), true, cur_style, true, &stack, NULL);
     e = hpack(e, 0, additional, -1);
+    if (!stack && (radicalwidth(q) != 0) && (! radicalexact(q)) && (radicalwidth(q) != width(e))) {
+        width(e) = radicalwidth(q);
+        shift_amount(e) = width(e) - radicalwidth(q);
+    }
     reset_attributes(e, node_attr(q));
     math_list(nucleus(q)) = e;
     left_delimiter(q) = null;
