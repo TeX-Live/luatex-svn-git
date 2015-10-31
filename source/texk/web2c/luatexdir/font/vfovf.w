@@ -1403,39 +1403,6 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     return 1;
 }
 
-@ unused, remains for reference, for a while
-@c
-internal_font_number auto_expand_font(internal_font_number f, int e)
-{
-    internal_font_number k;
-    kerninfo *krn;
-    charinfo *co;
-    int i;
-    scaled w;
-    assert(0);
-    k = copy_font(f);
-    set_font_name(k, font_name(f));
-    //set_font_expand_ratio(k, e);
-    for (i = font_bc(k); i <= font_ec(k); i++) {
-        if (quick_char_exists(k, i)) {
-            co = get_charinfo(k, i);
-            w = round_xn_over_d(char_width(f, i), 1000 + e, 1000);
-            set_charinfo_width(co, w);
-            w = round_xn_over_d(char_italic(f, i), 1000 + e, 1000);
-            set_charinfo_italic(co, w);
-            krn = get_charinfo_kerns(co);
-            if (krn != NULL) {
-                while (!kern_end((*krn))) {
-                    kern_kern(*krn) =
-                        round_xn_over_d(kern_kern(*krn), 1000 + e, 1000);
-                    krn++;
-                }
-            }
-        }
-    }
-    return k;
-}
-
 @ @c
 internal_font_number
 letter_space_font(internal_font_number f, int e, boolean nolig)

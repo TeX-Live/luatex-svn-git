@@ -110,7 +110,6 @@ const char *node_fields_math_text_char[]  = { "attr", "fam", "char", NULL };
 const char *node_fields_delim[]           = { "attr", "small_fam", "small_char", "large_fam", "large_char", NULL };
 const char *node_fields_inserting[]       = { "height", "last_ins_ptr", "best_ins_ptr", NULL };
 const char *node_fields_splitup[]         = { "height", "last_ins_ptr", "best_ins_ptr", "broken_ptr", "broken_ins", NULL };
-const char *node_fields_action[]          = { "action_type", "named_id", "action_id", "file", "new_window", "data", "ref_count", NULL };
 const char *node_fields_attribute[]       = { "number", "value", NULL };
 const char *node_fields_glue_spec[]       = { "width", "stretch", "shrink", "stretch_order", "shrink_order", "ref_count",
                                               "writable", NULL };
@@ -134,6 +133,7 @@ const char *node_fields_whatsit_pdf_annot[]        = { "attr", "width", "depth",
 const char *node_fields_whatsit_pdf_start_link[]   = { "attr", "width", "depth", "height", "objnum", "link_attr", "action", NULL };
 const char *node_fields_whatsit_pdf_end_link[]     = { "attr", NULL };
 const char *node_fields_whatsit_pdf_dest[]         = { "attr", "width", "depth", "height", "named_id", "dest_id", "dest_type", "xyz_zoom", "objnum", NULL };
+const char *node_fields_whatsit_pdf_action[]       = { "action_type", "named_id", "action_id", "file", "new_window", "data", "ref_count", NULL };
 const char *node_fields_whatsit_pdf_thread[]       = { "attr", "width", "depth", "height",  "named_id", "thread_id", "thread_attr", NULL };
 const char *node_fields_whatsit_pdf_start_thread[] = { "attr", "width", "depth", "height", "named_id", "thread_id", "thread_attr", NULL };
 const char *node_fields_whatsit_pdf_end_thread[]   = { "attr", NULL };
@@ -142,110 +142,100 @@ const char *node_fields_whatsit_pdf_setmatrix[]    = { "attr", "data", NULL };
 const char *node_fields_whatsit_pdf_save[]         = { "attr", NULL };
 const char *node_fields_whatsit_pdf_restore[]      = { "attr", NULL };
 
-node_info node_data[] = {
-    {hlist_node, box_node_size, node_fields_list, "hlist"},
-    {vlist_node, box_node_size, node_fields_list, "vlist"},
-    {rule_node, rule_node_size, node_fields_rule, "rule"},
-    {ins_node, ins_node_size, node_fields_insert, "ins"},
-    {mark_node, mark_node_size, node_fields_mark, "mark"},
-    {adjust_node, adjust_node_size, node_fields_adjust, "adjust"},
-    {boundary_node, boundary_size, node_fields_boundary, "boundary"},
-    {disc_node, disc_node_size, node_fields_disc, "disc"},
-    {whatsit_node, -1, NULL, "whatsit"},
-    {math_node, math_node_size, node_fields_math, "math"},
-    {glue_node, glue_node_size, node_fields_glue, "glue"},
-    {kern_node, kern_node_size, node_fields_kern, "kern"},
-    {penalty_node, penalty_node_size, node_fields_penalty, "penalty"},
-    {unset_node, box_node_size, node_fields_unset, "unset"},
-    {style_node, style_node_size, node_fields_style, "style"},
-    {choice_node, style_node_size, node_fields_choice, "choice"},
-    {simple_noad, noad_size, node_fields_ord, "noad"},
-    {old_op_noad, noad_size, node_fields_op, "op"},
-    {old_bin_noad, noad_size, node_fields_bin, "bin"},
-    {old_rel_noad, noad_size, node_fields_rel, "rel"},
-    {old_open_noad, noad_size, node_fields_open, "open"},
-    {old_close_noad, noad_size, node_fields_close, "close"},
-    {old_punct_noad, noad_size, node_fields_punct, "punct"},
-    {old_inner_noad, noad_size, node_fields_inner, "inner"},
-    {radical_noad, radical_noad_size, node_fields_radical, "radical"},
-    {fraction_noad, fraction_noad_size, node_fields_fraction, "fraction"},
-    {old_under_noad, noad_size, node_fields_under, "under"},
-    {old_over_noad, noad_size, node_fields_over, "over"},
-    {accent_noad, accent_noad_size, node_fields_accent, "accent"},
-    {old_vcenter_noad, noad_size, node_fields_vcenter, "vcenter"},
-    {fence_noad, fence_noad_size, node_fields_fence, "fence"},
-    {math_char_node, math_kernel_node_size, node_fields_math_char, "math_char"},
-    {sub_box_node, math_kernel_node_size, node_fields_sub_box, "sub_box"},
-    {sub_mlist_node, math_kernel_node_size, node_fields_sub_mlist, "sub_mlist"},
-    {math_text_char_node, math_kernel_node_size, node_fields_math_text_char, "math_text_char"},
-    {delim_node, math_shield_node_size, node_fields_delim, "delim"},
-    {margin_kern_node, margin_kern_node_size, node_fields_margin_kern, "margin_kern"},
-    {glyph_node, glyph_node_size, node_fields_glyph, "glyph"},
-    {align_record_node, box_node_size, NULL, "align_record"},
-    {pseudo_file_node, pseudo_file_node_size, NULL, "pseudo_file"},
-    {pseudo_line_node, variable_node_size, NULL, "pseudo_line"},
-    {inserting_node, page_ins_node_size, node_fields_inserting, "page_insert"},
-    {split_up_node, page_ins_node_size, node_fields_splitup, "split_insert"},
-    {expr_node, expr_node_size, NULL, "expr_stack"},
-    {nesting_node, nesting_node_size, NULL, "nested_list"},
-    {span_node, span_node_size, NULL, "span"},
-    {attribute_node, attribute_node_size, node_fields_attribute, "attribute"},
-    {glue_spec_node, glue_spec_size, node_fields_glue_spec, "glue_spec"},
-    {attribute_list_node, attribute_node_size, node_fields_attribute_list, "attribute_list"},
-    {action_node, pdf_action_size, node_fields_action, "action"},
-    {temp_node, temp_node_size, NULL, "temp"},
-    {align_stack_node, align_stack_node_size, NULL, "align_stack"},
-    {movement_node, movement_node_size, NULL, "movement_stack"},
-    {if_node, if_node_size, NULL, "if_stack"},
-    {unhyphenated_node, active_node_size, NULL, "unhyphenated"},
-    {hyphenated_node, active_node_size, NULL, "hyphenated"},
-    {delta_node, delta_node_size, NULL, "delta"},
-    {passive_node, passive_node_size, NULL, "passive"},
-    {shape_node, variable_node_size, NULL, "shape"},
-    {dir_node, dir_node_size, node_fields_dir, "dir"},
-    {local_par_node, local_par_size, node_fields_local_par,"local_par"},
-    {-1, -1, NULL, NULL}
+node_info node_data[] = { /* the last entry in a row is the etex number */
+    {hlist_node, box_node_size, node_fields_list, "hlist", 1},
+    {vlist_node, box_node_size, node_fields_list, "vlist", 2},
+    {rule_node, rule_node_size, node_fields_rule, "rule", 3},
+    {ins_node, ins_node_size, node_fields_insert, "ins", 4},
+    {mark_node, mark_node_size, node_fields_mark, "mark", 5},
+    {adjust_node, adjust_node_size, node_fields_adjust, "adjust", 6},
+    {boundary_node, boundary_size, node_fields_boundary, "boundary", -1},
+    {disc_node, disc_node_size, node_fields_disc, "disc", 8},
+    {whatsit_node, -1, NULL, "whatsit", 9},
+    {math_node, math_node_size, node_fields_math, "math", 10},
+    {glue_node, glue_node_size, node_fields_glue, "glue", 11},
+    {kern_node, kern_node_size, node_fields_kern, "kern", 12},
+    {penalty_node, penalty_node_size, node_fields_penalty, "penalty", 13},
+    {unset_node, box_node_size, node_fields_unset, "unset", 14},
+    {style_node, style_node_size, node_fields_style, "style", 15},
+    {choice_node, style_node_size, node_fields_choice, "choice", 15},
+    {simple_noad, noad_size, node_fields_ord, "noad", 15},
+    {radical_noad, radical_noad_size, node_fields_radical, "radical", 15},
+    {fraction_noad, fraction_noad_size, node_fields_fraction, "fraction", 15},
+    {accent_noad, accent_noad_size, node_fields_accent, "accent", 15},
+    {fence_noad, fence_noad_size, node_fields_fence, "fence", 15},
+    {math_char_node, math_kernel_node_size, node_fields_math_char, "math_char", 15},
+    {sub_box_node, math_kernel_node_size, node_fields_sub_box, "sub_box", 15},
+    {sub_mlist_node, math_kernel_node_size, node_fields_sub_mlist, "sub_mlist", 15},
+    {math_text_char_node, math_kernel_node_size, node_fields_math_text_char, "math_text_char", 15},
+    {delim_node, math_shield_node_size, node_fields_delim, "delim", 15},
+    {margin_kern_node, margin_kern_node_size, node_fields_margin_kern, "margin_kern", -1},
+    {glyph_node, glyph_node_size, node_fields_glyph, "glyph", 0},
+    {align_record_node, box_node_size, NULL, "align_record", -1},
+    {pseudo_file_node, pseudo_file_node_size, NULL, "pseudo_file", -1},
+    {pseudo_line_node, variable_node_size, NULL, "pseudo_line", -1},
+    {inserting_node, page_ins_node_size, node_fields_inserting, "page_insert", -1},
+    {split_up_node, page_ins_node_size, node_fields_splitup, "split_insert", -1},
+    {expr_node, expr_node_size, NULL, "expr_stack", -1},
+    {nesting_node, nesting_node_size, NULL, "nested_list", -1},
+    {span_node, span_node_size, NULL, "span", -1},
+    {attribute_node, attribute_node_size, node_fields_attribute, "attribute", -1},
+    {glue_spec_node, glue_spec_size, node_fields_glue_spec, "glue_spec", -1},
+    {attribute_list_node, attribute_node_size, node_fields_attribute_list, "attribute_list", -1},
+    {temp_node, temp_node_size, NULL, "temp", -1},
+    {align_stack_node, align_stack_node_size, NULL, "align_stack", -1},
+    {movement_node, movement_node_size, NULL, "movement_stack", -1},
+    {if_node, if_node_size, NULL, "if_stack", -1},
+    {unhyphenated_node, active_node_size, NULL, "unhyphenated", -1},
+    {hyphenated_node, active_node_size, NULL, "hyphenated", -1},
+    {delta_node, delta_node_size, NULL, "delta", -1},
+    {passive_node, passive_node_size, NULL, "passive", -1},
+    {shape_node, variable_node_size, NULL, "shape", -1},
+    {dir_node, dir_node_size, node_fields_dir, "dir", -1},
+    {local_par_node, local_par_size, node_fields_local_par,"local_par", -1},
+    {-1, -1, NULL, NULL, -1}
 };
 
 #define last_normal_node local_par_node
 
 node_info whatsit_node_data[] = {
-    {open_node, open_node_size, node_fields_whatsit_open, "open"},
-    {write_node, write_node_size, node_fields_whatsit_write, "write"},
-    {close_node, close_node_size, node_fields_whatsit_close, "close"},
-    {special_node, special_node_size, node_fields_whatsit_special, "special"},
-    {fake_node, fake_node_size, NULL, fake_node_name},
-    {fake_node, fake_node_size, NULL, fake_node_name},
-    {save_pos_node, save_pos_node_size, node_fields_whatsit_save_pos, "save_pos"},
-    {late_lua_node, late_lua_node_size, node_fields_whatsit_late_lua, "late_lua"},
-    {user_defined_node, user_defined_node_size, node_fields_whatsit_user_defined, "user_defined"},
-    {fake_node, fake_node_size, NULL, fake_node_name},
-    {fake_node, fake_node_size, NULL, fake_node_name},
-    {fake_node, fake_node_size, NULL, fake_node_name},
-    {fake_node, fake_node_size, NULL, fake_node_name},
-    {fake_node, fake_node_size, NULL, fake_node_name},
-    {fake_node, fake_node_size, NULL, fake_node_name},
-    {fake_node, fake_node_size, NULL, fake_node_name},
+    {open_node, open_node_size, node_fields_whatsit_open, "open", -1},
+    {write_node, write_node_size, node_fields_whatsit_write, "write", -1},
+    {close_node, close_node_size, node_fields_whatsit_close, "close", -1},
+    {special_node, special_node_size, node_fields_whatsit_special, "special", -1},
+    {fake_node, fake_node_size, NULL, fake_node_name, -1},
+    {fake_node, fake_node_size, NULL, fake_node_name, -1},
+    {save_pos_node, save_pos_node_size, node_fields_whatsit_save_pos, "save_pos", -1},
+    {late_lua_node, late_lua_node_size, node_fields_whatsit_late_lua, "late_lua", -1},
+    {user_defined_node, user_defined_node_size, node_fields_whatsit_user_defined, "user_defined", -1},
+    {fake_node, fake_node_size, NULL, fake_node_name, -1},
+    {fake_node, fake_node_size, NULL, fake_node_name, -1},
+    {fake_node, fake_node_size, NULL, fake_node_name, -1},
+    {fake_node, fake_node_size, NULL, fake_node_name, -1},
+    {fake_node, fake_node_size, NULL, fake_node_name, -1},
+    {fake_node, fake_node_size, NULL, fake_node_name, -1},
+    {fake_node, fake_node_size, NULL, fake_node_name, -1},
     /* here starts the dvi backend section, todo: a separate list  */
     /* nothing for dvi */
     /* here starts the pdf backend section, todo: a separate list  */
-    {pdf_literal_node, write_node_size, node_fields_whatsit_pdf_literal, "pdf_literal"},
-    {pdf_refobj_node, pdf_refobj_node_size, node_fields_whatsit_pdf_refobj, "pdf_refobj"},
-    {pdf_annot_node, pdf_annot_node_size, node_fields_whatsit_pdf_annot, "pdf_annot"},
-    {pdf_start_link_node, pdf_annot_node_size, node_fields_whatsit_pdf_start_link, "pdf_start_link"},
-    {pdf_end_link_node, pdf_end_link_node_size, node_fields_whatsit_pdf_end_link, "pdf_end_link"},
-    {pdf_dest_node, pdf_dest_node_size, node_fields_whatsit_pdf_dest, "pdf_dest"},
-    {pdf_thread_node, pdf_thread_node_size, node_fields_whatsit_pdf_thread, "pdf_thread"},
-    {pdf_start_thread_node, pdf_thread_node_size, node_fields_whatsit_pdf_start_thread, "pdf_start_thread"},
-    {pdf_end_thread_node, pdf_end_thread_node_size, node_fields_whatsit_pdf_end_thread, "pdf_end_thread"},
-    {pdf_thread_data_node, pdf_thread_node_size, NULL, "pdf_thread_data"},
-    {pdf_link_data_node, pdf_annot_node_size, NULL, "pdf_link_data"},
-    {pdf_colorstack_node, pdf_colorstack_node_size, node_fields_whatsit_pdf_colorstack, "pdf_colorstack"},
-    {pdf_setmatrix_node, pdf_setmatrix_node_size, node_fields_whatsit_pdf_setmatrix, "pdf_setmatrix"},
-    {pdf_save_node, pdf_save_node_size, node_fields_whatsit_pdf_save, "pdf_save"},
-    {pdf_restore_node, pdf_restore_node_size, node_fields_whatsit_pdf_restore, "pdf_restore"},
+    {pdf_literal_node, write_node_size, node_fields_whatsit_pdf_literal, "pdf_literal", -1},
+    {pdf_refobj_node, pdf_refobj_node_size, node_fields_whatsit_pdf_refobj, "pdf_refobj", -1},
+    {pdf_annot_node, pdf_annot_node_size, node_fields_whatsit_pdf_annot, "pdf_annot", -1},
+    {pdf_start_link_node, pdf_annot_node_size, node_fields_whatsit_pdf_start_link, "pdf_start_link", -1},
+    {pdf_end_link_node, pdf_end_link_node_size, node_fields_whatsit_pdf_end_link, "pdf_end_link", -1},
+    {pdf_dest_node, pdf_dest_node_size, node_fields_whatsit_pdf_dest, "pdf_dest", -1},
+    {pdf_action_node, pdf_action_size, node_fields_whatsit_pdf_action, "pdf_action", -1},
+    {pdf_thread_node, pdf_thread_node_size, node_fields_whatsit_pdf_thread, "pdf_thread", -1},
+    {pdf_start_thread_node, pdf_thread_node_size, node_fields_whatsit_pdf_start_thread, "pdf_start_thread", -1},
+    {pdf_end_thread_node, pdf_end_thread_node_size, node_fields_whatsit_pdf_end_thread, "pdf_end_thread", -1},
+    {pdf_thread_data_node, pdf_thread_node_size, NULL, "pdf_thread_data", -1},
+    {pdf_link_data_node, pdf_annot_node_size, NULL, "pdf_link_data", -1},
+    {pdf_colorstack_node, pdf_colorstack_node_size, node_fields_whatsit_pdf_colorstack, "pdf_colorstack", -1},
+    {pdf_setmatrix_node, pdf_setmatrix_node_size, node_fields_whatsit_pdf_setmatrix, "pdf_setmatrix", -1},
+    {pdf_save_node, pdf_save_node_size, node_fields_whatsit_pdf_save, "pdf_save", -1},
+    {pdf_restore_node, pdf_restore_node_size, node_fields_whatsit_pdf_restore, "pdf_restore", -1},
     /* done */
-    {-1, -1, NULL, NULL}
+    {-1, -1, NULL, NULL, -1}
 };
 
 #define last_whatsit_node pdf_restore_node
@@ -812,18 +802,23 @@ halfword copy_node(const halfword p)
         copy_sub_list(script_script_mlist(r),script_script_mlist(p)) ;
         break;
     case simple_noad:
+        copy_sub_list(nucleus(r),nucleus(p)) ;
+        copy_sub_list(subscr(r),subscr(p)) ;
+        copy_sub_list(supscr(r),supscr(p)) ;
+        break;
     case radical_noad:
+        copy_sub_list(nucleus(r),nucleus(p)) ;
+        copy_sub_list(subscr(r),subscr(p)) ;
+        copy_sub_list(supscr(r),supscr(p)) ;
+        copy_sub_node(left_delimiter(r),left_delimiter(p)) ;
+        copy_sub_list(degree(r),degree(p)) ;
+        break;
     case accent_noad:
         copy_sub_list(nucleus(r),nucleus(p)) ;
         copy_sub_list(subscr(r),subscr(p)) ;
         copy_sub_list(supscr(r),supscr(p)) ;
-        if (type(p) == accent_noad) {
-            copy_sub_list(accent_chr(r),accent_chr(p)) ;
-            copy_sub_list(bot_accent_chr(r),bot_accent_chr(p)) ;
-        } else if (type(p) == radical_noad) {
-            copy_sub_node(left_delimiter(r),left_delimiter(p)) ;
-            copy_sub_list(degree(r),degree(p)) ;
-        }
+        copy_sub_list(accent_chr(r),accent_chr(p)) ;
+        copy_sub_list(bot_accent_chr(r),bot_accent_chr(p)) ;
         break;
     case fence_noad:
         copy_sub_node(delimiter(r),delimiter(p)) ;
@@ -1140,6 +1135,18 @@ void flush_node_wrapup_pdf(halfword p)
             if (pdf_dest_named_id(p) > 0)
                 delete_token_ref(pdf_dest_id(p));
             break;
+        case pdf_action_node:
+            if (pdf_action_type(p) == pdf_action_user) {
+                delete_token_ref(pdf_action_tokens(p));
+            } else {
+                if (pdf_action_file(p) != null)
+                    delete_token_ref(pdf_action_file(p));
+                if (pdf_action_type(p) == pdf_action_page)
+                    delete_token_ref(pdf_action_tokens(p));
+                else if (pdf_action_named_id(p) > 0)
+                    delete_token_ref(pdf_action_id(p));
+            }
+            break;
         case pdf_thread_data_node:
             break;
         case pdf_thread_node:
@@ -1242,18 +1249,23 @@ void flush_node(halfword p)
         free_sub_list(script_script_mlist(p));
         break;
     case simple_noad:
+        free_sub_list(nucleus(p));
+        free_sub_list(subscr(p));
+        free_sub_list(supscr(p));
+        break;
     case radical_noad:
+        free_sub_list(nucleus(p));
+        free_sub_list(subscr(p));
+        free_sub_list(supscr(p));
+        free_sub_node(left_delimiter(p));
+        free_sub_list(degree(p));
+        break;
     case accent_noad:
         free_sub_list(nucleus(p));
         free_sub_list(subscr(p));
         free_sub_list(supscr(p));
-        if (type(p) == accent_noad) {
-            free_sub_list(accent_chr(p));
-            free_sub_list(bot_accent_chr(p));
-        } else if (type(p) == radical_noad) {
-            free_sub_node(left_delimiter(p));
-            free_sub_list(degree(p));
-        }
+        free_sub_list(accent_chr(p));
+        free_sub_list(bot_accent_chr(p));
         break;
     case fence_noad:
         free_sub_list(delimiter(p));
@@ -1289,7 +1301,6 @@ void flush_node(halfword p)
     case hyphenated_node:
     case delta_node:
     case passive_node:
-    case action_node:
     case inserting_node:
     case split_up_node:
     case expr_node:
@@ -2265,6 +2276,13 @@ void delete_attribute_ref(halfword b)
         /* maintain sanity */
         if (attr_list_ref(b) < 0)
             attr_list_ref(b) = 0;
+    }
+}
+
+void reset_node_properties(halfword b)
+{
+    if (b != null) {
+        lua_properties_reset(b);
     }
 }
 

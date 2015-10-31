@@ -29,17 +29,15 @@
 #  define get_vlink(a)  vlink(a)
 #  define get_character(a)  character(a)
 
-extern halfword insert_discretionary(halfword t, halfword pre, halfword post,
-                                     halfword replace, int penalty);
+extern halfword insert_discretionary(halfword t, halfword pre, halfword post, halfword replace, int penalty);
 extern halfword insert_syllable_discretionary(halfword t, lang_variables * lan);
 extern halfword insert_word_discretionary(halfword t, lang_variables * lan);
-extern halfword insert_complex_discretionary(halfword t, lang_variables * lan,
-                                             halfword pre, halfword post,
-                                             halfword replace);
+extern halfword insert_complex_discretionary(halfword t, lang_variables * lan, halfword pre, halfword post, halfword replace);
 extern halfword insert_character(halfword t, int n);
 extern void set_disc_field(halfword f, halfword t);
 
 #  define varmemcast(a) (memory_word *)(a)
+
 extern memory_word *volatile varmem;
 extern halfword var_mem_max;
 
@@ -49,27 +47,26 @@ extern void init_node_mem(int s);
 extern void dump_node_mem(void);
 extern void undump_node_mem(void);
 
-
 #  define max_halfword  0x3FFFFFFF
 #  define max_dimen     0x3FFFFFFF
 #  ifndef null
-#    define null         0
+#    define null        0
 #  endif
 #  define null_flag    -0x40000000
-#  define zero_glue 0
-#  define normal 0
+#  define zero_glue     0
+#  define normal        0
 
-#  define vinfo(a)           varmem[(a)].hh.v.LH
-#  define vlink(a)           varmem[(a)].hh.v.RH
-#  define type(a)            varmem[(a)].hh.u.B0
-#  define subtype(a)         varmem[(a)].hh.u.B1
-#  define node_attr(a)       vinfo((a)+1)
-#  define alink(a)           vlink((a)+1)
+#  define vinfo(a)      varmem[(a)].hh.v.LH
+#  define vlink(a)      varmem[(a)].hh.v.RH
+#  define type(a)       varmem[(a)].hh.u.B0
+#  define subtype(a)    varmem[(a)].hh.u.B1
+#  define node_attr(a)  vinfo((a)+1)
+#  define alink(a)      vlink((a)+1)
 
-#  define node_size(a)       varmem[(a)].hh.v.LH
+#  define node_size(a)  varmem[(a)].hh.v.LH
 
-#  define rlink(a)           vlink((a)+1) /* aka alink() */
-#  define llink(a)           vinfo((a)+1) /* overlaps with node_attr() */
+#  define rlink(a)      vlink((a)+1) /* aka alink() */
+#  define llink(a)      vinfo((a)+1) /* overlaps with node_attr() */
 
 #  define add_glue_ref(a) glue_ref_count(a)++   /* new reference to a glue spec */
 
@@ -86,25 +83,28 @@ extern void undump_node_mem(void);
  */
 
 #  define attribute_node_size 2
-
+#  define cache_disabled max_halfword
 
 #  define attr_list_ref(a)   vinfo((a)+1) /* the reference count */
-#  define assign_attribute_ref(n,p) do { node_attr(n) = p;attr_list_ref(p)++;} while (0)
 #  define attribute_id(a)    vinfo((a)+1)
 #  define attribute_value(a) vlink((a)+1)
 
-#  define cache_disabled max_halfword
-#  define add_node_attr_ref(a) { if (a!=null)  attr_list_ref((a))++; }
+#  define assign_attribute_ref(n,p) do {     \
+        node_attr(n) = p;attr_list_ref(p)++; \
+} while (0)
 
-#  define  replace_attribute_list(a,b)  do {              \
-    delete_attribute_ref(node_attr(a));                 \
-    node_attr(a)=b;                                     \
-  } while (0)
+#  define add_node_attr_ref(a) do {     \
+    if (a!=null)  attr_list_ref((a))++; \
+} while (0)
+
+#  define  replace_attribute_list(a,b) do { \
+    delete_attribute_ref(node_attr(a));     \
+    node_attr(a)=b;                         \
+} while (0)
 
 extern void update_attribute_cache(void);
 extern halfword copy_attribute_list(halfword n);
 extern halfword do_set_attribute(halfword p, int i, int val);
-
 
 /* a glue spec */
 #  define glue_spec_size 4
@@ -131,25 +131,23 @@ typedef enum {
 
 /* normal nodes */
 
-#  define inf_bad  10000                /* infinitely bad value */
-#  define inf_penalty inf_bad           /* ``infinite'' penalty value */
-#  define eject_penalty -(inf_penalty)  /* ``negatively infinite'' penalty value */
+#  define inf_bad              10000         /* infinitely bad value */
+#  define inf_penalty          inf_bad       /* ``infinite'' penalty value */
+#  define eject_penalty      -(inf_penalty)  /* ``negatively infinite'' penalty value */
 
-#  define penalty_node_size 3
-#  define penalty(a)       vlink((a)+2)
+#  define penalty_node_size    3
+#  define penalty(a)           vlink((a)+2)
 
-#  define glue_node_size 4
-#  define glue_ptr(a)      vinfo((a)+2)
-#  define leader_ptr(a)    vlink((a)+2)
+#  define glue_node_size       4
+#  define glue_ptr(a)          vinfo((a)+2)
+#  define leader_ptr(a)        vlink((a)+2)
 #  define synctex_tag_glue(a)  vinfo((a)+3)
 #  define synctex_line_glue(a) vlink((a)+3)
 
 /*
     disc nodes could eventually be smaller, because the indirect
     pointers are not really needed (8 instead of 10).
- */
-
-#  define disc_node_size 11
+*/
 
 typedef enum {
     discretionary_disc = 0,
@@ -160,14 +158,15 @@ typedef enum {
     select_disc,                /* second of a duo of syllable_discs */
 } discretionary_types;
 
+#  define disc_node_size      11
 #  define pre_break_head(a)   ((a)+5)
 #  define post_break_head(a)  ((a)+7)
 #  define no_break_head(a)    ((a)+9)
 
-#  define disc_penalty(a)  vlink((a)+2)
-#  define pre_break(a)     vinfo((a)+3)
-#  define post_break(a)    vlink((a)+3)
-#  define no_break(a)      vlink((a)+4)
+#  define disc_penalty(a)     vlink((a)+2)
+#  define pre_break(a)        vinfo((a)+3)
+#  define post_break(a)       vlink((a)+3)
+#  define no_break(a)         vlink((a)+4)
 #  define tlink llink
 
 #  define vlink_pre_break(a)  vlink(pre_break_head(a))
@@ -178,21 +177,21 @@ typedef enum {
 #  define tlink_post_break(a) tlink(post_break_head(a))
 #  define tlink_no_break(a)   tlink(no_break_head(a))
 
-#  define kern_node_size 5
-#  define explicit 1                         /* |subtype| of kern nodes from \.{\\kern} and \.{\\/} */
-#  define acc_kern 2                         /* |subtype| of kern nodes from accents */
+#  define kern_node_size       5
+#  define explicit             1             /* |subtype| of kern nodes from \.{\\kern} and \.{\\/} */
+#  define acc_kern             2             /* |subtype| of kern nodes from accents */
 #  define ex_kern(a)           vinfo((a)+3)  /* expansion factor (hz) */
 #  define synctex_tag_kern(a)  vinfo((a)+4)
 #  define synctex_line_kern(a) vlink((a)+4)
 
 #  define box_node_size 9
 
-#  define HLIST_SUBTYPE_UNKNOWN 0
-#  define HLIST_SUBTYPE_LINE 1          /* paragraph lines */
-#  define HLIST_SUBTYPE_HBOX 2          /* \.{\\hbox} */
-#  define HLIST_SUBTYPE_INDENT 3        /* indentation box */
-#  define HLIST_SUBTYPE_ALIGNROW 4      /* row from a \.{\\halign} or \.{\\valign} */
-#  define HLIST_SUBTYPE_ALIGNCELL 5     /* cell from a \.{\\halign} or \.{\\valign} */
+#  define HLIST_SUBTYPE_UNKNOWN   0
+#  define HLIST_SUBTYPE_LINE      1 /* paragraph lines */
+#  define HLIST_SUBTYPE_HBOX      2 /* \.{\\hbox} */
+#  define HLIST_SUBTYPE_INDENT    3 /* indentation box */
+#  define HLIST_SUBTYPE_ALIGNROW  4 /* row from a \.{\\halign} or \.{\\valign} */
+#  define HLIST_SUBTYPE_ALIGNCELL 5 /* cell from a \.{\\halign} or \.{\\valign} */
 
 #  define width(a)            varmem[(a)+2].cint
 #  define depth(a)            varmem[(a)+3].cint
@@ -219,14 +218,14 @@ typedef enum {
     empty_rule,
 } rule_subtypes;
 
-#  define rule_node_size 8
+#  define rule_node_size       8
 #  define rule_dir(a)          vlink((a)+5)
 #  define rule_index(a)        vinfo((a)+6)
 #  define rule_transform(a)    vlink((a)+6)
 #  define synctex_tag_rule(a)  vinfo((a)+7)
 #  define synctex_line_rule(a) vlink((a)+7)
 
-#  define mark_node_size 3
+#  define mark_node_size   3
 #  define mark_ptr(a)      vlink((a)+2)
 #  define mark_class(a)    vinfo((a)+2)
 
@@ -235,7 +234,6 @@ typedef enum {
 #  define adjust_ptr(a)    vlink(a+2)
 
 #  define glyph_node_size 6
-
 #  define character(a)    vinfo((a)+2)
 #  define font(a)         vlink((a)+2)
 #  define lang_data(a)    vinfo((a)+3)
@@ -243,17 +241,18 @@ typedef enum {
 #  define x_displace(a)   vinfo((a)+4)
 #  define y_displace(a)   vlink((a)+4)
 #  define ex_glyph(a)     vinfo((a)+5)  /* expansion factor (hz) */
-#  define is_char_node(a) (a!=null && type(a)==glyph_node)
+
+#  define is_char_node(a)  (a!=null && type(a)==glyph_node)
 
 #  define char_lang(a)     ((const int)(signed short)(((signed int)((unsigned)lang_data(a)&0x7FFF0000)<<1)>>17))
 #  define char_lhmin(a)    ((const int)(((unsigned)lang_data(a) & 0x0000FF00)>>8))
 #  define char_rhmin(a)    ((const int)(((unsigned)lang_data(a) & 0x000000FF)))
 #  define char_uchyph(a)   ((const int)(((unsigned)lang_data(a) & 0x80000000)>>31))
 
-#  define make_lang_data(a,b,c,d) (a>0 ? (1<<31): 0)+                     \
+#  define make_lang_data(a,b,c,d) (a>0 ? (1<<31): 0)+ \
   (b<<16)+ (((c>0 && c<256) ? c : 255)<<8)+(((d>0 && d<256) ? d : 255))
 
-#  define init_lang_data(a)      lang_data(a)=256+1
+#  define init_lang_data(a)     lang_data(a)=256+1
 
 #  define set_char_lang(a,b)    lang_data(a)=make_lang_data(char_uchyph(a),b,char_lhmin(a),char_rhmin(a))
 #  define set_char_lhmin(a,b)   lang_data(a)=make_lang_data(char_uchyph(a),char_lang(a),b,char_rhmin(a))
@@ -261,27 +260,26 @@ typedef enum {
 #  define set_char_uchyph(a,b)  lang_data(a)=make_lang_data(b,char_lang(a),char_lhmin(a),char_rhmin(a))
 
 #  define margin_kern_node_size 4
-#  define margin_char(a)  vlink((a)+3)
+#  define margin_char(a)        vlink((a)+3)
 
 /*@# {|subtype| of marginal kerns}*/
 
-#  define left_side 0
+#  define left_side  0
 #  define right_side 1
 
 #  define before 0 /* |subtype| for math node that introduces a formula */
-#  define after 1  /* |subtype| for math node that winds up a formula */
+#  define after  1 /* |subtype| for math node that winds up a formula */
 
-#  define math_node_size 4
+#  define math_node_size       4
 #  define surround(a)          vlink((a)+2)
 /* also:  glue_ptr(a)          vinfo((a)+2) */
 #  define synctex_tag_math(a)  vinfo((a)+3)
 #  define synctex_line_math(a) vlink((a)+3)
 
-#  define ins_node_size 6
+#  define ins_node_size    6
 #  define float_cost(a)    varmem[(a)+2].cint
 #  define ins_ptr(a)       vinfo((a)+5)
 #  define split_top_ptr(a) vlink((a)+5)
-
 
 #  define page_ins_node_size 5
 
@@ -293,32 +291,22 @@ typedef enum {
     rule_node,
     ins_node,
     mark_node,
-    adjust_node,                /*  5 */
+    adjust_node,
     boundary_node,
     disc_node,
     whatsit_node,
     math_node,
-    glue_node,                  /* 10 */
+    glue_node,
     kern_node,
     penalty_node,
     unset_node,
     style_node,
-    choice_node,                /* 15 */
+    choice_node,
     simple_noad,
-    old_op_noad,
-    old_bin_noad,
-    old_rel_noad,
-    old_open_noad,              /* 20 */
-    old_close_noad,
-    old_punct_noad,
-    old_inner_noad,
     radical_noad,
-    fraction_noad,              /* 25 */
-    old_under_noad,
-    old_over_noad,
+    fraction_noad,
     accent_noad,
-    old_vcenter_noad,
-    fence_noad,                 /* 30 */
+    fence_noad,
     math_char_node,             /* kernel fields */
     sub_box_node,
     sub_mlist_node,
@@ -328,22 +316,21 @@ typedef enum {
     glyph_node,
     align_record_node,
     pseudo_file_node,
-    pseudo_line_node,           /* 40 */
+    pseudo_line_node,
     inserting_node,
     split_up_node,
     expr_node,
     nesting_node,
-    span_node,                  /* 45 */
+    span_node,
     attribute_node,
     glue_spec_node,
     attribute_list_node,
-    action_node,
-    temp_node,                  /* 50 */
+    temp_node,
     align_stack_node,
     movement_node,
     if_node,
     unhyphenated_node,
-    hyphenated_node,            /* 55 */
+    hyphenated_node,
     delta_node,
     passive_node,
     shape_node,
@@ -351,26 +338,26 @@ typedef enum {
     local_par_node,
 } node_types;
 
-#  define MAX_NODE_TYPE 61
+#  define MAX_NODE_TYPE 60
 
 #  define last_known_node temp_node     /* used by \lastnodetype */
 
-#  define movement_node_size 3
-#  define expr_node_size 3
-#  define if_node_size 2
+#  define movement_node_size    3
+#  define expr_node_size        3
+#  define if_node_size          2
 #  define align_stack_node_size 6
-#  define nesting_node_size 2
+#  define nesting_node_size     2
 
-#  define span_node_size 3
-#  define span_span(a) vlink((a)+1)
-#  define span_link(a) vinfo((a)+1)
+#  define span_node_size        3
+#  define span_span(a)          vlink((a)+1)
+#  define span_link(a)          vinfo((a)+1)
 
 #  define pseudo_file_node_size 2
-#  define pseudo_lines(a) vlink((a)+1)
+#  define pseudo_lines(a)       vlink((a)+1)
 
 #  define nodetype_has_attributes(t) (((t)<=glyph_node) && ((t)!=unset_node))
 
-#  define nodetype_has_subtype(t) ((t)!=action_node && (t)!=attribute_list_node && (t)!=attribute_node && (t)!=glue_spec_node)
+#  define nodetype_has_subtype(t) ((t)!=attribute_list_node && (t)!=attribute_node && (t)!=glue_spec_node)
 #  define nodetype_has_prev(t) nodetype_has_subtype((t))
 
 /*
@@ -378,72 +365,103 @@ typedef enum {
     |subtype|, but choice nodes are on-the-spot converted to style nodes
 */
 
-#  define style_node_size 4                   /* number of words in a style node */
-#  define display_mlist(a) vinfo((a)+2)       /* mlist to be used in display style */
-#  define text_mlist(a) vlink((a)+2)          /* mlist to be used in text style */
-#  define script_mlist(a) vinfo((a)+3)        /* mlist to be used in script style */
+#  define style_node_size        4
+#  define display_mlist(a)       vinfo((a)+2) /* mlist to be used in display style */
+#  define text_mlist(a)          vlink((a)+2) /* mlist to be used in text style */
+#  define script_mlist(a)        vinfo((a)+3) /* mlist to be used in script style */
 #  define script_script_mlist(a) vlink((a)+3) /* mlist to be used in scriptscript style */
+
+/*
+    because noad types get changed when processing we need to make sure some if the node
+    sizes match and that we don't share slots with different properties
+
+    once it's sorted out we can go smaller and also adapt the flush etc code to it
+*/
 
 /* regular noads */
 
-#  define noad_size 4                   /* number of words in a normal noad */
-#  define new_hlist(a) vlink((a)+2)     /* the translation of an mlist */
-#  define nucleus(a)   vinfo((a)+2)     /* the |nucleus| field of a noad */
-#  define supscr(a)    vlink((a)+3)     /* the |supscr| field of a noad */
-#  define subscr(a)    vinfo((a)+3)     /* the |subscr| field of a noad */
+#  define noad_size      7
+#  define new_hlist(a)   vlink((a)+2) /* the translation of an mlist */
+#  define nucleus(a)     vinfo((a)+2) /* the |nucleus| field of a noad */
+#  define supscr(a)      vlink((a)+3) /* the |supscr| field of a noad */
+#  define subscr(a)      vinfo((a)+3) /* the |subscr| field of a noad */
+#  define noaditalic(a)  vlink((a)+4)
+#  define noadwidth(a)   vinfo((a)+4)
+#  define noadheight(a)  vlink((a)+5)
+#  define noaddepth(a)   vinfo((a)+5)
+#  define noadextra1(a)  vlink((a)+6)
+#  define noadextra2(a)  vinfo((a)+6)
 
 /* accent noads */
-/* like a regular noad, but with two extra fields. */
 
-#  define accent_noad_size 5             /* number of |mem| words in an accent noad */
-#  define accent_chr(a) vinfo((a)+4)     /* the |accent_chr| field of an accent noad */
-#  define bot_accent_chr(a) vlink((a)+4) /* the |bot_accent_chr| field of an accent noad */
+#  define accent_noad_size  7
+#  define accent_chr(a)     vinfo((a)+6) /* the |accent_chr| field of an accent noad */
+#  define bot_accent_chr(a) vlink((a)+6) /* the |bot_accent_chr| field of an accent noad */
 
 /* left and right noads */
 
-#  define fence_noad_size 4
-#  define delimiter(a)       vlink((a)+2)        /* |delimiter| field in left and right noads */
-#  define delimiteraxis(a)   vinfo((a)+2)
-#  define delimiterheight(a) vlink((a)+3)
-#  define delimiterdepth(a)  vinfo((a)+3)
+#  define fence_noad_size     7
+#  define delimiteritalic(a)  vlink((a)+4)
+/* define delimiterwidth(a)   vinfo((a)+4) */
+#  define delimiterheight(a)  vlink((a)+5)
+#  define delimiterdepth(a)   vinfo((a)+5)
+#  define delimiter(a)        vlink((a)+6) /* |delimiter| field in left and right noads */
+#  define delimiteroptions(a) vinfo((a)+6)
+
+/* when dimensions then axis else noaxis */
+
+typedef enum {
+    delimiter_option_set = 0x01,
+    delimiter_axis       = 0x02 + 0x01,
+    delimiter_no_axis    = 0x04 + 0x01,
+    delimiter_exact      = 0x08 + 0x01,
+    delimiter_center     = 0x0F + 0x01,
+} delimiter_options ;
+
+#  define delimiteroptionset(a) ((delimiteroptions(a) & delimiter_option_set) == delimiter_option_set)
+#  define delimiteraxis(a)      ((delimiteroptions(a) & delimiter_axis      ) == delimiter_axis      )
+#  define delimiternoaxis(a)    ((delimiteroptions(a) & delimiter_no_axis   ) == delimiter_no_axis   )
+#  define delimiterexact(a)     ((delimiteroptions(a) & delimiter_exact     ) == delimiter_exact     )
+#  define delimitercenter(a)    ((delimiteroptions(a) & delimiter_center    ) == delimiter_center    )
 
 /* subtype of fence noads */
 
-#  define left_noad_side 1
+#  define left_noad_side   1
 #  define middle_noad_side 2
-#  define right_noad_side 3
+#  define right_noad_side  3
+#  define no_noad_side     4
 
 /* fraction noads */
 
-#  define fraction_noad_size 5            /* number of |mem| words in a fraction noad */
+#  define fraction_noad_size 6
 #  define thickness(a)       vlink((a)+2) /* |thickness| field in a fraction noad */
 #  define numerator(a)       vlink((a)+3) /* |numerator| field in a fraction noad */
 #  define denominator(a)     vinfo((a)+3) /* |denominator| field in a fraction noad */
-#  define left_delimiter(a)  vlink((a)+4) /* first delimiter field of a noad */
-#  define right_delimiter(a) vinfo((a)+4) /* second delimiter field of a fraction noad */
+#  define left_delimiter(a)  vlink((a)+5) /* first delimiter field of a noad */
+#  define right_delimiter(a) vinfo((a)+5) /* second delimiter field of a fraction noad */
 
 /* radical noads */
 /* this is like a fraction, but it only stores a |left_delimiter| */
 
-#  define radical_noad_size 5         /*number of |mem| words in a radical noad */
-#  define degree(a) vinfo((a)+4)      /* the root degree in a radical noad */
-
-#  define math_kernel_node_size 3
+#  define radical_noad_size 7
+#  define radicalwidth(a)   vinfo((a)+4)
+#  define degree(a)         vlink((a)+6)   /* the root degree in a radical noad */
 
 /* accessors for the |nucleus|-style node fields */
 
-#  define math_fam(a)       vinfo((a)+2)
-#  define math_character(a) vlink((a)+2)
-#  define math_list(a) vlink((a)+2)
+#  define math_kernel_node_size 3
+#  define math_fam(a)           vinfo((a)+2)
+#  define math_character(a)     vlink((a)+2)
+#  define math_list(a)          vlink((a)+2)
 
 /* accessors for the |delimiter|-style two-word subnode fields */
 
-#  define math_shield_node_size 4       /* not used yet */
+#  define math_shield_node_size 4            /* not used yet */
 
-#  define small_fam(A)  vinfo((A)+2)    /* |fam| for ``small'' delimiter */
-#  define small_char(A) vlink((A)+2)    /* |character| for ``small'' delimiter */
-#  define large_fam(A)  vinfo((A)+3)    /* |fam| for ``large'' delimiter */
-#  define large_char(A) vlink((A)+3)    /* |character| for ``large'' delimiter */
+#  define small_fam(A)          vinfo((A)+2) /* |fam| for ``small'' delimiter */
+#  define small_char(A)         vlink((A)+2) /* |character| for ``small'' delimiter */
+#  define large_fam(A)          vinfo((A)+3) /* |fam| for ``large'' delimiter */
+#  define large_char(A)         vlink((A)+3) /* |character| for ``large'' delimiter */
 
 /* we should have the codes in a separate enum: extension_codes */
 
@@ -469,6 +487,7 @@ typedef enum {
     pdf_start_link_node,
     pdf_end_link_node,
     pdf_dest_node,
+    pdf_action_node,
     pdf_thread_node,
     pdf_start_thread_node,
     pdf_end_thread_node,
@@ -483,12 +502,13 @@ typedef enum {
 #  define backend_first_dvi_whatsit 15
 #  define backend_last_dvi_whatsit  15
 #  define backend_first_pdf_whatsit 16
-#  define backend_last_pdf_whatsit  30
+#  define backend_last_pdf_whatsit  31
 
-#  define MAX_WHATSIT_TYPE 31
+#  define MAX_WHATSIT_TYPE 32
 
 #  define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
-#  define  get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
+#  define get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
+#  define get_etex_code(i)                     (node_data[i].etex)
 
 #  define GLYPH_CHARACTER     (1 << 0)
 #  define GLYPH_LIGATURE      (1 << 1)
@@ -560,7 +580,6 @@ typedef enum {
 
 #  define save_pos_node_size 3
 
-
 #  define local_par_size 6
 
 #  define local_pen_inter(a)       vinfo((a)+2)
@@ -574,6 +593,8 @@ typedef enum {
 /* type of literal data */
 
 #  define lua_refid_literal 1 /* not a |normal| string */
+
+/* begin of pdf backend nodes */
 
 /* literal ctm types */
 
@@ -603,20 +624,20 @@ typedef enum {
     coordinates of destinations/threads/annotations (in whatsit node)
 */
 
-#  define pdf_ann_left(a)      varmem[(a) + 2].cint
-#  define pdf_ann_top(a)       varmem[(a) + 3].cint
-#  define pdf_ann_right(a)     varmem[(a) + 4].cint
-#  define pdf_ann_bottom(a)    varmem[(a) + 5].cint
+#  define pdf_ann_left(a)           varmem[(a) + 2].cint
+#  define pdf_ann_top(a)            varmem[(a) + 3].cint
+#  define pdf_ann_right(a)          varmem[(a) + 4].cint
+#  define pdf_ann_bottom(a)         varmem[(a) + 5].cint
 
-#  define pdf_literal_data(a)  vlink((a)+2)
-#  define pdf_literal_mode(a)  type((a)+2)
-#  define pdf_literal_type(a)  subtype((a)+2)
+#  define pdf_literal_data(a)       vlink((a)+2)
+#  define pdf_literal_mode(a)       type((a)+2)
+#  define pdf_literal_type(a)       subtype((a)+2)
 
-#  define pdf_annot_data(a)       vinfo((a) + 6)
-#  define pdf_link_attr(a)        vinfo((a) + 6)
-#  define pdf_link_action(a)      vlink((a) + 6)
-#  define pdf_annot_objnum(a)     varmem[(a) + 7].cint
-#  define pdf_link_objnum(a)      varmem[(a) + 7].cint
+#  define pdf_annot_data(a)         vinfo((a) + 6)
+#  define pdf_link_attr(a)          vinfo((a) + 6)
+#  define pdf_link_action(a)        vlink((a) + 6)
+#  define pdf_annot_objnum(a)       varmem[(a) + 7].cint
+#  define pdf_link_objnum(a)        varmem[(a) + 7].cint
 
 #  define pdf_dest_type(a)          type((a) + 6)
 #  define pdf_dest_named_id(a)      subtype((a) + 6)
@@ -628,19 +649,49 @@ typedef enum {
 #  define pdf_thread_id(a)          vlink((a) + 6)
 #  define pdf_thread_attr(a)        vinfo((a) + 7)
 
-#  define pdf_end_link_node_size 3
-#  define pdf_end_thread_node_size 3
+#  define pdf_end_link_node_size    3
+#  define pdf_end_thread_node_size  3
 
-#  define pdf_colorstack_node_size 4
-#  define pdf_setmatrix_node_size 3
+#  define pdf_setmatrix_node_size   3
+#  define pdf_save_node_size        3
+#  define pdf_restore_node_size     3
 
-#  define pdf_colorstack_stack(a)  vlink((a)+2)
-#  define pdf_colorstack_cmd(a)    vinfo((a)+2)
-#  define pdf_colorstack_data(a)   vlink((a)+3)
-#  define pdf_setmatrix_data(a)    vlink((a)+2)
+#  define pdf_colorstack_node_size  4
+#  define pdf_colorstack_stack(a)   vlink((a)+2)
+#  define pdf_colorstack_cmd(a)     vinfo((a)+2)
+#  define pdf_colorstack_data(a)    vlink((a)+3)
+#  define pdf_setmatrix_data(a)     vlink((a)+2)
 
-#  define pdf_save_node_size     3
-#  define pdf_restore_node_size  3
+typedef enum {
+    pdf_action_page = 0,
+    pdf_action_goto,
+    pdf_action_thread,
+    pdf_action_user
+} pdf_action_type;
+
+typedef enum {
+    pdf_window_notset,
+    pdf_window_new,
+    pdf_window_nonew,
+} pdf_window_type;
+
+#  define pdf_action_size           4
+
+/* #  define pdf_action_type(a)        type((a)+1)    */ /* enum pdf_action_type */
+/* #  define pdf_action_named_id(a)    subtype((a)+1) */ /* boolean */
+/* #  define pdf_action_id(a)          vlink((a)+1)   */ /* number or toks */
+/* #  define pdf_action_file(a)        vinfo((a)+2)   */ /* toks */
+/* #  define pdf_action_new_window(a)  vlink((a)+2)   */ /* enum pdf_window_type */
+/* #  define pdf_action_tokens(a)      vinfo((a)+3)   */ /* toks */
+/* #  define pdf_action_refcount(a)    vlink((a)+3)   */ /* number */
+
+#  define pdf_action_type(a)        vlink((a)+2) /* enum pdf_action_type */
+#  define pdf_action_named_id(a)    vinfo((a)+2) /* boolean */
+#  define pdf_action_id(a)          vlink((a)+3) /* number or toks */
+#  define pdf_action_file(a)        vinfo((a)+3) /* toks */
+#  define pdf_action_new_window(a)  vlink((a)+4) /* enum pdf_window_type */
+#  define pdf_action_tokens(a)      vinfo((a)+4) /* toks */
+#  define pdf_action_refcount(a)    vlink((a)+5) /* number */
 
 typedef enum {
     colorstack_set = 0,
@@ -649,12 +700,18 @@ typedef enum {
     colorstack_current
 } colorstack_commands;
 
-#  define colorstack_data   colorstack_push     /* last value where data field is set */
+#  define colorstack_data colorstack_push     /* last value where data field is set */
+
+/* end of pdf backend nodes */
+
+/* user defined nodes */
 
 #  define user_defined_node_size 4
 #  define user_node_type(a)  vinfo((a)+2)
 #  define user_node_id(a)    vlink((a)+2)
 #  define user_node_value(a) vinfo((a)+3)
+
+/* node sused in the parbuilder */
 
 #  define active_node_size 4                    /*number of words in extended active nodes */
 #  define fitness subtype                       /*|very_loose_fit..tight_fit| on final line for this break */
@@ -679,6 +736,8 @@ typedef enum {
 
 #  define delta_node_size 10 /* 8 fields, stored in a+1..9 */
 
+/* helpers */
+
 #  define couple_nodes(a,b) {assert(b!=null);vlink(a)=b;alink(b)=a;}
 #  define try_couple_nodes(a,b) if (b==null) vlink(a)=b; else {couple_nodes(a,b);}
 #  define uncouple_node(a) {assert(a!=null);vlink(a)=null;alink(a)=null;}
@@ -686,15 +745,14 @@ typedef enum {
 #  define cache_disabled max_halfword
 
 extern void delete_attribute_ref(halfword b);
+extern void reset_node_properties(halfword b);
 extern void reassign_attribute(halfword n,halfword new);
-extern void delete_attribute_ref(halfword b);
 extern void build_attribute_list(halfword b);
 extern halfword current_attribute_list(void);
 
 extern int unset_attribute(halfword n, int c, int w);
 extern void set_attribute(halfword n, int c, int w);
 extern int has_attribute(halfword n, int c, int w);
-
 
 extern halfword new_span_node(halfword n, int c, scaled w);
 
@@ -729,6 +787,7 @@ typedef struct _node_info {
     int size;
     const char **fields;
     const char *name;
+    int etex;
 } node_info;
 
 extern node_info node_data[];

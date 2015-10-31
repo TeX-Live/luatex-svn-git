@@ -1333,8 +1333,6 @@ int scan_math(pointer p, int mstyle)
     return 0;
 }
 
-
-
 @ The |set_math_char| procedure creates a new noad appropriate to a given
 math code, and appends it to the current mlist. However, if the math code
 is sufficiently large, the |cur_chr| is treated as an active character and
@@ -1512,6 +1510,10 @@ void math_radical(void)
     tail_append(new_node(radical_noad, chr_code));
     q = new_node(delim_node, 0);
     left_delimiter(tail) = q;
+    if (scan_keyword("width")) {
+        scan_dimen(false,false,false);
+        radicalwidth(tail) = cur_val ;
+    }
     if (chr_code == 0)          /* \.{\\radical} */
         scan_delimiter(left_delimiter(tail), tex_mathcode);
     else if (chr_code == 1)     /* \.{\\Uradical} */
@@ -1526,9 +1528,15 @@ void math_radical(void)
         scan_delimiter(left_delimiter(tail), umath_mathcode);
     else if (chr_code == 6)     /* \.{\\Udelimiterover} */
         scan_delimiter(left_delimiter(tail), umath_mathcode);
+    else if (chr_code == 7)     /* \.{\\Uhextensible} */
+        scan_delimiter(left_delimiter(tail), umath_mathcode);
     else
         confusion("math_radical");
-    if (chr_code == 2) {
+    if (chr_code == 7) {
+        q = new_node(sub_box_node, 0); /* type will change */
+        nucleus(tail) = q;
+        return;
+    } else if (chr_code == 2) {
         /* the trick with the |vlink(q)| is used by |scan_math|
            to decide whether it needs to go on */
         q = new_node(math_char_node, 0);
@@ -1894,30 +1902,36 @@ delimiters to appear between \.{\\left} and \.{\\right}.
 @c
 void math_left_right(void)
 {
-    halfword t;                 /* |left_noad_side| .. |right_noad_side| */
-    pointer p;                  /* new noad */
-    pointer q;                  /* resulting mlist */
-    pointer r;                  /* temporary */
+    halfword t;      /* |left_noad_side| .. |right_noad_side| */
+    pointer p;       /* new noad */
+    pointer q;       /* resulting mlist */
+    pointer r;       /* temporary */
     halfword ht = 0;
     halfword dp = 0;
-    halfword ax = 0;
+    halfword options = 0;
     t = cur_chr;
 
     while (1) {
         if (scan_keyword("height")) {
-           scan_dimen(false,false,false);
-           ht = cur_val ;
+            scan_dimen(false,false,false);
+            ht = cur_val ;
         } else if (scan_keyword("depth")) {
-           scan_dimen(false,false,false);
-           dp = cur_val ;
+            scan_dimen(false,false,false);
+            dp = cur_val ;
         } else if (scan_keyword("axis")) {
-           ax = 1 ;
+            options = options | delimiter_axis ;
+        } else if (scan_keyword("noaxis")) {
+            options = options | delimiter_no_axis ;
+        } else if (scan_keyword("exact")) {
+            options = options | delimiter_exact ;
+        } else if (scan_keyword("center")) {
+            options = options | delimiter_center ;
         } else {
             break;
         }
     }
 
-    if ((t != left_noad_side) && (cur_group != math_left_group)) {
+    if ((t != no_noad_side) && (t != left_noad_side) && (cur_group != math_left_group)) {
         if (cur_group == math_shift_group) {
             scan_delimiter(null, no_mathcode);
             if (t == middle_noad_side) {
@@ -1945,9 +1959,20 @@ void math_left_right(void)
 
         delimiterheight(p) = ht;
         delimiterdepth(p) = dp;
-        delimiteraxis(p) = ax;
+        delimiteroptions(p) = options;
+        delimiteritalic(p) = 0;
 
         scan_delimiter(delimiter(p), no_mathcode);
+
+        if (t == no_noad_side) {
+            tail_append(new_noad());
+            subtype(tail) = inner_noad_type;
+            r = new_node(sub_mlist_node, 0);
+            nucleus(tail) = r;
+            math_list(nucleus(tail)) = p;
+            return ;
+        }
+
         if (t == left_noad_side) {
             q = p;
         } else {

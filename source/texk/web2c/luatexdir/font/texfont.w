@@ -550,6 +550,11 @@ void set_charinfo_italic(charinfo * ci, scaled val)
     ci->italic = val;
 }
 
+void set_charinfo_vert_italic(charinfo * ci, scaled val)
+{
+    ci->vert_italic = val;
+}
+
 void set_charinfo_top_accent(charinfo * ci, scaled val)
 {
     ci->top_accent = val;
@@ -858,6 +863,11 @@ scaled get_charinfo_italic(charinfo * ci)
     return ci->italic;
 }
 
+scaled get_charinfo_vert_italic(charinfo * ci)
+{
+    return ci->vert_italic;
+}
+
 scaled get_charinfo_top_accent(charinfo * ci)
 {
     return ci->top_accent;
@@ -964,21 +974,29 @@ scaled calc_char_width(internal_font_number f, int c, int ex)
 scaled char_depth(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
-    scaled w = get_charinfo_depth(ci);
-    return w;
+    scaled d = get_charinfo_depth(ci);
+    return d;
 }
 
 scaled char_height(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
-    scaled w = get_charinfo_height(ci);
-    return w;
+    scaled h = get_charinfo_height(ci);
+    return h;
 }
 
 scaled char_italic(internal_font_number f, int c)
 {
     charinfo *ci = char_info(f, c);
-    return get_charinfo_italic(ci);
+    scaled i = get_charinfo_italic(ci);
+    return i;
+}
+
+scaled char_vert_italic(internal_font_number f, int c)
+{
+    charinfo *ci = char_info(f, c);
+    scaled i = get_charinfo_vert_italic(ci);
+    return i;
 }
 
 scaled char_top_accent(internal_font_number f, int c)
@@ -1478,6 +1496,7 @@ static void dump_charinfo(int f, int c)
     dump_int(get_charinfo_height(co));
     dump_int(get_charinfo_depth(co));
     dump_int(get_charinfo_italic(co));
+    dump_int(get_charinfo_vert_italic(co));
     dump_int(get_charinfo_top_accent(co));
     dump_int(get_charinfo_bot_accent(co));
     dump_int(get_charinfo_tag(co));
@@ -1624,6 +1643,8 @@ static int undump_charinfo(int f)
     set_charinfo_depth(co, x);
     undump_int(x);
     set_charinfo_italic(co, x);
+    undump_int(x);
+    set_charinfo_vert_italic(co, x);
     undump_int(x);
     set_charinfo_top_accent(co, x);
     undump_int(x);

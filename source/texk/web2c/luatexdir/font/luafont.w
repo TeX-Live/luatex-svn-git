@@ -172,6 +172,12 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
        lua_rawset(L, -3);
     }
 
+    if (get_charinfo_vert_italic(co) != 0) {
+       lua_pushstring(L, "vert_italic");
+       lua_pushnumber(L, get_charinfo_vert_italic(co));
+       lua_rawset(L, -3);
+    }
+
     if (get_charinfo_top_accent(co) !=0) {
        lua_pushstring(L, "top_accent");
        lua_pushnumber(L, get_charinfo_top_accent(co));
@@ -1092,6 +1098,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
         set_charinfo_depth(co, j);
         j = lua_numeric_field_by_index(L, lua_key_index(italic), 0);
         set_charinfo_italic(co, j);
+        j = lua_numeric_field_by_index(L, lua_key_index(vert_italic), 0);
+        set_charinfo_vert_italic(co, j);
         j = lua_numeric_field_by_index(L, lua_key_index(index), 0);
         set_charinfo_index(co, j);
         j = lua_numeric_field_by_index(L, lua_key_index(expansion_factor), 0);

@@ -72,27 +72,6 @@ As mentioned it's better to use the official helpers rather than edit these
 fields directly. For instance the \type {prev} field is used for other purposes
 and there is no double linked list.
 
-\subsubsection{action item}
-
-Valid fields: \showfields{action}\crlf
-Id: \showid{action}
-
-These are a special kind of item that only appears inside \PDF\ start link
-objects.
-
-\starttabulate[|lT|l|p|]
-\NC \ssbf field \NC \bf type         \NC \bf explanation \NC \NR
-\NC action_type \NC number           \NC \NC \NR
-\NC action_id   \NC number or string \NC \NC \NR
-\NC named_id    \NC number           \NC \NC \NR
-\NC file        \NC string           \NC \NC \NR
-\NC new_window  \NC number           \NC \NC \NR
-\NC data        \NC string           \NC \NC \NR
-\NC ref_count   \NC number           \NC
-    read-only
-\NC \NR
-\stoptabulate
-
 \subsection{Main text nodes}
 
 These are the nodes that comprise actual typesetting commands.
@@ -946,6 +925,25 @@ Id: \showid{whatsit,pdf_dest}
 \NC dest_type   \NC number          \NC type of destination \NC \NR
 \NC xyz_zoom    \NC number          \NC \NC \NR
 \NC objnum      \NC number          \NC the \PDF\ object number \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_action nodes}
+
+Valid fields: \showfields{whatsit,pdf_action}\crlf
+Id: \showid{whatsit,pdf_action}
+
+These are a special kind of item that only appears inside \PDF\ start link
+objects.
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type         \NC \bf explanation \NC \NR
+\NC action_type \NC number           \NC \NC \NR
+\NC action_id   \NC number or string \NC \NC \NR
+\NC named_id    \NC number           \NC \NC \NR
+\NC file        \NC string           \NC \NC \NR
+\NC new_window  \NC number           \NC \NC \NR
+\NC data        \NC string           \NC \NC \NR
+\NC ref_count   \NC number           \NC read-only \NC \NR
 \stoptabulate
 
 \subsubsection{pdf_thread nodes}

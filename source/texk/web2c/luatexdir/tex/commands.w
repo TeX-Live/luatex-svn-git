@@ -215,6 +215,7 @@ void initialize_commands(void)
     primitive_umath("Uoverdelimiter", radical_cmd, 4, 0);
     primitive_umath("Udelimiterunder", radical_cmd, 5, 0);
     primitive_umath("Udelimiterover", radical_cmd, 6, 0);
+    primitive_umath("Uhextensible", radical_cmd, 7, 0);
     primitive_tex("read", read_to_cs_cmd, 0, 0);
     primitive_tex("relax", relax_cmd, too_big_char, too_big_char);
     cs_text(frozen_relax) = maketexstring("relax");
@@ -469,6 +470,7 @@ void initialize_commands(void)
     primitive_tex("left", left_right_cmd, left_noad_side, 0);
     primitive_tex("right", left_right_cmd, right_noad_side, 0);
     primitive_tex("middle", left_right_cmd, middle_noad_side, 0);
+    primitive_luatex("Uvextensible", left_right_cmd, no_noad_side, 0);
     cs_text(frozen_right) = maketexstring("right");
     eqtb[frozen_right] = eqtb[cur_val];
 

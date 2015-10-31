@@ -292,20 +292,12 @@ lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled maxd,
 int visible_last_node_type(int n)
 {
     int i = type(n);
-    if (i == local_par_node)
-        return -1;
-    if (i == glyph_node) {
-        if (is_ligature(n))
-            return 7;           /* old ligature value */
-        else
-            return 0;           /* old character value */
-    }
-    if (i <= unset_node) {
-        return i + 1;
-    } else if (i <= delim_node) {
-        return 15;              /* so-called math nodes */
+    if (i != glyph_node) {
+        return get_etex_code(i);
+    } else if (is_ligature(n)) {
+        return 7; /* old ligature value */
     } else {
-        return -1;
+        return 0; /* old character value */
     }
 }
 

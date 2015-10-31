@@ -22,35 +22,13 @@
 
 #include "ptexlib.h"
 
-@ @c
-static halfword new_action_node(void)
-{
-    return new_node(action_node, 0);
-}
-
-@ @c
-void delete_action_node(halfword a)
-{
-    if (pdf_action_type(a) == pdf_action_user) {
-        delete_token_ref(pdf_action_tokens(a));
-    } else {
-        if (pdf_action_file(a) != null)
-            delete_token_ref(pdf_action_file(a));
-        if (pdf_action_type(a) == pdf_action_page)
-            delete_token_ref(pdf_action_tokens(a));
-        else if (pdf_action_named_id(a) > 0)
-            delete_token_ref(pdf_action_id(a));
-    }
-    free_node(a, pdf_action_size);
-}
-
 @ read an action specification
 @c
 halfword scan_action(PDF pdf)
 {
     int p;
     (void) pdf;
-    p = new_action_node();
+    p = new_node(whatsit_node, pdf_action_node);
     if (scan_keyword("user"))
         set_pdf_action_type(p, pdf_action_user);
     else if (scan_keyword("goto"))

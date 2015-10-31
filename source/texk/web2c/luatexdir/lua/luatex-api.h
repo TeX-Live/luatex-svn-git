@@ -699,6 +699,7 @@ make_lua_key(value);\
 make_lua_key(vbox);\
 make_lua_key(vcenter);\
 make_lua_key(version);\
+make_lua_key(vert_italic);\
 make_lua_key(vert_variants);\
 make_lua_key(vmode_par);\
 make_lua_key(vtop);\
@@ -991,6 +992,7 @@ init_lua_key(value);\
 init_lua_key(vbox);\
 init_lua_key(vcenter);\
 init_lua_key(version);\
+init_lua_key(vert_italic);\
 init_lua_key(vert_variants);\
 init_lua_key(vmode_par);\
 init_lua_key(vtop);\
@@ -1356,6 +1358,7 @@ use_lua_key(value);
 use_lua_key(vbox);
 use_lua_key(vcenter);
 use_lua_key(version);
+use_lua_key(vert_italic);
 use_lua_key(vert_variants);
 use_lua_key(vmode_par);
 use_lua_key(vtop);

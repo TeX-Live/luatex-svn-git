@@ -75,6 +75,7 @@ typedef struct charinfo {
     scaled height;              /* height */
     scaled depth;               /* depth */
     scaled italic;              /* italic correction */
+    scaled vert_italic;         /* italic correction */
     scaled top_accent;          /* top accent alignment */
     scaled bot_accent;          /* bot accent alignment */
     int ef;                     /* font expansion factor */
@@ -414,6 +415,7 @@ extern void set_charinfo_width(charinfo * ci, scaled val);
 extern void set_charinfo_height(charinfo * ci, scaled val);
 extern void set_charinfo_depth(charinfo * ci, scaled val);
 extern void set_charinfo_italic(charinfo * ci, scaled val);
+extern void set_charinfo_vert_italic(charinfo * ci, scaled val);
 extern void set_charinfo_top_accent(charinfo * ci, scaled val);
 extern void set_charinfo_bot_accent(charinfo * ci, scaled val);
 extern void set_charinfo_tag(charinfo * ci, scaled val);
@@ -443,6 +445,7 @@ extern scaled get_charinfo_width(charinfo * ci);
 extern scaled get_charinfo_height(charinfo * ci);
 extern scaled get_charinfo_depth(charinfo * ci);
 extern scaled get_charinfo_italic(charinfo * ci);
+extern scaled get_charinfo_vert_italic(charinfo * ci);
 extern scaled get_charinfo_top_accent(charinfo * ci);
 extern scaled get_charinfo_bot_accent(charinfo * ci);
 extern char get_charinfo_tag(charinfo * ci);
@@ -513,6 +516,7 @@ extern scaled calc_char_width(internal_font_number f, int c, int ex);
 extern scaled char_width(internal_font_number f, int c);
 extern scaled char_depth(internal_font_number f, int c);
 extern scaled char_italic(internal_font_number f, int c);
+extern scaled char_vert_italic(internal_font_number f, int c);
 extern scaled char_top_accent(internal_font_number f, int c);
 extern scaled char_bot_accent(internal_font_number f, int c);
 
