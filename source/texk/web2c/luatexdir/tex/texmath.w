@@ -1517,8 +1517,8 @@ void math_radical(void)
             radicalwidth(tail) = cur_val ;
         } else if (scan_keyword("left")) {
             options = options | noad_option_left ;
-        } else if (scan_keyword("center")) {
-            options = options | noad_option_center ;
+        } else if (scan_keyword("middle")) {
+            options = options | noad_option_middle ;
         } else if (scan_keyword("right")) {
             options = options | noad_option_right ;
         } else {
@@ -1936,10 +1936,6 @@ void math_left_right(void)
             options = options | noad_option_no_axis ;
         } else if (scan_keyword("exact")) {
             options = options | noad_option_exact ;
-        /*
-        } else if (scan_keyword("center")) {
-            options = options | delimiter_option_center ;
-        */
         } else {
             break;
         }

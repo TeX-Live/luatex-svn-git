@@ -1776,7 +1776,7 @@ static void make_hextension(pointer q, int cur_style)
     e = do_delimiter(q, left_delimiter(q), cur_size, radicalwidth(q), true, cur_style, true, &stack, NULL);
     w = width(e);
     if (!stack&& (radicalwidth(q) != 0) && (radicalwidth(q) != width(e))) {
-        if (radicalcenter(q)) {
+        if (radicalmiddle(q)) {
             p = new_kern(half(radicalwidth(q)-w));
             reset_attributes(p, node_attr(q));
             couple_nodes(p,e);
@@ -1916,7 +1916,7 @@ static pointer wrapup_over_under_delimiter(pointer x, pointer y, pointer q, scal
             r = hpack(p, 0, additional, -1); \
             width(r) = radicalwidth(q); \
             reset_attributes(r, node_attr(q)); \
-        } else if (radicalcenter(q)) { \
+        } else if (radicalmiddle(q)) { \
             halfword p = new_kern(half(radicalwidth(q)-width(r))); \
             reset_attributes(p, node_attr(q)); \
             couple_nodes(p,r); \

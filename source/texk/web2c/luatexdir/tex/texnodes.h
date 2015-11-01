@@ -418,7 +418,7 @@ typedef enum {
     noad_option_no_axis  = 0x04 + 0x08,
     noad_option_exact    = 0x10 + 0x08,
     noad_option_left     = 0x11 + 0x08,
-    noad_option_center   = 0x12 + 0x08,
+    noad_option_middle   = 0x12 + 0x08,
     noad_option_right    = 0x14 + 0x08,
 } delimiter_options ;
 
@@ -453,7 +453,7 @@ typedef enum {
 
 #  define radicalexact(a)   ((radicaloptions(a) & noad_option_exact)  == noad_option_exact)
 #  define radicalleft(a)    ((radicaloptions(a) & noad_option_left)   == noad_option_left)
-#  define radicalcenter(a)  ((radicaloptions(a) & noad_option_center) == noad_option_center)
+#  define radicalmiddle(a)  ((radicaloptions(a) & noad_option_middle) == noad_option_middle)
 #  define radicalright(a)   ((radicaloptions(a) & noad_option_right)  == noad_option_right)
 
 /* accessors for the |nucleus|-style node fields */
