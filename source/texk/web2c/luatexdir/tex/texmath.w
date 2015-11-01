@@ -1515,8 +1515,12 @@ void math_radical(void)
         if (scan_keyword("width")) {
             scan_dimen(false,false,false);
             radicalwidth(tail) = cur_val ;
-        } else if (scan_keyword("exact")) {
-            options = options | noad_option_exact ;
+        } else if (scan_keyword("left")) {
+            options = options | noad_option_left ;
+        } else if (scan_keyword("center")) {
+            options = options | noad_option_center ;
+        } else if (scan_keyword("right")) {
+            options = options | noad_option_right ;
         } else {
             break;
         }

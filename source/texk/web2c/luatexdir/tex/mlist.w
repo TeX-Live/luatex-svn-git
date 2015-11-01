@@ -1770,14 +1770,24 @@ placed so that the actual clearance is |psi| plus half the excess.
 @c
 static void make_hextension(pointer q, int cur_style)
 {
-    pointer e;
+    pointer e, p;
+    halfword w;
     boolean stack = false;
     e = do_delimiter(q, left_delimiter(q), cur_size, radicalwidth(q), true, cur_style, true, &stack, NULL);
-    e = hpack(e, 0, additional, -1);
-    if (!stack && (radicalwidth(q) != 0) && (! radicalexact(q)) && (radicalwidth(q) != width(e))) {
-        width(e) = radicalwidth(q);
-        shift_amount(e) = width(e) - radicalwidth(q);
+    w = width(e);
+    if (!stack&& (radicalwidth(q) != 0) && (radicalwidth(q) != width(e))) {
+        if (radicalcenter(q)) {
+            p = new_kern(half(radicalwidth(q)-w));
+            reset_attributes(p, node_attr(q));
+            couple_nodes(p,e);
+            e = p;
+            w = radicalwidth(q);
+        } else if (radicalexact(q)) {
+            w = radicalwidth(q);
+        }
     }
+    e = hpack(e, 0, additional, -1);
+    width(e) = w ;
     reset_attributes(e, node_attr(q));
     math_list(nucleus(q)) = e;
     left_delimiter(q) = null;
@@ -1878,25 +1888,56 @@ static pointer wrapup_over_under_delimiter(pointer x, pointer y, pointer q, scal
     return v;
 }
 
+/* when exact use radicalwidth (y is delimiter) */
+
 @ @c
+
 #define fixup_widths(q,x,y) do { \
-    if (width(y) >= width(x)) {  \
-        if (radicalwidth(q) != zero_glue) \
-            shift_amount(x) = half(width(y)-width(x)) ; \
-        width(x) = width(y);     \
-    } else {                     \
-        if (radicalwidth(q) != zero_glue) \
-            shift_amount(y) = half(width(x)-width(y)) ; \
-        width(y) = width(x);     \
-    }                            \
+    if (width(y) >= width(x)) { \
+        if (radicalwidth(q) != zero_glue) { \
+            shift_amount(x) += half(width(y)-width(x)) ; \
+        } \
+        width(x) = width(y); \
+    } else { \
+        if (radicalwidth(q) != zero_glue) { \
+            shift_amount(y) += half(width(x)-width(y)) ; \
+        } \
+        width(y) = width(x); \
+    } \
 } while (0)
 
-#define check_widths(q,p) do {          \
+
+#define check_radical(q,stack,r,t) do { \
+    if (!stack && (width(r) >= width(t)) && (radicalwidth(q) != zero_glue) && (radicalwidth(q) != width(r))) { \
+        if (radicalleft(q)) { \
+            halfword p = new_kern(radicalwidth(q)-width(r)); \
+            reset_attributes(p, node_attr(q)); \
+            couple_nodes(p,r); \
+            r = hpack(p, 0, additional, -1); \
+            width(r) = radicalwidth(q); \
+            reset_attributes(r, node_attr(q)); \
+        } else if (radicalcenter(q)) { \
+            halfword p = new_kern(half(radicalwidth(q)-width(r))); \
+            reset_attributes(p, node_attr(q)); \
+            couple_nodes(p,r); \
+            r = hpack(p, 0, additional, -1); \
+            width(r) = radicalwidth(q); \
+            reset_attributes(r, node_attr(q)); \
+        } else if (radicalright(q)) { \
+            /* also kind of exact compared to vertical */ \
+            r = hpack(r, 0, additional, -1); \
+            width(r) = radicalwidth(q); \
+            reset_attributes(r, node_attr(q)); \
+        } \
+    } \
+} while (0)
+
+#define check_widths(q,p) do { \
     if (radicalwidth(q) != zero_glue) { \
-        wd = radicalwidth(q);           \
-    } else {                            \
-        wd = width(p);                  \
-    }                                   \
+        wd = radicalwidth(q); \
+    } else { \
+        wd = width(p); \
+    } \
 } while (0)
 
 @ this has the |nucleus| box |x| as a limit above an extensible delimiter |y|
@@ -1906,10 +1947,12 @@ static void make_over_delimiter(pointer q, int cur_style)
 {
     pointer x, y, v; /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta, wd;
+    boolean stack;
     x = clean_box(nucleus(q), sub_style(cur_style), cur_style);
     check_widths(q,x);
-    y = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, NULL, NULL);
+    y = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL);
     left_delimiter(q) = null;
+    check_radical(q,stack,y,x);
     fixup_widths(q, x, y);
     shift_up = over_delimiter_bgap(cur_style);
     shift_down = 0;
@@ -1931,10 +1974,12 @@ static void make_under_delimiter(pointer q, int cur_style)
 {
     pointer x, y, v; /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, delta, wd;
+    boolean stack;
     y = clean_box(nucleus(q), sup_style(cur_style), cur_style);
     check_widths(q,y);
-    x = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, NULL, NULL);
+    x = do_delimiter(q, left_delimiter(q), cur_size, wd, true, cur_style, true, &stack, NULL);
     left_delimiter(q) = null;
+    check_radical(q,stack,x,y);
     fixup_widths(q, x, y);
     shift_up = 0;
     shift_down = under_delimiter_bgap(cur_style);
@@ -1956,10 +2001,12 @@ static void make_delimiter_over(pointer q, int cur_style)
 {
     pointer x, y, v; /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, actual, wd;
+    boolean stack;
     y = clean_box(nucleus(q), cur_style, cur_style);
     check_widths(q,y);
-    x = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, NULL, NULL);
+    x = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, &stack, NULL);
     left_delimiter(q) = null;
+    check_radical(q,stack,x,y);
     fixup_widths(q, x, y);
     shift_up = over_delimiter_bgap(cur_style)-height(x)-depth(x);
     shift_down = 0;
@@ -1981,10 +2028,12 @@ static void make_delimiter_under(pointer q, int cur_style)
 {
     pointer x, y, v;            /* temporary registers for box construction */
     scaled shift_up, shift_down, clr, actual, wd;
+    boolean stack;
     x = clean_box(nucleus(q), cur_style, cur_style);
     check_widths(q,x);
-    y = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, NULL, NULL);
+    y = do_delimiter(q, left_delimiter(q), cur_size + (cur_size == script_script_size ? 0 : 1), wd, true, cur_style, true, &stack, NULL);
     left_delimiter(q) = null;
+    check_radical(q,stack,y,x);
     fixup_widths(q, x, y);
     shift_up = 0;
     shift_down = under_delimiter_bgap(cur_style) - height(y)-depth(y);

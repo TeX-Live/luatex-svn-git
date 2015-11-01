@@ -607,7 +607,30 @@ The vertical placements are controlled by \type {\Umathunderdelimiterbgap}, \typ
 The superscript in \type {\Uoverdelimiter} is typeset in a suitable scripted style,
 the subscript in \type {\Uunderdelimiter} is cramped as well.
 
-\section {Extensible delimiters}
+These primitives accepts an option \type {width} specification. When used the
+also optional keywords \type {left}, \type {center} and \type {right} will
+determine what happens when a requested size can't be met (which can happen when
+we step to successive larger variants).
+
+An extra primitive \type {\Uhextensible} is available that can be used like this:
+
+\startbuffer
+$\Uhextensible width 10cm 0 "2194$
+\stopbuffer
+
+\typebuffer This will render this:
+
+\blank \startnarrower \getbuffer \stopnarrower \blank
+
+Here you can also pass options, like:
+
+\startbuffer
+$\Uhextensible width 1pt center 0 "2194$
+\stopbuffer
+
+\typebuffer This gives:
+
+\blank \startnarrower \getbuffer \stopnarrower \blank
 
 \LUATEX\ internally uses a structure that supports \OPENTYPE\ \quote
 {MathVariants} as well as \TFM\ \quote {extensible recipes}.
@@ -734,6 +757,11 @@ uses this:
 \ruledhbox{\mathematics{\getbuffer}}
 \stoplinecorrection
 
+The keyword \type {exact} can be used as directive that the real dimensions
+should be applied when the criteria can't be met which can happen when we're
+still stepping through the succesively larger variants. When no dimensions are
+given the \type {noaxis} command can be used to prevent shifting over the axis.
+
 \subsection {Math options}
 
 The logic in the math engine is rather complex and there are often no universal
@@ -801,30 +829,6 @@ Gives (with computer modern that has such italics):
             {\nohyphens\type{1:display}}
     \stopcombination
 \stoplinecorrection
-
-\subsubsection {\type {\mathoption nodelimitershift}}
-
-When set to~1 a vertical delimiter will not be shifted relatiev to the math axis
-and its dimensions. This option can be handy when testing macros because this
-shifting can confuse testing.
-
-\startbuffer
-\dostepwiserecurse{6}{50}{2} {
-    \ruledhbox{$\normalleft\Udelimiter "0 "0 "002016
-    {\maincolor\vrule height #1pt width 2pt}
-    \normalright.$}
-}
-\stopbuffer
-
-\startlinecorrection[blank]
-    \startcombination[nx=2,ny=2]
-        {\mathoption nodelimitershift 0 \mathematics{\getbuffer}} {\type{0}}
-        {\mathoption nodelimitershift 1 \mathematics{\getbuffer}} {\type{1}}
-    \stopcombination
-\stoplinecorrection
-
-In this example you see the transition from normal stepwise larger symbols to
-extensibles. As said, this is only for debugging.
 
 \stopchapter
 
