@@ -536,6 +536,7 @@ typedef enum {
 #  define is_leftghost(p)        (is_ghost(p)    && ((subtype(p)) & GLYPH_LEFT  ))
 #  define is_rightghost(p)       (is_ghost(p)    && ((subtype(p)) & GLYPH_RIGHT ))
 
+
 #  define set_is_glyph(p)         subtype(p) = (quarterword) (subtype(p) & ~GLYPH_CHARACTER)
 #  define set_is_character(p)     subtype(p) = (quarterword) (subtype(p) | GLYPH_CHARACTER)
 #  define set_is_ligature(p)      subtype(p) = (quarterword) (subtype(p) | GLYPH_LIGATURE)
@@ -684,7 +685,7 @@ typedef enum {
     pdf_window_nonew,
 } pdf_window_type;
 
-#  define pdf_action_size           4
+#  define pdf_action_size           6
 
 /* #  define pdf_action_type(a)        type((a)+1)    */ /* enum pdf_action_type */
 /* #  define pdf_action_named_id(a)    subtype((a)+1) */ /* boolean */
