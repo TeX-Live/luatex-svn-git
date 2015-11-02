@@ -51,9 +51,10 @@ to italics. Axis are another area of concern, as it looks like opentype math fon
 already apply that shift.
 
 @ @c
-#define math_no_italic_compensation int_par(math_no_italic_compensation_code)
-#define math_no_char_italic         int_par(math_no_char_italic_code)
-#define math_old                    int_par(math_old_code)
+#define math_old                      int_par(math_old_code)
+#define math_no_italic_compensation   int_par(math_no_italic_compensation_code)
+#define math_no_char_italic           int_par(math_no_char_italic_code)
+#define math_use_old_fraction_scaling int_par(math_use_old_fraction_scaling_code)
 
 #define is_new_mathfont(A)   ((font_math_params(A) >0) && (math_old == 0))
 #define is_old_mathfont(A,B) ((font_math_params(A)==0) && (font_params(A)>=(B)))
@@ -305,6 +306,30 @@ static scaled do_get_math_param_or_error(int var, int param, const char *name)
     return a;
 }
 
+@ A variant on a suggestion on the list based on analysis by UV.
+
+@c
+static scaled get_delimiter_height(scaled max_d, scaled max_h, boolean axis) {
+    scaled delta, delta1, delta2;
+    if (axis) {
+        delta2 = max_d + math_axis(cur_size);
+    } else {
+        delta2 = max_d;
+    }
+    delta1 = max_h + max_d - delta2;
+    if (delta2 > delta1) {
+        /* |delta1| is max distance from axis */
+        delta1 = delta2;
+    }
+    delta = (delta1 / 500) * delimiter_factor;
+    delta2 = delta1 + delta1 - delimiter_shortfall;
+    if (delta < delta2) {
+        return delta2;
+    } else {
+        return delta;
+    }
+}
+
 @ @c
 #define radical_degree_before(a) get_math_param_or_error(a, radical_degree_before)
 #define radical_degree_after(a)  get_math_param_or_error(a, radical_degree_after)
@@ -338,7 +363,8 @@ static scaled do_get_math_param_or_error(int var, int param, const char *name)
 #define fraction_denom_vgap(a)   get_math_param_or_error(a, fraction_denom_vgap)
 #define fraction_num_up(a)       get_math_param_or_error(a, fraction_num_up)
 #define fraction_denom_down(a)   get_math_param_or_error(a, fraction_denom_down)
-#define fraction_del_size(a)     get_math_param_or_error(a, fraction_del_size)
+#define fraction_del_size_new(a) get_math_param_or_error(a, fraction_del_size)
+#define fraction_del_size_old(a) get_math_param(a, math_param_fraction_del_size)
 
 #define limit_above_vgap(a)      get_math_param_or_error(a, limit_above_vgap)
 #define limit_above_bgap(a)      get_math_param_or_error(a, limit_above_bgap)
@@ -2348,7 +2374,18 @@ static void make_fraction(pointer q, int cur_style)
         put the fraction into a box with its delimiters, and make |new_hlist(q)|
         point to it
     */
-    delta = fraction_del_size(cur_style);
+    if (is_new_mathfont(cur_f)) {
+        if (math_use_old_fraction_scaling) {
+            delta = fraction_del_size_old(cur_style);
+        } else {
+            delta = fraction_del_size_new(cur_style);
+        }
+        if (delta == undefined_math_parameter) {
+            delta = get_delimiter_height(depth(v), height(v), true);
+        }
+    } else {
+        delta = fraction_del_size_old(cur_style);
+    }
     x = do_delimiter(q, left_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL);
     left_delimiter(q) = null;
     couple_nodes(x,v);
@@ -3155,9 +3192,9 @@ the required size and returns the value |open_noad| or |close_noad|. The
 so they will have consistent sizes.
 
 @c
-static small_number make_left_right(pointer q, int style, scaled max_d, scaled max_hv)
+static small_number make_left_right(pointer q, int style, scaled max_d, scaled max_h)
 {
-    scaled delta, delta1, delta2; /* dimensions used in the calculation */
+    scaled delta;
     pointer tmp, lst;
     scaled hd_asked = 0;
     scaled ic = 0;
@@ -3215,20 +3252,8 @@ static small_number make_left_right(pointer q, int style, scaled max_d, scaled m
         list_ptr(lst) = tmp;
         tmp = lst ;
     } else {
-        if (delimiternoaxis(q)) {
-            delta2 = max_d;
-            axis = false;
-        } else {
-            delta2 = max_d + math_axis(cur_size);
-            axis = true;
-        }
-        delta1 = max_hv + max_d - delta2;
-        if (delta2 > delta1)
-            delta1 = delta2; /* |delta1| is max distance from axis */
-        delta = (delta1 / 500) * delimiter_factor;
-        delta2 = delta1 + delta1 - delimiter_shortfall;
-        if (delta < delta2)
-            delta = delta2;
+        axis = ! delimiternoaxis(q);
+        delta = get_delimiter_height(max_d,max_h,axis);
         tmp = do_delimiter(q, delimiter(q), cur_size, delta, false, style, axis, &stack, &ic);
         delimiteritalic(q) = ic;
     }

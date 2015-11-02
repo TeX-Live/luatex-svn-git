@@ -713,7 +713,11 @@ static void run_option(void) {
     int a = 0 ;
     switch (cur_chr) {
         case math_option_code:
-            if (scan_keyword("noitaliccompensation")) {
+            if (scan_keyword("old")) {
+                scan_int();
+                word_define(int_base+math_old_code, cur_val);
+                /* math_no_char_italic = cur_val; */
+            } else if (scan_keyword("noitaliccompensation")) {
                 scan_int();
                 word_define(int_base+math_no_italic_compensation_code, cur_val);
                 /* math_no_italic_compensation = cur_val; */
@@ -721,10 +725,9 @@ static void run_option(void) {
                 scan_int();
                 word_define(int_base+math_no_char_italic_code, cur_val);
                 /* math_no_char_italic = cur_val; */
-            } else if (scan_keyword("old")) {
+            } else if (scan_keyword("useoldfractionscaling")) {
                 scan_int();
-                word_define(int_base+math_old_code, cur_val);
-                /* math_no_char_italic = cur_val; */
+                word_define(int_base+math_use_old_fraction_scaling_code, cur_val);
             } else {
                 normal_warning("mathoption","unknown key",false,false);
             }

@@ -277,9 +277,10 @@ here, and the |number_regs| \.{\\dimen} registers.
 
 #  define math_no_italic_compensation_code 73
 #  define math_no_char_italic_code 74
-#  define math_old_code 75
+#  define math_use_old_fraction_scaling_code 75
+#  define math_old_code 76
 
-#  define math_option_code 76
+#  define math_option_code 77
 
 #  define etex_first_integer_code (math_option_code+1)                  /* base for \eTeX's integer parameters */
 
