@@ -63,8 +63,6 @@ static int spindle_size = 0;
 static spindle *spindles = NULL;
 static int spindle_index = 0;
 
-
-
 static void luac_store(lua_State * L, int i, int partial, int cattable)
 {
     char *st;
@@ -301,6 +299,10 @@ void luacstring_close(int n)
   if (j<0 || j > 65535) { \
     luaL_error(L, "incorrect index specification for tex.%s()", s);  }
 
+#define check_register(base) \
+    int k; \
+    k = get_item_index(L, lua_gettop(L), base); \
+    lua_pushboolean(L,(k>=0 && k <= 65535));
 
 static const char *scan_integer_part(lua_State * L, const char *ss, int *ret,
                                      int *radix_ret)
@@ -697,6 +699,12 @@ static int vsetdimen(lua_State * L, int is_global)
     return 0;
 }
 
+static int isdimen(lua_State * L)
+{
+    check_register(scaled_base);
+    return 1;
+}
+
 static int setdimen(lua_State * L)
 {
     int isglobal = 0;
@@ -738,6 +746,12 @@ static int vsetskip(lua_State * L, int is_global)
         luaL_error(L, "incorrect value");
     }
     return 0;
+}
+
+static int isskip(lua_State * L)
+{
+    check_register(skip_base);
+    return 1;
 }
 
 static int setskip(lua_State * L)
@@ -782,6 +796,12 @@ static int vsetcount(lua_State * L, int is_global)
     return 0;
 }
 
+static int iscount(lua_State * L)
+{
+    check_register(count_base);
+    return 1;
+}
+
 static int setcount(lua_State * L)
 {
     int isglobal = 0;
@@ -805,7 +825,6 @@ static int getcount(lua_State * L)
     return 1;
 }
 
-
 static int vsetattribute(lua_State * L, int is_global)
 {
     int i, j, err;
@@ -823,6 +842,12 @@ static int vsetattribute(lua_State * L, int is_global)
         luaL_error(L, "incorrect value");
     }
     return 0;
+}
+
+static int isattribute(lua_State * L)
+{
+    check_register(attribute_base);
+    return 1;
 }
 
 static int setattribute(lua_State * L)
@@ -851,6 +876,12 @@ static int getattribute(lua_State * L)
 /* todo: we can avoid memcpy as there is no need to go through the pool */
 
 /* use string_to_toks */
+
+static int istoks(lua_State * L)
+{
+    check_register(toks_base);
+    return 1;
+}
 
 static int settoks(lua_State * L)
 {
@@ -940,7 +971,7 @@ static int gettoks(lua_State * L)
     return 1;
 }
 
-static int get_box_id(lua_State * L, int i)
+static int get_box_id(lua_State * L, int i, boolean report)
 {
     const char *s;
     int cur_cs1, cur_cmd1;
@@ -960,7 +991,9 @@ static int get_box_id(lua_State * L, int i)
         j=(int)lua_tonumber(L, (i));
         break;
     default:
-        luaL_error(L, "argument must be a string or a number");
+        if (report) {
+            luaL_error(L, "argument must be a string or a number");
+        }
         j = -1;                 /* not a valid box id */
     }
     return j;
@@ -969,10 +1002,17 @@ static int get_box_id(lua_State * L, int i)
 static int getbox(lua_State * L)
 {
     int k, t;
-    k = get_box_id(L, -1);
+    k = get_box_id(L, -1, true);
     check_index_range(k, "getbox");
     t = get_tex_box_register(k);
     nodelist_to_lua(L, t);
+    return 1;
+}
+
+static int isbox(lua_State * L)
+{
+    int k = get_box_id(L, -1, false);
+    lua_pushboolean(L,(k>=0 && k<=65535));
     return 1;
 }
 
@@ -982,7 +1022,7 @@ static int vsetbox(lua_State * L, int is_global)
     int save_global_defs = int_par(global_defs_code);
     if (is_global)
         int_par(global_defs_code) = 1;
-    k = get_box_id(L, -2);
+    k = get_box_id(L, -2, true);
     check_index_range(k, "setbox");
     if (lua_isboolean(L, -1)) {
         j = lua_toboolean(L, -1);
@@ -2361,7 +2401,7 @@ static int tex_run_linebreak(lua_State * L)
 
 static int tex_shipout(lua_State * L)
 {
-    int boxnum = get_box_id(L, 1);
+    int boxnum = get_box_id(L, 1, true);
     ship_out(static_pdf, box(boxnum), SHIPPING_PAGE);
     box(boxnum) = null;
     return 0;
@@ -2598,17 +2638,23 @@ static const struct luaL_Reg texlib[] = {
     {"sprint", luacsprint},
     {"set", settex},
     {"get", gettex},
+    {"isdimen", isdimen},
     {"setdimen", setdimen},
     {"getdimen", getdimen},
+    {"isskip", isskip},
     {"setskip", setskip},
     {"getskip", getskip},
+    {"isattribute", isattribute},
     {"setattribute", setattribute},
     {"getattribute", getattribute},
+    {"iscount", iscount},
     {"setcount", setcount},
     {"getcount", getcount},
+    {"istoks", istoks},
     {"settoks", settoks},
     {"scantoks", scantoks},
     {"gettoks", gettoks},
+    {"isbox", isbox},
     {"setbox", setbox},
     {"getbox", getbox},
     {"setlist", setlist},
@@ -2662,20 +2708,20 @@ int luaopen_tex(lua_State * L)
 {
     luaL_register(L, "tex", texlib);
     /* *INDENT-OFF* */
-    make_table(L, "attribute", "tex.attribute"   ,"getattribute", "setattribute");
-    make_table(L, "skip",      "tex.skip"        ,"getskip",      "setskip");
-    make_table(L, "dimen",     "tex.dimen"       ,"getdimen",     "setdimen");
-    make_table(L, "count",     "tex.count"       ,"getcount",     "setcount");
-    make_table(L, "toks",      "tex.toks"        ,"gettoks",      "settoks");
-    make_table(L, "box",       "tex.box"         ,"getbox",       "setbox");
-    make_table(L, "sfcode",    "tex.sfcode"      ,"getsfcode",    "setsfcode");
-    make_table(L, "lccode",    "tex.lccode"      ,"getlccode",    "setlccode");
-    make_table(L, "uccode",    "tex.uccode"      ,"getuccode",    "setuccode");
-    make_table(L, "catcode",   "tex.catcode"     ,"getcatcode",   "setcatcode");
-    make_table(L, "mathcode",   "tex.mathcode"    ,"getmathcode",  "setmathcode");
-    make_table(L, "delcode",   "tex.delcode"     ,"getdelcode",   "setdelcode");
-    make_table(L, "lists",     "tex.lists"       ,"getlist",      "setlist");
-    make_table(L, "nest",      "tex.nest"        ,"getnest",      "setnest");
+    make_table(L, "attribute", "tex.attribute", "getattribute", "setattribute");
+    make_table(L, "skip",      "tex.skip",      "getskip",      "setskip");
+    make_table(L, "dimen",     "tex.dimen",     "getdimen",     "setdimen");
+    make_table(L, "count",     "tex.count",     "getcount",     "setcount");
+    make_table(L, "toks",      "tex.toks",      "gettoks",      "settoks");
+    make_table(L, "box",       "tex.box",       "getbox",       "setbox");
+    make_table(L, "sfcode",    "tex.sfcode",    "getsfcode",    "setsfcode");
+    make_table(L, "lccode",    "tex.lccode",    "getlccode",    "setlccode");
+    make_table(L, "uccode",    "tex.uccode",    "getuccode",    "setuccode");
+    make_table(L, "catcode",   "tex.catcode",   "getcatcode",   "setcatcode");
+    make_table(L, "mathcode",  "tex.mathcode",  "getmathcode",  "setmathcode");
+    make_table(L, "delcode",   "tex.delcode",   "getdelcode",   "setdelcode");
+    make_table(L, "lists",     "tex.lists",     "getlist",      "setlist");
+    make_table(L, "nest",      "tex.nest",      "getnest",      "setnest");
     /* *INDENT-ON* */
     init_nest_lib(L);
     /* make the meta entries */

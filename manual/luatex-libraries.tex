@@ -4759,6 +4759,18 @@ tex.set ("global", <string> n, ...)
 ... = tex.get (<string> n)
 \stopfunctioncall
 
+There are also dedicated setters, getters and checkers:
+
+\startfunctioncall
+local d = tex.getdimen("foo")
+if tex.isdimen("bar") then
+    tex.setdimen("bar",d)
+end
+\stopfunctioncall
+
+There are such helpers for \type {dimen}, \type {count}, \type {skip}, \type
+{box} and \type {attribute} registers.
+
 \subsubsection{Integer parameters}
 
 The integer parameters accept and return \LUA\ numbers.
