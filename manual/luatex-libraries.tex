@@ -5232,6 +5232,13 @@ And the table for \type {delcode} is an array with 4 numbers, like this:
 {<number> small_fam, <number> small_char, <number> large_fam, <number> large_char}
 \stoptyping
 
+You can also avoid the table:
+
+\startfunctioncall
+class, family, char = tex.getmathcodes (<number> n)
+smallfam, smallchar, largefam, largechar = tex.getdelcodes (<number> n)
+\stopfunctioncall
+
 Normally, the third and fourth values in a delimiter code assignment will be zero
 according to \type {\Udelcode} usage, but the returned table can have values there
 (if the delimiter code was set using \type {\delcode}, for example). Unset \type

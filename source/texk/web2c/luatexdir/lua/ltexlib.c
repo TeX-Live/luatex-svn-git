@@ -1227,7 +1227,17 @@ static int getmathcode(lua_State * L)
     return 1;
 }
 
-
+static int getmathcodes(lua_State * L)
+{
+    mathcodeval mval = { 0, 0, 0, 0 };
+    int ch = (int) luaL_checkinteger(L, -1);
+    check_char_range(ch, "getmathcodes",  65536*17);
+    mval = get_math_code(ch);
+    lua_pushnumber(L,mval.class_value);
+    lua_pushnumber(L,mval.family_value);
+    lua_pushnumber(L,mval.character_value);
+    return 3;
+}
 
 static int setdelcode(lua_State * L)
 {
@@ -1289,7 +1299,18 @@ static int getdelcode(lua_State * L)
     return 1;
 }
 
-
+static int getdelcodes(lua_State * L)
+{
+    delcodeval mval = { 0, 0, 0, 0, 0, 0 };
+    int ch = (int) luaL_checkinteger(L, -1);
+    check_char_range(ch, "getdelcodes",  65536*17);
+    mval = get_del_code(ch);
+    lua_pushnumber(L,mval.small_family_value);
+    lua_pushnumber(L,mval.small_character_value);
+    lua_pushnumber(L,mval.large_family_value);
+    lua_pushnumber(L,mval.large_character_value);
+    return 4;
+}
 
 static int settex(lua_State * L)
 {
@@ -2665,10 +2686,12 @@ static const struct luaL_Reg texlib[] = {
     {"getcatcode", getcatcode},
     {"setdelcode", setdelcode},
     {"getdelcode", getdelcode},
+    {"getdelcodes", getdelcodes},
     {"setlccode", setlccode},
     {"getlccode", getlccode},
     {"setmathcode", setmathcode},
     {"getmathcode", getmathcode},
+    {"getmathcodes", getmathcodes},
     {"setsfcode", setsfcode},
     {"getsfcode", getsfcode},
     {"setuccode", setuccode},
