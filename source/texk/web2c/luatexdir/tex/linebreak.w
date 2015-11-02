@@ -350,33 +350,44 @@ static boolean check_expand_pars(internal_font_number f)
 {
     halfword t;
     boolean run;
-    if ((vlink(l) != null) && (type(l) == hlist_node) && (width(l) == 0)
-        && (height(l) == 0) && (depth(l) == 0) && (list_ptr(l) == null)) {
-        l = vlink(l);           /*for paragraph start with \.{\\parindent} = 0pt */
-    } else if (d) {
+    boolean done = false ;
+    while ((vlink(l) != null) && (type(l) == hlist_node) && zero_dimensions(l) && (list_ptr(l) == null)) {
+        /*for paragraph start with \.{\\parindent} = 0pt or any empty hbox */
+        l = vlink(l);
+        done = true ;
+    }
+    if ((!done) && (type(l) == local_par_node)) {
+        l = vlink(l);
+        done = true ;
+    }
+    if ((!done) && d) {
         while ((vlink(l) != null) && (!(is_char_node(l) || non_discardable(l)))) {
-            l = vlink(l);       /* std.\ discardables at line break, \TeX book, p 95 */
+            /* std.\ discardables at line break, \TeX book, p 95 */
+            l = vlink(l);
         }
     }
-    hlist_stack_level = 0;
-    run = true;
-    do {
-        t = l;
-        while (run && (type(l) == hlist_node) && (list_ptr(l) != null)) {
-            push_node(l);
-            l = list_ptr(l);
-        }
-        while (run && cp_skipable(l)) {
-            while ((vlink(l) == null) && (hlist_stack_level > 0)) {
-                l = pop_node(); /* don't visit this node again */
-                run = false;
+    if (type(l) != glyph_node) {
+        hlist_stack_level = 0;
+        run = true;
+        do {
+            t = l;
+            while (run && (type(l) == hlist_node) && (list_ptr(l) != null)) {
+                push_node(l);
+                l = list_ptr(l);
             }
-            if (vlink(l) != null)
-                l = vlink(l);
-            else if (hlist_stack_level == 0)
-                run = false;
-        }
-    } while (t != l);
+            while (run && cp_skipable(l)) {
+                while ((vlink(l) == null) && (hlist_stack_level > 0)) {
+                    l = pop_node(); /* don't visit this node again */
+                    run = false;
+                }
+                if (vlink(l) != null) {
+                    l = vlink(l);
+                } else if (hlist_stack_level == 0) {
+                    run = false;
+                }
+            }
+        } while (t != l);
+    }
     return l;
 }
 
@@ -1305,8 +1316,7 @@ ext_try_break(int pi,
                 o = find_protchar_right(l1, o);
             }
             /* now the left margin */
-            if ((l1 != null) && (type(l1) == disc_node)
-                && (vlink_post_break(l1) != null)) {
+            if ((l1 != null) && (type(l1) == disc_node) && (vlink_post_break(l1) != null)) {
                 /* FIXME: first 'char' could be a disc! */
                 l1 = vlink_post_break(l1);        /* protrude the first char */
             } else {
