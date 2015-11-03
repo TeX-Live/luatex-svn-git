@@ -738,13 +738,16 @@ static int count_char_packet_bytes(lua_State * L)
                         }
                     } else {
                         lua_pop(L, 1);
-                        fprintf(stdout, "invalid packet special!\n");
+                        normal_error("vf command","invalid packet special");
+                        /* fprintf(stdout, "invalid packet special!\n"); */
                     }
                 } else {
-                    fprintf(stdout, "unknown packet command %s!\n", s);
+                    normal_error("vf command","unknown packet command");
+                    /* fprintf(stdout, "unknown packet command %s!\n", s); */
                 }
             } else {
-                fprintf(stdout, "no packet command!\n");
+                normal_error("vf command","no packet command");
+             /* fprintf(stdout, "no packet command!\n"); */
             }
             lua_pop(L, 1);      /* command name */
         }
@@ -926,12 +929,14 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                     lua_pop(L, 1);
                     break;
                 default:
-                    fprintf(stdout, "Unknown char packet code %s\n", s);
+                    normal_error("vf command","invalid packet code");
+                    /* fprintf(stdout, "Unknown char packet code %s\n", s); */
                 }
             }
             lua_pop(L, 1);      /* command code */
         } else {
-            fprintf(stdout, "Found a `commands' item that is not a table\n");
+            normal_error("vf command","commands has to be a tbale");
+            /* fprintf(stdout, "Found a `commands' item that is not a table\n"); */
         }
         lua_pop(L, 1);          /* command table */
     }
