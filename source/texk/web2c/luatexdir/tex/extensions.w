@@ -470,11 +470,11 @@ void do_extension(int immediate)
         /* backend extensions have their own range starting at 32 */
         case dvi_extension_code:
             if (get_o_mode() == OMODE_DVI)
-                do_extension_dvi(0);
+                do_extension_dvi(immediate);
             break;
         case pdf_extension_code:
             if (get_o_mode() == OMODE_PDF)
-                do_extension_pdf(0);
+                do_extension_pdf(immediate);
             break;
         default:
             if (immediate) {
