@@ -87,11 +87,11 @@ void end_link(PDF pdf, halfword p)
     if (is_running(width(pdf->link_stack[pdf->link_stack_ptr].link_node))) {
         q = pdf->link_stack[pdf->link_stack_ptr].ref_link_node;
         if (global_shipping_mode == SHIPPING_PAGE && matrixused()) {
-            matrixrecalculate(pos.h + pdf_link_margin);
+	    matrixrecalculate(pos.h + pdf_link_margin);
             pdf_ann_left(q) = getllx() - pdf_link_margin;
-            pdf_ann_top(q) = pdf->page_size.v - getury() - pdf_link_margin;
+            pdf_ann_top(q) = getlly() - pdf_link_margin;
             pdf_ann_right(q) = geturx() + pdf_link_margin;
-            pdf_ann_bottom(q) = pdf->page_size.v - getlly() + pdf_link_margin;
+            pdf_ann_bottom(q) = getury() + pdf_link_margin;
         } else {
             switch (pdf->posstruct->dir) {
             case dir_TLT:
