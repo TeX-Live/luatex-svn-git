@@ -888,7 +888,8 @@ specification says that an offset must take 10 bytes.
 @c
 static void pdf_print_fw_int(PDF pdf, longinteger n)
 {
-    unsigned char digits[10];
+    unsigned char digits[11];
+
     int k = 10;
     do {
         k--;
@@ -898,6 +899,7 @@ static void pdf_print_fw_int(PDF pdf, longinteger n)
     if (n!=0) 
       /* the absolute  value of $n$ is greater than 9999999999 */
       normal_error("pdf backend", "offset exceeds 10 bytes, try enabling object compression."); 
+    digits[10]='\0';
     pdf_puts(pdf, (const char *) digits);
 }
 
