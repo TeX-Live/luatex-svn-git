@@ -50,6 +50,7 @@ void pop_link_level(PDF pdf)
 void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
     scaled_whd alt_rule;
+    int k;
     if (type(p) == vlist_node)
         normal_error("pdf backend", "'startlink' ended up in vlist");
     if (global_shipping_mode == SHIPPING_FORM)
@@ -63,7 +64,9 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     alt_rule.dp = depth(p);
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
     obj_annot_ptr(pdf, pdf_link_objnum(p)) = p; /* the reference for the pdf annot object must be set here */
-    addto_page_resources(pdf, obj_type_link, pdf_link_objnum(p));
+    k = pdf_link_objnum(p);
+    set_obj_scheduled(pdf, pdf_link_objnum(p));
+    addto_page_resources(pdf, obj_type_link, k);
 }
 
 @ @c
@@ -134,6 +137,7 @@ void append_link(PDF pdf, halfword parent_box, scaledpos cur, small_number i)
     set_rect_dimens(pdf, p, parent_box, cur, alt_rule, pdf_link_margin);
     k = pdf_create_obj(pdf, obj_type_others, 0);
     obj_annot_ptr(pdf, k) = p;
+    set_obj_scheduled(pdf, pdf_link_objnum(p));
     addto_page_resources(pdf, obj_type_link, k);
 }
 
