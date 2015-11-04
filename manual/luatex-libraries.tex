@@ -5159,8 +5159,10 @@ tex.setskip ('global',<string> s, <node> s)
 <node> s = tex.getskip (<string> s)
 \stopfunctioncall
 
-We have similar setters for \type {count}, \type {dimen} and \type {toks}. For
-tokens registers we have an alternative where a catcode table is specified:
+We have similar setters for \type {count}, \type {dimen}, \type {muskip}, and
+\type {toks}. Counters and dimen are represented by numbers, skips and muskips by
+nodes, and toks by strings. For tokens registers we have an alternative where a
+catcode table is specified:
 
 \startfunctioncall
 tex.scantoks(0,3,"$e=mc^2$")
@@ -5369,6 +5371,10 @@ text          crampedtext
 script        crampedscript
 scriptscript  crampedscriptscript
 \stoptyping
+
+The value is either a number (representing a dimension or number) or a glue spec
+node representing a muskip for \type {ordordspacing} and similar spacing
+parameters.
 
 \subsection{Special list heads}
 

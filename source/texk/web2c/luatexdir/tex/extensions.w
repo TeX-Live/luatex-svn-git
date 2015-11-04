@@ -838,6 +838,7 @@ defines are not available.
 
 #define get_tex_dimen_register(j) dimen(j)
 #define get_tex_skip_register(j) skip(j)
+#define get_tex_mu_skip_register(j) mu_skip(j)
 #define get_tex_count_register(j) count(j)
 #define get_tex_attribute_register(j) attribute(j)
 #define get_tex_box_register(j) box(j)
@@ -908,6 +909,19 @@ int set_tex_skip_register(int j, halfword v)
     if (type(v) != glue_spec_node)
         return 1;
     word_define(j + skip_base, v);
+    return 0;
+}
+
+int set_tex_mu_skip_register(int j, halfword v)
+{
+    int a;                      /* return non-nil for error */
+    if (global_defs > 0)
+        a = 4;
+    else
+        a = 0;
+    if (type(v) != glue_spec_node)
+        return 1;
+    word_define(j + mu_skip_base, v);
     return 0;
 }
 

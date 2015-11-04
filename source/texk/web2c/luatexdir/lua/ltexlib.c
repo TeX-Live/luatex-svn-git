@@ -777,6 +777,55 @@ static int getskip(lua_State * L)
     return 1;
 }
 
+static int vsetmuskip(lua_State * L, int is_global)
+{
+    int i, err;
+    halfword *j;
+    int k;
+    int save_global_defs = int_par(global_defs_code);
+    if (is_global)
+        int_par(global_defs_code) = 1;
+    i = lua_gettop(L);
+    j = check_isnode(L, i);     /* the value */
+    k = get_item_index(L, (i - 1), mu_skip_base);
+    check_index_range(k, "setmuskip");    /* the index */
+    err = set_tex_skip_register(k, *j);
+    int_par(global_defs_code) = save_global_defs;
+    if (err) {
+        luaL_error(L, "incorrect value");
+    }
+    return 0;
+}
+
+static int ismuskip(lua_State * L)
+{
+    check_register(mu_skip_base);
+    return 1;
+}
+
+static int setmuskip(lua_State * L)
+{
+    int isglobal = 0;
+    int n = lua_gettop(L);
+    if (n == 3 && lua_isstring(L, 1)) {
+        const char *s = lua_tostring(L, 1);
+        if (lua_key_eq(s,global))
+            isglobal = 1;
+    }
+    return vsetmuskip(L, isglobal);
+}
+
+static int getmuskip(lua_State * L)
+{
+    halfword j;
+    int k;
+    k = get_item_index(L, lua_gettop(L), mu_skip_base);
+    check_index_range(k, "getmuskip");
+    j = get_tex_mu_skip_register(k);
+    lua_nodelib_push_fast(L, j);
+    return 1;
+}
+
 static int vsetcount(lua_State * L, int is_global)
 {
     int i, j, err;
@@ -1543,6 +1592,7 @@ static int tex_setmathparm(lua_State * L)
     int k;
     int n;
     int l = cur_level;
+    void *p;
     n = lua_gettop(L);
 
     if ((n == 3) || (n == 4)) {
@@ -1553,10 +1603,18 @@ static int tex_setmathparm(lua_State * L)
         }
         i = luaL_checkoption(L, (n - 2), NULL, math_param_names);
         j = luaL_checkoption(L, (n - 1), NULL, math_style_names);
-        if (!lua_isnumber(L, n))
-            luaL_error(L, "argument must be a number");
-        k=(int)lua_tonumber(L, n);
-        def_math_param(i, j, (scaled) k, l);
+        if (i<0 && i>=math_param_last) {
+            /* invalid spec, just ignore it  */
+        } else if (i>=math_param_first_mu_glue) {
+            p = lua_touserdata(L, n);
+            k = *((halfword *)p);
+            def_math_param(i, j, (scaled) k, l);
+        } else {
+            if (!lua_isnumber(L, n))
+                luaL_error(L, "argument must be a number");
+            k=(int)lua_tonumber(L, n);
+            def_math_param(i, j, (scaled) k, l);
+        }
     }
     return 0;
 }
@@ -1569,7 +1627,16 @@ static int tex_getmathparm(lua_State * L)
         i = luaL_checkoption(L, 1, NULL, math_param_names);
         j = luaL_checkoption(L, 2, NULL, math_style_names);
         k = get_math_param(i, j);
-        lua_pushnumber(L, k);
+        if (i<0 && i>=math_param_last) {
+            lua_pushnil(L);
+        } else if (i>=math_param_first_mu_glue) {
+            if (k <= thick_mu_skip_code) {
+                k = glue_par(k);
+            }
+            lua_nodelib_push_fast(L, k);
+        } else {
+            lua_pushnumber(L, k);
+        }
     }
     return 1;
 }
@@ -2665,6 +2732,9 @@ static const struct luaL_Reg texlib[] = {
     {"isskip", isskip},
     {"setskip", setskip},
     {"getskip", getskip},
+    {"ismuskip", ismuskip},
+    {"setmuskip", setmuskip},
+    {"getmuskip", getmuskip},
     {"isattribute", isattribute},
     {"setattribute", setattribute},
     {"getattribute", getattribute},
@@ -2733,6 +2803,7 @@ int luaopen_tex(lua_State * L)
     /* *INDENT-OFF* */
     make_table(L, "attribute", "tex.attribute", "getattribute", "setattribute");
     make_table(L, "skip",      "tex.skip",      "getskip",      "setskip");
+    make_table(L, "muskip",    "tex.muskip",    "getmuskip",    "setmuskip");
     make_table(L, "dimen",     "tex.dimen",     "getdimen",     "setdimen");
     make_table(L, "count",     "tex.count",     "getcount",     "setcount");
     make_table(L, "toks",      "tex.toks",      "gettoks",      "settoks");
