@@ -291,7 +291,7 @@ void ext_post_line_break(int paragraph_dir,
                 if (type(e) == dir_node) {
                     if (dir_dir(e) >= 0) {
                         dir_ptr = do_push_dir_node(dir_ptr, e);
-                    } else if (dir_ptr != null && dir_dir(dir_ptr) == (dir_dir(e) + 64)) {
+                    } else if (dir_ptr != null && dir_dir(dir_ptr) == (dir_dir(e) + dir_swap)) {
                         dir_ptr = do_pop_dir_node(dir_ptr);
                     }
                 }
@@ -301,7 +301,7 @@ void ext_post_line_break(int paragraph_dir,
             /* DIR: Insert dir nodes at the end of the current line; */
             e = vlink(r);
             for (p = dir_ptr; p != null; p = vlink(p)) {
-                halfword s = new_dir(dir_dir(p) - 64);
+                halfword s = new_dir(dir_dir(p) - dir_swap);
                 delete_attribute_ref(node_attr(s));
                 node_attr(s) = node_attr(r);
                 add_node_attr_ref(node_attr(s));

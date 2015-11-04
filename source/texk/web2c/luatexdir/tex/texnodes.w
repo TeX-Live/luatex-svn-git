@@ -2954,7 +2954,7 @@ void show_node_list(int p)
                 if (dir_dir(p) < 0) {
                     tprint_esc("enddir");
                     print_char(' ');
-                    print_dir(dir_dir(p) + 64);
+                    print_dir(dir_dir(p) + dir_swap);
                 } else {
                     tprint_esc("begindir");
                     print_char(' ');

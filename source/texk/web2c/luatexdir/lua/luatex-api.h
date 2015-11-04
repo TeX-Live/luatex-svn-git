@@ -337,8 +337,8 @@ extern int l_dir_text_index        [DIR_TEXT_SIZE];
 #define lua_push_pack_type(L,pack_type)  lua_rawgeti(L, LUA_REGISTRYINDEX, l_pack_type_index      [pack_type] );
 #define lua_push_group_code(L,group_code) lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index     [group_code]);
 #define lua_push_math_style_name(L,style_name) lua_rawgeti(L, LUA_REGISTRYINDEX, l_math_style_name_index[style_name]);
-#define lua_push_dir_par(L,dir) lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir+64])
-#define lua_push_dir_text(L,dir) lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index[dir+64])
+#define lua_push_dir_par(L,dir) lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir+dir_swap])
+#define lua_push_dir_text(L,dir) lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index[dir+dir_swap])
 
 
 #define lua_push_string_by_index(L,index) lua_rawgeti(L, LUA_REGISTRYINDEX, index)
@@ -388,23 +388,23 @@ l_math_style_name_index[7] = lua_key_index(crampedscriptscript)
 
 #define set_l_dir_par_index \
 l_dir_par_index[0] = lua_key_index(TLT);\
-l_dir_par_index[4] = lua_key_index(TRT);\
-l_dir_par_index[9] = lua_key_index(LTL);\
-l_dir_par_index[24] = lua_key_index(RTT);\
-l_dir_par_index[64] = lua_key_index(TLT);\
-l_dir_par_index[68] = lua_key_index(TRT);\
-l_dir_par_index[73] = lua_key_index(LTL);\
-l_dir_par_index[88] = lua_key_index(RTT);\
+l_dir_par_index[1] = lua_key_index(TRT);\
+l_dir_par_index[2] = lua_key_index(LTL);\
+l_dir_par_index[3] = lua_key_index(RTT);\
+l_dir_par_index[4] = lua_key_index(TLT);\
+l_dir_par_index[5] = lua_key_index(TRT);\
+l_dir_par_index[6] = lua_key_index(LTL);\
+l_dir_par_index[7] = lua_key_index(RTT);\
 
 #define set_l_dir_text_index \
 l_dir_text_index[0] = lua_key_index(mTLT);\
-l_dir_text_index[4] = lua_key_index(mTRT);\
-l_dir_text_index[9] = lua_key_index(mLTL);\
-l_dir_text_index[24] = lua_key_index(mRTT);\
-l_dir_text_index[64] = lua_key_index(pTLT);\
-l_dir_text_index[68] = lua_key_index(pTRT);\
-l_dir_text_index[73] = lua_key_index(pLTL);\
-l_dir_text_index[88] = lua_key_index(pRTT);\
+l_dir_text_index[1] = lua_key_index(mTRT);\
+l_dir_text_index[2] = lua_key_index(mLTL);\
+l_dir_text_index[3] = lua_key_index(mRTT);\
+l_dir_text_index[4] = lua_key_index(pTLT);\
+l_dir_text_index[5] = lua_key_index(pTRT);\
+l_dir_text_index[6] = lua_key_index(pLTL);\
+l_dir_text_index[7] = lua_key_index(pRTT);\
 
 
 #define set_make_keys \

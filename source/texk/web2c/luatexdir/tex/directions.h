@@ -21,92 +21,95 @@
 #ifndef DIRECTIONS_H
 #  define DIRECTIONS_H
 
-/* hh: this will become just (i'll do bit that with taco):
+/*
+    #  define dir_TLT  0
+    #  define dir_TRT  4
+    #  define dir_LTL  9
+    #  define dir_RTT  24
 
-positive: 0 1 2 3
-negative: 8 9 A B
-
+    extern const char *dir_strings[128];
 */
 
-#  define dir_TLT  0
-#  define dir_TRT  4
-#  define dir_LTL  9
-#  define dir_RTT  24
+#  define dir_TLT  0 /* maybe use this one as unset value */
+#  define dir_TRT  1 /* or swhould we avoid that one because it's a signal too */
+#  define dir_LTL  2
+#  define dir_RTT  3
 
-extern const char *dir_strings[128]; /* can be less or can even go */
+extern const char *dir_strings[8];
+
+extern int dir_swap;
 
 #  define is_mirrored(a) 0
 
 #  define is_rotated(a) (a == dir_RTT)
 
-#  define textdir_parallel(a,b)  ( \
-        ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
-        ((a == dir_LTL || a == dir_RTT) && (b == dir_LTL || b == dir_RTT)) \
-    )
+#  define textdir_parallel(a,b) ( \
+    ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
+    ((a == dir_LTL || a == dir_RTT) && (b == dir_LTL || b == dir_RTT)) \
+)
 
 #  define pardir_parallel(a,b) ( \
-        ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
-        ((a == dir_LTL || a == dir_RTT) && (b == dir_LTL || b == dir_RTT)) \
-    )
+    ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
+    ((a == dir_LTL || a == dir_RTT) && (b == dir_LTL || b == dir_RTT)) \
+)
 
 #  define pardir_opposite(a,b) ( \
-        (a == dir_LTL && b == dir_RTT) || \
-        (a == dir_RTT && b == dir_LTL) \
-    )
+    (a == dir_LTL && b == dir_RTT) || \
+    (a == dir_RTT && b == dir_LTL) \
+)
 
 #  define textdir_opposite(a,b) ( \
-        (a == dir_TLT && b == dir_TRT) || \
-        (a == dir_TRT && b == dir_TLT) \
-    )
+    (a == dir_TLT && b == dir_TRT) || \
+    (a == dir_TRT && b == dir_TLT) \
+)
 
 #  define glyphdir_opposite(a,b) 0
 
 #  define pardir_eq(a,b) ( \
-        ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
-        (a == dir_LTL && b == dir_LTL) || \
-        (a == dir_RTT && b == dir_RTT) \
-    )
-
+    ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
+    (a == dir_LTL && b == dir_LTL) || \
+    (a == dir_RTT && b == dir_RTT) \
+)
 
 #  define textdir_eq(a,b) ( \
-        (a == dir_TLT && b == dir_TLT) || \
-        (a == dir_TRT && b == dir_TRT) || \
-        (a == dir_LTL && (b == dir_LTL || b == dir_RTT)) || \
-        (a == dir_RTT && (b == dir_LTL || b == dir_RTT) \
-    )
+    (a == dir_TLT && b == dir_TLT) || \
+    (a == dir_TRT && b == dir_TRT) || \
+    (a == dir_LTL && (b == dir_LTL || b == dir_RTT)) || \
+    (a == dir_RTT && (b == dir_LTL || b == dir_RTT) \
+)
 
 #  define glyphdir_eq(a,b) ( \
-        (a != dir_LTL && b != dir_LTL) || \
-        (a == dir_LTL && b == dir_LTL) \
-    )
+    (a != dir_LTL && b != dir_LTL) || \
+    (a == dir_LTL && b == dir_LTL) \
+)
 
 #  define partextdir_eq(a,b) ( \
-        ((a == dir_TLT || a == dir_TRT)&&(b == dir_LTL || b == dir_RTT)) || \
-        (a == dir_LTL && b == dir_TLT) || \
-        (a == dir_RTT && b == dir_TRT) \
-    )
+    ((a == dir_TLT || a == dir_TRT)&&(b == dir_LTL || b == dir_RTT)) || \
+    (a == dir_LTL && b == dir_TLT) || \
+    (a == dir_RTT && b == dir_TRT) \
+)
 
 #  define textglyphdir_orthogonal(a) (a != dir_RTT)
 
 #  define textdir_is_L(a) (a == dir_TLT)
 
 #  define push_dir(a,b) { \
-        halfword dir_tmp=new_dir((a)); \
-        vlink(dir_tmp)=b; \
-        b=dir_tmp; \
-    }
+    halfword dir_tmp=new_dir((a)); \
+    vlink(dir_tmp)=b; \
+    b=dir_tmp; \
+}
 
 #  define push_dir_node(a,b) { \
-        halfword dir_tmp=copy_node((a)); \
-        vlink(dir_tmp)=b; \
-        b=dir_tmp; \
-    }
+    halfword dir_tmp=copy_node((a)); \
+    vlink(dir_tmp)=b; \
+    b=dir_tmp; \
+}
 
 #  define pop_dir_node(b) { \
-        halfword dir_tmp=b; \
-        b=vlink(dir_tmp); \
-        flush_node(dir_tmp); \
-    }
+    halfword dir_tmp=b; \
+    b=vlink(dir_tmp); \
+    flush_node(dir_tmp); \
+}
 
 extern halfword dir_ptr;
 

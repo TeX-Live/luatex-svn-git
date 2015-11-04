@@ -2873,7 +2873,7 @@ void fixup_directions(void)
             /* DIR: Add local dir node */
             tail_append(new_dir(text_direction));
 
-            dir_dir(tail) = temporary_dir - 64;
+            dir_dir(tail) = temporary_dir - dir_swap;
         }
         if (temp_no_whatsits != 0) {
             /* LOCAL: Add local paragraph node */

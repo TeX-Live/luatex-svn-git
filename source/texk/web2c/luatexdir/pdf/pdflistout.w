@@ -477,7 +477,7 @@ void hlist_out(PDF pdf, halfword this_box)
                         dir_refpos_h(enddir_ptr) = refpos->pos.h;
                         dir_refpos_v(enddir_ptr) = refpos->pos.v;
                         /* negative: mark it as |enddir| */
-                        dir_dir(enddir_ptr) = localpos.dir - 64;
+                        dir_dir(enddir_ptr) = localpos.dir - dir_swap;
                     }
                     /* fake a nested |hlist_out| */
                     synch_pos_with_cur(pdf->posstruct, refpos, cur);
@@ -488,7 +488,7 @@ void hlist_out(PDF pdf, halfword this_box)
                 } else {
                     refpos->pos.h = dir_refpos_h(p);
                     refpos->pos.v = dir_refpos_v(p);
-                    localpos.dir = dir_dir(p) + 64;
+                    localpos.dir = dir_dir(p) + dir_swap;
                     cur.h = dir_cur_h(p);
                     cur.v = dir_cur_v(p);
                 }

@@ -240,6 +240,7 @@ static struct statistic stats[] = {
     {"param_size", 'g', &param_size},
     {"buf_size", 'g', &buf_size},
     {"save_size", 'g', &save_size},
+    {"input_ptr", 'g', &input_ptr},
     /* pdf stats */
     {"obj_ptr", 'N', &get_obj_ptr},
     {"obj_tab_size", 'N', &get_obj_tab_size},

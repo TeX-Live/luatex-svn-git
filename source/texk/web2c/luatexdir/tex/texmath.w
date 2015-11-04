@@ -2351,7 +2351,7 @@ void after_math(void)
         while (vlink(tail) != null)
             tail = vlink(tail);
         if (dir_math_save) {
-            tail_append(new_dir(math_direction - 64));
+            tail_append(new_dir(math_direction - dir_swap));
         }
         dir_math_save = false;
         tail_append(new_math(math_surround, after));
