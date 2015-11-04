@@ -127,7 +127,7 @@ typedef enum {
     c_leaders,                  /* |subtype| for centered leaders */
     x_leaders,                  /* |subtype| for expanded leaders */
     g_leaders                   /* |subtype| for global (page) leaders */
-} glue_subtype_codes;
+} glue_subtypes;
 
 /* normal nodes */
 
@@ -156,7 +156,7 @@ typedef enum {
     syllable_disc,
     init_disc,                  /* first of a duo of syllable_discs */
     select_disc,                /* second of a duo of syllable_discs */
-} discretionary_types;
+} discretionary_subtypes;
 
 #  define disc_node_size      11
 #  define pre_break_head(a)   ((a)+5)
@@ -186,12 +186,17 @@ typedef enum {
 
 #  define box_node_size 9
 
-#  define HLIST_SUBTYPE_UNKNOWN   0
-#  define HLIST_SUBTYPE_LINE      1 /* paragraph lines */
-#  define HLIST_SUBTYPE_HBOX      2 /* \.{\\hbox} */
-#  define HLIST_SUBTYPE_INDENT    3 /* indentation box */
-#  define HLIST_SUBTYPE_ALIGNROW  4 /* row from a \.{\\halign} or \.{\\valign} */
-#  define HLIST_SUBTYPE_ALIGNCELL 5 /* cell from a \.{\\halign} or \.{\\valign} */
+/* todo, make an enum of this */
+
+typedef enum {
+    unknown_list    = 0,
+    line_list       = 1, /* paragraph lines */
+    hbox_list       = 2, /* \.{\\hbox} */
+    indent_list     = 3, /* indentation box */
+    align_row_list  = 4, /* row from a \.{\\halign} or \.{\\valign} */
+    align_cell_list = 5, /* cell from a \.{\\halign} or \.{\\valign} */
+    /* we can add more here */
+} list_subtypes ;
 
 #  define width(a)            varmem[(a)+2].cint
 #  define depth(a)            varmem[(a)+3].cint
@@ -267,8 +272,8 @@ typedef enum {
 #  define left_side  0
 #  define right_side 1
 
-#  define before 0 /* |subtype| for math node that introduces a formula */
-#  define after  1 /* |subtype| for math node that winds up a formula */
+#  define before     0 /* |subtype| for math node that introduces a formula */
+#  define after      1 /* |subtype| for math node that winds up a formula */
 
 #  define math_node_size       4
 #  define surround(a)          vlink((a)+2)
@@ -555,7 +560,7 @@ typedef enum {
 typedef enum {
     cancel_boundary = 0,
     user_boundary
-} boundary_types ;
+} boundary_subtypes ;
 
 #  define boundary_size 3
 #  define boundary_value(a) vinfo((a)+2)
@@ -686,14 +691,6 @@ typedef enum {
 } pdf_window_type;
 
 #  define pdf_action_size           6
-
-/* #  define pdf_action_type(a)        type((a)+1)    */ /* enum pdf_action_type */
-/* #  define pdf_action_named_id(a)    subtype((a)+1) */ /* boolean */
-/* #  define pdf_action_id(a)          vlink((a)+1)   */ /* number or toks */
-/* #  define pdf_action_file(a)        vinfo((a)+2)   */ /* toks */
-/* #  define pdf_action_new_window(a)  vlink((a)+2)   */ /* enum pdf_window_type */
-/* #  define pdf_action_tokens(a)      vinfo((a)+3)   */ /* toks */
-/* #  define pdf_action_refcount(a)    vlink((a)+3)   */ /* number */
 
 #  define pdf_action_type(a)        vlink((a)+2) /* enum pdf_action_type */
 #  define pdf_action_named_id(a)    vinfo((a)+2) /* boolean */

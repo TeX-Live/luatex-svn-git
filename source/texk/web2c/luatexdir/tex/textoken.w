@@ -1843,6 +1843,7 @@ int conv_toks_pdf(halfword c)
     str_number s;               /* first temp string */
     int ff;                     /* for use with |set_ff| */
     str_number u = 0;           /* third temp string, will become non-nil if a string is already being built */
+    char *str;                  /* color stack init str */
 
          if (scan_keyword("lastlink"))       c = pdf_last_link_code;
     else if (scan_keyword("retval"))         c = pdf_retval_code;
@@ -1950,7 +1951,9 @@ int conv_toks_pdf(halfword c)
             def_ref = save_def_ref;
             warning_index = save_warning_index;
             scanner_status = save_scanner_status;
-            cur_val = newcolorstack(s, cur_val, bool);
+            str = makecstring(s);
+            cur_val = newcolorstack(str, cur_val, bool);
+            free(str);
             flush_str(s);
             cur_val_level = int_val_level;
             if (cur_val < 0) {

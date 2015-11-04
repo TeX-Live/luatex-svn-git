@@ -946,6 +946,37 @@ static int setpdfminorversion(lua_State * L)
     return 0 ;
 }
 
+static int newpdfcolorstack(lua_State * L)
+{
+    const char *s = NULL;
+    const char *l = NULL;
+    int literal_mode = 0; /* set_origin */
+    boolean page_start = false;
+    int id ;
+    if (! lua_isstring(L, 1)) {
+        luaL_error(L, "pdf.newcolorstack() expects a string as first argument");
+    }
+    s =	lua_tostring(L, 1);
+    if (lua_isstring(L, 2)) {
+        l =	lua_tostring(L, 2);
+        if (lua_key_eq(l,origin)) {
+            literal_mode = 0;
+        } else if (lua_key_eq(l,page))  {
+            literal_mode = 1; /* direct_page */
+        } else if (lua_key_eq(l,direct)) {
+            literal_mode = 2; /* direct_always */
+        } else {
+            luaL_error(L, "invalid literal mode in pdf.newcolorstack()");
+        }
+    }
+    if (lua_isboolean(L, 3)) {
+        page_start = lua_toboolean(L, 3);
+    }
+    id = newcolorstack(s, literal_mode, page_start);
+    lua_pushnumber(L, id);
+    return 1 ;
+}
+
 static const struct luaL_Reg pdflib[] = {
     { "immediateobj", l_immediateobj },
     { "mapfile", l_mapfile },
@@ -998,6 +1029,7 @@ static const struct luaL_Reg pdflib[] = {
     { "getversion", getpdfversion},
     { "getminorversion", getpdfminorversion},
     { "setminorversion", setpdfminorversion},
+    { "newcolorstack", newpdfcolorstack},
     /* sentinel */
     {NULL, NULL}
 };

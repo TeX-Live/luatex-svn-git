@@ -168,7 +168,7 @@ void ext_post_line_break(int paragraph_dir,
                             glue_ptr(q) = zero_glue;
                         }
                         break;
-                    } else if ((type(q) == hlist_node) && (subtype(q) == HLIST_SUBTYPE_INDENT)) {
+                    } else if ((type(q) == hlist_node) && (subtype(q) == indent_list)) {
                         /* go on */
                     } else if (is_char_node(q)) {
                         break;
@@ -447,7 +447,7 @@ void ext_post_line_break(int paragraph_dir,
             just_box = hpack(q, cur_width, exactly, paragraph_dir);
         }
         shift_amount(just_box) = cur_indent;
-        subtype(just_box) = HLIST_SUBTYPE_LINE;
+        subtype(just_box) = line_list;
         /* /Call the packaging subroutine, setting |just_box| to the justified box; */
 
         if ((vlink(contrib_head) != null))

@@ -4469,6 +4469,15 @@ page without doing anything else. This function can only be used from within
 pdf.registerannot (<number> objnum)
 \stopfunctioncall
 
+\subsection{\type {pdf.newcolorstack}}
+
+This function allocates a new color stack and returns it's id. The arguments
+are the same as for the similar backend extension primitive.
+
+\startfunctioncall
+pdf.newcolorstack("0 g","page",true) -- page|direct|origin
+\stopfunctioncall
+
 \section{The \type {pdfscanner} library}
 
 The \type {pdfscanner} library allows interpretation of PDF content streams and

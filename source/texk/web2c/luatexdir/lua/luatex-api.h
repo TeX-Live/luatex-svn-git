@@ -591,6 +591,7 @@ make_lua_key(objcompression);\
 make_lua_key(objnum);\
 make_lua_key(oldmath);\
 make_lua_key(ordering);\
+make_lua_key(origin);\
 make_lua_key(output);\
 make_lua_key(pLTL);\
 make_lua_key(pRTT);\
@@ -890,6 +891,7 @@ init_lua_key(number);\
 init_lua_key(objcompression);\
 init_lua_key(objnum);\
 init_lua_key(oldmath);\
+init_lua_key(origin);\
 init_lua_key(ordering);\
 init_lua_key(output);\
 init_lua_key(page);\
@@ -1251,6 +1253,7 @@ use_lua_key(number);
 use_lua_key(objcompression);
 use_lua_key(objnum);
 use_lua_key(oldmath);
+use_lua_key(origin);
 use_lua_key(ordering);
 use_lua_key(output);
 use_lua_key(pLTL);
