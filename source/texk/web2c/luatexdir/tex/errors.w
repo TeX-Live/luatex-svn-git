@@ -314,7 +314,6 @@ void error(void)
                 /* Print the help information and |goto continue| */
                 if (use_err_help) {
                     give_err_help();
-                    use_err_help = false;
                 } else {
                     if (help_line[0] == NULL) {
                         help2
@@ -385,17 +384,18 @@ void error(void)
             default:
                 break;
             }
-            /* Print the menu of available options */
-            tprint
-                ("Type <return> to proceed, S to scroll future error messages,");
-            tprint_nl("R to run without stopping, Q to run quietly,");
-            tprint_nl("I to insert something, ");
-            if (base_ptr > 0)
-                tprint("E to edit your file,");
-            if (deletions_allowed)
-                tprint_nl
-                    ("1 or ... or 9 to ignore the next 1 to 9 tokens of input,");
-            tprint_nl("H for help, X to quit.");
+            if (!use_err_help) {
+                /* Print the menu of available options */
+                tprint("Type <return> to proceed, S to scroll future error messages,");
+                tprint_nl("R to run without stopping, Q to run quietly,");
+                tprint_nl("I to insert something, ");
+                if (base_ptr > 0)
+                    tprint("E to edit your file,");
+                if (deletions_allowed)
+                    tprint_nl("1 or ... or 9 to ignore the next 1 to 9 tokens of input,");
+                tprint_nl("H for help, X to quit.");
+            }
+            use_err_help = false;
         }
 
     }
