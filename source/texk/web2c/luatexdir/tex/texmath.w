@@ -712,62 +712,66 @@ void display_normal_noad(pointer p)
         }
         break;
     case accent_noad:
-       if (accent_chr(p) != null) {
+       if (top_accent_chr(p) != null) {
            if (bot_accent_chr(p) != null) {
                tprint_esc("Umathaccent both");
            } else {
                tprint_esc("Umathaccent");
            }
-       } else {
-           tprint_esc("Umathaccent bottom");
-       }
-       switch (subtype(p)) {
-       case 0:
-        if (accent_chr(p) != null) {
-            if (bot_accent_chr(p) != null) {
-                print_fam_and_char(accent_chr(p));
-                print_fam_and_char(bot_accent_chr(p));
-            } else {
-                print_fam_and_char(accent_chr(p));
-            }
+        } else if (bot_accent_chr(p) != null) {
+            tprint_esc("Umathaccent bottom");
         } else {
-            print_fam_and_char(bot_accent_chr(p));
+            tprint_esc("Umathaccent overlay");
         }
-        break;
-       case 1:
-        if (accent_chr(p) != null) {
-            tprint(" fixed ");
-	    print_fam_and_char(accent_chr(p));
-            if (bot_accent_chr(p) != null) {
-                print_fam_and_char(bot_accent_chr(p));
+        switch (subtype(p)) {
+            case 0:
+                if (top_accent_chr(p) != null) {
+                    if (bot_accent_chr(p) != null) {
+                        print_fam_and_char(top_accent_chr(p));
+                        print_fam_and_char(bot_accent_chr(p));
+                    } else {
+                        print_fam_and_char(top_accent_chr(p));
+                    }
+                } else if (bot_accent_chr(p) != null) {
+                    print_fam_and_char(bot_accent_chr(p));
+                } else {
+                    print_fam_and_char(overlay_accent_chr(p));
+                }
+                break;
+            case 1:
+                if (top_accent_chr(p) != null) {
+                    tprint(" fixed ");
+                    print_fam_and_char(top_accent_chr(p));
+                    if (bot_accent_chr(p) != null) {
+                        print_fam_and_char(bot_accent_chr(p));
+                    }
+                } else {
+                    confusion("display_accent_noad");
+                }
+                break;
+            case 2:
+                if (bot_accent_chr(p) != null) {
+                    if (top_accent_chr(p) != null) {
+                        print_fam_and_char(top_accent_chr(p));
+                    }
+                    tprint(" fixed ");
+                    print_fam_and_char(bot_accent_chr(p));
+                } else{
+                    confusion("display_accent_noad");
+                }
+                break;
+            case 3:
+                if (top_accent_chr(p) != null && bot_accent_chr(p) != null) {
+                    tprint(" fixed ");
+                    print_fam_and_char(top_accent_chr(p));
+                    tprint(" fixed ");
+                    print_fam_and_char(bot_accent_chr(p));
+                } else {
+                    confusion("display_accent_noad");
+                }
+                break;
             }
-        } else {
-            confusion("display_accent_noad");
-        }
         break;
-       case 2:
-        if (bot_accent_chr(p) != null) {
-            if (accent_chr(p) != null) {
-	       print_fam_and_char(accent_chr(p));
-            }
-	    tprint(" fixed ");
-            print_fam_and_char(bot_accent_chr(p));
-        } else{
-            confusion("display_accent_noad");
-        }
-        break;
-       case 3:
-        if (accent_chr(p) != null && bot_accent_chr(p) != null) {
-            tprint(" fixed ");
-            print_fam_and_char(accent_chr(p));
-	    tprint(" fixed ");
-            print_fam_and_char(bot_accent_chr(p));
-        } else {
-            confusion("display_accent_noad");
-        }
-        break;
-       }
-       break;
     }
     print_subsidiary_data(nucleus(p), '.');
     print_subsidiary_data(supscr(p), '^');
@@ -1571,8 +1575,9 @@ void math_radical(void)
 void math_ac(void)
 {
     halfword q;
-    mathcodeval t = { 0, 0, 0, 0 }, b = {
-    0, 0, 0, 0};
+    mathcodeval t = { 0, 0, 0, 0 };
+    mathcodeval b = { 0, 0, 0, 0 };
+    mathcodeval o = { 0, 0, 0, 0 };
     if (cur_cmd == accent_cmd) {
         const char *hlp[] = {
             "I'm changing \\accent to \\mathaccent here; wish me luck.",
@@ -1611,21 +1616,31 @@ void math_ac(void)
                 subtype(tail) = 1;
             }
             t = scan_mathchar(umath_mathcode);
+        } else if (scan_keyword("overlay")) {
+            /* overlay */
+            if (scan_keyword("fixed")) {
+                subtype(tail) = 1;
+            }
+            o = scan_mathchar(umath_mathcode);
         } else {
             /* top */
             t = scan_mathchar(umath_mathcode);
         }
+        if (scan_keyword("fraction")) {
+            scan_int();
+            accent_fraction(tail) = cur_val;
+        }
     } else {
-        confusion("math_ac");
+        confusion("mathaccent");
     }
     if (!(t.character_value == 0 && t.family_value == 0)) {
         q = new_node(math_char_node, 0);
-        accent_chr(tail) = q;
-        math_character(accent_chr(tail)) = t.character_value;
+        top_accent_chr(tail) = q;
+        math_character(top_accent_chr(tail)) = t.character_value;
         if ((t.class_value == var_code) && fam_in_range)
-            math_fam(accent_chr(tail)) = cur_fam;
+            math_fam(top_accent_chr(tail)) = cur_fam;
         else
-            math_fam(accent_chr(tail)) = t.family_value;
+            math_fam(top_accent_chr(tail)) = t.family_value;
     }
     if (!(b.character_value == 0 && b.family_value == 0)) {
         q = new_node(math_char_node, 0);
@@ -1635,6 +1650,15 @@ void math_ac(void)
             math_fam(bot_accent_chr(tail)) = cur_fam;
         else
             math_fam(bot_accent_chr(tail)) = b.family_value;
+    }
+    if (!(o.character_value == 0 && o.family_value == 0)) {
+        q = new_node(math_char_node, 0);
+        overlay_accent_chr(tail) = q;
+        math_character(overlay_accent_chr(tail)) = o.character_value;
+        if ((o.class_value == var_code) && fam_in_range)
+            math_fam(overlay_accent_chr(tail)) = cur_fam;
+        else
+            math_fam(overlay_accent_chr(tail)) = o.family_value;
     }
     q = new_node(math_char_node, 0);
     nucleus(tail) = q;

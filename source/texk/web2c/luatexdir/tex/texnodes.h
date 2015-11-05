@@ -399,9 +399,11 @@ typedef enum {
 
 /* accent noads */
 
-#  define accent_noad_size  7
-#  define accent_chr(a)     vinfo((a)+6) /* the |accent_chr| field of an accent noad */
-#  define bot_accent_chr(a) vlink((a)+6) /* the |bot_accent_chr| field of an accent noad */
+#  define accent_noad_size      8
+#  define top_accent_chr(a)     vinfo((a)+6) /* the |top_accent_chr| field of an accent noad */
+#  define bot_accent_chr(a)     vlink((a)+6) /* the |bot_accent_chr| field of an accent noad */
+#  define overlay_accent_chr(a) vinfo((a)+7) /* the |overlay_accent_chr| field of an accent noad */
+#  define accent_fraction(a)    vlink((a)+7)
 
 /* left and right noads */
 

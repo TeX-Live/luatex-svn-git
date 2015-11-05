@@ -2079,31 +2079,39 @@ centered over the accentee, and the accent width is treated as zero with
 respect to the size of the final box.
 
 @c
-#define TOP_CODE 1
-#define BOT_CODE 2
-#define TOP_OR_BOT_MASK ((TOP_CODE) | (BOT_CODE))
-#define STRETCH_ACCENT_CODE 4
+#define TOP_CODE            1
+#define BOT_CODE            2
+#define OVERLAY_CODE        4
+#define STRETCH_ACCENT_CODE 8
 
-static boolean compute_accent_skew(pointer q, int top_or_bot, scaled *s)
+static boolean compute_accent_skew(pointer q, int flags, scaled *s)
 {
     pointer p;                     /* temporary register for box construction */
     boolean s_is_absolute = false; /* will be true if a top-accent is placed in |s| */
     if (type(nucleus(q)) == math_char_node) {
         fetch(nucleus(q));
         if (is_new_mathfont(cur_f)) {
-            if (top_or_bot == TOP_CODE) {
-                *s = char_top_accent(cur_f, cur_c);
-                if (*s != INT_MIN) {
-                    s_is_absolute = true;
+            /*
+                there is no bot_accent so let's assume similarity
+
+                if (flags & (TOP_CODE | OVERLAY_CODE)) {
+                    *s = char_top_accent(cur_f, cur_c);
+                    if (*s != INT_MIN) {
+                        s_is_absolute = true;
+                    }
+                } else {
+                    *s = char_bot_accent(cur_f, cur_c);
+                    if (*s != INT_MIN) {
+                        s_is_absolute = true;
+                    }
                 }
-            } else {
-                *s = char_bot_accent(cur_f, cur_c);
-                if (*s != INT_MIN) {
-                    s_is_absolute = true;
-                }
+            */
+            *s = char_top_accent(cur_f, cur_c);
+            if (*s != INT_MIN) {
+                s_is_absolute = true;
             }
         } else {
-            if (top_or_bot == TOP_CODE) {
+            if (flags & TOP_CODE) {
                 *s = get_kern(cur_f, cur_c, skew_char(cur_f));
             } else {
                 *s = 0;
@@ -2119,7 +2127,7 @@ static boolean compute_accent_skew(pointer q, int top_or_bot, scaled *s)
         */
         p = math_list(nucleus(q));
         if (type(p) == accent_noad) {
-            s_is_absolute = compute_accent_skew(p, top_or_bot, s);
+            s_is_absolute = compute_accent_skew(p, flags, s);
         }
     }
 
@@ -2134,40 +2142,63 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     scaled delta;          /* space to remove between accent and accentee */
     scaled w;              /* width of the accentee, not including sub/superscripts */
     boolean s_is_absolute; /* will be true if a top-accent is placed in |s| */
+    scaled fraction ;
+    scaled target ;
     extinfo *ext;
     pointer attr_p;
-    const int top_or_bot = flags & TOP_OR_BOT_MASK;
-    attr_p = (top_or_bot == TOP_CODE ? accent_chr(q) : bot_accent_chr(q));
+    attr_p = (flags & TOP_CODE ? top_accent_chr(q) : flags & BOT_CODE ? bot_accent_chr(q) : overlay_accent_chr(q));
+    fraction = accent_fraction(q);
     c = cur_c;
     f = cur_f;
-    s = 0;
-    s_is_absolute = false;
+    s = 1;
+    if (fraction == 0) {
+        fraction = 1000;
+    }
     /* Compute the amount of skew, or set |s| to an alignment point */
-    s_is_absolute = compute_accent_skew(q, top_or_bot, &s);
+    s_is_absolute = compute_accent_skew(q, flags, &s);
     x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     w = width(x);
     h = height(x);
     if (is_new_mathfont(cur_f) && !s_is_absolute) {
-      s = half(w);
-      s_is_absolute = true;
+        s = half(w);
+        s_is_absolute = true;
     }
     /* Switch to a larger accent if available and appropriate */
     y = null;
     ext = NULL;
+    if (flags & OVERLAY_CODE) {
+        if (fraction > 0) {
+            target = xn_over_d(h,fraction,1000);
+        } else {
+            target = h;
+        }
+    } else {
+        if (fraction > 0) {
+            target = xn_over_d(w,fraction,1000);
+        } else {
+            target = w;
+        }
+    }
     if ((flags & STRETCH_ACCENT_CODE) && (char_width(f, c) < w)) {
       while (1) {
-        if ((char_tag(f, c) == ext_tag) &&
-            ((ext = get_charinfo_hor_variants(char_info(f, c))) != NULL)) {
+        if ((char_tag(f, c) == ext_tag) && ((ext = get_charinfo_hor_variants(char_info(f, c))) != NULL)) {
+            /* a bit weird for an overlay but anyway, here we don't need a factor as we don't step */
             y = get_delim_box(q, ext, f, w, node_attr(attr_p), cur_style, hlist_node);
             break;
         } else if (char_tag(f, c) != list_tag) {
             break;
         } else {
             int yy = char_remainder(f, c);
-            if (!char_exists(f, yy))
+            if (!char_exists(f, yy)) {
                 break;
-            if (char_width(f, yy) > w)
-                break;
+            } else if (flags & OVERLAY_CODE) {
+                if (char_height(f, yy) > target) {
+                   break;
+                }
+            } else {
+                if (char_width(f, yy) > target)
+                   break;
+            }
             c = yy;
         }
       }
@@ -2175,11 +2206,14 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     if (y == null) {
         y = char_box(f, c, node_attr(attr_p)); /* italic gets added to width */
     }
-    if (top_or_bot == TOP_CODE) {
-        if (h < accent_base_height(f))
+    if (flags & TOP_CODE) {
+        if (h < accent_base_height(f)) {
             delta = h;
-        else
+        } else {
             delta = accent_base_height(f);
+        }
+    } else if (flags & OVERLAY_CODE) {
+        delta = half(height(y) + depth(y) + height(x) + depth(x)); /* center the accent vertically around the accentee */
     } else {
         delta = 0; /* hm */
     }
@@ -2201,12 +2235,22 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
             h = height(x);
         }
     }
+    /* the top accents of both characters are aligned */
     if (s_is_absolute) {
         scaled sa;
         if (ext != NULL) {
             /* if the accent is extensible just take the center */
             sa = half(width(y));
         } else {
+            /*
+                there is no bot_accent so let's assume similarity
+
+                if (flags & BOT_CODE) {
+                    sa = char_bot_accent(f, c);
+                } else {
+                    sa = char_top_accent(f, c);
+                }
+            */
             sa = char_top_accent(f, c);
         }
         if (sa == INT_MIN) {
@@ -2221,28 +2265,19 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     } else {
         if (width(y)== 0) {
             shift_amount(y) = s + w;
+        } else if (math_direction == dir_TRT) {
+            shift_amount(y) = s + width(y); /* ok? */
         } else {
-            if (math_direction == dir_TRT) {
-                shift_amount(y) = s + width(y);
-            } else {
-                shift_amount(y) = s + half(w - width(y));
-            }
+            shift_amount(y) = s + half(w - width(y));
         }
     }
     width(y) = 0;
-    if (top_or_bot == TOP_CODE) {
+    if (flags & (TOP_CODE | OVERLAY_CODE)) {
         p = new_kern(-delta);
         reset_attributes(p, node_attr(q));
         couple_nodes(p,x);
         couple_nodes(y,p);
     } else {
-#if 0
-        p = new_kern(-delta);
-        reset_attributes(p, node_attr(q));
-        couple_nodes(x,p);
-        couple_nodes(p,y);
-        y = x;
-#endif
         couple_nodes(x,y);
         y = x;
     }
@@ -2250,7 +2285,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     reset_attributes(r, node_attr(q));
     width(r) = width(x);
     y = r;
-    if (top_or_bot == TOP_CODE) {
+    if (flags & (TOP_CODE | OVERLAY_CODE)) {
         if (height(y) < h) {
             /* make the height of box |y| equal to |h| */
             p = new_kern(h - height(y));
@@ -2271,13 +2306,13 @@ static void make_math_accent(pointer q, int cur_style)
     int topstretch = !(subtype(q) % 2);
     int botstretch = !(subtype(q) / 2);
 
-    if (accent_chr(q) != null) {
-        fetch(accent_chr(q));
+    if (top_accent_chr(q) != null) {
+        fetch(top_accent_chr(q));
         if (char_exists(cur_f, cur_c)) {
           do_make_math_accent(q, cur_f, cur_c, TOP_CODE | (topstretch ? STRETCH_ACCENT_CODE : 0), cur_style);
         }
-        flush_node(accent_chr(q));
-        accent_chr(q) = null;
+        flush_node(top_accent_chr(q));
+        top_accent_chr(q) = null;
     }
     if (bot_accent_chr(q) != null) {
         fetch(bot_accent_chr(q));
@@ -2286,6 +2321,14 @@ static void make_math_accent(pointer q, int cur_style)
         }
         flush_node(bot_accent_chr(q));
         bot_accent_chr(q) = null;
+    }
+    if (overlay_accent_chr(q) != null) {
+        fetch(overlay_accent_chr(q));
+        if (char_exists(cur_f, cur_c)) {
+          do_make_math_accent(q, cur_f, cur_c, OVERLAY_CODE | STRETCH_ACCENT_CODE, cur_style);
+        }
+        flush_node(overlay_accent_chr(q));
+        overlay_accent_chr(q) = null;
     }
 }
 

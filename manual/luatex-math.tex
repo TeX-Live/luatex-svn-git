@@ -502,12 +502,22 @@ font of the accentee (as explained in the \TEX book), but if value that turns ou
 to be zero and the font had a MathConstants table, then \type {AccentBaseHeight}
 is used instead.
 
-If a math bottom accent has to be placed, the \type {bot_accent} value is checked
-instead of \type {top_accent}. Because bottom accents do not exist in \TEX82, the
-\type {\skewchar} kern is ignored.
+% there is no bot_accent in opentype math
+%
+% If a math bottom accent has to be placed, the \type {bot_accent} value is checked
+% instead of \type {top_accent}. Because bottom accents do not exist in \TEX82, the
+% \type {\skewchar} kern is ignored.
 
 The vertical placement of a bottom accent is straight below the accentee, no
 correction takes place.
+
+Possible locations are \type {top}, \type {bottom}, \type {both} and \type
+{center}. When no location is given \type {top} is assumed. An additional
+parameter \type {fraction} can be specified followed by a number; a value of for
+instance 1200 means that the criterium is 1.2 times the width of the nuclues. The
+fraction only aplies to the stepwise selected shapes and is mostly meant for the
+\type {overlay} location. It also works for the other locations but then it
+concerns the width.
 
 \section{Math root extension}
 

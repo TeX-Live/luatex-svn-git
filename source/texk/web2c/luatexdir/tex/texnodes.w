@@ -101,7 +101,7 @@ const char *node_fields_over[]            = { "attr", "nucleus", "sub", "sup", N
 const char *node_fields_vcenter[]         = { "attr", "nucleus", "sub", "sup", NULL };
 const char *node_fields_radical[]         = { "attr", "nucleus", "sub", "sup", "left", "degree", NULL };
 const char *node_fields_fraction[]        = { "attr", "width", "num", "denom", "left", "right", NULL };
-const char *node_fields_accent[]          = { "attr", "nucleus", "sub", "sup", "accent", "bot_accent", NULL };
+const char *node_fields_accent[]          = { "attr", "nucleus", "sub", "sup", "accent", "bot_accent", "top_accent", "overlay_accent", NULL };
 const char *node_fields_fence[]           = { "attr", "delim", NULL };
 const char *node_fields_math_char[]       = { "attr", "fam", "char", NULL };
 const char *node_fields_sub_box[]         = { "attr", "head", NULL };
@@ -817,8 +817,9 @@ halfword copy_node(const halfword p)
         copy_sub_list(nucleus(r),nucleus(p)) ;
         copy_sub_list(subscr(r),subscr(p)) ;
         copy_sub_list(supscr(r),supscr(p)) ;
-        copy_sub_list(accent_chr(r),accent_chr(p)) ;
+        copy_sub_list(top_accent_chr(r),top_accent_chr(p)) ;
         copy_sub_list(bot_accent_chr(r),bot_accent_chr(p)) ;
+        copy_sub_list(overlay_accent_chr(r),overlay_accent_chr(p)) ;
         break;
     case fence_noad:
         copy_sub_node(delimiter(r),delimiter(p)) ;
@@ -1264,8 +1265,9 @@ void flush_node(halfword p)
         free_sub_list(nucleus(p));
         free_sub_list(subscr(p));
         free_sub_list(supscr(p));
-        free_sub_list(accent_chr(p));
+        free_sub_list(top_accent_chr(p));
         free_sub_list(bot_accent_chr(p));
+        free_sub_list(overlay_accent_chr(p));
         break;
     case fence_noad:
         free_sub_list(delimiter(p));
@@ -1534,8 +1536,9 @@ void check_node(halfword p)
         dorangetest(p, nucleus(p), var_mem_max);
         dorangetest(p, subscr(p), var_mem_max);
         dorangetest(p, supscr(p), var_mem_max);
-        dorangetest(p, accent_chr(p), var_mem_max);
+        dorangetest(p, top_accent_chr(p), var_mem_max);
         dorangetest(p, bot_accent_chr(p), var_mem_max);
+        dorangetest(p, overlay_accent_chr(p), var_mem_max);
         break;
     case fence_noad:
         dorangetest(p, delimiter(p), var_mem_max);

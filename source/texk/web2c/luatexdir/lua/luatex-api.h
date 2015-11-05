@@ -593,6 +593,7 @@ make_lua_key(oldmath);\
 make_lua_key(ordering);\
 make_lua_key(origin);\
 make_lua_key(output);\
+make_lua_key(overlay_accent);\
 make_lua_key(pLTL);\
 make_lua_key(pRTT);\
 make_lua_key(pTLT);\
@@ -894,6 +895,7 @@ init_lua_key(oldmath);\
 init_lua_key(origin);\
 init_lua_key(ordering);\
 init_lua_key(output);\
+init_lua_key(overlay_accent);\
 init_lua_key(page);\
 init_lua_key(page_head);\
 init_lua_key(page_ins_head);\
@@ -1256,6 +1258,7 @@ use_lua_key(oldmath);
 use_lua_key(origin);
 use_lua_key(ordering);
 use_lua_key(output);
+use_lua_key(overlay_accent);
 use_lua_key(pLTL);
 use_lua_key(pRTT);
 use_lua_key(pTLT);

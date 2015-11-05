@@ -3099,10 +3099,12 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             fast_metatable_or_nil(subscr(n));
         } else if (lua_key_eq(s, sup)) {
             fast_metatable_or_nil(supscr(n));
-        } else if (lua_key_eq(s, accent)) {
-            fast_metatable_or_nil(accent_chr(n));
+        } else if ((lua_key_eq(s, top_accent))||(lua_key_eq(s, accent))) {
+            fast_metatable_or_nil(top_accent_chr(n));
         } else if (lua_key_eq(s, bot_accent)) {
             fast_metatable_or_nil(bot_accent_chr(n));
+        } else if (lua_key_eq(s, overlay_accent)) {
+            fast_metatable_or_nil(overlay_accent_chr(n));
         } else {
             lua_pushnil(L);
         }
@@ -3813,10 +3815,12 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             nodelib_pushdirect_or_nil(subscr(n));
         } else if (lua_key_eq(s, sup)) {
             nodelib_pushdirect_or_nil(supscr(n));
-        } else if (lua_key_eq(s, accent)) {
-            nodelib_pushdirect_or_nil(accent_chr(n));
+        } else if ((lua_key_eq(s, top_accent))||(lua_key_eq(s, accent))) {
+            nodelib_pushdirect_or_nil(top_accent_chr(n));
         } else if (lua_key_eq(s, bot_accent)) {
             nodelib_pushdirect_or_nil(bot_accent_chr(n));
+        } else if (lua_key_eq(s, overlay_accent)) {
+            nodelib_pushdirect_or_nil(overlay_accent_chr(n));
         } else {
             lua_pushnil(L);
         }
@@ -5035,10 +5039,12 @@ static int lua_nodelib_fast_setfield(lua_State * L)
             subscr(n) = nodelib_getlist(L, 3);
         } else if (lua_key_eq(s, sup)) {
             supscr(n) = nodelib_getlist(L, 3);
-        } else if (lua_key_eq(s, accent)) {
-            accent_chr(n) = nodelib_getlist(L, 3);
+        } else if ((lua_key_eq(s, top_accent))||(lua_key_eq(s, accent))) {
+            top_accent_chr(n) = nodelib_getlist(L, 3);
         } else if (lua_key_eq(s, bot_accent)) {
             bot_accent_chr(n) = nodelib_getlist(L, 3);
+        } else if (lua_key_eq(s, overlay_accent)) {
+            overlay_accent_chr(n) = nodelib_getlist(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -5907,10 +5913,12 @@ static int lua_nodelib_direct_setfield(lua_State * L)
             subscr(n) = nodelib_popdirect(3);
         } else if (lua_key_eq(s, sup)) {
             supscr(n) = nodelib_popdirect(3);
-        } else if (lua_key_eq(s, accent)) {
-            accent_chr(n) = nodelib_popdirect(3);
+        } else if ((lua_key_eq(s, top_accent))||(lua_key_eq(s, accent))) {
+            top_accent_chr(n) = nodelib_popdirect(3);
         } else if (lua_key_eq(s, bot_accent)) {
             bot_accent_chr(n) = nodelib_popdirect(3);
+        } else if (lua_key_eq(s, overlay_accent)) {
+            overlay_accent_chr(n) = nodelib_popdirect(3);
         } else {
             return nodelib_cantset(L, n, s);
         }
