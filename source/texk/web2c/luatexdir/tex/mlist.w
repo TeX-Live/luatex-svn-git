@@ -2147,7 +2147,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     extinfo *ext;
     pointer attr_p;
     attr_p = (flags & TOP_CODE ? top_accent_chr(q) : flags & BOT_CODE ? bot_accent_chr(q) : overlay_accent_chr(q));
-    fraction = accent_fraction(q);
+    fraction = accentfraction(q);
     c = cur_c;
     f = cur_f;
     s = 1;
@@ -3302,12 +3302,19 @@ static small_number make_left_right(pointer q, int style, scaled max_d, scaled m
     }
     delimiter(q) = null;
     assign_new_hlist(q, tmp);
-    if (subtype(q) == no_noad_side)
+    if (delimiterclass(q) >= ord_noad_type) {
+        if (delimiterclass(q) <= inner_noad_type) {
+            return delimiterclass(q);
+        } else {
+            return ord_noad_type;
+        }
+    } else if (subtype(q) == no_noad_side) {
         return open_noad_type;
-    else if (subtype(q) == left_noad_side)
+    } else if (subtype(q) == left_noad_side) {
         return open_noad_type;
-    else
+    } else {
         return close_noad_type;
+    }
 }
 
 @ @c

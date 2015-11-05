@@ -585,6 +585,31 @@ static void print_fam_and_char(pointer p)
 static void print_delimiter(pointer p)
 {
     int a;
+    if (delimiteroptionset(p)) {
+        tprint(" [ ");
+        if (delimiteraxis(p))
+            tprint("axis ");
+        if (delimiternoaxis(p))
+            tprint("noaxis ");
+        if (delimiterexact(p))
+            tprint("exact ");
+        tprint("]");
+    }
+    if (delimiterheight(p)) {
+        tprint("height=");
+        print_scaled(delimiterheight(p));
+        tprint(" ");
+    }
+    if (delimiterdepth(p)) {
+        tprint("depth=");
+        print_scaled(delimiterdepth(p));
+        tprint(" ");
+    }
+    if (delimiterclass(p)) {
+        tprint("class=");
+        print_int(delimiterclass(p));
+        tprint(" ");
+    }
     if (small_fam(p) < 0) {
         print_int(-1);          /* this should never happen */
     } else if (small_fam(p) < 16 && large_fam(p) < 16 &&
@@ -692,8 +717,7 @@ void display_normal_noad(pointer p)
             break;
         }
         break;
-
-       case radical_noad:
+    case radical_noad:
         if (subtype(p) == 6)
             tprint_esc("Udelimiterover");
         else if (subtype(p) == 5)
@@ -710,6 +734,23 @@ void display_normal_noad(pointer p)
         if (degree(p) != null) {
             print_subsidiary_data(degree(p), '/');
         }
+        if (radicalwidth(p)) {
+            tprint("width=");
+            print_scaled(radicalwidth(p));
+            tprint(" ");
+        }
+        if (radicaloptionset(p)) {
+            tprint(" [ ");
+            if (radicalexact(p))
+                tprint("exact ");
+            if (radicalleft(p))
+                tprint("left ");
+            if (radicalmiddle(p))
+                tprint("middle ");
+            if (radicalright(p))
+                tprint("right ");
+            tprint("]");
+        }
         break;
     case accent_noad:
        if (top_accent_chr(p) != null) {
@@ -722,6 +763,11 @@ void display_normal_noad(pointer p)
             tprint_esc("Umathaccent bottom");
         } else {
             tprint_esc("Umathaccent overlay");
+        }
+        if (accentfraction(p)) {
+            tprint(" fraction=");
+            print_int(accentfraction(p));
+            tprint(" ");
         }
         switch (subtype(p)) {
             case 0:
@@ -1628,7 +1674,7 @@ void math_ac(void)
         }
         if (scan_keyword("fraction")) {
             scan_int();
-            accent_fraction(tail) = cur_val;
+            accentfraction(tail) = cur_val;
         }
     } else {
         confusion("mathaccent");
@@ -1945,6 +1991,7 @@ void math_left_right(void)
     halfword ht = 0;
     halfword dp = 0;
     halfword options = 0;
+    halfword type = -1 ;
     t = cur_chr;
 
     if (t > 10) {
@@ -1963,6 +2010,9 @@ void math_left_right(void)
                 options = options | noad_option_no_axis ;
             } else if (scan_keyword("exact")) {
                 options = options | noad_option_exact ;
+            } else if (scan_keyword("class")) {
+                scan_int();
+                type = cur_val ;
             } else {
                 break;
             }
@@ -1998,6 +2048,7 @@ void math_left_right(void)
         delimiterheight(p) = ht;
         delimiterdepth(p) = dp;
         delimiteroptions(p) = options;
+        delimiterclass(p) = type;
         delimiteritalic(p) = 0;
 
         scan_delimiter(delimiter(p), no_mathcode);

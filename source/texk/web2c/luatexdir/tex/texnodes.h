@@ -385,7 +385,7 @@ typedef enum {
 
 /* regular noads */
 
-#  define noad_size      7
+#  define noad_size      8
 #  define new_hlist(a)   vlink((a)+2) /* the translation of an mlist */
 #  define nucleus(a)     vinfo((a)+2) /* the |nucleus| field of a noad */
 #  define supscr(a)      vlink((a)+3) /* the |supscr| field of a noad */
@@ -394,8 +394,10 @@ typedef enum {
 #  define noadwidth(a)   vinfo((a)+4)
 #  define noadheight(a)  vlink((a)+5)
 #  define noaddepth(a)   vinfo((a)+5)
-#  define noadextra1(a)  vlink((a)+6)
+#  define noadextra1(a)  vlink((a)+6) /* we need to match delimiter (saves copy) */
 #  define noadextra2(a)  vinfo((a)+6)
+#  define noadextra3(a)  vlink((a)+7) /* see (!) below */
+#  define noadextra4(a)  vinfo((a)+7)
 
 /* accent noads */
 
@@ -403,17 +405,19 @@ typedef enum {
 #  define top_accent_chr(a)     vinfo((a)+6) /* the |top_accent_chr| field of an accent noad */
 #  define bot_accent_chr(a)     vlink((a)+6) /* the |bot_accent_chr| field of an accent noad */
 #  define overlay_accent_chr(a) vinfo((a)+7) /* the |overlay_accent_chr| field of an accent noad */
-#  define accent_fraction(a)    vlink((a)+7)
+#  define accentfraction(a)     vlink((a)+7)
 
 /* left and right noads */
 
-#  define fence_noad_size     7
+#  define fence_noad_size     8            /* needs to match noad size */
 #  define delimiteritalic(a)  vlink((a)+4)
 /* define delimiterwidth(a)   vinfo((a)+4) */
 #  define delimiterheight(a)  vlink((a)+5)
 #  define delimiterdepth(a)   vinfo((a)+5)
 #  define delimiter(a)        vlink((a)+6) /* |delimiter| field in left and right noads */
 #  define delimiteroptions(a) vinfo((a)+6)
+#  define delimiterclass(a)   vlink((a)+7) /* (!) we could probably pack some more in 6 */
+#  define delimiterextra1(a)  vinfo((a)+7) /* not used */
 
 /* when dimensions then axis else noaxis */
 
@@ -458,10 +462,11 @@ typedef enum {
 #  define degree(a)         vlink((a)+6)   /* the root degree in a radical noad */
 #  define radicaloptions(a) vinfo((a)+6)
 
-#  define radicalexact(a)   ((radicaloptions(a) & noad_option_exact)  == noad_option_exact)
-#  define radicalleft(a)    ((radicaloptions(a) & noad_option_left)   == noad_option_left)
-#  define radicalmiddle(a)  ((radicaloptions(a) & noad_option_middle) == noad_option_middle)
-#  define radicalright(a)   ((radicaloptions(a) & noad_option_right)  == noad_option_right)
+#  define radicaloptionset(a) ((radicaloptions(a) & noad_option_set   ) == noad_option_set)
+#  define radicalexact(a)     ((radicaloptions(a) & noad_option_exact ) == noad_option_exact)
+#  define radicalleft(a)      ((radicaloptions(a) & noad_option_left  ) == noad_option_left)
+#  define radicalmiddle(a)    ((radicaloptions(a) & noad_option_middle) == noad_option_middle)
+#  define radicalright(a)     ((radicaloptions(a) & noad_option_right ) == noad_option_right)
 
 /* accessors for the |nucleus|-style node fields */
 
