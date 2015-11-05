@@ -330,10 +330,9 @@ void manufacture_csname(void)
         /* Complain about missing \.{\\endcsname} */
         complain_missing_csname();
     }
-    is_in_csname -= 1;
     /* Look up the characters of list |r| in the hash table, and set |cur_cs| */
-
     ss = tokenlist_to_lstring(r, true);
+    is_in_csname -= 1;
     if (ss->l > 0) {
         no_new_control_sequence = false;
         cur_cs = string_lookup((char *) ss->s, ss->l);

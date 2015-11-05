@@ -350,7 +350,7 @@ void show_token_list(int p, int q, int l)
                     print(c);
                     break;
                 case mac_param_cmd:
-                    if (!in_lua_escape)
+                    if (!in_lua_escape && (is_in_csname==0))
                         print(c);
                     print(c);
                     break;
@@ -2764,7 +2764,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
                     Print_uchar(c);
                     break;
                 case mac_param_cmd:
-                    if (!in_lua_escape)
+                    if (!in_lua_escape && (is_in_csname==0))
                         Print_uchar(c);
                     Print_uchar(c);
                     break;
