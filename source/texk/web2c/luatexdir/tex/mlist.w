@@ -1575,9 +1575,11 @@ void run_mlist_to_hlist(halfword p, int mstyle, boolean penalties)
         lua_pushstring(L, math_style_names[mstyle]); /* arg 2 */
         lua_pushboolean(L, penalties);               /* arg 3 */
         if (lua_pcall(L, 3, 1, 0) != 0) {            /* 3 args, 1 result */
-            fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
+            char errmsg[256]; /* temp hack ... we will have a formatted error */
+            snprintf(errmsg, 255, "error: %s\n", lua_tostring(L, -1));
+            errmsg[255]='\0';
             lua_settop(L, sfix);
-            error();
+            normal_error("mlist to hlist",errmsg); /* to be done */
             return;
         }
         a = nodelist_from_lua(L);

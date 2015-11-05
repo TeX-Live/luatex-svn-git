@@ -17,9 +17,12 @@
 % You should have received a copy of the GNU General Public License along
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+@ TODO: we need to use a formatted normal_error in:
+
+hyphen.w
+luafflib.c
+
 @ @c
-
-
 #include "ptexlib.h"
 
 @ @c
@@ -113,8 +116,8 @@ void print_err(const char *s)
 might be unusual. The only possible values of |selector| at the time of
 error messages are
 
-\yskip\hang|no_print| (when |interaction=batch_mode|
-  and |log_file| not yet open);
+\yskip
+\hang|no_print| (when |interaction=batch_mode| and |log_file| not yet open);
 
 \hang|term_only| (when |interaction>batch_mode| and |log_file| not yet open);
 
@@ -157,8 +160,6 @@ int error_count;                /* the number of scrolled errors since the last 
 int interrupt;                  /* should \TeX\ pause for instructions? */
 boolean OK_to_interrupt;        /* should interrupts be observed? */
 
-
-
 @ The value of |history| is initially |fatal_error_stop|, but it will
 be changed to |spotless| if \TeX\ survives the initialization process.
 
@@ -175,7 +176,6 @@ void initialize_errors(void)
     /* |history| is initialized elsewhere */
 }
 
-
 @ It is possible for |error| to be called recursively if some error arises
 when |get_token| is being used to delete a token, and/or if some fatal error
 occurs while \TeX\ is trying to fix a non-fatal one. But such recursion
@@ -187,7 +187,6 @@ is never more than two levels deep.
 @c
 const char *help_line[7];       /* helps for the next |error| */
 boolean use_err_help;           /* should the |err_help| list be shown? */
-
 
 @ The |jump_out| procedure just cuts across all active procedure levels and
 exits the program. It is used when there is no recovery from a particular error.
@@ -422,8 +421,6 @@ void error(void)
     print_ln();
 }
 
-
-
 @ A dozen or so error messages end with a parenthesized integer, so we
 save a teeny bit of program space by declaring the following procedure:
 
@@ -435,7 +432,6 @@ void int_error(int n)
     print_char(')');
     error();
 }
-
 
 @ In anomalous cases, the print selector might be in an unknown state;
 the following subroutine is called to fix things just enough to keep
@@ -524,7 +520,6 @@ void overflow(const char *s, unsigned int n)
     succumb();
 }
 
-
 @ The program might sometime run completely amok, at which point there is
 no choice but to stop. If no previous error has been detected, that's bad
 news; a message is printed that is really intended for the \TeX\
@@ -565,8 +560,6 @@ void check_interrupt(void)
     if (interrupt != 0)
         pause_for_instructions();
 }
-
-
 
 @ When an interrupt has been detected, the program goes into its
 highest interaction level and lets the user have nearly the full flexibility of
@@ -631,8 +624,6 @@ void ins_error(void)
     error();
 }
 
-
-
 @ When \TeX\ wants to typeset a character that doesn't exist, the
 character node is not created; thus the output routine can assume
 that characters exist when it sees them. The following procedure
@@ -694,8 +685,7 @@ void normal_error(const char *t, const char *p)
 }
 
 @ @c
-void normal_warning(const char *t, const char *p, boolean prepend_nl,
-                 boolean append_nl)
+void normal_warning(const char *t, const char *p, boolean prepend_nl, boolean append_nl)
 {
     if (prepend_nl)
         print_ln();

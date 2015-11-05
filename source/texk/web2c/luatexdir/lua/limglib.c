@@ -95,12 +95,30 @@ static const parm_struct img_parms[] = {
 };
 
 #define imgtype_max 7
-const char *imgtype_s[] =
-  { "none", "pdf", "png", "jpg", "jp2", "jbig2", "stream", "memstream",NULL };
+
+const char *imgtype_s[] = {
+    "none",
+    "pdf",
+    "png",
+    "jpg",
+    "jp2",
+    "jbig2",
+    "stream",
+    "memstream",
+    NULL
+};
 
 #define pagebox_max 5
-const char *pdfboxspec_s[] =
-    { "none", "media", "crop", "bleed", "trim", "art", NULL };
+
+const char *pdfboxspec_s[] = {
+    "none",
+    "media",
+    "crop",
+    "bleed",
+    "trim",
+    "art",
+    NULL
+};
 
 /**********************************************************************/
 
@@ -114,8 +132,7 @@ static void image_to_lua(lua_State * L, image * a)
     lua_pushvalue(L, -2);       /* k t k u ... */
     lua_gettable(L, -2);        /* i? t k u ... */
     if (!lua_isnumber(L, -1))   /* !i t k u ... */
-        luaL_error(L, "image_to_lua(): %s is not a valid image key",
-                   lua_tostring(L, -3));
+        luaL_error(L, "image_to_lua(): %s is not a valid image key", lua_tostring(L, -3));
     i = (int) lua_tointeger(L, -1);     /* i t k u ... */
     lua_pop(L, 3);              /* u ... */
     switch (i) {
@@ -284,8 +301,7 @@ static void lua_to_image(lua_State * L, image * a)
     lua_pushvalue(L, -3);       /* k t v k t ... */
     lua_gettable(L, -2);        /* i? t v k t ... */
     if (!lua_isnumber(L, -1))   /* !i t v k t ... */
-        luaL_error(L, "lua_to_image(): %s is not a valid image key",
-                   lua_tostring(L, -4));
+        luaL_error(L, "lua_to_image(): %s is not a valid image key", lua_tostring(L, -4));
     i = (int) lua_tointeger(L, -1);     /* i t v k t ... */
     lua_pop(L, 2);              /* v k t ... */
     switch (i) {
@@ -297,8 +313,7 @@ static void lua_to_image(lua_State * L, image * a)
         else if (lua_type(L, -1) == LUA_TSTRING)
             img_width(a) = dimen_to_number(L, lua_tostring(L, -1));
         else
-            luaL_error(L,
-                       "image.width needs integer or nil value or dimension string");
+            luaL_error(L, "image.width needs integer or nil value or dimension string");
         break;
     case P_HEIGHT:
         if (lua_isnil(L, -1))
@@ -308,8 +323,7 @@ static void lua_to_image(lua_State * L, image * a)
         else if (lua_type(L, -1) == LUA_TSTRING)
             img_height(a) = dimen_to_number(L, lua_tostring(L, -1));
         else
-            luaL_error(L,
-                       "image.height needs integer or nil value or dimension string");
+            luaL_error(L, "image.height needs integer or nil value or dimension string");
         break;
     case P_DEPTH:
         if (lua_isnil(L, -1))
@@ -319,8 +333,7 @@ static void lua_to_image(lua_State * L, image * a)
         else if (lua_type(L, -1) == LUA_TSTRING)
             img_depth(a) = dimen_to_number(L, lua_tostring(L, -1));
         else
-            luaL_error(L,
-                       "image.depth needs integer or nil value or dimension string");
+            luaL_error(L, "image.depth needs integer or nil value or dimension string");
         break;
     case P_TRANSFORM:
         if (lua_isnumber(L, -1))
@@ -410,8 +423,7 @@ static void lua_to_image(lua_State * L, image * a)
             else if (lua_type(L, -1) == LUA_TSTRING)
                 img_bbox(d)[i - 1] = dimen_to_number(L, lua_tostring(L, -1));
             else
-                luaL_error(L,
-                           "image.bbox table needs integer value or dimension string elements");
+                luaL_error(L, "image.bbox table needs integer value or dimension string elements");
             lua_pop(L, 1);      /* v k t ... */
         }
         img_set_bbox(d);
@@ -567,9 +579,16 @@ static halfword img_to_node(image * a)
     return n;
 }
 
-typedef enum { WR_WRITE, WR_IMMEDIATEWRITE, WR_NODE, WR_VF_IMG } wrtype_e;
-const char *wrtype_s[] =
-    { "img.write()", "img.immediatewrite()", "img.node()", "write vf image" };
+typedef enum {
+    WR_WRITE,
+    WR_IMMEDIATEWRITE,
+    WR_NODE,
+    WR_VF_IMG
+} wrtype_e;
+
+const char *wrtype_s[] = {
+    "img.write()", "img.immediatewrite()", "img.node()", "write vf image"
+};
 
 static void setup_image(PDF pdf, image * a, wrtype_e writetype)
 {
@@ -756,11 +775,9 @@ static int m_img_print(lua_State * L)
     aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);
     d = img_dict(*aa);
     if (img_pagename(d) != NULL && strlen(img_pagename(d)) != 0)
-        lua_pushfstring(L, "<img{filename=\"%s\", page=\"%s\"}>",
-                        img_filename(d), img_pagename(d));
+        lua_pushfstring(L, "<img{filename=\"%s\", page=\"%s\"}>", img_filename(d), img_pagename(d));
     else
-        lua_pushfstring(L, "<img{filename=\"%s\", page=%d}>", img_filename(d),
-                        img_pagenum(d));
+        lua_pushfstring(L, "<img{filename=\"%s\", page=%d}>", img_filename(d), img_pagenum(d));
     return 1;
 }
 
