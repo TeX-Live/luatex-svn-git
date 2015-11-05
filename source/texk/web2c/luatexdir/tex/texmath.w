@@ -1947,21 +1947,25 @@ void math_left_right(void)
     halfword options = 0;
     t = cur_chr;
 
-    while (1) {
-        if (scan_keyword("height")) {
-            scan_dimen(false,false,false);
-            ht = cur_val ;
-        } else if (scan_keyword("depth")) {
-            scan_dimen(false,false,false);
-            dp = cur_val ;
-        } else if (scan_keyword("axis")) {
-            options = options | noad_option_axis ;
-        } else if (scan_keyword("noaxis")) {
-            options = options | noad_option_no_axis ;
-        } else if (scan_keyword("exact")) {
-            options = options | noad_option_exact ;
-        } else {
-            break;
+    if (t > 10) {
+        /* we have \Uleft \Uright \Umiddle */
+        t = t - 10;
+        while (1) {
+            if (scan_keyword("height")) {
+                scan_dimen(false,false,false);
+                ht = cur_val ;
+            } else if (scan_keyword("depth")) {
+                scan_dimen(false,false,false);
+                dp = cur_val ;
+            } else if (scan_keyword("axis")) {
+                options = options | noad_option_axis ;
+            } else if (scan_keyword("noaxis")) {
+                options = options | noad_option_no_axis ;
+            } else if (scan_keyword("exact")) {
+                options = options | noad_option_exact ;
+            } else {
+                break;
+            }
         }
     }
 

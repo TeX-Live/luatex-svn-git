@@ -740,29 +740,29 @@ of \type {\mathsurround}, we can remain compatible.
 % \stopitem
 % \stopitemize
 
-\subsection {Delimiters}
+\subsection {Delimiters: \type{\Uleft}, \type {\Umiddle} and \type {\Uright}}
 
-You can force delimiters to certain sizes by putting an empty box or rule next to
-it. The resulting delimiter will either be a character from the stepwise size
-range or an extensible. The latter can be quiote differently positioned that the
-characters as it depends on the fit aas well as the fact if the used characters
-in the font have depth or height. Commands like (plain \TEX s) \type {\big} need
-use this feature. In \LUATEX\ we provide a bit more control by supporting optional
-parameters \type {height}, \type {depth} and \type {axis}. The following example
-uses this:
+Normally you will force delimiters to certain sizes by putting an empty box or
+rule next to it. The resulting delimiter will either be a character from the
+stepwise size range or an extensible. The latter can be quite differently
+positioned that the characters as it depends on the fit aas well as the fact if
+the used characters in the font have depth or height. Commands like (plain \TEX
+s) \type {\big} need use this feature. In \LUATEX\ we provide a bit more control
+by three variants that supporting optional parameters \type {height}, \type
+{depth} and \type {axis}. The following example uses this:
 
 \startbuffer
-\normalleft   height 30pt depth 10pt      \Udelimiter "0 "0 "000028
+\Uleft   height 30pt depth 10pt      \Udelimiter "0 "0 "000028
 \quad x\quad
-\normalmiddle height 40pt depth 15pt      \Udelimiter "0 "0 "002016
+\Umiddle height 40pt depth 15pt      \Udelimiter "0 "0 "002016
 \quad x\quad
-\normalright  height 30pt depth 10pt      \Udelimiter "0 "0 "000029
+\Uright  height 30pt depth 10pt      \Udelimiter "0 "0 "000029
 \quad \quad \quad
-\normalleft   height 30pt depth 10pt axis \Udelimiter "0 "0 "000028
+\Uleft   height 30pt depth 10pt axis \Udelimiter "0 "0 "000028
 \quad x\quad
-\normalmiddle height 40pt depth 15pt axis \Udelimiter "0 "0 "002016
+\Umiddle height 40pt depth 15pt axis \Udelimiter "0 "0 "002016
 \quad x\quad
-\normalright  height 30pt depth 10pt axis \Udelimiter "0 "0 "000029
+\Uright  height 30pt depth 10pt axis \Udelimiter "0 "0 "000029
 \stopbuffer
 
 \typebuffer

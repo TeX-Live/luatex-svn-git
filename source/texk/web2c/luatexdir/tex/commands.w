@@ -470,7 +470,10 @@ void initialize_commands(void)
     primitive_tex("left", left_right_cmd, left_noad_side, 0);
     primitive_tex("right", left_right_cmd, right_noad_side, 0);
     primitive_tex("middle", left_right_cmd, middle_noad_side, 0);
-    primitive_luatex("Uvextensible", left_right_cmd, no_noad_side, 0);
+    primitive_tex("Uleft", left_right_cmd, 10+left_noad_side, 0);
+    primitive_tex("Uright", left_right_cmd, 10+right_noad_side, 0);
+    primitive_tex("Umiddle", left_right_cmd, 10+middle_noad_side, 0);
+    primitive_luatex("Uvextensible", left_right_cmd, 10+no_noad_side, 0);
     cs_text(frozen_right) = maketexstring("right");
     eqtb[frozen_right] = eqtb[cur_val];
 
