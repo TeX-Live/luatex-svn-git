@@ -18,7 +18,12 @@ the \LUATEX\ executable. Together, they allow \LUA\ scripts to query and change 
 number of \TEX's internal variables, run various internal \TEX\ functions, and
 set up \LUATEX's hooks to execute \LUA\ code.
 
-The following sections are in alphabetical order.
+The following sections are in alphabetical order. For any callback (and
+manipulation of nodes) the following is true: you have a lot of freedom which
+also means that you can mess up the node lists and nodes themselves. So, a bit of
+defensive programming doesn't hurt. A crash can happen when you spoil things or
+when \LUATEX\ can recognize the issue, a panic exit will happen. Don't bother the
+team with such issues.
 
 \section{The \type {callback} library}
 
@@ -637,6 +642,9 @@ and because it can sometimes be handy when special processing has to take place.
 Setting this callback to \type {false} will prevent the internal ligature
 creation pass.
 
+You must not ruin the node list. For instance, the head normally is a local par node,
+and the tail a glue. Messing too much can push \LUATEX\ into panic mode.
+
 \subsubsection{\type {kerning}}
 
 \startfunctioncall
@@ -649,6 +657,9 @@ node list it receives. See \type {ligaturing} for calling conventions.
 
 Setting this callback to \type {false} will prevent the internal kern insertion
 pass.
+
+You must not ruin the node list. For instance, the head normally is a local par node,
+and the tail a glue. Messing too much can push \LUATEX\ into panic mode.
 
 \subsubsection{\type {mlist_to_hlist}}
 

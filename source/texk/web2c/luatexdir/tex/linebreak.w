@@ -1843,8 +1843,8 @@ ext_do_line_break(int paragraph_dir,
 #endif
                 }
             }
-            if (cur_p == null) {        /* TODO */
-                confusion("linebreak_tail");
+            if (cur_p == null) {
+                normal_error("linebreak","invalid list tail, probably missing glue");
             }
             /* Determine legal breaks: As we move through the hlist, we need to keep
                the |active_width| array up to date, so that the badness of individual
