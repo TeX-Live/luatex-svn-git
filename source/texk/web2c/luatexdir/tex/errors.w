@@ -698,10 +698,10 @@ void normal_warning(const char *t, const char *p, boolean prepend_nl, boolean ap
             /* free last ones */
             xfree(last_warning_str);
             xfree(last_warning_tag);
-            last_warning_str = (string) xmalloc(strlen(t) + 1);
-            last_warning_tag = (string) xmalloc(strlen(p) + 1);
-            strcpy(last_warning_str,t);
-            strcpy(last_warning_tag,p);
+            last_warning_str = (string) xmalloc(strlen(p) + 1);
+            last_warning_tag = (string) xmalloc(strlen(t) + 1);
+            strcpy(last_warning_str,p);
+            strcpy(last_warning_tag,t);
             run_callback(report_id, "->");
         } else {
             if (prepend_nl)
