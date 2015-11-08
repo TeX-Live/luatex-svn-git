@@ -670,7 +670,7 @@ void do_vf(internal_font_number f)
     vf_stack_index stack_level;
     int vf_z;                   /* multiplier */
     int vf_alpha;               /* correction for negative values */
-    //char vf_beta;               /* divisor */
+    /*char vf_beta;*/               /* divisor */
     int vf_np;
     eight_bits *vpackets;
     memory_word tmp_w;          /* accumulator */
@@ -1056,7 +1056,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     vf_stack_index stack_level;
     int vf_z;                   /* multiplier */
     int vf_alpha;               /* correction for negative values */
-    //char vf_beta;               /* divisor */
+    /*char vf_beta;*/               /* divisor */
     eight_bits *s;
     scaled h, v;
     scaled w, x, y, z;

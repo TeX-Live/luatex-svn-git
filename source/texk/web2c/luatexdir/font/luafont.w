@@ -589,7 +589,7 @@ static void append_float(eight_bits ** cpp, float a)
     *cpp = cp;
 }
 
-//#define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)
+/*#define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)*/
 
 
 /* static int n_numeric_field(lua_State * L, int name_index, int dflt) */
@@ -950,7 +950,7 @@ static void read_lua_cidinfo(lua_State * L, int f)
 {
     int i;
     char *s;
-    //lua_getfield(L, -1, "cidinfo");
+    /*lua_getfield(L, -1, "cidinfo");*/
     lua_key_rawgeti(cidinfo);
     if (lua_istable(L, -1)) {
         i = lua_numeric_field_by_index(L,lua_key_index(version), 0);
@@ -971,7 +971,7 @@ static void read_lua_parameters(lua_State * L, int f)
 {
     int i, n;
     const char *s;
-    //lua_getfield(L, -1, "parameters");
+    /*lua_getfield(L, -1, "parameters");*/
     lua_key_rawgeti(parameters);
     if (lua_istable(L, -1)) {
         /* the number of parameters is the max(IntegerKeys(L)),7) */
@@ -1034,7 +1034,7 @@ static void read_lua_parameters(lua_State * L, int f)
 static void read_lua_math_parameters(lua_State * L, int f)
 {
     int i = 0, n = 0;
-    //lua_getfield(L, -1, "MathConstants");
+    /*lua_getfield(L, -1, "MathConstants");*/
     lua_key_rawgeti(MathConstants);
     if (lua_istable(L, -1)) {
         lua_pushnil(L);
@@ -1531,7 +1531,7 @@ int font_from_lua(lua_State * L, int f)
     read_lua_cidinfo(L, f);
 
     /* characters */
-    //lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(characters));lua_rawget(L, -2);
+    /*lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(characters));lua_rawget(L, -2);*/
     lua_key_rawgeti(characters);
      /*lua_getfield(L, -1, "characters");*/
     if (lua_istable(L, -1)) {
