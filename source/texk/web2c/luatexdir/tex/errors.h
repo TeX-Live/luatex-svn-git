@@ -40,6 +40,13 @@ extern int interactionoption;   /* set from command line */
 extern void initialize_errors(void);
 
 extern char *last_error;
+extern char *last_lua_error;
+extern char *last_warning_tag;
+extern char *last_warning_str;
+extern char *last_error_context;
+
+extern void set_last_error_context(void);
+
 extern void print_err(const char *s);
 
 extern void fixup_selector(boolean log_opened);
@@ -85,27 +92,19 @@ extern void int_error(int n);
 extern void normalize_selector(void);
 extern void succumb(void);
 extern void fatal_error(const char *s);
-extern void lua_norm_error(const char *s);
-extern void lua_fatal_error(const char *s);
 extern void overflow(const char *s, unsigned int n);
 extern void confusion(const char *s);
 extern void check_interrupt(void);
 extern void pause_for_instructions(void);
 
 extern void tex_error(const char *msg, const char **hlp);
+extern void normal_error(const char *t, const char *p);
+extern void normal_warning(const char *t, const char *p, boolean pr, boolean ap);
 
 extern void back_error(void);
 extern void ins_error(void);
 extern void flush_err(void);
 
 extern void char_warning(internal_font_number f, int c);
-
-/*
-    these will become normal_error and normal_warning contrary to tex_error that has
-    additional help
-*/
-
-extern void normal_error(const char *t, const char *p);
-extern void normal_warning(const char *t, const char *p, boolean pr, boolean ap);
 
 #endif

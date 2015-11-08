@@ -1,5 +1,5 @@
 /* lcallbacklib.c
-   
+
    Copyright 2006-2008 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -67,12 +67,13 @@ static const char *const callbacknames[] = {
     "finish_pdfpage",
     "pre_dump","start_file", "stop_file",
     "show_error_message","show_lua_error_hook",
+    "show_warning_message",
     NULL
 };
 
 int callback_callbacks_id = 0;
 
-int debug_callback_defined(int i) 
+int debug_callback_defined(int i)
 {
     printf ("callback_defined(%s)\n", callbacknames[i]);
     return callback_set[i];
@@ -330,8 +331,8 @@ int do_run_callback(int special, const char *values, va_list vl)
         lua_active--;
         /* lua_remove(L, base); *//* remove traceback function */
         if (i != 0) {
-            /* Can't be more precise here, could be called before 
-             * TeX initialization is complete 
+            /* Can't be more precise here, could be called before
+             * TeX initialization is complete
              */
             if (!log_opened_global) {
                 fprintf(stderr, "This went wrong: %s\n", lua_tostring(L, -1));

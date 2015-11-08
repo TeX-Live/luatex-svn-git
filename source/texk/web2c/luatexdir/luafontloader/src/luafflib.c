@@ -213,7 +213,8 @@ static int ff_open(lua_State * L)
     }
     args = lua_gettop(L);
     if (args >= 2 && lua_isstring(L, 2)) {
-        if (*(fontname + strlen(fontname)) != ')') {
+        len = strlen(fontname);
+        if (*(fontname + len) != ')') {
             /* possibly fails for embedded parens in the font name */
             if (len == 0) {
                 snprintf(s, 511, "%s", fontname);
@@ -458,15 +459,15 @@ static void dump_subtable_name(lua_State * L, const char *name, struct lookup_su
     int k = 1; \
     next = b; \
     while (next != NULL) { \
-	lua_checkstack(L,2); \
-	lua_pushnumber(L,k); k++; \
-	lua_createtable(L,0,d); \
-	if (a(L, next, c)) \
-	    lua_rawset(L,-3); \
-	else { \
-	    lua_pop(L,2); \
-	} \
-    next = next->next; \
+        lua_checkstack(L,2); \
+        lua_pushnumber(L,k); k++; \
+        lua_createtable(L,0,d); \
+        if (a(L, next, c)) \
+            lua_rawset(L,-3); \
+        else { \
+            lua_pop(L,2); \
+        } \
+        next = next->next; \
     } \
 }
 

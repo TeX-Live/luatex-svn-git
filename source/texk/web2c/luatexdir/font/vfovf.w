@@ -204,6 +204,8 @@ vf_local_font_warning(internal_font_number f, internal_font_number k,
 
 @ process a local font in \.{VF} file
 @c
+int level = 0;
+
 static internal_font_number
 vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
 {
@@ -264,20 +266,26 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
         (*vf_cr)++;
         append_char(junk);
     }
-    s = make_string();
-    st = makecstring(s);
-    k = tfm_lookup(st, fs);
-    if (k == null_font)
-        k = read_font_info(null_cs, st, fs, -1);
-    free(st);
-    if (k != null_font) {
-        if (checksum != 0 && font_checksum(k) != 0
-            && checksum != font_checksum(k))
-            vf_local_font_warning(f, k, "checksum mismatch", (int) checksum,
-                                  (int) font_checksum(k));
-        if (ds != font_dsize(k))
-            vf_local_font_warning(f, k, "design size mismatch", ds,
-                                  font_dsize(k));
+    if (level > 5) {
+        k = f ; /* so we just refer to the current font */
+    } else {
+        level += 1 ;
+        s = make_string();
+        st = makecstring(s);
+        k = tfm_lookup(st, fs);
+        if (k == null_font)
+            k = read_font_info(null_cs, st, fs, -1);
+        free(st);
+        level -= 1 ;
+        if (k != null_font) {
+            if (checksum != 0 && font_checksum(k) != 0
+                && checksum != font_checksum(k))
+                vf_local_font_warning(f, k, "checksum mismatch", (int) checksum,
+                                      (int) font_checksum(k));
+            if (ds != font_dsize(k))
+                vf_local_font_warning(f, k, "design size mismatch", ds,
+                                      font_dsize(k));
+        }
     }
     return k;
 }

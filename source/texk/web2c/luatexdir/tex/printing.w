@@ -29,6 +29,7 @@
 #define wlog(A)      fputc(A,log_file)
 #define wterm(A)     fputc(A,term_out)
 
+int new_string_line = 0;
 
 @ Messages that are sent to a user's terminal and to the transcript-log file
 are produced by several `|print|' procedures. These procedures will
@@ -101,8 +102,12 @@ void print_ln(void)
         term_offset = 0;
         break;
     case no_print:
+        break;
     case pseudo:
+        break;
     case new_string:
+        if (new_string_line > 0)
+            print_char(new_string_line);
         break;
     default:
         fprintf(write_file[selector], "\n");
@@ -308,9 +313,12 @@ string appears at the beginning of a new line.
 @c
 void print_nlp(void)
 {                               /* move to beginning of a line */
-    if (((term_offset > 0) && (odd(selector))) ||
-        ((file_offset > 0) && (selector >= log_only)))
+    if (new_string_line > 0) {
+        print_char(new_string_line);
+    } else if (((term_offset > 0) && (odd(selector))) ||
+               ((file_offset > 0) && (selector >= log_only))) {
         print_ln();
+    }
 }
 
 void print_nl(str_number s)

@@ -2240,7 +2240,6 @@ The subtables table has:
 \NC kernclass        \NC table    \NC (only if used)\NC \NR
 \stoptabulate
 
-
 The kernclass with subtables table has:
 
 \starttabulate[|lT|l|p|]
@@ -2250,6 +2249,10 @@ The kernclass with subtables table has:
 \NC lookup    \NC string or array \NC associated lookup(s) \NC \NR
 \NC offsets   \NC array of numbers  \NC \NC \NR
 \stoptabulate
+
+Note: the kernclass (as far as we can see) always has one entry so it could be one level
+deep instead. Also the seconds start at \type {[2]} which is close to the fontforge
+internals so we keep that too.
 
 \subsubsubsection{gsub table}
 
@@ -4724,7 +4727,11 @@ The current list is:
 \NC filename           \NC name of the current input file \NC \NR
 \NC inputid            \NC numeric id of the current input \NC \NR
 \NC linenumber         \NC location in the current input file \NC \NR
-\NC lasterrorstring    \NC last error string\NC \NR
+\NC lasterrorstring    \NC last tex error string \NC \NR
+\NC lastluaerrorstring \NC last lua error string \NC \NR
+\NC lastwarningtag     \NC last warning string\NC \NR
+\NC lastwarningstring  \NC last warning tag, normally an indication of in what part\NC \NR
+\NC lasterrorcontext   \NC last error context string (with newlines) \NC \NR
 \NC luabytecodes       \NC number of active \LUA\ bytecode registers \NC \NR
 \NC luabytecode_bytes  \NC number of bytes in \LUA\ bytecode registers \NC \NR
 \NC luastate_bytes     \NC number of bytes in use by \LUA\ interpreters \NC \NR
@@ -4737,6 +4744,9 @@ The current list is:
 \NC luatex_revision    \NC the luatex revision string \NC \NR
 \NC ini_version        \NC \type {true} if this is an \INITEX\ run \NC \NR
 \stoptabulate
+
+The error and warning messages can be wiped with the \type {resetmessages}
+function.
 
 \section{The \type {tex} library}
 

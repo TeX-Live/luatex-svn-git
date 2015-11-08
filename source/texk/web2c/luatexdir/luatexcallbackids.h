@@ -60,7 +60,8 @@ typedef enum {
     finish_pdfpage_callback,
     pre_dump_callback,
     start_file_callback, stop_file_callback,
-    show_error_message_callback,show_lua_error_hook_callback,
+    show_error_message_callback, show_lua_error_hook_callback,
+    show_warning_message_callback,
     total_callbacks
 } callback_callback_types;
 
@@ -126,7 +127,7 @@ static const char *const filetypes_right[] = { "?", ")", "}", ">", ">", ">>" } ;
             (void) run_callback(report_id, "dS->",left,name); \
         } \
     } \
-} while (0) 
+} while (0)
 
 #define report_stop_file(right) do { \
     if (tracefilenames) { \

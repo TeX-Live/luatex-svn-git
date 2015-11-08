@@ -28,7 +28,6 @@ luafflib.c
 @ @c
 #define new_line_char int_par(new_line_char_code)
 
-
 @ When something anomalous is detected, \TeX\ typically does something like this:
 $$\vbox{\halign{#\hfil\cr
 |print_err("Something anomalous has been detected");|\cr
@@ -58,8 +57,35 @@ int interactionoption;          /* set from command line */
 /* ls-hh: so, new code only kicks in when we have a callback defined */
 
 char *last_error = NULL;
+char *last_lua_error = NULL;
+char *last_warning_tag = NULL;
+char *last_warning_str = NULL;
+char *last_error_context = NULL;
+
 int err_old_setting = 0 ;
 int in_error = 0 ;
+
+void set_last_error_context(void)
+{
+    str_number str;
+    int sel = selector;
+    int saved_new_line_char;
+    int saved_new_string_line;
+    selector = new_string;
+    saved_new_line_char = new_line_char;
+    saved_new_string_line = new_string_line;
+    new_line_char = 10;
+    new_string_line = 10;
+    show_context();
+    xfree(last_error_context);
+    str = make_string();
+    last_error_context = makecstring(str);
+    flush_str(str);
+    selector = sel;
+    new_line_char = saved_new_line_char;
+    new_string_line = saved_new_string_line;
+    return;
+}
 
 void flush_err(void)
 {
@@ -135,7 +161,6 @@ void fixup_selector(boolean logopened)
     if (logopened)
         selector = selector + 2;
 }
-
 
 @ A global variable |deletions_allowed| is set |false| if the |get_next|
 routine is active when |error| is called; this ensures that |get_next|
@@ -222,6 +247,7 @@ void error(void)
         history = error_message_issued;
     callback_id = callback_defined(show_error_hook_callback);
     if (callback_id > 0) {
+        set_last_error_context();
         run_callback(callback_id, "->");
     } else {
         print_char('.');
@@ -475,36 +501,6 @@ void fatal_error(const char *s)
     succumb();
 }
 
-@ @c
-void lua_norm_error(const char *s)
-{                               /* lua found a problem */
-    int saved_new_line_char;
-    int report_id ;
-    saved_new_line_char = new_line_char;
-    new_line_char = 10;
-    report_id = callback_defined(show_lua_error_hook_callback);
-    if (report_id == 0) {
-        print_err("LuaTeX error ");
-        tprint(s);
-    } else {
-        (void) run_callback(report_id, "->");
-    }
-    help2("The lua interpreter ran into a problem, so the",
-          "remainder of this lua chunk will be ignored.");
-    error();
-    new_line_char = saved_new_line_char;
-}
-
-@ @c
-void lua_fatal_error(const char *s)
-{                               /* lua found a problem */
-    new_line_char = 10;
-    normalize_selector();
-    print_err("LuaTeX fatal error ");
-    tprint(s);
-    succumb();
-}
-
 @ Here is the most dreaded error message
 @c
 void overflow(const char *s, unsigned int n)
@@ -544,7 +540,6 @@ void confusion(const char *s)
     }
     succumb();
 }
-
 
 @ Users occasionally want to interrupt \TeX\ while it's running.
 If the runtime system allows this, one can implement
@@ -663,11 +658,6 @@ void char_warning(internal_font_number f, int c)
     }
 }
 
-/*
-    these will become normal_error and normal_warning contrary to tex_error that has
-    additional help
-*/
-
 @ @c
 void normal_error(const char *t, const char *p)
 {
@@ -687,19 +677,48 @@ void normal_error(const char *t, const char *p)
 @ @c
 void normal_warning(const char *t, const char *p, boolean prepend_nl, boolean append_nl)
 {
-    if (prepend_nl)
-        print_ln();
-    tprint("warning ");
-    if (t != NULL) {
-        tprint(" (");
-        tprint(t);
-        tprint(")");
+    int report_id ;
+    if (strcmp(t,"lua") == 0) {
+        int saved_new_line_char;
+        saved_new_line_char = new_line_char;
+        new_line_char = 10;
+        report_id = callback_defined(show_lua_error_hook_callback);
+        if (report_id == 0) {
+            tprint(p);
+            help2("The lua interpreter ran into a problem, so the",
+                  "remainder of this lua chunk will be ignored.");
+        } else {
+            (void) run_callback(report_id, "->");
+        }
+        error();
+        new_line_char = saved_new_line_char;
+    } else {
+        report_id = callback_defined(show_warning_message_callback);
+        if (report_id > 0) {
+            /* free last ones */
+            xfree(last_warning_str);
+            xfree(last_warning_tag);
+            last_warning_str = (string) xmalloc(strlen(t) + 1);
+            last_warning_tag = (string) xmalloc(strlen(p) + 1);
+            strcpy(last_warning_str,t);
+            strcpy(last_warning_tag,p);
+            run_callback(report_id, "->");
+        } else {
+            if (prepend_nl)
+                print_ln();
+            tprint("warning ");
+            if (t != NULL) {
+                tprint(" (");
+                tprint(t);
+                tprint(")");
+            }
+            tprint(": ");
+            if (p != NULL)
+                tprint(p);
+            if (append_nl)
+                print_ln();
+        }
+        if (history == spotless)
+            history = warning_issued;
     }
-    tprint(": ");
-    if (p != NULL)
-        tprint(p);
-    if (append_nl)
-        print_ln();
-    if (history == spotless)
-        history = warning_issued;
 }

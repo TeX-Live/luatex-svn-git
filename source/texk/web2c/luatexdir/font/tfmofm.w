@@ -539,6 +539,8 @@ scaled store_scaled_f(scaled sq, scaled z_in)
         sq = sq / 256;
         a = (eight_bits) ((sq + 128) % 256);
     }
+    if (beta==0)
+        normal_error("vf", "vf scaling");
     sw = (((((d * z) >> 8) + (c * z)) >> 8) + (b * z)) / beta;
     if (a == 0)
         return sw;
@@ -768,6 +770,10 @@ int read_tfm_info(internal_font_number f, const char *cnom, scaled s)
         alpha = alpha + alpha;
     };
     beta = (char) (256 / alpha);
+
+    /* beta cannot be zero */
+    if (beta==0)
+       normal_error("vf", "vf reading");
     alpha = alpha * z;
 
     /* Read box dimensions */
