@@ -68,14 +68,9 @@ const_string LUATEX_IHELP[] = {
     "",
     "  The following regular options are understood: ",
     "",
-    "   --8bit                        ignored, input is assumed to be in UTF-8 encoding",
     "   --credits                     display credits and exit",
     "   --debug-format                enable format debugging",
-    "   --default-translate-file=FILE ignored, input is assumed to be in UTF-8 encoding",
-    "   --disable-write18             disable \\write18{SHELL COMMAND}",
     "   --draftmode                   switch on draft mode (generates no output PDF)",
-    "   --enable-write18              enable \\write18{SHELL COMMAND}",
-    "   --etex                        ignored, the etex extensions are always active",
     "   --[no-]file-line-error        disable/enable file:line:error style messages",
     "   --[no-]file-line-error-style  aliases of --[no-]file-line-error",
     "   --fmt=FORMAT                  load the format file FORMAT",
@@ -91,29 +86,37 @@ const_string LUATEX_IHELP[] = {
     "   --output-comment=STRING       use STRING for DVI file comment instead of date (no effect for PDF)",
     "   --output-directory=DIR        use existing DIR as the directory to write files in",
     "   --output-format=FORMAT        use FORMAT for job output; FORMAT is 'dvi' or 'pdf'",
-    "   --[no-]parse-first-line       ignored",
     "   --progname=STRING             set the program name to STRING",
     "   --recorder                    enable filename recorder",
     "   --safer                       disable easily exploitable lua commands",
     "   --[no-]shell-escape           disable/enable \\write18{SHELL COMMAND}",
     "   --shell-restricted            restrict \\write18 to a list of commands given in texmf.cnf",
     "   --synctex=NUMBER              enable synctex",
-    "   --translate-file=FILE         ignored, input is assumed to be in UTF-8 encoding",
     "   --version                     display version and exit",
     "",
     "Alternate behaviour models can be obtained by special switches",
     "",
-    "  --luaonly                run a lua file, then exit",
-    "  --luaconly               byte-compile a lua file, then exit",
-    "  --luahashchars           the bits used by current Lua interpreter for strings hashing",
+    "  --luaonly                      run a lua file, then exit",
+    "  --luaconly                     byte-compile a lua file, then exit",
+    "  --luahashchars                 the bits used by current Lua interpreter for strings hashing",
 #ifdef LuajitTeX
-    "  --jiton                  turns the JIT compiler on (default off)",
-    "  --jithash=STRING         choose the hash function for the lua strings (lua51|luajit20: default lua51)",
+    "  --jiton                        turns the JIT compiler on (default off)",
+    "  --jithash=STRING               choose the hash function for the lua strings (lua51|luajit20: default lua51)",
 #endif
     "",
     "See the reference manual for more information about the startup process.",
     NULL
 };
+
+/*
+    "   --8bit                        ignored, input is assumed to be in UTF-8 encoding",
+    "   --default-translate-file=FILE ignored, input is assumed to be in UTF-8 encoding",
+    "   --etex                        ignored, the etex extensions are always active",
+    "   --disable-write18             disable \\write18{SHELL COMMAND}",
+    "   --enable-write18              enable \\write18{SHELL COMMAND}",
+    "   --[no-]parse-first-line       ignored",
+    "   --translate-file=FILE         ignored, input is assumed to be in UTF-8 encoding",
+*/
 
 @ The return value will be the directory of the executable, e.g.: \.{c:/TeX/bin}
 @c
@@ -198,54 +201,66 @@ option table in a variable |long_options|.
 @c
 #define ARGUMENT_IS(a) STREQ (long_options[option_index].name, a)
 
-/* SunOS cc can't initialize automatic structs, so make this static.  */
-static struct option long_options[]
-= { {"fmt", 1, 0, 0},
-{"lua", 1, 0, 0},
-{"luaonly", 0, 0, 0},
-{"luahashchars", 0, 0, 0},
+/*
+    SunOS cc can't initialize automatic structs, so make this static.
+*/
+
+/*
+    Nota Bene: we still intercept some options that other engines handle
+    so that existing scripted usage will not fail.
+*/
+
+static struct option long_options[] = {
+    {"fmt", 1, 0, 0},
+    {"lua", 1, 0, 0},
+    {"luaonly", 0, 0, 0},
+    {"luahashchars", 0, 0, 0},
 #ifdef LuajitTeX
-{"jiton", 0, 0, 0},
-{"jithash", 1, 0, 0},
+    {"jiton", 0, 0, 0},
+    {"jithash", 1, 0, 0},
 #endif
-{"safer", 0, &safer_option, 1},
-{"nosocket", 0, &nosocket_option, 1},
-{"help", 0, 0, 0},
-{"ini", 0, &ini_version, 1},
-{"interaction", 1, 0, 0},
-{"halt-on-error", 0, &haltonerrorp, 1},
-{"kpathsea-debug", 1, 0, 0},
-{"progname", 1, 0, 0},
-{"version", 0, 0, 0},
-{"credits", 0, 0, 0},
-{"recorder", 0, &recorder_enabled, 1},
-{"etex", 0, 0, 0},
-{"output-comment", 1, 0, 0},
-{"output-directory", 1, 0, 0},
-{"draftmode", 0, 0, 0},
-{"output-format", 1, 0, 0},
-{"shell-escape", 0, &shellenabledp, 1},
-{"no-shell-escape", 0, &shellenabledp, -1},
-{"enable-write18", 0, &shellenabledp, 1},
-{"disable-write18", 0, &shellenabledp, -1},
-{"shell-restricted", 0, 0, 0},
-{"debug-format", 0, &debug_format_file, 1},
-{"file-line-error-style", 0, &filelineerrorstylep, 1},
-{"no-file-line-error-style", 0, &filelineerrorstylep, -1},
-      /* Shorter option names for the above. */
-{"file-line-error", 0, &filelineerrorstylep, 1},
-{"no-file-line-error", 0, &filelineerrorstylep, -1},
-{"jobname", 1, 0, 0},
-{"parse-first-line", 0, &parsefirstlinep, 1},
-{"no-parse-first-line", 0, &parsefirstlinep, -1},
-{"translate-file", 1, 0, 0},
-{"default-translate-file", 1, 0, 0},
-{"8bit", 0, 0, 0},
-{"mktex", 1, 0, 0},
-{"no-mktex", 1, 0, 0},
-/* Synchronization: just like "interaction" above */
-{"synctex", 1, 0, 0},
-{0, 0, 0, 0}
+    {"safer", 0, &safer_option, 1},
+    {"nosocket", 0, &nosocket_option, 1},
+    {"help", 0, 0, 0},
+    {"ini", 0, &ini_version, 1},
+    {"interaction", 1, 0, 0},
+    {"halt-on-error", 0, &haltonerrorp, 1},
+    {"kpathsea-debug", 1, 0, 0},
+    {"progname", 1, 0, 0},
+    {"version", 0, 0, 0},
+    {"credits", 0, 0, 0},
+    {"recorder", 0, &recorder_enabled, 1},
+    {"etex", 0, 0, 0},
+    {"output-comment", 1, 0, 0},
+    {"output-directory", 1, 0, 0},
+    {"draftmode", 0, 0, 0},
+    {"output-format", 1, 0, 0},
+    {"shell-escape", 0, &shellenabledp, 1},
+    {"no-shell-escape", 0, &shellenabledp, -1},
+    {"enable-write18", 0, &shellenabledp, 1},
+    {"disable-write18", 0, &shellenabledp, -1},
+    {"shell-restricted", 0, 0, 0},
+    {"debug-format", 0, &debug_format_file, 1},
+    {"file-line-error-style", 0, &filelineerrorstylep, 1},
+    {"no-file-line-error-style", 0, &filelineerrorstylep, -1},
+
+    /* Shorter option names for the above. */
+
+    {"file-line-error", 0, &filelineerrorstylep, 1},
+    {"no-file-line-error", 0, &filelineerrorstylep, -1},
+    {"jobname", 1, 0, 0},
+    {"parse-first-line", 0, &parsefirstlinep, 1},
+    {"no-parse-first-line", 0, &parsefirstlinep, -1},
+    {"translate-file", 1, 0, 0},
+    {"default-translate-file", 1, 0, 0},
+    {"8bit", 0, 0, 0},
+    {"mktex", 1, 0, 0},
+    {"no-mktex", 1, 0, 0},
+
+    /* Synchronization: just like "interaction" above */
+
+    {"synctex", 1, 0, 0},
+    {0, 0, 0, 0}
 };
 
 @ @c
