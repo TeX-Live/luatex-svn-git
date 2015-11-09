@@ -678,6 +678,17 @@ do the following:
 \def\Umathcharslot {\directlua{tex.print(tex.getmathcode(token.scan_int())[3])}}
 \stoptyping
 
+\section{fractions}
+
+The \type {\abovewithdelims} command accepts a keyword \type {exact}. When issued
+the extra space relative to the rule thickness is not added. One can of course
+use the \type {\Umathfraction..gap} commands to influence the spacing. Also the
+rule is still positioned around the math axis.
+
+\starttyping
+$$ { {a} \abovewithdelims() exact 4pt {b} }$$
+\stoptyping
+
 \section {Other Math changes}
 
 \subsection {Verbose versions of single-character math commands}

@@ -2341,7 +2341,7 @@ static void make_math_accent(pointer q, int cur_style)
 static void make_fraction(pointer q, int cur_style)
 {
     pointer p, v, x, y, z; /* temporary registers for box construction */
-    scaled delta, delta1, delta2, shift_up, shift_down, clr;
+    scaled delta, delta1, delta2, shift_up, shift_down, clr1, clr2;
     /* dimensions for box calculations */
     if (thickness(q) == default_code)
         thickness(q) = fraction_rule(cur_style);
@@ -2364,8 +2364,8 @@ static void make_fraction(pointer q, int cur_style)
             clearance, called |clr| in the following program. The difference between
             |clr| and the actual clearance is |2delta|.
         */
-        clr = stack_vgap(cur_style);
-        delta = half(clr - ((shift_up - depth(x)) - (height(z) - shift_down)));
+        clr1 = stack_vgap(cur_style);
+        delta = half(clr1 - ((shift_up - depth(x)) - (height(z) - shift_down)));
         if (delta > 0) {
             shift_up = shift_up + delta;
             shift_down = shift_down + delta;
@@ -2377,17 +2377,25 @@ static void make_fraction(pointer q, int cur_style)
             in the case of a fraction line, the minimum clearance depends on the actual
             thickness of the line.
         */
+        clr1 = fraction_num_vgap(cur_style);
+        clr2 = fraction_denom_vgap(cur_style);
         delta = half(thickness(q));
-        clr = fraction_num_vgap(cur_style);
-        clr = ext_xn_over_d(clr, thickness(q), fraction_rule(cur_style));
-        delta1 = clr - ((shift_up - depth(x)) - (math_axis(cur_size) + delta));
-        if (delta1 > 0)
+        if (fractionexact(q)) {
+            delta1 = clr1 - ((shift_up   - depth(x) ) - (math_axis(cur_size) + delta));
+            delta2 = clr2 - ((shift_down - height(z)) + (math_axis(cur_size) - delta));
+        } else {
+            delta = half(thickness(q));
+            clr1 = ext_xn_over_d(clr1, thickness(q), fraction_rule(cur_style));
+            clr2 = ext_xn_over_d(clr2, thickness(q), fraction_rule(cur_style));
+            delta1 = clr1 - ((shift_up   - depth(x) ) - (math_axis(cur_size) + delta));
+            delta2 = clr2 - ((shift_down - height(z)) + (math_axis(cur_size) - delta));
+        }
+        if (delta1 > 0) {
             shift_up = shift_up + delta1;
-        clr = fraction_denom_vgap(cur_style);
-        clr = ext_xn_over_d(clr, thickness(q), fraction_rule(cur_style));
-        delta2 = clr - ((math_axis(cur_size) - delta) - (height(z) - shift_down));
-        if (delta2 > 0)
+        }
+        if (delta2 > 0) {
             shift_down = shift_down + delta2;
+        }
     }
     /*
         construct a vlist box for the fraction, according to |shift_up| and |shift_down|

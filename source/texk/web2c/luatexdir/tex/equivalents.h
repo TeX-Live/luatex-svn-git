@@ -275,10 +275,10 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define draft_mode_code 71
 #  define tracing_fonts_code 72
 
-#  define math_no_italic_compensation_code 73
-#  define math_no_char_italic_code 74
-#  define math_use_old_fraction_scaling_code 75
-#  define math_old_code 76
+#  define math_no_italic_compensation_code 73    /* just for tracing, can change */
+#  define math_no_char_italic_code 74            /* just for tracing, can change */
+#  define math_use_old_fraction_scaling_code 75  /* just for tracing, can change */
+#  define math_old_code 76                       /* this one is stable */
 
 #  define math_option_code 77
 

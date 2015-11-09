@@ -1823,6 +1823,7 @@ void math_fraction(void)
 {
     halfword c;                 /* the type of generalized fraction we are scanning */
     pointer q;
+    halfword options = 0;
     c = cur_chr;
     if (incompleat_noad != null) {
         const char *hlp[] = {
@@ -1856,6 +1857,14 @@ void math_fraction(void)
         }
         switch (c % delimited_code) {
         case above_code:
+            while (1) {
+                if (scan_keyword("exact")) {
+                    options = options | noad_option_exact ;
+                } else {
+                    break;
+                }
+            }
+            fractionoptions(incompleat_noad) = options;
             scan_normal_dimen();
             thickness(incompleat_noad) = cur_val;
             break;
@@ -1868,8 +1877,6 @@ void math_fraction(void)
         }                       /* there are no other cases */
     }
 }
-
-
 
 @ At the end of a math formula or subformula, the |fin_mlist| routine is
 called upon to return a pointer to the newly completed mlist, and to
