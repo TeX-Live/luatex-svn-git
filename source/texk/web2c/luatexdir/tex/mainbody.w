@@ -492,14 +492,10 @@ This program doesn't bother to close the input files that may still be open.
 @c
 void close_files_and_terminate(void)
 {
-    int k;                      /* all-purpose index */
     int callback_id;
     PDF pdf = static_pdf;
     callback_id = callback_defined(stop_run_callback);
-    /* Finish the extensions */
-    for (k = 0; k <= 15; k++)
-        if (write_open[k])
-            lua_a_close_out(write_file[k]);
+    finalize_write_files();
     if (int_par(tracing_stats_code) > 0) {
         if (callback_id == 0) {
             /* Output statistics about this job */

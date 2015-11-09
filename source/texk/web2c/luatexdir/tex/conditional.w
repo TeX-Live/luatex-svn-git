@@ -418,8 +418,9 @@ void conditional(void)
         scanner_status = save_scanner_status;
         break;
     case if_eof_code:
+        /* bad this system check here as it's an extension*/
         scan_four_bit_int_or_18();
-        if (cur_val == 18)
+        if (cur_val == write_target_system)
             b = !shellenabledp;
         else
             b = (read_open[cur_val] == closed);

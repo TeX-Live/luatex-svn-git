@@ -21,8 +21,6 @@
 \def\pdfTeX{pdf\TeX}
 
 @ @c
-
-
 #include "ptexlib.h"
 
 @ @c
@@ -33,6 +31,7 @@
 #define dir_save      cur_list.dirs_field
 
 #define tracing_nesting int_par(tracing_nesting_code)
+#define tracing_online int_par(tracing_online_code)
 #define box(A) eqtb[box_base+(A)].hh.rh
 #define global_defs int_par(global_defs_code)
 #define cat_code_table int_par(cat_code_table_code)
@@ -100,21 +99,20 @@ greater than 15, while |write_open[17]| represents a negative stream number,
 and both of these variables are always |false|.
 
 @c
-alpha_file write_file[16];
-halfword write_file_mode[16];
-halfword write_file_translation[16];
-boolean write_open[18];
+alpha_file write_file[last_file_selector+1];
+halfword write_file_mode[last_file_selector+1];
+halfword write_file_translation[last_file_selector+1];
+boolean write_open[last_write_open+1];
+
 scaled neg_wd;
 scaled pos_wd;
 scaled neg_ht;
-
 
 @ The variable |write_loc| just introduced is used to provide an
 appropriate error message in case of ``runaway'' write texts.
 
 @c
 halfword write_loc;             /* |eqtb| address of \.{\\write} */
-
 
 /*
     hh: eventually i'll make \pdfextension a lua token parsed function;
@@ -335,7 +333,6 @@ void do_extension_pdf(int immediate)
     }
 }
 
-
 void do_resource_dvi(int immediate, int code)
 {
 }
@@ -386,10 +383,32 @@ void do_resource_pdf(int immediate, int code)
 
 /* extensions are backend related */
 
+@ The next subroutine uses |cur_chr| to decide what sort of whatsit is
+involved, and also inserts a |write_stream| number.
+
+@c
+static void new_write_whatsit(int w, int check)
+{
+    new_whatsit(cur_chr);
+    if (check) {
+        /* so we check with open and close */
+        scan_limited_int(last_file_selector,NULL);
+    } else {
+        /* but we're tolerant with the rest */
+        scan_int();
+        if (cur_val < 0)
+            cur_val = term_only;
+        else if ((cur_val > last_file_selector) || (cur_val == write_target_direct) || (cur_val == write_target_special)) {
+            /* hh: i need to check what 17 is supposed to do. so let's kind of reserve it  */
+            cur_val = write_target_overflow;
+        }
+    }
+    write_stream(tail) = cur_val;
+}
+
 void do_extension(int immediate)
 {
-    int k;                   /* all-purpose integers */
-    halfword p;              /* all-purpose pointer */
+    halfword p; /* all-purpose pointer */
     if (cur_cmd == extension_cmd) {
         /* these have their own range starting at 0 */
         switch (cur_chr) {
@@ -415,9 +434,8 @@ void do_extension(int immediate)
                 token list is rescanned.
             */
             p = tail;
-            k = cur_cs;
             new_write_whatsit(write_node_size,0);
-            cur_cs = k;
+            cur_cs = write_stream(tail);
             scan_toks(false, false);
             write_tokens(tail) = def_ref;
             if (immediate) {
@@ -503,30 +521,171 @@ void new_whatsit(int s)
     tail = p;
 }
 
-
-@ The next subroutine uses |cur_chr| to decide what sort of whatsit is
-involved, and also inserts a |write_stream| number.
-
-/* oh, let's get rid of this 18 ... */
+@ The final line of this routine is slightly subtle; at least, the author
+didn't think about it until getting burnt! There is a used-up token list
+@^Knuth, Donald Ervin@>
+on the stack, namely the one that contained |end_write_token|. (We
+insert this artificial `\.{\\endwrite}' to prevent runaways, as explained
+above.) If it were not removed, and if there were numerous writes on a
+single page, the stack would overflow.
 
 @c
-void new_write_whatsit(int w, int check)
+#define end_write_token cs_token_flag+end_write
+
+void expand_macros_in_tokenlist(halfword p)
 {
-    new_whatsit(cur_chr);
-    if (check) {
-        /* so we check with open and close */
-        scan_four_bit_int();
-    } else {
-        /* but we're tolerant with the rest */
-        scan_int();
-        if (cur_val < 0)
-            cur_val = 17;
-        else if ((cur_val > 15) && (cur_val != 18))
-            cur_val = 16;
+    int old_mode;               /* saved |mode| */
+    pointer q, r;               /* temporary variables for list manipulation */
+    q = get_avail();
+    token_info(q) = right_brace_token + '}';
+    r = get_avail();
+    token_link(q) = r;
+    token_info(r) = end_write_token;
+    begin_token_list(q, inserted);
+    begin_token_list(write_tokens(p), write_text);
+    q = get_avail();
+    token_info(q) = left_brace_token + '{';
+    begin_token_list(q, inserted);
+    /* now we're ready to scan
+       `\.\{$\langle\,$token list$\,\rangle$\.{\} \\endwrite}' */
+    old_mode = mode;
+    mode = 0;
+    /* disable \.{\\prevdepth}, \.{\\spacefactor}, \.{\\lastskip}, \.{\\prevgraf} */
+    cur_cs = write_loc;
+    q = scan_toks(false, true); /* expand macros, etc. */
+    get_token();
+    if (cur_tok != end_write_token) {
+        /* Recover from an unbalanced write command */
+        const char *hlp[] = {
+            "On this page there's a \\write with fewer real {'s than }'s.",
+            "I can't handle that very well; good luck.", NULL
+        };
+        tex_error("Unbalanced write command", hlp);
+        do {
+            get_token();
+        } while (cur_tok != end_write_token);
     }
-    write_stream(tail) = cur_val;
+    mode = old_mode;
+    end_token_list();           /* conserve stack space */
 }
 
+void write_out(halfword p)
+{
+    int old_setting;            /* holds print |selector| */
+    int j;                      /* write stream number */
+    boolean clobbered;          /* system string is ok? */
+    int ret;                    /* return value from |runsystem| */
+    char *s, *ss;               /* line to be written, as a C string */
+    int callback_id;
+    int lua_retval;
+    expand_macros_in_tokenlist(p);
+    old_setting = selector;
+    j = write_stream(p);
+    if (j == write_target_system) {
+        selector = new_string;
+    } else if (write_open[j]) {
+        selector = j;
+    } else if ((j == term_only) && (selector == term_and_log)) {
+        /* write to the terminal if file isn't open */
+        selector = log_only;
+        tprint_nl("");
+    } else {
+        tprint_nl("");
+    }
+    s = tokenlist_to_cstring(def_ref, false, NULL);
+    if (selector < no_print) {
+        /* selector is a file */
+        callback_id = callback_defined(process_output_buffer_callback);
+        if (callback_id > 0) {
+            /* fix up the output buffer using callbacks */
+            lua_retval = run_callback(callback_id, "S->S", s, &ss);
+            if ((lua_retval == true) && (ss != NULL)) {
+                xfree(s);
+                s = ss;
+            }
+        }
+    }
+    tprint(s);
+    xfree(s);
+    print_ln();
+    flush_list(def_ref);
+    if (j == write_target_system) {
+        cur_string[cur_length] = '\0';  /* Convert newline to null. */
+        if (tracing_online <= 0)
+            selector = log_only;        /* Show what we're doing in the log file. */
+        else
+            selector = term_and_log;    /* Show what we're doing. */
+        /* If the log file isn't open yet, we can only send output to the terminal.
+           Calling |open_log_file| from here seems to result in bad data in the log.
+         */
+        if (!log_opened_global)
+            selector = term_only;
+        tprint_nl("runsystem(");
+        tprint((char *) cur_string);
+        tprint(")...");
+        if (shellenabledp) {
+            clobbered = false;
+            if (strlen((char *) cur_string) != cur_length)
+                clobbered = true;
+            /* minimal checking: NUL not allowed in argument string of |system|() */
+            if (clobbered) {
+                tprint("clobbered");
+            } else {
+                /* We have the command.  See if we're allowed to execute it,
+                   and report in the log.  We don't check the actual exit status of
+                   the command, or do anything with the output. */
+                ret = runsystem((char *) cur_string);
+                if (ret == -1)
+                    tprint("quotation error in system command");
+                else if (ret == 0)
+                    tprint("disabled (restricted)");
+                else if (ret == 1)
+                    tprint("executed");
+                else if (ret == 2)
+                    tprint("executed safely (allowed)");
+            }
+        } else {
+            tprint("disabled"); /* |shellenabledp| false */
+        }
+        print_char('.');
+        tprint_nl("");
+        print_ln();
+        cur_length = 0;         /* erase the string */
+    }
+    selector = old_setting;
+}
+
+void finalize_write_files(void) {
+    int k;
+    for (k = 0; k <= last_file_selector; k++) {
+        if (write_open[k]) {
+            lua_a_close_out(write_file[k]);
+        }
+    }
+}
+
+void initialize_write_files(void) {
+    int k;
+    for (k = 0; k <= last_write_open; k++) {
+        write_open[k] = false;
+    }
+}
+
+void close_write_file(int id) {
+    if (write_open[id]) {
+        lua_a_close_out(write_file[id]);
+        write_open[id] = false;
+    }
+}
+
+boolean open_write_file(int id, char *fn) {
+    if (lua_a_open_out(&(write_file[id]), fn, (id + 1))) {
+        write_open[id] = true;
+        return true;
+    } else {
+        return false;
+    }
+}
 
 @ We have to check whether \.{\\outputmode} is set for using \pdfTeX{}
   extensions.
@@ -571,13 +730,11 @@ an \eTeX\ state variable named \.{\\...state}; the feature is enabled,
 resp.\ disabled by assigning a positive, resp.\ non-positive value to
 that integer.
 
-
 @ In order to handle \.{\\everyeof} we need an array |eof_seen| of
 boolean variables.
 
 @c
 boolean *eof_seen;              /* has eof been seen? */
-
 
 @ The |print_group| procedure prints the current level of grouping and
 the name corresponding to |cur_group|.
@@ -651,7 +808,6 @@ void print_group(boolean e)
     }
 }
 
-
 @ The |group_trace| procedure is called when a new level of grouping
 begins (|e=false|) or ends (|e=true|) with |saved_value(-1)| containing the
 line number.
@@ -680,7 +836,6 @@ and |cond_ptr| values for each input file.
 @c
 save_pointer *grp_stack;        /* initial |cur_boundary| */
 halfword *if_stack;             /* initial |cond_ptr| */
-
 
 @ When a group ends that was apparently entered in a different input
 file, the |group_warning| procedure is invoked in order to update the
@@ -727,7 +882,6 @@ void group_warning(void)
             history = warning_issued;
     }
 }
-
 
 @ When a conditional ends that was apparently started in a different
 input file, the |if_warning| procedure is invoked in order to update the
@@ -825,7 +979,6 @@ void file_warning(void)
 
 @ @c
 halfword last_line_fill;        /* the |par_fill_skip| glue node of the new paragraph */
-
 
 @ The lua interface needs some extra functions. The functions
 themselves are quite boring, but they are handy because otherwise this
@@ -1037,7 +1190,6 @@ int set_tex_box_height(int j, scaled v)
     return 0;
 }
 
-
 scaled get_tex_box_depth(int j)
 {
     halfword q = box(j);
@@ -1054,7 +1206,6 @@ int set_tex_box_depth(int j, scaled v)
     depth(q) = v;
     return 0;
 }
-
 
 @ This section is devoted to the {\sl Synchronize \TeX nology}
 - or simply {\sl Sync\TeX} - used to synchronize between input and output.
@@ -1089,7 +1240,6 @@ the {\sl Sync\TeX} related options, and the {\sl Sync\TeX} controller will read 
 @c
 int synctexoption;
 
-
 @ A convenient primitive is provided:
 \.{\\synctex=1} in the input source file enables synchronization whereas
 \.{\\synctex=0} disables it.
@@ -1105,7 +1255,6 @@ the correct value when quite everything is initialized.
 
 @c
 int synctexoffset;              /* holds the true value of |synctex_code| */
-
 
 @ Synchronization is achieved with the help of an auxiliary file named
 `\.{{\sl jobname}.synctex}' ({\sl jobname} is the contents of the
@@ -1168,7 +1317,6 @@ If the input comes from the terminal or a pseudo file, the |synctex_tag| is set 
 It results in automatically disabling synchronization for material
 input from the terminal or pseudo files.
 
-
 Synchronized nodes are boxes, math, kern and glue nodes.
 Other nodes should be synchronized too, in particular math noads.
 \TeX\ assumes that math, kern and glue nodes have the same size,
@@ -1192,7 +1340,6 @@ related code was there, including memory management.
 Of course, all this assumes that {\sl Sync\TeX} is turned off from the command line.
 @^synctex@>
 @^synchronization@>
-
 
 @ Here are extra variables for Web2c.  (This numbering of the
 system-dependent section allows easy integration of Web2c and e-\TeX, etc.)

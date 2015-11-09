@@ -20,13 +20,20 @@
 #ifndef PRINTING_H
 #  define PRINTING_H
 
+#define last_file_selector 127 /* was 15 */
+
+/*
+    Nicer will be to start these with 0 and then use an offset for the write
+    registers internally.
+*/
+
 typedef enum {
-    no_print     = 16, /* |selector| setting that makes data disappear */
-    term_only    = 17, /* printing is destined for the terminal only */
-    log_only     = 18, /* printing is destined for the transcript file only */
-    term_and_log = 19, /* normal |selector| setting */
-    pseudo       = 20, /* special |selector| setting for |show_context| */
-    new_string   = 21, /* printing is deflected to the string pool */
+    no_print     = last_file_selector + 1, /* 16 */ /* |selector| setting that makes data disappear */
+    term_only    = last_file_selector + 2, /* 17 */ /* printing is destined for the terminal only */
+    log_only     = last_file_selector + 3, /* 18 */ /* printing is destined for the transcript file only */
+    term_and_log = last_file_selector + 4, /* 19 */ /* normal |selector| setting */
+    pseudo       = last_file_selector + 5, /* 20 */ /* special |selector| setting for |show_context| */
+    new_string   = last_file_selector + 6, /* 21 */ /* printing is deflected to the string pool */
 } selector_settings;
 
 extern int new_string_line;

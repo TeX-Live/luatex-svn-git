@@ -240,8 +240,9 @@ implementations, due to machine-dependent rounding in the glue calculations.)
 @c
 void out_what(PDF pdf, halfword p)
 {
-    int j;                     /* write stream number */
     switch (subtype(p)) {      /* function(pdf, p) */
+    case special_node:         /* |pdf_special(pdf, p)|; */
+    case late_lua_node:        /* |late_lua(pdf, p)|; */
     case pdf_save_node:        /* |pdf_out_save(pdf, p)|; */
     case pdf_restore_node:     /* |pdf_out_restore(pdf, p)|; */
     case pdf_end_link_node:    /* |end_link(pdf, p)|; */
@@ -249,8 +250,6 @@ void out_what(PDF pdf, halfword p)
     case pdf_literal_node:     /* |pdf_out_literal(pdf, p)|; */
     case pdf_colorstack_node:  /* |pdf_out_colorstack(pdf, p)|; */
     case pdf_setmatrix_node:   /* |pdf_out_setmatrix(pdf, p)|; */
-    case special_node:         /* |pdf_special(pdf, p)|; */
-    case late_lua_node:        /* |late_lua(pdf, p)|; */
     case pdf_refobj_node:      /* |pdf_ref_obj(pdf, p)| */
         backend_out_whatsit[subtype(p)] (pdf, p);
         break;
@@ -259,25 +258,22 @@ void out_what(PDF pdf, halfword p)
     case close_node:
         /* do some work that has been queued up for \.{\\write} */
         if (!doing_leaders) {
-            j = write_stream(p);
+            int j = write_stream(p);
             if (subtype(p) == write_node) {
                 write_out(p);
-            } else {
-                if (write_open[j])
-                    lua_a_close_out(write_file[j]);
-                if (subtype(p) == close_node) {
-                    write_open[j] = false;
-                } else if (j < 16) {
-                    char *fn;
-                    cur_name = open_name(p);
-                    cur_area = open_area(p);
-                    cur_ext = open_ext(p);
-                    if (cur_ext == get_nullstr())
-                        cur_ext = maketexstring(".tex");
-                    fn = pack_file_name(cur_name, cur_area, cur_ext);
-                    while (!lua_a_open_out(&(write_file[j]), fn, (j + 1)))
-                        fn = prompt_file_name("output file name", ".tex");
-                    write_open[j] = true;
+            } else if (subtype(p) == close_node) {
+                close_write_file(j);
+            } else if (valid_write_file(j)) {
+                char *fn;
+                close_write_file(j);
+                cur_name = open_name(p);
+                cur_area = open_area(p);
+                cur_ext = open_ext(p);
+                if (cur_ext == get_nullstr())
+                    cur_ext = maketexstring(".tex");
+                fn = pack_file_name(cur_name, cur_area, cur_ext);
+                while (! open_write_file(j,fn)) {
+                    fn = prompt_file_name("output file name", ".tex");
                 }
             }
         }

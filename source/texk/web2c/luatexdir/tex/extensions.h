@@ -21,10 +21,27 @@
 #ifndef EXTENSIONS_H
 #  define EXTENSIONS_H
 
-extern alpha_file write_file[16];
-extern halfword write_file_mode[16];
-extern halfword write_file_translation[16];
-extern boolean write_open[18];
+# define write_target_direct   16
+# define write_target_special  17
+# define write_target_system   18
+# define write_target_overflow last_file_selector+16 /* a signal that we write to console */
+# define last_write_open       last_file_selector+2  /* keeps track of open state */
+
+extern alpha_file write_file[last_file_selector+1];
+extern halfword write_file_mode[last_file_selector+1];
+extern halfword write_file_translation[last_file_selector+1];
+extern boolean write_open[last_write_open+1];
+
+# define valid_write_file(n)    (((n>=0) && (n<16)) || ((n>18) && (n<last_file_selector)))
+# define file_can_be_written(n) (valid_write_file(n) && write_open[n])
+
+extern void expand_macros_in_tokenlist(halfword p);
+extern void write_out(halfword p);
+extern void finalize_write_files(void);
+extern void initialize_write_files(void);
+extern void close_write_file(int id);
+extern boolean open_write_file(int id, char *fn);
+
 extern scaled neg_wd;
 extern scaled pos_wd;
 extern scaled neg_ht;
@@ -57,7 +74,6 @@ type of the value depends on the |user_node_type| field.
 */
 
 extern void new_whatsit(int s);
-extern void new_write_whatsit(int w, int check);
 extern void scan_pdf_ext_toks(void);
 
 extern halfword concat_tokens(halfword q, halfword r);

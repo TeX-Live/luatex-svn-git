@@ -3615,9 +3615,8 @@ void initialize(void)
 
     format_ident = 0;
     format_name = get_nullstr();
-    for (k = 0; k <= 17; k++)
-        write_open[k] = false;
     initialize_directions();
+    initialize_write_files();
     seconds_and_micros(epochseconds, microseconds);
     init_start_time(static_pdf);
 

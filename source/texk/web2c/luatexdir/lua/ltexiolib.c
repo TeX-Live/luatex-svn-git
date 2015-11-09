@@ -1,5 +1,5 @@
 /* ltexiolib.c
-   
+
    Copyright 2006-2010 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -20,29 +20,40 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-
 typedef void (*texio_printer) (const char *);
 
 static char *loggable_info = NULL;
 
+/* lua_isstring(L, i) is also true for a number */
 
 static boolean get_selector_value(lua_State * L, int i, int *l)
 {
     boolean r = false;
-    if (lua_isstring(L, i)) {
+    if (lua_isstring(L,i)) {
         const char *s = lua_tostring(L, i);
-        if (lua_key_eq(s,log)) {
+        if (lua_key_eq(s,term_and_log)) {
+            *l = term_and_log;
+            r = true;
+        } else if (lua_key_eq(s,log)) {
             *l = log_only;
             r = true;
         } else if (lua_key_eq(s,term)) {
             *l = term_only;
             r = true;
-        } else if (lua_key_eq(s,term_and_log)) {
-            *l = term_and_log;
-            r = true;
+        } else if (lua_isnumber(L,i)) {
+            int n = lua_tonumber(L,i);
+            if (file_can_be_written(n)) {
+                *l = n;
+                r = true;
+            } else {
+                *l = term_and_log;
+                r = true;
+            }
+        } else {
+            luaL_error(L, "first argument is not 'term and log', 'term', 'log' or a number");
         }
     } else {
-        luaL_error(L, "first argument is not a string");
+        luaL_error(L, "first argument is not a string or number");
     }
     return r;
 }
@@ -54,15 +65,16 @@ static int do_texio_print(lua_State * L, texio_printer printfunction)
     int save_selector = selector;
     int n = lua_gettop(L);
     if (n == 0 || !lua_isstring(L, -1)) {
-	luaL_error(L, "no string to print");
+        luaL_error(L, "no string to print");
     }
     if (n > 1) {
         if (get_selector_value(L, i, &selector))
             i++;
     }
-    if (selector != log_only && selector != term_only
-        && selector != term_and_log) {
-        normalize_selector();   /* sets selector */
+    if (selector != log_only && selector != term_only && selector != term_and_log) {
+        if (! valid_write_file(selector)) {
+            normalize_selector();   /* sets selector */
+        }
     }
     for (; i <= n; i++) {
         if (lua_isstring(L, i)) {
@@ -123,6 +135,7 @@ static int texio_printnl(lua_State * L)
 }
 
 /* at the point this function is called, the selector is log_only */
+
 void flush_loggable_info(void)
 {
     if (loggable_info != NULL) {
@@ -132,11 +145,10 @@ void flush_loggable_info(void)
     }
 }
 
-
 static const struct luaL_Reg texiolib[] = {
     {"write", texio_print},
     {"write_nl", texio_printnl},
-    {NULL, NULL}                /* sentinel */
+    {NULL, NULL}
 };
 
 int luaopen_texio(lua_State * L)

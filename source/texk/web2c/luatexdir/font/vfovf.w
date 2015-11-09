@@ -267,7 +267,11 @@ vf_def_font(internal_font_number f, unsigned char *vf_buffer, int *vf_cr)
         append_char(junk);
     }
     if (level > 5) {
-        k = f ; /* so we just refer to the current font */
+        normal_warning("vf","quitting at recurse depth > 5",true,true);
+        k = f ;
+    } else if ((level > 1) && (fs > 65536*1024)) {
+        normal_warning("vf","quitting when recursing at size > 65536*1024",true,true);
+        k = f ;
     } else {
         level += 1 ;
         s = make_string();
