@@ -488,7 +488,7 @@ static char *hyphenation_exception(int exceptions, char *w)
     if (lua_istable(L, -1)) {   /* ?? */
         lua_pushstring(L, w);   /* word table */
         lua_rawget(L, -2);
-        if (lua_type(L, -1) != LUA_TSTRING) {
+        if (lua_type(L, -1) == LUA_TSTRING) {
             ret = xstrdup(lua_tostring(L, -1));
         }
         lua_pop(L, 2);

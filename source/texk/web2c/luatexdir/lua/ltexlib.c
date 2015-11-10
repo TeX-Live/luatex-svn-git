@@ -747,7 +747,7 @@ static int gettex(lua_State * L);
         case LUA_TNUMBER:                                                             \
             key = (int) luaL_checkinteger(L, where);                                  \
             if (key>=0 && key <= 65535) {                                             \
-                value = get_tex_dimen_register(key);                                  \
+                value = get_register(key);                                            \
             } else {                                                                  \
                 luaL_error(L, "incorrect %s index", what);                            \
             }                                                                         \
@@ -801,6 +801,7 @@ static int setskip(lua_State * L)
     int top = lua_gettop(L);
     check_item_global(L,top,isglobal);
     value = check_isnode(L, top);
+/* add_glue_ref(*value); */
     set_item_index_plus(L, top-1, skip_base, "skip", *value, isglobal, is_glue_assign, set_tex_skip_register, true);
     return 0;
 }
@@ -826,14 +827,14 @@ static int setmuskip(lua_State * L)
     int top = lua_gettop(L);
     check_item_global(L,top,isglobal);
     value = check_isnode(L, top);
-    set_item_index_plus(L, top-1, mu_skip_base, "muskip", *value, isglobal, is_glue_assign, set_tex_mu_skip_register, true);
+    set_item_index_plus(L, top-1, mu_skip_base, "muskip", *value, isglobal, is_mu_glue_assign, set_tex_mu_skip_register, true);
     return 0;
 }
 
 static int getmuskip(lua_State * L)
 {
     int value = 0;
-    get_item_index_plus(L, lua_gettop(L), mu_skip_base, "muskip", value, is_glue_assign, get_tex_mu_skip_register, true);
+    get_item_index_plus(L, lua_gettop(L), mu_skip_base, "muskip", value, is_mu_glue_assign, get_tex_mu_skip_register, true);
     lua_nodelib_push_fast(L, value);
     return 1;
 }
@@ -846,13 +847,13 @@ static int iscount(lua_State * L)
 
 static int setcount(lua_State * L)
 {
+    int t;
     int isglobal = 0;
     int value = 0;
     int top = lua_gettop(L);
     check_item_global(L,top,isglobal);
-    if (lua_isnumber(L, top)) {
-        value = (int) lua_tonumber(L, top);
-    } else if (lua_type(L,top) == LUA_TSTRING) {
+    t = lua_type(L,top);
+    if (t == LUA_TNUMBER || t == LUA_TSTRING) {
         value = (int) lua_tonumber(L, top);
     } else {
         luaL_error(L, "unsupported %s value type","count");
@@ -875,27 +876,29 @@ static int isattribute(lua_State * L)
     return 1;
 }
 
+/* there are no system set attributes so this is a bit overkill */
+
 static int setattribute(lua_State * L)
 {
+    int t;
     int isglobal = 0;
     int value = 0;
     int top = lua_gettop(L);
     check_item_global(L,top,isglobal);
-    if (lua_isnumber(L, top)) {
-        value = (int) lua_tonumber(L, top);
-    } else if (lua_type(L,top) == LUA_TSTRING) {
+    t = lua_type(L,top);
+    if (t == LUA_TNUMBER || t == LUA_TSTRING) {
         value = (int) lua_tonumber(L, top);
     } else {
         luaL_error(L, "unsupported %s value type","attribute");
     }
-    set_item_index_plus(L, top-1, attribute_base, "attribute", value, isglobal, is_int_assign, set_tex_attribute_register, false);
+    set_item_index_plus(L, top-1, attribute_base, "attribute", value, isglobal, is_attr_assign, set_tex_attribute_register, false);
     return 0;
 }
 
 static int getattribute(lua_State * L)
 {
     int value = 0;
-    get_item_index_plus(L, lua_gettop(L), attribute_base, "attribute", value, is_int_assign, get_tex_attribute_register, false);
+    get_item_index_plus(L, lua_gettop(L), attribute_base, "attribute", value, is_attr_assign, get_tex_attribute_register, false);
     lua_pushnumber(L, value);
     return 1;
 }
@@ -1381,9 +1384,11 @@ static int settex(lua_State * L)
                 assign_internal_value((isglobal ? 4 : 0), equiv(cur_cs1), j);
             } else if (is_glue_assign(cur_cmd1)) {
                 halfword *j1 = check_isnode(L, i);     /* the value */
-                    { int a = isglobal;
-   		      define(equiv(cur_cs1), assign_glue_cmd, *j1);
-                    }
+                {
+                    int a = isglobal;
+/* add_glue_ref(*j1); */
+                    define(equiv(cur_cs1), assign_glue_cmd, *j1);
+                }
             } else if (is_toks_assign(cur_cmd1)) {
                 if (lua_type(L,i) == LUA_TSTRING) {
                     j = tokenlist_from_lua(L);  /* uses stack -1 */
