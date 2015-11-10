@@ -151,7 +151,7 @@ static void push_token(lua_State * L, int tok)
 /* static int run_get_command_id(lua_State * L) */
 /* { */
 /*     int cs = -1; */
-/*     if (lua_isstring(L, -1)) { */
+/*     if (lua_type(L, -1) == LUA_TSTRING) { */
 /*         cs = get_command_id(lua_tostring(L, -1)); */
 /*     } */
 /*     lua_pushnumber(L, cs); */
@@ -162,7 +162,7 @@ static void push_token(lua_State * L, int tok)
 /* { */
 /*     const char *s; */
 /*     size_t k, cs = 0; */
-/*     if (lua_isstring(L, -1)) { */
+/*     if (lua_type(L, -1) == LUA_TSTRING) { */
 /*         s = lua_tolstring(L, -1, &k); */
 /*         cs = (size_t) string_lookup(s, k); */
 /*     } */
@@ -405,7 +405,7 @@ static int run_lookup(lua_State * L)
     const char *s;
     size_t l;
     int cs, cmd, chr;
-    if (lua_isstring(L, -1)) {
+    if (lua_type(L, -1) == LUA_TSTRING) {
         s = lua_tolstring(L, -1, &l);
         if (l > 0) {
             cs = string_lookup(s, l);

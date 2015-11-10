@@ -1023,12 +1023,11 @@ init_lua_key_alias(pTRT,"+TRT");\
 init_lua_key_alias(pdf_data,"pdf.data");\
 init_lua_key_alias(term_and_log,"term and log")
 
-
 #define assign_math_style(L,n,target) do { \
-    if (lua_isnumber(L,n)) { \
+    if (lua_type(L,n) == LUA_TNUMBER) { \
         /* new, often same as subtype anyway  */ \
         target = lua_tonumber(L,n); \
-    } else if (lua_isstring(L,n)) { \
+    } else if (lua_type(L,n) == LUA_TSTRING) { \
         const char *s = lua_tostring(L, n); \
         if (lua_key_eq(s,display)) { \
             target = 0; \

@@ -249,7 +249,7 @@ static int get_cur_cs(lua_State * L)
     ret = 0;
     cur_cs = 0;
     lua_getfield(L, -1, "name");
-    if (lua_isstring(L, -1)) {
+    if (lua_type(L, -1) == LUA_TSTRING) {
         s = lua_tolstring(L, -1, &l);
         if (l > 0) {
             if ((last + (int) l) > buf_size)
@@ -315,14 +315,15 @@ void tokenlist_to_luastring(lua_State * L, int p)
 int tokenlist_from_lua(lua_State * L)
 {
     const char *s;
-    int tok;
+    int tok, t;
     size_t i, j;
     halfword p, q, r;
     r = get_avail();
     token_info(r) = 0;          /* ref count */
     token_link(r) = null;
     p = r;
-    if (lua_istable(L, -1)) {
+    t = lua_type(L, -1);
+    if (t == LUA_TTABLE) {
         j = lua_rawlen(L, -1);
         if (j > 0) {
             for (i = 1; i <= j; i++) {
@@ -335,7 +336,7 @@ int tokenlist_from_lua(lua_State * L)
             };
         }
         return r;
-    } else if (lua_isstring(L, -1)) {
+    } else if (t == LUA_TSTRING) {
         s = lua_tolstring(L, -1, &j);
         for (i = 0; i < j; i++) {
             if (s[i] == 32) {

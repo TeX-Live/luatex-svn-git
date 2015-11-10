@@ -62,7 +62,7 @@ static int lang_patterns(lua_State * L)
     struct tex_language **lang_ptr;
     lang_ptr = check_islang(L, 1);
     if (lua_gettop(L) != 1) {
-        if (!lua_isstring(L, 2)) {
+        if (lua_type(L, 2) != LUA_TSTRING) {
             return luaL_error(L, "lang.patterns(): argument should be a string");
         }
         load_patterns(*lang_ptr, (const unsigned char *) lua_tostring(L, 2));
@@ -91,7 +91,7 @@ static int lang_hyphenation(lua_State * L)
     struct tex_language **lang_ptr;
     lang_ptr = check_islang(L, 1);
     if (lua_gettop(L) != 1) {
-        if (!lua_isstring(L, 2)) {
+        if (lua_type(L, 2) != LUA_TSTRING) {
             return luaL_error(L,
                            "lang.hyphenation(): argument should be a string");
         }
@@ -206,8 +206,8 @@ static int lang_clear_hyphenation(lua_State * L)
 static int do_lang_clean(lua_State * L)
 {
     char *cleaned;
-    if (!lua_isstring(L, 1)) {
-	return luaL_error(L, "lang.clean(): argument should be a string");
+    if (lua_type(L, 1) != LUA_TSTRING) {
+        return luaL_error(L, "lang.clean(): argument should be a string");
     }
     (void) clean_hyphenation(lua_tostring(L, 1), &cleaned);
     lua_pushstring(L, cleaned);

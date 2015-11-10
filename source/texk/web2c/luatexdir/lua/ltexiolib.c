@@ -24,12 +24,11 @@ typedef void (*texio_printer) (const char *);
 
 static char *loggable_info = NULL;
 
-/* lua_isstring(L, i) is also true for a number */
-
 static boolean get_selector_value(lua_State * L, int i, int *l)
 {
     boolean r = false;
-    if (lua_isstring(L,i)) {
+    int t = lua_type(L,i);
+    if (t == LUA_TSTRING) {
         const char *s = lua_tostring(L, i);
         if (lua_key_eq(s,term_and_log)) {
             *l = term_and_log;
@@ -40,20 +39,21 @@ static boolean get_selector_value(lua_State * L, int i, int *l)
         } else if (lua_key_eq(s,term)) {
             *l = term_only;
             r = true;
-        } else if (lua_isnumber(L,i)) {
-            int n = lua_tonumber(L,i);
-            if (file_can_be_written(n)) {
-                *l = n;
-                r = true;
-            } else {
-                *l = term_and_log;
-                r = true;
-            }
         } else {
-            luaL_error(L, "first argument is not 'term and log', 'term', 'log' or a number");
+            *l = term_and_log;
+            r = true;
+        }
+    } else if (t == LUA_TNUMBER) {
+        int n = lua_tonumber(L,i);
+        if (file_can_be_written(n)) {
+            *l = n;
+            r = true;
+        } else {
+            *l = term_and_log;
+            r = true;
         }
     } else {
-        luaL_error(L, "first argument is not a string or number");
+        luaL_error(L, "first argument is not 'term and log', 'term', 'log' or a number");
     }
     return r;
 }
@@ -64,8 +64,8 @@ static int do_texio_print(lua_State * L, texio_printer printfunction)
     int i = 1;
     int save_selector = selector;
     int n = lua_gettop(L);
-    if (n == 0 || !lua_isstring(L, -1)) {
-        luaL_error(L, "no string to print");
+    if (n == 0 || !lua_isstring(L, -1)) { /* or number */
+        luaL_error(L, "no string to print"); /* or number */
     }
     if (n > 1) {
         if (get_selector_value(L, i, &selector))
@@ -77,7 +77,7 @@ static int do_texio_print(lua_State * L, texio_printer printfunction)
         }
     }
     for (; i <= n; i++) {
-        if (lua_isstring(L, i)) {
+        if (lua_isstring(L, i)) { /* or number */
             s = lua_tostring(L, i);
             printfunction(s);
         } else {
@@ -99,7 +99,7 @@ static void do_texio_ini_print(lua_State * L, const char *extra)
             i++;
     }
     for (; i <= n; i++) {
-        if (lua_isstring(L, i)) {
+        if (lua_isstring(L, i)) { /* or number */
             s = lua_tostring(L, i);
             if (l == term_and_log || l == term_only)
                 fprintf(stdout, "%s%s", extra, s);

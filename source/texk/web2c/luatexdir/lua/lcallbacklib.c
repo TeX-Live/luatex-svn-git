@@ -154,9 +154,9 @@ void get_lua_string(const char *table, const char *name, char **target)
     stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_getglobal(Luas, table);
-    if (lua_istable(Luas, -1)) {
+    if (lua_type(Luas, -1) == LUA_TTABLE) {
         lua_getfield(Luas, -1, name);
-        if (lua_isstring(Luas, -1)) {
+        if (lua_type(Luas, -1) == LUA_TSTRING) {
             *target = xstrdup(lua_tostring(Luas, -1));
         }
     }
@@ -170,16 +170,15 @@ void get_saved_lua_string(int r, const char *name, char **target)
     stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, r);
-    if (lua_istable(Luas, -1)) {
+    if (lua_type(Luas, -1) == LUA_TTABLE) {
         lua_getfield(Luas, -1, name);
-        if (lua_isstring(Luas, -1)) {
+        if (lua_type(Luas, -1) == LUA_TSTRING) {
             *target = xstrdup(lua_tostring(Luas, -1));
         }
     }
     lua_settop(Luas, stacktop);
     return;
 }
-
 
 #define CALLBACK_BOOLEAN        'b'
 #define CALLBACK_INTEGER        'd'
@@ -188,7 +187,6 @@ void get_saved_lua_string(int r, const char *name, char **target)
 #define CALLBACK_STRING         'S'
 #define CALLBACK_CHARNUM        'c'
 #define CALLBACK_LSTRING        'L'
-
 
 int run_saved_callback(int r, const char *name, const char *values, ...)
 {
@@ -349,7 +347,7 @@ int do_run_callback(int special, const char *values, va_list vl)
     }
     nres = -nres;
     while (*values) {
-        int b;
+        int b, t;
         switch (*values++) {
         case CALLBACK_BOOLEAN:
             if (!lua_isboolean(L, nres)) {
@@ -366,20 +364,22 @@ int do_run_callback(int special, const char *values, va_list vl)
                         lua_typename(L, lua_type(L, nres)));
                 goto EXIT;
             }
-	    b=(int)lua_tonumber(L, nres);
+            b=(int)lua_tonumber(L, nres);
             *va_arg(vl, int *) = b;
             break;
-        case CALLBACK_LINE:    /* TeX line */
-            if (!lua_isstring(L, nres)) {
-                if (!lua_isnil(L, nres))
-                    fprintf(stderr, "Expected a string for (l), not: %s\n",
-                            lua_typename(L, lua_type(L, nres)));
+        case CALLBACK_LINE:    /* TeX line ... happens frequently when we have a plug-in */
+            t = lua_type(L, nres);
+            if (t == LUA_TNIL) {
+                bufloc = 0;
                 goto EXIT;
-            }
-            s = lua_tolstring(L, nres, &len);
-            if (s != NULL) {    /* |len| can be zero */
-                bufloc = va_arg(vl, int *);
-                if (len != 0) {
+            } else if (t == LUA_TSTRING) {
+                s = lua_tolstring(L, nres, &len);
+                if (s == NULL) {    /* |len| can be zero */
+                    bufloc = 0;
+                } else if (len == 0) {
+                    bufloc = 0;
+                } else {
+                    bufloc = va_arg(vl, int *);
                     ret = *bufloc;
                     check_buffer_overflow(ret + (int) len);
                     strncpy((char *) (buffer + ret), s, len);
@@ -389,7 +389,8 @@ int do_run_callback(int special, const char *values, va_list vl)
                         (*bufloc)--;
                 }
             } else {
-                bufloc = 0;
+                fprintf(stderr, "Expected a string for (l), not: %s\n", lua_typename(L, lua_type(L, nres)));
+                goto EXIT;
             }
             break;
         case CALLBACK_STRNUMBER:       /* TeX string */
@@ -441,7 +442,7 @@ int do_run_callback(int special, const char *values, va_list vl)
 	        lstring *ret = xmalloc(sizeof(lstring));
                 ret->s = xmalloc((unsigned) (len + 1));
                 (void) memcpy(ret->s, s, (len + 1));
-		ret->l = len;
+                ret->l = len;
                 *va_arg(vl, lstring **) = ret;
             }
             break;

@@ -517,7 +517,7 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
 
     const_lstring luaerr;
     char *err = NULL;
-    if (lua_isstring(L, -1)) {
+    if (lua_type(L, -1) == LUA_TSTRING) {
         luaerr.s = lua_tolstring(L, -1, &luaerr.l);
         /* free last one ? */
         err = (char *) xmalloc((unsigned) (luaerr.l + 1));

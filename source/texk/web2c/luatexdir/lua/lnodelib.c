@@ -6159,7 +6159,7 @@ static int lua_nodelib_direct_setbox(lua_State * L)
 {
     int isglobal = 0;
     int n = lua_gettop(L);
-    if (n == 3 && lua_isstring(L, 1)) {
+    if (n == 3 && (lua_type(L, 1) == LUA_TSTRING)) {
         const char *s = lua_tostring(L, 1);
         if (lua_key_eq(s, global))
             isglobal = 1;
