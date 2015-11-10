@@ -39,6 +39,19 @@ extern const char *dir_strings[8];
 
 extern int dir_swap;
 
+#  define RETURN_DIR_VALUES(a)       \
+    if (s==luaS_##a##_ptr) {         \
+        return (dir_##a);            \
+    } else if (!absolute_only)  {    \
+        if (s==luaS_p##a##_ptr)      \
+            return (dir_##a);        \
+        else if (s==luaS_m##a##_ptr) \
+            return ((dir_##a)-4);    \
+    }
+
+#  define BOX_DIR_VALUE(a) \
+    ((s==luaS_p##a##_ptr) : (dir_##a) ? ((s==luaS_m##a##_ptr) : ((dir_##a)-4) ? luaS_pTLT))
+
 #  define is_mirrored(a) 0
 
 #  define is_rotated(a) (a == dir_RTT)

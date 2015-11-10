@@ -62,6 +62,7 @@ typedef enum {
     start_file_callback, stop_file_callback,
     show_error_message_callback, show_lua_error_hook_callback,
     show_warning_message_callback,
+    overfull_rule_callback,
     total_callbacks
 } callback_callback_types;
 
@@ -85,8 +86,7 @@ extern void get_saved_lua_boolean(int i, const char *name, boolean * target);
 extern void get_saved_lua_number(int i, const char *name, int *target);
 extern void get_saved_lua_string(int i, const char *name, char **target);
 
-extern void get_lua_boolean(const char *table, const char *name,
-                            boolean * target);
+extern void get_lua_boolean(const char *table, const char *name, boolean * target);
 extern void get_lua_number(const char *table, const char *name, int *target);
 extern void get_lua_string(const char *table, const char *name, char **target);
 

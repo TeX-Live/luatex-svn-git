@@ -734,20 +734,30 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
             set_glue_ratio_one(glue_set(r));    /* use the maximum shrinkage */
             /* Report an overfull hbox and |goto common_ending|, if this box
                is sufficiently bad */
-            if ((-x - total_shrink[normal] > dimen_par(hfuzz_code))
-                || (int_par(hbadness_code) < 100)) {
-                if ((dimen_par(overfull_rule_code) > 0)
-                    && (-x - total_shrink[normal] > dimen_par(hfuzz_code))) {
-                    while (vlink(q) != null)
-                        q = vlink(q);
-                    vlink(q) = new_rule(normal_rule);
-                    rule_dir(vlink(q)) = box_dir(r);
-                    width(vlink(q)) = dimen_par(overfull_rule_code);
+            if ((-x - total_shrink[normal] > dimen_par(hfuzz_code)) || (int_par(hbadness_code) < 100)) {
+                boolean overflow = (-x - total_shrink[normal] > dimen_par(hfuzz_code));
+                int overshoot = -x - total_shrink[normal] ;
+                int callback_id = callback_defined(overfull_rule_callback);
+                halfword rule = null;
+                if (callback_id > 0) {
+                    rule = (halfword) run_callback(callback_id, "bdD->N",overflow,overshoot,box_dir(r));
+                } else if (overflow && (dimen_par(overfull_rule_code) > 0)) {
+                    rule = new_rule(normal_rule);
+                    rule_dir(rule) = box_dir(r);
+                    width(rule) = dimen_par(overfull_rule_code);
                 }
-                print_ln();
-                tprint_nl("Overfull \\hbox (");
-                print_scaled(-x - total_shrink[normal]);
-                tprint("pt too wide");
+                if (rule != null) {
+                    while (vlink(q) != null) {
+                        q = vlink(q);
+                    }
+                    couple_nodes(q,rule);
+                }
+                if (callback_id == 0) {
+                    print_ln();
+                    tprint_nl("Overfull \\hbox (");
+                    print_scaled(overshoot);
+                    tprint("pt too wide");
+                }
                 goto COMMON_ENDING;
             }
         } else if (o == normal) {

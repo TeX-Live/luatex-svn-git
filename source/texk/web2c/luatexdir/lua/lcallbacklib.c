@@ -20,15 +20,15 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-
 int callback_count = 0;
 int saved_callback_count = 0;
 
 int callback_set[total_callbacks] = { 0 };
 
 /* See also callback_callback_type in luatexcallbackids.h: they must have the same order ! */
+
 static const char *const callbacknames[] = {
-    "",                         /* empty on purpose */
+    "", /* empty on purpose */
     "find_write_file",
     "find_output_file",
     "find_image_file",
@@ -68,6 +68,7 @@ static const char *const callbacknames[] = {
     "pre_dump","start_file", "stop_file",
     "show_error_message","show_lua_error_hook",
     "show_warning_message",
+    "overfull_rule",
     NULL
 };
 
@@ -147,7 +148,6 @@ void get_saved_lua_number(int r, const char *name, int *target)
     return;
 }
 
-
 void get_lua_string(const char *table, const char *name, char **target)
 {
     int stacktop;
@@ -187,6 +187,8 @@ void get_saved_lua_string(int r, const char *name, char **target)
 #define CALLBACK_STRING         'S'
 #define CALLBACK_CHARNUM        'c'
 #define CALLBACK_LSTRING        'L'
+#define CALLBACK_NODE           'N'
+#define CALLBACK_DIR            'D'
 
 int run_saved_callback(int r, const char *name, const char *values, ...)
 {
@@ -208,7 +210,6 @@ int run_saved_callback(int r, const char *name, const char *values, ...)
     lua_settop(L, stacktop);
     return ret;
 }
-
 
 boolean get_callback(lua_State * L, int i)
 {
@@ -240,7 +241,6 @@ int run_and_save_callback(int i, const char *values, ...)
     lua_settop(L, stacktop);
     return ret;
 }
-
 
 int run_callback(int i, const char *values, ...)
 {
@@ -302,8 +302,13 @@ int do_run_callback(int special, const char *values, va_list vl)
             lua_pushboolean(L, va_arg(vl, int));
             break;
         case CALLBACK_LINE:    /* a buffer section, with implied start */
-            lua_pushlstring(L, (char *) (buffer + first),
-                            (size_t) va_arg(vl, int));
+            lua_pushlstring(L, (char *) (buffer + first), (size_t) va_arg(vl, int));
+            break;
+        case CALLBACK_NODE:
+            lua_nodelib_push_fast(L,va_arg(vl, int));
+            break;
+        case CALLBACK_DIR:
+            lua_push_dir_par(L,va_arg(vl, int));
             break;
         case '-':
             narg--;
@@ -351,8 +356,7 @@ int do_run_callback(int special, const char *values, va_list vl)
         switch (*values++) {
         case CALLBACK_BOOLEAN:
             if (!lua_isboolean(L, nres)) {
-                fprintf(stderr, "Expected a boolean, not: %s\n",
-                        lua_typename(L, lua_type(L, nres)));
+                fprintf(stderr, "Expected a boolean, not: %s\n", lua_typename(L, lua_type(L, nres)));
                 goto EXIT;
             }
             b = lua_toboolean(L, nres);
@@ -360,11 +364,10 @@ int do_run_callback(int special, const char *values, va_list vl)
             break;
         case CALLBACK_INTEGER:
             if (!lua_isnumber(L, nres)) {
-                fprintf(stderr, "Expected a number, not: %s\n",
-                        lua_typename(L, lua_type(L, nres)));
+                fprintf(stderr, "Expected a number, not: %s\n", lua_typename(L, lua_type(L, nres)));
                 goto EXIT;
             }
-            b=(int)lua_tonumber(L, nres);
+            b = (int) lua_tonumber(L, nres);
             *va_arg(vl, int *) = b;
             break;
         case CALLBACK_LINE:    /* TeX line ... happens frequently when we have a plug-in */
@@ -396,8 +399,7 @@ int do_run_callback(int special, const char *values, va_list vl)
         case CALLBACK_STRNUMBER:       /* TeX string */
             if (!lua_isstring(L, nres)) {
                 if (!lua_isnil(L, nres)) {
-                    fprintf(stderr, "Expected a string for (s), not: %s\n",
-                            lua_typename(L, lua_type(L, nres)));
+                    fprintf(stderr, "Expected a string for (s), not: %s\n", lua_typename(L, lua_type(L, nres)));
                     goto EXIT;
                 }
             }
@@ -411,8 +413,7 @@ int do_run_callback(int special, const char *values, va_list vl)
         case CALLBACK_STRING:  /* C string aka buffer */
             if (!lua_isstring(L, nres)) {
                 if (!lua_isnil(L, nres)) {
-                    fprintf(stderr, "Expected a string for (S), not: %s\n",
-                            lua_typename(L, lua_type(L, nres)));
+                    fprintf(stderr, "Expected a string for (S), not: %s\n", lua_typename(L, lua_type(L, nres)));
                     goto EXIT;
                 }
             }
@@ -429,21 +430,29 @@ int do_run_callback(int special, const char *values, va_list vl)
         case CALLBACK_LSTRING:  /* lstring */
             if (!lua_isstring(L, nres)) {
                 if (!lua_isnil(L, nres)) {
-                    fprintf(stderr, "Expected a string for (S), not: %s\n",
-                            lua_typename(L, lua_type(L, nres)));
+                    fprintf(stderr, "Expected a string for (S), not: %s\n", lua_typename(L, lua_type(L, nres)));
                     goto EXIT;
                 }
             }
             s = lua_tolstring(L, nres, &len);
-
             if (s == NULL)      /* |len| can be zero */
                 *va_arg(vl, int *) = 0;
             else {
-	        lstring *ret = xmalloc(sizeof(lstring));
+                lstring *ret = xmalloc(sizeof(lstring));
                 ret->s = xmalloc((unsigned) (len + 1));
                 (void) memcpy(ret->s, s, (len + 1));
                 ret->l = len;
                 *va_arg(vl, lstring **) = ret;
+            }
+            break;
+        case CALLBACK_NODE:
+            if (check_isnode(L,nres)) {
+                b = (int) nodelib_getlist(L, nres);
+                printf("!!!!!!!!! %i\n",b);
+                *va_arg(vl, int *) = b;
+                printf("!!!!!!!!! %i\n",b);
+            } else {
+                *va_arg(vl, int *) = null;
             }
             break;
         default:
@@ -524,7 +533,6 @@ static int callback_find(lua_State * L)
     lua_rawgeti(L, -1, cb);
     return 1;
 }
-
 
 static int callback_listf(lua_State * L)
 {

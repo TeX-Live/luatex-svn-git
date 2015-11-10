@@ -232,18 +232,6 @@
 #define nodelib_getspec        nodelib_getlist
 #define nodelib_getaction      nodelib_getlist
 
-/* a quick helper for dir nodes; there is only a small set of possible values */
-
-#define RETURN_DIR_VALUES(a)     \
-if (s==luaS_##a##_ptr) {         \
-    return (dir_##a);            \
-} else if (!absolute_only)  {    \
-    if (s==luaS_p##a##_ptr)      \
-        return (dir_##a);        \
-    else if (s==luaS_m##a##_ptr) \
-        return ((dir_##a)-64);   \
-}
-
 /* fetching a field from a node .. we can often use the reuse bot-of-stack metatable */
 
 #define nodelib_pushlist(L,n) { lua_pushnumber(L,n); lua_nodelib_push(L); }      /* can be: fast_metatable_or_nil(n) */
@@ -2479,7 +2467,7 @@ static int lua_nodelib_direct_count(lua_State * L)
 
 /* getting and setting fields (helpers) */
 
-static int nodelib_getlist(lua_State * L, int n)
+int nodelib_getlist(lua_State * L, int n)
 {
     halfword *m;
     if (lua_isuserdata(L, n)) {

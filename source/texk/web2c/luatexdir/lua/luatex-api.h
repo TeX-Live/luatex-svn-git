@@ -17,7 +17,6 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-
 #ifndef LUATEX_API_H
 #  define LUATEX_API_H 1
 
@@ -73,14 +72,11 @@ extern void make_table(lua_State * L, const char *tab, const char *mttab, const 
 extern int luac_main(int argc, char *argv[]);
 
 extern int luaopen_tex(lua_State * L);
-
 extern int luaopen_pdf(lua_State * L);
-
-#  define LUA_TEXFILEHANDLE               "TEXFILE*"
-
 extern int luaopen_texio(lua_State * L);
-
 extern int luaopen_lang(lua_State * L);
+
+#  define LUA_TEXFILEHANDLE "TEXFILE*"
 
 extern lua_State *luatex_error(lua_State * L, int fatal);
 
@@ -140,6 +136,7 @@ extern int tokenlist_from_lua(lua_State * L);
 
 extern void lua_nodelib_push(lua_State * L);
 extern int nodelib_getdir(lua_State * L, int n, int absolute_only);
+extern int nodelib_getlist(lua_State * L, int n);
 
 extern int luaopen_node(lua_State * L);
 extern void nodelist_to_lua(lua_State * L, int n);
@@ -199,8 +196,7 @@ typedef struct {
     int idx;                    /* index within img_parms array */
 } parm_struct;
 
-extern void preset_environment(lua_State * L, const parm_struct * p,
-                               const char *s);
+extern void preset_environment(lua_State * L, const parm_struct * p, const char *s);
 
 extern char *startup_filename;
 extern int safer_option;
@@ -215,10 +211,8 @@ extern int program_name_set;    /* in lkpselib.c */
 extern char **argv;
 extern int argc;
 
-extern int loader_C_luatex(lua_State * L, const char *name,
-                           const char *filename);
-extern int loader_Call_luatex(lua_State * L, const char *name,
-                              const char *filename);
+extern int loader_C_luatex(lua_State * L, const char *name, const char *filename);
+extern int loader_Call_luatex(lua_State * L, const char *name, const char *filename);
 
 extern void init_tex_table(lua_State * L);
 
@@ -233,7 +227,6 @@ extern int do_run_callback(int special, const char *values, va_list vl);
 extern int lua_traceback(lua_State * L);
 
 extern int luainit;
-
 
 extern char *luanames[];
 
@@ -259,27 +252,22 @@ extern char **environ;
 
 */
 
-/*#define init_luaS_index(a) do {                         */
 #define init_lua_key(a) do {                      \
     lua_pushliteral(Luas,#a);                             \
     luaS_##a##_ptr = lua_tostring(Luas,-1);               \
     luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
 } while (0)
 
-  /*#define init_luaS_index_s(a,b) do {           */
 #define init_lua_key_alias(a,b) do {              \
     lua_pushliteral(Luas,b);                              \
     luaS_##a##_ptr = lua_tostring(Luas,-1);               \
     luaS_##a##_index = luaL_ref (Luas,LUA_REGISTRYINDEX); \
 } while (0)
 
-  /*#define make_luaS_index(a) */
 #define make_lua_key(a)       \
     int luaS_##a##_index = 0;          \
     const char * luaS_##a##_ptr = NULL
 
-
-/*#define luaS_ptr_eq(a,b) (a==luaS_##b##_ptr)*/
 #define lua_key_eq(a,b) (a==luaS_##b##_ptr)
 
 #define luaS_index(a)    luaS_##a##_index
@@ -288,7 +276,6 @@ extern char **environ;
 #define use_lua_key(a)  \
   extern int luaS_##a##_index ;          \
   extern const char * luaS_##a##_ptr
-
 
 #define lua_key_rawgeti(a) \
   lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_##a##_index);\
@@ -311,7 +298,6 @@ is useless.
 extern int lua_numeric_field_by_index(lua_State *, int , int);
 extern unsigned int lua_unsigned_numeric_field_by_index(lua_State *, int , int);
 
-
 /* Currently we sometimes use numbers and sometimes strings in node properties. We can
 make that consistent by having a check on number and if not then assign a string. The
 strings are prehashed and we make a bunch of lua tables that have these values. We can
@@ -322,8 +308,8 @@ preassign these at startup time. */
 #define PACK_TYPE_SIZE        4
 #define GROUP_CODE_SIZE      23
 #define MATH_STYLE_NAME_SIZE  8
-#define DIR_PAR_SIZE        128
-#define DIR_TEXT_SIZE       128
+#define DIR_PAR_SIZE          8
+#define DIR_TEXT_SIZE         8
 
 extern int l_pack_type_index       [PACK_TYPE_SIZE] ;
 extern int l_group_code_index      [GROUP_CODE_SIZE];
@@ -337,10 +323,8 @@ extern int l_dir_text_index        [DIR_TEXT_SIZE];
 #define lua_push_dir_par(L,dir) lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir+dir_swap])
 #define lua_push_dir_text(L,dir) lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index[dir+dir_swap])
 
-
 #define lua_push_string_by_index(L,index) lua_rawgeti(L, LUA_REGISTRYINDEX, index)
 #define lua_push_string_by_name(L,index) lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(index))
-
 
 #define set_pack_type_index \
 l_pack_type_index[0] = lua_key_index(exactly); \
@@ -402,7 +386,6 @@ l_dir_text_index[4] = lua_key_index(pTLT);\
 l_dir_text_index[5] = lua_key_index(pTRT);\
 l_dir_text_index[6] = lua_key_index(pLTL);\
 l_dir_text_index[7] = lua_key_index(pRTT);\
-
 
 #define set_make_keys \
 make_lua_key(cmdname);make_lua_key(expandable);make_lua_key(protected);\
@@ -711,7 +694,6 @@ make_lua_key(xformattributes);\
 make_lua_key(xoffset);\
 make_lua_key(xyz_zoom);\
 make_lua_key(yoffset)
-
 
 #define set_init_keys \
 init_lua_key(cmdname);init_lua_key(expandable);init_lua_key(protected);\
@@ -1060,13 +1042,9 @@ extern FILE *_cairo_win32_tmpfile( void );
 
 #endif                          /* LUATEX_API_H */
 
-
-
-
 /*                                                 */
 /* These keys have to available to different files */
 /*                                                 */
-
 
 use_lua_key(cmdname);use_lua_key(expandable);use_lua_key(protected);
 
