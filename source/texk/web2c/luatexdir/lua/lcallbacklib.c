@@ -68,7 +68,7 @@ static const char *const callbacknames[] = {
     "pre_dump","start_file", "stop_file",
     "show_error_message","show_lua_error_hook",
     "show_warning_message",
-    "overfull_rule",
+    "hpack_quality", "vpack_quality",
     NULL
 };
 
@@ -353,6 +353,7 @@ int do_run_callback(int special, const char *values, va_list vl)
     nres = -nres;
     while (*values) {
         int b, t;
+        halfword p;
         switch (*values++) {
         case CALLBACK_BOOLEAN:
             if (!lua_isboolean(L, nres)) {
@@ -446,14 +447,12 @@ int do_run_callback(int special, const char *values, va_list vl)
             }
             break;
         case CALLBACK_NODE:
-            if (check_isnode(L,nres)) {
-                b = (int) nodelib_getlist(L, nres);
-                printf("!!!!!!!!! %i\n",b);
-                *va_arg(vl, int *) = b;
-                printf("!!!!!!!!! %i\n",b);
+            if (lua_type(L,nres) == LUA_TNIL) {
+                p = null;
             } else {
-                *va_arg(vl, int *) = null;
+                p = *check_isnode(L,nres);
             }
+            *va_arg(vl, int *) = p;
             break;
         default:
             fprintf(stdout, "invalid return value type");

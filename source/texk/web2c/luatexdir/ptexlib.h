@@ -363,7 +363,7 @@ extern string normalize_quotes(const_string name, const_string mesg);
 extern string dump_name;
 extern const_string c_job_name;
 
-extern halfword *check_isnode(lua_State * L, int ud);
+extern halfword *check_isnode(lua_State * L, int i);
 extern void lua_nodelib_push_fast(lua_State * L, halfword n);
 
 extern halfword list_node_mem_usage(void);

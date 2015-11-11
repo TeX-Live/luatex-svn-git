@@ -590,6 +590,61 @@ end
 
 This callback does not replace any internal code.
 
+\subsubsection{\type {hpack_quality} and \type {vpack_quality}}
+
+These two callbacks can be used to intercept the overfull messages. They get a few
+arguments:
+
+\startfunctioncall
+function(<string> incident, <number> detail, <node> head, <number> first,
+         <number> last)
+    return <node> whatever
+end
+\stopfunctioncall
+
+The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
+\type {tight}. The detail is either the amount of overflow (in case of \type
+{overerful}, or the badness. The head is the list that is constructed (when
+protrusion or expansion is enabled, this is an intermediate list). For a hpack
+you can return a node (for instance an overfull rule indicator). That node will
+be appended to the list (just like \TEX's own rule would).
+
+\subsubsection{\type {hpack_quality}}
+
+This callback can be used to intercept the overfull messages that can result from
+packing a horizontal list (as happens in the par builder). The function takes a
+few arguments:
+
+\startfunctioncall
+function(<string> incident, <number> detail, <node> head, <number> first,
+         <number> last)
+    return <node> whatever
+end
+\stopfunctioncall
+
+The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
+\type {tight}. The detail is either the amount of overflow in case of \type
+{overfull}, or the badness otherwise. The head is the list that is constructed
+(when protrusion or expansion is enabled, this is an intermediate list).
+Optionally you can return a node, for instance an overfull rule indicator. That
+node will be appended to the list (just like \TEX's own rule would).
+
+\subsubsection{\type {vpack_quality}}
+
+This callback can be used to intercept the overfull messages that can result from
+packing a vertical list (as happens in the page builder). The function takes a
+few arguments:
+
+\startfunctioncall
+function(<string> incident, <number> detail, <node> head, <number> first,
+         <number> last)
+end
+\stopfunctioncall
+
+The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
+\type {tight}. The detail is either the amount of overflow in case of \type
+{overfull}, or the badness otherwise. The head is the list that is constructed.
+
 \subsubsection{\type {pre_output_filter}}
 
 This callback is called when \TEX\ is ready to start boxing the box 255 for \type

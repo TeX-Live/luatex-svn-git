@@ -148,7 +148,7 @@
         lua_getmetatable(L,1);                                 \
         lua_setmetatable(L,-2);                                \
     } else {                                                   \
-    lua_pushnil(L);                                            \
+        lua_pushnil(L);                                        \
    }                                                           \
 } while (0)
 
@@ -266,11 +266,11 @@ while (vlink(t)!=current && t != null) { \
 
 /* maybe these qualify as macros, not functions */
 
-static halfword *maybe_isnode(lua_State * L, int ud)
+static halfword *maybe_isnode(lua_State * L, int i)
 {
-    halfword *p = lua_touserdata(L, ud);
+    halfword *p = lua_touserdata(L, i);
     if (p != NULL) {
-        if (lua_getmetatable(L, ud)) {
+        if (lua_getmetatable(L, i)) {
             lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_node));
             lua_gettable(L, LUA_REGISTRYINDEX);
             if (!lua_rawequal(L, -1, -2))
@@ -283,12 +283,12 @@ static halfword *maybe_isnode(lua_State * L, int ud)
 
 /* we could make the message a function and just inline the rest (via a macro) */
 
-halfword *check_isnode(lua_State * L, int ud)
+halfword *check_isnode(lua_State * L, int i)
 {
-    halfword *p = maybe_isnode(L, ud);
+    halfword *p = maybe_isnode(L, i);
     if (p != NULL)
         return p;
-    luatex_fail("There should have been a lua <node> here, not an object with type %s!", luaL_typename(L, ud));
+    luatex_fail("There should have been a lua <node> here, not an object with type %s!", luaL_typename(L, i));
     return NULL;
 }
 
@@ -470,11 +470,15 @@ static void lua_nodelib_push_spec(lua_State * L)
 void lua_nodelib_push_fast(lua_State * L, halfword n)
 {
     halfword *a;
-    a = lua_newuserdata(L, sizeof(halfword));
-    *a = n;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_node));
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    lua_setmetatable(L, -2);
+    if (n) {
+        a = lua_newuserdata(L, sizeof(halfword));
+        *a = n;
+        lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(luatex_node));
+        lua_gettable(L, LUA_REGISTRYINDEX);
+        lua_setmetatable(L, -2);
+    } else {
+        lua_pushnil(L);
+    }
     return;
 }
 

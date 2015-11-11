@@ -691,13 +691,30 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                    is sufficiently bad */
                 last_badness = badness(x, total_stretch[normal]);
                 if (last_badness > int_par(hbadness_code)) {
-                    print_ln();
-                    if (last_badness > 100)
-                        tprint_nl("Underfull \\hbox (badness ");
-                    else
-                        tprint_nl("Loose \\hbox (badness ");
-                    print_int(last_badness);
-                    goto COMMON_ENDING;
+                    int callback_id = callback_defined(hpack_quality_callback);
+                    if (callback_id > 0) {
+                        halfword rule = null;
+                        if (last_badness > 100) {
+                            run_callback(callback_id, "SdNdd->N","underfull",last_badness,r,abs(pack_begin_line),line,&rule);
+                        } else {
+                            run_callback(callback_id, "SdNdd->N","loose",last_badness,r,abs(pack_begin_line),line,&rule);
+                        }
+                        if (rule != null) {
+                            while (vlink(q) != null) {
+                                q = vlink(q);
+                            }
+                            couple_nodes(q,rule);
+                        }
+                    } else {
+                        print_ln();
+                        if (last_badness > 100) {
+                            tprint_nl("Underfull \\hbox (badness ");
+                        } else {
+                            tprint_nl("Loose \\hbox (badness ");
+                        }
+                        print_int(last_badness);
+                        goto COMMON_ENDING;
+                    }
                 }
             }
         }
@@ -730,18 +747,17 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
             set_glue_ratio_zero(glue_set(r));   /* there's nothing to shrink */
         }
         if ((total_shrink[o] < -x) && (o == normal) && (list_ptr(r) != null)) {
+            int overshoot = -x - total_shrink[normal] ;
             last_badness = 1000000;
             set_glue_ratio_one(glue_set(r));    /* use the maximum shrinkage */
             /* Report an overfull hbox and |goto common_ending|, if this box
                is sufficiently bad */
-            if ((-x - total_shrink[normal] > dimen_par(hfuzz_code)) || (int_par(hbadness_code) < 100)) {
-                boolean overflow = (-x - total_shrink[normal] > dimen_par(hfuzz_code));
-                int overshoot = -x - total_shrink[normal] ;
-                int callback_id = callback_defined(overfull_rule_callback);
+            if ((overshoot > dimen_par(hfuzz_code)) || (int_par(hbadness_code) < 100)) {
+                int callback_id = callback_defined(hpack_quality_callback);
                 halfword rule = null;
                 if (callback_id > 0) {
-                    rule = (halfword) run_callback(callback_id, "bdD->N",overflow,overshoot,box_dir(r));
-                } else if (overflow && (dimen_par(overfull_rule_code) > 0)) {
+                    run_callback(callback_id, "SdNdd->N","overfull",overshoot,r,abs(pack_begin_line),line,&rule);
+                } else if (dimen_par(overfull_rule_code) > 0) {
                     rule = new_rule(normal_rule);
                     rule_dir(rule) = box_dir(r);
                     width(rule) = dimen_par(overfull_rule_code);
@@ -757,18 +773,30 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                     tprint_nl("Overfull \\hbox (");
                     print_scaled(overshoot);
                     tprint("pt too wide");
+                    goto COMMON_ENDING;
                 }
-                goto COMMON_ENDING;
             }
         } else if (o == normal) {
             if (list_ptr(r) != null) {
                 /* Report a tight hbox and |goto common_ending|, if this box is sufficiently bad */
                 last_badness = badness(-x, total_shrink[normal]);
                 if (last_badness > int_par(hbadness_code)) {
-                    print_ln();
-                    tprint_nl("Tight \\hbox (badness ");
-                    print_int(last_badness);
-                    goto COMMON_ENDING;
+                    int callback_id = callback_defined(hpack_quality_callback);
+                    if (callback_id > 0) {
+                        halfword rule = null;
+                        run_callback(callback_id, "SdNdd->N","tight",last_badness,r,abs(pack_begin_line),line,&rule);
+                        if (rule != null) {
+                            while (vlink(q) != null) {
+                                q = vlink(q);
+                            }
+                            couple_nodes(q,rule);
+                        }
+                    } else {
+                        print_ln();
+                        tprint_nl("Tight \\hbox (badness ");
+                        print_int(last_badness);
+                        goto COMMON_ENDING;
+                    }
                 }
             }
         }
@@ -781,10 +809,11 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         tprint(") has occurred while \\output is active");
     } else {
         if (pack_begin_line != 0) {
-            if (pack_begin_line > 0)
+            if (pack_begin_line > 0) {
                 tprint(") in paragraph at lines ");
-            else
+            } else {
                 tprint(") in alignment at lines ");
+            }
             print_int(abs(pack_begin_line));
             tprint("--");
         } else {
@@ -1088,13 +1117,24 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
                    is sufficiently bad */
                 last_badness = badness(x, total_stretch[normal]);
                 if (last_badness > int_par(vbadness_code)) {
-                    print_ln();
-                    if (last_badness > 100)
-                        tprint_nl("Underfull \\vbox (badness ");
-                    else
-                        tprint_nl("Loose \\vbox (badness ");
-                    print_int(last_badness);
-                    goto COMMON_ENDING;
+                    int callback_id = callback_defined(vpack_quality_callback);
+                    if (callback_id > 0) {
+                        if (last_badness > 100) {
+                            run_callback(callback_id, "SdNdd->","underfull",last_badness,r,abs(pack_begin_line),line);
+                        } else {
+                            run_callback(callback_id, "SdNdd->","loose",last_badness,r,abs(pack_begin_line),line);
+                        }
+                        goto EXIT;
+                    } else {
+                        print_ln();
+                        if (last_badness > 100) {
+                            tprint_nl("Underfull \\vbox (badness ");
+                        } else {
+                            tprint_nl("Loose \\vbox (badness ");
+                        }
+                        print_int(last_badness);
+                        goto COMMON_ENDING;
+                    }
                 }
             }
         }
@@ -1124,26 +1164,38 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
             set_glue_ratio_zero(glue_set(r));   /* there's nothing to shrink */
         }
         if ((total_shrink[o] < -x) && (o == normal) && (list_ptr(r) != null)) {
+            int overshoot = -x - total_shrink[normal];
             last_badness = 1000000;
             set_glue_ratio_one(glue_set(r));    /* use the maximum shrinkage */
             /* Report an overfull vbox and |goto common_ending|, if this box is sufficiently bad */
-            if ((-x - total_shrink[normal] > dimen_par(vfuzz_code))
-                || (int_par(vbadness_code) < 100)) {
-                print_ln();
-                tprint_nl("Overfull \\vbox (");
-                print_scaled(-x - total_shrink[normal]);
-                tprint("pt too high");
-                goto COMMON_ENDING;
+            if ((overshoot > dimen_par(vfuzz_code)) || (int_par(vbadness_code) < 100)) {
+                int callback_id = callback_defined(vpack_quality_callback);
+                if (callback_id > 0) {
+                    run_callback(callback_id, "SdNdd->","overfull",overshoot,r,abs(pack_begin_line),line);
+                    goto EXIT;
+                } else {
+                    print_ln();
+                    tprint_nl("Overfull \\vbox (");
+                    print_scaled(-x - total_shrink[normal]);
+                    tprint("pt too high");
+                    goto COMMON_ENDING;
+                }
             }
         } else if (o == normal) {
             if (list_ptr(r) != null) {
                 /* Report a tight vbox and |goto common_ending|, if this box is sufficiently bad */
                 last_badness = badness(-x, total_shrink[normal]);
                 if (last_badness > int_par(vbadness_code)) {
-                    print_ln();
-                    tprint_nl("Tight \\vbox (badness ");
-                    print_int(last_badness);
-                    goto COMMON_ENDING;
+                    int callback_id = callback_defined(vpack_quality_callback);
+                    if (callback_id > 0) {
+                        run_callback(callback_id, "SdNdd->","tight",last_badness,r,abs(pack_begin_line),line);
+                        goto EXIT;
+                    } else {
+                        print_ln();
+                        tprint_nl("Tight \\vbox (badness ");
+                        print_int(last_badness);
+                        goto COMMON_ENDING;
+                    }
                 }
             }
         }
@@ -1168,6 +1220,7 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
     begin_diagnostic();
     show_box(r);
     end_diagnostic(true);
+  EXIT:
     return r;
 }
 
