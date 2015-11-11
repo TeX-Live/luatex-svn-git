@@ -2179,6 +2179,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     adjust_tail = adjust_head;
     pre_adjust_tail = pre_adjust_head;
     eq_box = hpack(p, 0, additional, -1);
+    subtype(eq_box) = equation_list; /* new */
     build_attribute_list(eq_box);
     p = list_ptr(eq_box);
     t = adjust_tail;
@@ -2196,7 +2197,9 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
         eqno_w = width(eqno_box);
         eqno_width = eqno_w;
         eqno_w2 = eqno_w + round_xn_over_d(math_eqno_gap_step, get_math_quad(text_size), 1000);
-    }
+        subtype(eqno_box) = equation_number_list; /* new */
+     /* build_attribute_list(eqno_box); */ /* probably already set */
+   }
     if (eq_w + eqno_w2 > line_w) {
         /* The user can force the equation number to go on a separate line
            by causing its width to be zero. */
@@ -2208,6 +2211,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
             list_ptr(eq_box) = null;
             flush_node(eq_box);
             eq_box = hpack(p, line_w - eqno_w2, exactly, -1);
+            subtype(eq_box) = equation_list; /* new */
             build_attribute_list(eq_box);
         } else {
             eqno_w = 0;
@@ -2215,6 +2219,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                 list_ptr(eq_box) = null;
                 flush_node(eq_box);
                 eq_box = hpack(p, line_w, exactly, -1);
+                subtype(eq_box) = equation_list; /* new */
                 build_attribute_list(eq_box);
             }
         }
@@ -2355,6 +2360,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
             }
         }
         eq_box = hpack(eq_box, 0, additional, -1);
+        subtype(eq_box) = equation_list; /* new */
         build_attribute_list(eq_box);
         shift_amount(eq_box) = line_s;
     } else {

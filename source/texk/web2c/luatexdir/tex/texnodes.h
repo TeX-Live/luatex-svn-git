@@ -189,13 +189,14 @@ typedef enum {
 /* todo, make an enum of this */
 
 typedef enum {
-    unknown_list    = 0,
-    line_list       = 1, /* paragraph lines */
-    hbox_list       = 2, /* \.{\\hbox} */
-    indent_list     = 3, /* indentation box */
-    align_row_list  = 4, /* row from a \.{\\halign} or \.{\\valign} */
-    align_cell_list = 5, /* cell from a \.{\\halign} or \.{\\valign} */
-    /* we can add more here */
+    unknown_list         = 0,
+    line_list            = 1, /* paragraph lines */
+    hbox_list            = 2, /* \.{\\hbox} */
+    indent_list          = 3, /* indentation box */
+    align_row_list       = 4, /* row from a \.{\\halign} or \.{\\valign} */
+    align_cell_list      = 5, /* cell from a \.{\\halign} or \.{\\valign} */
+    equation_list        = 6, /* display equation */
+    equation_number_list = 7, /* display equation number */
 } list_subtypes ;
 
 #  define width(a)            varmem[(a)+2].cint
