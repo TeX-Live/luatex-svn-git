@@ -329,20 +329,22 @@ dimension parameter. For math fonts, this should be set to zero.
 \switchtobodyfont[8pt]
 
 \starttabulate[|l|l|l|p|]
-\NC \bf variable                   \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC \NR
+\NC \bf variable                      \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC \NR
 \NC \type {\Umathaxis}                \NC --                    \NC AxisHeight                               \NC axis_height \NC \NR
 \NC \type {\Umathoperatorsize}        \NC D, D'                 \NC DisplayOperatorMinHeight                 \NC $^6$ \NC \NR
 \NC \type {\Umathfractiondelsize}     \NC D, D'                 \NC FractionDelimiterDisplayStyleSize$^9$    \NC delim1 \NC \NR
-\NC "                              \NC T, T', S, S', SS, SS' \NC FractionDelimiterSize$^9$                \NC delim2 \NC \NR
+\NC                                   \NC T, T', S, S', SS, SS' \NC FractionDelimiterSize$^9$                \NC delim2 \NC \NR
 \NC \type {\Umathfractiondenomdown}   \NC D, D'                 \NC FractionDenominatorDisplayStyleShiftDown \NC denom1 \NC \NR
-\NC "                              \NC T, T', S, S', SS, SS' \NC FractionDenominatorShiftDown             \NC denom2 \NC \NR
+\NC                                   \NC T, T', S, S', SS, SS' \NC FractionDenominatorShiftDown             \NC denom2 \NC \NR
 \NC \type {\Umathfractiondenomvgap}   \NC D, D'                 \NC FractionDenominatorDisplayStyleGapMin    \NC 3*default_rule_thickness \NC \NR
-\NC "                              \NC T, T', S, S', SS, SS' \NC FractionDenominatorGapMin                \NC default_rule_thickness \NC \NR
+\NC                                   \NC T, T', S, S', SS, SS' \NC FractionDenominatorGapMin                \NC default_rule_thickness \NC \NR
 \NC \type {\Umathfractionnumup}       \NC D, D'                 \NC FractionNumeratorDisplayStyleShiftUp     \NC num1 \NC \NR
-\NC "                              \NC T, T', S, S', SS, SS' \NC FractionNumeratorShiftUp                 \NC num2 \NC \NR
+\NC                                   \NC T, T', S, S', SS, SS' \NC FractionNumeratorShiftUp                 \NC num2 \NC \NR
 \NC \type {\Umathfractionnumvgap}     \NC D, D'                 \NC FractionNumeratorDisplayStyleGapMin      \NC 3*default_rule_thickness \NC \NR
-\NC "                              \NC T, T', S, S', SS, SS' \NC FractionNumeratorGapMin                  \NC default_rule_thickness \NC \NR
+\NC                                   \NC T, T', S, S', SS, SS' \NC FractionNumeratorGapMin                  \NC default_rule_thickness \NC \NR
 \NC \type {\Umathfractionrule}        \NC --                    \NC FractionRuleThickness                    \NC default_rule_thickness \NC \NR
+\NC \type {\Umathskewedfractionhgap}  \NC --                    \NC SkewedFractionHorizontalGap              \NC math_quad/2 \NC \NR
+\NC \type {\Umathskewedfractionvgap}  \NC --                    \NC SkewedFractionVerticalGap                \NC math_x_height \NC \NR
 \NC \type {\Umathlimitabovebgap}      \NC --                    \NC UpperLimitBaselineRiseMin                \NC big_op_spacing3 \NC \NR
 \NC \type {\Umathlimitabovekern}      \NC --                    \NC 0$^1$                                    \NC big_op_spacing5 \NC \NR
 \NC \type {\Umathlimitabovevgap}      \NC --                    \NC UpperLimitGapMin                         \NC big_op_spacing1 \NC \NR
@@ -360,30 +362,30 @@ dimension parameter. For math fonts, this should be set to zero.
 \NC \type {\Umathradicalkern}         \NC --                    \NC RadicalExtraAscender                     \NC default_rule_thickness \NC \NR
 \NC \type {\Umathradicalrule}         \NC --                    \NC RadicalRuleThickness                     \NC <not set>$^2$ \NC \NR
 \NC \type {\Umathradicalvgap}         \NC D, D'                 \NC RadicalDisplayStyleVerticalGap           \NC (default_rule_thickness+\crlf
-                                                                                                              (abs(math_x_height)/4))$^3$ \NC \NR
-\NC "                              \NC T, T', S, S', SS, SS' \NC RadicalVerticalGap                       \NC (default_rule_thickness+\crlf
-                                                                                                              (abs(default_rule_thickness)/4))$^3$ \NC \NR
+                                                                                                                 (abs(math_x_height)/4))$^3$ \NC \NR
+\NC                                   \NC T, T', S, S', SS, SS' \NC RadicalVerticalGap                       \NC (default_rule_thickness+\crlf
+                                                                                                                 (abs(default_rule_thickness)/4))$^3$ \NC \NR
 \NC \type {\Umathradicaldegreebefore} \NC --                    \NC RadicalKernBeforeDegree                  \NC <not set>$^2$ \NC \NR
 \NC \type {\Umathradicaldegreeafter}  \NC --                    \NC RadicalKernAfterDegree                   \NC <not set>$^2$ \NC \NR
 \NC \type {\Umathradicaldegreeraise}  \NC --                    \NC RadicalDegreeBottomRaisePercent          \NC <not set>$^{2,7}$ \NC \NR
 \NC \type {\Umathspaceafterscript}    \NC --                    \NC SpaceAfterScript                         \NC script_space$^4$ \NC \NR
 \NC \type {\Umathstackdenomdown}      \NC D, D'                 \NC StackBottomDisplayStyleShiftDown         \NC denom1 \NC \NR
-\NC "                              \NC T, T', S, S', SS, SS' \NC StackBottomShiftDown                     \NC denom2 \NC \NR
+\NC                                   \NC T, T', S, S', SS, SS' \NC StackBottomShiftDown                     \NC denom2 \NC \NR
 \NC \type {\Umathstacknumup}          \NC D, D'                 \NC StackTopDisplayStyleShiftUp              \NC num1 \NC \NR
-\NC "                              \NC T, T', S, S', SS, SS' \NC StackTopShiftUp                          \NC num3 \NC \NR
+\NC                                   \NC T, T', S, S', SS, SS' \NC StackTopShiftUp                          \NC num3 \NC \NR
 \NC \type {\Umathstackvgap}           \NC D, D'                 \NC StackDisplayStyleGapMin                  \NC 7*default_rule_thickness \NC \NR
-\NC "                              \NC T, T', S, S', SS, SS' \NC StackGapMin                              \NC 3*default_rule_thickness \NC \NR
+\NC                                   \NC T, T', S, S', SS, SS' \NC StackGapMin                              \NC 3*default_rule_thickness \NC \NR
 \NC \type {\Umathsubshiftdown}        \NC --                    \NC SubscriptShiftDown                       \NC sub1 \NC \NR
 \NC \type {\Umathsubshiftdrop}        \NC --                    \NC SubscriptBaselineDropMin                 \NC sub_drop \NC \NR
 \NC \type {\Umathsubsupshiftdown}     \NC --                    \NC SubscriptShiftDownWithSuperscript$^8$    \NC \NC \NR
-\NC                                \NC                       \NC \quad\ or SubscriptShiftDown             \NC sub2 \NC \NR
+\NC                                   \NC                       \NC \quad\ or SubscriptShiftDown             \NC sub2 \NC \NR
 \NC \type {\Umathsubtopmax}           \NC --                    \NC SubscriptTopMax                          \NC (abs(math_x_height * 4) / 5) \NC \NR
 \NC \type {\Umathsubsupvgap}          \NC --                    \NC SubSuperscriptGapMin                     \NC 4*default_rule_thickness \NC \NR
 \NC \type {\Umathsupbottommin}        \NC --                    \NC SuperscriptBottomMin                     \NC (abs(math_x_height) / 4) \NC \NR
 \NC \type {\Umathsupshiftdrop}        \NC --                    \NC SuperscriptBaselineDropMax               \NC sup_drop \NC \NR
 \NC \type {\Umathsupshiftup}          \NC D                     \NC SuperscriptShiftUp                       \NC sup1 \NC \NR
-\NC "                              \NC T, S, SS,             \NC SuperscriptShiftUp                       \NC sup2 \NC \NR
-\NC "                              \NC D', T', S', SS'       \NC SuperscriptShiftUpCramped                \NC sup3 \NC \NR
+\NC                                   \NC T, S, SS,             \NC SuperscriptShiftUp                       \NC sup2 \NC \NR
+\NC                                   \NC D', T', S', SS'       \NC SuperscriptShiftUpCramped                \NC sup3 \NC \NR
 \NC \type {\Umathsupsubbottommax}     \NC --                    \NC SuperscriptBottomMaxWithSubscript        \NC (abs(math_x_height * 4) / 5) \NC \NR
 \NC \type {\Umathunderbarkern}        \NC --                    \NC UnderbarExtraDescender                   \NC default_rule_thickness \NC \NR
 \NC \type {\Umathunderbarrule}        \NC --                    \NC UnderbarRuleThickness                    \NC default_rule_thickness \NC \NR
@@ -756,6 +758,57 @@ rule is still positioned around the math axis.
 \starttyping
 $$ { {a} \abovewithdelims() exact 4pt {b} }$$
 \stoptyping
+
+The math parameter table contains some parameters that specify a horizontal and
+vertical gap for skewed fractions. Of course some guessing is needed in order to
+implement something that uses then. And so we now provide a primitive similar to the
+other fraction related ones but with a few options so that one can influence the
+rendering. Of course a user can mess around a bit with the parameters
+\type {\Umathskewedfractionhgap} and \type {\Umathskewedfractionvgap}.
+
+The syntax used here is:
+
+\starttyping
+{ {1} \Uskewed / <options> {2} }
+{ {1} \Uskewedwithdelims / () <options> {2} }
+\stoptyping
+
+where the options can be \type {noaxis} and \type {exact}. By default we add half
+the axis to the shifts and by default we zero the width of the middle character.
+For Latin Modern The result looks as follows:
+
+\def\ShowA#1#2#3{$x + { {#1} \Uskewed           /    #3 {#2} } + x$}
+\def\ShowB#1#2#3{$x + { {#1} \Uskewedwithdelims / () #3 {#2} } + x$}
+
+\start
+    \switchtobodyfont[modern]
+    \starttabulate[||||||]
+        \NC \NC
+            \ShowA{a}{b}{} \NC
+            \ShowA{1}{2}{} \NC
+            \ShowB{a}{b}{} \NC
+            \ShowB{1}{2}{} \NC
+        \NR
+        \NC \type{exact} \NC
+            \ShowA{a}{b}{exact} \NC
+            \ShowA{1}{2}{exact} \NC
+            \ShowB{a}{b}{exact} \NC
+            \ShowB{1}{2}{exact} \NC
+        \NR
+        \NC \type{noaxis} \NC
+            \ShowA{a}{b}{noaxis} \NC
+            \ShowA{1}{2}{noaxis} \NC
+            \ShowB{a}{b}{noaxis} \NC
+            \ShowB{1}{2}{noaxis} \NC
+        \NR
+        \NC \type{exact noaxis} \NC
+            \ShowA{a}{b}{exact noaxis} \NC
+            \ShowA{1}{2}{exact noaxis} \NC
+            \ShowB{a}{b}{exact noaxis} \NC
+            \ShowB{1}{2}{exact noaxis} \NC
+        \NR
+    \stoptabulate
+\stop
 
 \section {Other Math changes}
 

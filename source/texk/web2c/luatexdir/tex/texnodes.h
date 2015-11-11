@@ -447,16 +447,18 @@ typedef enum {
 
 /* fraction noads */
 
-#  define fraction_noad_size 7
-#  define thickness(a)       vlink((a)+2) /* |thickness| field in a fraction noad */
-#  define numerator(a)       vlink((a)+3) /* |numerator| field in a fraction noad */
-#  define denominator(a)     vinfo((a)+3) /* |denominator| field in a fraction noad */
-#  define left_delimiter(a)  vlink((a)+5) /* first delimiter field of a noad */
-#  define right_delimiter(a) vinfo((a)+5) /* second delimiter field of a fraction noad */
-#  define fractionoptions(a) vinfo((a)+6)
+#  define fraction_noad_size  7
+#  define thickness(a)        vlink((a)+2) /* |thickness| field in a fraction noad */
+#  define numerator(a)        vlink((a)+3) /* |numerator| field in a fraction noad */
+#  define denominator(a)      vinfo((a)+3) /* |denominator| field in a fraction noad */
+#  define left_delimiter(a)   vlink((a)+5) /* first delimiter field of a noad */
+#  define right_delimiter(a)  vinfo((a)+5) /* second delimiter field of a fraction noad */
+#  define middle_delimiter(a) vlink((a)+6)
+#  define fractionoptions(a)  vinfo((a)+6)
 
-#  define fractionoptionset(a) ((fractionoptions(a) & noad_option_set   ) == noad_option_set   )
-#  define fractionexact(a)     ((fractionoptions(a) & noad_option_exact ) == noad_option_exact )
+#  define fractionoptionset(a) ((fractionoptions(a) & noad_option_set    ) == noad_option_set    )
+#  define fractionexact(a)     ((fractionoptions(a) & noad_option_exact  ) == noad_option_exact  )
+#  define fractionnoaxis(a)    ((fractionoptions(a) & noad_option_no_axis) == noad_option_no_axis)
 
 /* radical noads */
 /* this is like a fraction, but it only stores a |left_delimiter| */

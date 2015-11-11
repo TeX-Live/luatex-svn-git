@@ -1814,6 +1814,11 @@ void math_fraction(void)
         tail = head;
         m_style = cramped_style(m_style);
 
+        if ((c % delimited_code) == skewed_code) {
+            q = new_node(delim_node, 0);
+            middle_delimiter(incompleat_noad) = q;
+            scan_delimiter(middle_delimiter(incompleat_noad), no_mathcode);
+        }
         if (c >= delimited_code) {
             q = new_node(delim_node, 0);
             left_delimiter(incompleat_noad) = q;
@@ -1823,25 +1828,38 @@ void math_fraction(void)
             scan_delimiter(right_delimiter(incompleat_noad), no_mathcode);
         }
         switch (c % delimited_code) {
-        case above_code:
-            while (1) {
-                if (scan_keyword("exact")) {
-                    options = options | noad_option_exact ;
-                } else {
-                    break;
+            case above_code:
+                while (1) {
+                    if (scan_keyword("exact")) {
+                        options = options | noad_option_exact ;
+                    } else {
+                        break;
+                    }
                 }
-            }
-            fractionoptions(incompleat_noad) = options;
-            scan_normal_dimen();
-            thickness(incompleat_noad) = cur_val;
-            break;
-        case over_code:
-            thickness(incompleat_noad) = default_code;
-            break;
-        case atop_code:
-            thickness(incompleat_noad) = 0;
-            break;
-        }                       /* there are no other cases */
+                fractionoptions(incompleat_noad) = options;
+                scan_normal_dimen();
+                thickness(incompleat_noad) = cur_val;
+                break;
+            case over_code:
+                thickness(incompleat_noad) = default_code;
+                break;
+            case atop_code:
+                thickness(incompleat_noad) = 0;
+                break;
+            case skewed_code:
+                while (1) {
+                    if (scan_keyword("exact")) {
+                        options = options | noad_option_exact ;
+                    } else if (scan_keyword("noaxis")) {
+                        options = options | noad_option_no_axis ;
+                    } else {
+                        break;
+                    }
+                }
+                fractionoptions(incompleat_noad) = options;
+                thickness(incompleat_noad) = 0;
+                break;
+        }
     }
 }
 

@@ -361,8 +361,8 @@ static scaled get_delimiter_height(scaled max_d, scaled max_h, boolean axis) {
 #define fraction_del_size_new(a) get_math_param_or_error(a, fraction_del_size)
 #define fraction_del_size_old(a) get_math_param(a, math_param_fraction_del_size)
 
-#define skewed_fraction_hgap(a) get_math_param(a, math_param_skewed_fraction_hgap)
-#define skewed_fraction_vgap(a) get_math_param(a, math_param_skewed_fraction_vgap)
+#define skewed_fraction_hgap(a)  get_math_param_or_error(a, skewed_fraction_hgap)
+#define skewed_fraction_vgap(a)  get_math_param_or_error(a, skewed_fraction_vgap)
 
 #define limit_above_vgap(a)      get_math_param_or_error(a, limit_above_vgap)
 #define limit_above_bgap(a)      get_math_param_or_error(a, limit_above_bgap)
@@ -2357,7 +2357,7 @@ static void make_math_accent(pointer q, int cur_style)
 @c
 static void make_fraction(pointer q, int cur_style)
 {
-    pointer p, v, x, y, z; /* temporary registers for box construction */
+    pointer p, p1, p2, v, x, y, z, l, r, m; /* temporary registers for box construction */
     scaled delta, delta1, delta2, shift_up, shift_down, clr1, clr2;
     /* dimensions for box calculations */
     if (thickness(q) == default_code)
@@ -2367,13 +2367,27 @@ static void make_fraction(pointer q, int cur_style)
         and compute the default amounts |shift_up| and |shift_down| by which they
         are displaced from the baseline
     */
+
     x = clean_box(numerator(q), num_style(cur_style), cur_style);
     z = clean_box(denominator(q), denom_style(cur_style), cur_style);
-    if (width(x) < width(z))
-        x = rebox(x, width(z));
-    else
-        z = rebox(z, width(x));
-    if (thickness(q) == 0) {
+
+    if (middle_delimiter(q) != null) {
+        delta = 0;
+        m = do_delimiter(q, middle_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL);
+        middle_delimiter(q) = null;
+    } else {
+        m = null ;
+        if (width(x) < width(z)) {
+            x = rebox(x, width(z));
+        } else {
+            z = rebox(z, width(x));
+        }
+    }
+
+    if (m != null) {
+        shift_up = 0;
+        shift_down = 0;
+    } else if (thickness(q) == 0) {
         shift_up = stack_num_up(cur_style);
         shift_down = stack_denom_down(cur_style);
         /*
@@ -2414,32 +2428,105 @@ static void make_fraction(pointer q, int cur_style)
             shift_down = shift_down + delta2;
         }
     }
-    /*
-        construct a vlist box for the fraction, according to |shift_up| and |shift_down|
-    */
-    v = new_null_box();
-    type(v) = vlist_node;
-    height(v) = shift_up + height(x);
-    depth(v) = depth(z) + shift_down;
-    width(v) = width(x); /* this also equals |width(z)| */
-    reset_attributes(v, node_attr(q));
-    if (thickness(q) == 0) {
-        p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
-        reset_attributes(p, node_attr(q));
-        couple_nodes(p,z);
+    if (m != null) {
+        /*
+            construct a hlist box for the fraction, according to |hgap| and |vgap|
+        */
+        shift_up = skewed_fraction_vgap(cur_style);
+
+        if (!fractionnoaxis(q)) {
+            shift_up += half(math_axis(cur_size));
+        }
+
+        shift_down = shift_up;
+        v = new_null_box();
+        reset_attributes(v, node_attr(q));
+        type(v) = hlist_node;
+        list_ptr(v) = x;
+        width(v) = width(x);
+        height(v) = height(x) + shift_up;
+        depth(v) = depth(x);
+        shift_amount(v) = - shift_up;
+        x = v;
+
+        v = new_null_box();
+        reset_attributes(v, node_attr(q));
+        type(v) = hlist_node;
+        list_ptr(v) = z;
+        width(v) = width(z);
+        height(v) = height(z);
+        depth(v) = depth(z) + shift_down;
+        shift_amount(v) = shift_down;
+        z = v;
+
+        v = new_null_box();
+        reset_attributes(v, node_attr(q));
+        type(v) = hlist_node;
+        if (height(x) > height(z)) {
+            height(v) = height(x);
+        } else {
+            height(v) = height(z);
+        }
+        if (depth(x) > depth(z)) {
+            depth(v) = depth(x);
+        } else {
+            depth(v) = depth(z);
+        }
+        if (height(m) > height(v)) {
+            height(v) = height(m);
+        }
+        if (depth(m) > depth(v)) {
+            depth(v) = depth(m);
+        }
+
+        if (fractionexact(q)) {
+            delta1 = -half(skewed_fraction_hgap(cur_style));
+            delta2 = delta1;
+            width(v) = width(x) + width(z) + width(m) - skewed_fraction_hgap(cur_style);
+        } else {
+            delta1 = half(skewed_fraction_hgap(cur_style)-width(m));
+            delta2 = half(skewed_fraction_hgap(cur_style)+width(m));
+            width(v) = width(x) + width(z) + skewed_fraction_hgap(cur_style);
+            width(m) = 0;
+        }
+
+        p1 = new_kern(delta1);
+        reset_attributes(p1, node_attr(q));
+        p2 = new_kern(delta2);
+        reset_attributes(p2, node_attr(q));
+
+        couple_nodes(x,p1);
+        couple_nodes(p1,m);
+        couple_nodes(m,p2);
+        couple_nodes(p2,z);
+
+        list_ptr(v) = x;
     } else {
-        y = do_fraction_rule(thickness(q), node_attr(q));
-        p = new_kern((math_axis(cur_size) - delta) - (height(z) - shift_down));
+        /*
+            construct a vlist box for the fraction, according to |shift_up| and |shift_down|
+        */
+        v = new_null_box();
+        type(v) = vlist_node;
+        height(v) = shift_up + height(x);
+        depth(v) = depth(z) + shift_down;
+        width(v) = width(x); /* this also equals |width(z)| */
+        reset_attributes(v, node_attr(q));
+        if (thickness(q) == 0) {
+            p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
+            couple_nodes(p,z);
+        } else {
+            y = do_fraction_rule(thickness(q), node_attr(q));
+            p = new_kern((math_axis(cur_size) - delta) - (height(z) - shift_down));
+            reset_attributes(p, node_attr(q));
+            couple_nodes(y,p);
+            couple_nodes(p,z);
+            p = new_kern((shift_up - depth(x)) - (math_axis(cur_size) + delta));
+            couple_nodes(p,y);
+        }
         reset_attributes(p, node_attr(q));
-        couple_nodes(y,p);
-        couple_nodes(p,z);
-        p = new_kern((shift_up - depth(x)) - (math_axis(cur_size) + delta));
-        reset_attributes(p, node_attr(q));
-        couple_nodes(p,y);
+        couple_nodes(x,p);
+        list_ptr(v) = x;
     }
-    reset_attributes(p, node_attr(q));
-    couple_nodes(x,p);
-    list_ptr(v) = x;
     /*
         put the fraction into a box with its delimiters, and make |new_hlist(q)|
         point to it
@@ -2456,13 +2543,14 @@ static void make_fraction(pointer q, int cur_style)
     } else {
         delta = fraction_del_size_old(cur_style);
     }
-    x = do_delimiter(q, left_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL);
+
+    l = do_delimiter(q, left_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL);
     left_delimiter(q) = null;
-    couple_nodes(x,v);
-    z = do_delimiter(q, right_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL);
+    r = do_delimiter(q, right_delimiter(q), cur_size, delta, false, cur_style, true, NULL, NULL);
     right_delimiter(q) = null;
-    couple_nodes(v,z);
-    y = hpack(x, 0, additional, -1);
+    couple_nodes(l,v);
+    couple_nodes(v,r);
+    y = hpack(l, 0, additional, -1);
     reset_attributes(y, node_attr(q));
     assign_new_hlist(q, y);
 }
