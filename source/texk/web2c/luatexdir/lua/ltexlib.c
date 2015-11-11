@@ -1352,6 +1352,33 @@ static int settex(lua_State * L)
     i = lua_gettop(L);
     if (lua_type(L,i-1) == LUA_TSTRING) {
         st = lua_tolstring(L, (i - 1), &k);
+
+        if (lua_key_eq(st,prevdepth)) {
+            if (lua_isnumber(L, i)) {
+                cur_list.prev_depth_field = lua_tonumber(L, i);
+            } else if (lua_type(L,i) == LUA_TSTRING) {
+                cur_list.prev_depth_field = dimen_to_number(L, lua_tostring(L, i));
+            } else {
+                luaL_error(L, "unsupported value type");
+            }
+            return 0;
+        } else if (lua_key_eq(st,prevgraf)) {
+            if (!lua_isnumber(L, i)) {
+                cur_list.pg_field = lua_tonumber(L, i);
+            } else {
+                luaL_error(L, "unsupported value type");
+            }
+            return 0;
+        } else if (lua_key_eq(st,spacefactor)) {
+            if (!lua_isnumber(L, i)) {
+                cur_list.space_factor_field = lua_tonumber(L, i);
+            } else {
+                luaL_error(L, "unsupported value type");
+            }
+            return 0;
+        }
+
+
         texstr = maketexlstring(st, k);
         if (is_primitive(texstr)) {
             if (i == 3 && (lua_type(L,1) == LUA_TSTRING)) {
@@ -1680,6 +1707,18 @@ static int gettex(lua_State * L)
         int texstr;
         size_t k;
         const char *st = lua_tolstring(L, t, &k);
+
+        if (lua_key_eq(st,prevdepth)) {
+            lua_pushnumber(L, cur_list.prev_depth_field);
+            return 1;
+        } else if (lua_key_eq(st,prevgraf)) {
+            lua_pushnumber(L, cur_list.pg_field);
+            return 1;
+        } else if (lua_key_eq(st,spacefactor)) {
+            lua_pushnumber(L, cur_list.space_factor_field);
+            return 1;
+        }
+
         texstr = maketexlstring(st, k);
         cur_cs1 = prim_lookup(texstr);   /* not found == relax == 0 */
         flush_str(texstr);
