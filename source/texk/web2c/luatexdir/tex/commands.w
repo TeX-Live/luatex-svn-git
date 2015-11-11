@@ -534,6 +534,8 @@ void initialize_commands(void)
     primitive_umath("Umathfractiondenomvgap", set_math_param_cmd, math_param_fraction_denom_vgap, 0);
     primitive_umath("Umathfractiondenomdown", set_math_param_cmd, math_param_fraction_denom_down, 0);
     primitive_umath("Umathfractiondelsize", set_math_param_cmd, math_param_fraction_del_size, 0);
+    primitive_umath("Umathskewedfractionvgap", set_math_param_cmd, math_param_skewed_fraction_vgap, 0);
+    primitive_umath("Umathskewedfractionhgap", set_math_param_cmd, math_param_skewed_fraction_hgap, 0);
     primitive_umath("Umathlimitabovevgap", set_math_param_cmd, math_param_limit_above_vgap, 0);
     primitive_umath("Umathlimitabovebgap", set_math_param_cmd, math_param_limit_above_bgap, 0);
     primitive_umath("Umathlimitabovekern", set_math_param_cmd, math_param_limit_above_kern, 0);

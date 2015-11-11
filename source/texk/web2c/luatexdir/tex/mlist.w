@@ -182,11 +182,6 @@ FlattenedAccentBaseHeight:
   needs support for MathTopAccentAttachment table to be
   implemented first
 
-SkewedFractionHorizontalGap,
-SkewedFractionVerticalGap:
-  I am not sure it makes sense implementing skewed fractions,
-  so I would like to see an example first
-
 Also still TODO for OpenType Math:
   * prescripts
 
@@ -365,6 +360,9 @@ static scaled get_delimiter_height(scaled max_d, scaled max_h, boolean axis) {
 #define fraction_denom_down(a)   get_math_param_or_error(a, fraction_denom_down)
 #define fraction_del_size_new(a) get_math_param_or_error(a, fraction_del_size)
 #define fraction_del_size_old(a) get_math_param(a, math_param_fraction_del_size)
+
+#define skewed_fraction_hgap(a) get_math_param(a, math_param_skewed_fraction_hgap)
+#define skewed_fraction_vgap(a) get_math_param(a, math_param_skewed_fraction_vgap)
 
 #define limit_above_vgap(a)      get_math_param_or_error(a, limit_above_vgap)
 #define limit_above_bgap(a)      get_math_param_or_error(a, limit_above_bgap)
@@ -598,6 +596,15 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
         DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size, size_id,
             font_MATH_par(f, FractionDelimiterDisplayStyleSize), lvl);
 
+        DEFINE_MATH_PARAMETERS(math_param_skewed_fraction_hgap, size_id,
+            font_MATH_par(f, SkewedFractionHorizontalGap), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_skewed_fraction_hgap, size_id,
+            font_MATH_par(f, SkewedFractionHorizontalGap), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_skewed_fraction_vgap, size_id,
+            font_MATH_par(f, SkewedFractionVerticalGap), lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_skewed_fraction_vgap, size_id,
+            font_MATH_par(f, SkewedFractionVerticalGap), lvl);
+
         DEFINE_MATH_PARAMETERS(math_param_space_after_script, size_id,
             font_MATH_par(f, SpaceAfterScript), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_space_after_script, size_id,
@@ -640,6 +647,16 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
             delim2(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_fraction_del_size, size_id,
             delim1(size_id), lvl);
+
+        DEFINE_MATH_PARAMETERS(math_param_skewed_fraction_hgap, size_id,
+            0, lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_skewed_fraction_hgap, size_id,
+            0, lvl);
+        DEFINE_MATH_PARAMETERS(math_param_skewed_fraction_vgap, size_id,
+            0, lvl);
+        DEFINE_DMATH_PARAMETERS(math_param_skewed_fraction_vgap, size_id,
+            0, lvl);
+
         if (size_id == text_size) {
             def_math_param(math_param_sup_shift_up, display_style,
                 sup1(size_id), lvl);
