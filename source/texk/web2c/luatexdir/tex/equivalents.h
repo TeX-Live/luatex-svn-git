@@ -49,7 +49,6 @@ emphasize this distinction.
 #  define script_size 1         /* size code for the medium size in a family */
 #  define script_script_size 2  /* size code for the smallest size in a family */
 
-
 /*
 Each entry in |eqtb| is a |memory_word|. Most of these words are of type
 |two_halves|, and subdivided into three fields:
@@ -71,7 +70,6 @@ This may be a font number, a pointer into |mem|, or a variety of other
 things.
 */
 
-
 /*
 Many locations in |eqtb| have symbolic names. The purpose of the next
 paragraphs is to define these names, and to set up the initial values of the
@@ -87,8 +85,6 @@ control sequence that is perpetually undefined. There also are several
 locations for control sequences that are perpetually defined
 (since they are used in error recovery).
 */
-
-
 
 /*
 @ Region 3 of |eqtb| contains the |number_regs| \.{\\skip} registers, as well as the
@@ -299,7 +295,8 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define suppress_outer_error_code (etex_first_integer_code+12)        /* suppress errors for \.{\\outer} */
 #  define suppress_mathpar_error_code (etex_first_integer_code+13)      /* suppress errors for \.{\\par}} in math */
 #  define math_eqno_gap_step_code (etex_first_integer_code+14)          /* factor/1000 used for distance between eq and eqno */
-#  define synctex_code (etex_first_integer_code+15)                     /* is synctex file generation enabled ?  */
+#  define math_display_skip_mode_code (etex_first_integer_code+15)
+#  define synctex_code (etex_first_integer_code+16)                     /* is synctex file generation enabled ?  */
 
 /* define tex_int_pars (synctex_code+1) */                              /* total number of integer parameters */
 

@@ -35,6 +35,21 @@
 #define cur_fam int_par(cur_fam_code)
 #define text_direction int_par(text_direction_code)
 
+/*
+
+    \mathdisplayskipmode
+
+    tex normally always inserts before and only after when larger than zero
+
+    0 = normal tex
+    1 = always
+    2 = non-zero
+    3 = ignore
+
+*/
+
+#define display_skip_mode int_par(math_display_skip_mode_code)
+
 #define math_skip glue_par(math_skip_code)
 
 #define var_code 7
@@ -54,15 +69,15 @@ int scan_math_style(pointer, int);
 pointer fin_mlist(pointer);
 
 #define pre_display_size dimen_par(pre_display_size_code)
-#define hsize          dimen_par(hsize_code)
-#define display_width  dimen_par(display_width_code)
-#define display_indent dimen_par(display_indent_code)
-#define math_surround  dimen_par(math_surround_code)
-#define hang_indent    dimen_par(hang_indent_code)
-#define hang_after     int_par(hang_after_code)
-#define every_math     equiv(every_math_loc)
-#define every_display  equiv(every_display_loc)
-#define par_shape_ptr  equiv(par_shape_loc)
+#define hsize            dimen_par(hsize_code)
+#define display_width    dimen_par(display_width_code)
+#define display_indent   dimen_par(display_indent_code)
+#define math_surround    dimen_par(math_surround_code)
+#define hang_indent      dimen_par(hang_indent_code)
+#define hang_after       int_par(hang_after_code)
+#define every_math       equiv(every_math_loc)
+#define every_display    equiv(every_display_loc)
+#define par_shape_ptr    equiv(par_shape_loc)
 
 #define math_eqno_gap_step int_par(math_eqno_gap_step_code)
 
@@ -2240,18 +2255,29 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
      /* \.{\\leqno} on a forced single line due to |width=0| */
      /* it follows that |type(a)=hlist_node| */
 
-        if (eqno_box && l && (eqno_w == 0)) {
-/*            if (math_direction==dir_TLT) { */
-                shift_amount(eqno_box) = 0;
-/*            } else {                       */
-/*            }                              */
-            append_to_vlist(eqno_box);
-            tail_append(new_penalty(inf_penalty));
-        } else {
-
-        tail_append(new_param_glue(g1));
-
+    if (eqno_box && l && (eqno_w == 0)) {
+     /* if (math_direction==dir_TLT) { */
+            shift_amount(eqno_box) = 0;
+     /* } else {                       */
+     /* }                              */
+        append_to_vlist(eqno_box);
+        tail_append(new_penalty(inf_penalty));
+    } else {
+        switch (display_skip_mode) {
+            case 0 : /* normal tex */
+                tail_append(new_param_glue(g1));
+                break;
+            case 1 : /* always */
+                tail_append(new_param_glue(g1));
+                break;
+            case 2 : /* non-zero */
+                if (g1 != 0)
+                    tail_append(new_param_glue(g1));
+                break;
+            case 3: /* ignore */
+                break;
         }
+    }
 
     if (eqno_w != 0) {
         r = new_kern(line_w - eq_w - eqno_w - d);
@@ -2339,29 +2365,42 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
 
     if ((eqno_box != null) && (eqno_w == 0) && !l) {
         tail_append(new_penalty(inf_penalty));
-/*        if (math_direction==dir_TLT) { */
+     /* if (math_direction==dir_TLT) { */
             shift_amount(eqno_box) = line_s + line_w - eqno_width ;
-/*        } else { */
-/*        }        */
-/* check for prev: */
+     /* } else {                       */
+     /* }                              */
         append_to_vlist(eqno_box);
         g2 = 0;
     }
     if (t != adjust_head) {     /* migrating material comes after equation number */
         vlink(tail) = vlink(adjust_head);
-/* needs testing */
-alink(adjust_tail) = alink(tail);
+        /* needs testing */
+        alink(adjust_tail) = alink(tail);
         tail = t;
     }
     if (pre_t != pre_adjust_head) {
         vlink(tail) = vlink(pre_adjust_head);
-/* needs testing */
-alink(pre_adjust_tail) = alink(tail);
+        /* needs testing */
+        alink(pre_adjust_tail) = alink(tail);
         tail = pre_t;
     }
     tail_append(new_penalty(int_par(post_display_penalty_code)));
-    if (g2 > 0)
-        tail_append(new_param_glue(g2));
+
+    switch (display_skip_mode) {
+        case 0 : /* normal tex */
+            if (g2 > 0)
+                tail_append(new_param_glue(g2));
+            break;
+        case 1 : /* always */
+            tail_append(new_param_glue(g2));
+            break;
+        case 2 : /* non-zero */
+            if (g2 != 0)
+                tail_append(new_param_glue(g2));
+            break;
+        case 3: /* ignore */
+            break;
+    }
 
     resume_after_display();
 }

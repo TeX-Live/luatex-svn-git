@@ -300,6 +300,20 @@ Each of the parameters in this section can be set by a command like this:
 they obey grouping, and you can use \type {\the\Umathquad\displaystyle} if
 needed.
 
+\section{Skips around display math}
+
+The injection of \type {\abovedisplayskip} and \type {\belowdisplayskip} is not symmetrical. An
+above one is always inserted, also when zero, but the below is only inserted when larger than
+zero. Especially the later mkes it sometimes hard to fully control spacing. Therefore \LUATEX\
+comes with a new directive: \type {\mathdisplayskipmode}. The following values apply:
+
+\starttabulate
+\NC 0 \NC normal tex behaviour: always above, only below when larger than zero \NC \NR
+\NC 1 \NC always \NC \NR
+\NC 2 \NC only when not zero \NC \NR
+\NC 3 \NC never, not even when not zero \NC \NR
+\stoptabulate
+
 \section{Font-based Math Parameters}
 
 While it is nice to have these math parameters available for tweaking, it would
