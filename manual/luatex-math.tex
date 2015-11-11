@@ -158,6 +158,74 @@ in following sections):
 These additional commands are not all that valuable on their own, but they come
 in handy as arguments to the math parameter settings that will be added shortly.
 
+In Eijkhouts \quotation {\TEX\ by Topic} the rules for handling styles in scripts
+are described as follows:
+
+\startitemize
+\startitem
+    In any style superscripts and subscripts are taken from the next smaller style.
+    Exception: in display style they are taken in script style.
+\stopitem
+\startitem
+    Subscripts are always in the cramped variant of the style; superscripts are only
+    cramped if the original style was cramped.
+\stopitem
+\startitem
+    In an \type {..\over..} formula in any style the numerator and denominator are
+    taken from the next smaller style.
+\stopitem
+\startitem
+    The denominator is always in cramped style; the numerator is only in cramped
+    style if the original style was cramped.
+\stopitem
+\startitem
+    Formulas under a \type {\sqrt} or \type {\overline} are in cramped style.
+\stopitem
+\stopitemize
+
+In \LUATEX\ one can set the styles in more detail which means that you sometimes
+have to set both normal and cramped styles to get the effect you want. If we
+force styles in the scriptr using \type {\scriptstyle} and \type {\crampedscriptstyle}
+we get this:
+
+\startbuffer[demo]
+\starttabulate
+\NC default       \NC $b_{x=xx}^{x=xx}$ \NC \NR
+\NC script        \NC $b_{\scriptstyle x=xx}^{\scriptstyle x=xx}$ \NC \NR
+\NC crampedscript \NC $b_{\crampedscriptstyle x=xx}^{\crampedscriptstyle x=xx}$ \NC \NR
+\stoptabulate
+\stopbuffer
+
+\getbuffer[demo]
+
+Now we set the following parameters
+
+\startbuffer[setup]
+\Umathordrelspacing\scriptstyle=30mu
+\Umathordordspacing\scriptstyle=30mu
+\stopbuffer
+
+\typebuffer[setup]
+
+This gives:
+
+\start\getbuffer[setup,demo]\stop
+
+But, as this is not what is expected (visually) we should say:
+
+\startbuffer[setup]
+\Umathordrelspacing\scriptstyle=30mu
+\Umathordordspacing\scriptstyle=30mu
+\Umathordrelspacing\crampedscriptstyle=30mu
+\Umathordordspacing\crampedscriptstyle=30mu
+\stopbuffer
+
+\typebuffer[setup]
+
+Now we get:
+
+\start\getbuffer[setup,demo]\stop
+
 \section{Math parameter settings}
 
 In \LUATEX, the font dimension parameters that \TEX\ used in math typesetting are
