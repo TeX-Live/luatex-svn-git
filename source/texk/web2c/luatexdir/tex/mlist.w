@@ -76,6 +76,7 @@ already apply that shift.
 #define script_space         dimen_par(script_space_code)
 #define disable_lig          int_par(disable_lig_code)
 #define disable_kern         int_par(disable_kern_code)
+#define scripts_mode         int_par(math_scripts_mode_code)
 
 #define nDEBUG
 
@@ -3200,11 +3201,30 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
         */
         x = clean_box(subscr(q), sub_style(cur_style), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
-        if (shift_down < sub_shift_down(cur_style))
-            shift_down = sub_shift_down(cur_style);
-        clr = height(x) - sub_top_max(cur_style);
-        if (shift_down < clr)
-            shift_down = clr;
+        switch (scripts_mode) {
+            case 1:
+                shift_down = sub_shift_down(cur_style) ;
+                break;
+            case 2:
+                shift_down = sub_sup_shift_down(cur_style) ;
+                break;
+            case 3:
+                shift_down = sub_sup_shift_down(cur_style) ;
+                break;
+            case 4:
+                shift_down = sub_shift_down(cur_style) + half(sub_sup_shift_down(cur_style)-sub_shift_down(cur_style)) ;
+                break;
+            case 5:
+                shift_down = sub_shift_down(cur_style) ;
+                break;
+            default:
+                if (shift_down < sub_shift_down(cur_style))
+                    shift_down = sub_shift_down(cur_style);
+                clr = height(x) - sub_top_max(cur_style);
+                if (shift_down < clr)
+                    shift_down = clr;
+                break;
+        }
         shift_amount(x) = shift_down;
 
         /* now find and correct for horizontal shift */
@@ -3231,13 +3251,31 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
         */
         x = clean_box(supscr(q), sup_style(cur_style), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
-        clr = sup_shift_up(cur_style);
-        if (shift_up < clr)
-            shift_up = clr;
-        clr = depth(x) + sup_bottom_min(cur_style);
-        if (shift_up < clr)
-            shift_up = clr;
-
+        switch (scripts_mode) {
+            case 1:
+                shift_up = sup_shift_up(cur_style);
+                break;
+            case 2:
+                shift_up = sup_shift_up(cur_style) ;
+                break;
+            case 3:
+                shift_up = sup_shift_up(cur_style) + sub_sup_shift_down(cur_style) - sub_shift_down(cur_style) ;
+                break;
+            case 4:
+                shift_up = sup_shift_up(cur_style) + half(sub_sup_shift_down(cur_style)-sub_shift_down(cur_style)) ;
+                break;
+            case 5:
+                shift_up = sup_shift_up(cur_style) + sub_sup_shift_down(cur_style)-sub_shift_down(cur_style) ;
+                break;
+            default:
+                clr = sup_shift_up(cur_style);
+                if (shift_up < clr)
+                    shift_up = clr;
+                clr = depth(x) + sup_bottom_min(cur_style);
+                if (shift_up < clr)
+                    shift_up = clr;
+                break;
+        }
         if (subscr(q) == null) {
             shift_amount(x) = -shift_up;
             /* now find and correct for horizontal shift */
@@ -3268,16 +3306,35 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             */
             y = clean_box(subscr(q), sub_style(cur_style), cur_style);
             width(y) = width(y) + space_after_script(cur_style);
-            if (shift_down < sub_sup_shift_down(cur_style))
-                shift_down = sub_sup_shift_down(cur_style);
-            clr = subsup_vgap(cur_style) - ((shift_up - depth(x)) - (height(y) - shift_down));
-            if (clr > 0) {
-                shift_down = shift_down + clr;
-                clr = sup_sub_bottom_max(cur_style) - (shift_up - depth(x));
-                if (clr > 0) {
-                    shift_up = shift_up + clr;
-                    shift_down = shift_down - clr;
-                }
+            switch (scripts_mode) {
+                case 1:
+                    shift_down = sub_shift_down(cur_style) ;
+                    break;
+                case 2:
+                    shift_down = sub_sup_shift_down(cur_style) ;
+                    break;
+                case 3:
+                    shift_down = sub_sup_shift_down(cur_style) ;
+                    break;
+                case 4:
+                    shift_down = sub_shift_down(cur_style) + half(sub_sup_shift_down(cur_style)-sub_shift_down(cur_style)) ;
+                    break;
+                case 5:
+                    shift_down = sub_shift_down(cur_style) ;
+                    break;
+                default:
+                    if (shift_down < sub_sup_shift_down(cur_style))
+                        shift_down = sub_sup_shift_down(cur_style);
+                    clr = subsup_vgap(cur_style) - ((shift_up - depth(x)) - (height(y) - shift_down));
+                    if (clr > 0) {
+                        shift_down = shift_down + clr;
+                        clr = sup_sub_bottom_max(cur_style) - (shift_up - depth(x));
+                        if (clr > 0) {
+                            shift_up = shift_up + clr;
+                            shift_down = shift_down - clr;
+                        }
+                    }
+                break;
             }
             /* now find and correct for horizontal shift */
             if (sub_n != null) {

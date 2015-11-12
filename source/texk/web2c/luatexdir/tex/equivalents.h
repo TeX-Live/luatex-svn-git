@@ -270,37 +270,33 @@ here, and the |number_regs| \.{\\dimen} registers.
 #  define output_mode_code 70                                           /* switch on PDF output if positive */
 #  define draft_mode_code 71
 #  define tracing_fonts_code 72
+#  define tracing_assigns_code 73                                       /* show assignments */
+#  define tracing_groups_code 74                                        /* show save/restore groups */
+#  define tracing_ifs_code 75                                           /* show conditionals */
+#  define tracing_scan_tokens_code 76                                   /* show pseudo file open and close */
+#  define tracing_nesting_code 77                                       /* show incomplete groups and ifs within files */
+#  define pre_display_direction_code 78                                 /* text direction preceding a display */
+#  define last_line_fit_code 79                                         /* adjustment for last line of paragraph */
+#  define saving_vdiscards_code 80                                      /* save items discarded from vlists */
+#  define saving_hyph_codes_code 81                                     /* save hyphenation codes for languages */
+#  define suppress_fontnotfound_error_code 82                           /* suppress errors for missing fonts */
+#  define suppress_long_error_code 83                                   /* suppress errors for missing fonts */
+#  define suppress_ifcsname_error_code 84                               /* suppress errors for failed \.{\\ifcsname} */
+#  define suppress_outer_error_code 85                                  /* suppress errors for \.{\\outer} */
+#  define suppress_mathpar_error_code 86                                /* suppress errors for \.{\\par}} in math */
+#  define math_eqno_gap_step_code 87                                    /* factor/1000 used for distance between eq and eqno */
+#  define math_display_skip_mode_code 88
+#  define math_scripts_mode_code 89
+#  define synctex_code 90                                               /* is synctex file generation enabled ?  */
 
-#  define math_no_italic_compensation_code 73    /* just for tracing, can change */
-#  define math_no_char_italic_code 74            /* just for tracing, can change */
-#  define math_use_old_fraction_scaling_code 75  /* just for tracing, can change */
-#  define math_old_code 76                       /* this one is stable */
+#  define math_no_italic_compensation_code 91                           /* just for tracing, can change */
+#  define math_no_char_italic_code 92                                   /* just for tracing, can change */
+#  define math_use_old_fraction_scaling_code 93                         /* just for tracing, can change */
+#  define math_old_code 94                                              /* this one is stable */
 
-#  define math_option_code 77
+#  define math_option_code 95
 
-#  define etex_first_integer_code (math_option_code+1)                  /* base for \eTeX's integer parameters */
-
-#  define tracing_assigns_code (etex_first_integer_code)                /* show assignments */
-#  define tracing_groups_code (etex_first_integer_code+1)               /* show save/restore groups */
-#  define tracing_ifs_code (etex_first_integer_code+2)                  /* show conditionals */
-#  define tracing_scan_tokens_code (etex_first_integer_code+3)          /* show pseudo file open and close */
-#  define tracing_nesting_code (etex_first_integer_code+4)              /* show incomplete groups and ifs within files */
-#  define pre_display_direction_code (etex_first_integer_code+5)        /* text direction preceding a display */
-#  define last_line_fit_code (etex_first_integer_code+6)                /* adjustment for last line of paragraph */
-#  define saving_vdiscards_code (etex_first_integer_code+7)             /* save items discarded from vlists */
-#  define saving_hyph_codes_code (etex_first_integer_code+8)            /* save hyphenation codes for languages */
-#  define suppress_fontnotfound_error_code (etex_first_integer_code+9)  /* suppress errors for missing fonts */
-#  define suppress_long_error_code (etex_first_integer_code+10)         /* suppress errors for missing fonts */
-#  define suppress_ifcsname_error_code (etex_first_integer_code+11)     /* suppress errors for failed \.{\\ifcsname} */
-#  define suppress_outer_error_code (etex_first_integer_code+12)        /* suppress errors for \.{\\outer} */
-#  define suppress_mathpar_error_code (etex_first_integer_code+13)      /* suppress errors for \.{\\par}} in math */
-#  define math_eqno_gap_step_code (etex_first_integer_code+14)          /* factor/1000 used for distance between eq and eqno */
-#  define math_display_skip_mode_code (etex_first_integer_code+15)
-#  define synctex_code (etex_first_integer_code+16)                     /* is synctex file generation enabled ?  */
-
-/* define tex_int_pars (synctex_code+1) */                              /* total number of integer parameters */
-
-#  define backend_int_base (synctex_code+1)
+#  define backend_int_base (math_option_code+1)
 #  define backend_int_last (backend_int_base+20)
 
 #  define tex_int_pars (backend_int_last+1)                             /* total number of integer parameters */

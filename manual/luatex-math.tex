@@ -925,6 +925,40 @@ given the \type {noaxis} command can be used to prevent shifting over the axis.
 You can influence the final class with the keyword \type {class} which will
 influence the spacing.
 
+\subsection{Fixed scripts}
+
+We have three parameters that are used for this fixed anchoring:
+
+\starttabulate[|l|l|]
+\NC $d$ \NC \type {\Umathsubshiftdown}    \NC \NR
+\NC $u$ \NC \type {\Umathsupshiftup}      \NC \NR
+\NC $s$ \NC \type {\Umathsubsupshiftdown} \NC \NR
+\stoptabulate
+
+When we set \type {\mathscriptsmode} to a value other than zero these are used
+for calculating fixed positions. This is something that is needed for instance
+for chemistry. You can manipulate the mentioned variables to achive different
+effects.
+
+\def\SampleMath#1%
+  {$\mathscriptsmode#1\mathupright CH_2 + CH^+_2 + CH^2_2$}
+
+\starttabulate[|c|c|c|l|]
+\NC \bf mode \NC \bf down      \NC \bf up        \NC                \NC \NR
+\NC 0        \NC dynamic       \NC dynamic       \NC \SampleMath{0} \NC \NR
+\NC 1        \NC $d$           \NC $u$           \NC \SampleMath{1} \NC \NR
+\NC 2        \NC $s$           \NC $u$           \NC \SampleMath{2} \NC \NR
+\NC 3        \NC $s$           \NC $u + s - d$   \NC \SampleMath{3} \NC \NR
+\NC 4        \NC $d + (s-d)/2$ \NC $u + (s-d)/2$ \NC \SampleMath{4} \NC \NR
+\NC 5        \NC $d$           \NC $u + s - d$   \NC \SampleMath{5} \NC \NR
+\stoptabulate
+
+The value of this parameter obeys grouping but applies to the whole current
+formula.
+
+% if needed we can put the value in stylenodes but maybe more should go there
+
+
 \subsection {Math options}
 
 The logic in the math engine is rather complex and there are often no universal
