@@ -80,7 +80,7 @@ extern halfword filtered_vpackage(halfword p, scaled h, int m, scaled l,
                                   int grp, int d);
 extern void finish_vcenter(void);
 extern void package(int c);
-extern void append_to_vlist(halfword b);
+extern void append_to_vlist(halfword b, int location);
 
 extern halfword prune_page_top(halfword p, boolean s);
 extern scaled active_height[10];        /* distance from first active node to~|cur_p| */

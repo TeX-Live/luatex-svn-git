@@ -1450,7 +1450,7 @@ void box_end(int box_context)
                         append_list(pre_adjust_head, pre_adjust_tail);
                     pre_adjust_tail = null;
                 }
-                append_to_vlist(cur_box);
+                append_to_vlist(cur_box,lua_key_index(box));
                 if (adjust_tail != null) {
                     if (adjust_head != adjust_tail)
                         append_list(adjust_head, adjust_tail);

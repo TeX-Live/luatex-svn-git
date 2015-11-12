@@ -537,6 +537,22 @@ represent a hbox. Failure to do so will result in a fatal error.
 Setting this callback to \type {false} is possible, but dangerous, because it is
 possible you will end up in an unfixable \quote {deadcycles loop}.
 
+\subsubsection{\type {append_to_vlist_filter}}
+
+This callback is called whenever \LUATEX\ adds a box to a vertical list:
+
+\startfunctioncall
+function(<node> box, <string> locationcode, <number prevdepth>,
+    <boolean> mirrored)
+    return list, prevdepth
+end
+\stopfunctioncall
+
+It is ok to return nothing in which case you also need to flush the box or deal
+with it yourself. The prevdepth is also optional. Locations are \type {box},
+\type {alignment}, \type {equation}, \type {equation_number} and \type
+{post_linebreak}.
+
 \subsubsection{\type {post_linebreak_filter}}
 
 This callback is called just after \LUATEX\ has converted a list of nodes into a
@@ -5012,6 +5028,9 @@ tex.splitmaxdepth
 tex.vfuzz
 tex.voffset
 tex.vsize
+tex.prevdepth
+tex.prevgraf
+tex.spacefactor
 \stoptyping
 \stopthreecolumns
 
@@ -5027,9 +5046,39 @@ tex.pagegoal
 tex.pageshrink
 tex.pagestretch
 tex.pagetotal
-tex.prevdepth
 \stoptyping
 \stopthreecolumns
+
+Beware: as with all \LUA\ tables you can add values to them. So, the following is valid:
+
+\starttyping
+tex.foo = 123
+\stoptyping
+
+When you access a \TEX\ parameter a look up takes place. For read||only variables
+that means that you will get something back, but when you set them you create a
+new entry in the table thereby making the original invisible.
+
+There are a few special cases that we make an exception for: \type {prevdepth},
+\type {prevgraf} and \type {spacefactor}. These normally are accessed via the
+\type {tex.nest} table:
+
+\starttyping
+tex.nest[tex.nest.ptr].prevdepth   = p
+tex.nest[tex.nest.ptr].spacefactor = s
+\stoptyping
+
+However, the following also works:
+
+\starttyping
+tex.prevdepth   = p
+tex.spacefactor = s
+\stoptyping
+
+Keep in mind that when you mess with node lists directly at the \LUA\ end you
+might need to update the top of the nesting stack's \type {prevdepth} explicitly
+as there is no way \LUATEX\ can guess your intentions. By using the accessor in
+the \type {tex} tables, you get and set the values atthe top of the nest stack.
 
 \subsubsection{Direction parameters}
 

@@ -459,7 +459,7 @@ void ext_post_line_break(int paragraph_dir,
                 lua_node_filter_s(buildpage_filter_callback, lua_key_index(pre_adjust));
         }
         pre_adjust_tail = null;
-        append_to_vlist(just_box);
+        append_to_vlist(just_box,lua_key_index(post_linebreak));
         if (!output_active)
             lua_node_filter_s(buildpage_filter_callback, lua_key_index(box));
         if (adjust_head != adjust_tail) {

@@ -62,6 +62,7 @@ static const char *const callbacknames[] = {
     "pre_linebreak_filter",
     "linebreak_filter",
     "post_linebreak_filter",
+    "append_to_vlist_filter",
     "mlist_to_hlist",
     "finish_pdffile",
     "finish_pdfpage",

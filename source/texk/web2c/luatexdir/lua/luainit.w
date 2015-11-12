@@ -793,7 +793,6 @@ int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
 int l_dir_par_index         [DIR_PAR_SIZE];
 int l_dir_text_index        [DIR_TEXT_SIZE];
 
-
 #if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
 char **suffixlist;
 
@@ -941,7 +940,7 @@ void lua_initialize(int ac, char **av)
     lua_settable(Luas,LUA_REGISTRYINDEX);
 
     /* here start the key definitions */
-    set_pack_type_index;
+    set_l_pack_type_index;
     set_l_group_code_index;
     set_l_math_style_name_index;
     set_l_dir_par_index;

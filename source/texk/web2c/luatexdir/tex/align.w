@@ -776,7 +776,7 @@ void fin_row(void)
         pop_nest();
         if (cur_pre_head != cur_pre_tail)
             append_list(cur_pre_head, cur_pre_tail);
-        append_to_vlist(p);
+        append_to_vlist(p,lua_key_index(alignment));
         if (cur_head != cur_tail)
             append_list(cur_head, cur_tail);
     } else {
@@ -1141,14 +1141,11 @@ value is changed to zero and so is the next tabskip.
             cur_list.tail_field = q;
         if (cur_list.mode_field == vmode) {
             if (!output_active)
-	    //                lua_node_filter_s(buildpage_filter_callback, "alignment");
-		lua_node_filter_s(buildpage_filter_callback,lua_key_index(alignment));
+                lua_node_filter_s(buildpage_filter_callback,lua_key_index(alignment));
             build_page();
         }
     }
 }
-
-
 
 @ The token list |omit_template| just referred to is a constant token
 list that contains the special control sequence \.{\\endtemplate} only.

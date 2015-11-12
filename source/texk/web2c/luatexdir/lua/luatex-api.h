@@ -308,17 +308,18 @@ preassign these at startup time. */
 #define PACK_TYPE_SIZE        4
 #define GROUP_CODE_SIZE      23
 #define MATH_STYLE_NAME_SIZE  8
+#define APPEND_LIST_SIZE      5
 #define DIR_PAR_SIZE          8
 #define DIR_TEXT_SIZE         8
 
-extern int l_pack_type_index       [PACK_TYPE_SIZE] ;
+extern int l_pack_type_index       [PACK_TYPE_SIZE];
 extern int l_group_code_index      [GROUP_CODE_SIZE];
 extern int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
 extern int l_dir_par_index         [DIR_PAR_SIZE];
 extern int l_dir_text_index        [DIR_TEXT_SIZE];
 
-#define lua_push_pack_type(L,pack_type)  lua_rawgeti(L, LUA_REGISTRYINDEX, l_pack_type_index      [pack_type] );
-#define lua_push_group_code(L,group_code) lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index     [group_code]);
+#define lua_push_pack_type(L,pack_type)  lua_rawgeti(L, LUA_REGISTRYINDEX, l_pack_type_index[pack_type] );
+#define lua_push_group_code(L,group_code) lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index[group_code]);
 #define lua_push_math_style_name(L,style_name) lua_rawgeti(L, LUA_REGISTRYINDEX, l_math_style_name_index[style_name]);
 #define lua_push_dir_par(L,dir) lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir+dir_swap])
 #define lua_push_dir_text(L,dir) lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index[dir+dir_swap])
@@ -326,7 +327,7 @@ extern int l_dir_text_index        [DIR_TEXT_SIZE];
 #define lua_push_string_by_index(L,index) lua_rawgeti(L, LUA_REGISTRYINDEX, index)
 #define lua_push_string_by_name(L,index) lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(index))
 
-#define set_pack_type_index \
+#define set_l_pack_type_index \
 l_pack_type_index[0] = lua_key_index(exactly); \
 l_pack_type_index[1] = lua_key_index(additional); \
 l_pack_type_index[2] = lua_key_index(cal_expand_ratio);\
@@ -476,6 +477,8 @@ make_lua_key(encodingbytes);\
 make_lua_key(encodingname);\
 make_lua_key(end);\
 make_lua_key(etex);\
+make_lua_key(equation);\
+make_lua_key(equation_number);\
 make_lua_key(exactly);\
 make_lua_key(expansion_factor);\
 make_lua_key(ext);\
@@ -592,6 +595,7 @@ make_lua_key(pen_inter);\
 make_lua_key(penalty);\
 make_lua_key(pop);\
 make_lua_key(post);\
+make_lua_key(post_linebreak);\
 make_lua_key(pre);\
 make_lua_key(pre_adjust);\
 make_lua_key(pre_adjust_head);\
@@ -783,6 +787,8 @@ init_lua_key(encodingbytes);\
 init_lua_key(encodingname);\
 init_lua_key(end);\
 init_lua_key(etex);\
+init_lua_key(equation);\
+init_lua_key(equation_number);\
 init_lua_key(exactly);\
 init_lua_key(expansion_factor);\
 init_lua_key(ext);\
@@ -888,6 +894,7 @@ init_lua_key(pen_inter);\
 init_lua_key(penalty);\
 init_lua_key(pop);\
 init_lua_key(post);\
+init_lua_key(post_linebreak);\
 init_lua_key(pre);\
 init_lua_key(pre_adjust);\
 init_lua_key(pre_adjust_head);\
@@ -1135,6 +1142,8 @@ use_lua_key(encodingbytes);
 use_lua_key(encodingname);
 use_lua_key(end);
 use_lua_key(etex);
+use_lua_key(equation);\
+use_lua_key(equation_number);\
 use_lua_key(exactly);
 use_lua_key(expansion_factor);
 use_lua_key(ext);
@@ -1251,6 +1260,7 @@ use_lua_key(pen_inter);
 use_lua_key(penalty);
 use_lua_key(pop);
 use_lua_key(post);
+use_lua_key(post_linebreak);
 use_lua_key(pre);
 use_lua_key(pre_adjust);
 use_lua_key(pre_adjust_head);

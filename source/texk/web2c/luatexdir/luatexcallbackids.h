@@ -55,6 +55,7 @@ typedef enum {
     pre_linebreak_filter_callback,
     linebreak_filter_callback,
     post_linebreak_filter_callback,
+    append_to_vlist_filter_callback,
     mlist_to_hlist_callback,
     finish_pdffile_callback,
     finish_pdfpage_callback,

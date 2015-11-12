@@ -1304,31 +1304,47 @@ void package(int c)
 baselineskip calculation is handled by the |append_to_vlist| routine.
 
 @c
-void append_to_vlist(halfword b)
+void append_to_vlist(halfword b, int location)
 {
-    scaled d;                   /* deficiency of space between baselines */
-    halfword p;                 /* a new glue node */
-    if (prev_depth > ignore_depth) {
-        if ((type(b) == hlist_node) && is_mirrored(box_dir(b))) {
-            d = width(glue_par(baseline_skip_code)) - prev_depth - depth(b);
-        } else {
-            d = width(glue_par(baseline_skip_code)) - prev_depth - height(b);
+    scaled d;   /* deficiency of space between baselines */
+    halfword p; /* a new glue node */
+    boolean mirrored = (type(b) == hlist_node) && is_mirrored(box_dir(b)) ;
+    halfword result = null;
+    halfword next_depth = ignore_depth;
+    boolean prev_set = false ;
+    if (lua_appendtovlist_callback(b,location,prev_depth,mirrored,&result,&next_depth,&prev_set)) {
+        while (result != null) {
+            couple_nodes(cur_list.tail_field, result);
+            cur_list.tail_field = result;
+            result = vlink(result);
         }
-        if (d < dimen_par(line_skip_limit_code)) {
-            p = new_param_glue(line_skip_code);
-        } else {
-            p = new_skip_param(baseline_skip_code);
-            width(temp_ptr) = d;        /* |temp_ptr=glue_ptr(p)| */
+        if (prev_set) {
+            prev_depth = next_depth;
         }
-        couple_nodes(cur_list.tail_field, p);
-        cur_list.tail_field = p;
+    } else {
+        if (prev_depth > ignore_depth) {
+            if (mirrored) {
+                d = width(glue_par(baseline_skip_code)) - prev_depth - depth(b);
+            } else {
+                d = width(glue_par(baseline_skip_code)) - prev_depth - height(b);
+            }
+            if (d < dimen_par(line_skip_limit_code)) {
+                p = new_param_glue(line_skip_code);
+            } else {
+                p = new_skip_param(baseline_skip_code);
+                width(temp_ptr) = d;        /* |temp_ptr=glue_ptr(p)| */
+            }
+            couple_nodes(cur_list.tail_field, p);
+            cur_list.tail_field = p;
+        }
+        couple_nodes(cur_list.tail_field, b);
+        cur_list.tail_field = b;
+        if (mirrored) {
+            prev_depth = height(b);
+        } else {
+            prev_depth = depth(b);
+        }
     }
-    couple_nodes(cur_list.tail_field, b);
-    cur_list.tail_field = b;
-    if ((type(b) == hlist_node) && is_mirrored(box_dir(b)))
-        prev_depth = height(b);
-    else
-        prev_depth = depth(b);
 }
 
 

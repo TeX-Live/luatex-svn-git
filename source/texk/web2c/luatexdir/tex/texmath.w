@@ -2265,7 +2265,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
             shift_amount(eqno_box) = 0;
      /* } else {                       */
      /* }                              */
-        append_to_vlist(eqno_box);
+        append_to_vlist(eqno_box,lua_key_index(equation_number));
         tail_append(new_penalty(inf_penalty));
     } else {
         switch (display_skip_mode) {
@@ -2367,7 +2367,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
         shift_amount(eq_box) = line_s + d;
     }
 /* check for prev: */
-    append_to_vlist(eq_box);
+    append_to_vlist(eq_box,lua_key_index(equation));
 
     if ((eqno_box != null) && (eqno_w == 0) && !l) {
         tail_append(new_penalty(inf_penalty));
@@ -2375,7 +2375,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
             shift_amount(eqno_box) = line_s + line_w - eqno_width ;
      /* } else {                       */
      /* }                              */
-        append_to_vlist(eqno_box);
+        append_to_vlist(eqno_box,lua_key_index(equation_number));
         g2 = 0;
     }
     if (t != adjust_head) {     /* migrating material comes after equation number */

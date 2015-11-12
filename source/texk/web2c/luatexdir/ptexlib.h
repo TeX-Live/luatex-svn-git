@@ -246,15 +246,20 @@ extern halfword new_ligkern(halfword head, halfword tail);
 extern halfword handle_ligaturing(halfword head, halfword tail);
 extern halfword handle_kerning(halfword head, halfword tail);
 
-halfword lua_hpack_filter(halfword head_node, scaled size, int pack_type,
-                          int extrainfo, int d);
-void lua_node_filter(int filterid, int extrainfo, halfword head_node,
-                     halfword * tail_node);
-halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type,
-                          scaled maxd, int extrainfo, int d);
-void lua_node_filter_s(int filterid, int extrainfo);
-int lua_linebreak_callback(int is_broken, halfword head_node,
-                           halfword * new_head);
+halfword lua_hpack_filter(
+    halfword head_node, scaled size, int pack_type, int extrainfo, int d);
+void lua_node_filter(
+    int filterid, int extrainfo, halfword head_node,
+    halfword * tail_node);
+halfword lua_vpack_filter(
+    halfword head_node, scaled size, int pack_type, scaled maxd, int extrainfo, int d);
+void lua_node_filter_s(
+    int filterid, int extrainfo);
+int lua_linebreak_callback(
+    int is_broken, halfword head_node, halfword * new_head);
+int lua_appendtovlist_callback(
+    halfword box, int location, halfword prev_depth, boolean is_mirrored,
+    halfword * result, int * next_depth, boolean * prev_set);
 
 void lua_pdf_literal(PDF pdf, int i);
 void copy_pdf_literal(pointer r, pointer p);
