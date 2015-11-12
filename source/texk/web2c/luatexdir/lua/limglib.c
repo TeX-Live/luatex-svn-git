@@ -347,7 +347,7 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.filename is now read-only");
         if (img_type(d) == IMG_TYPE_PDFSTREAM)
             luaL_error(L, "image.filename can't be used with image.stream");
-        if (lua_isstring(L, -1)) {
+        if (lua_type(L, -1) == LUA_TSTRING) {
             xfree(img_filename(d));
             img_filename(d) = xstrdup(lua_tostring(L, -1));
         } else
@@ -357,9 +357,8 @@ static void lua_to_image(lua_State * L, image * a)
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.visiblefilename is now read-only");
         if (img_type(d) == IMG_TYPE_PDFSTREAM)
-            luaL_error(L,
-                       "image.visiblefilename can't be used with image.stream");
-        if (lua_isstring(L, -1)) {
+            luaL_error(L, "image.visiblefilename can't be used with image.stream");
+        if (lua_type(L, -1) == LUA_TSTRING) {
             xfree(img_visiblefilename(d));
             img_visiblefilename(d) = xstrdup(lua_tostring(L, -1));
         } else
@@ -368,10 +367,11 @@ static void lua_to_image(lua_State * L, image * a)
     case P_ATTR:
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.attr is now read-only");
-        if (lua_isstring(L, -1) || lua_isnil(L, -1)) {
+        if (lua_type(L, -1) == LUA_TSTRING) {
             xfree(img_attr(d));
-            if (lua_isstring(L, -1))
-                img_attr(d) = xstrdup(lua_tostring(L, -1));
+            img_attr(d) = xstrdup(lua_tostring(L, -1));
+        } else if (lua_type(L, -1) == LUA_TNIL) {
+            xfree(img_attr(d));
         } else
             luaL_error(L, "image.attr needs string or nil value");
         break;
@@ -401,9 +401,9 @@ static void lua_to_image(lua_State * L, image * a)
     case P_PAGEBOX:
         if (img_state(d) >= DICT_FILESCANNED)
             luaL_error(L, "image.pagebox is now read-only");
-        if (lua_isnil(L, -1))
+        if (lua_type(L, -1) == LUA_TNIL)
             img_pagebox(d) = PDF_BOX_SPEC_NONE;
-        else if (lua_isstring(L, -1))
+        else if (lua_type(L, -1) == LUA_TSTRING)
             img_pagebox(d) = luaL_checkoption(L, -1, "none", pdfboxspec_s);
         else
             luaL_error(L, "image.pagebox needs string or nil value");

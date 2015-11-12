@@ -345,7 +345,7 @@ static int getstats(lua_State * L)
 {
     const char *st;
     int i;
-    if (lua_isstring(L, -1)) {
+    if (lua_type(L,-1) == LUA_TSTRING) {
         st = lua_tostring(L, -1);
         i = stats_name_to_id(st);
         if (i >= 0) {

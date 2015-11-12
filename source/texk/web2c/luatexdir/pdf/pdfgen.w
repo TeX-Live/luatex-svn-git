@@ -883,7 +883,7 @@ static void destroy_page_resources_tree(PDF pdf)
 
 @* Subroutines to print out various PDF objects.
 
-@ print out an integer |n| with fixed width |w|; used for outputting cross-reference table. The 
+@ print out an integer |n| with fixed width |w|; used for outputting cross-reference table. The
 specification says that an offset must take 10 bytes.
 @c
 static void pdf_print_fw_int(PDF pdf, longinteger n)
@@ -896,9 +896,9 @@ static void pdf_print_fw_int(PDF pdf, longinteger n)
         digits[k] = (unsigned char) ('0' + (n % 10));
         n /= 10;
     } while (k != 0);
-    if (n!=0) 
+    if (n!=0)
       /* the absolute  value of $n$ is greater than 9999999999 */
-      normal_error("pdf backend", "offset exceeds 10 bytes, try enabling object compression."); 
+      normal_error("pdf backend", "offset exceeds 10 bytes, try enabling object compression.");
     digits[10]='\0';
     pdf_puts(pdf, (const char *) digits);
 }
@@ -1797,7 +1797,7 @@ void print_pdf_table_string(PDF pdf, const char *s)
     lua_rawget(Luas, LUA_REGISTRYINDEX);
     lua_pushstring(Luas, s);    /* s t ... */
     lua_rawget(Luas, -2);     /* s? t ... */
-    if (lua_isstring(Luas, -1)) {       /* s t ... */
+    if (lua_type(Luas, -1) == LUA_TSTRING) {       /* s t ... */
         ls = lua_tolstring(Luas, -1, &len);
         if (len > 0) {
             if (pdf->cave == 1)
@@ -1817,10 +1817,12 @@ const char *get_pdf_table_string(const char *s)
     lua_rawget(Luas, LUA_REGISTRYINDEX);
     lua_pushstring(Luas, s);    /* s t ... */
     lua_rawget(Luas, -2);     /* s? t ... */
-    if (lua_isstring(Luas, -1)) {       /* s t ... */
+    if (lua_type(Luas, -1) == LUA_TSTRING) {       /* s t ... */
         ls.s = lua_tolstring(Luas, -1, &ls.l);
-    /*  s is  supposed to be anchored (e.g in the registry)
-        so it's not garbage collected */
+        /*
+            s is supposed to be anchored (e.g in the registry)
+            so it's not garbage collected
+        */
         lua_pop(Luas, 2);           /* ... */
         return ls.s;
     }

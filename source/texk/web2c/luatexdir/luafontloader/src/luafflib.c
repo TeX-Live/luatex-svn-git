@@ -212,7 +212,7 @@ static int ff_open(lua_State * L)
         return 2;
     }
     args = lua_gettop(L);
-    if (args >= 2 && lua_isstring(L, 2)) {
+    if (args >= 2 && (lua_type(L, 2) == LUA_TSTRING)) {
         len = strlen(fontname);
         if (*(fontname + len) != ')') {
             /* possibly fails for embedded parens in the font name */
@@ -2559,7 +2559,7 @@ static int ff_glyph_index(lua_State * L)
     if (glyph == NULL) {
         return luaL_error(L, "fontloader.glyph.__index: glyph is nonexistent\n");
     }
-    if (!lua_isstring(L, 2)) {  /* 1 == 'font' */
+    if (lua_type(L, 2) != LUA_TSTRING) {  /* 1 == 'font' */
         return luaL_error(L, "fontloader.glyph.__index: can only be indexed by string\n");
     }
     key = luaL_checkoption(L, 2, NULL, font_glyph_keys);
@@ -2752,7 +2752,7 @@ static int ff_index(lua_State * L)
         lua_pushnil(L);
         return 1;
     }
-    if (!lua_isstring(L, 2)) {  /* 1 == 'font' */
+    if (lua_type(L, 2) != LUA_TSTRING) {  /* 1 == 'font' */
         return luaL_error(L, "fontloader.__index: can only be indexed by string\n");
     }
     key = luaL_checkoption(L, 2, NULL, font_keys);

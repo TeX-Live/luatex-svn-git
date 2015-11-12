@@ -399,11 +399,9 @@ int do_run_callback(int special, const char *values, va_list vl)
             }
             break;
         case CALLBACK_STRNUMBER:       /* TeX string */
-            if (!lua_isstring(L, nres)) {
-                if (!lua_isnil(L, nres)) {
-                    fprintf(stderr, "Expected a string for (s), not: %s\n", lua_typename(L, lua_type(L, nres)));
-                    goto EXIT;
-                }
+            if (lua_type(L, nres) != LUA_TSTRING) {
+                fprintf(stderr, "Expected a string for (s), not: %s\n", lua_typename(L, lua_type(L, nres)));
+                goto EXIT;
             }
             s = lua_tolstring(L, nres, &len);
             if (s == NULL)      /* |len| can be zero */
@@ -413,14 +411,11 @@ int do_run_callback(int special, const char *values, va_list vl)
             }
             break;
         case CALLBACK_STRING:  /* C string aka buffer */
-            if (!lua_isstring(L, nres)) {
-                if (!lua_isnil(L, nres)) {
-                    fprintf(stderr, "Expected a string for (S), not: %s\n", lua_typename(L, lua_type(L, nres)));
-                    goto EXIT;
-                }
+            if (lua_type(L, nres) != LUA_TSTRING) {
+                fprintf(stderr, "Expected a string for (S), not: %s\n", lua_typename(L, lua_type(L, nres)));
+                goto EXIT;
             }
             s = lua_tolstring(L, nres, &len);
-
             if (s == NULL)      /* |len| can be zero */
                 *va_arg(vl, int *) = 0;
             else {
@@ -430,11 +425,9 @@ int do_run_callback(int special, const char *values, va_list vl)
             }
             break;
         case CALLBACK_LSTRING:  /* lstring */
-            if (!lua_isstring(L, nres)) {
-                if (!lua_isnil(L, nres)) {
-                    fprintf(stderr, "Expected a string for (S), not: %s\n", lua_typename(L, lua_type(L, nres)));
-                    goto EXIT;
-                }
+            if (lua_type(L, nres) != LUA_TSTRING) {
+                fprintf(stderr, "Expected a string for (S), not: %s\n", lua_typename(L, lua_type(L, nres)));
+                goto EXIT;
             }
             s = lua_tolstring(L, nres, &len);
             if (s == NULL)      /* |len| can be zero */
@@ -475,10 +468,15 @@ static int callback_register(lua_State * L)
 {
     int cb;
     const char *s;
-    if (!lua_isstring(L, 1) ||
-        ((!lua_isfunction(L, 2)) &&
-         (!lua_isnil(L, 2)) &&
-         (!(lua_isboolean(L, 2) && lua_toboolean(L, 2) == 0)))) {
+    int t1, t2;
+    t1 = lua_type(L,1);
+    if (t1 != LUA_TSTRING) {
+        lua_pushnil(L);
+        lua_pushstring(L, "Invalid arguments to callback.register, first argument must be string.");
+        return 2;
+    }
+    t2 = lua_type(L,2);
+    if ((t2 != LUA_TFUNCTION) && (t2 != LUA_TNIL) && ((t2 != LUA_TBOOLEAN) && (lua_toboolean(L, 2) == 0))) {
         lua_pushnil(L);
         lua_pushstring(L, "Invalid arguments to callback.register.");
         return 2;
@@ -493,9 +491,9 @@ static int callback_register(lua_State * L)
         lua_pushstring(L, "No such callback exists.");
         return 2;
     }
-    if (lua_isfunction(L, 2)) {
+    if (t2 == LUA_TFUNCTION) {
         callback_set[cb] = cb;
-    } else if (lua_isboolean(L, 2)) {
+    } else if (t2 == LUA_TBOOLEAN) {
         callback_set[cb] = -1;
     } else {
         callback_set[cb] = 0;
@@ -513,7 +511,7 @@ static int callback_find(lua_State * L)
 {
     int cb;
     const char *s;
-    if (!lua_isstring(L, 1)) {
+    if (lua_type(L, 1) != LUA_TSTRING) {
         lua_pushnil(L);
         lua_pushstring(L, "Invalid arguments to callback.find.");
         return 2;

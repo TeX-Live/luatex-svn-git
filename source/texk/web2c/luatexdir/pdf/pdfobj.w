@@ -46,7 +46,8 @@ void pdf_write_obj(PDF pdf, int k)
         l = obj_obj_stream_attr(pdf, k);
         if (l != LUA_NOREF) {
             lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
-            assert(lua_isstring(Luas, -1));
+            if (lua_type(Luas,-1) != LUA_TSTRING)
+                normal_error("pdf backend","invalid object");
             st.s = lua_tolstring(Luas, -1, &li);
             st.l = li;
             pdf_out_block(pdf, st.s, st.l);
@@ -62,7 +63,8 @@ void pdf_write_obj(PDF pdf, int k)
         pdf_begin_obj(pdf, k, os_threshold);
     l = obj_obj_data(pdf, k);
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, l);
-    assert(lua_isstring(Luas, -1));
+    if (lua_type(Luas,-1) != LUA_TSTRING)
+        normal_error("pdf backend","invalid object");
     st.s = lua_tolstring(Luas, -1, &li);
     st.l = li;
     lua_pop(Luas, 1);
