@@ -2722,6 +2722,11 @@ static int tex_use_box_resource(lua_State * L)
     return 4;
 }
 
+static void tex_build_page(lua_State * L)
+{
+    build_page();
+}
+
 void init_tex_table(lua_State * L)
 {
     lua_createtable(L, 0, 3);
@@ -2811,6 +2816,8 @@ static const struct luaL_Reg texlib[] = {
     {"show_context", tex_show_context},
     {"saveboxresource", tex_save_box_resource},
     {"useboxresource", tex_use_box_resource},
+    /* just for testing: it will probably stay but maybe with options */
+    {"triggerbuildpage", tex_build_page},
     /* sentinel */
     {NULL, NULL}
 };
