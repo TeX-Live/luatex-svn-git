@@ -2722,9 +2722,11 @@ static int tex_use_box_resource(lua_State * L)
     return 4;
 }
 
-static void tex_build_page(lua_State * L)
+static int tex_build_page(lua_State * L)
 {
+    (void)L;
     build_page();
+    return 0;
 }
 
 void init_tex_table(lua_State * L)
