@@ -18,8 +18,6 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
-
-
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
