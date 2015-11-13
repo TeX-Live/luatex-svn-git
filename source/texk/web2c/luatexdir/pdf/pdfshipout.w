@@ -258,26 +258,26 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     shipbox_refpos = pdf->posstruct->pos;       /* for \.{\\gleaders} */
 
     switch (output_mode_used) {
-    case OMODE_DVI:
-        assert(shipping_mode == SHIPPING_PAGE);
-        dvi_begin_page(pdf);
-        break;
-    case OMODE_PDF:
-        pdf_begin_page(pdf);
-        break;
-    default:
-        assert(0);
+        case OMODE_DVI:
+            assert(shipping_mode == SHIPPING_PAGE);
+            dvi_begin_page(pdf);
+            break;
+        case OMODE_PDF:
+            pdf_begin_page(pdf);
+            break;
+        default:
+            normal_error("pdf backend", "unknown output mode");
     }
 
     switch (type(p)) {
-    case vlist_node:
-        vlist_out(pdf, p);
-        break;
-    case hlist_node:
-        hlist_out(pdf, p);
-        break;
-    default:
-        assert(0);
+        case vlist_node:
+            vlist_out(pdf, p);
+            break;
+        case hlist_node:
+            hlist_out(pdf, p);
+            break;
+        default:
+            normal_error("pdf backend", "no vlist or hlist in (xform) shipout");
     }
 
     if (shipping_mode == SHIPPING_PAGE)
@@ -287,14 +287,14 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     /* Finish shipping */
 
     switch (output_mode_used) {
-    case OMODE_DVI:
-        dvi_end_page(pdf);
-        break;
-    case OMODE_PDF:
-        pdf_end_page(pdf);
-        break;
-    default:
-        assert(0);
+        case OMODE_DVI:
+            dvi_end_page(pdf);
+            break;
+        case OMODE_PDF:
+            pdf_end_page(pdf);
+            break;
+        default:
+            normal_error("pdf backend", "unknown output mode");
     }
 
   DONE:
