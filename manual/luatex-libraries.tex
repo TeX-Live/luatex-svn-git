@@ -18,7 +18,12 @@ the \LUATEX\ executable. Together, they allow \LUA\ scripts to query and change 
 number of \TEX's internal variables, run various internal \TEX\ functions, and
 set up \LUATEX's hooks to execute \LUA\ code.
 
-The following sections are in alphabetical order.
+The following sections are in alphabetical order. For any callback (and
+manipulation of nodes) the following is true: you have a lot of freedom which
+also means that you can mess up the node lists and nodes themselves. So, a bit of
+defensive programming doesn't hurt. A crash can happen when you spoil things or
+when \LUATEX\ can recognize the issue, a panic exit will happen. Don't bother the
+team with such issues.
 
 \section{The \type {callback} library}
 
@@ -532,6 +537,22 @@ represent a hbox. Failure to do so will result in a fatal error.
 Setting this callback to \type {false} is possible, but dangerous, because it is
 possible you will end up in an unfixable \quote {deadcycles loop}.
 
+\subsubsection{\type {append_to_vlist_filter}}
+
+This callback is called whenever \LUATEX\ adds a box to a vertical list:
+
+\startfunctioncall
+function(<node> box, <string> locationcode, <number prevdepth>,
+    <boolean> mirrored)
+    return list, prevdepth
+end
+\stopfunctioncall
+
+It is ok to return nothing in which case you also need to flush the box or deal
+with it yourself. The prevdepth is also optional. Locations are \type {box},
+\type {alignment}, \type {equation}, \type {equation_number} and \type
+{post_linebreak}.
+
 \subsubsection{\type {post_linebreak_filter}}
 
 This callback is called just after \LUATEX\ has converted a list of nodes into a
@@ -585,6 +606,61 @@ end
 
 This callback does not replace any internal code.
 
+\subsubsection{\type {hpack_quality} and \type {vpack_quality}}
+
+These two callbacks can be used to intercept the overfull messages. They get a few
+arguments:
+
+\startfunctioncall
+function(<string> incident, <number> detail, <node> head, <number> first,
+         <number> last)
+    return <node> whatever
+end
+\stopfunctioncall
+
+The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
+\type {tight}. The detail is either the amount of overflow (in case of \type
+{overerful}, or the badness. The head is the list that is constructed (when
+protrusion or expansion is enabled, this is an intermediate list). For a hpack
+you can return a node (for instance an overfull rule indicator). That node will
+be appended to the list (just like \TEX's own rule would).
+
+\subsubsection{\type {hpack_quality}}
+
+This callback can be used to intercept the overfull messages that can result from
+packing a horizontal list (as happens in the par builder). The function takes a
+few arguments:
+
+\startfunctioncall
+function(<string> incident, <number> detail, <node> head, <number> first,
+         <number> last)
+    return <node> whatever
+end
+\stopfunctioncall
+
+The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
+\type {tight}. The detail is either the amount of overflow in case of \type
+{overfull}, or the badness otherwise. The head is the list that is constructed
+(when protrusion or expansion is enabled, this is an intermediate list).
+Optionally you can return a node, for instance an overfull rule indicator. That
+node will be appended to the list (just like \TEX's own rule would).
+
+\subsubsection{\type {vpack_quality}}
+
+This callback can be used to intercept the overfull messages that can result from
+packing a vertical list (as happens in the page builder). The function takes a
+few arguments:
+
+\startfunctioncall
+function(<string> incident, <number> detail, <node> head, <number> first,
+         <number> last)
+end
+\stopfunctioncall
+
+The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
+\type {tight}. The detail is either the amount of overflow in case of \type
+{overfull}, or the badness otherwise. The head is the list that is constructed.
+
 \subsubsection{\type {pre_output_filter}}
 
 This callback is called when \TEX\ is ready to start boxing the box 255 for \type
@@ -637,6 +713,9 @@ and because it can sometimes be handy when special processing has to take place.
 Setting this callback to \type {false} will prevent the internal ligature
 creation pass.
 
+You must not ruin the node list. For instance, the head normally is a local par node,
+and the tail a glue. Messing too much can push \LUATEX\ into panic mode.
+
 \subsubsection{\type {kerning}}
 
 \startfunctioncall
@@ -649,6 +728,9 @@ node list it receives. See \type {ligaturing} for calling conventions.
 
 Setting this callback to \type {false} will prevent the internal kern insertion
 pass.
+
+You must not ruin the node list. For instance, the head normally is a local par node,
+and the tail a glue. Messing too much can push \LUATEX\ into panic mode.
 
 \subsubsection{\type {mlist_to_hlist}}
 
@@ -1351,8 +1433,6 @@ library for graphic magick, it can return such a userdata object. This permits
 conversion in memory and passing the result directly to the backend. This might
 save some runtime in one|-|pass workflows. This feature is currently not meant
 for production.
-
-%***********************************************************************
 
 \section{The \type {font} library}
 
@@ -2231,7 +2311,6 @@ The subtables table has:
 \NC kernclass        \NC table    \NC (only if used)\NC \NR
 \stoptabulate
 
-
 The kernclass with subtables table has:
 
 \starttabulate[|lT|l|p|]
@@ -2241,6 +2320,10 @@ The kernclass with subtables table has:
 \NC lookup    \NC string or array \NC associated lookup(s) \NC \NR
 \NC offsets   \NC array of numbers  \NC \NC \NR
 \stoptabulate
+
+Note: the kernclass (as far as we can see) always has one entry so it could be one level
+deep instead. Also the seconds start at \type {[2]} which is close to the fontforge
+internals so we keep that too.
 
 \subsubsubsection{gsub table}
 
@@ -2537,8 +2620,6 @@ reversecoverage:
 \NC replacements \NC string   \NC \NC \NR
 \stoptabulate
 
-%***********************************************************************
-
 \section{The \type {img} library}
 
 The \type {img} library can be used as an alternative to \type {\pdfximage} and
@@ -2610,44 +2691,48 @@ user-supplied and automatic ones.
 
 % hahe: i need to add r/w ro column...
 \starttabulate[|l|l|p|]
-\NC \bf field name\NC \bf type \NC description \NC \NR
-\NC attr          \NC string   \NC the image attributes for \LUATEX \NC \NR
-\NC bbox          \NC table    \NC table with 4 boundingbox dimensions
-                                   \type {llx}, \type {lly}, \type {urx},
-                                   and \type {ury} overruling the \type {pagebox}
-                                   entry\NC \NR
-\NC colordepth    \NC number   \NC the number of bits used by the color space\NC \NR
-\NC colorspace    \NC number   \NC the color space object number \NC \NR
-\NC depth         \NC number   \NC the image depth for \LUATEX\
-                                   (in scaled points)\NC \NR
-\NC filename      \NC string   \NC the image file name \NC \NR
-\NC filepath      \NC string   \NC the full (expanded) file name of the image\NC \NR
-\NC height        \NC number   \NC the image height for \LUATEX\
-                                   (in scaled points)\NC \NR
-\NC imagetype     \NC string   \NC one of \type {pdf}, \type {png}, \type {jpg}, \type {jp2},
-                                   \type {jbig2}, or \type {nil} \NC \NR
-\NC index         \NC number   \NC the \PDF\ image name suffix \NC \NR
-\NC objnum        \NC number   \NC the \PDF\ image object number \NC \NR
-\NC page          \NC ??       \NC the identifier for the requested image page
-                                   (type is number or string,
-                                   default is the number 1)\NC \NR
-\NC pagebox       \NC string   \NC the requested bounding box, one of
-                                   \type {none}, \type {media}, \type {crop},
-                                   \type {bleed}, \type {trim}, \type {art} \NC \NR
-\NC pages         \NC number   \NC the total number of available pages \NC \NR
-\NC rotation      \NC number   \NC the image rotation from included \PDF\ file,
-                                   in multiples of 90~deg. \NC \NR
-\NC stream        \NC string   \NC the raw stream data for an \type {/Xobject}
-                                   \type {/Form} object\NC \NR
-\NC transform     \NC number   \NC the image transform, integer number 0..7\NC \NR
-\NC width         \NC number   \NC the image width for \LUATEX\
-                                   (in scaled points)\NC \NR
-\NC xres          \NC number   \NC the horizontal natural image resolution
-                                   (in \DPI) \NC \NR
-\NC xsize         \NC number   \NC the natural image width \NC \NR
-\NC yres          \NC number   \NC the vertical natural image resolution
-                                   (in \DPI) \NC \NR
-\NC ysize         \NC number   \NC the natural image height \NC \NR
+\NC \bf field name \NC \bf type \NC description \NC \NR
+\NC attr           \NC string   \NC the image attributes for \LUATEX \NC \NR
+\NC bbox           \NC table    \NC table with 4 boundingbox dimensions
+                                    \type {llx}, \type {lly}, \type {urx},
+                                    and \type {ury} overruling the \type {pagebox}
+                                    entry\NC \NR
+\NC colordepth     \NC number   \NC the number of bits used by the color space\NC \NR
+\NC colorspace     \NC number   \NC the color space object number \NC \NR
+\NC depth          \NC number   \NC the image depth for \LUATEX\
+                                    (in scaled points)\NC \NR
+\NC filename       \NC string   \NC the image file name \NC \NR
+\NC filepath       \NC string   \NC the full (expanded) file name of the image\NC \NR
+\NC height         \NC number   \NC the image height for \LUATEX\
+                                    (in scaled points)\NC \NR
+\NC imagetype      \NC string   \NC one of \type {pdf}, \type {png}, \type {jpg}, \type {jp2},
+                                    \type {jbig2}, or \type {nil} \NC \NR
+\NC index          \NC number   \NC the \PDF\ image name suffix \NC \NR
+\NC objnum         \NC number   \NC the \PDF\ image object number \NC \NR
+\NC page           \NC ??       \NC the identifier for the requested image page
+                                    (type is number or string,
+                                    default is the number 1)\NC \NR
+\NC pagebox        \NC string   \NC the requested bounding box, one of
+                                    \type {none}, \type {media}, \type {crop},
+                                    \type {bleed}, \type {trim}, \type {art} \NC \NR
+\NC pages          \NC number   \NC the total number of available pages \NC \NR
+\NC rotation       \NC number   \NC the image rotation from included \PDF\ file,
+                                    in multiples of 90~deg. \NC \NR
+\NC stream         \NC string   \NC the raw stream data for an \type {/Xobject}
+                                    \type {/Form} object\NC \NR
+\NC transform      \NC number   \NC the image transform, integer number 0..7\NC \NR
+\NC width          \NC number   \NC the image width for \LUATEX\
+                                    (in scaled points)\NC \NR
+\NC xres           \NC number   \NC the horizontal natural image resolution
+                                    (in \DPI) \NC \NR
+\NC xsize          \NC number   \NC the natural image width \NC \NR
+\NC yres           \NC number   \NC the vertical natural image resolution
+                                    (in \DPI) \NC \NR
+\NC ysize          \NC number   \NC the natural image height \NC \NR
+\NC visiblefileame \NC string   \NC when set, this name will find its way in the
+                                    \PDF\ file as \type {PTEX} specification; when
+                                    an empty string is assigned nothing is written
+                                    to file, otherwise the natural filename is taken \NC \NR
 \stoptabulate
 
 A running (undefined) dimension in \type {width}, \type {height}, or \type
@@ -2820,8 +2905,6 @@ these are \type {pdf}, \type {png}, \type {jpg}, \type {jp2} (JPEG~2000), and
 This function returns a list with the supported \PDF\ page box names, currently
 these are \type {media}, \type {crop}, \type {bleed}, \type {trim}, and \type
 {art} (all in lowercase letters).
-
-%***********************************************************************
 
 \section{The \type {kpse} library}
 
@@ -4279,6 +4362,28 @@ The preferred interface is now \type {pdf.setpageattributes}, \type
 properties and \type {pdf.getpageattributes}, \type {pdf.getpageattributes}
 and \type {pdf.getpageresources} for querying them.
 
+\subsection{\type {pdf.<set/get>xformattributes}, \type {pdf.<set/get>xformresources}}
+
+These variables offer a read|-|write interface to related token lists. The value
+types are strings. The variables have no interaction with the corresponding
+\PDFTEX\ token registers \type {\pdfxformattr} and \type {\pdfxformresources}. They
+are written out to the \PDF\ file directly after the \PDFTEX\ token registers.
+
+The preferred interface is now \type {pdf.setxformattributes} and \type
+{pdf.setxformattributes} for setting these properties and \type
+{pdf.getxformattributes} and \type {pdf.getxformresources} for querying them.
+
+\subsection{\type {pdf.setcompresslevel} and \type {pdf.setobjcompresslevel}}
+
+These two functions set the level of compression. The minimum valu sis~0,
+the maximum is~9.
+
+\subsection{\type {pdf.lastobj}, \type {pdf.lastlink}, \type {pdf.lastannot},
+and \type {pdf.retval}}
+
+These status variables are similar to the ones traditionally used at the \TEX\
+end.
+
 \subsection{\type {pdf.h}, \type {pdf.v}}
 
 These are the \type {h} and \type {v} values that define the current location on
@@ -4447,6 +4552,15 @@ page without doing anything else. This function can only be used from within
 
 \startfunctioncall
 pdf.registerannot (<number> objnum)
+\stopfunctioncall
+
+\subsection{\type {pdf.newcolorstack}}
+
+This function allocates a new color stack and returns it's id. The arguments
+are the same as for the similar backend extension primitive.
+
+\startfunctioncall
+pdf.newcolorstack("0 g","page",true) -- page|direct|origin
 \stopfunctioncall
 
 \section{The \type {pdfscanner} library}
@@ -4661,6 +4775,7 @@ The current list is:
 \NC hash_size          \NC size of hash \NC \NR
 \NC hash_extra         \NC extra allowed hash \NC \NR
 \NC font_ptr           \NC number of active fonts \NC \NR
+\NC input_ptr          \NC th elevel of input we're at \NC \NR
 \NC max_in_stack       \NC max used input stack entries \NC \NR
 \NC max_nest_stack     \NC max used nesting stack entries \NC \NR
 \NC max_param_stack    \NC max used parameter stack entries \NC \NR
@@ -4683,7 +4798,11 @@ The current list is:
 \NC filename           \NC name of the current input file \NC \NR
 \NC inputid            \NC numeric id of the current input \NC \NR
 \NC linenumber         \NC location in the current input file \NC \NR
-\NC lasterrorstring    \NC last error string\NC \NR
+\NC lasterrorstring    \NC last tex error string \NC \NR
+\NC lastluaerrorstring \NC last lua error string \NC \NR
+\NC lastwarningtag     \NC last warning string\NC \NR
+\NC lastwarningstring  \NC last warning tag, normally an indication of in what part\NC \NR
+\NC lasterrorcontext   \NC last error context string (with newlines) \NC \NR
 \NC luabytecodes       \NC number of active \LUA\ bytecode registers \NC \NR
 \NC luabytecode_bytes  \NC number of bytes in \LUA\ bytecode registers \NC \NR
 \NC luastate_bytes     \NC number of bytes in use by \LUA\ interpreters \NC \NR
@@ -4696,6 +4815,9 @@ The current list is:
 \NC luatex_revision    \NC the luatex revision string \NC \NR
 \NC ini_version        \NC \type {true} if this is an \INITEX\ run \NC \NR
 \stoptabulate
+
+The error and warning messages can be wiped with the \type {resetmessages}
+function.
 
 \section{The \type {tex} library}
 
@@ -4726,7 +4848,9 @@ writable as well as readable (stuff like \type {\tracingcommands} and
 
 For all the parameters in this section, it is possible to access them directly
 using their names as index in the \type {tex} table, or by using one of the
-functions \type {tex.get()} and \type {tex.set()}.
+functions \type {tex.get} and \type {tex.set}. If you created aliasses,
+you can use accessors like \type {tex.getdimen} as these also understand
+names of built|-|in variables.
 
 The exact parameters and return values differ depending on the actual parameter,
 and so does whether \type {tex.set} has any effect. For the parameters that {\it
@@ -4735,9 +4859,21 @@ can\/} be set, it is possible to use \type {global} as the first argument to
 
 \startfunctioncall
 tex.set (<string> n, ...)
-tex.set ('global', <string> n, ...)
+tex.set ("global", <string> n, ...)
 ... = tex.get (<string> n)
 \stopfunctioncall
+
+There are also dedicated setters, getters and checkers:
+
+\startfunctioncall
+local d = tex.getdimen("foo")
+if tex.isdimen("bar") then
+    tex.setdimen("bar",d)
+end
+\stopfunctioncall
+
+There are such helpers for \type {dimen}, \type {count}, \type {skip}, \type
+{box} and \type {attribute} registers.
 
 \subsubsection{Integer parameters}
 
@@ -4892,6 +5028,9 @@ tex.splitmaxdepth
 tex.vfuzz
 tex.voffset
 tex.vsize
+tex.prevdepth
+tex.prevgraf
+tex.spacefactor
 \stoptyping
 \stopthreecolumns
 
@@ -4907,9 +5046,39 @@ tex.pagegoal
 tex.pageshrink
 tex.pagestretch
 tex.pagetotal
-tex.prevdepth
 \stoptyping
 \stopthreecolumns
+
+Beware: as with all \LUA\ tables you can add values to them. So, the following is valid:
+
+\starttyping
+tex.foo = 123
+\stoptyping
+
+When you access a \TEX\ parameter a look up takes place. For read||only variables
+that means that you will get something back, but when you set them you create a
+new entry in the table thereby making the original invisible.
+
+There are a few special cases that we make an exception for: \type {prevdepth},
+\type {prevgraf} and \type {spacefactor}. These normally are accessed via the
+\type {tex.nest} table:
+
+\starttyping
+tex.nest[tex.nest.ptr].prevdepth   = p
+tex.nest[tex.nest.ptr].spacefactor = s
+\stoptyping
+
+However, the following also works:
+
+\starttyping
+tex.prevdepth   = p
+tex.spacefactor = s
+\stoptyping
+
+Keep in mind that when you mess with node lists directly at the \LUA\ end you
+might need to update the top of the nesting stack's \type {prevdepth} explicitly
+as there is no way \LUATEX\ can guess your intentions. By using the accessor in
+the \type {tex} tables, you get and set the values atthe top of the nest stack.
 
 \subsubsection{Direction parameters}
 
@@ -5118,6 +5287,16 @@ tex.setskip ('global',<string> s, <node> s)
 <node> s = tex.getskip (<string> s)
 \stopfunctioncall
 
+We have similar setters for \type {count}, \type {dimen}, \type {muskip}, and
+\type {toks}. Counters and dimen are represented by numbers, skips and muskips by
+nodes, and toks by strings. For tokens registers we have an alternative where a
+catcode table is specified:
+
+\startfunctioncall
+tex.scantoks(0,3,"$e=mc^2$")
+tex.scantoks("global",0,"$\int\limits^1_2$")
+\stopfunctioncall
+
 In the function-based interface, it is possible to define values globally by
 using the string \type {global} as the first function argument.
 
@@ -5192,6 +5371,13 @@ And the table for \type {delcode} is an array with 4 numbers, like this:
 {<number> small_fam, <number> small_char, <number> large_fam, <number> large_char}
 \stoptyping
 
+You can also avoid the table:
+
+\startfunctioncall
+class, family, char = tex.getmathcodes (<number> n)
+smallfam, smallchar, largefam, largechar = tex.getdelcodes (<number> n)
+\stopfunctioncall
+
 Normally, the third and fourth values in a delimiter code assignment will be zero
 according to \type {\Udelcode} usage, but the returned table can have values there
 (if the delimiter code was set using \type {\delcode}, for example). Unset \type
@@ -5235,6 +5421,22 @@ invalid as well. To prevent this from happening, always use \type
 \starttyping
 tex.box[0] = node.copy_list(tex.box[2])
 \stoptyping
+
+The following function will register a box for reuse (this is modelled after so
+called xforms in \PDF). You can (re)use the box with \type {\useboxresource} or
+by creating a rule node with subtype~2.
+
+\starttyping
+local index = tex.saveboxresource(n,attributes,resources)
+\stoptyping
+
+You can generate the reference (a rule type) with:
+
+\starttyping
+local reused = tex.useboxresource(n,wd,ht,dp)
+\stoptyping
+
+The dimensions are optional and the final ones are returned as extra values.
 
 \subsection{Math parameters}
 
@@ -5297,6 +5499,10 @@ text          crampedtext
 script        crampedscript
 scriptscript  crampedscriptscript
 \stoptyping
+
+The value is either a number (representing a dimension or number) or a glue spec
+node representing a muskip for \type {ordordspacing} and similar spacing
+parameters.
 
 \subsection{Special list heads}
 
@@ -5536,6 +5742,26 @@ Associates \type {csname} with the internal font number \type {fontid}. The
 definition is global if (and only if) \type {global} is specified and true (the
 setting of \type {globaldefs} is not taken into account).
 
+\subsubsection{\type {tex.getlinenumber} and \type {tex.setlinenumber}}
+
+You can mess with the current line number:
+
+\startfunctioncall
+local n = tex.getlinenumber()
+tex.setlinenumber(n+10)
+\stopfunctioncall
+
+which can be shortcut to:
+
+\startfunctioncall
+tex.setlinenumber(10,true)
+\stopfunctioncall
+
+This might be handy when you have a callback that read numbers from a file and
+combines them in one line (in which case an error message probably has to refer
+to the original line). Interference with \TEX's internal handling of numbers is
+of course possible.
+
 \subsubsection{\type {tex.error}}
 
 \startfunctioncall
@@ -5598,15 +5824,15 @@ will define \type {\LuaTeXformatname} with the same intrinsic meaning as the
 documented primitive \type {\formatname}, provided that the control sequences \type
 {\LuaTeXformatname} is currently undefined.
 
-Second example:
-
-\starttyping
-  tex.enableprimitives('Omega',tex.extraprimitives ('omega'))
-\stoptyping
-
-will define a whole series of csnames like \type {\Omegatextdir}, \type
-{\Omegapardir}, etc., but it will stick with \type {\OmegaVersion} instead of
-creating the doubly-prefixed \type {\OmegaOmegaVersion}.
+% Second example:
+%
+% \starttyping
+%   tex.enableprimitives('Omega',tex.extraprimitives ('omega'))
+% \stoptyping
+%
+% will define a whole series of csnames like \type {\Omegatextdir}, \type
+% {\Omegapardir}, etc., but it will stick with \type {\OmegaVersion} instead of
+% creating the doubly-prefixed \type {\OmegaOmegaVersion}.
 
 When \LUATEX\ is run with \type {--ini} only the \TEX82 primitives and \type
 {\directlua} are available, so no extra primitives {\bf at all}.
@@ -5655,22 +5881,20 @@ end
 \NC tex     \NC \ctxlua{document.showprimitives('tex')    } \NC \NR
 \NC core    \NC \ctxlua{document.showprimitives('core')   } \NC \NR
 \NC etex    \NC \ctxlua{document.showprimitives('etex')   } \NC \NR
-\NC pdftex  \NC \ctxlua{document.showprimitives('pdftex') } \NC \NR
 \NC luatex  \NC \ctxlua{document.showprimitives('luatex') } \NC \NR
-\NC umath   \NC \ctxlua{document.showprimitives('umath') }  \NC \NR
 \stoptabulate
 
 Note that \type {'luatex'} does not contain \type {directlua}, as that
 isconsidered to be a core primitive, along with all the \TEX82 primitives, so it
 is part of the list that is returned from \type {'core'}.
 
-\type {'umath'} is a subset of \type {'luatex'} that covers the Unicode math
-primitives as it might be desired to handle the prefixing of that subset
-differently.
+% \type {'umath'} is a subset of \type {'luatex'} that covers the Unicode math
+% primitives as it might be desired to handle the prefixing of that subset
+% differently.
 
 Running \type {tex.extraprimitives()} will give you the complete list of
 primitives \type {-ini} startup. It is exactly equivalent to \type
-{tex.extraprimitives('etex', 'pdftex' and 'luatex')}.
+{tex.extraprimitives('etex' and 'luatex')}.
 
 \subsubsection{\type {tex.primitives}}
 
@@ -5682,6 +5906,12 @@ This function returns a hash table listing all primitives that \LUATEX\ knows
 about. The keys in the hash are primitives names, the values are tables
 representing tokens (see~\in{section }[luatokens]). The third value is always
 zero.
+
+{\em In the beginning we had \type {omega} and \type {pdftex} subsets but in the
+meantime relevant primitives ave been promoted (either or not adapted) to the
+\type {luatex} set when found useful, or removed when considered to be of no use.
+Originally we had two sets of math definition primitives but the \OMEGA\ ones
+have been removed, so we no longer have a subset for math either.}
 
 \subsection{Core functionality interfaces}
 
@@ -5899,7 +6129,10 @@ This function behaves like \type {texio.write}, but make sure that the given
 strings will appear at the beginning of a new line. You can pass a single empty
 string if you only want to move to the next line.
 
-\section[luatokens]{The \type {token} library}
+\section[luatokens]{The \type {oldtoken} library (obsolete)}
+
+{\em Nota Bene: This library will disappear soon. It is replaced by the \type
+{token} library, that used to be called \type {newroken}.}
 
 The \type {token} table contains interface functions to \TEX's handling of
 tokens. These functions are most useful when combined with the \type
@@ -5918,49 +6151,49 @@ consists of three numeric entries:
                                           {equivalence table} \NC \NR
 \stoptabulate
 
-\subsection{\type {token.get_next}}
+\subsection{\type {oldtoken.get_next}}
 
 \startfunctioncall
-token t = token.get_next()
+token t = oldtoken.get_next()
 \stopfunctioncall
 
 This fetches the next input token from the current input source, without
 expansion.
 
-\subsection{\type {token.is_expandable}}
+\subsection{\type {oldtoken.is_expandable}}
 
 \startfunctioncall
-<boolean> b = token.is_expandable(<token> t)
+<boolean> b = oldtoken.is_expandable(<token> t)
 \stopfunctioncall
 
 This tests if the token \type {t} could be expanded.
 
-\subsection{\type {token.expand}}
+\subsection{\type {oldtoken.expand}}
 
 \startfunctioncall
-token.expand(<token> t)
+oldtoken.expand(<token> t)
 \stopfunctioncall
 
 If a token is expandable, this will expand one level of it, so that the first
 token of the expansion will now be the next token to be read by \type
-{token.get_next()}.
+{oldtoken.get_next()}.
 
-\subsection{\type {token.is_activechar}}
+\subsection{\type {oldtoken.is_activechar}}
 
 \startfunctioncall
-<boolean> b = token.is_activechar(<token> t)
+<boolean> b = oldtoken.is_activechar(<token> t)
 \stopfunctioncall
 
 This is a special test that is sometimes handy. Discovering whether some control
 sequence is the result of an active character turned out to be very hard
 otherwise.
 
-\subsection{\type {token.create}}
+\subsection{\type {oldtoken.create}}
 
 \startfunctioncall
-token t = token.create(<string> csname)
-token t = token.create(<number> charcode)
-token t = token.create(<number> charcode, <number> catcode)
+token t = oldtoken.create(<string> csname)
+token t = oldtoken.create(<number> charcode)
+token t = oldtoken.create(<number> charcode, <number> catcode)
 \stopfunctioncall
 
 This is the token factory. If you feed it a string, then it is the name of a
@@ -5972,17 +6205,17 @@ optional second number gives its category code. This means it is possible to
 overrule a character's category code, with a few exceptions: the category codes~0
 (escape), 9~(ignored), 13~(active), 14~(comment), and 15 (invalid) cannot occur
 inside a token. The values~0, 9, 14 and~15 are therefore illegal as input to
-\type {token.create()}, and active characters will be resolved immediately.
+\type {oldtoken.create()}, and active characters will be resolved immediately.
 
 Note: unknown string sequences and never defined active characters will result in
 a token representing an \quote {undefined control sequence} with a near|-|random
 name. It is {\em not} possible to define brand new control sequences using
-\type {token.create}!
+\type {oldtoken.create}!
 
-\subsection{\type {token.command_name}}
+\subsection{\type {oldtoken.command_name}}
 
 \startfunctioncall
-<string> commandname = token.command_name(<token> t)
+<string> commandname = oldtoken.command_name(<token> t)
 \stopfunctioncall
 
 This returns the name associated with the \quote {command} value of the token in
@@ -5990,19 +6223,19 @@ This returns the name associated with the \quote {command} value of the token in
 primitives. For instance, all \type {\ifxxx} tests are grouped under \type
 {if_test}, and the \quote {command modifier} defines which test is to be run.
 
-\subsection{\type {token.command_id}}
+\subsection{\type {oldtoken.command_id}}
 
 \startfunctioncall
-<number> i = token.command_id(<string> commandname)
+<number> i = oldtoken.command_id(<string> commandname)
 \stopfunctioncall
 
 This returns a number that is the inverse operation of the previous command, to
 be used as the first item in a token table.
 
-\subsection{\type {token.csname_name}}
+\subsection{\type {oldtoken.csname_name}}
 
 \startfunctioncall
-<string> csname = token.csname_name(<token> t)
+<string> csname = oldtoken.csname_name(<token> t)
 \stopfunctioncall
 
 This returns the name associated with the \quote {equivalence table} value of the
@@ -6013,20 +6246,20 @@ Keep in mind that there are potentially two control sequences that return the
 same csname string: single character control sequences and active characters have
 the same \quote {name}.
 
-\subsection{\type {token.csname_id}}
+\subsection{\type {oldtoken.csname_id}}
 
 \startfunctioncall
-<number> i = token.csname_id(<string> csname)
+<number> i = oldtoken.csname_id(<string> csname)
 \stopfunctioncall
 
 This returns a number that is the inverse operation of the previous command, to
 be used as the third item in a token table.
 
-\subsection{The \type {newtoken} libray}
+\subsection{The \type {token} libray}
 
 The current \type {token} library will be replaced by a new one that is more
 flexible and powerful. The transition takes place in steps. In version 0.80 we
-have \type {newtoken} and in version 0.85 the old lib will be replaced
+have \type {token} and in version 0.85 the old lib will be replaced
 completely. So if you use this new mechanism in production code you need to be
 aware of incompatible updates between 0.80 and 0.90. Because the related in- and
 output code will also be cleaned up and rewritten you should be aware of
@@ -6041,7 +6274,7 @@ parsers without too much overhead. It's up to macro package writers to see how
 they can benefit from this as the main principle behind \LUATEX\ is to provide a
 minimal set of tools and no solutions.
 
-The current functions in the \type {newtoken} namespace are given in the next
+The current functions in the \type {token} namespace are given in the next
 table:
 
 \starttabulate[|lT|lT|p|]
@@ -6086,9 +6319,9 @@ following definition:
 we get:
 
 \starttabulate[|l|Tl|l|]
-\NC \type {\directlua{newtoken.scan_string()}{foo}} \NC \directlua{context("{\\red\\type {"..newtoken.scan_string().."}}")} {foo} \NC full expansion \NR
-\NC \type {\directlua{newtoken.scan_string()}foo}   \NC \directlua{context("{\\red\\type {"..newtoken.scan_string().."}}")} foo   \NC letters and others \NR
-\NC \type {\directlua{newtoken.scan_string()}\foo}  \NC \directlua{context("{\\red\\type {"..newtoken.scan_string().."}}")}\foo   \NC meaning \NR
+\NC \type {\directlua{token.scan_string()}{foo}} \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")} {foo} \NC full expansion \NR
+\NC \type {\directlua{token.scan_string()}foo}   \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")} foo   \NC letters and others \NR
+\NC \type {\directlua{token.scan_string()}\foo}  \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")}\foo   \NC meaning \NR
 \stoptabulate
 
 The \type {\foo} case only gives the meaning, but one can pass an already
@@ -6099,8 +6332,8 @@ do expand.
 The \type {scan_word} scanner can be used to implement for instance a number scanner:
 
 \starttyping
-function newtokens.scan_number(base)
-    return tonumber(newtoken.scan_word(),base)
+function token.scan_number(base)
+    return tonumber(token.scan_word(),base)
 end
 \stoptyping
 
@@ -6110,7 +6343,7 @@ in the input.
 The creator function can be used as follows:
 
 \starttyping
-local t = newtoken("relax")
+local t = token("relax")
 \stoptyping
 
 This gives back a token object that has the properties of the \type {\relax}
@@ -6159,7 +6392,7 @@ You can also do this:
 \starttyping
 \directlua {
     function mymacro()
-        local d = newtoken.scan_dimen()
+        local d = token.scan_dimen()
         ...
     end
 }

@@ -25,8 +25,13 @@ The current return value of \type {node.types()} is:
 The \type {\lastnodetype} primitive is \ETEX\ compliant. The valid range is still
 $[-1,15]$ and glyph nodes (formerly known as char nodes) have number~0 while
 ligature nodes are mapped to~7. That way macro packages can use the same symbolic
-names as in traditional \ETEX. Keep in mind that the internal node numbers are
-different and that there are more node types than~15.
+names as in traditional \ETEX. Keep in mind that these \ETEX\ node numbers are
+different from the real internal ones and that there are more \ETEX\ node types
+than~15.
+
+You can ask for a list of fields with the \type {node.fields} (which takes an id)
+and for valid subtypes with \type {node.subtypes} (which takes a string because
+eventually we might support more used enumerations) .
 
 \subsection{Auxiliary items}
 
@@ -34,36 +39,6 @@ A few node|-|typed userdata objects do not occur in the \quote {normal} list of
 nodes, but can be pointed to from within that list. They are not quite the same
 as regular nodes, but it is easier for the library routines to treat them as if
 they were.
-
-\subsubsection{glue_spec items}
-
-Skips are about the only type of data objects in traditional \TEX\ that are not a
-simple value. The structure that represents the glue components of a skip is
-called a \type {glue_spec}, and it has the following accessible fields:
-
-\starttabulate[|lT|l|p|]
-\NC \ssbf key     \NC \bf type \NC \bf explanation \NC \NR
-\NC width         \NC number   \NC \NC \NR
-\NC stretch       \NC number   \NC \NC \NR
-\NC stretch_order \NC number   \NC \NC \NR
-\NC shrink        \NC number   \NC \NC \NR
-\NC shrink_order  \NC number   \NC \NC \NR
-\NC writable      \NC boolean  \NC If this is true, you can't assign to this
-                                   \type {glue_spec} because it is one of the
-                                   preallocated special cases. \NC \NR
-\stoptabulate
-
-These objects are reference counted, so there is actually an extra read-only
-field named \type {ref_count} as well. This item type will likely disappear in
-the future, and the glue fields themselves will become part of the nodes
-referencing glue items.
-
-The effective width of some glue subtypes depends on the stretch or shrink needed
-to make the encapsulating box fit its dimensions. For instance, in a paragraph
-lines normally have glue representing spaces and these stretch of shrink to make
-the content fit in the available space. The \type {effective_glue} function that
-takes a glue node and a parent (hlist or vlist) returns the effective width of
-that glue item.
 
 \subsubsection{attribute_list and attribute items}
 
@@ -102,27 +77,6 @@ As mentioned it's better to use the official helpers rather than edit these
 fields directly. For instance the \type {prev} field is used for other purposes
 and there is no double linked list.
 
-\subsubsection{action item}
-
-Valid fields: \showfields{action}\crlf
-Id: \showid{action}
-
-These are a special kind of item that only appears inside \PDF\ start link
-objects.
-
-\starttabulate[|lT|l|p|]
-\NC \ssbf field \NC \bf type         \NC \bf explanation \NC \NR
-\NC action_type \NC number           \NC \NC \NR
-\NC action_id   \NC number or string \NC \NC \NR
-\NC named_id    \NC number           \NC \NC \NR
-\NC file        \NC string           \NC \NC \NR
-\NC new_window  \NC number           \NC \NC \NR
-\NC data        \NC string           \NC \NC \NR
-\NC ref_count   \NC number           \NC
-    read-only
-\NC \NR
-\stoptabulate
-
 \subsection{Main text nodes}
 
 These are the nodes that comprise actual typesetting commands.
@@ -160,6 +114,8 @@ Id: \showid{hlist}
                                         \type {3} = paragraph indentation box,
                                         \type {4} = alignment column or row,
                                         \type {5} = alignment cell \NC \NR
+                                        \type {6} = equation \NC \NR
+                                        \type {7} = equation number \NC \NR
 \NC attr        \NC \syntax{<node>} \NC The head of the associated attribute
                                         list \NC \NR
 \NC width       \NC number          \NC \NC \NR
@@ -194,12 +150,18 @@ subtypes~0, 4, and~5.
 
 \subsubsection{rule nodes}
 
+\subsubsubsection{normal rules}
+
 Valid fields: \showfields{rule}\crlf
 Id: \showid{rule}
 
+We have three subtypes. Subtype~0 is just a normal rule, a rectangle
+filled with ink. Subtype~1 is a reusable box, while subtype_2 is an
+image.
+
 \starttabulate[|lT|l|p|]
 \NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
-\NC subtype     \NC number          \NC unused \NC \NR
+\NC subtype     \NC number          \NC 0 upto 3 \NC \NR
 \NC attr        \NC \syntax{<node>} \NC \NC \NR
 \NC width       \NC number          \NC the width of the rule; the special value
                                         $-1073741824$ is used for \quote
@@ -210,7 +172,14 @@ Id: \showid{rule}
                                         negative) \NC \NR
 \NC dir         \NC string          \NC the direction of this rule,
                                         see~\in[dirnodes] \NC \NR
+\NC index       \NC number          \NC an optional index that can be referred
+                                        to (only for subtypes 1 and~2 and
+                                        backend specific). \NC \NR
 \stoptabulate
+
+The subtypes 1 and~2 replace the xform and ximage whatsits and in nodelists they
+behave like rules of subtype_0 when it comes to dimensions. Subtype~3 only has
+dimensions.
 
 \subsubsection{ins nodes}
 
@@ -310,6 +279,36 @@ Id: \showid{math}
 
 \subsubsection{glue nodes}
 
+Skips are about the only type of data objects in traditional \TEX\ that are not a
+simple value. The structure that represents the glue components of a skip is
+called a \type {glue_spec}, and it has the following accessible fields:
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key     \NC \bf type \NC \bf explanation \NC \NR
+\NC width         \NC number   \NC \NC \NR
+\NC stretch       \NC number   \NC \NC \NR
+\NC stretch_order \NC number   \NC \NC \NR
+\NC shrink        \NC number   \NC \NC \NR
+\NC shrink_order  \NC number   \NC \NC \NR
+\NC writable      \NC boolean  \NC If this is true, you can't assign to this
+                                   \type {glue_spec} because it is one of the
+                                   preallocated special cases. \NC \NR
+\stoptabulate
+
+% These objects are reference counted, so there is actually an extra read|-|only
+% field named \type {ref_count} as well. This item type will likely disappear in
+% the future, and the glue fields themselves will become part of the nodes
+% referencing glue items.
+
+The effective width of some glue subtypes depends on the stretch or shrink needed
+to make the encapsulating box fit its dimensions. For instance, in a paragraph
+lines normally have glue representing spaces and these stretch of shrink to make
+the content fit in the available space. The \type {effective_glue} function that
+takes a glue node and a parent (hlist or vlist) returns the effective width of
+that glue item.
+
+A spec node is normally references to from a glue node:
+
 Valid fields: \showfields{glue}\crlf
 Id: \showid{glue}
 
@@ -322,6 +321,11 @@ Id: \showid{glue}
 \NC spec        \NC \syntax{<node>} \NC pointer to a glue_spec item \NC \NR
 \NC leader      \NC \syntax{<node>} \NC pointer to a box or rule for leaders \NC \NR
 \stoptabulate
+
+The indirect spec approach is an optimization in the original \TEX\ code. First
+of all it saves quite some memory because all these spaces that become glue now
+share the same specification, and zero testing is also faster because only the
+pointer has to be checked.
 
 The exact meanings of the subtypes are as follows:
 
@@ -350,6 +354,28 @@ The exact meanings of the subtypes are as follows:
 \NC 103 \NC \type {\gleaders}              \NC \NR
 \stoptabulate
 
+For convenience we provide access to the spec fields directly so that you can
+avoid the spec lookup. So, the following fields can also be queried or set. When
+you set a field and no spec is set, a spec will automatically be created.
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf key     \NC \bf type \NC \bf explanation \NC \NR
+\NC width         \NC number   \NC \NC \NR
+\NC stretch       \NC number   \NC \NC \NR
+\NC stretch_order \NC number   \NC \NC \NR
+\NC shrink        \NC number   \NC \NC \NR
+\NC shrink_order  \NC number   \NC \NC \NR
+\stoptabulate
+
+When you assign the properties to a spec using the above keys the advantage is
+that when needed a new spec is allocated. if you access the spec node directly
+you can get an error message with respect to a non|-|writable spec node.
+
+By using the accessors in the glue node you are more future proof as we might
+decide at some point to carry all information in the glue nodes themselves. Of
+course we can then also decide to make the spec field kind of virtual to keep
+compatibility (for a while).
+
 \subsubsection{kern nodes}
 
 Valid fields: \showfields{kern}\crlf
@@ -363,7 +389,6 @@ Id: \showid{kern}
 \NC attr        \NC \syntax{<node>} \NC \NC \NR
 \NC kern        \NC number          \NC \NC \NR
 \stoptabulate
-
 
 \subsubsection{penalty nodes}
 
@@ -581,7 +606,8 @@ Id: \showid{accent}
 
 \subsubsubsection{style nodes}
 
-Valid fields: \showfields{style}\crlf Id: \showid{style}
+Valid fields: \showfields{style}\crlf
+Id: \showid{style}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field \NC \bf type \NC \bf explanation    \NC \NR
@@ -594,7 +620,8 @@ a trailing \type {'} to signify \quote {cramped} styles.
 
 \subsubsubsection{choice nodes}
 
-Valid fields: \showfields{choice}\crlf Id: \showid{choice}
+Valid fields: \showfields{choice}\crlf
+Id: \showid{choice}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field  \NC \bf type        \NC \bf explanation \NC \NR
@@ -611,7 +638,8 @@ correct, otherwise an error may be result.
 
 \subsubsubsection{radical nodes}
 
-Valid fields: \showfields{radical}\crlf Id: \showid{radical}
+Valid fields: \showfields{radical}\crlf
+Id: \showid{radical}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field \NC \bf type          \NC \bf explanation \NC \NR
@@ -662,7 +690,8 @@ sure its internal link structure is correct, otherwise an error may be result.
 
 \subsubsubsection{fence nodes}
 
-Valid fields: \showfields{fence}\crlf Id: \showid{fence}
+Valid fields: \showfields{fence}\crlf
+Id: \showid{fence}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field \NC \bf type         \NC \bf explanation \NC \NR
@@ -738,6 +767,14 @@ Id: \showid{whatsit,special}
 \NC data        \NC string          \NC the \type {\special} information \NC \NR
 \stoptabulate
 
+\subsubsection{boundary nodes}
+
+Valid fields: \showfields{boundary}\crlf
+Id: \showid{boundary}
+
+This node relates to the \type {\noboundary} primitive but you can use it for
+your own purpose too, in which case \type {\boundary} can come in handy.
+
 \subsubsection{language nodes}
 
 \LUATEX\ does not have language whatsits any more. All language information is
@@ -746,8 +783,8 @@ removed in the next release.
 
 \subsubsection{local_par nodes}
 
-Valid fields: \showfields{whatsit,local_par}\crlf
-Id: \showid{whatsit,local_par}
+Valid fields: \showfields{local_par}\crlf
+Id: \showid{local_par}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field     \NC \bf type        \NC \bf explanation \NC \NR
@@ -771,8 +808,8 @@ error may be result.
 
 \subsubsection[dirnodes]{dir nodes}
 
-Valid fields: \showfields{whatsit,dir}\crlf
-Id: \showid{whatsit,dir}
+Valid fields: \showfields{dir}\crlf
+Id: \showid{dir}
 
 \starttabulate[|lT|l|p|]
 \NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
@@ -841,39 +878,6 @@ Id: \showid{whatsit,pdf_refobj}
 \NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
 \stoptabulate
 
-\subsubsection{pdf_refxform nodes}
-
-Valid fields: \showfields{whatsit,pdf_refxform}\crlf
-Id: \showid{whatsit,pdf_refxform}.
-
-\starttabulate[|lT|l|p|]
-\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
-\NC attr        \NC \syntax{<node>} \NC \NC \NR
-\NC width       \NC number          \NC \NC \NR
-\NC height      \NC number          \NC \NC \NR
-\NC depth       \NC number          \NC \NC \NR
-\NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
-\stoptabulate
-
-Be aware that \type {pdf_refxform} nodes have dimensions that are used by \LUATEX.
-
-\subsubsection{pdf_refximage nodes}
-
-Valid fields: \showfields{whatsit,pdf_refximage}\crlf
-Id: \showid{whatsit,pdf_refximage}
-
-\starttabulate[|lT|l|p|]
-\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
-\NC attr        \NC \syntax{<node>} \NC \NC \NR
-\NC width       \NC number          \NC \NC \NR
-\NC height      \NC number          \NC \NC \NR
-\NC depth       \NC number          \NC \NC \NR
-\NC objnum      \NC number          \NC the referenced \PDF\ object number \NC \NR
-\stoptabulate
-
-Be aware that \type {pdf_refximage} nodes have dimensions that are used by
-\LUATEX.
-
 \subsubsection{pdf_annot nodes}
 
 Valid fields: \showfields{whatsit,pdf_annot}\crlf
@@ -932,6 +936,25 @@ Id: \showid{whatsit,pdf_dest}
 \NC dest_type   \NC number          \NC type of destination \NC \NR
 \NC xyz_zoom    \NC number          \NC \NC \NR
 \NC objnum      \NC number          \NC the \PDF\ object number \NC \NR
+\stoptabulate
+
+\subsubsection{pdf_action nodes}
+
+Valid fields: \showfields{whatsit,pdf_action}\crlf
+Id: \showid{whatsit,pdf_action}
+
+These are a special kind of item that only appears inside \PDF\ start link
+objects.
+
+\starttabulate[|lT|l|p|]
+\NC \ssbf field \NC \bf type         \NC \bf explanation \NC \NR
+\NC action_type \NC number           \NC \NC \NR
+\NC action_id   \NC number or string \NC \NC \NR
+\NC named_id    \NC number           \NC \NC \NR
+\NC file        \NC string           \NC \NC \NR
+\NC new_window  \NC number           \NC \NC \NR
+\NC data        \NC string           \NC \NC \NR
+\NC ref_count   \NC number           \NC read-only \NC \NR
 \stoptabulate
 
 \subsubsection{pdf_thread nodes}
@@ -1261,6 +1284,7 @@ summarized this:
 \NC \type {setprev}              \NC \yes \NC \yes  \NC \NR
 \NC \type {slide}                \NC \yes \NC \yes  \NC \NR
 \NC \type {subtype}              \NC \yes \NC \nop  \NC \NR
+\NC \type {subtypes}             \NC \yes \NC \nop  \NC \NR
 \NC \type {tail}                 \NC \yes \NC \yes  \NC \NR
 \NC \type {todirect}             \NC \yes \NC \yes  \NC \NR
 \NC \type {tonode}               \NC \yes \NC \yes  \NC \NR
@@ -1274,6 +1298,7 @@ summarized this:
 \NC \type {usedlist}             \NC \yes \NC \yes  \NC \NR
 \NC \type {vpack}                \NC \yes \NC \yes  \NC \NR
 \NC \type {whatsits}             \NC \yes \NC \nop  \NC \NR
+\NC \type {whatsitsubtypes}      \NC \yes \NC \nop  \NC \NR
 \NC \type {write}                \NC \yes \NC \yes  \NC \NR
 \stoptabulate
 

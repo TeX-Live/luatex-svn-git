@@ -156,6 +156,15 @@ Then it checks the various safety switches. You can use those to disable some
 Furthermore, it disables loading of compiled \LUA\ libraries and it makes \type
 {io.open()} fail on files that are opened for anything besides reading.
 
+When \LUATEX\ starts it set the locale to a neutral value. If for some reason you use
+\type {os.locale}, you need to make sire you nil it afterwards because otherise it
+can interfere with code that for instance generates dates. You can nil the
+locale with
+
+\starttyping
+os.setlocale(nil.nil)
+\stoptyping
+
 \type {--nosocket} makes the socket library unavailable, so that \LUA\ cannot use
 networking.
 
@@ -242,7 +251,7 @@ for this variable is \type {CLUAINPUTS}, and by default it has this value:
 
 \starttyping
 CLUAINPUTS=.:$SELFAUTOLOC/lib/{$progname,$engine,}/lua//
-\stoptyping % $
+\stoptyping
 
 This path is imperfect (it requires a \TDS\ subtree below the binaries
 directory), but the architecture has to be in the path somewhere, and the

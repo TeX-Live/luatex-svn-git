@@ -618,7 +618,7 @@ This new integer parameter allows you to alter the number of the box that will b
 used to store the page sent to the output routine. Its default value is 255, and
 the acceptable range is from 0 to 65535.
 
-\section{\type {\fontid}}
+\section{\type {\fontid} and \type {\setfontid}}
 
 \startsyntax
 \fontid\font
@@ -640,12 +640,23 @@ order of loading fonts. For instance, when in \CONTEXT\ virtual math \UNICODE\
 fonts are used, we can easily get over a hundred ids in use. Not all ids have to
 be bound to a real font, after all it's just a number.
 
+The primitive \type {\setfontid} can be used to enable a font with the given id
+(which of course needs to be a valid one).
+
 \section{\type {\gleaders}}
 
 This type of leaders is anchored to the origin of the box to be shipped out. So
 they are like normal \type {\leaders} in that they align nicely, except that the
 alignment is based on the {\it largest\/} enclosing box instead of the {\it
 smallest\/}. The \type {g} stresses this global nature.
+
+\section{\type {\nohrule} and \type {\novrule}}
+
+Because internally box resources and image resources are now stored as a special
+kind of rule, we also introduced an empty rule variant. Because introducing a new
+keyword can cause incompatibilities, two new primitives were introduced: \type
+{\nohrule} and \type {\novrule}. These can be used to reserve space. This is
+often more efficient than creating an empty box with fake dimensions).
 
 \section{\type {\Uchar}}
 
@@ -660,6 +671,21 @@ within the constraints of the \type {\lefthyphenmin} and \type {\righthyphenmin}
 values (as stored in the glyph node). This primitive accepts a number and stores
 the value with the language.
 
+\section{\type {\boundary} and \type {\noboundary}}
+
+The \type {\noboundary} commands used to inject a whatsit node but now injects a normal
+node with type \type {boundary} and subtype~0. In addition you can say:
+
+\starttyping
+x\boundary 123\relax y
+\stoptyping
+
+This has the same effect but the subtype is now~1 and the value~123 is stored. The
+traditional ligature builder still sees this as a cancel boundary directive but at the
+\LUA\ end you can implement different behaviour. The added benefit of passing this
+value is a side effect of the generalization.
+
+
 \section{Debugging}
 
 If \type {\tracingonline} is larger than~2, the node list display will also print
@@ -667,18 +693,51 @@ the node number of the nodes.
 
 \section{Images and Forms}
 
-\LUATEX\ accepts optional dimension parameters for \type {\pdfrefximage} and
-\type {\pdfrefxform} in the same format as for \type {\pdfximage}. With images,
-these dimensions are then used instead of the ones given to \type {\pdfximage}
-but the original dimensions are not overwritten, so that a \type {\pdfrefximage}
-without dimensions still provides the image with dimensions defined by \type
-{\pdfximage}. These optional parameters are not implemented for \type
-{\pdfxform}.
+These two concepts are now core concepts and no longer whatsits. They are in fact
+now implemented as rules with special properties. Normal rules have subtype~0,
+saved boxes have subtype~1 and images have subtype~2. This has the positive side
+effect that whenever we need to take content with dimensions into account, when we
+look at rule nodes, we automatically also deal with these two types.
+
+The syntax of the \type {\save...resource} is the same as in \PDFTEX\ but you
+should consider them to be backend specific. This means that a macro package
+should treat them as such and check for the current output mode if applicable.
+Here are the equivalents:
+
+\starttabulate[|l|l|]
+\NC \type {\saveboxresource}             \EQ \type {\pdfxform}           \NC \NR
+\NC \type {\saveimageresource}           \EQ \type {\pdfximage}          \NC \NR
+\NC \type {\useboxresource}              \EQ \type {\pdfrefxform}        \NC \NR
+\NC \type {\useimageresource}            \EQ \type {\pdfrefximage}       \NC \NR
+\NC \type {\lastsavedboxresourceindex}   \EQ \type {\pdflastxform}       \NC \NR
+\NC \type {\lastsavedimageresourceindex} \EQ \type {\pdflastximage}      \NC \NR
+\NC \type {\lastsavedimageresourcepages} \EQ \type {\pdflastximagepages} \NC \NR
+\stoptabulate
+
+\LUATEX\ accepts optional dimension parameters for \type {\use...resource} in the
+same format as for rules. With images, these dimensions are then used instead of
+the ones given to \type {\useimageresource} but the original dimensions are not
+overwritten, so that a \type {\useimageresource} without dimensions still
+provides the image with dimensions defined by \type {\saveimageresource}. These
+optional parameters are not implemented for \type {\saveboxresource}.
 
 \starttyping
 \pdfrefximage width 20mm height 10mm depth 5mm \pdflastximage
 \pdfrefxform  width 20mm height 10mm depth 5mm \pdflastxform
 \stoptyping
+
+\section{\type {\outputmode} and \type {\draftmode}}
+
+The \type {\outputmode} variable tells \LUATEX\ what it has to produce:
+
+\starttabulate[|l|l|]
+\NC \type {0} \NC \DVI\ code \NC \NR
+\NC \type {1} \NC \PDF\ code \NC \NR
+\stoptabulate
+
+The value of the \type {\draftmode} counter signals the backend if it should
+output less. The \PDF\ backend accepts a value of~$1$, while the \DVI\ backend
+ignores the value.
 
 \section{File syntax}
 

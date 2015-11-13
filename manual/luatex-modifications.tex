@@ -217,6 +217,12 @@ which in turn triggered renaming primitives.
 \stopitem
 
 \startitem
+    When \type {\adjustspacing} has value~2, hz optimization will be applied to
+    glyphs and kerns. When the valus is~3, only glyphs will be treated. A value
+    smaller than~2 disables this feature.
+\stopitem
+
+\startitem
     The \type {\tagcode} primitive is promoted to core primitive.
 \stopitem
 
@@ -227,6 +233,10 @@ which in turn triggered renaming primitives.
 
 \startitem
     The \type {\pdfnoligatures} primitive is now \type {\ignoreligaturesinfont}.
+\stopitem
+
+\startitem
+    The \type {\pdfcopyfont} primitive is now \type {\copyfont}.
 \stopitem
 
 \startitem
@@ -249,7 +259,54 @@ which in turn triggered renaming primitives.
     \type {\pdfmatrix} (something with a normal syntax).
 \stopitem
 
+\startitem
+    The introspective primitives \type {\pdflastximagecolordepth} and \type
+    {\pdfximagebbox} have been removed. One can use external applications to
+    determine these properties or use the built|-|in \type {img} library.
+\stopitem
+
+\startitem
+    The initializers \type {\pdfoutput} has been replaced by \type {\outputmode} and
+    \type {\pdfdraftmode} is now \type {\draftmode}.
+\stopitem
+
+\startitem
+    The pixel multiplier dimension \type {\pdfpxdimen} lots its prefix and is now calles
+    \type {\pxdimen}.
+\stopitem
+
+\startitem
+    An extra \type {\pdfimageaddfilename} option has been added that can be used to block
+    writing the filename to the \PDF\ file.
+\stopitem
+
 \stopitemize
+
+One change involves the so called xforms and ximages. In \PDFTEX\ these are
+implemented as so called whatsits. But contrary to other whatsits they have
+dimensions that need to be taken into account when for instance calculating
+optimal linebreaks. In \LUATEX\ these are now promoted to normal nodes, which
+simplifies code that needs those dimensions.
+
+Another reason for promotion is that these are useful concepts. Backends can
+provide the ability to use content that has been rendered in several places,
+and images are also common. For that reason we also changed the names:
+
+\starttabulate[|l|l|]
+\NC \bf new name                         \NC \bf old name \NC \NR
+\NC \type {\saveboxresource}             \NC \type {\pdfxform}           \NC \NR
+\NC \type {\saveimageresource}           \NC \type {\pdfximage}          \NC \NR
+\NC \type {\useboxresource}              \NC \type {\pdfrefxform}        \NC \NR
+\NC \type {\useimageresource}            \NC \type {\pdfrefximage}       \NC \NR
+\NC \type {\lastsavedboxresourceindex}   \NC \type {\pdflastxform}       \NC \NR
+\NC \type {\lastsavedimageresourceindex} \NC \type {\pdflastximage}      \NC \NR
+\NC \type {\lastsavedimageresourcepages} \NC \type {\pdflastximagepages} \NC \NR
+\stoptabulate
+
+There are a few \type {\pdf...} primitives that relate to this but these are
+typical backend specific ones. The index that gets returned is to be considered
+as \quote {just a number} and although it still has the same meaning (object
+related) as before, you should not depend on that.
 
 \stopsubsection
 
@@ -300,7 +357,7 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    Several bugs hav ebeen fixed. The \type {\hoffset} bug when \type {\pagedir TRT}
+    Several bugs have been fixed. The \type {\hoffset} bug when \type {\pagedir TRT}
     is gone, removing the need for an explicit fix to \type {\hoffset}. Also bug
     causing \type {\fam} to fail for family numbers above 15 is fixed. A fair amount
     of other minor bugs are fixed as well, most of these related to \type
@@ -328,13 +385,14 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    The page dimension related primitives \type {\pagewidth} and \type {\pageheight} have
-    been promoted to core primitives.
+    The page dimension related primitives \type {\pagewidth} and \type
+    {\pageheight} have been promoted to core primitives.
 \stopitem
 
 \startitem
-    The primitives \type {\charwd}, \type {\charht}, \type {\chardp} and \type {\charit}
-    have been removes as we have the \ETEX\ variants \type {\fontchar*}.
+    The primitives \type {\charwd}, \type {\charht}, \type {\chardp} and \type
+    {\charit} have been removes as we have the \ETEX\ variants \type
+    {\fontchar*}.
 \stopitem
 
 \startitem
@@ -346,6 +404,15 @@ we say next applies to both these programs.
     The direction related primitives \type {\pagedir}, \type {\bodydir}, \type
     {\pardir}, \type {\textdir}, \type {\mathdir} and \type {\boxdir} are now
     core primitives.
+\stopitem
+
+\startitem
+    The primitive \type {\pdftracingfonts} is now \type {\tracingfonts} as it
+    doesn't relate to the backend.
+\stopitem
+
+\startitem
+    The experimental primitive \type {\pdfinsertht} is kept as \type {\insertht}.
 \stopitem
 
 \startitem
@@ -397,6 +464,192 @@ different:
 \stopitem
 
 \stopitemize
+
+\stopsubsection
+
+\startsubsection[title=The backend primitives \type {\pdf*}]
+
+In a previous section we mentioned that some \PDFTEX\ primitives were removed and
+others promoted to core \LUATEX\ primitives. That is only part of the story. In
+order to separate the backend specific primitives in de code these commands are
+now replaced by only a few. In traditional \TEX\ we only had the \DVI\ backend
+but now we have two: \DVI\ and \PDF. Additional functionality is implemented as
+\quote {extensions} in \TEX speak. By seperating more strickly we are able to
+keep the core (fontend) clean and stable. If for some reason an extra backend
+option is needed, it can be implemented without touching the core.
+
+In order for \LUATEX\ to be more than just \TEX\ you need to enable primitives. That
+has already be the case right from the start. If you want the traditional \PDFTEX\
+primitives (for as far their functionality is still around) you now can do this:
+
+\starttyping
+\protected\def\pdfliteral       {\pdfextension literal}
+\protected\def\pdfcolorstack    {\pdfextension colorstack}
+\protected\def\pdfsetmatrix     {\pdfextension setmatrix}
+\protected\def\pdfsave          {\pdfextension save\relax}
+\protected\def\pdfrestore       {\pdfextension restore\relax}
+\protected\def\pdfobj           {\pdfextension obj }
+\protected\def\pdfrefobj        {\pdfextension refobj }
+\protected\def\pdfannot         {\pdfextension annot }
+\protected\def\pdfstartlink     {\pdfextension startlink }
+\protected\def\pdfendlink       {\pdfextension endlink\relax}
+\protected\def\pdfoutline       {\pdfextension outline }
+\protected\def\pdfdest          {\pdfextension dest }
+\protected\def\pdfthread        {\pdfextension thread }
+\protected\def\pdfstartthread   {\pdfextension startthread }
+\protected\def\pdfendthread     {\pdfextension endthread\relax}
+\protected\def\pdfinfo          {\pdfextension info }
+\protected\def\pdfcatalog       {\pdfextension catalog }
+\protected\def\pdfnames         {\pdfextension names }
+\protected\def\pdfincludechars  {\pdfextension includechars }
+\protected\def\pdffontattr      {\pdfextension fontattr }
+\protected\def\pdfmapfile       {\pdfextension mapfile }
+\protected\def\pdfmapline       {\pdfextension mapline }
+\protected\def\pdftrailer       {\pdfextension trailer }
+\protected\def\pdfglyphtounicode{\pdfextension glyphtounicode }
+\stoptyping
+
+The introspective primitives can bve defines as:
+
+\starttyping
+\def\pdftexversion    {\numexpr\pdffeedback version}
+\def\pdftexrevision           {\pdffeedback revision}
+\def\pdflastlink      {\numexpr\pdffeedback lastlink}
+\def\pdfretval        {\numexpr\pdffeedback retval}
+\def\pdflastobj       {\numexpr\pdffeedback lastobj}
+\def\pdflastannot     {\numexpr\pdffeedback lastannot}
+\def\pdfxformname     {\numexpr\pdffeedback xformname}
+\def\pdfcreationdate          {\pdffeedback creationdate}
+\def\pdffontname      {\numexpr\pdffeedback fontname}
+\def\pdffontobjnum    {\numexpr\pdffeedback fontobjnum}
+\def\pdffontsize      {\dimexpr\pdffeedback fontsize}
+\def\pdfpageref       {\numexpr\pdffeedback pageref}
+\def\pdfcolorstackinit        {\pdffeedback colorstackinit}
+\stoptyping
+
+The configuration related registers have become:
+
+\starttyping
+\edef\pdfcompresslevel            {\pdfvariable compresslevel}
+\edef\pdfobjcompresslevel         {\pdfvariable objcompresslevel}
+\edef\pdfdecimaldigits            {\pdfvariable decimaldigits}
+\edef\pdfgamma                    {\pdfvariable gamma}
+\edef\pdfimageresolution          {\pdfvariable imageresolution}
+\edef\pdfimageapplygamma          {\pdfvariable imageapplygamma}
+\edef\pdfimagegamma               {\pdfvariable imagegamma}
+\edef\pdfimagehicolor             {\pdfvariable imagehicolor}
+\edef\pdfimageaddfilename         {\pdfvariable imageaddfilename}
+\edef\pdfpkresolution             {\pdfvariable pkresolution}
+\edef\pdfinclusioncopyfonts       {\pdfvariable inclusioncopyfonts}
+\edef\pdfinclusionerrorlevel      {\pdfvariable inclusionerrorlevel}
+\edef\pdfreplacefont              {\pdfvariable replacefont}
+\edef\pdfgentounicode             {\pdfvariable gentounicode}
+\edef\pdfpagebox                  {\pdfvariable pagebox}
+\edef\pdfminorversion             {\pdfvariable minorversion}
+\edef\pdfuniqueresname            {\pdfvariable uniqueresname}
+
+\edef\pdfhorigin                  {\pdfvariable horigin}
+\edef\pdfvorigin                  {\pdfvariable vorigin}
+\edef\pdflinkmargin               {\pdfvariable linkmargin}
+\edef\pdfdestmargin               {\pdfvariable destmargin}
+\edef\pdfthreadmargin             {\pdfvariable threadmargin}
+
+\edef\pdfpagesattr                {\pdfvariable pagesattr}
+\edef\pdfpageattr                 {\pdfvariable pageattr}
+\edef\pdfpageresources            {\pdfvariable pageresources}
+\edef\pdfxformattr                {\pdfvariable xformattr}
+\edef\pdfxformresources           {\pdfvariable xformresources}
+\edef\pdfpkmode                   {\pdfvariable pkmode}
+\stoptyping
+
+The \type {\edef} can also be an \type {\def} but it's a bit more efficient
+to expand the lookup related register beforehand. After that you can adapt
+the defaults; these are:
+
+\starttyping
+\pdfcompresslevel         9
+\pdfobjcompresslevel      1
+\pdfdecimaldigits         3
+\pdfgamma              1000
+\pdfimageresolution      71
+\pdfimageapplygamma       0
+\pdfimagegamma         2200
+\pdfimagehicolor          1
+\pdfimageaddfilename      1
+\pdfpkresolution         72
+\pdfinclusioncopyfonts    0
+\pdfinclusionerrorlevel   0
+\pdfreplacefont           0
+\pdfgentounicode          0
+\pdfpagebox               0
+\pdfminorversion          4
+\pdfuniqueresname         0
+
+\pdfhorigin             1in
+\pdfvorigin             1in
+\pdflinkmargin          0pt
+\pdfdestmargin          0pt
+\pdfthreadmargin        0pt
+\stoptyping
+
+If you also want some backward compatibility, you can add:
+
+\starttyping
+\let\pdfpagewidth      \pagewidth
+\let\pdfpageheight     \pageheight
+
+\let\pdfadjustspacing  \adjustspacing
+\let\pdfprotrudechars  \protrudechars
+\let\pdfnoligatures    \ignoreligaturesinfont
+\let\pdffontexpand     \expandglyphsinfont
+\let\pdfcopyfont       \copyfont
+
+\let\pdfxform          \saveboxresource
+\let\pdflastxform      \lastsavedboxresourceindex
+\let\pdfrefxform       \useboxresource
+
+\let\pdfximage         \saveimageresource
+\let\pdflastximage     \lastsavedimageresourceindex
+\let\pdflastximagepages\lastsavedimageresourcepages
+\let\pdfrefximage      \useimageresource
+
+\let\pdfsavepos        \savepos
+\let\pdflastxpos       \lastxpos
+\let\pdflastypos       \lastypos
+
+\let\pdfoutput         \outputmode
+\let\pdfdraftmode      \draftmode
+
+\let\pdfpxdimen        \pxdimen
+
+\let\pdfinsertht       \insertht
+
+\let\pdfnormaldeviate  \normaldeviate
+\let\pdfuniformdeviate \uniformdeviate
+\let\pdfsetrandomseed  \setrandomseed
+\let\pdfrandomseed     \randomseed
+
+\let\pdfprimitive      \primitive
+\let\ifpdfprimitive    \ifprimitive
+
+\let\ifpdfabsnum       \ifabsnum
+\let\ifpdfabsdim       \ifabsdim
+\stoptyping
+
+And even:
+
+\starttyping
+\newdimen\pdfeachlineheight
+\newdimen\pdfeachlinedepth
+\newdimen\pdflastlinedepth
+\newdimen\pdffirstlineheight
+\newdimen\pdfignoreddimen
+\stoptyping
+
+The backend is derived from \PDFTEX\ so the same syntax applies. However, the
+\type {outline} command accepts a \type {objnum} followed by a number. No
+checking takes place so when this is used it had better be a valid (flushed)
+object.
 
 \stopsubsection
 
