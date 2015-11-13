@@ -5824,15 +5824,15 @@ will define \type {\LuaTeXformatname} with the same intrinsic meaning as the
 documented primitive \type {\formatname}, provided that the control sequences \type
 {\LuaTeXformatname} is currently undefined.
 
-Second example:
-
-\starttyping
-  tex.enableprimitives('Omega',tex.extraprimitives ('omega'))
-\stoptyping
-
-will define a whole series of csnames like \type {\Omegatextdir}, \type
-{\Omegapardir}, etc., but it will stick with \type {\OmegaVersion} instead of
-creating the doubly-prefixed \type {\OmegaOmegaVersion}.
+% Second example:
+%
+% \starttyping
+%   tex.enableprimitives('Omega',tex.extraprimitives ('omega'))
+% \stoptyping
+%
+% will define a whole series of csnames like \type {\Omegatextdir}, \type
+% {\Omegapardir}, etc., but it will stick with \type {\OmegaVersion} instead of
+% creating the doubly-prefixed \type {\OmegaOmegaVersion}.
 
 When \LUATEX\ is run with \type {--ini} only the \TEX82 primitives and \type
 {\directlua} are available, so no extra primitives {\bf at all}.
@@ -5881,22 +5881,20 @@ end
 \NC tex     \NC \ctxlua{document.showprimitives('tex')    } \NC \NR
 \NC core    \NC \ctxlua{document.showprimitives('core')   } \NC \NR
 \NC etex    \NC \ctxlua{document.showprimitives('etex')   } \NC \NR
-\NC pdftex  \NC \ctxlua{document.showprimitives('pdftex') } \NC \NR
 \NC luatex  \NC \ctxlua{document.showprimitives('luatex') } \NC \NR
-\NC umath   \NC \ctxlua{document.showprimitives('umath') }  \NC \NR
 \stoptabulate
 
 Note that \type {'luatex'} does not contain \type {directlua}, as that
 isconsidered to be a core primitive, along with all the \TEX82 primitives, so it
 is part of the list that is returned from \type {'core'}.
 
-\type {'umath'} is a subset of \type {'luatex'} that covers the Unicode math
-primitives as it might be desired to handle the prefixing of that subset
-differently.
+% \type {'umath'} is a subset of \type {'luatex'} that covers the Unicode math
+% primitives as it might be desired to handle the prefixing of that subset
+% differently.
 
 Running \type {tex.extraprimitives()} will give you the complete list of
 primitives \type {-ini} startup. It is exactly equivalent to \type
-{tex.extraprimitives('etex', 'pdftex' and 'luatex')}.
+{tex.extraprimitives('etex' and 'luatex')}.
 
 \subsubsection{\type {tex.primitives}}
 
@@ -5908,6 +5906,12 @@ This function returns a hash table listing all primitives that \LUATEX\ knows
 about. The keys in the hash are primitives names, the values are tables
 representing tokens (see~\in{section }[luatokens]). The third value is always
 zero.
+
+{\em In the beginning we had \type {omega} and \type {pdftex} subsets but in the
+meantime relevant primitives ave been promoted (either or not adapted) to the
+\type {luatex} set when found useful, or removed when considered to be of no use.
+Originally we had two sets of math definition primitives but the \OMEGA\ ones
+have been removed, so we no longer have a subset for math either.}
 
 \subsection{Core functionality interfaces}
 

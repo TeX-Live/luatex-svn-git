@@ -2139,7 +2139,10 @@ static int tex_extraprimitives(lua_State * L)
     int cs = 0;
     n = lua_gettop(L);
     if (n == 0) {
-        mask = etex_command + pdftex_command + luatex_command + umath_command;
+        mask = etex_command
+             + pdftex_command                       /* obsolete */
+             + umath_command                        /* obsolete */
+             + luatex_command;
     } else {
         for (i = 1; i <= n; i++) {
             if (lua_type(L,i) == LUA_TSTRING) {
@@ -2150,11 +2153,12 @@ static int tex_extraprimitives(lua_State * L)
                     mask |= tex_command;
                 } else if (lua_key_eq(s,core)) {
                     mask |= core_command;
-                } else if (lua_key_eq(s,pdftex)) {
+                } else if (lua_key_eq(s,pdftex)) {  /* obsolete */
                     mask |= pdftex_command;
                 } else if (lua_key_eq(s,luatex)) {
-                    mask |= luatex_command | umath_command;
-                } else if (lua_key_eq(s,umath)) {
+                    mask |= luatex_command
+                         |  umath_command;          /* obsolete */
+                } else if (lua_key_eq(s,umath)) {   /* obsolete */
                     mask |= umath_command;
                 }
             }
