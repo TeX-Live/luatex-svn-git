@@ -70,172 +70,355 @@ int copy_error(halfword p);     /* define below */
 
 #define variable_node_size 2
 
-const char *node_fields_list[]            = { "attr", "width", "depth", "height", "dir", "shift", "glue_order", "glue_sign",
-                                              "glue_set", "head", NULL };
-const char *node_fields_rule[]            = { "attr", "width", "depth", "height", "dir", "index", NULL };
-const char *node_fields_insert[]          = { "attr", "cost", "depth", "height", "spec", "head", NULL };
-const char *node_fields_mark[]            = { "attr", "class", "mark", NULL };
-const char *node_fields_adjust[]          = { "attr", "head", NULL };
-const char *node_fields_disc[]            = { "attr", "pre", "post", "replace", "penalty", NULL };
-const char *node_fields_math[]            = { "attr", "surround", NULL };
-const char *node_fields_glue[]            = { "attr", "spec", "leader", NULL };
-const char *node_fields_kern[]            = { "attr", "kern", "expansion_factor", NULL };
-const char *node_fields_penalty[]         = { "attr", "penalty", NULL };
-const char *node_fields_unset[]           = { "attr", "width", "depth", "height", "dir", "shrink", "glue_order", "glue_sign",
-                                              "stretch", "span", "head", NULL };
-const char *node_fields_margin_kern[]     = { "attr", "width", "glyph", NULL };
-const char *node_fields_glyph[]           = { "attr", "char", "font", "lang", "left", "right", "uchyph", "components", "xoffset",
-                                              "yoffset", "width", "height", "depth", "expansion_factor", NULL };
-const char *node_fields_style[]           = { "attr", "style", NULL };
-const char *node_fields_choice[]          = { "attr", "display", "text", "script", "scriptscript", NULL };
-const char *node_fields_ord[]             = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_op[]              = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_bin[]             = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_rel[]             = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_open[]            = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_close[]           = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_punct[]           = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_inner[]           = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_under[]           = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_over[]            = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_vcenter[]         = { "attr", "nucleus", "sub", "sup", NULL };
-const char *node_fields_radical[]         = { "attr", "nucleus", "sub", "sup", "left", "degree", NULL };
-const char *node_fields_fraction[]        = { "attr", "width", "num", "denom", "left", "right", NULL };
-const char *node_fields_accent[]          = { "attr", "nucleus", "sub", "sup", "accent", "bot_accent", "top_accent", "overlay_accent", NULL };
-const char *node_fields_fence[]           = { "attr", "delim", NULL };
-const char *node_fields_math_char[]       = { "attr", "fam", "char", NULL };
-const char *node_fields_sub_box[]         = { "attr", "head", NULL };
-const char *node_fields_sub_mlist[]       = { "attr", "head", NULL };
-const char *node_fields_math_text_char[]  = { "attr", "fam", "char", NULL };
-const char *node_fields_delim[]           = { "attr", "small_fam", "small_char", "large_fam", "large_char", NULL };
-const char *node_fields_inserting[]       = { "height", "last_ins_ptr", "best_ins_ptr", NULL };
-const char *node_fields_splitup[]         = { "height", "last_ins_ptr", "best_ins_ptr", "broken_ptr", "broken_ins", NULL };
-const char *node_fields_attribute[]       = { "number", "value", NULL };
-const char *node_fields_glue_spec[]       = { "width", "stretch", "shrink", "stretch_order", "shrink_order", "ref_count",
-                                              "writable", NULL };
-const char *node_fields_attribute_list[]  = { NULL };
-const char *node_fields_local_par[]       = { "attr", "pen_inter", "pen_broken", "dir", "box_left", "box_left_width", "box_right",
-                                              "box_right_width", NULL };
-const char *node_fields_dir[]             = { "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL };
-const char *node_fields_boundary[]        = { "attr", "value", NULL };
+/* core nodes */
 
-const char *node_fields_whatsit_open[]             = { "attr", "stream", "name", "area", "ext", NULL };
-const char *node_fields_whatsit_write[]            = { "attr", "stream", "data", NULL };
-const char *node_fields_whatsit_close[]            = { "attr", "stream", NULL };
-const char *node_fields_whatsit_special[]          = { "attr", "data", NULL };
-const char *node_fields_whatsit_save_pos[]         = { "attr", NULL };
-const char *node_fields_whatsit_late_lua[]         = { "attr", "reg", "data", "name", "string", NULL };
-const char *node_fields_whatsit_user_defined[]     = { "attr", "user_id", "type", "value", NULL };
+const char *node_fields_list[] = {
+    "attr", "width", "depth", "height", "dir", "shift", "glue_order", "glue_sign",
+    "glue_set", "head", NULL
+};
+const char *node_fields_rule[] = {
+    "attr", "width", "depth", "height", "dir", "index", NULL
+};
+const char *node_fields_insert[] = {
+    "attr", "cost", "depth", "height", "spec", "head", NULL
+};
+const char *node_fields_mark[] = {
+    "attr", "class", "mark", NULL
+};
+const char *node_fields_adjust[] = {
+    "attr", "head", NULL
+};
+const char *node_fields_disc[] = {
+    "attr", "pre", "post", "replace", "penalty", NULL
+};
+const char *node_fields_math[] = {
+    "attr", "surround", NULL
+};
+const char *node_fields_glue[] = {
+    "attr", "spec", "leader", NULL
+};
+const char *node_fields_kern[] = {
+    "attr", "kern", "expansion_factor", NULL
+};
+const char *node_fields_penalty[] = {
+    "attr", "penalty", NULL
+};
+const char *node_fields_unset[] = {
+    "attr", "width", "depth", "height", "dir", "shrink", "glue_order",
+    "glue_sign", "stretch", "span", "head", NULL
+};
+const char *node_fields_margin_kern[]  = {
+    "attr", "width", "glyph", NULL
+};
+const char *node_fields_glyph[] = {
+    "attr", "char", "font", "lang", "left", "right", "uchyph", "components",
+    "xoffset", "yoffset", "width", "height", "depth", "expansion_factor", NULL
+};
+const char *node_fields_inserting[] = {
+    "height", "last_ins_ptr", "best_ins_ptr", NULL
+};
+const char *node_fields_splitup[] = {
+    "height", "last_ins_ptr", "best_ins_ptr", "broken_ptr", "broken_ins", NULL
+};
+const char *node_fields_attribute[] = {
+    "number", "value", NULL
+};
+const char *node_fields_glue_spec[] = {
+    "width", "stretch", "shrink", "stretch_order", "shrink_order", "ref_count",
+   "writable", NULL
+};
+const char *node_fields_attribute_list[] = {
+    NULL
+};
+const char *node_fields_local_par[] = {
+    "attr", "pen_inter", "pen_broken", "dir", "box_left", "box_left_width",
+    "box_right", "box_right_width", NULL
+};
+const char *node_fields_dir[] = {
+    "attr", "dir", "level", "dvi_ptr", "dvi_h", NULL
+};
+const char *node_fields_boundary[] = {
+    "attr", "value", NULL
+};
 
-const char *node_fields_whatsit_pdf_literal[]      = { "attr", "mode", "data", NULL };
-const char *node_fields_whatsit_pdf_refobj[]       = { "attr", "objnum", NULL };
-const char *node_fields_whatsit_pdf_annot[]        = { "attr", "width", "depth", "height", "objnum", "data", NULL };
-const char *node_fields_whatsit_pdf_start_link[]   = { "attr", "width", "depth", "height", "objnum", "link_attr", "action", NULL };
-const char *node_fields_whatsit_pdf_end_link[]     = { "attr", NULL };
-const char *node_fields_whatsit_pdf_dest[]         = { "attr", "width", "depth", "height", "named_id", "dest_id", "dest_type", "xyz_zoom", "objnum", NULL };
-const char *node_fields_whatsit_pdf_action[]       = { "action_type", "named_id", "action_id", "file", "new_window", "data", "ref_count", NULL };
-const char *node_fields_whatsit_pdf_thread[]       = { "attr", "width", "depth", "height",  "named_id", "thread_id", "thread_attr", NULL };
-const char *node_fields_whatsit_pdf_start_thread[] = { "attr", "width", "depth", "height", "named_id", "thread_id", "thread_attr", NULL };
-const char *node_fields_whatsit_pdf_end_thread[]   = { "attr", NULL };
-const char *node_fields_whatsit_pdf_colorstack[]   = { "attr", "stack", "cmd", "data", NULL };
-const char *node_fields_whatsit_pdf_setmatrix[]    = { "attr", "data", NULL };
-const char *node_fields_whatsit_pdf_save[]         = { "attr", NULL };
-const char *node_fields_whatsit_pdf_restore[]      = { "attr", NULL };
+/* math nodes */
+
+const char *node_fields_noad[] = {
+    "attr", "nucleus", "sub", "sup", NULL
+};
+
+#define node_fields_ord     node_fields_noad
+#define node_fields_op      node_fields_noad
+#define node_fields_bin     node_fields_noad
+#define node_fields_rel     node_fields_noad
+#define node_fields_open    node_fields_noad
+#define node_fields_close   node_fields_noad
+#define node_fields_punct   node_fields_noad
+#define node_fields_inner   node_fields_noad
+#define node_fields_under   node_fields_noad
+#define node_fields_over    node_fields_noad
+#define node_fields_vcenter node_fields_noad
+
+const char *node_fields_style[] = {
+    "attr", "style", NULL
+};
+const char *node_fields_choice[] = {
+    "attr", "display", "text", "script", "scriptscript", NULL
+};
+const char *node_fields_radical[] = {
+    "attr", "nucleus", "sub", "sup", "left", "degree", NULL
+};
+const char *node_fields_fraction[] = {
+    "attr", "width", "num", "denom", "left", "right", NULL
+};
+const char *node_fields_accent[] = {
+    "attr", "nucleus", "sub", "sup", "accent", "bot_accent", "top_accent",
+    "overlay_accent", NULL
+};
+const char *node_fields_fence[] = {
+    "attr", "delim", NULL
+};
+const char *node_fields_math_char[] = {
+    "attr", "fam", "char", NULL
+};
+const char *node_fields_sub_box[] = {
+    "attr", "head", NULL
+};
+const char *node_fields_sub_mlist[] = {
+    "attr", "head", NULL
+};
+const char *node_fields_math_text_char[] = {
+    "attr", "fam", "char", NULL
+};
+const char *node_fields_delim[] = {
+    "attr", "small_fam", "small_char", "large_fam", "large_char", NULL
+};
+
+/* whatsit nodes */
+
+const char *node_fields_whatsit_open[] = {
+    "attr", "stream", "name", "area", "ext", NULL
+};
+const char *node_fields_whatsit_write[] = {
+    "attr", "stream", "data", NULL
+};
+const char *node_fields_whatsit_close[] = {
+    "attr", "stream", NULL
+};
+const char *node_fields_whatsit_special[] = {
+    "attr", "data", NULL
+};
+const char *node_fields_whatsit_save_pos[] = {
+    "attr", NULL
+};
+const char *node_fields_whatsit_late_lua[] = {
+    "attr", "reg", "data", "name", "string", NULL
+};
+const char *node_fields_whatsit_user_defined[] = {
+    "attr", "user_id", "type", "value", NULL
+};
+
+/* pdf backend whatsit nodes */
+
+const char *node_fields_whatsit_pdf_literal[] = {
+    "attr", "mode", "data", NULL
+};
+const char *node_fields_whatsit_pdf_refobj[] = {
+    "attr", "objnum", NULL
+};
+const char *node_fields_whatsit_pdf_annot[] = {
+    "attr", "width", "depth", "height", "objnum", "data", NULL
+};
+const char *node_fields_whatsit_pdf_start_link[] = {
+    "attr", "width", "depth", "height", "objnum", "link_attr", "action", NULL
+};
+const char *node_fields_whatsit_pdf_end_link[] = {
+    "attr", NULL
+};
+const char *node_fields_whatsit_pdf_dest[] = {
+    "attr", "width", "depth", "height", "named_id", "dest_id", "dest_type",
+    "xyz_zoom", "objnum", NULL
+};
+const char *node_fields_whatsit_pdf_action[] = {
+    "action_type", "named_id", "action_id", "file", "new_window", "data",
+    "ref_count", NULL
+};
+const char *node_fields_whatsit_pdf_thread[] = {
+    "attr", "width", "depth", "height",  "named_id", "thread_id", "thread_attr", NULL
+};
+const char *node_fields_whatsit_pdf_start_thread[] = {
+    "attr", "width", "depth", "height", "named_id", "thread_id", "thread_attr", NULL
+};
+const char *node_fields_whatsit_pdf_end_thread[] = {
+    "attr", NULL
+};
+const char *node_fields_whatsit_pdf_colorstack[] = {
+    "attr", "stack", "cmd", "data", NULL
+};
+const char *node_fields_whatsit_pdf_setmatrix[] = {
+    "attr", "data", NULL
+};
+const char *node_fields_whatsit_pdf_save[] = {
+    "attr", NULL
+};
+const char *node_fields_whatsit_pdf_restore[] = {
+    "attr", NULL
+};
+
+/* subtypes */
+
+const char *node_subtypes_glue[] = {
+    "userskip", "lineskip", "baselineskip", "parskip", "abovedisplayskip", "belowdisplayskip",
+    "abovedisplayshortskip", "belowdisplayshortskip", "leftskip", "rightskip", "topskip",
+    "splittopskip", "tabskip", "spaceskip", "xspaceskip", "parfillskip", "thinmuskip",
+    "medmuskip", "thickmuskip", "mathskip", NULL
+};
+const char *node_subtypes_leader[] = { /* 100+ */
+    "leaders", "cleaders", "xleaders", "gleaders", NULL
+};
+const char *node_subtypes_fill[] = {
+    "stretch", "fi", "fil", "fill", "filll", NULL
+};
+const char *node_subtypes_penalty[] = {
+    "userpenalty", NULL
+};
+const char *node_subtypes_kern[] = {
+    "fontkern", "userkern", "accentkern", NULL
+};
+const char *node_subtypes_rule[] = {
+    "normal", "box", "image", "empty", NULL
+};
+const char *node_subtypes_glyph[] = {
+    "character", "glyph", "ligature", "ghost", "left", "right", NULL
+};
+const char *node_subtypes_disc[] = {
+    "discretionary", "explicit", "automatic", "regular", "first", "second", NULL
+};
+const char *node_subtypes_marginkern[] = {
+    "left", "right", NULL
+};
+const char *node_subtypes_list[] = {
+    "unknown", "line", "box", "indent", "alignment", "cell", "equation", "equationnumber", NULL
+};
+const char *node_subtypes_math[] = {
+    "beginmath", "endmath", NULL
+};
+const char *node_subtypes_noad[] = {
+    "ord", "opdisplaylimits", "oplimits", "opnolimits", "bin", "rel", "open", "close",
+    "punct", "inner", "under", "over", "vcenter", NULL
+};
+const char *node_subtypes_radical[] = {
+    "radical", "uradical", "uroot", "uunderdelimiter", "uoverdelimiter", "udelimiterunder",
+    "udelimiterover", NULL
+};
+const char *node_subtypes_accent[] = {
+    "bothflexible", "fixedtop", "fixedbottom", "fixedboth", NULL,
+};
+const char *node_subtypes_fence[] = {
+    "unset", "left", "middle", "right", NULL
+};
 
 node_info node_data[] = { /* the last entry in a row is the etex number */
-    {hlist_node, box_node_size, node_fields_list, "hlist", 1},
-    {vlist_node, box_node_size, node_fields_list, "vlist", 2},
-    {rule_node, rule_node_size, node_fields_rule, "rule", 3},
-    {ins_node, ins_node_size, node_fields_insert, "ins", 4},
-    {mark_node, mark_node_size, node_fields_mark, "mark", 5},
-    {adjust_node, adjust_node_size, node_fields_adjust, "adjust", 6},
-    {boundary_node, boundary_size, node_fields_boundary, "boundary", -1},
-    {disc_node, disc_node_size, node_fields_disc, "disc", 8},
-    {whatsit_node, -1, NULL, "whatsit", 9},
-    {math_node, math_node_size, node_fields_math, "math", 10},
-    {glue_node, glue_node_size, node_fields_glue, "glue", 11},
-    {kern_node, kern_node_size, node_fields_kern, "kern", 12},
-    {penalty_node, penalty_node_size, node_fields_penalty, "penalty", 13},
-    {unset_node, box_node_size, node_fields_unset, "unset", 14},
-    {style_node, style_node_size, node_fields_style, "style", 15},
-    {choice_node, style_node_size, node_fields_choice, "choice", 15},
-    {simple_noad, noad_size, node_fields_ord, "noad", 15},
-    {radical_noad, radical_noad_size, node_fields_radical, "radical", 15},
-    {fraction_noad, fraction_noad_size, node_fields_fraction, "fraction", 15},
-    {accent_noad, accent_noad_size, node_fields_accent, "accent", 15},
-    {fence_noad, fence_noad_size, node_fields_fence, "fence", 15},
-    {math_char_node, math_kernel_node_size, node_fields_math_char, "math_char", 15},
-    {sub_box_node, math_kernel_node_size, node_fields_sub_box, "sub_box", 15},
-    {sub_mlist_node, math_kernel_node_size, node_fields_sub_mlist, "sub_mlist", 15},
-    {math_text_char_node, math_kernel_node_size, node_fields_math_text_char, "math_text_char", 15},
-    {delim_node, math_shield_node_size, node_fields_delim, "delim", 15},
-    {margin_kern_node, margin_kern_node_size, node_fields_margin_kern, "margin_kern", -1},
-    {glyph_node, glyph_node_size, node_fields_glyph, "glyph", 0},
-    {align_record_node, box_node_size, NULL, "align_record", -1},
-    {pseudo_file_node, pseudo_file_node_size, NULL, "pseudo_file", -1},
-    {pseudo_line_node, variable_node_size, NULL, "pseudo_line", -1},
-    {inserting_node, page_ins_node_size, node_fields_inserting, "page_insert", -1},
-    {split_up_node, page_ins_node_size, node_fields_splitup, "split_insert", -1},
-    {expr_node, expr_node_size, NULL, "expr_stack", -1},
-    {nesting_node, nesting_node_size, NULL, "nested_list", -1},
-    {span_node, span_node_size, NULL, "span", -1},
-    {attribute_node, attribute_node_size, node_fields_attribute, "attribute", -1},
-    {glue_spec_node, glue_spec_size, node_fields_glue_spec, "glue_spec", -1},
-    {attribute_list_node, attribute_node_size, node_fields_attribute_list, "attribute_list", -1},
-    {temp_node, temp_node_size, NULL, "temp", -1},
-    {align_stack_node, align_stack_node_size, NULL, "align_stack", -1},
-    {movement_node, movement_node_size, NULL, "movement_stack", -1},
-    {if_node, if_node_size, NULL, "if_stack", -1},
-    {unhyphenated_node, active_node_size, NULL, "unhyphenated", -1},
-    {hyphenated_node, active_node_size, NULL, "hyphenated", -1},
-    {delta_node, delta_node_size, NULL, "delta", -1},
-    {passive_node, passive_node_size, NULL, "passive", -1},
-    {shape_node, variable_node_size, NULL, "shape", -1},
-    {dir_node, dir_node_size, node_fields_dir, "dir", -1},
-    {local_par_node, local_par_size, node_fields_local_par,"local_par", -1},
-    {-1, -1, NULL, NULL, -1}
+    { hlist_node,          box_node_size,         node_fields_list,                          "hlist",           1 },
+    { vlist_node,          box_node_size,         node_fields_list,                          "vlist",           2 },
+    { rule_node,           rule_node_size,        node_fields_rule,                          "rule",            3 },
+    { ins_node,            ins_node_size,         node_fields_insert,                        "ins",             4 },
+    { mark_node,           mark_node_size,        node_fields_mark,                          "mark",            5 },
+    { adjust_node,         adjust_node_size,      node_fields_adjust,                        "adjust",          6 },
+    { boundary_node,       boundary_size,         node_fields_boundary,                      "boundary",       -1 },
+    { disc_node,           disc_node_size,        node_fields_disc,                          "disc",            8 },
+    { whatsit_node,        -1,                    NULL,                                      "whatsit",         9 },
+    { math_node,           math_node_size,        node_fields_math,                          "math",           10 },
+    { glue_node,           glue_node_size,        node_fields_glue,                          "glue",           11 },
+    { kern_node,           kern_node_size,        node_fields_kern,                          "kern",           12 },
+    { penalty_node,        penalty_node_size,     node_fields_penalty,                       "penalty",        13 },
+    { unset_node,          box_node_size,         node_fields_unset,                         "unset",          14 },
+    { style_node,          style_node_size,       node_fields_style,                         "style",          15 },
+    { choice_node,         style_node_size,       node_fields_choice,                        "choice",         15 },
+    { simple_noad,         noad_size,             node_fields_ord,                           "noad",           15 },
+    { radical_noad,        radical_noad_size,     node_fields_radical,                       "radical",        15 },
+    { fraction_noad,       fraction_noad_size,    node_fields_fraction,                      "fraction",       15 },
+    { accent_noad,         accent_noad_size,      node_fields_accent,                        "accent",         15 },
+    { fence_noad,          fence_noad_size,       node_fields_fence,                         "fence",          15 },
+    { math_char_node,      math_kernel_node_size, node_fields_math_char,                     "math_char",      15 },
+    { sub_box_node,        math_kernel_node_size, node_fields_sub_box,                       "sub_box",        15 },
+    { sub_mlist_node,      math_kernel_node_size, node_fields_sub_mlist,                     "sub_mlist",      15 },
+    { math_text_char_node, math_kernel_node_size, node_fields_math_text_char,                "math_text_char", 15 },
+    { delim_node,          math_shield_node_size, node_fields_delim,                         "delim",          15 },
+    { margin_kern_node,    margin_kern_node_size, node_fields_margin_kern,                   "margin_kern",    -1 },
+    { glyph_node,          glyph_node_size,       node_fields_glyph,                         "glyph",           0 },
+    { align_record_node,   box_node_size,         NULL,                                      "align_record",   -1 },
+    { pseudo_file_node,    pseudo_file_node_size, NULL,                                      "pseudo_file",    -1 },
+    { pseudo_line_node,    variable_node_size,    NULL,                                      "pseudo_line",    -1 },
+    { inserting_node,      page_ins_node_size,    node_fields_inserting,                     "page_insert",    -1 },
+    { split_up_node,       page_ins_node_size,    node_fields_splitup,                       "split_insert",   -1 },
+    { expr_node,           expr_node_size,        NULL,                                      "expr_stack",     -1 },
+    { nesting_node,        nesting_node_size,     NULL,                                      "nested_list",    -1 },
+    { span_node,           span_node_size,        NULL,                                      "span",           -1 },
+    { attribute_node,      attribute_node_size,   node_fields_attribute,                     "attribute",      -1 },
+    { glue_spec_node,      glue_spec_size,        node_fields_glue_spec,                     "glue_spec",      -1 },
+    { attribute_list_node, attribute_node_size,   node_fields_attribute_list,                "attribute_list", -1 },
+    { temp_node,           temp_node_size,        NULL,                                      "temp",           -1 },
+    { align_stack_node,    align_stack_node_size, NULL,                                      "align_stack",    -1 },
+    { movement_node,       movement_node_size,    NULL,                                      "movement_stack", -1 },
+    { if_node,             if_node_size,          NULL,                                      "if_stack",       -1 },
+    { unhyphenated_node,   active_node_size,      NULL,                                      "unhyphenated",   -1 },
+    { hyphenated_node,     active_node_size,      NULL,                                      "hyphenated",     -1 },
+    { delta_node,          delta_node_size,       NULL,                                      "delta",          -1 },
+    { passive_node,        passive_node_size,     NULL,                                      "passive",        -1 },
+    { shape_node,          variable_node_size,    NULL,                                      "shape",          -1 },
+    { dir_node,            dir_node_size,         node_fields_dir,                           "dir",            -1 },
+    { local_par_node,      local_par_size,        node_fields_local_par,                     "local_par",      -1 },
+    { -1,                 -1,                     NULL,                                      NULL,             -1 },
 };
 
 #define last_normal_node local_par_node
 
+const char *node_subtypes_pdf_destination[] = {
+    "xyz", "fit", "fith", "fitv", "fitb", "fitbh", "fitbv", "fitr", NULL
+};
+const char *node_subtypes_pdf_literal[] = {
+    "origin", "page", "direct", NULL
+};
+
 node_info whatsit_node_data[] = {
-    {open_node, open_node_size, node_fields_whatsit_open, "open", -1},
-    {write_node, write_node_size, node_fields_whatsit_write, "write", -1},
-    {close_node, close_node_size, node_fields_whatsit_close, "close", -1},
-    {special_node, special_node_size, node_fields_whatsit_special, "special", -1},
-    {fake_node, fake_node_size, NULL, fake_node_name, -1},
-    {fake_node, fake_node_size, NULL, fake_node_name, -1},
-    {save_pos_node, save_pos_node_size, node_fields_whatsit_save_pos, "save_pos", -1},
-    {late_lua_node, late_lua_node_size, node_fields_whatsit_late_lua, "late_lua", -1},
-    {user_defined_node, user_defined_node_size, node_fields_whatsit_user_defined, "user_defined", -1},
-    {fake_node, fake_node_size, NULL, fake_node_name, -1},
-    {fake_node, fake_node_size, NULL, fake_node_name, -1},
-    {fake_node, fake_node_size, NULL, fake_node_name, -1},
-    {fake_node, fake_node_size, NULL, fake_node_name, -1},
-    {fake_node, fake_node_size, NULL, fake_node_name, -1},
-    {fake_node, fake_node_size, NULL, fake_node_name, -1},
-    {fake_node, fake_node_size, NULL, fake_node_name, -1},
+    { open_node,         open_node_size,               node_fields_whatsit_open,             "open",             -1 },
+    { write_node,        write_node_size,              node_fields_whatsit_write,            "write",            -1 },
+    { close_node,        close_node_size,              node_fields_whatsit_close,            "close",            -1 },
+    { special_node,      special_node_size,            node_fields_whatsit_special,          "special",          -1 },
+    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
+    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
+    { save_pos_node,     save_pos_node_size,           node_fields_whatsit_save_pos,         "save_pos",         -1 },
+    { late_lua_node,     late_lua_node_size,           node_fields_whatsit_late_lua,         "late_lua",         -1 },
+    { user_defined_node, user_defined_node_size,       node_fields_whatsit_user_defined,     "user_defined",     -1 },
+    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
+    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
+    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
+    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
+    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
+    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
+    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
     /* here starts the dvi backend section, todo: a separate list  */
     /* nothing for dvi */
     /* here starts the pdf backend section, todo: a separate list  */
-    {pdf_literal_node, write_node_size, node_fields_whatsit_pdf_literal, "pdf_literal", -1},
-    {pdf_refobj_node, pdf_refobj_node_size, node_fields_whatsit_pdf_refobj, "pdf_refobj", -1},
-    {pdf_annot_node, pdf_annot_node_size, node_fields_whatsit_pdf_annot, "pdf_annot", -1},
-    {pdf_start_link_node, pdf_annot_node_size, node_fields_whatsit_pdf_start_link, "pdf_start_link", -1},
-    {pdf_end_link_node, pdf_end_link_node_size, node_fields_whatsit_pdf_end_link, "pdf_end_link", -1},
-    {pdf_dest_node, pdf_dest_node_size, node_fields_whatsit_pdf_dest, "pdf_dest", -1},
-    {pdf_action_node, pdf_action_size, node_fields_whatsit_pdf_action, "pdf_action", -1},
-    {pdf_thread_node, pdf_thread_node_size, node_fields_whatsit_pdf_thread, "pdf_thread", -1},
-    {pdf_start_thread_node, pdf_thread_node_size, node_fields_whatsit_pdf_start_thread, "pdf_start_thread", -1},
-    {pdf_end_thread_node, pdf_end_thread_node_size, node_fields_whatsit_pdf_end_thread, "pdf_end_thread", -1},
-    {pdf_thread_data_node, pdf_thread_node_size, NULL, "pdf_thread_data", -1},
-    {pdf_link_data_node, pdf_annot_node_size, NULL, "pdf_link_data", -1},
-    {pdf_colorstack_node, pdf_colorstack_node_size, node_fields_whatsit_pdf_colorstack, "pdf_colorstack", -1},
-    {pdf_setmatrix_node, pdf_setmatrix_node_size, node_fields_whatsit_pdf_setmatrix, "pdf_setmatrix", -1},
-    {pdf_save_node, pdf_save_node_size, node_fields_whatsit_pdf_save, "pdf_save", -1},
-    {pdf_restore_node, pdf_restore_node_size, node_fields_whatsit_pdf_restore, "pdf_restore", -1},
+    { pdf_literal_node,      write_node_size,          node_fields_whatsit_pdf_literal,      "pdf_literal",      -1 },
+    { pdf_refobj_node,       pdf_refobj_node_size,     node_fields_whatsit_pdf_refobj,       "pdf_refobj",       -1 },
+    { pdf_annot_node,        pdf_annot_node_size,      node_fields_whatsit_pdf_annot,        "pdf_annot",        -1 },
+    { pdf_start_link_node,   pdf_annot_node_size,      node_fields_whatsit_pdf_start_link,   "pdf_start_link",   -1 },
+    { pdf_end_link_node,     pdf_end_link_node_size,   node_fields_whatsit_pdf_end_link,     "pdf_end_link",     -1 },
+    { pdf_dest_node,         pdf_dest_node_size,       node_fields_whatsit_pdf_dest,         "pdf_dest",         -1 },
+    { pdf_action_node,       pdf_action_size,          node_fields_whatsit_pdf_action,       "pdf_action",       -1 },
+    { pdf_thread_node,       pdf_thread_node_size,     node_fields_whatsit_pdf_thread,       "pdf_thread",       -1 },
+    { pdf_start_thread_node, pdf_thread_node_size,     node_fields_whatsit_pdf_start_thread, "pdf_start_thread", -1 },
+    { pdf_end_thread_node,   pdf_end_thread_node_size, node_fields_whatsit_pdf_end_thread,   "pdf_end_thread",   -1 },
+    { pdf_thread_data_node,  pdf_thread_node_size,     NULL,                                 "pdf_thread_data",  -1 },
+    { pdf_link_data_node,    pdf_annot_node_size,      NULL,                                 "pdf_link_data",    -1 },
+    { pdf_colorstack_node,   pdf_colorstack_node_size, node_fields_whatsit_pdf_colorstack,   "pdf_colorstack",   -1 },
+    { pdf_setmatrix_node,    pdf_setmatrix_node_size,  node_fields_whatsit_pdf_setmatrix,    "pdf_setmatrix",    -1 },
+    { pdf_save_node,         pdf_save_node_size,       node_fields_whatsit_pdf_save,         "pdf_save",         -1 },
+    { pdf_restore_node,      pdf_restore_node_size,    node_fields_whatsit_pdf_restore,      "pdf_restore",      -1 },
     /* done */
-    {-1, -1, NULL, NULL, -1}
+    { -1,                    -1,                       NULL,                                 NULL,               -1 },
 };
 
 #define last_whatsit_node pdf_restore_node

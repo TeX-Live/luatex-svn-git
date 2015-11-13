@@ -1956,15 +1956,88 @@ static int lua_nodelib_fields(lua_State * L)
         lua_rawseti(L, -2, 2);
         offset++;
     }
+    if (nodetype_has_prev(t)) {
+        lua_push_string_by_name(L,prev);
+        lua_rawseti(L, -2, -1);
+    }
     if (fields != NULL) {
-        if (nodetype_has_prev(t)) {
-            lua_push_string_by_name(L,prev);
-            lua_rawseti(L, -2, -1);
-        }
         for (i = 0; fields[i] != NULL; i++) {
             lua_pushstring(L, fields[i]); /* todo */
             lua_rawseti(L, -2, (i + offset));
         }
+    }
+    return 1;
+}
+
+static int lua_nodelib_subtypes(lua_State * L)
+{
+    int i = -1;
+    int l = 0;
+    int t;
+    const char **subtypes = NULL;
+    const char *s ;
+    t = lua_type(L,1);
+    if (t == LUA_TSTRING) {
+        /* official accessors */
+        s = lua_tostring(L,1);
+             if (lua_key_eq(s,glyph))           subtypes = node_subtypes_glyph;
+        else if (lua_key_eq(s,glue))          { subtypes = node_subtypes_glue; l = 1; }
+        else if (lua_key_eq(s,penalty))         subtypes = node_subtypes_penalty;
+        else if (lua_key_eq(s,kern))            subtypes = node_subtypes_kern;
+        else if (lua_key_eq(s,rule))            subtypes = node_subtypes_rule;
+        else if (lua_key_eq(s,list))            subtypes = node_subtypes_list;
+        else if (lua_key_eq(s,disc))            subtypes = node_subtypes_disc;
+        else if (lua_key_eq(s,fill))            subtypes = node_subtypes_fill;
+        else if (lua_key_eq(s,leader))        { subtypes = node_subtypes_leader; l = 2; }
+        else if (lua_key_eq(s,marginkern))      subtypes = node_subtypes_marginkern;
+        else if (lua_key_eq(s,math))            subtypes = node_subtypes_math;
+        else if (lua_key_eq(s,noad))            subtypes = node_subtypes_noad;
+        else if (lua_key_eq(s,radical))         subtypes = node_subtypes_radical;
+        else if (lua_key_eq(s,accent))          subtypes = node_subtypes_accent;
+        else if (lua_key_eq(s,fence))           subtypes = node_subtypes_fence;
+        /* backend */
+        else if (lua_key_eq(s,pdf_destination)) subtypes = node_subtypes_pdf_destination;
+        else if (lua_key_eq(s,pdf_literal))     subtypes = node_subtypes_pdf_literal;
+    } else if (t == LUA_TNUMBER) {
+        /* maybe */
+        t = lua_tonumber(L,1);
+             if (t == glyph_node)               subtypes = node_subtypes_glyph;
+        else if (t == glue_node)              { subtypes = node_subtypes_glue; l = 1; }
+        else if (t == penalty_node)             subtypes = node_subtypes_penalty;
+        else if (t == kern_node)                subtypes = node_subtypes_kern;
+        else if (t == rule_node)                subtypes = node_subtypes_rule;
+        else if (t == hlist_node)               subtypes = node_subtypes_list;
+        else if (t == vlist_node)               subtypes = node_subtypes_list;
+        else if (t == disc_node)                subtypes = node_subtypes_disc;
+        else if (t == glue_spec_node)           subtypes = node_subtypes_fill;
+        else if (t == margin_kern_node)         subtypes = node_subtypes_marginkern;
+        else if (t == math_node)                subtypes = node_subtypes_math;
+        else if (t == simple_noad)              subtypes = node_subtypes_noad;
+        else if (t == radical_noad)             subtypes = node_subtypes_radical;
+        else if (t == accent_noad)              subtypes = node_subtypes_accent;
+        else if (t == fence_noad)               subtypes = node_subtypes_fence;
+        /* backend */
+        else if (t == pdf_dest_node)            subtypes = node_subtypes_pdf_destination;
+        else if (t == pdf_literal_node)         subtypes = node_subtypes_pdf_literal;
+    }
+    if (subtypes != NULL) {
+        lua_checkstack(L, 2);
+        lua_newtable(L);
+        if (l < 2) {
+            for (i = 0; subtypes[i] != NULL; i++) {
+                lua_pushstring(L, subtypes[i]); /* todo */
+                lua_rawseti(L, -2, i);
+            }
+        }
+        if (l > 0) {
+            /* add leaders */
+            for (i = 0; node_subtypes_leader[i] != NULL; i++) {
+                lua_pushstring(L, node_subtypes_leader[i]); /* todo */
+                lua_rawseti(L, -2, 100 + i);
+            }
+        }
+    } else {
+        lua_pushnil(L);
     }
     return 1;
 }
@@ -6612,6 +6685,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"end_of_math", lua_nodelib_end_of_math},
     {"family_font", lua_nodelib_mfont},
     {"fields", lua_nodelib_fields},
+    {"subtypes", lua_nodelib_subtypes},
     {"first_character", lua_nodelib_first_character},
     {"first_glyph", lua_nodelib_first_glyph},
     {"flush_list", lua_nodelib_flush_list},

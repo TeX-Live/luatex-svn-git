@@ -813,6 +813,26 @@ typedef struct _node_info {
 
 extern node_info node_data[];
 extern node_info whatsit_node_data[];
+
+extern const char *node_subtypes_glue[];
+extern const char *node_subtypes_leader[];
+extern const char *node_subtypes_fill[];
+extern const char *node_subtypes_penalty[];
+extern const char *node_subtypes_kern[];
+extern const char *node_subtypes_rule[];
+extern const char *node_subtypes_glyph[];
+extern const char *node_subtypes_disc[];
+extern const char *node_subtypes_marginkern[];
+extern const char *node_subtypes_list[];
+extern const char *node_subtypes_math[];
+extern const char *node_subtypes_noad[];
+extern const char *node_subtypes_radical[];
+extern const char *node_subtypes_accent[];
+extern const char *node_subtypes_fence[];
+
+extern const char *node_subtypes_pdf_destination[];
+extern const char *node_subtypes_pdf_literal[];
+
 extern halfword new_node(int i, int j);
 extern void flush_node_list(halfword);
 extern void flush_node(halfword);
