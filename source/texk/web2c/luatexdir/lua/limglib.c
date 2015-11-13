@@ -131,7 +131,7 @@ static void image_to_lua(lua_State * L, image * a)
     lua_gettable(L, LUA_REGISTRYINDEX); /* t k u ... */
     lua_pushvalue(L, -2);       /* k t k u ... */
     lua_gettable(L, -2);        /* i? t k u ... */
-    if (!lua_isnumber(L, -1))   /* !i t k u ... */
+    if (lua_type(L, -1) != LUA_TNUMBER)   /* !i t k u ... */
         luaL_error(L, "image_to_lua(): %s is not a valid image key", lua_tostring(L, -3));
     i = (int) lua_tointeger(L, -1);     /* i t k u ... */
     lua_pop(L, 3);              /* u ... */
@@ -300,7 +300,7 @@ static void lua_to_image(lua_State * L, image * a)
     lua_gettable(L, LUA_REGISTRYINDEX); /* t v k t ... */
     lua_pushvalue(L, -3);       /* k t v k t ... */
     lua_gettable(L, -2);        /* i? t v k t ... */
-    if (!lua_isnumber(L, -1))   /* !i t v k t ... */
+    if (lua_type(L, -1) != LUA_TNUMBER)   /* !i t v k t ... */
         luaL_error(L, "lua_to_image(): %s is not a valid image key", lua_tostring(L, -4));
     i = (int) lua_tointeger(L, -1);     /* i t v k t ... */
     lua_pop(L, 2);              /* v k t ... */
@@ -336,7 +336,7 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.depth needs integer or nil value or dimension string");
         break;
     case P_TRANSFORM:
-        if (lua_isnumber(L, -1))
+        if (lua_type(L, -1) == LUA_TNUMBER)
             img_transform(a) = (int) lua_tointeger(L, -1);
         else
             luaL_error(L, "image.transform needs integer value");
@@ -393,7 +393,7 @@ static void lua_to_image(lua_State * L, image * a)
             luaL_error(L, "image.colorspace is now read-only");
         if (lua_isnil(L, -1))
             img_colorspace(d) = 0;
-        else if (lua_isnumber(L, -1))
+        else if (lua_type(L, -1) == LUA_TNUMBER)
             img_colorspace(d) = (int) lua_tointeger(L, -1);
         else
             luaL_error(L, "image.colorspace needs integer or nil value");
@@ -756,10 +756,10 @@ static int m_img_set(lua_State * L)
 static int m_img_mul(lua_State * L)
 {
     lua_Number scale;
-    if (lua_isnumber(L, 1)) {   /* u? n */
+    if (lua_type(L, 1) == LUA_TNUMBER) {   /* u? n */
         (void) luaL_checkudata(L, 2, TYPE_IMG); /* u n */
         lua_insert(L, -2);      /* n a */
-    } else if (lua_isnumber(L, 2)) {    /* n u? */
+    } else if (lua_type(L, 2) != LUA_TNUMBER) {    /* n u? */
         (void) luaL_checkudata(L, 1, TYPE_IMG); /* n a */
     }                           /* n a */
     scale = lua_tonumber(L, 2); /* n a */

@@ -245,7 +245,7 @@ static int table_obj(lua_State * L)
     if (!lua_isnil(L, -1)) {    /* vi? t */
         if (lua_key_eq(type, raw))
             luaL_error(L, "pdf.obj(): \"compresslevel\" key not allowed for raw object");
-        if (!lua_isnumber(L, -1))       /* !vi t */
+        if (lua_type(L, -1) != LUA_TNUMBER)       /* !vi t */
             luaL_error(L, "pdf.obj(): \"compresslevel\" must be integer");
         compress_level = (int) lua_tointeger(L, -1);    /* vi t */
         if (compress_level > 9)
@@ -801,7 +801,7 @@ static int l_get_objcompresslevel(lua_State * L)
 static int l_set_compresslevel(lua_State * L)
 {
     int c ;
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
         if (c<0)
             c = 0 ;
@@ -815,7 +815,7 @@ static int l_set_compresslevel(lua_State * L)
 static int l_set_objcompresslevel(lua_State * L)
 {
     int c ;
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
         if (c<0)
             c = 0 ;
@@ -831,7 +831,7 @@ static int l_set_objcompresslevel(lua_State * L)
 static int getpdffontname(lua_State * L)
 {
     int c, ff ;
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
         pdf_check_vf(c);
         if (!font_used(c))
@@ -847,7 +847,7 @@ static int getpdffontname(lua_State * L)
 static int getpdffontobjnum(lua_State * L)
 {
     int c, ff ;
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
         pdf_check_vf(c);
         if (!font_used(c))
@@ -863,7 +863,7 @@ static int getpdffontobjnum(lua_State * L)
 static int getpdffontsize(lua_State * L)
 {
     int c;
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
         lua_pushnumber(L, (font_size(c)));
     } else {
@@ -875,7 +875,7 @@ static int getpdffontsize(lua_State * L)
 static int getpdfpageref(lua_State * L)
 {
     int c ;
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
         lua_pushnumber(L, (pdf_get_obj(static_pdf, obj_type_page, c, false)));
     } else {
@@ -887,7 +887,7 @@ static int getpdfpageref(lua_State * L)
 static int getpdfxformname(lua_State * L)
 {
     int c ;
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
         check_obj_type(static_pdf, obj_type_xform, c);
         lua_pushnumber(L, (obj_info(static_pdf, c)));
@@ -913,7 +913,7 @@ static int getpdfminorversion(lua_State * L)
 static int setpdfminorversion(lua_State * L)
 {
     int c ;
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
         if ((c >= 0) && (c <= 9)) {
             static_pdf->minor_version = c;

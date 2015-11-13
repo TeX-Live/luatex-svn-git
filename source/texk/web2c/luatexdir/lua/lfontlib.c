@@ -75,7 +75,7 @@ static int font_read_vf(lua_State * L)
     if (lua_type(L, 1) == LUA_TSTRING) {
         cnom = lua_tostring(L, 1);
         if (strlen(cnom)) {
-            if (lua_isnumber(L, 2)) {
+            if (lua_type(L, 2) == LUA_TNUMBER) {
                 i = (int) lua_tonumber(L, 2);
                 return make_vf_table(L, cnom, (scaled) i);
             } else {

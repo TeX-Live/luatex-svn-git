@@ -422,7 +422,7 @@ static int run_lookup(lua_State * L)
 static int run_build(lua_State * L)
 {
     int cmd, chr, cs;
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         cs = 0;
         chr = (int) lua_tointeger(L, 1);
         cmd = (int) luaL_optinteger(L, 2, get_cat_code(int_par(cat_code_table_code),chr));
@@ -460,7 +460,7 @@ static int lua_tokenlib_getfield(lua_State * L)
 {
     lua_token *n;
     const char *s;
-    halfword t ;
+    halfword t, e ;
     n = check_istoken(L, 1);
     s = lua_tostring(L, 2);
     t = token_info(n->token);
@@ -470,9 +470,40 @@ static int lua_tokenlib_getfield(lua_State * L)
         } else {
             lua_pushnumber(L, token_cmd(t));
         }
+    } else if (lua_key_eq(s, index)) {
+        int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
+        e = equiv(t - cs_token_flag);
+        switch (cmd) {
+            case assign_int_cmd:
+                e -= count_base;
+                break;
+            case assign_attr_cmd:
+                e -= attribute_base;
+                break;
+            case assign_dimen_cmd:
+                e -= dimen_base;
+                break;
+            case assign_glue_cmd:
+                e -= skip_base;
+                break;
+            case assign_mu_glue_cmd:
+                e -= mu_skip_base;
+                break;
+            case assign_toks_cmd:
+                e -= toks_base;
+                break;
+            default:
+                e = -1;
+                break;
+        }
+        if ((e >= 0) && (e <= 65535)) {
+            lua_pushnumber(L, e);
+        } else {
+            lua_pushnil(L);
+        }
     } else if (lua_key_eq(s, mode)) {
         if (t >= cs_token_flag) {
-            lua_pushnumber(L, equiv((t - cs_token_flag)));
+            lua_pushnumber(L, equiv(t - cs_token_flag));
         } else {
             lua_pushnumber(L, token_chr(t));
         }
@@ -487,7 +518,7 @@ static int lua_tokenlib_getfield(lua_State * L)
             else
                 lua_pushstring(L, (char *) s);
         } else {
-            lua_pushstring(L, "");
+            lua_pushnil(L);
         }
     } else if (lua_key_eq(s, id)) {
        lua_pushnumber(L, n->token);
@@ -577,6 +608,7 @@ static int run_scan_token(lua_State * L)
 /* [catcodetable] csname                : \def\csname{}         */
 
 /* TODO: check for a quick way to set a macro to empty (HH) */
+
 static int set_macro(lua_State * L)
 {
     const char *name = null;
@@ -591,7 +623,7 @@ static int set_macro(lua_State * L)
     if (n == 0) {
         return 0 ;
     }
-    if (lua_isnumber(L, 1)) {
+    if (lua_type(L, 1) == LUA_TNUMBER) {
         if (n == 1)
             return 0;
         ct = (int) lua_tointeger(L, 1);

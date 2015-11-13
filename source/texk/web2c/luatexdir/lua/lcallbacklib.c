@@ -84,14 +84,16 @@ int debug_callback_defined(int i)
 void get_lua_boolean(const char *table, const char *name, boolean * target)
 {
     int stacktop;
+    int t;
     stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_getglobal(Luas, table);
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
-        if (lua_isboolean(Luas, -1)) {
+        t = lua_type(Luas, -1);
+        if (t == LUA_TBOOLEAN) {
             *target = (boolean) (lua_toboolean(Luas, -1));
-        } else if (lua_isnumber(Luas, -1)) {
+        } else if (t == LUA_TNUMBER) {
             *target = (boolean) (lua_tonumber(Luas, -1) == 0 ? 0 : 1);
         }
     }
@@ -102,14 +104,16 @@ void get_lua_boolean(const char *table, const char *name, boolean * target)
 void get_saved_lua_boolean(int r, const char *name, boolean * target)
 {
     int stacktop;
+    int t;
     stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, r);
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
-        if (lua_isboolean(Luas, -1)) {
+        t = lua_type(Luas, -1);
+        if (t == LUA_TBOOLEAN) {
             *target = (boolean) lua_toboolean(Luas, -1);
-        } else if (lua_isnumber(Luas, -1)) {
+        } else if (t == LUA_TNUMBER) {
             *target = (boolean) (lua_tonumber(Luas, -1) == 0 ? 0 : 1);
         }
     }
@@ -125,7 +129,7 @@ void get_lua_number(const char *table, const char *name, int *target)
     lua_getglobal(Luas, table);
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
-        if (lua_isnumber(Luas, -1)) {
+        if (lua_type(Luas, -1) == LUA_TNUMBER) {
             *target = (int)lua_tonumber(Luas, -1);
         }
     }
@@ -141,7 +145,7 @@ void get_saved_lua_number(int r, const char *name, int *target)
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, r);
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
-        if (lua_isnumber(Luas, -1)) {
+        if (lua_type(Luas, -1) == LUA_TNUMBER) {
             *target=(int)lua_tonumber(Luas, -1);
         }
     }
@@ -357,7 +361,7 @@ int do_run_callback(int special, const char *values, va_list vl)
         halfword p;
         switch (*values++) {
         case CALLBACK_BOOLEAN:
-            if (!lua_isboolean(L, nres)) {
+            if (lua_type(L, nres) != LUA_TBOOLEAN) {
                 fprintf(stderr, "Expected a boolean, not: %s\n", lua_typename(L, lua_type(L, nres)));
                 goto EXIT;
             }
@@ -365,7 +369,7 @@ int do_run_callback(int special, const char *values, va_list vl)
             *va_arg(vl, boolean *) = (boolean) b;
             break;
         case CALLBACK_INTEGER:
-            if (!lua_isnumber(L, nres)) {
+            if (lua_type(L, nres) != LUA_TNUMBER) {
                 fprintf(stderr, "Expected a number, not: %s\n", lua_typename(L, lua_type(L, nres)));
                 goto EXIT;
             }
