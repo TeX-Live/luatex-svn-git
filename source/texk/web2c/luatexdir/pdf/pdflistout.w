@@ -20,8 +20,6 @@
 \def\pdfTeX{pdf\TeX}
 
 @ @c
-
-
 #include "ptexlib.h"
 
 @ @c
@@ -150,8 +148,7 @@ static scaled simple_advance_width(halfword p)
 }
 
 @ @c
-static halfword calculate_width_to_enddir(halfword p, real cur_glue,
-                                          scaled cur_g, halfword this_box)
+static halfword calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_g, halfword this_box)
 {
     int dir_nest = 1;
     halfword q = p, enddir_ptr = p;

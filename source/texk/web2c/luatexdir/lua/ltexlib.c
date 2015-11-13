@@ -24,7 +24,6 @@ setter no prev link is created so we can presume that it's not used later on. */
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-
 #define attribute(A) eqtb[attribute_base+(A)].hh.rh
 #define dimen(A) eqtb[scaled_base+(A)].hh.rh
 #undef skip
@@ -37,7 +36,6 @@ setter no prev link is created so we can presume that it's not used later on. */
 extern int unif_rand(int );
 extern int norm_rand(void );
 extern void init_randoms(int );
-
 
 typedef struct {
     char *text;
@@ -53,13 +51,13 @@ typedef struct {
     char complete;              /* currently still writing ? */
 } spindle;
 
-#define  PARTIAL_LINE       1
-#define  FULL_LINE          0
+#define  PARTIAL_LINE 1
+#define  FULL_LINE    0
 
 #define  write_spindle spindles[spindle_index]
 #define  read_spindle  spindles[(spindle_index-1)]
 
-static int spindle_size = 0;
+static int spindle_size  = 0;
 static spindle *spindles = NULL;
 static int spindle_index = 0;
 
@@ -90,7 +88,6 @@ static void luac_store(lua_State * L, int i, int partial, int cattable)
         write_spindle.complete = 0;
     }
 }
-
 
 static int do_luacprint(lua_State * L, int partial, int deftable)
 {
@@ -2661,16 +2658,28 @@ static int tex_save_box_resource(lua_State * L)
     int index, attributes, resources;
     /* box attributes resources */
     boxnumber  = (halfword) lua_tonumber(L,1);
-    lua_pushvalue(L, 2);
-    attributes = luaL_ref(L, LUA_REGISTRYINDEX);
-    lua_pushvalue(L, 3);
-    resources = luaL_ref(L, LUA_REGISTRYINDEX);
+    if (lua_type(L,2) == LUA_TSTRING) {
+        lua_pushvalue(L, 2);
+        attributes = luaL_ref(L, LUA_REGISTRYINDEX);
+    } else {
+        attributes = null;
+    }
+    if (lua_type(L,3) == LUA_TSTRING) {
+        lua_pushvalue(L, 3);
+        resources = luaL_ref(L, LUA_REGISTRYINDEX);
+    } else {
+        resources = null;
+    }
     /* more or less same as scanner variant */
     boxdata = box(boxnumber);
+    if (boxdata == null)
+        normal_error("pdf backend", "xforms cannot be used with a void box");
     static_pdf->xform_count++;
     index = pdf_create_obj(static_pdf, obj_type_xform, static_pdf->xform_count);
     set_obj_data_ptr(static_pdf, index, pdf_get_mem(static_pdf, pdfmem_xform_size));
+    set_obj_xform_attr(static_pdf, index, null);
     set_obj_xform_attr_str(static_pdf, index, attributes);
+    set_obj_xform_resources(static_pdf, index, null);
     set_obj_xform_resources_str(static_pdf, index, resources);
     set_obj_xform_box(static_pdf, index, (int) boxdata);
     set_obj_xform_width(static_pdf, index, width(boxdata));
@@ -2724,7 +2733,6 @@ static int tex_use_box_resource(lua_State * L)
 
 static int tex_build_page(lua_State * L)
 {
-    (void)L;
     build_page();
     return 0;
 }

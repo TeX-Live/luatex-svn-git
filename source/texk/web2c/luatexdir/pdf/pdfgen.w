@@ -18,8 +18,6 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
-
-
 #include "ptexlib.h"
 
 @ @c
@@ -53,6 +51,7 @@ shipping_mode_e global_shipping_mode = NOT_SHIPPING;       /* set to |shipping_m
 
 @ Create a new buffer |strbuf_s| of size |size| and maximum allowed size |limit|.
 Initialize it and set |p| to begin of data.
+
 @c
 strbuf_s *new_strbuf(size_t size, size_t limit)
 {
@@ -69,6 +68,7 @@ strbuf_s *new_strbuf(size_t size, size_t limit)
 }
 
 @ Check that |n| bytes more fit into buffer; increase it if required.
+
 @c
 static void strbuf_room(strbuf_s * b, size_t n)
 {
@@ -90,6 +90,7 @@ static void strbuf_room(strbuf_s * b, size_t n)
 }
 
 @ Seek to position |offset| within buffer. Position must be valid.
+
 @c
 void strbuf_seek(strbuf_s * b, off_t offset)
 {
@@ -98,6 +99,7 @@ void strbuf_seek(strbuf_s * b, off_t offset)
 }
 
 @ Get the current buffer fill level, the number of characters.
+
 @c
 size_t strbuf_offset(strbuf_s * b)
 {
@@ -105,6 +107,7 @@ size_t strbuf_offset(strbuf_s * b)
 }
 
 @ Put one character into buffer. Make room before if needed.
+
 @c
 void strbuf_putchar(strbuf_s * b, unsigned char c)
 {
@@ -114,6 +117,7 @@ void strbuf_putchar(strbuf_s * b, unsigned char c)
 }
 
 @ Dump filled buffer part to PDF.
+
 @c
 void strbuf_flush(PDF pdf, strbuf_s * b)
 {
@@ -122,6 +126,7 @@ void strbuf_flush(PDF pdf, strbuf_s * b)
 }
 
 @ Free all dynamically allocated buffer structures.
+
 @c
 void strbuf_free(strbuf_s * b)
 {
@@ -130,6 +135,7 @@ void strbuf_free(strbuf_s * b)
 }
 
 @ |init_pdf_struct()| is called early, only once, from maincontrol.w
+
 @c
 PDF init_pdf_struct(PDF pdf)
 {
@@ -468,6 +474,7 @@ static void pdf_prepare_obj(PDF pdf, int k, int pdf_os_threshold)
 @ Set the active buffer pointer.
 Make sure that there are at least |n| bytes free in that buffer,
 flush if needed.
+
 @c
 void pdf_room(PDF pdf, int n)
 {
@@ -525,6 +532,7 @@ void pdf_printf(PDF pdf, const char *fmt, ...)
 }
 
 @ print out a string to PDF buffer
+
 @c
 void pdf_print(PDF pdf, str_number s)
 {
@@ -541,6 +549,7 @@ void pdf_print(PDF pdf, str_number s)
 }
 
 @ print out a integer to PDF buffer
+
 @c
 void pdf_print_int(PDF pdf, longinteger n)
 {
@@ -578,6 +587,7 @@ void print_pdffloat(PDF pdf, pdffloat f)
 }
 
 @ print out |s| as string in PDF output
+
 @c
 void pdf_print_str(PDF pdf, const char *s)
 {
@@ -611,6 +621,7 @@ void pdf_print_str(PDF pdf, const char *s)
 }
 
 @ begin a stream (needs to have a stream dictionary also)
+
 @c
 void pdf_begin_stream(PDF pdf)
 {
@@ -631,6 +642,7 @@ void pdf_begin_stream(PDF pdf)
 }
 
 @ end a stream
+
 @c
 void pdf_end_stream(PDF pdf)
 {
@@ -671,28 +683,20 @@ accurary.
 @c
 #define max_integer 0x7FFFFFFF  /* $2^{31}-1$ */
 
-/* scaled value corresponds to 100in, exact, 473628672 */
-scaled one_hundred_inch = 7227 * 65536;
+scaled one_hundred_inch =  7227 * 65536;             /* scaled value corresponds to 100in, exact, 473628672 */
+scaled one_inch         = (7227 * 65536 + 50) / 100; /* scaled value corresponds to 1in (rounded to 4736287) */
+scaled one_true_inch    = (7227 * 65536 + 50) / 100; /* scaled value corresponds to 1truein (rounded!) */
+scaled one_hundred_bp   = (7227 * 65536)      /  72; /* scaled value corresponds to 100bp */
+scaled one_bp           = 65781;                     /* scaled value corresponds to 1bp (rounded to 65782) */
 
-/* scaled value corresponds to 1in (rounded to 4736287) */
-scaled one_inch = (7227 * 65536 + 50) / 100;
+/*
+    one_bp is changed on 20110411 to be exactly 65781, as in tex itself, because this value
+    is also used for \pdfpxdimen
+*/
 
-/* scaled value corresponds to 1truein (rounded!) */
-scaled one_true_inch = (7227 * 65536 + 50) / 100;
-
-/* scaled value corresponds to 100bp */
-scaled one_hundred_bp = (7227 * 65536) / 72;
-
-/* scaled value corresponds to 1bp (rounded to 65782) */
-/* changed on 20110411 to be exactly 65781, as in tex itself,
-  because this value is also used for \pdfpxdimen */
-scaled one_bp = 65781;
-
-/* $10^0..10^9$ */
 int ten_pow[10] = {
-    1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
+    1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 /* $10^0..10^9$ */
 };
-
 
 @ The function |divide_scaled| divides |s| by |m| using |dd| decimal
 digits of precision. It is defined in C because it is a good candidate
@@ -726,7 +730,6 @@ scaled round_xn_over_d(scaled x, int n, unsigned int d)
     else
         return (-(scaled) u);
 }
-
 
 @ @c
 void pdf_add_bp(PDF pdf, scaled s)
@@ -919,6 +922,7 @@ static void pdf_out_bytes(PDF pdf, longinteger n, size_t w)
 }
 
 @ print out |s| as string in PDF output
+
 @c
 void pdf_print_str_ln(PDF pdf, const char *s)
 {
@@ -941,6 +945,7 @@ void pdf_print_toks(PDF pdf, halfword p)
 }
 
 @ prints a rect spec
+
 @c
 void pdf_add_rect_spec(PDF pdf, halfword r)
 {
@@ -951,6 +956,7 @@ void pdf_add_rect_spec(PDF pdf, halfword r)
 }
 
 @ output a rectangle specification to PDF file
+
 @c
 void pdf_rectangle(PDF pdf, halfword r)
 {
@@ -1141,6 +1147,7 @@ static void pdf_os_write_objstream(PDF pdf)
 }
 
 @ begin a PDF dictionary
+
 @c
 void pdf_begin_dict(PDF pdf)
 {
@@ -1149,6 +1156,7 @@ void pdf_begin_dict(PDF pdf)
 }
 
 @ end a PDF dictionary
+
 @c
 void pdf_end_dict(PDF pdf)
 {
@@ -1157,6 +1165,7 @@ void pdf_end_dict(PDF pdf)
 }
 
 @ add integer object to dict
+
 @c
 void pdf_dict_add_bool(PDF pdf, const char *key, int i)
 {
@@ -1165,6 +1174,7 @@ void pdf_dict_add_bool(PDF pdf, const char *key, int i)
 }
 
 @ add integer object to dict
+
 @c
 void pdf_dict_add_int(PDF pdf, const char *key, int i)
 {
@@ -1173,6 +1183,7 @@ void pdf_dict_add_int(PDF pdf, const char *key, int i)
 }
 
 @ add name object to dict
+
 @c
 void pdf_dict_add_name(PDF pdf, const char *key, const char *val)
 {
@@ -1181,6 +1192,7 @@ void pdf_dict_add_name(PDF pdf, const char *key, const char *val)
 }
 
 @ add string object to dict
+
 @c
 void pdf_dict_add_string(PDF pdf, const char *key, const char *val)
 {
@@ -1194,6 +1206,7 @@ void pdf_dict_add_string(PDF pdf, const char *key, const char *val)
 }
 
 @ add name reference to dict
+
 @c
 void pdf_dict_add_ref(PDF pdf, const char *key, int num)
 {
@@ -1202,6 +1215,7 @@ void pdf_dict_add_ref(PDF pdf, const char *key, int num)
 }
 
 @ add objects of different types
+
 @c
 void pdf_add_null(PDF pdf)
 {
@@ -1264,6 +1278,7 @@ void pdf_add_ref(PDF pdf, int num)
 
 @ add stream length and filter entries to a stream dictionary,
 remember file position for seek
+
 @c
 void pdf_dict_add_streaminfo(PDF pdf)
 {
@@ -1280,6 +1295,7 @@ void pdf_dict_add_streaminfo(PDF pdf)
 }
 
 @ begin a PDF array
+
 @c
 void pdf_begin_array(PDF pdf)
 {
@@ -1288,6 +1304,7 @@ void pdf_begin_array(PDF pdf)
 }
 
 @ end a PDF array
+
 @c
 void pdf_end_array(PDF pdf)
 {
@@ -1296,6 +1313,7 @@ void pdf_end_array(PDF pdf)
 }
 
 @ begin a PDF object
+
 @c
 void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
 {
@@ -1318,6 +1336,7 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
 }
 
 @ end a PDF object
+
 @c
 void pdf_end_obj(PDF pdf)
 {
@@ -1745,6 +1764,7 @@ void pdf_begin_page(PDF pdf)
         if (obj_xform_attr_str(pdf, pdf_cur_form) != null) {
             lua_pdf_literal(pdf, obj_xform_attr_str(pdf, pdf_cur_form));
             luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_attr_str(pdf, pdf_cur_form));
+            set_obj_xform_attr_str(pdf, pdf_cur_form, null);
         }
         pdf_add_name(pdf, "BBox");
         pdf_begin_array(pdf);
@@ -1855,7 +1875,6 @@ void pdf_end_page(PDF pdf)
     }
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
-
     /* hh-ls : new call back finish_pdfpage_callback */
     callback_id = callback_defined(finish_pdfpage_callback);
     if (callback_id > 0)
@@ -2048,6 +2067,7 @@ void pdf_end_page(PDF pdf)
         if (obj_xform_resources_str(pdf, pdf_cur_form) != null) {
             lua_pdf_literal(pdf, obj_xform_resources_str(pdf, pdf_cur_form));
             luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_resources_str(pdf, pdf_cur_form));
+            set_obj_xform_resources_str(pdf, pdf_cur_form, null);
         }
     }
 

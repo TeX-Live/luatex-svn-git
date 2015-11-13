@@ -19,7 +19,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ @c

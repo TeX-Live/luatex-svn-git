@@ -18,11 +18,7 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
-
-
 #include "ptexlib.h"
-
-@ @c
 #include "pdf/pdfpage.h"
 
 @ @c
@@ -82,12 +78,14 @@ void scan_pdfxform(PDF pdf)
     } else {
         set_obj_xform_attr(pdf, k, null);
     }
+    set_obj_xform_attr_str(pdf, k, null);
     if (scan_keyword("resources")) {
         scan_pdf_ext_toks();
         set_obj_xform_resources(pdf, k, def_ref);
     } else {
         set_obj_xform_resources(pdf, k, null);
     }
+    set_obj_xform_resources_str(pdf, k, null);
     scan_int();
     p = box(cur_val);
     if (p == null)
@@ -113,8 +111,7 @@ void scan_pdfrefxform(PDF pdf)
     nat.wd = obj_xform_width(pdf, cur_val);
     nat.ht = obj_xform_height(pdf, cur_val);
     nat.dp = obj_xform_depth(pdf, cur_val);
-    if (alt_rule.wd != null_flag || alt_rule.ht != null_flag
-        || alt_rule.dp != null_flag) {
+    if (alt_rule.wd != null_flag || alt_rule.ht != null_flag || alt_rule.dp != null_flag) {
         dim = tex_scale(nat, alt_rule);
     } else {
         dim = nat;
