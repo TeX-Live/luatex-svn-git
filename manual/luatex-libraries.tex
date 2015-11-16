@@ -5436,7 +5436,13 @@ You can generate the reference (a rule type) with:
 local reused = tex.useboxresource(n,wd,ht,dp)
 \stoptyping
 
-The dimensions are optional and the final ones are returned as extra values.
+The dimensions are optional and the final ones are returned as extra values. The
+following is just a bonus (no dimensions returned means that the resource is
+unknown):
+
+\starttyping
+local w, h, d = tex.getboxresourcedimensions(n)
+\stoptyping
 
 \subsection{Math parameters}
 
