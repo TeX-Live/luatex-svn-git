@@ -6297,6 +6297,7 @@ table:
 \NC scan_string  \NC                    \NC returns a string given between \type {{}}, as \type {\macro} or as sequence of characters with catcode 11 or 12 \NC \NR
 \NC scan_word    \NC                    \NC returns a sequence of characters with catcode 11 or 12 as string \NC \NR
 \NC scan_csname  \NC                    \NC returns \type {foo} after scanning \type {\foo} \NC \NR
+\NC set_macro    \NC see below          \NC assign a macro \NC \NR
 \NC create       \NC                    \NC returns a userdata token object of the given control sequence name (or character); this interface can change  \NC \NR
 \stoptabulate
 
@@ -6433,6 +6434,30 @@ some more information here. By that time the internals have been cleaned up a bi
 more so we know then what will stay and go. A positive side effect of this
 transition is that we can simplify the input part because we no longer need to
 intercept using callbacks.
+
+The \type {set_macro} function can get upto 4 arguments:
+
+\starttyping
+setmacro("csname","content")
+setmacro("csname","content","global")
+setmacro("csname")
+\stoptyping
+
+You can pass a catcodetable identifier as first argument:
+
+\starttyping
+setmacro(catcodetable,"csname","content")
+setmacro(catcodetable,"csname","content","global")
+setmacro(catcodetable,"csname")
+\stoptyping
+
+The results are like:
+
+\starttyping
+ \def\csname{content}
+\gdef\csname{content}
+ \def\csname{}
+\stoptyping
 
 \stopchapter
 
