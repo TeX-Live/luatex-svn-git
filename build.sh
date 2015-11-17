@@ -105,6 +105,7 @@ LUATEXEXE=luatex
 case `uname` in
   MINGW32*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ;;
   CYGWIN*    ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ;;
+  Darwin     ) STRIP="strip -u -r" ;;
 esac
 
 WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
