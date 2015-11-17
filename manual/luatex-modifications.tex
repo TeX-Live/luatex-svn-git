@@ -476,7 +476,18 @@ now replaced by only a few. In traditional \TEX\ we only had the \DVI\ backend
 but now we have two: \DVI\ and \PDF. Additional functionality is implemented as
 \quote {extensions} in \TEX speak. By seperating more strickly we are able to
 keep the core (fontend) clean and stable. If for some reason an extra backend
-option is needed, it can be implemented without touching the core.
+option is needed, it can be implemented without touching the core. The three
+\PDF\ backend related primitives are
+
+\starttyping
+\pdfextension command [specification]
+\pdfvariable  name
+\pdffeedback  name
+\stoptyping
+
+An extension triggers further parsing, depending on the command given. A variable is
+a (kind of) register and can be read and written, while a feedback is reporting
+something (as it comes from the backend it's normally a sequence of tokens).
 
 In order for \LUATEX\ to be more than just \TEX\ you need to enable primitives. That
 has already be the case right from the start. If you want the traditional \PDFTEX\
