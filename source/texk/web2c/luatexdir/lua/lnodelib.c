@@ -5540,9 +5540,11 @@ static int lua_nodelib_direct_setcharacter(lua_State * L)
 {
     halfword n;
     n = (halfword ) lua_tonumber(L, 1);
-    if (n) {
-        if ((type(n) == glyph_node) && (lua_type(L, 2) == LUA_TNUMBER)) {
+    if ((n) && (lua_type(L, 2) == LUA_TNUMBER)) {
+        if (type(n) == glyph_node) {
             character(n) = (halfword) lua_tointeger(L, 2);
+        } else if ((type(n) == math_char_node) || (type(n) == math_text_char_node)) {
+            math_character(n) = (halfword) lua_tointeger(L, 2);
         }
     }
     return 0;
