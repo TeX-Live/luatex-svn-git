@@ -573,6 +573,23 @@ The configuration related registers have become:
 \edef\pdfpkmode                   {\pdfvariable pkmode}
 \stoptyping
 
+The variables are internal ones, so they are anonymous. When you ask for the
+meaning of a few previously defined ones:
+
+\starttyping
+\meaning\pdfhorigin
+\meaning\pdfcompresslevel
+\meaning\pdfpageattr
+\stoptyping
+
+you will get:
+
+\starttyping
+macro:->[internal backend dimension]
+macro:->[internal backend integer]
+macro:->[internal backend tokenlist]
+\stoptyping
+
 The \type {\edef} can also be an \type {\def} but it's a bit more efficient
 to expand the lookup related register beforehand. After that you can adapt
 the defaults; these are:
