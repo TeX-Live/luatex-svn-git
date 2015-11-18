@@ -762,6 +762,12 @@ expansion takes place inside the argument.
 This allows for embedded spaces, without the need for double quotes. Macro
 expansion takes place inside the argument.
 
+\section{Writing to file}
+
+You can now open upto 127 files with \type {\openout}. When no file is open
+writes will go to the console and log. As a consequence a system command is
+no longer possible but one can use \type {os.execute} to do the same.
+
 \stopchapter
 
 \stopcomponent
