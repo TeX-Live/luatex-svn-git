@@ -21,8 +21,6 @@
 @* Image inclusion.
 
 @ @c
-
-
 #include "ptexlib.h"
 #include <assert.h>
 #include <kpathsea/c-auto.h>
@@ -121,8 +119,7 @@
 #define HEADER_PDF "%PDF-1."
 #define MAX_HEADER (sizeof(HEADER_PNG)-1)
 #define HEADER_PDF_MEMSTREAM "data:application/pdf," /* see epdf.h */
-#define LEN_PDF_MEMSTREAM      21 /* see epdf.h */
-
+#define LEN_PDF_MEMSTREAM 21 /* see epdf.h */
 
 static void check_type_by_header(image_dict * idict)
 {
@@ -132,17 +129,13 @@ static void check_type_by_header(image_dict * idict)
     char prefix[LEN_PDF_MEMSTREAM+1];
 
     assert(idict != NULL);
-    if (img_type(idict) != IMG_TYPE_NONE)       /* nothing to do */
+    if (img_type(idict) != IMG_TYPE_NONE)
         return;
-
-    /* read the header */
-    /* Like                                                */
-    /* file = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);*/
-    /* but we also check for a memstream object            */
+    /* here we read the and also check for a memstream object */
     assert(img_filepath(idict) && FOPEN_RBIN_MODE);
     file = fopen(img_filepath(idict), FOPEN_RBIN_MODE);
     if (file == NULL) {
-        /* check the prefix of   img_filepath(idict) */
+        /* check the prefix of img_filepath(idict) */
         for (i = 0; (unsigned) i < LEN_PDF_MEMSTREAM; i++) {
            prefix[i] = (char) (img_filepath(idict)[i]);
          }
@@ -178,8 +171,8 @@ static void check_type_by_header(image_dict * idict)
 static void check_type_by_extension(image_dict * idict)
 {
     char *image_suffix;
-
-    assert(idict != NULL);
+    if (idict != NULL)
+        return;
     if (img_type(idict) != IMG_TYPE_NONE)       /* nothing to do */
         return;
     /* tests */
@@ -209,28 +202,22 @@ void new_img_pdfstream_struct(image_dict * p)
 }
 
 @ @c
-static void init_image(image * p)
+image *new_image(void)
 {
-    assert(p != NULL);
+    image *p = xtalloc(1, image);
     set_wd_running(p);
     set_ht_running(p);
     set_dp_running(p);
     img_transform(p) = 0;
     img_dict(p) = NULL;
     img_dictref(p) = LUA_NOREF;
-}
-
-@ @c
-image *new_image(void)
-{
-    image *p = xtalloc(1, image);
-    init_image(p);
     return p;
 }
 
 @ @c
-static void init_image_dict(image_dict * p)
+image_dict *new_image_dict(void)
 {
+    image_dict *p = xtalloc(1, image_dict);
     assert(p != NULL);
     memset(p, 0, sizeof(image_dict));
     set_wd_running(p);
@@ -243,14 +230,11 @@ static void init_image_dict(image_dict * p)
     img_unset_bbox(p);
     img_unset_group(p);
     img_state(p) = DICT_NEW;
-    img_index(p) = -1;          /* -1 = unused, used count from 0 */
-}
-
-@ @c
-image_dict *new_image_dict(void)
-{
-    image_dict *p = xtalloc(1, image_dict);
-    init_image_dict(p);
+    img_index(p) = -1; /* -1 = unused, used count from 0 */
+    img_luaref(p) = 0;
+    img_errorlevel(p) = pdf_inclusion_errorlevel;
+    fix_pdf_minorversion(static_pdf);
+    img_pdfminorversion(p) = pdf_minor_version;
     return p;
 }
 
@@ -271,31 +255,33 @@ void free_image_dict(image_dict * p)
     /* called from limglib.c */
     assert(img_state(p) < DICT_REFERED);
     switch (img_type(p)) {
-    case IMG_TYPE_PDFMEMSTREAM:
-    case IMG_TYPE_PDF:
-        unrefPdfDocument(img_filepath(p));
-        break;
-    case IMG_TYPE_PNG:         /* assuming |IMG_CLOSEINBETWEEN| */
-        assert(img_png_ptr(p) == NULL);
-        break;
-    case IMG_TYPE_JPG:         /* assuming |IMG_CLOSEINBETWEEN| */
-        assert(img_jpg_ptr(p) == NULL);
-        break;
-    case IMG_TYPE_JP2:         /* */
-        assert(img_jp2_ptr(p) == NULL);
-        break;
-    case IMG_TYPE_JBIG2:       /* todo: writejbig2.w cleanup */
-        break;
-    case IMG_TYPE_PDFSTREAM:
-        if (img_pdfstream_ptr(p) != NULL) {
-            xfree(img_pdfstream_stream(p));
-            xfree(img_pdfstream_ptr(p));
-        }
-        break;
-    case IMG_TYPE_NONE:
-        break;
-    default:
-        assert(0);
+        case IMG_TYPE_PDFMEMSTREAM:
+        case IMG_TYPE_PDF:
+            flush_pdf_info(p);
+            break;
+        case IMG_TYPE_PNG:
+            flush_png_info(p);
+            break;
+        case IMG_TYPE_JPG:
+            flush_jpg_info(p);
+            break;
+        case IMG_TYPE_JP2:
+            flush_jp2_info(p);
+            break;
+        case IMG_TYPE_JBIG2:
+            flush_jbig2_info(p);
+            break;
+        case IMG_TYPE_PDFSTREAM:
+            /* flush_pdfstream_info(p); */
+            if (img_pdfstream_ptr(p) != NULL) {
+                xfree(img_pdfstream_stream(p));
+                xfree(img_pdfstream_ptr(p));
+            }
+            break;
+        case IMG_TYPE_NONE:
+            break;
+        default:
+            assert(0);
     }
     free_dict_strings(p);
     assert(img_file(p) == NULL);
@@ -303,8 +289,7 @@ void free_image_dict(image_dict * p)
 }
 
 @ @c
-void read_img(PDF pdf,
-              image_dict * idict, int minor_version, int inclusion_errorlevel)
+void read_img(image_dict * idict)
 {
     char *filepath = NULL;
     int callback_id;
@@ -333,31 +318,24 @@ void read_img(PDF pdf,
     check_type_by_extension(idict);
     /* read image */
     switch (img_type(idict)) {
-    case IMG_TYPE_PDFMEMSTREAM:
-    case IMG_TYPE_PDF:
-        assert(pdf != NULL);    /* TODO! */
-        read_pdf_info(idict, minor_version, inclusion_errorlevel,
-                      IMG_CLOSEINBETWEEN);
-        break;
-    case IMG_TYPE_PNG:
-        read_png_info(idict, IMG_CLOSEINBETWEEN);
-        break;
-    case IMG_TYPE_JPG:
-        read_jpg_info(pdf, idict, IMG_CLOSEINBETWEEN);
-        break;
-    case IMG_TYPE_JP2:
-        read_jp2_info(idict, IMG_CLOSEINBETWEEN);
-        break;
-    case IMG_TYPE_JBIG2:
-        if (minor_version < 4) {
-            luatex_fail
-                ("JBIG2 images only possible with at least PDF 1.4; you are generating PDF 1.%i",
-                 (int) minor_version);
-        }
-        read_jbig2_info(idict);
-        break;
-    default:
-        luatex_fail("internal error: unknown image type (2)");
+        case IMG_TYPE_PDFMEMSTREAM:
+        case IMG_TYPE_PDF:
+            read_pdf_info(idict);
+            break;
+        case IMG_TYPE_PNG:
+            read_png_info(idict);
+            break;
+        case IMG_TYPE_JPG:
+            read_jpg_info(idict);
+            break;
+        case IMG_TYPE_JP2:
+            read_jp2_info(idict);
+            break;
+        case IMG_TYPE_JBIG2:
+            read_jbig2_info(idict);
+            break;
+        default:
+            luatex_fail("internal error: unknown image type (2)");
     }
     cur_file_name = NULL;
     if (img_state(idict) < DICT_FILESCANNED)
@@ -365,17 +343,14 @@ void read_img(PDF pdf,
 }
 
 @ @c
-static image_dict *read_image(PDF pdf, char *file_name, int page_num,
-                              char *page_name, int colorspace,
-                              int page_box, int minor_version,
-                              int inclusion_errorlevel)
+static image_dict *read_image(char *file_name, int page_num, char *page_name, int colorspace, int page_box)
 {
     image *a = new_image();
     image_dict *idict = img_dict(a) = new_image_dict();
-    pdf->ximage_count++;
-    img_objnum(idict) = pdf_create_obj(pdf, obj_type_ximage, pdf->ximage_count);
-    img_index(idict) = pdf->ximage_count;
-    set_obj_data_ptr(pdf, img_objnum(idict), img_index(idict));
+    static_pdf->ximage_count++;
+    img_objnum(idict) = pdf_create_obj(static_pdf, obj_type_ximage, static_pdf->ximage_count);
+    img_index(idict) = static_pdf->ximage_count;
+    set_obj_data_ptr(static_pdf, img_objnum(idict), img_index(idict));
     idict_to_array(idict);
     img_colorspace(idict) = colorspace;
     img_pagenum(idict) = page_num;
@@ -384,7 +359,7 @@ static image_dict *read_image(PDF pdf, char *file_name, int page_num,
     cur_file_name = file_name;
     img_filename(idict) = file_name;
     img_pagebox(idict) = page_box;
-    read_img(pdf, idict, minor_version, inclusion_errorlevel);
+    read_img(idict);
     return idict;
 }
 
@@ -402,11 +377,12 @@ static pdfboxspec_e scan_pdf_box_spec(void)
         return PDF_BOX_SPEC_TRIM;
     else if (scan_keyword("artbox"))
         return PDF_BOX_SPEC_ART;
-    return PDF_BOX_SPEC_NONE;
+    else
+        return PDF_BOX_SPEC_NONE;
 }
 
 @ @c
-void scan_pdfximage(PDF pdf)
+void scan_pdfximage(PDF pdf) /* static_pdf */
 {
     scaled_whd alt_rule;
     image_dict *idict;
@@ -441,9 +417,7 @@ void scan_pdfximage(PDF pdf)
     file_name = tokenlist_to_cstring(def_ref, true, NULL);
     assert(file_name != NULL);
     delete_token_ref(def_ref);
-    idict =
-        read_image(pdf, file_name, page, named, colorspace, pagebox,
-                   pdf_minor_version, pdf_inclusion_errorlevel);
+    idict = read_image(file_name, page, named, colorspace, pagebox);
     img_attr(idict) = attr;
     img_dimen(idict) = alt_rule;
     img_transform(idict) = transform;
@@ -452,7 +426,7 @@ void scan_pdfximage(PDF pdf)
 }
 
 @ @c
-#define tail          cur_list.tail_field
+#define tail cur_list.tail_field
 
 void scan_pdfrefximage(PDF pdf)
 {
@@ -679,7 +653,6 @@ void write_pdfstream(PDF pdf, image_dict * idict)
 }
 
 @ @c
-/* define |idict_ptr|, |idict_array|, and |idict_limit| */
 idict_entry *idict_ptr, *idict_array = NULL;
 size_t idict_limit;
 
@@ -721,6 +694,8 @@ void pdf_dict_add_img_filename(PDF pdf, image_dict * idict)
     }
 }
 
+/* hh: why store images in the format ... let's get rid of this */
+
 @ To allow the use of box resources inside saved boxes in -ini mode,
 the information in the array has to be (un)dumped with the format.
 The next two routines take care of that.
@@ -751,7 +726,7 @@ does not matter.
   do {                                          \
     int x;                                      \
     if (a!=NULL) {                              \
-	x = (int)strlen(a)+1;			\
+    x = (int)strlen(a)+1;                       \
       dumpinteger(x);  dump_things(*a, x);      \
     } else {                                    \
       x = 0; dumpinteger(x);                    \
@@ -764,7 +739,7 @@ does not matter.
     char *a;                                    \
     undumpinteger (x);                          \
     if (x>0) {                                  \
-      a = xmalloc((unsigned)x);  		\
+      a = xmalloc((unsigned)x);                 \
       undump_things(*a,x);                      \
       s = a ;                                   \
     } else { s = NULL; }                        \
@@ -837,27 +812,26 @@ void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
         undumpinteger(img_colorspace(idict));
 
         switch (img_type(idict)) {
-        case IMG_TYPE_PDFMEMSTREAM:
-        case IMG_TYPE_PDF:
-            undumpinteger(img_pagebox(idict));
-            undumpinteger(img_pagenum(idict));
-            break;
-        case IMG_TYPE_PNG:
-        case IMG_TYPE_JPG:
-        case IMG_TYPE_JP2:
-            break;
-        case IMG_TYPE_JBIG2:
-            if (pdfversion < 4) {
-                luatex_fail
-                    ("JBIG2 images only possible with at least PDF 1.4; you are generating PDF 1.%i",
-                     (int) pdfversion);
-            }
-            undumpinteger(img_pagenum(idict));
-            break;
-        default:
-            luatex_fail("unknown type of image");
+            case IMG_TYPE_PDFMEMSTREAM:
+            case IMG_TYPE_PDF:
+                undumpinteger(img_pagebox(idict));
+                undumpinteger(img_pagenum(idict));
+                break;
+            case IMG_TYPE_PNG:
+            case IMG_TYPE_JPG:
+            case IMG_TYPE_JP2:
+                break;
+            case IMG_TYPE_JBIG2:
+                if (supported_jbig2(idict)) {
+                    undumpinteger(img_pagenum(idict));
+                } else {
+                    /* we already failed */
+                }
+                break;
+            default:
+                luatex_fail("unknown type of image");
         }
-        read_img(pdf, idict, pdfversion, pdfinclusionerrorlevel);
+        read_img(idict);
     }
 }
 

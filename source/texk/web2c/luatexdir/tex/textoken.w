@@ -649,8 +649,6 @@ halfword par_token;             /* token representing `\.{\\par}' */
 @ Parts |get_next| are executed more often than any other instructions of \TeX.
 @^mastication@>@^inner loop@>
 
-
-
 @ The global variable |force_eof| is normally |false|; it is set |true|
 by an \.{\\endinput} command. |luacstrings| is the number of lua print
 statements waiting to be input, it is changed by |luatokencall|.
@@ -2233,28 +2231,6 @@ void conv_toks(void)
         tprint("pt");
         pop_selector;
         break;
-    /*
-    case dvi_feedback_code:
-        if (get_o_mode() == OMODE_DVI)
-            done = do_feedback_dvi(c);
-        else
-            done = 0;
-        if (done==0)
-            tex_error("unexpected use of \\dvifeedback",null);
-        else if (done==2)
-            return;
-        break;
-    case pdf_feedback_code:
-        if (get_o_mode() == OMODE_PDF)
-            done = conv_toks_pdf(c);
-        else
-            done = 0;
-        if (done==0)
-            tex_error("unexpected use of \\pdffeedback",null);
-        else if (done==2)
-            return;
-        break;
-    */
     default:
         confusion("convert");
         break;

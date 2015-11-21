@@ -1085,14 +1085,13 @@ static int setbox(lua_State * L)
     return vsetbox(L, isglobal);
 }
 
-#define check_char_range(j,s,lim)					\
-    if (j<0 || j >= lim) {						\
+#define check_char_range(j,s,lim) \
+    if (j<0 || j >= lim) { \
         luaL_error(L, "incorrect character value %d for tex.%s()", (int)j, s); \
     }
 
-
 static int setcode (lua_State *L, void (*setone)(int,halfword,quarterword),
-		    void (*settwo)(int,halfword,quarterword), const char *name, int lim)
+            void (*settwo)(int,halfword,quarterword), const char *name, int lim)
 {
     int ch;
     halfword val, ucval;
@@ -1100,7 +1099,7 @@ static int setcode (lua_State *L, void (*setone)(int,halfword,quarterword),
     int n = lua_gettop(L);
     int f = 1;
     if (n>1 && lua_type(L,1) == LUA_TTABLE)
-	f++;
+        f++;
     if (n>2 && (lua_type(L,f) == LUA_TSTRING)) {
         const char *s = lua_tostring(L, f);
         if (lua_key_eq(s,global)) {
@@ -1114,7 +1113,7 @@ static int setcode (lua_State *L, void (*setone)(int,halfword,quarterword),
     check_char_range(val, name, lim);
     (setone)(ch, val, level);
     if (settwo != NULL && n-f == 2) {
-	ucval = (halfword) luaL_checkinteger(L, f+2);
+        ucval = (halfword) luaL_checkinteger(L, f+2);
         check_char_range(ucval, name, lim);
         (settwo)(ch, ucval, level);
     }
@@ -2238,57 +2237,55 @@ static int tex_enableprimitives(lua_State * L)
     return 0;
 }
 
-#define get_int_par(A,B,C)  do {		  \
-    	lua_pushstring(L,(A));			  \
-	lua_gettable(L,-2);			          \
-	if (lua_type(L, -1) == LUA_TNUMBER) { \
-	    B=(int)lua_tonumber(L, -1);		  \
-	} else {					          \
-	    B = (C);					      \
-	}		                              \
-	lua_pop(L,1);				          \
-    } while (0)
-
-
-#define get_intx_par(A,B,C,D,E)  do {			   \
-    lua_pushstring(L,(A));			               \
-	lua_gettable(L,-2);				               \
-	if (lua_type(L, -1) == LUA_TNUMBER) {		   \
-	    B=(int)lua_tonumber(L, -1);		           \
-	    D = null;				                   \
-	} else if (lua_type(L, -1) == LUA_TTABLE){     \
-	    B = 0;					                   \
-	    D = nodelib_topenalties(L, lua_gettop(L)); \
-	} else {					                   \
-	    B = (C);					               \
-	    D = (E);					               \
-	}						                       \
-	lua_pop(L,1);					               \
-    } while (0)
-
-#define get_dimen_par(A,B,C)  do {		  \
+#define get_int_par(A,B,C) do {           \
     lua_pushstring(L,(A));                \
-	lua_gettable(L,-2);				      \
-	if (lua_type(L, -1) == LUA_TNUMBER) { \
-	    B=(int)lua_tonumber(L, -1);		  \
-	} else {					          \
-	    B = (C);					      \
-	}						              \
-	lua_pop(L,1);					      \
-    } while (0)
+    lua_gettable(L,-2);                   \
+    if (lua_type(L, -1) == LUA_TNUMBER) { \
+        B=(int)lua_tonumber(L, -1);       \
+    } else {                              \
+        B = (C);                          \
+    }                                     \
+    lua_pop(L,1);                         \
+} while (0)
 
+
+#define get_intx_par(A,B,C,D,E)  do {              \
+    lua_pushstring(L,(A));                         \
+    lua_gettable(L,-2);                            \
+    if (lua_type(L, -1) == LUA_TNUMBER) {          \
+        B=(int)lua_tonumber(L, -1);                \
+        D = null;                                  \
+    } else if (lua_type(L, -1) == LUA_TTABLE){     \
+        B = 0;                                     \
+        D = nodelib_topenalties(L, lua_gettop(L)); \
+    } else {                                       \
+        B = (C);                                   \
+        D = (E);                                   \
+    }                                              \
+    lua_pop(L,1);                                  \
+} while (0)
+
+#define get_dimen_par(A,B,C)  do {        \
+    lua_pushstring(L,(A));                \
+    lua_gettable(L,-2);                   \
+    if (lua_type(L, -1) == LUA_TNUMBER) { \
+        B=(int)lua_tonumber(L, -1);       \
+    } else {                              \
+        B = (C);                          \
+    }                                     \
+    lua_pop(L,1);                         \
+} while (0)
 
 #define get_glue_par(A,B,C)  do {      \
-    lua_pushstring(L,(A));		       \
-	lua_gettable(L,-2);				   \
-	if (lua_type(L, -1) != LUA_TNIL) { \
-	    B = *check_isnode(L, -1);	   \
-	} else {					       \
-	    B = (C);					   \
-	}					               \
-	lua_pop(L,1);					   \
-    } while (0)
-
+    lua_pushstring(L,(A));             \
+    lua_gettable(L,-2);                \
+    if (lua_type(L, -1) != LUA_TNIL) { \
+        B = *check_isnode(L, -1);      \
+    } else {                           \
+        B = (C);                       \
+    }                                  \
+    lua_pop(L,1);                      \
+} while (0)
 
 static halfword nodelib_toparshape(lua_State * L, int i)
 {
@@ -2351,16 +2348,16 @@ static halfword nodelib_topenalties(lua_State * L, int i)
     lua_pushnil(L);
     j = 2;
     while (lua_next(L, i) != 0) {
-	j++;
-    if (lua_type(L, -1) == LUA_TNUMBER) {
-	    int pen = 0;
-	    pen=(int)lua_tonumber(L, -1);
-	    varmem[p+j].cint = pen;
-	}
-	lua_pop(L, 1);
+        j++;
+        if (lua_type(L, -1) == LUA_TNUMBER) {
+            int pen = 0;
+            pen=(int)lua_tonumber(L, -1);
+            varmem[p+j].cint = pen;
+        }
+        lua_pop(L, 1);
     }
     if (!odd(n))
-	varmem[p+j+1].cint = 0;
+        varmem[p+j+1].cint = 0;
     return p;
 }
 
