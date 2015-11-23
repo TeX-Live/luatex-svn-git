@@ -2976,7 +2976,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         } else {
             n = glue_ptr(n);
             if (!n) {
-                lua_pushnil(L);
+                lua_pushnumber(L, 0); /* zero skip constant */
             } else if (lua_key_eq(s, width)) {
                 lua_pushnumber(L, width(n));
             } else if (lua_key_eq(s, stretch)) {
@@ -3723,7 +3723,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         } else {
             n = glue_ptr(n);
             if (!n) {
-                lua_pushnil(L);
+                lua_pushnumber(L, 0); /* zero skip constant */
             } else if (lua_key_eq(s, width)) {
                 lua_pushnumber(L, width(n));
             } else if (lua_key_eq(s, stretch)) {
