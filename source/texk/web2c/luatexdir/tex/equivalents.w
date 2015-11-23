@@ -105,9 +105,9 @@ interpreted in one of four ways:
 |save_value(p)| is a location in |eqtb| whose current value should
 be destroyed at the end of the current group and replaced by |save_word(p-1)|
 (|save_type(p-1)==saved_eqtb|).
-Furthermore if |save_value(p)>=int_base|, then |save_level(p)| should 
+Furthermore if |save_value(p)>=int_base|, then |save_level(p)| should
 replace the corresponding entry in |xeq_level| (if |save_value(p)<int_base|,
-then the level is part of |save_word(p-1)|). 
+then the level is part of |save_word(p-1)|).
 
 \yskip\hang 2) If |save_type(p)=restore_zero|, then |save_value(p)|
 is a location in |eqtb| whose current value should be destroyed at the end
@@ -357,7 +357,7 @@ void print_save_stack(void)
   |show_save_groups| procedure were first discussed by Donald~E. Knuth in
   {\sl TUGboat\/} {\bf 11}, 165--170 and 499--511, 1990.
   @^Knuth, Donald Ervin@>
-  
+
   In order to understand a group type we also have to know its mode.
   Since unrestricted horizontal modes are not associated with grouping,
   they are skipped when traversing the semantic nest.
@@ -691,7 +691,7 @@ void geq_word_define(halfword p, int w)
 }
 
 
-@ Subroutine |save_for_after| puts a token on the stack for save-keeping. 
+@ Subroutine |save_for_after| puts a token on the stack for save-keeping.
 
 @c
 void save_for_after(halfword t)
@@ -839,7 +839,6 @@ void prepare_mag(void)
     mag_set = mag;
 }
 
-
 @ Let's pause a moment now and try to look at the Big Picture.
 The \TeX\ program consists of three main parts: syntactic routines,
 semantic routines, and output routines. The chief purpose of the
@@ -892,7 +891,7 @@ halfword cur_chr;               /* operand of current command */
 halfword cur_cs;                /* control sequence found here, zero if none found */
 halfword cur_tok;               /* packed representative of |cur_cmd| and |cur_chr| */
 
-@ Here is a procedure that displays the current command. 
+@ Here is a procedure that displays the current command.
 
 @c
 #define mode cur_list.mode_field
@@ -938,7 +937,6 @@ void show_cur_cmd_chr(void)
     print_char('}');
     end_diagnostic(false);
 }
-
 
 @ Here is a procedure that displays the contents of |eqtb[n]|
    symbolically.

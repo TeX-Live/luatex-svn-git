@@ -151,8 +151,8 @@ void write_out_pdf_mark_destinations(PDF pdf)
                 switch (pdf_dest_type(i)) {
                 case pdf_dest_xyz:
                     pdf_add_name(pdf, "XYZ");
-                    pdf_add_mag_bp(pdf, pdf_ann_left(i));
-                    pdf_add_mag_bp(pdf, pdf_ann_top(i));
+                    pdf_add_bp(pdf, pdf_ann_left(i));
+                    pdf_add_bp(pdf, pdf_ann_top(i));
                     if (pdf_dest_xyz_zoom(i) == null) {
                         pdf_add_null(pdf);
                     } else {
@@ -169,22 +169,22 @@ void write_out_pdf_mark_destinations(PDF pdf)
                     break;
                 case pdf_dest_fith:
                     pdf_add_name(pdf, "FitH");
-                    pdf_add_mag_bp(pdf, pdf_ann_top(i));
+                    pdf_add_bp(pdf, pdf_ann_top(i));
                     break;
                 case pdf_dest_fitv:
                     pdf_add_name(pdf, "FitV");
-                    pdf_add_mag_bp(pdf, pdf_ann_left(i));
+                    pdf_add_bp(pdf, pdf_ann_left(i));
                     break;
                 case pdf_dest_fitb:
                     pdf_add_name(pdf, "FitB");
                     break;
                 case pdf_dest_fitbh:
                     pdf_add_name(pdf, "FitBH");
-                    pdf_add_mag_bp(pdf, pdf_ann_top(i));
+                    pdf_add_bp(pdf, pdf_ann_top(i));
                     break;
                 case pdf_dest_fitbv:
                     pdf_add_name(pdf, "FitBV");
-                    pdf_add_mag_bp(pdf, pdf_ann_left(i));
+                    pdf_add_bp(pdf, pdf_ann_left(i));
                     break;
                 case pdf_dest_fitr:
                     pdf_add_name(pdf, "FitR");

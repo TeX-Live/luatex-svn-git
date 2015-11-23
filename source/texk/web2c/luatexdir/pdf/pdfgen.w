@@ -745,22 +745,6 @@ void pdf_add_bp(PDF pdf, scaled s)
     pdf->cave = 1;
 }
 
-void pdf_add_mag_bp(PDF pdf, scaled s)
-{                               /* take |mag| into account */
-    pdffloat a;
-    pdfstructure *p = pdf->pstruct;
-    prepare_mag();
-    if (int_par(mag_code) != 1000)
-        a.m = i64round(s * (double) int_par(mag_code) / 1000.0 * p->k1);
-    else
-        a.m = i64round(s * p->k1);
-    a.e = pdf->decimal_digits;
-    if (pdf->cave > 0)
-        pdf_out(pdf, ' ');
-    print_pdffloat(pdf, a);
-    pdf->cave = 1;
-}
-
 @* handling page resources.
 
 @c
@@ -949,10 +933,10 @@ void pdf_print_toks(PDF pdf, halfword p)
 @c
 void pdf_add_rect_spec(PDF pdf, halfword r)
 {
-    pdf_add_mag_bp(pdf, pdf_ann_left(r));
-    pdf_add_mag_bp(pdf, pdf_ann_bottom(r));
-    pdf_add_mag_bp(pdf, pdf_ann_right(r));
-    pdf_add_mag_bp(pdf, pdf_ann_top(r));
+    pdf_add_bp(pdf, pdf_ann_left(r));
+    pdf_add_bp(pdf, pdf_ann_bottom(r));
+    pdf_add_bp(pdf, pdf_ann_right(r));
+    pdf_add_bp(pdf, pdf_ann_top(r));
 }
 
 @ output a rectangle specification to PDF file
@@ -960,7 +944,6 @@ void pdf_add_rect_spec(PDF pdf, halfword r)
 @c
 void pdf_rectangle(PDF pdf, halfword r)
 {
-    prepare_mag();
     pdf_add_name(pdf, "Rect");
     pdf_begin_array(pdf);
     pdf_add_rect_spec(pdf, r);
@@ -1899,8 +1882,8 @@ void pdf_end_page(PDF pdf)
         pdf_begin_array(pdf);
         pdf_add_int(pdf, 0);
         pdf_add_int(pdf, 0);
-        pdf_add_mag_bp(pdf, pdf->page_size.h);
-        pdf_add_mag_bp(pdf, pdf->page_size.v);
+        pdf_add_bp(pdf, pdf->page_size.h);
+        pdf_add_bp(pdf, pdf->page_size.v);
         pdf_end_array(pdf);
         page_attributes = pdf_page_attr ; /* lookup once */
         if (page_attributes != null)

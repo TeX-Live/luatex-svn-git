@@ -1291,12 +1291,14 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     }
     if (scan_keyword("true")) {
         /* Adjust (f)for the magnification ratio */
-        prepare_mag();
-        if (int_par(mag_code) != 1000) {
-            cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
-            f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
-            cur_val = cur_val + (f / 0200000);
-            f = f % 0200000;
+        if (output_mode_used == OMODE_DVI) {
+            prepare_mag();
+            if (int_par(mag_code) != 1000) {
+                cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
+                f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
+                cur_val = cur_val + (f / 0200000);
+                f = f % 0200000;
+            }
         }
     }
     if (scan_keyword("pt"))

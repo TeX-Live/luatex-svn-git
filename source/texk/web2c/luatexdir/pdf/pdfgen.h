@@ -131,7 +131,6 @@ extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
 
 extern void pdf_add_bp(PDF, scaled);
-extern void pdf_add_mag_bp(PDF, scaled);
 
 extern strbuf_s *new_strbuf(size_t size, size_t limit);
 extern void strbuf_seek(strbuf_s * b, off_t offset);

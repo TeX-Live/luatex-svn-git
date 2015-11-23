@@ -6,6 +6,7 @@ Upcoming LuaTeX Release 0.86
 
 - image data no longer stored in format (was fragile anyway)
 - pdf backend data no longer stored in format
+- (incomplete) \mag support removed from pdf backend (kept in dvi mode)
 
 
 
