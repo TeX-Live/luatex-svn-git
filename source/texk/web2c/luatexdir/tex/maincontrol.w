@@ -1598,7 +1598,7 @@ void indent_in_hmode(void)
 void head_for_vmode(void)
 {
     if (mode < 0) {
-        if (cur_cmd != hrule_cmd) {
+        if ((cur_cmd != hrule_cmd) && (cur_cmd != no_hrule_cmd)) {
             off_save();
         } else {
             print_err("You can't use `\\hrule' here except with leaders");

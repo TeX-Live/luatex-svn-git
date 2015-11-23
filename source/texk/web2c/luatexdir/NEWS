@@ -1,6 +1,14 @@
 
 This file is in the public domain.
 
+
+Upcoming LuaTeX Release 0.86
+
+- image data no longer stored in format (was fragile anyway)
+- pdf backend data no longer stored in format
+
+
+
 ==============================================================
 Luatex beta-0.85.0 was released 2015111400 (5550)
 ==============================================================

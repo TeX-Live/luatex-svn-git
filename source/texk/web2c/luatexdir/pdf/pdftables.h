@@ -112,9 +112,6 @@ extern void set_rect_dimens(PDF pdf, halfword p, halfword parent_box,
 
 extern void libpdffinish(PDF);
 
-extern void dump_pdftex_data(PDF pdf);
-extern void undump_pdftex_data(PDF pdf);
-
 #  define set_width(A, B) width(A) = (B)
 #  define set_height(A, B) height(A) = (B)
 #  define set_depth(A, B) depth(A) = (B)
