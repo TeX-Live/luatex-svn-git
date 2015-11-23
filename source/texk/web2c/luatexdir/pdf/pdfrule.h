@@ -21,6 +21,6 @@
 #ifndef PDFRULE_H
 #  define PDFRULE_H
 
-void pdf_place_rule(PDF pdf, halfword p, scaledpos size);
+void pdf_place_rule(PDF pdf, halfword p, scaledpos size, int callback_id);
 
 #endif

@@ -284,7 +284,7 @@ void out_what(PDF pdf, halfword p)
 }
 
 @ @c
-void hlist_out(PDF pdf, halfword this_box)
+void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
 {
 
     posstructure localpos;      /* the position structure local within this function */
@@ -418,9 +418,9 @@ void hlist_out(PDF pdf, halfword this_box)
                     tmpcur.v = basepoint.v;
                     synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
                     if (type(p) == vlist_node)
-                        vlist_out(pdf, p);
+                        vlist_out(pdf, p, rule_callback_id);
                     else
-                        hlist_out(pdf, p);
+                        hlist_out(pdf, p, rule_callback_id);
                 }
                 cur.h += effective_horizontal;
                 break;
@@ -635,9 +635,9 @@ void hlist_out(PDF pdf, halfword this_box)
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
                             if (type(leader_box) == vlist_node)
-                                vlist_out(pdf, leader_box);
+                                vlist_out(pdf, leader_box, rule_callback_id);
                             else
-                                hlist_out(pdf, leader_box);
+                                hlist_out(pdf, leader_box, rule_callback_id);
                             doing_leaders = outer_doing_leaders;
                             cur.h += leader_wd + lx;
                         }
@@ -698,10 +698,10 @@ void hlist_out(PDF pdf, halfword this_box)
                 if (type(p) == glue_node) {
                     q = leader_ptr(p);
                     if ((q) && (type(q) == rule_node)) {
-                        backend_out[rule_node] (pdf, q, size);
+                        backend_out[rule_node] (pdf, q, size, rule_callback_id);
                     }
                 } else {
-                    backend_out[rule_node] (pdf, p, size);
+                    backend_out[rule_node] (pdf, p, size, rule_callback_id);
                 }
             }
           MOVE_PAST:
@@ -731,7 +731,7 @@ void hlist_out(PDF pdf, halfword this_box)
 }
 
 @ @c
-void vlist_out(PDF pdf, halfword this_box)
+void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
 {
     posstructure localpos; /* the position structure local within this function */
     posstructure *refpos;  /* the list origin pos. on the page, provided by the caller */
@@ -851,9 +851,9 @@ void vlist_out(PDF pdf, halfword this_box)
                     tmpcur.v = cur.v + basepoint.v;
                     synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
                     if (type(p) == vlist_node)
-                        vlist_out(pdf, p);
+                        vlist_out(pdf, p, rule_callback_id);
                     else
-                        hlist_out(pdf, p);
+                        hlist_out(pdf, p, rule_callback_id);
                     cur.v += effective_vertical;
                 }
                 break;
@@ -979,9 +979,9 @@ void vlist_out(PDF pdf, halfword this_box)
                             outer_doing_leaders = doing_leaders;
                             doing_leaders = true;
                             if (type(leader_box) == vlist_node)
-                                vlist_out(pdf, leader_box);
+                                vlist_out(pdf, leader_box, rule_callback_id);
                             else
-                                hlist_out(pdf, leader_box);
+                                hlist_out(pdf, leader_box, rule_callback_id);
                             doing_leaders = outer_doing_leaders;
                             cur.v += leader_ht + lx;
                         }
@@ -1034,10 +1034,10 @@ void vlist_out(PDF pdf, halfword this_box)
                 if (type(p) == glue_node) {
                     q = leader_ptr(p);
                     if ((q) && (type(q) == rule_node)) {
-                        backend_out[rule_node] (pdf, q, size);
+                        backend_out[rule_node] (pdf, q, size, rule_callback_id);
                     }
                 } else {
-                    backend_out[rule_node] (pdf, p, size);
+                    backend_out[rule_node] (pdf, p, size, rule_callback_id);
                 }
             }
             cur.v += rule.ht + rule.dp;

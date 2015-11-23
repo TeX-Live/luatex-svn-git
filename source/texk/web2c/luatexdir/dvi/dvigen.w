@@ -1055,7 +1055,7 @@ that a \.{DVI}-reading program will push onto its coordinate stack.
 void dvi_place_rule(PDF pdf, halfword q, scaledpos size)
 {
     synch_dvi_with_pos(pdf->posstruct->pos);
-    if ((subtype(q) == box_rule) || (subtype(q) == image_rule) || (subtype(q) == empty_rule)) {
+    if ((subtype(q) >= box_rule) && (subtype(q) <= user_rule)) {
         /* place nothing, only take space */
         if (textdir_is_L(pdf->posstruct->dir))
             dvi.h += size.h;

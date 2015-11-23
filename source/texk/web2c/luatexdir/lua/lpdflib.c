@@ -923,6 +923,23 @@ static int setpdfminorversion(lua_State * L)
     return 0 ;
 }
 
+static int setpdforigin(lua_State * L)
+{
+    int h = 0 ;
+    int v = 0 ;
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        h = (int) lua_tointeger(L, 1);
+        if (lua_type(L, 2) == LUA_TNUMBER) {
+            v = (int) lua_tointeger(L, 1);
+        } else {
+            v = h;
+        }
+    }
+    set_tex_extension_dimen_register(d_pdf_h_origin,h);
+    set_tex_extension_dimen_register(d_pdf_v_origin,v);
+    return 0 ;
+}
+
 static int newpdfcolorstack(lua_State * L)
 {
     const char *s = NULL;
@@ -1007,6 +1024,7 @@ static const struct luaL_Reg pdflib[] = {
     { "getminorversion", getpdfminorversion},
     { "setminorversion", setpdfminorversion},
     { "newcolorstack", newpdfcolorstack},
+    { "setorigin",setpdforigin},
     /* sentinel */
     {NULL, NULL}
 };

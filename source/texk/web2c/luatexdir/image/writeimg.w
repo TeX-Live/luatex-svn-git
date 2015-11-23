@@ -706,8 +706,7 @@ the split in two separate runs.
 
 There was only one problem remaining: The pdfversion and
 pdfinclusionerrorlevel can have changed inbetween the call to
-|readimage()| and dump time. That is why they are passed as arguments
-to undumpimagemeta once more.
+|readimage()| and dump time.
 
 some of the dumped values are really type int, not integer,
 but since the macro falls back to |generic_dump| anyway, that
@@ -720,120 +719,6 @@ does not matter.
 @ (un)dumping a string means dumping the allocation size, followed
  by the bytes. The trailing \.{\\0} is dumped as well, because that
  makes the code simpler.
-
-@c
-#define dumpcharptr(a)                          \
-  do {                                          \
-    int x;                                      \
-    if (a!=NULL) {                              \
-    x = (int)strlen(a)+1;                       \
-      dumpinteger(x);  dump_things(*a, x);      \
-    } else {                                    \
-      x = 0; dumpinteger(x);                    \
-    }                                           \
-  } while (0)
-
-#define undumpcharptr(s)                        \
-  do {                                          \
-    int x;                                      \
-    char *a;                                    \
-    undumpinteger (x);                          \
-    if (x>0) {                                  \
-      a = xmalloc((unsigned)x);                 \
-      undump_things(*a,x);                      \
-      s = a ;                                   \
-    } else { s = NULL; }                        \
-  } while (0)
-
-@ @c
-void dumpimagemeta(void)
-{
-    int cur_index, i;
-    image_dict *idict;
-
-    i = (int) idict_limit;
-    dumpinteger(i);
-    cur_index = (int) (idict_ptr - idict_array);
-    dumpinteger(cur_index);
-
-    for (i = 1; i < cur_index; i++) {
-        idict = idict_array[i];
-        assert(idict != NULL);
-        dumpcharptr(img_filename(idict));
-        dumpinteger(img_type(idict));
-        dumpinteger(img_procset(idict));
-        dumpinteger(img_xsize(idict));
-        dumpinteger(img_ysize(idict));
-        dumpinteger(img_xres(idict));
-        dumpinteger(img_yres(idict));
-        dumpinteger(img_totalpages(idict));
-        dumpinteger(img_colorspace(idict));
-
-        /* the |image_struct| is not dumped at all, except for a few
-           variables that are needed to restore the contents */
-
-        if ((img_type(idict) == IMG_TYPE_PDF)|| (img_type(idict) == IMG_TYPE_PDFMEMSTREAM)) {
-            dumpinteger(img_pagebox(idict));
-            dumpinteger(img_pagenum(idict));
-        } else if (img_type(idict) == IMG_TYPE_JBIG2) {
-            dumpinteger(img_pagenum(idict));
-        }
-
-    }
-}
-
-@ @c
-void undumpimagemeta(PDF pdf, int pdfversion, int pdfinclusionerrorlevel)
-{
-    int cur_index, i;
-    image_dict *idict;
-
-    assert(pdf != NULL);
-    undumpinteger(i);
-    idict_limit = (size_t) i;
-
-    idict_array = xtalloc(idict_limit, idict_entry);
-    undumpinteger(cur_index);
-    idict_ptr = idict_array + cur_index;
-
-    for (i = 1; i < cur_index; i++) {
-        idict = new_image_dict();
-        assert(idict != NULL);
-        assert(img_index(idict) == -1);
-        idict_to_array(idict);
-        undumpcharptr(img_filename(idict));
-        undumpinteger(img_type(idict));
-        undumpinteger(img_procset(idict));
-        undumpinteger(img_xsize(idict));
-        undumpinteger(img_ysize(idict));
-        undumpinteger(img_xres(idict));
-        undumpinteger(img_yres(idict));
-        undumpinteger(img_totalpages(idict));
-        undumpinteger(img_colorspace(idict));
-
-        switch (img_type(idict)) {
-            case IMG_TYPE_PDFMEMSTREAM:
-            case IMG_TYPE_PDF:
-                undumpinteger(img_pagebox(idict));
-                undumpinteger(img_pagenum(idict));
-                break;
-            case IMG_TYPE_PNG:
-            case IMG_TYPE_JPG:
-            case IMG_TYPE_JP2:
-                break;
-            case IMG_TYPE_JBIG2:
-                if (supported_jbig2(idict)) {
-                    undumpinteger(img_pagenum(idict));
-                } else {
-                    /* we already failed */
-                }
-                break;
-            default:
-                luatex_fail("unknown type of image");
-        }
-        read_img(idict);
-    }
-}
 
 @ scan rule spec to |alt_rule|
 @c

@@ -21,7 +21,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
@@ -286,7 +285,7 @@ const char *node_subtypes_kern[] = {
     "fontkern", "userkern", "accentkern", NULL
 };
 const char *node_subtypes_rule[] = {
-    "normal", "box", "image", "empty", NULL
+    "normal", "box", "image", "empty", "user", NULL
 };
 const char *node_subtypes_glyph[] = {
     "character", "glyph", "ligature", "ghost", "left", "right", NULL
@@ -3111,6 +3110,10 @@ void show_node_list(int p)
                 /* Display rule |p|; */
                 if (subtype(p) == normal_rule) {
                     tprint_esc("rule(");
+                } else if (subtype(p) == empty_rule) {
+                    tprint_esc("norule(");
+                } else if (subtype(p) == user_rule) {
+                    tprint_esc("userrule(");
                 } else if (subtype(p) == box_rule) {
                     tprint_esc("box(");
                 } else if (subtype(p) == image_rule) {

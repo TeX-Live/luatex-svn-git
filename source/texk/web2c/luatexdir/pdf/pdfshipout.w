@@ -50,6 +50,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     int post_callback_id;
     int pre_callback_id;
     posstructure refpoint;      /* the origin pos. on the page */
+    int rule_callback_id = 0;
     scaledpos cur = { 0, 0 };
     refpoint.pos.h = 0;
     refpoint.pos.v = 0;
@@ -268,12 +269,14 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             normal_error("pdf backend", "unknown output mode");
     }
 
+    rule_callback_id = callback_defined(process_rule_callback);
+
     switch (type(p)) {
         case vlist_node:
-            vlist_out(pdf, p);
+            vlist_out(pdf, p, rule_callback_id);
             break;
         case hlist_node:
-            hlist_out(pdf, p);
+            hlist_out(pdf, p, rule_callback_id);
             break;
         default:
             normal_error("pdf backend", "no vlist or hlist in (xform) shipout");

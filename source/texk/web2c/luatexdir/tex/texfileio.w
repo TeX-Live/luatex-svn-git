@@ -138,7 +138,7 @@ char *luatex_find_file(const char *s, int callback_index)
     char *ftemp = NULL;
     int callback_id = callback_defined(callback_index);
     if (callback_id > 0) {
-        (void) run_callback(callback_id, "S->S", s, &ftemp);
+        (void) run_callback(callback_id, "S->R", s, &ftemp);
 
     } else {
         /* use kpathsea here */

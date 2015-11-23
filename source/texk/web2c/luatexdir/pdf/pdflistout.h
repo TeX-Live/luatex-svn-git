@@ -42,8 +42,8 @@ extern backend_function *backend_out_whatsit;
 
 extern void init_backend_functionpointers(output_mode o_mode);
 
-extern void hlist_out(PDF pdf, halfword this_box);
-extern void vlist_out(PDF pdf, halfword this_box);
+extern void hlist_out(PDF pdf, halfword this_box, int rule_callback_id);
+extern void vlist_out(PDF pdf, halfword this_box, int rule_callback_id);
 extern void out_what(PDF pdf, halfword p);
 
 #endif

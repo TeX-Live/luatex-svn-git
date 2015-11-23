@@ -355,7 +355,7 @@ static int l_vf_node(lua_State * L)
     if (!vsp->vflua)
         normal_error("vf", "vf.node() outside virtual font");
     k = (int) luaL_checkinteger(L, 1);
-    hlist_out(static_pdf, (halfword) k);
+    hlist_out(static_pdf, (halfword) k, 0);
     return 0;
 }
 
@@ -423,7 +423,7 @@ static int l_vf_rule(lua_State * L)
     size.h = store_scaled_f(size.h, vsp->fs_f);
     size.v = store_scaled_f(size.v, vsp->fs_f);
     if (size.h > 0 && size.v > 0)
-        pdf_place_rule(static_pdf, 0, size);    /* the 0 is unused */
+        pdf_place_rule(static_pdf, 0, size, 0);    /* the 0 is unused */
     mat_p = &(vsp->packet_stack[vsp->packet_stack_level]);
     mat_p->pos.h += size.h;
     synch_pos_with_cur(static_pdf->posstruct, vsp->refpos, mat_p->pos);

@@ -64,6 +64,7 @@ typedef enum {
     show_error_message_callback, show_lua_error_hook_callback,
     show_warning_message_callback,
     hpack_quality_callback, vpack_quality_callback,
+    process_rule_callback,
     total_callbacks
 } callback_callback_types;
 
@@ -90,6 +91,8 @@ extern void get_saved_lua_string(int i, const char *name, char **target);
 extern void get_lua_boolean(const char *table, const char *name, boolean * target);
 extern void get_lua_number(const char *table, const char *name, int *target);
 extern void get_lua_string(const char *table, const char *name, char **target);
+
+extern int lua_reader_callback(int callback_id, pointer *buffloc);
 
 extern char *get_lua_name(int i);
 
