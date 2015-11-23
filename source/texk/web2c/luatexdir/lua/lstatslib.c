@@ -48,17 +48,43 @@ static const char *get_output_file_name(void)
     return NULL;
 }
 
+/*
 static const char *getfilename(void)
 {
     int t = 0;
     int level = in_open;
     while ((level > 0)) {
         t = input_stack[level--].name_field;
-        if (t >= STRING_OFFSET)
+        if (t >= STRING_OFFSET) {
             return (const char *) str_string(t);
+        }
     }
     return "";
 }
+*/
+
+static const char *getfilename(void)
+{
+    const char * s;
+    int level, t;
+    level = in_open;
+    while ((level > 0)) {
+        s = full_source_filename_stack[level--];
+        if (s != NULL) {
+            return s;
+        }
+    }
+    /* old method */
+    level = in_open;
+    while ((level > 0)) {
+        t = input_stack[level--].name_field;
+        if (t >= STRING_OFFSET) {
+            return (const char *) str_string(t);
+        }
+    }
+    return "";
+}
+
 
 static const char *getlasterror(void)
 {
