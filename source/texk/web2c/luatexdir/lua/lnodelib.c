@@ -198,11 +198,13 @@
         glue_ptr(n) = g; \
         field(g) = v; \
     } else if (field(g) != v) { \
-        c = new_spec(g); \
-        delete_glue_ref(g); \
-        g = c; \
-        add_glue_ref(g); \
-        glue_ptr(n) = g; \
+        if (glue_ref_count(g) > 1) { \
+            c = new_spec(g); \
+            delete_glue_ref(g); \
+            g = c; \
+            add_glue_ref(g); \
+            glue_ptr(n) = g; \
+        } \
         field(g) = v; \
     } \
 } while (0)
