@@ -345,7 +345,9 @@ typedef enum {
     local_par_node,
 } node_types;
 
-#  define MAX_NODE_TYPE 60
+#  define MAX_NODE_TYPE local_par_node /* 60 */
+
+#  define known_node_type(i) ( i >= 0 && i <= MAX_NODE_TYPE)
 
 #  define last_known_node temp_node     /* used by \lastnodetype */
 
@@ -528,6 +530,8 @@ typedef enum {
     pdf_restore_node,
 } whatsit_types;
 
+#  define first_common_whatsit      0
+#  define last_common_whatsit       user_defined_node
 #  define backend_first_dvi_whatsit 15
 #  define backend_last_dvi_whatsit  15
 #  define backend_first_pdf_whatsit 16
@@ -535,7 +539,13 @@ typedef enum {
 
 #  define MAX_WHATSIT_TYPE 32
 
-#  define  get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
+#  define known_whatsit_type(i) ( \
+    (i >= first_common_whatsit      && i <= last_common_whatsit) || \
+    (i >= backend_first_dvi_whatsit && i <= backend_last_dvi_whatsit) || \
+    (i >= backend_first_pdf_whatsit && i <= backend_last_pdf_whatsit) \
+)
+
+#  define get_node_size(i,j) (i!=whatsit_node ? node_data[i].size : whatsit_node_data[j].size)
 #  define get_node_name(i,j) (i!=whatsit_node ? node_data[i].name : whatsit_node_data[j].name)
 #  define get_etex_code(i)                     (node_data[i].etex)
 
