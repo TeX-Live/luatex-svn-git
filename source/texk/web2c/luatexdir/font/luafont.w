@@ -651,6 +651,13 @@ static const char *n_string_field(lua_State * L, int name_index)
     return lua_tostring(L,-1);
 }
 
+static int n_some_field(lua_State * L, int name_index)
+{
+    lua_rawgeti(L, LUA_REGISTRYINDEX, name_index);      /* fetch the stringptr */
+    lua_rawget(L, -2);
+    return lua_type(L,-1);
+}
+
 /*static void init_font_string_pointers(lua_State * L){}*/
 
 static int count_char_packet_bytes(lua_State * L)
@@ -1057,7 +1064,7 @@ static void
 font_char_from_lua(lua_State * L, internal_font_number f, int i,
                    int *l_fonts, boolean has_math)
 {
-    int k, r, t, lt;
+    int k, r, t, lt, u, n;
     charinfo *co;
     kerninfo *ckerns;
     liginfo *cligs;
@@ -1097,13 +1104,84 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i,
             set_charinfo_name(co, NULL);
         /* n_string_field leaves a value on stack*/
         lua_pop(L,1);
-        s = n_string_field(L, lua_key_index(tounicode));
-        if (s != NULL)
-            set_charinfo_tounicode(co, xstrdup(s));
-        else
-            set_charinfo_tounicode(co, NULL);
+/*        s = n_string_field(L, lua_key_index(tounicode)); */
+/*        if (s != NULL)                                   */
+/*            set_charinfo_tounicode(co, xstrdup(s)); */
+/*        else */
+/*            set_charinfo_tounicode(co, NULL); */
         /* n_string_field leaves a value on stack*/
+/*        lua_pop(L,1); */
+
+        u = n_some_field(L,lua_key_index(tounicode));
+        if (u == LUA_TNUMBER) {
+            u = lua_tointeger(L,-1);
+            if (u < 0) {
+                set_charinfo_tounicode(co, NULL);
+            } else if (u < 0x10000) {
+                char *s = malloc(5);
+                sprintf(s,"%04X",(unsigned int) u);
+                set_charinfo_tounicode(co,s);
+            } else if (u < 0x1FFFFFFFFF) {
+                char *s = malloc(9);
+                sprintf(s,"%04X%04X",(unsigned int) (floor(u/1024)),(unsigned int) (u%1024+0xDC00));
+                set_charinfo_tounicode(co,s);
+            } else {
+                set_charinfo_tounicode(co, NULL);
+            }
+        } else if (u == LUA_TTABLE) {
+            n = lua_rawlen(L,-1);
+            u = 0;
+            for (k = 1; k <= n; k++) {
+                lua_rawgeti(L, -1, k);
+                if (lua_type(L,-1) == LUA_TNUMBER) {
+                    u = lua_tointeger(L,-1);
+                } else {
+                    lua_pop(L, 1);
+                    break;
+                }
+                if (u < 0) {
+                    u = -1;
+                    lua_pop(L, 1);
+                    break;
+                } else if (u < 0x10000) {
+                    u = u + 4;
+                } else if (u < 0x1FFFFFFFFF) {
+                    u = u + 8;
+                } else {
+                    u = -1;
+                    lua_pop(L, 1);
+                    break;
+                }
+                lua_pop(L, 1);
+            }
+            if (u>0) {
+                char *s = malloc(u+1);
+                char *t = s ;
+                for (k = 1; k <= n; k++) {
+                    lua_rawgeti(L, -1, k);
+                    u = lua_tointeger(L,-1);
+                    if (u < 0x10000) {
+                        sprintf(t,"%04X",(unsigned int) u);
+                        t += 4;
+                    } else {
+                        sprintf(t,"%04X%04X",(unsigned int) (floor(u/1024)),(unsigned int) (u%1024+0xDC00));
+                        t += 8;
+                    }
+                    lua_pop(L, 1);
+                }
+                set_charinfo_tounicode(co,s);
+            } else {
+                set_charinfo_tounicode(co, NULL);
+            }
+        } else if (u == LUA_TSTRING) {
+            s = lua_tostring(L,-1);
+            set_charinfo_tounicode(co, xstrdup(s));
+        } else {
+            set_charinfo_tounicode(co, NULL);
+        }
+        /* ... leaves a value on stack*/
         lua_pop(L,1);
+
         if (has_math) {
             j = lua_numeric_field_by_index(L, lua_key_index(top_accent), INT_MIN);
             set_charinfo_top_accent(co, j);

@@ -849,7 +849,7 @@ static boolean get_next_file(void)
         case new_line + escape_cmd:
         case skip_blanks + escape_cmd: /* Scan a control sequence ...; */
             istate = (unsigned char) scan_control_sequence();
-            if (cur_cmd >= outer_call_cmd)
+            if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
         case mid_line + active_char_cmd:
@@ -859,7 +859,7 @@ static boolean get_next_file(void)
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
             istate = mid_line;
-            if (cur_cmd >= outer_call_cmd)
+            if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
         case mid_line + sup_mark_cmd:
@@ -903,7 +903,7 @@ static boolean get_next_file(void)
             cur_cs = par_loc;
             cur_cmd = eq_type(cur_cs);
             cur_chr = equiv(cur_cs);
-            if (cur_cmd >= outer_call_cmd)
+            if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
                 check_outer_validity();
             break;
         case skip_blanks + left_brace_cmd:
@@ -1321,7 +1321,8 @@ static next_line_retval next_line(void)
                 end_file_reading();
             } else {
                 end_file_reading();
-                check_outer_validity();
+                if (! suppress_outer_error)
+                    check_outer_validity();
             }
             return next_line_restart;
         }
@@ -1393,7 +1394,7 @@ static boolean get_next_tokenlist(void)
                     cur_chr = no_expand_flag;
                     return true;
                 }
-            } else {
+            } else if (! suppress_outer_error) {
                 check_outer_validity();
             }
         }
@@ -1474,32 +1475,13 @@ No new control sequences will be defined except during a call of
 void get_token(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok| */
     no_new_control_sequence = false;
-    get_next(); /* get_token_lua(); */
+    get_next();
     no_new_control_sequence = true;
     if (cur_cs == 0)
         cur_tok = token_val(cur_cmd, cur_chr);
     else
         cur_tok = cs_token_flag + cur_cs;
 }
-
-@ @c
-void get_token_lua(void)
-{
-    register int callback_id;
-    callback_id = callback_defined(token_filter_callback);
-    if (callback_id > 0) {
-        while (istate == token_list && iloc == null && iindex != v_template)
-            end_token_list();
-        /* there is some stuff we don't want to see inside the callback */
-        if (!(istate == token_list &&
-              ((nofilter == true) || (iindex == backed_up && iloc != null)))) {
-            do_get_token_lua(callback_id);
-            return;
-        }
-    }
-    get_next();
-}
-
 
 @ changes the string |s| to a token list
 @c

@@ -302,7 +302,6 @@ void luainterpreter(void)
     luaopen_ff(L);
     luaopen_tex(L);
     luaopen_token(L);
-    luaopen_oldtoken(L);
     luaopen_node(L);
     luaopen_texio(L);
     luaopen_kpse(L);

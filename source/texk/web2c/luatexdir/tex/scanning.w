@@ -1340,12 +1340,12 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
         set_conversion(1238, 1157);
     } else if (scan_keyword("cc")) {
         set_conversion(14856, 1157);
+    } else if (scan_keyword("pc")) {
+        set_conversion(12, 1);
     } else if (scan_keyword("nd")) {
         set_conversion(685, 642);
     } else if (scan_keyword("nc")) {
         set_conversion(1370, 107);
-    } else if (scan_keyword("pc")) {
-        set_conversion(12, 1);
     } else {
         /* Complain about unknown unit and |goto done2| */
         print_err("Illegal unit of measure (pt inserted)");
@@ -1993,7 +1993,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
             /* Here we insert an entire token list created by |the_toks| without
                expanding it further. */
             while (1) {
-                get_next(); /* get_token_lua(); */
+                get_next();
                 if (cur_cmd >= call_cmd) {
                     if (token_info(token_link(cur_chr)) == protected_token) {
                         cur_cmd = relax_cmd;

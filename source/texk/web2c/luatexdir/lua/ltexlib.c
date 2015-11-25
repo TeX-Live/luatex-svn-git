@@ -508,36 +508,36 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
     /* Scan for (a)all other units and adjust |cur_val| and |f| accordingly;
        |goto done| in the case of scaled points */
 
-    if (strncmp(s, "in", 2) == 0) {
+    if (strncmp(s, "mm", 2) == 0) {
         s += 2;
-        set_conversion(7227, 100);
-    } else if (strncmp(s, "pc", 2) == 0) {
-        s += 2;
-        set_conversion(12, 1);
+        set_conversion(7227, 2540);
     } else if (strncmp(s, "cm", 2) == 0) {
         s += 2;
         set_conversion(7227, 254);
-    } else if (strncmp(s, "mm", 2) == 0) {
+    } else if (strncmp(s, "sp", 2) == 0) {
         s += 2;
-        set_conversion(7227, 2540);
+        goto DONE;
     } else if (strncmp(s, "bp", 2) == 0) {
         s += 2;
         set_conversion(7227, 7200);
+    } else if (strncmp(s, "in", 2) == 0) {
+        s += 2;
+        set_conversion(7227, 100);
     } else if (strncmp(s, "dd", 2) == 0) {
         s += 2;
         set_conversion(1238, 1157);
     } else if (strncmp(s, "cc", 2) == 0) {
         s += 2;
         set_conversion(14856, 1157);
+    } else if (strncmp(s, "pc", 2) == 0) {
+        s += 2;
+        set_conversion(12, 1);
     } else if (strncmp(s, "nd", 2) == 0) {
         s += 2;
         set_conversion(685, 642);
     } else if (strncmp(s, "nc", 2) == 0) {
         s += 2;
         set_conversion(1370, 107);
-    } else if (strncmp(s, "sp", 2) == 0) {
-        s += 2;
-        goto DONE;
     } else {
         /* Complain about unknown unit and |goto done2| */
         luaL_error(L, "Illegal unit of measure (pt inserted)");

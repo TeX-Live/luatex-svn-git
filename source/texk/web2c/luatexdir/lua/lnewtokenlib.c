@@ -74,6 +74,17 @@ static lua_token *check_istoken(lua_State * L, int ud);
 
 #define  is_active_string(s) (strlen((char *)s)>3 && *s==0xEF && *(s+1)==0xBF && *(s+2)==0xBF)
 
+void make_token_table(lua_State * L, int cmd, int chr, int cs)
+{
+    lua_createtable(L, 3, 0);
+    lua_pushnumber(L, cmd);
+    lua_rawseti(L, -2, 1);
+    lua_pushnumber(L, chr);
+    lua_rawseti(L, -2, 2);
+    lua_pushnumber(L, cs);
+    lua_rawseti(L, -2, 3);
+}
+
 static unsigned char *get_cs_text(int cs)
 {
     if (cs == null_cs)
@@ -139,7 +150,7 @@ static void push_token(lua_State * L, int tok)
 
 /* static int run_get_cs_offset(lua_State * L) */
 /* { */
-/*     lua_pushnumber(L, cs_token_flag); */
+/*     lua_pushinteger(L, cs_token_flag); */
 /*     return 1; */
 /* } */
 
@@ -149,7 +160,7 @@ static void push_token(lua_State * L, int tok)
 /*     if (lua_type(L, -1) == LUA_TSTRING) { */
 /*         cs = get_command_id(lua_tostring(L, -1)); */
 /*     } */
-/*     lua_pushnumber(L, cs); */
+/*     lua_pushinteger(L, cs); */
 /*     return 1; */
 /* } */
 
@@ -161,7 +172,7 @@ static void push_token(lua_State * L, int tok)
 /*         s = lua_tolstring(L, -1, &k); */
 /*         cs = (size_t) string_lookup(s, k); */
 /*     } */
-/*     lua_pushnumber(L, (lua_Number) cs); */
+/*     lua_pushinteger(L, (lua_Number) cs); */
 /*     return 1; */
 /* } */
 
@@ -219,7 +230,7 @@ static int run_scan_int(lua_State * L)
     scan_int();
     v = cur_val;
     unsave_tex_scanner(texstate);
-    lua_pushnumber(L,(lua_Number)v);
+    lua_pushinteger(L,(int)v);
     return 1;
 }
 
@@ -238,9 +249,9 @@ static int run_scan_dimen(lua_State * L)
     v = cur_val;
     o = cur_order;
     unsave_tex_scanner(texstate);
-    lua_pushnumber(L,(lua_Number)v);
+    lua_pushinteger(L,v);
     if (inf) {
-        lua_pushnumber(L,(lua_Number)o);
+        lua_pushinteger(L,(lua_Number)o);
         return 2;
     } else {
         return 1;
@@ -379,7 +390,7 @@ static int run_scan_code(lua_State * L) /* HH */
             }
         }
         if (cc & (1<<(cur_cmd))) {
-            lua_pushnumber(L,(lua_Number)cur_chr);
+            lua_pushinteger(L,(int)cur_chr);
         } else {
             lua_pushnil(L);
             back_input();
@@ -471,9 +482,9 @@ static int lua_tokenlib_getfield(lua_State * L)
     t = token_info(n->token);
     if (lua_key_eq(s, command)) {
         if (t >= cs_token_flag) {
-            lua_pushnumber(L, eq_type((t - cs_token_flag)));
+            lua_pushinteger(L,(int) eq_type((t - cs_token_flag)));
         } else {
-            lua_pushnumber(L, token_cmd(t));
+            lua_pushinteger(L, token_cmd(t));
         }
     } else if (lua_key_eq(s, index)) {
         int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
@@ -502,15 +513,15 @@ static int lua_tokenlib_getfield(lua_State * L)
                 break;
         }
         if ((e >= 0) && (e <= 65535)) {
-            lua_pushnumber(L, e);
+            lua_pushinteger(L, e);
         } else {
             lua_pushnil(L);
         }
     } else if (lua_key_eq(s, mode)) {
         if (t >= cs_token_flag) {
-            lua_pushnumber(L, equiv(t - cs_token_flag));
+            lua_pushinteger(L, equiv(t - cs_token_flag));
         } else {
-            lua_pushnumber(L, token_chr(t));
+            lua_pushinteger(L, token_chr(t));
         }
     } else if (lua_key_eq(s, cmdname)) {
         int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
@@ -526,9 +537,9 @@ static int lua_tokenlib_getfield(lua_State * L)
             lua_pushnil(L);
         }
     } else if (lua_key_eq(s, id)) {
-       lua_pushnumber(L, n->token);
+       lua_pushinteger(L, n->token);
     } else if (lua_key_eq(s, tok)) {
-       lua_pushnumber(L, t);
+       lua_pushinteger(L, t);
     } else if (lua_key_eq(s, active)) {
         unsigned char *s;
         if (t >= cs_token_flag && ((s = get_cs_text(t - cs_token_flag)) != (unsigned char *) NULL)) {

@@ -378,7 +378,7 @@ common cases.
 void get_x_token(void)
 {                               /* sets |cur_cmd|, |cur_chr|, |cur_tok|,  and expands macros */
   RESTART:
-    get_next(); /* get_token_lua(); */
+    get_next();
     if (cur_cmd <= max_command_cmd)
         goto DONE;
     if (cur_cmd >= call_cmd) {
@@ -409,7 +409,7 @@ void x_token(void)
 {                               /* |get_x_token| without the initial |get_next| */
     while (cur_cmd > max_command_cmd) {
         expand();
-        get_next(); /* get_token_lua(); */
+        get_next();
    }
     if (cur_cs == 0)
         cur_tok = token_val(cur_cmd, cur_chr);
