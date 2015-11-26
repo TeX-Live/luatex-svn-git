@@ -272,7 +272,7 @@ void luacstring_close(int n)
         t = next;
         next = next->next;
         if (t==read_spindle.tail) {
-	    read_spindle.tail = NULL; // prevent double-free
+	    read_spindle.tail = NULL;
 	}
         free(t);
     }

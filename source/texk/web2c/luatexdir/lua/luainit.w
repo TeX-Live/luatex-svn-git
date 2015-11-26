@@ -847,27 +847,18 @@ void lua_initialize(int ac, char **av)
     char *given_file = NULL;
     char *banner;
     int kpse_init;
+    size_t len;
     static char LC_CTYPE_C[] = "LC_CTYPE=C";
     static char LC_COLLATE_C[] = "LC_COLLATE=C";
     static char LC_NUMERIC_C[] = "LC_NUMERIC=C";
     static char engine_luatex[] = "engine=" my_name;
     /* Save to pass along to topenin.  */
+    const char *fmt = "This is " MyName ", Version %s" WEB2CVERSION;
     argc = ac;
     argv = av;
-
-    if (luatex_svn < 0) {
-        const char *fmt = "This is " MyName ", Version %s" WEB2CVERSION;
-        size_t len;
-        len = strlen(fmt) + strlen(luatex_version_string) ;
-        banner = xmalloc(len);
-        sprintf(banner, fmt, luatex_version_string);
-    } else {
-        const char *fmt = "This is " MyName ", Version %s" WEB2CVERSION " (rev %d)";
-        size_t len;
-        len = strlen(fmt) + strlen(luatex_version_string) + 6;
-        banner = xmalloc(len);
-        sprintf(banner, fmt, luatex_version_string, luatex_svn);
-    }
+    len = strlen(fmt) + strlen(luatex_version_string) ;
+    banner = xmalloc(len);
+    sprintf(banner, fmt, luatex_version_string);
     luatex_banner = banner;
     kpse_invocation_name = kpse_program_basename(argv[0]);
 
@@ -1068,24 +1059,5 @@ void check_texconfig_init(void)
                 }
             }
         }
-    }
-}
-
-@ @c
-void write_svnversion(char *v)
-{
-    char *a_head, *n;
-    char *a = xstrdup(v);
-    size_t l = strlen("$Id: luatex.web ");
-    if (a != NULL) {
-        a_head = a;
-        if (strlen(a) > l)
-            a += l;
-        n = a;
-        while (*n != '\0' && *n != ' ')
-            n++;
-        *n = '\0';
-        fprintf(stdout, " luatex.web >= v%s", a);
-        free(a_head);
     }
 }

@@ -606,25 +606,6 @@ end
 
 This callback does not replace any internal code.
 
-\subsubsection{\type {hpack_quality} and \type {vpack_quality}}
-
-These two callbacks can be used to intercept the overfull messages. They get a few
-arguments:
-
-\startfunctioncall
-function(<string> incident, <number> detail, <node> head, <number> first,
-         <number> last)
-    return <node> whatever
-end
-\stopfunctioncall
-
-The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
-\type {tight}. The detail is either the amount of overflow (in case of \type
-{overerful}, or the badness. The head is the list that is constructed (when
-protrusion or expansion is enabled, this is an intermediate list). For a hpack
-you can return a node (for instance an overfull rule indicator). That node will
-be appended to the list (just like \TEX's own rule would).
-
 \subsubsection{\type {hpack_quality}}
 
 This callback can be used to intercept the overfull messages that can result from
@@ -660,6 +641,13 @@ end
 The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
 \type {tight}. The detail is either the amount of overflow in case of \type
 {overfull}, or the badness otherwise. The head is the list that is constructed.
+
+\subsubsection{\type {process_rule}}
+
+This is an experimental callback. It can be used with rules of subtype~4
+(user). The callback gets three arguments: the node, the width and the
+height. The callback can use \type {pdf.print} to write code to the \PDF\
+file but beware of not messing up the final result. No checking is done.
 
 \subsubsection{\type {pre_output_filter}}
 
@@ -4384,6 +4372,17 @@ and \type {pdf.retval}}
 These status variables are similar to the ones traditionally used at the \TEX\
 end.
 
+\subsection{\type {pdf.setorigin}}
+
+This one is used to set the horizonal and/or vertical offset (a traditional
+backend property).
+
+\starttyping
+pdf.setorigin() -- sets both to 0pt
+pdf.setorigin(tex.sp("1in")) -- sets both to 1in
+pdf.setorigin(tex.sp("1in"),tex.sp("1in"))
+\stoptyping
+
 \subsection{\type {pdf.h}, \type {pdf.v}}
 
 These are the \type {h} and \type {v} values that define the current location on
@@ -4810,7 +4809,6 @@ The current list is:
 \NC callbacks          \NC total number of executed callbacks so far \NC \NR
 \NC indirect_callbacks \NC number of those that were themselves
                            a result of other callbacks (e.g. file readers) \NC \NR
-\NC luatex_svn         \NC the luatex repository id  \NC \NR
 \NC luatex_version     \NC the luatex version number \NC \NR
 \NC luatex_revision    \NC the luatex revision string \NC \NR
 \NC ini_version        \NC \type {true} if this is an \INITEX\ run \NC \NR

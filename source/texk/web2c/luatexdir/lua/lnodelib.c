@@ -786,22 +786,16 @@ static int lua_nodelib_getnext(lua_State * L)
     static int lua_nodelib_fast_getnext(lua_State * L)
     {
         halfword *a;
-        //  [given-node] [...]
         halfword *p = lua_touserdata(L, 1);
         if ((p == NULL) || (!vlink(*p))){
             lua_pushnil(L);
         } else {
             lua_settop(L,1);
-            //  [given-node]
             lua_getmetatable(L,1);
-            //  [given-node] [mt-node]
             a = lua_newuserdata(L, sizeof(halfword));
-            //  [given-node] [mt-node] [next-node]
             *a = vlink(*p);
             lua_replace(L,1);
-            //  [next-node] [mt-node]
             lua_setmetatable(L,1);
-            //  [next-node-with-mt]
         }
         return 1;
     }
@@ -868,22 +862,16 @@ static int lua_nodelib_getboth(lua_State * L)
     static int lua_nodelib_fast_getprev(lua_State * L)
     {
         halfword *a;
-        //  [given-node] [...]
         halfword *p = lua_touserdata(L, 1);
         if ((p == NULL) || (!alink(*p))) {
             lua_pushnil(L);
         } else {
             lua_settop(L,1);
-            //  [given-node]
             lua_getmetatable(L,1);
-            //  [given-node] [mt-node]
             a = lua_newuserdata(L, sizeof(halfword));
-            //  [given-node] [mt-node] [next-node]
             *a = alink(*p);
             lua_replace(L,1);
-            //  [next-node] [mt-node]
             lua_setmetatable(L,1);
-            //  [next-node-with-mt]
         }
         return 1;
     }
@@ -1069,7 +1057,6 @@ static int lua_nodelib_flush_node(lua_State * L)
     if ((lua_gettop(L) < 1) || lua_isnil(L, 1))
         return 0;
     n = check_isnode(L, 1);
-    // no check if n?
     flush_node(*n);
     return 0;
 }
@@ -1141,15 +1128,15 @@ static int lua_nodelib_remove(lua_State * L)
     current = *(check_isnode(L, 2));
     if (head == current) {
       if (alink(current)){
-        vlink(alink(current)) = vlink(current); // vlink(prev) = next
+        vlink(alink(current)) = vlink(current);
       }
       if (vlink(current)){
-        alink( vlink(current)) = alink(current); // alink(next) = prev
+        alink( vlink(current)) = alink(current);
       }
 
-      head = vlink(current);     //head = next
-      current = vlink(current);  //current = next
-    } else {                    /* head != current */
+      head = vlink(current);
+      current = vlink(current);
+    } else {
         t = alink(current);
         if (t == null || vlink(t) != current) {
             set_t_to_prev(head, current);
@@ -1193,13 +1180,13 @@ static int lua_nodelib_direct_remove(lua_State * L)
     }
     if (head == current) {
       if (alink(current)){
-        vlink( alink(current) ) = vlink(current); // vlink(prev) = next
+        vlink( alink(current) ) = vlink(current);
       }
       if (vlink(current)){
-        alink( vlink(current) ) = alink(current); // alink(next) = prev
+        alink( vlink(current) ) = alink(current);
       }
-      head = vlink(current);     //head = next
-      current = vlink(current);  //current = next
+      head = vlink(current);
+      current = vlink(current);
     } else {
         t = alink(current);
         if (t == null || vlink(t) != current) {
@@ -1804,7 +1791,6 @@ static int lua_nodelib_mlist_to_hlist(lua_State * L)
     int w;
     boolean m;
     n = *(check_isnode(L, 1));
-    //w = luaL_checkoption(L, 2, "text", math_style_names);
     assign_math_style(L,2,w);
     luaL_checkany(L, 3);
     m = lua_toboolean(L, 3);
@@ -3116,7 +3102,6 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         }
     } else if (t == dir_node) {
         if (lua_key_eq(s, dir)) {
-         // nodelib_pushdir(L, dir_dir(n), true);
             lua_push_dir_text(L, dir_dir(n));
         } else if (lua_key_eq(s, level)) {
             lua_pushinteger(L, dir_level(n));
@@ -3855,7 +3840,6 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         }
     } else if (t == dir_node) {
         if (lua_key_eq(s, dir)) {
-        //    nodelib_pushdir(L, dir_dir(n), true);
         lua_push_dir_text(L, dir_dir(n));
         } else if (lua_key_eq(s, level)) {
             lua_pushinteger(L, dir_level(n));
@@ -5161,7 +5145,6 @@ static int lua_nodelib_fast_setfield(lua_State * L)
             /* dummy subtype */
         } else if (lua_key_eq(s, style)) {
             assign_math_style(L,3,subtype(n));
-            //subtype(n) = (quarterword) luaL_checkoption(L, 3, "text", math_style_names); /* not 2? */
         } else {
             /* return nodelib_cantset(L, n, s); */
         }
@@ -6032,7 +6015,6 @@ static int lua_nodelib_direct_setfield(lua_State * L)
             /* dummy subtype */
         } else if (lua_key_eq(s, style)) {
             assign_math_style(L,2,subtype(n));
-            //subtype(n) = (quarterword) luaL_checkoption(L, 2, "text", math_style_names); /* was 3 */
         } else {
             /* return nodelib_cantset(L, n, s); */
         }
@@ -6369,9 +6351,8 @@ static int lua_nodelib_direct_is_node(lua_State * L)
 
 /* if really needed we can provide this:
 
-static int lua_nodelib_attributes_to_table(lua_State * L) // hh
-{   // <node|direct>
-    halfword n;
+static int lua_nodelib_attributes_to_table(lua_State * L)
+{   halfword n;
     register halfword attribute;
     if (lua_type(L,1) == LUA_TNUMBER) {
         n = lua_tonumber(L,1);
@@ -6404,8 +6385,7 @@ static int lua_nodelib_attributes_to_table(lua_State * L) // hh
 /* There is no gain here but let's keep it around:
 
 static int lua_nodelib_attributes_to_properties(lua_State * L)
-{   // <node|direct>
-    halfword n;
+{   halfword n;
     register halfword attribute;
     if (lua_type(L,1) == LUA_TNUMBER) {
         n = lua_tonumber(L,1);
@@ -6525,7 +6505,7 @@ static int lua_nodelib_direct_set_property(lua_State * L) /* hh */
 {
     /* <direct> <value> */
     halfword n = lua_tonumber(L, 1);
-    if (n != null) { // we could store in node instead */
+    if (n != null) {
         lua_settop(L,2);
         lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(node_properties));
         lua_gettable(L, LUA_REGISTRYINDEX);

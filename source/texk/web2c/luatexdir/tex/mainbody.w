@@ -225,11 +225,6 @@ int get_luatexversion(void)
     return luatex_version;
 }
 
-int get_luatexsvn(void)
-{
-    return luatex_svn;
-}
-
 str_number get_luatexrevision(void)
 {
     return luatex_revision;
@@ -409,7 +404,7 @@ void main_body(void)
     if (bad > 0) {
         goto FINAL_END;
     }
-    print_banner(luatex_version_string, luatex_svn);
+    print_banner(luatex_version_string);
 
     /* Get the first line of input and prepare to start */
     /* When we begin the following code, \TeX's tables may still contain garbage;

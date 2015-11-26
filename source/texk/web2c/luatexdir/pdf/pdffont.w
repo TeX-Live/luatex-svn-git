@@ -46,7 +46,6 @@ scaled_whd output_one_char(PDF pdf, halfword p)
         char_warning(f,c);
         return ci;
     }
-    //ci.wd = round_xn_over_d(ci.wd, 1000 + ex_glyph, 1000);
     ci.wd = ext_xn_over_d(ci.wd, 1000000 + ex_glyph(p), 1000000);
     switch (pdf->posstruct->dir) {
     case dir_TLT:
@@ -123,26 +122,15 @@ void pdf_init_font(PDF pdf, internal_font_number f)
     fm_entry *fm;
     int i, l;
     assert(!font_used(f));
+    /*
+        check whether |f| can share the font object with some |k|: we have 2 cases
+        here: 1) |f| and |k| have the same tfm name (so they have been loaded at
+        different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
+        expanded from |k|
 
-    ///* if |f| is auto expanded then ensure the base font is initialized */
-    //
-    //    if (font_auto_expand(f) && ((b = pdf_font_blink(f)) != null_font)) {
-    //    if (!font_used(b))
-    //        pdf_init_font(pdf, b);
-    //    set_font_map(f, font_map(b));
-    //    /* propagate slant and extend from unexpanded base font */
-    //    set_font_slant(f, font_slant(b));
-    //    set_font_extend(f, font_extend(b));
-    //}
-    /* check whether |f| can share the font object with some |k|: we have 2 cases
-       here: 1) |f| and |k| have the same tfm name (so they have been loaded at
-       different sizes, eg 'cmr10' and 'cmr10 at 11pt'); 2) |f| has been auto
-       expanded from |k|
-     */
-
-    /* take over slant and extend from map entry, if not already set;
-       this should also be the only place where getfontmap() may be called. */
-
+        take over slant and extend from map entry, if not already set;
+        this should also be the only place where getfontmap() may be called.
+    */
     fm = getfontmap(font_name(f));
     if (font_map(f) == NULL && fm != NULL) {
         font_map(f) = fm;

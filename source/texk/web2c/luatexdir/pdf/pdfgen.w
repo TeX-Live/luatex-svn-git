@@ -1839,9 +1839,6 @@ const char *get_pdf_table_string(const char *s)
 }
 
 @ @c
-// #define pdf_page_attr equiv(pdf_page_attr_loc)
-// #define pdf_page_resources equiv(pdf_page_resources_loc)
-
 void pdf_end_page(PDF pdf)
 {
     char s[64], *p;

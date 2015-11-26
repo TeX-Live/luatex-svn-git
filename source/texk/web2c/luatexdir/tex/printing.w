@@ -464,16 +464,12 @@ and format identifier together will occupy at most |max_print_line|
 character positions.
 
 @c
-void print_banner(const char *v, int ver)
+void print_banner(const char *v)
 {
     int callback_id;
     callback_id = callback_defined(start_run_callback);
     if (callback_id == 0) {
-        if (ver < 0)
-            fprintf(term_out, "This is " MyName ", Version %s ", v);
-        else
-             fprintf(term_out, "This is " MyName ", Version %s%s (rev %d) ", v,
-                     WEB2CVERSION, ver);
+        fprintf(term_out, "This is " MyName ", Version %s%s ", v, WEB2CVERSION);
         if (format_ident > 0)
             print(format_ident);
         print_ln();
@@ -494,7 +490,7 @@ void print_banner(const char *v, int ver)
 }
 
 @ @c
-void log_banner(const char *v, int ver)
+void log_banner(const char *v)
 {
     const char *months[] = { "   ",
         "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -503,11 +499,7 @@ void log_banner(const char *v, int ver)
     unsigned month = (unsigned) int_par(month_code);
     if (month > 12)
         month = 0;
-    if (ver < 0)
-        fprintf(log_file, "This is " MyName ", Version %s ", v);
-    else
-        fprintf(log_file, "This is " MyName ", Version %s%s (rev %d) ", v,
-	                  WEB2CVERSION, ver);
+    fprintf(log_file, "This is " MyName ", Version %s%s ", v, WEB2CVERSION);
     print(format_ident);
     print_char(' ');
     print_char(' ');

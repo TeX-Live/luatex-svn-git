@@ -19,7 +19,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ @c
@@ -58,7 +57,7 @@ void place_img(PDF pdf, image_dict * idict, scaled_whd dim, int transform)
         xoff = yoff = 0;
         r = 4;
     }
-    if ((transform & 7) > 3) {  // mirror cases
+    if ((transform & 7) > 3) { /* mirror cases */
         a[0] *= -1;
         xoff *= -1;
     }

@@ -366,14 +366,16 @@ static unsigned find_dpi(const_string s)
     return dpi_number;
 }
 
-/* Return newly-allocated NULL-terminated list of strings from MATCHES
-   that are prefixed with any of the subdirectories in SUBDIRS.  That
-   is, for a string S in MATCHES, its dirname must end with one of the
-   elements in SUBDIRS.  For instance, if subdir=foo/bar, that will
-   match a string foo/bar/baz or /some/texmf/foo/bar/baz.
+/*
+    Return newly-allocated NULL-terminated list of strings from MATCHES
+    that are prefixed with any of the subdirectories in SUBDIRS.  That
+    is, for a string S in MATCHES, its dirname must end with one of the
+    elements in SUBDIRS.  For instance, if subdir=foo/bar, that will
+    match a string foo/bar/baz or /some/texmf/foo/bar/baz.
 
-   We don't reallocate the actual strings, just the list elements.
-   Perhaps later we will implement wildcards or // or something.  */
+    We don't reallocate the actual strings, just the list elements.
+    Perhaps later we will implement wildcards or "//" or something.
+*/
 
 static string *subdir_match(str_list_type subdirs, string * matches)
 {

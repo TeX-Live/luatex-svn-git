@@ -237,9 +237,6 @@ size_t          T##_limit
 
 #  include "tex/filename.h"
 
-/* lua/luainit.c */
-extern void write_svnversion(char *a);
-
 /**********************************************************************/
 
 extern halfword new_ligkern(halfword head, halfword tail);
