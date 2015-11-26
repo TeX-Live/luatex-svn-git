@@ -351,7 +351,6 @@ typedef struct pdf_output_file_ {
     int thread_level;           /* depth of nesting of box containing the last thread */
 
     int f_cur;                  /* TeX font number */
-    int pdflua_ref;
     int cave;                   /* stay away from previous PDF object */
 
     vf_struct *vfstruct;

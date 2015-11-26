@@ -189,8 +189,6 @@ size_t          T##_limit
 
 #  include "lua/luagen.h"
 
-#  include "luascripts/pdflua.h"
-
 #  include "font/luatexfont.h"
 #  include "font/mapfile.h"
 

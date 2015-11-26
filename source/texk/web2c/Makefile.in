@@ -600,7 +600,7 @@ am__objects_4 = libluajittex_a-dvigen.$(OBJEXT) \
 	libluajittex_a-pdftables.$(OBJEXT) \
 	libluajittex_a-pdfthread.$(OBJEXT) \
 	libluajittex_a-pdfxform.$(OBJEXT) \
-	libluajittex_a-pdflua.$(OBJEXT) libluajittex_a-align.$(OBJEXT) \
+	libluajittex_a-align.$(OBJEXT) \
 	libluajittex_a-arithmetic.$(OBJEXT) \
 	libluajittex_a-buildpage.$(OBJEXT) \
 	libluajittex_a-commands.$(OBJEXT) \
@@ -744,8 +744,7 @@ am__objects_8 = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-pdfshipout.$(OBJEXT) \
 	libluatex_a-pdftables.$(OBJEXT) \
 	libluatex_a-pdfthread.$(OBJEXT) libluatex_a-pdfxform.$(OBJEXT) \
-	libluatex_a-pdflua.$(OBJEXT) libluatex_a-align.$(OBJEXT) \
-	libluatex_a-arithmetic.$(OBJEXT) \
+	libluatex_a-align.$(OBJEXT) libluatex_a-arithmetic.$(OBJEXT) \
 	libluatex_a-buildpage.$(OBJEXT) libluatex_a-commands.$(OBJEXT) \
 	libluatex_a-conditional.$(OBJEXT) \
 	libluatex_a-directions.$(OBJEXT) \
@@ -3386,26 +3385,24 @@ libluatex_web = luatexdir/dvi/dvigen.w luatexdir/font/dofont.w \
 	luatexdir/pdf/pdfsaverestore.w luatexdir/pdf/pdfsetmatrix.w \
 	luatexdir/pdf/pdfshipout.w luatexdir/pdf/pdftables.w \
 	luatexdir/pdf/pdfthread.w luatexdir/pdf/pdfxform.w \
-	luatexdir/luascripts/pdflua.c luatexdir/luascripts/pdflua.lua \
-	luatexdir/luascripts/txt2zlib.w luatexdir/tex/align.w \
-	luatexdir/tex/arithmetic.w luatexdir/tex/buildpage.w \
-	luatexdir/tex/commands.w luatexdir/tex/conditional.w \
-	luatexdir/tex/directions.w luatexdir/tex/dumpdata.w \
-	luatexdir/tex/equivalents.w luatexdir/tex/errors.w \
-	luatexdir/tex/expand.w luatexdir/tex/extensions.w \
-	luatexdir/tex/filename.w luatexdir/tex/inputstack.w \
-	luatexdir/tex/linebreak.w luatexdir/tex/mainbody.w \
-	luatexdir/tex/maincontrol.w luatexdir/tex/mathcodes.w \
-	luatexdir/tex/memoryword.w luatexdir/tex/mlist.w \
-	luatexdir/tex/nesting.w luatexdir/tex/packaging.w \
-	luatexdir/tex/postlinebreak.w luatexdir/tex/primitive.w \
-	luatexdir/tex/printing.w luatexdir/tex/scanning.w \
-	luatexdir/tex/stringpool.w luatexdir/tex/texdeffont.w \
-	luatexdir/tex/texfileio.w luatexdir/tex/texmath.w \
-	luatexdir/tex/texnodes.w luatexdir/tex/textcodes.w \
-	luatexdir/tex/textoken.w luatexdir/utils/avlstuff.w \
-	luatexdir/utils/managed-sa.w luatexdir/utils/utils.w \
-	luatexdir/utils/unistring.w
+	luatexdir/tex/align.w luatexdir/tex/arithmetic.w \
+	luatexdir/tex/buildpage.w luatexdir/tex/commands.w \
+	luatexdir/tex/conditional.w luatexdir/tex/directions.w \
+	luatexdir/tex/dumpdata.w luatexdir/tex/equivalents.w \
+	luatexdir/tex/errors.w luatexdir/tex/expand.w \
+	luatexdir/tex/extensions.w luatexdir/tex/filename.w \
+	luatexdir/tex/inputstack.w luatexdir/tex/linebreak.w \
+	luatexdir/tex/mainbody.w luatexdir/tex/maincontrol.w \
+	luatexdir/tex/mathcodes.w luatexdir/tex/memoryword.w \
+	luatexdir/tex/mlist.w luatexdir/tex/nesting.w \
+	luatexdir/tex/packaging.w luatexdir/tex/postlinebreak.w \
+	luatexdir/tex/primitive.w luatexdir/tex/printing.w \
+	luatexdir/tex/scanning.w luatexdir/tex/stringpool.w \
+	luatexdir/tex/texdeffont.w luatexdir/tex/texfileio.w \
+	luatexdir/tex/texmath.w luatexdir/tex/texnodes.w \
+	luatexdir/tex/textcodes.w luatexdir/tex/textoken.w \
+	luatexdir/utils/avlstuff.w luatexdir/utils/managed-sa.w \
+	luatexdir/utils/utils.w luatexdir/utils/unistring.w
 nodist_libluatex_sources = dvigen.c dofont.c luafont.c mapfile.c \
 	pkin.c sfnt.c subfont.c texfont.c tfmofm.c tounicode.c \
 	tt_glyf.c tt_table.c vfovf.c vfpacket.c writecff.c writeenc.c \
@@ -3417,14 +3414,14 @@ nodist_libluatex_sources = dvigen.c dofont.c luafont.c mapfile.c \
 	pdfglyph.c pdfimage.c pdflink.c pdflistout.c pdfliteral.c \
 	pdfluaapi.c pdfobj.c pdfoutline.c pdfpage.c pdfrule.c \
 	pdfsaverestore.c pdfsetmatrix.c pdfshipout.c pdftables.c \
-	pdfthread.c pdfxform.c pdflua.c align.c arithmetic.c \
-	buildpage.c commands.c conditional.c directions.c dumpdata.c \
-	equivalents.c errors.c expand.c extensions.c filename.c \
-	inputstack.c linebreak.c mainbody.c maincontrol.c mathcodes.c \
-	memoryword.c mlist.c nesting.c packaging.c postlinebreak.c \
-	primitive.c printing.c scanning.c stringpool.c texdeffont.c \
-	texfileio.c texmath.c texnodes.c textcodes.c textoken.c \
-	avlstuff.c managed-sa.c utils.c unistring.c
+	pdfthread.c pdfxform.c align.c arithmetic.c buildpage.c \
+	commands.c conditional.c directions.c dumpdata.c equivalents.c \
+	errors.c expand.c extensions.c filename.c inputstack.c \
+	linebreak.c mainbody.c maincontrol.c mathcodes.c memoryword.c \
+	mlist.c nesting.c packaging.c postlinebreak.c primitive.c \
+	printing.c scanning.c stringpool.c texdeffont.c texfileio.c \
+	texmath.c texnodes.c textcodes.c textoken.c avlstuff.c \
+	managed-sa.c utils.c unistring.c
 dist_libluatex_sources = luatexdir/luatexcallbackids.h \
 	luatexdir/luatex.h luatexdir/luatex-common.h \
 	luatexdir/ptexlib.h luatexdir/luafontloader/src/ffdummies.c \
@@ -3461,35 +3458,69 @@ dist_libluatex_sources = luatexdir/luatexcallbackids.h \
 	luatexdir/pdf/pdfsaverestore.h luatexdir/pdf/pdfsetmatrix.h \
 	luatexdir/pdf/pdfshipout.h luatexdir/pdf/pdftables.h \
 	luatexdir/pdf/pdfthread.h luatexdir/pdf/pdftypes.h \
-	luatexdir/pdf/pdfxform.h luatexdir/luascripts/pdflua.h \
-	luatexdir/tex/align.h luatexdir/tex/arithmetic.h \
-	luatexdir/tex/buildpage.h luatexdir/tex/commands.h \
-	luatexdir/tex/conditional.h luatexdir/tex/directions.h \
-	luatexdir/tex/dumpdata.h luatexdir/tex/equivalents.h \
-	luatexdir/tex/errors.h luatexdir/tex/expand.h \
-	luatexdir/tex/extensions.h luatexdir/tex/filename.h \
-	luatexdir/tex/inputstack.h luatexdir/tex/linebreak.h \
-	luatexdir/tex/mainbody.h luatexdir/tex/maincontrol.h \
-	luatexdir/tex/mathcodes.h luatexdir/tex/memoryword.h \
-	luatexdir/tex/mlist.h luatexdir/tex/nesting.h \
-	luatexdir/tex/packaging.h luatexdir/tex/postlinebreak.h \
-	luatexdir/tex/primitive.h luatexdir/tex/printing.h \
-	luatexdir/tex/scanning.h luatexdir/tex/stringpool.h \
-	luatexdir/tex/texdeffont.h luatexdir/tex/texfileio.h \
-	luatexdir/tex/texmath.h luatexdir/tex/texnodes.h \
-	luatexdir/tex/textoken.h luatexdir/tex/textcodes.h \
-	luatexdir/utils/avl.c luatexdir/utils/avl.h \
-	luatexdir/utils/avlstuff.h luatexdir/utils/managed-sa.h \
-	luatexdir/utils/utils.h luatexdir/utils/unistring.h \
-	synctexdir/synctex-common.h synctexdir/synctex-luatex.h \
-	synctexdir/synctex.c synctexdir/synctex.h
+	luatexdir/pdf/pdfxform.h luatexdir/tex/align.h \
+	luatexdir/tex/arithmetic.h luatexdir/tex/buildpage.h \
+	luatexdir/tex/commands.h luatexdir/tex/conditional.h \
+	luatexdir/tex/directions.h luatexdir/tex/dumpdata.h \
+	luatexdir/tex/equivalents.h luatexdir/tex/errors.h \
+	luatexdir/tex/expand.h luatexdir/tex/extensions.h \
+	luatexdir/tex/filename.h luatexdir/tex/inputstack.h \
+	luatexdir/tex/linebreak.h luatexdir/tex/mainbody.h \
+	luatexdir/tex/maincontrol.h luatexdir/tex/mathcodes.h \
+	luatexdir/tex/memoryword.h luatexdir/tex/mlist.h \
+	luatexdir/tex/nesting.h luatexdir/tex/packaging.h \
+	luatexdir/tex/postlinebreak.h luatexdir/tex/primitive.h \
+	luatexdir/tex/printing.h luatexdir/tex/scanning.h \
+	luatexdir/tex/stringpool.h luatexdir/tex/texdeffont.h \
+	luatexdir/tex/texfileio.h luatexdir/tex/texmath.h \
+	luatexdir/tex/texnodes.h luatexdir/tex/textoken.h \
+	luatexdir/tex/textcodes.h luatexdir/utils/avl.c \
+	luatexdir/utils/avl.h luatexdir/utils/avlstuff.h \
+	luatexdir/utils/managed-sa.h luatexdir/utils/utils.h \
+	luatexdir/utils/unistring.h synctexdir/synctex-common.h \
+	synctexdir/synctex-luatex.h synctexdir/synctex.c \
+	synctexdir/synctex.h
 luatex_dvi_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
 luatex_font_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 luatex_image_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
 luatex_lang_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/lang $(ctangle)
 luatex_lua_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle)
 luatex_pdf_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/pdf $(ctangle)
-luatex_luascripts_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/luascripts $(ctangle)
+
+################################################################################
+################################################################################
+################################################################################
+# luatex_luascripts_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/luascripts $(ctangle)
+
+# txt2zlib.c: ctangle$(EXEEXT) luatexdir/luascripts/txt2zlib.w
+# 	$(luatex_luascripts_ctangle) txt2zlib.w
+
+# libluatex_web += \
+# 	luatexdir/luascripts/pdflua.c \
+# 	luatexdir/luascripts/pdflua.lua \
+# 	luatexdir/luascripts/txt2zlib.w
+
+# ## We normaly use the auxiliary program txt2zlib to create pdflua.c
+# ## from luatexdir/luascripts/pdflua.lua.  When cross compiling we
+# ## use instead the distributed luatexdir/luascripts/pdflua.c.
+# if cross
+# pdflua.c: luatexdir/luascripts/pdflua.c
+# 	$(AM_V_GEN)rm -f pdflua.c; \
+# 	$(LN_S) $(srcdir)/luatexdir/luascripts/pdflua.c pdflua.c
+# else !cross
+# pdflua.c: txt2zlib$(EXEEXT) luatexdir/luascripts/pdflua.lua
+# 	$(AM_V_GEN)./txt2zlib $(srcdir)/luatexdir/luascripts/pdflua.lua pdflua.c && \
+# 	cmp -s pdflua.c $(srcdir)/luatexdir/luascripts/pdflua.c || \
+# 	  cp -f pdflua.c $(srcdir)/luatexdir/luascripts/pdflua.c
+# endif !cross
+
+# nodist_libluatex_sources += pdflua.c
+
+# dist_libluatex_sources += \
+# 	luatexdir/luascripts/pdflua.h
+################################################################################
+################################################################################
+################################################################################
 luatex_tex_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctangle)
 luatex_utils_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/utils $(ctangle)
 
@@ -5359,7 +5390,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdflink.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdflistout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdfliteral.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdflua.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdfluaapi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdfobj.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdfoutline.Po@am__quote@
@@ -5456,7 +5486,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdflink.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdflistout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfliteral.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdflua.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfluaapi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfobj.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfoutline.Po@am__quote@
@@ -8003,20 +8032,6 @@ libluajittex_a-pdfxform.obj: pdfxform.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-pdfxform.obj `if test -f 'pdfxform.c'; then $(CYGPATH_W) 'pdfxform.c'; else $(CYGPATH_W) '$(srcdir)/pdfxform.c'; fi`
 
-libluajittex_a-pdflua.o: pdflua.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-pdflua.o -MD -MP -MF $(DEPDIR)/libluajittex_a-pdflua.Tpo -c -o libluajittex_a-pdflua.o `test -f 'pdflua.c' || echo '$(srcdir)/'`pdflua.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-pdflua.Tpo $(DEPDIR)/libluajittex_a-pdflua.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pdflua.c' object='libluajittex_a-pdflua.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-pdflua.o `test -f 'pdflua.c' || echo '$(srcdir)/'`pdflua.c
-
-libluajittex_a-pdflua.obj: pdflua.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-pdflua.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-pdflua.Tpo -c -o libluajittex_a-pdflua.obj `if test -f 'pdflua.c'; then $(CYGPATH_W) 'pdflua.c'; else $(CYGPATH_W) '$(srcdir)/pdflua.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-pdflua.Tpo $(DEPDIR)/libluajittex_a-pdflua.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pdflua.c' object='libluajittex_a-pdflua.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-pdflua.obj `if test -f 'pdflua.c'; then $(CYGPATH_W) 'pdflua.c'; else $(CYGPATH_W) '$(srcdir)/pdflua.c'; fi`
-
 libluajittex_a-align.o: align.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-align.o -MD -MP -MF $(DEPDIR)/libluajittex_a-align.Tpo -c -o libluajittex_a-align.o `test -f 'align.c' || echo '$(srcdir)/'`align.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-align.Tpo $(DEPDIR)/libluajittex_a-align.Po
@@ -10046,20 +10061,6 @@ libluatex_a-pdfxform.obj: pdfxform.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pdfxform.c' object='libluatex_a-pdfxform.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdfxform.obj `if test -f 'pdfxform.c'; then $(CYGPATH_W) 'pdfxform.c'; else $(CYGPATH_W) '$(srcdir)/pdfxform.c'; fi`
-
-libluatex_a-pdflua.o: pdflua.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflua.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdflua.Tpo -c -o libluatex_a-pdflua.o `test -f 'pdflua.c' || echo '$(srcdir)/'`pdflua.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-pdflua.Tpo $(DEPDIR)/libluatex_a-pdflua.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pdflua.c' object='libluatex_a-pdflua.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflua.o `test -f 'pdflua.c' || echo '$(srcdir)/'`pdflua.c
-
-libluatex_a-pdflua.obj: pdflua.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdflua.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdflua.Tpo -c -o libluatex_a-pdflua.obj `if test -f 'pdflua.c'; then $(CYGPATH_W) 'pdflua.c'; else $(CYGPATH_W) '$(srcdir)/pdflua.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-pdflua.Tpo $(DEPDIR)/libluatex_a-pdflua.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pdflua.c' object='libluatex_a-pdflua.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-pdflua.obj `if test -f 'pdflua.c'; then $(CYGPATH_W) 'pdflua.c'; else $(CYGPATH_W) '$(srcdir)/pdflua.c'; fi`
 
 libluatex_a-align.o: align.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-align.o -MD -MP -MF $(DEPDIR)/libluatex_a-align.Tpo -c -o libluatex_a-align.o `test -f 'align.c' || echo '$(srcdir)/'`align.c
@@ -15228,17 +15229,6 @@ pdfthread.c: ctangle$(EXEEXT) luatexdir/pdf/pdfthread.w
 	$(luatex_pdf_ctangle) pdfthread.w
 pdfxform.c: ctangle$(EXEEXT) luatexdir/pdf/pdfxform.w
 	$(luatex_pdf_ctangle) pdfxform.w
-
-txt2zlib.c: ctangle$(EXEEXT) luatexdir/luascripts/txt2zlib.w
-	$(luatex_luascripts_ctangle) txt2zlib.w
-
-@cross_TRUE@pdflua.c: luatexdir/luascripts/pdflua.c
-@cross_TRUE@	$(AM_V_GEN)rm -f pdflua.c; \
-@cross_TRUE@	$(LN_S) $(srcdir)/luatexdir/luascripts/pdflua.c pdflua.c
-@cross_FALSE@pdflua.c: txt2zlib$(EXEEXT) luatexdir/luascripts/pdflua.lua
-@cross_FALSE@	$(AM_V_GEN)./txt2zlib $(srcdir)/luatexdir/luascripts/pdflua.lua pdflua.c && \
-@cross_FALSE@	cmp -s pdflua.c $(srcdir)/luatexdir/luascripts/pdflua.c || \
-@cross_FALSE@	  cp -f pdflua.c $(srcdir)/luatexdir/luascripts/pdflua.c
 
 align.c: ctangle$(EXEEXT) luatexdir/tex/align.w
 	$(luatex_tex_ctangle) align.w
