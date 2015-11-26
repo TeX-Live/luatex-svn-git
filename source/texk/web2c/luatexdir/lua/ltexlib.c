@@ -2606,20 +2606,20 @@ static int tex_norm_rand(lua_State * L)
     r = r / rand_max;
     switch (lua_gettop(L)) {  /* check number of arguments */
         case 0: {  /* no arguments */
-            lua_pushnumber(L, r);  /* Number between 0 and 1 */
+            lua_pushnumber(L, r);  /* float: [0, 1] */
             break;
         }
         case 1: {  /* only upper limit */
             lua_Number u = luaL_checknumber(L, 1);
             luaL_argcheck(L, (lua_Number)1.0 <= u, 1, "interval is empty");
-            lua_pushnumber(L, floor(r*u) + (lua_Number)(1.0));  /* [1, u] */
+            lua_pushnumber(L, floor(r*u) + (lua_Number)(1.0)); /* float: [1, u] */
             break;
         }
         case 2: {  /* lower and upper limits */
             lua_Number l = luaL_checknumber(L, 1);
             lua_Number u = luaL_checknumber(L, 2);
             luaL_argcheck(L, l <= u, 2, "interval is empty");
-            lua_pushnumber(L, floor(r*(u-l+1)) + l);  /* [l, u] */
+            lua_pushnumber(L, floor(r*(u-l+1)) + l);  /* float: [l, u] */
             break;
         }
         default:

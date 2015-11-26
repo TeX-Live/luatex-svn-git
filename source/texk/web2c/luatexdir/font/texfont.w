@@ -375,8 +375,8 @@ static int lua_char_exists_callback(internal_font_number f, int c)
             lua_pop(L, 2);
             return 0;
         }
-        lua_pushnumber(L, f);
-        lua_pushnumber(L, c);
+        lua_pushinteger(L, f);
+        lua_pushinteger(L, c);
         if (lua_pcall(L, 2, 1, 0) != 0) {       /* two args, 1 result */
             fprintf(stdout, "error: %s\n", lua_tostring(L, -1));
             lua_pop(L, 2);

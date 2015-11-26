@@ -1014,31 +1014,31 @@ void do_vf(internal_font_number f)
 }
 
 @ @c
-#define make_command0(N,K) {      \
-    lua_newtable(L);        \
-    lua_pushstring(L, N);     \
-    lua_rawseti(L,-2, 1);     \
-    lua_rawseti(L,-2, K);     \
+#define make_command0(N,K) { \
+    lua_newtable(L);         \
+    lua_pushstring(L, N);    \
+    lua_rawseti(L,-2, 1);    \
+    lua_rawseti(L,-2, K);    \
     K++; }
 
-#define make_command1(N,V,K) {      \
-    lua_newtable(L);        \
-    lua_pushstring(L, N);     \
-    lua_rawseti(L,-2, 1);     \
-    lua_pushnumber(L, V);     \
-    lua_rawseti(L,-2, 2);     \
-    lua_rawseti(L,-2, K);     \
+#define make_command1(N,V,K) { \
+    lua_newtable(L);           \
+    lua_pushstring(L, N);      \
+    lua_rawseti(L,-2, 1);      \
+    lua_pushinteger(L, V);     \
+    lua_rawseti(L,-2, 2);      \
+    lua_rawseti(L,-2, K);      \
     K++; }
 
-#define make_command2(N,V,W,K) {    \
-    lua_newtable(L);        \
-    lua_pushstring(L, N);     \
-    lua_rawseti(L,-2, 1);     \
-    lua_pushnumber(L, V);     \
-    lua_rawseti(L,-2, 2);     \
-    lua_pushnumber(L, W);     \
-    lua_rawseti(L,-2, 3);     \
-    lua_rawseti(L,-2, K);     \
+#define make_command2(N,V,W,K) { \
+    lua_newtable(L);             \
+    lua_pushstring(L, N);        \
+    lua_rawseti(L,-2, 1);        \
+    lua_pushinteger(L, V);       \
+    lua_rawseti(L,-2, 2);        \
+    lua_pushinteger(L, W);       \
+    lua_rawseti(L,-2, 3);        \
+    lua_rawseti(L,-2, K);        \
     K++; }
 
 #define make_commands(N,S,V,K) {    \
@@ -1111,9 +1111,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
     vf_byte(cs.b1);
     vf_byte(cs.b2);
     vf_byte(cs.b3);
-    lua_pushnumber(L,
-                   (lua_Number) ((cs.b0 << 24) + (cs.b1 << 16) +
-                                 (cs.b2 << 8) + cs.b3));
+    lua_pushinteger(L,  (lua_Number) ((cs.b0 << 24) + (cs.b1 << 16) + (cs.b2 << 8) + cs.b3));
     lua_setfield(L, -2, "checksum");
 
     vf_read(4, k);
@@ -1150,7 +1148,7 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
         vf_read(4, k);
         fs = store_scaled_f(k, atsize);
         lua_pushstring(L, "size");
-        lua_pushnumber(L, fs);
+        lua_pushinteger(L, fs);
         lua_rawset(L, -3);
 
         vf_read(4, k);
@@ -1198,16 +1196,10 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
             vf_read_u(3, utmp);
             tfm_width = (int) utmp;
         }
-
-
-
         lua_newtable(L);        /* for this character */
-
-        lua_pushnumber(L, tfm_width);
+        lua_pushinteger(L, tfm_width);
         lua_setfield(L, -2, "width");
-
         lua_newtable(L);        /* for 'commands' */
-
         k = 1;
         vf_nf = 0;
         w = 0;
@@ -1217,14 +1209,12 @@ int make_vf_table(lua_State * L, const char *cnom, scaled atsize)
         while (packet_length > 0) {
             vf_byte(cmd);
             decr(packet_length);
-
             if ((cmd >= set_char_0) && (cmd < set1)) {
                 if (vf_nf == 0) {
                     vf_nf = 1;
                     make_command1("font", vf_nf, k);
                 }
                 make_command1("char", cmd, k);
-
             } else if (((fnt_num_0 <= cmd) && (cmd <= fnt_num_0 + 63)) ||
                        ((fnt1 <= cmd) && (cmd <= fnt1 + 3))) {
                 if (cmd >= fnt1) {

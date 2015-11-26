@@ -841,19 +841,19 @@ static int os_times(lua_State * L)
     struct tms r;
     (void) times(&r);
     lua_newtable(L);
-    lua_pushnumber(L,
+    lua_pushnumber(L, /* float */
                    ((lua_Number) (r.tms_utime)) /
                    (lua_Number) sysconf(_SC_CLK_TCK));
     lua_setfield(L, -2, "utime");
-    lua_pushnumber(L,
+    lua_pushnumber(L, /* float */
                    ((lua_Number) (r.tms_stime)) /
                    (lua_Number) sysconf(_SC_CLK_TCK));
     lua_setfield(L, -2, "stime");
-    lua_pushnumber(L,
+    lua_pushnumber(L, /* float */
                    ((lua_Number) (r.tms_cutime)) /
                    (lua_Number) sysconf(_SC_CLK_TCK));
     lua_setfield(L, -2, "cutime");
-    lua_pushnumber(L,
+    lua_pushnumber(L, /* float */
                    ((lua_Number) (r.tms_cstime)) /
                    (lua_Number) sysconf(_SC_CLK_TCK));
     lua_setfield(L, -2, "cstime");
@@ -889,7 +889,7 @@ static int os_gettimeofday(lua_State * L)
     tmpres -= DELTA_EPOCH_IN_MICROSECS; /*converting file time to unix epoch */
     v = (double) tmpres / 1000000.0;
 #  endif
-    lua_pushnumber(L, v);
+    lua_pushnumber(L, v); /* float */
     return 1;
 }
 #endif

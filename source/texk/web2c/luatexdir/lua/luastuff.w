@@ -96,7 +96,7 @@ void luafunctioncall(int slot)
     lua_rawgeti(Luas, -1,slot);
     if (lua_isfunction(Luas,-1)) {
         int base = lua_gettop(Luas); /* function index */
-        lua_pushnumber(Luas, slot);
+        lua_pushinteger(Luas, slot);
         lua_pushcfunction(Luas, lua_traceback); /* push traceback function */
         lua_insert(Luas, base); /* put it under chunk  */
         i = lua_pcall(Luas, 1, 0, base);

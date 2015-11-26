@@ -117,7 +117,7 @@ int ff_checkoption (lua_State *L, int narg, const char *def, const char *const l
 static void dump_intfield(lua_State * L, const char *n, int c)
 {
     lua_pushstring(L, n);
-    lua_pushnumber(L, c);
+    lua_pushinteger(L, c);
     lua_rawset(L, -3);
 }
 
@@ -154,63 +154,63 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
     lua_createtable(L, 0, 10);
 
     lua_pushstring(L, "width");
-    lua_pushnumber(L, get_charinfo_width(co));
+    lua_pushinteger(L, get_charinfo_width(co));
     lua_rawset(L, -3);
 
     lua_pushstring(L, "height");
-    lua_pushnumber(L, get_charinfo_height(co));
+    lua_pushinteger(L, get_charinfo_height(co));
     lua_rawset(L, -3);
 
     lua_pushstring(L, "depth");
-    lua_pushnumber(L, get_charinfo_depth(co));
+    lua_pushinteger(L, get_charinfo_depth(co));
     lua_rawset(L, -3);
 
 
     if (get_charinfo_italic(co) != 0) {
        lua_pushstring(L, "italic");
-       lua_pushnumber(L, get_charinfo_italic(co));
+       lua_pushinteger(L, get_charinfo_italic(co));
        lua_rawset(L, -3);
     }
 
     if (get_charinfo_vert_italic(co) != 0) {
        lua_pushstring(L, "vert_italic");
-       lua_pushnumber(L, get_charinfo_vert_italic(co));
+       lua_pushinteger(L, get_charinfo_vert_italic(co));
        lua_rawset(L, -3);
     }
 
     if (get_charinfo_top_accent(co) !=0) {
        lua_pushstring(L, "top_accent");
-       lua_pushnumber(L, get_charinfo_top_accent(co));
+       lua_pushinteger(L, get_charinfo_top_accent(co));
        lua_rawset(L, -3);
     }
 
     if (get_charinfo_bot_accent(co) != 0) {
        lua_pushstring(L, "bot_accent")	;
-       lua_pushnumber(L, get_charinfo_bot_accent(co));
+       lua_pushinteger(L, get_charinfo_bot_accent(co));
        lua_rawset(L, -3);
     }
 
     if (get_charinfo_ef(co) != 0) {
         lua_pushstring(L, "expansion_factor");
-        lua_pushnumber(L, get_charinfo_ef(co));
+        lua_pushinteger(L, get_charinfo_ef(co));
         lua_rawset(L, -3);
     }
 
     if (get_charinfo_lp(co) != 0) {
         lua_pushstring(L, "left_protruding");
-        lua_pushnumber(L, get_charinfo_lp(co));
+        lua_pushinteger(L, get_charinfo_lp(co));
         lua_rawset(L, -3);
     }
 
     if (get_charinfo_rp(co) != 0) {
         lua_pushstring(L, "right_protruding");
-        lua_pushnumber(L, get_charinfo_rp(co));
+        lua_pushinteger(L, get_charinfo_rp(co));
         lua_rawset(L, -3);
     }
 
     if (font_encodingbytes(f) == 2) {
         lua_pushstring(L, "index");
-        lua_pushnumber(L, get_charinfo_index(co));
+        lua_pushinteger(L, get_charinfo_index(co));
         lua_rawset(L, -3);
     }
 
@@ -228,7 +228,7 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
 
     if (get_charinfo_tag(co) == list_tag) {
         lua_pushstring(L, "next");
-        lua_pushnumber(L, get_charinfo_remainder(co));
+        lua_pushinteger(L, get_charinfo_remainder(co));
         lua_rawset(L, -3);
     }
 
@@ -282,9 +282,9 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
             if (kern_char(ki[i]) == right_boundarychar) {
                 lua_pushstring(L, "right_boundary");
             } else {
-                lua_pushnumber(L, kern_char(ki[i]));
+                lua_pushinteger(L, kern_char(ki[i]));
             }
-            lua_pushnumber(L, kern_kern(ki[i]));
+            lua_pushinteger(L, kern_kern(ki[i]));
             lua_rawset(L, -3);
         }
         lua_rawset(L, -3);
@@ -298,14 +298,14 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
             if (lig_char(l[i]) == right_boundarychar) {
                 lua_pushstring(L, "right_boundary");
             } else {
-                lua_pushnumber(L, lig_char(l[i]));
+                lua_pushinteger(L, lig_char(l[i]));
             }
             lua_createtable(L, 0, 2);
             lua_pushstring(L, "type");
-            lua_pushnumber(L, lig_type(l[i]));
+            lua_pushinteger(L, lig_type(l[i]));
             lua_rawset(L, -3);
             lua_pushstring(L, "char");
-            lua_pushnumber(L, lig_replacement(l[i]));
+            lua_pushinteger(L, lig_replacement(l[i]));
             lua_rawset(L, -3);
             lua_rawset(L, -3);
         }
@@ -356,7 +356,7 @@ static void write_lua_parameters(lua_State * L, int f)
     int k;
     lua_newtable(L);
     for (k = 1; k <= font_params(f); k++) {
-        lua_pushnumber(L, font_param(f, k));
+        lua_pushinteger(L, font_param(f, k));
         switch (k) {
         case slant_code:
             lua_setfield(L, -2, "slant");
@@ -392,7 +392,7 @@ static void write_lua_math_parameters(lua_State * L, int f)
     int k;
     lua_newtable(L);
     for (k = 1; k <= font_math_params(f); k++) {
-        lua_pushnumber(L, font_math_param(f, k));
+        lua_pushinteger(L, font_math_param(f, k));
         if (k <= MATH_param_max) {
             lua_setfield(L, -2, MATH_param_names[k]);
         } else {
@@ -452,46 +452,46 @@ int font_to_lua(lua_State * L, int f)
     lua_pushstring(L, font_embedding_strings[font_embedding(f)]);
     lua_setfield(L, -2, "embedding");
 
-    lua_pushnumber(L, font_units_per_em(f));
+    lua_pushinteger(L, font_units_per_em(f));
     lua_setfield(L, -2, "units_per_em");
-    lua_pushnumber(L, font_size(f));
+    lua_pushinteger(L, font_size(f));
     lua_setfield(L, -2, "size");
-    lua_pushnumber(L, font_dsize(f));
+    lua_pushinteger(L, font_dsize(f));
     lua_setfield(L, -2, "designsize");
-    lua_pushnumber(L, font_checksum(f));
+    lua_pushinteger(L, font_checksum(f));
     lua_setfield(L, -2, "checksum");
-    lua_pushnumber(L, font_slant(f));
+    lua_pushinteger(L, font_slant(f));
     lua_setfield(L, -2, "slant");
-    lua_pushnumber(L, font_extend(f));
+    lua_pushinteger(L, font_extend(f));
     lua_setfield(L, -2, "extend");
-    lua_pushnumber(L, font_natural_dir(f));
+    lua_pushinteger(L, font_natural_dir(f));
     lua_setfield(L, -2, "direction");
-    lua_pushnumber(L, font_encodingbytes(f));
+    lua_pushinteger(L, font_encodingbytes(f));
     lua_setfield(L, -2, "encodingbytes");
     lua_pushboolean(L, font_oldmath(f));
     lua_setfield(L, -2, "oldmath");
-    lua_pushnumber(L, font_tounicode(f));
+    lua_pushinteger(L, font_tounicode(f));
     lua_setfield(L, -2, "tounicode");
 
     /* pdf parameters */
     /* skip the first four for now, that are very much interal */
 #if 0
        if (pdf_font_num(f) != 0) {
-       lua_pushnumber(L,pdf_font_num(f));
+       lua_pushinteger(L,pdf_font_num(f));
        lua_setfield(L,-2,"pdf_num");
        }
 #endif
     /* the next one is read only */
     if (font_max_shrink(f) != 0) {
-        lua_pushnumber(L, font_max_shrink(f));
+        lua_pushinteger(L, font_max_shrink(f));
         lua_setfield(L, -2, "max_shrink");
     }
     if (font_max_stretch(f) != 0) {
-        lua_pushnumber(L, font_max_stretch(f));
+        lua_pushinteger(L, font_max_stretch(f));
         lua_setfield(L, -2, "max_stretch");
     }
     if (font_step(f) != 0) {
-        lua_pushnumber(L, font_step(f));
+        lua_pushinteger(L, font_step(f));
         lua_setfield(L, -2, "step");
     }
     if (font_auto_expand(f) != 0) {
@@ -525,7 +525,7 @@ int font_to_lua(lua_State * L, int f)
 
     for (k = font_bc(f); k <= font_ec(f); k++) {
         if (quick_char_exists(f, k)) {
-            lua_pushnumber(L, k);
+            lua_pushinteger(L, k);
             co = get_charinfo(f, k);
             font_char_to_lua(L, f, co);
             lua_rawset(L, -3);
