@@ -1289,20 +1289,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
             goto ATTACH_FRACTION;
         }
     }
-    if (scan_keyword("true")) {
-        /* Adjust (f)for the magnification ratio */
-        if (output_mode_used == OMODE_DVI) {
-            prepare_mag();
-            if (int_par(mag_code) != 1000) {
-                cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
-                f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
-                cur_val = cur_val + (f / 0200000);
-                f = f % 0200000;
-            }
-        }
-    }
-    if (scan_keyword("pt"))
-        goto ATTACH_FRACTION;   /* the easy case */
+
     /* Scan for (a)all other units and adjust |cur_val| and |f| accordingly;
        |goto done| in the case of scaled points */
 
@@ -1326,26 +1313,50 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
 
 #define set_conversion(A,B) do { num=(A); denom=(B); } while(0)
 
-    if (scan_keyword("mm")) {
+  PICKUP_UNIT:
+    if (scan_keyword("pt")) {
+        goto ATTACH_FRACTION;   /* the easy case */
+    } else if (scan_keyword("mm")) {
         set_conversion(7227, 2540);
+        goto SCALE_VALUE;
     } else if (scan_keyword("cm")) {
         set_conversion(7227, 254);
+        goto SCALE_VALUE;
     } else if (scan_keyword("sp")) {
         goto DONE;
     } else if (scan_keyword("bp")) {
         set_conversion(7227, 7200);
+        goto SCALE_VALUE;
     } else if (scan_keyword("in")) {
         set_conversion(7227, 100);
+        goto SCALE_VALUE;
     } else if (scan_keyword("dd")) {
         set_conversion(1238, 1157);
+        goto SCALE_VALUE;
     } else if (scan_keyword("cc")) {
         set_conversion(14856, 1157);
+        goto SCALE_VALUE;
     } else if (scan_keyword("pc")) {
         set_conversion(12, 1);
+        goto SCALE_VALUE;
     } else if (scan_keyword("nd")) {
         set_conversion(685, 642);
+        goto SCALE_VALUE;
     } else if (scan_keyword("nc")) {
         set_conversion(1370, 107);
+        goto SCALE_VALUE;
+    } else if (scan_keyword("true")) {
+        /* Adjust (f)for the magnification ratio */
+        if (output_mode_used == OMODE_DVI) {
+            prepare_mag();
+            if (int_par(mag_code) != 1000) {
+                cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
+                f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
+                cur_val = cur_val + (f / 0200000);
+                f = f % 0200000;
+            }
+        }
+        goto PICKUP_UNIT;
     } else {
         /* Complain about unknown unit and |goto done2| */
         print_err("Illegal unit of measure (pt inserted)");
@@ -1356,13 +1367,14 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
               "delete the erroneous units; e.g., type `2' to delete",
               "two letters. (See Chapter 27 of The TeXbook.)");
         error();
-        goto DONE2;
+        goto BAD_NEWS;
     }
+  SCALE_VALUE:
     cur_val = xn_over_d(cur_val, num, denom);
     f = (num * f + 0200000 * tex_remainder) / denom;
     cur_val = cur_val + (f / 0200000);
     f = f % 0200000;
-  DONE2:
+  BAD_NEWS:
   ATTACH_FRACTION:
     if (cur_val >= 040000)
         arith_error = true;
