@@ -509,7 +509,7 @@ boolean scan_keyword(const char *s)
                 token_link(p) = q;
                 begin_token_list(token_link(backup_head), backed_up);
                 if (cur_cmd != endv_cmd)
-   	           align_state = saved_align_state;
+                    align_state = saved_align_state;
             } else {
                 back_input();
             }
@@ -517,7 +517,8 @@ boolean scan_keyword(const char *s)
             return false;
         }
     }
-    flush_list(token_link(backup_head));
+    if (token_link(backup_head) != null)
+        flush_list(token_link(backup_head));
     cur_cs = save_cur_cs;
     if (cur_cmd != endv_cmd)
         align_state = saved_align_state;

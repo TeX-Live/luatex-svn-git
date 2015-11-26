@@ -35,7 +35,6 @@
 #define every_vbox equiv(every_vbox_loc)
 #define box_max_depth dimen_par(box_max_depth_code)
 
-
 @ We're essentially done with the parts of \TeX\ that are concerned with
 the input (|get_next|) and the output (|ship_out|). So it's time to
 get heavily into the remaining part, which does the real work of typesetting.
@@ -76,25 +75,58 @@ $$\vbox{\halign{#\hfil\cr
 |hpack(p,saved_value(0),saved_level(0)).|\cr}}$$
 
 @c
+/*
+    void scan_spec(group_code c)
+    {
+        int spec_code;
+        if (scan_keyword("to")) {
+            spec_code = exactly;
+            scan_normal_dimen();
+        } else if (scan_keyword("spread")) {
+            spec_code = additional;
+            scan_normal_dimen();
+        } else {
+            spec_code = additional;
+            cur_val = 0;
+        }
+        set_saved_record(0, saved_boxspec, spec_code, cur_val);
+        save_ptr++;
+        new_save_level(c);
+        scan_left_brace();
+    }
+*/
+
 void scan_spec(group_code c)
 {                               /* scans a box specification and left brace */
     int spec_code;
-    if (scan_keyword("to")) {
-        spec_code = exactly;
-        scan_normal_dimen();
-    } else if (scan_keyword("spread")) {
-        spec_code = additional;
-        scan_normal_dimen();
-    } else {
+    boolean done = false ;
+    do {
+        get_x_token();
+    } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+    if (cur_cmd == left_brace_cmd) {
         spec_code = additional;
         cur_val = 0;
+        done = true;
+    } else {
+        back_input();
+        if (scan_keyword("to")) {
+            spec_code = exactly;
+            scan_normal_dimen();
+        } else if (scan_keyword("spread")) {
+            spec_code = additional;
+            scan_normal_dimen();
+        } else {
+            spec_code = additional;
+            cur_val = 0;
+        }
     }
     set_saved_record(0, saved_boxspec, spec_code, cur_val);
     save_ptr++;
     new_save_level(c);
-    scan_left_brace();
+    if (!done) {
+        scan_left_brace();
+    }
 }
-
 
 @ When scanning, special care is necessary to ensure that the special
 |save_stack| codes are placed just below the new group code, because
@@ -106,24 +138,108 @@ input stream (the others are \.{\\vcenter}, \.{\\valign}, and
 \.{\\halign}).
 
 @c
+/*
+    void scan_full_spec(group_code c, int spec_direction)
+    {
+        int s;
+        int i;
+        int v;
+        int spec_code;
+        halfword attr_list;
+        if (attr_list_cache == cache_disabled)
+            update_attribute_cache();
+        attr_list = attr_list_cache;
+        s = saved_value(0);
+      CONTINUE:
+        while (cur_cmd == relax_cmd || cur_cmd == spacer_cmd) {
+            get_x_token();
+            if (cur_cmd != relax_cmd && cur_cmd != spacer_cmd)
+                back_input();
+        }
+        if (scan_keyword("attr")) {
+            scan_register_num();
+            i = cur_val;
+            scan_optional_equals();
+            scan_int();
+            v = cur_val;
+            if ((attr_list != null) && (attr_list == attr_list_cache)) {
+                attr_list = copy_attribute_list(attr_list_cache);
+                add_node_attr_ref(attr_list);
+            }
+            attr_list = do_set_attribute(attr_list, i, v);
+            goto CONTINUE;
+        }
+        if (scan_keyword("dir")) {
+            scan_direction();
+            spec_direction = cur_val;
+            goto CONTINUE;
+        }
+        if (attr_list == attr_list_cache) {
+            add_node_attr_ref(attr_list);
+        }
+        if (scan_keyword("to")) {
+            spec_code = exactly;
+        } else if (scan_keyword("spread")) {
+            spec_code = additional;
+        } else {
+            spec_code = additional;
+            cur_val = 0;
+            goto FOUND;
+        }
+        scan_normal_dimen();
+      FOUND:
+        set_saved_record(0, saved_boxcontext, 0, s);
+        set_saved_record(1, saved_boxspec, spec_code, cur_val);
+        if (spec_direction != -1) {
+            set_saved_record(2, saved_boxdir, spec_direction, text_dir_ptr);
+            text_dir_ptr = new_dir(spec_direction);
+        } else {
+            set_saved_record(2, saved_boxdir, spec_direction, null);
+        }
+        set_saved_record(3, saved_boxattr, 0, attr_list);
+        save_ptr += 4;
+        new_save_level(c);
+        scan_left_brace();
+        eq_word_define(int_base + body_direction_code, spec_direction);
+        eq_word_define(int_base + par_direction_code, spec_direction);
+        eq_word_define(int_base + text_direction_code, spec_direction);
+    }
+*/
+
+/* scans a box specification and left brace */
+
 void scan_full_spec(group_code c, int spec_direction)
-{                               /* scans a box specification and left brace */
-    int s;                      /* temporarily saved value */
+{
+    int s;
     int i;
     int v;
     int spec_code;
+    boolean done = false ;
     halfword attr_list;
     if (attr_list_cache == cache_disabled)
         update_attribute_cache();
     attr_list = attr_list_cache;
-    assert(saved_type(0) == saved_boxcontext);
-    s = saved_value(0);         /* the box context */
+    s = saved_value(0); /* the box context */
+    do {
+        get_x_token();
+    } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+    if (cur_cmd == left_brace_cmd) {
+        goto QUICK;
+    } else {
+        back_input();
+        goto KEYWORDS;
+    }
   CONTINUE:
     while (cur_cmd == relax_cmd || cur_cmd == spacer_cmd) {
         get_x_token();
-        if (cur_cmd != relax_cmd && cur_cmd != spacer_cmd)
+        if (cur_cmd == left_brace_cmd) {
+            goto QUICK;
+        } else if (cur_cmd != relax_cmd && cur_cmd != spacer_cmd) {
             back_input();
+            break;
+        }
     }
+  KEYWORDS:
     if (scan_keyword("attr")) {
         scan_register_num();
         i = cur_val;
@@ -132,7 +248,7 @@ void scan_full_spec(group_code c, int spec_direction)
         v = cur_val;
         if ((attr_list != null) && (attr_list == attr_list_cache)) {
             attr_list = copy_attribute_list(attr_list_cache);
-            add_node_attr_ref(attr_list);       /* will be used once */
+            add_node_attr_ref(attr_list); /* will be used once */
         }
         attr_list = do_set_attribute(attr_list, i, v);
         goto CONTINUE;
@@ -155,6 +271,12 @@ void scan_full_spec(group_code c, int spec_direction)
         goto FOUND;
     }
     scan_normal_dimen();
+    goto FOUND;
+  QUICK:
+    spec_code = additional;
+    cur_val = 0;
+    add_node_attr_ref(attr_list);
+    done = true;
   FOUND:
     set_saved_record(0, saved_boxcontext, 0, s);
     set_saved_record(1, saved_boxspec, spec_code, cur_val);
@@ -168,12 +290,13 @@ void scan_full_spec(group_code c, int spec_direction)
     set_saved_record(3, saved_boxattr, 0, attr_list);
     save_ptr += 4;
     new_save_level(c);
-    scan_left_brace();
+    if (! done) {
+        scan_left_brace();
+    }
     eq_word_define(int_base + body_direction_code, spec_direction);
     eq_word_define(int_base + par_direction_code, spec_direction);
     eq_word_define(int_base + text_direction_code, spec_direction);
 }
-
 
 @ To figure out the glue setting, |hpack| and |vpack| determine how much
 stretchability and shrinkability are present, considering all four orders
@@ -235,13 +358,16 @@ scaled char_stretch(halfword p)
     internal_font_number f;
     int c, m;
     f = font(p);
-    c = character(p);
     m = font_max_stretch(f);
-    ef = get_ef_code(f, c);
-    if ((m > 0) && (ef > 0)) {
-        dw = calc_char_width(f, c, m) - char_width(f, c);
-        if (dw > 0)
-            return round_xn_over_d(dw, ef, 1000);
+    if (m > 0) {
+        c = character(p);
+        ef = get_ef_code(f, c);
+        if (ef > 0) {
+            dw = calc_char_width(f, c, m) - char_width(f, c);
+            if (dw > 0) {
+                return round_xn_over_d(dw, ef, 1000);
+            }
+        }
     }
     return 0;
 }
@@ -254,13 +380,16 @@ scaled char_shrink(halfword p)
     internal_font_number f;
     int c, m;
     f = font(p);
-    c = character(p);
     m = font_max_shrink(f);
-    ef = get_ef_code(f, c);
-    if ((m > 0) && (ef > 0)) {
-        dw = char_width(f, c) - calc_char_width(f, c, -m);
-        if (dw > 0)
-            return round_xn_over_d(dw, ef, 1000);
+    if (m > 0) {
+        c = character(p);
+        ef = get_ef_code(f, c);
+        if (ef > 0) {
+            dw = char_width(f, c) - calc_char_width(f, c, -m);
+            if (dw > 0) {
+                return round_xn_over_d(dw, ef, 1000);
+            }
+        }
     }
     return 0;
 }
@@ -271,19 +400,23 @@ scaled kern_stretch(halfword p)
     halfword l, r;
     scaled d;
     int m;
-    if ((prev_char_p == null) || (vlink(prev_char_p) != p)
-        || (vlink(p) == null))
+    if ((prev_char_p == null) || (vlink(prev_char_p) != p) || (vlink(p) == null))
         return 0;
     l = prev_char_p;
+    /* we need a left char */
+    if (!is_char_node(l))
+        return 0;
     r = vlink(p);
-    if (!((is_char_node(l) && is_char_node(r) &&
-           (font(l) == font(r)) && (font_max_stretch(font(l)) != 0))))
+    /* and a right char */
+    if (!is_char_node(r))
+        return 0;
+    /* and a reason to kern */
+    if ((font(l) != font(r)) || (font_max_stretch(font(l)) == 0))
         return 0;
     m = font_max_stretch(font(l));
     d = get_kern(font(l), character(l), character(r));
     d = round_xn_over_d(d, 1000 + m, 1000);
-    return round_xn_over_d(d - width(p),
-                           get_ef_code(font(l), character(l)), 1000);
+    return round_xn_over_d(d - width(p), get_ef_code(font(l), character(l)), 1000);
 }
 
 @ @c
@@ -292,19 +425,23 @@ scaled kern_shrink(halfword p)
     halfword l, r;
     scaled d;
     int m;
-    if ((prev_char_p == null) || (vlink(prev_char_p) != p)
-        || (vlink(p) == null))
+    if ((prev_char_p == null) || (vlink(prev_char_p) != p) || (vlink(p) == null))
         return 0;
     l = prev_char_p;
+    /* we need a left char */
+    if (!is_char_node(l))
+        return 0;
     r = vlink(p);
-    if (!((is_char_node(l) && is_char_node(r) &&
-           (font(l) == font(r)) && (font_max_shrink(font(l)) != 0))))
+    /* and a right char */
+    if (!is_char_node(r))
+        return 0;
+    /* and a reason to kern */
+    if ((font(l) != font(r)) || (font_max_shrink(font(l)) == 0))
         return 0;
     m = font_max_stretch(font(l));
     d = get_kern(font(l), character(l), character(r));
     d = round_xn_over_d(d, 1000 - m, 1000);
-    return round_xn_over_d(width(p) - d,
-                           get_ef_code(font(l), character(l)), 1000);
+    return round_xn_over_d(width(p) - d, get_ef_code(font(l), character(l)), 1000);
 }
 
 @ @c
@@ -334,14 +471,12 @@ void do_subst_font(halfword p, int ex_ratio)
         }
         return;
     }
-    if (is_char_node(p)) {
-        r = p;
-    } else {
+    if (! is_char_node(p)) {
         normal_error("font expansion", "invalid node type");
         return;
     }
-    f = font(r);
-    ef = get_ef_code(f, character(r));
+    f = font(p);
+    ef = get_ef_code(f, character(p));
     if (ef == 0)
         return;
     if ((font_max_stretch(f) > 0) && (ex_ratio > 0)) {
@@ -392,7 +527,6 @@ halfword new_margin_kern(scaled w, halfword p, int side)
     margin_char(k) = q;
     return k;
 }
-
 
 @ Here is |hpack|, which is place where we do font substituting when
 font expansion is being used.
@@ -844,8 +978,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
 }
 
 @ @c
-halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, int grp,
-                        int pac)
+halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, int grp, int pac)
 {
     halfword q;
     new_hyphenation(p, qt);
@@ -920,14 +1053,10 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                 if (g_sign != normal) {
                     if (g_sign == stretching) {
                         if (stretch_order(g) == g_order) {
-                            siz.wd +=
-                                float_round(float_cast(g_mult) *
-                                            float_cast(stretch(g)));
+                            siz.wd += float_round(float_cast(g_mult) * float_cast(stretch(g)));
                         }
                     } else if (shrink_order(g) == g_order) {
-                        siz.wd -=
-                            float_round(float_cast(g_mult) *
-                                        float_cast(shrink(g)));
+                        siz.wd -= float_round(float_cast(g_mult) * float_cast(shrink(g)));
                     }
                 }
                 if (subtype(p) >= a_leaders) {
@@ -943,8 +1072,7 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                 siz.wd += width(p);
                 break;
             case disc_node:
-                xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order,
-                                   hpack_dir);
+                xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order, hpack_dir);
                 siz.wd += xx.wd;
                 if (xx.ht > siz.ht)
                     siz.ht = xx.ht;
@@ -961,16 +1089,16 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
     return siz;
 }
 
-
 @ In order to provide a decent indication of where an overfull or underfull
 box originated, we use a global variable |pack_begin_line| that is
 set nonzero only when |hpack| is being called by the paragraph builder
 or the alignment finishing routine.
 
-@c
-int pack_begin_line;            /* source file line where the current paragraph
-                                   or alignment began; a negative value denotes alignment */
+@ The source file line where the current paragraph or alignment began; a negative
+value denotes alignment:
 
+@c
+int pack_begin_line;
 
 @ The |vpack| subroutine is actually a special case of a slightly more
 general routine called |vpackage|, which has four parameters. The fourth
@@ -1298,8 +1426,6 @@ void package(int c)
     box_end(saved0);
 }
 
-
-
 @ When a box is being appended to the current vertical list, the
 baselineskip calculation is handled by the |append_to_vlist| routine.
 
@@ -1347,18 +1473,16 @@ void append_to_vlist(halfword b, int location)
     }
 }
 
-
 @ When |saving_vdiscards| is positive then the glue, kern, and penalty
 nodes removed by the page builder or by \.{\\vsplit} from the top of a
 vertical list are saved in special lists instead of being discarded.
 
 @c
-#define tail_page_disc disc_ptr[copy_code]      /* last item removed by page builder */
-#define page_disc disc_ptr[last_box_code]       /* first item removed by page builder */
-#define split_disc disc_ptr[vsplit_code]        /* first item removed by \.{\\vsplit} */
+#define tail_page_disc disc_ptr[copy_code]  /* last item removed by page builder */
+#define page_disc disc_ptr[last_box_code]   /* first item removed by page builder */
+#define split_disc disc_ptr[vsplit_code]    /* first item removed by \.{\\vsplit} */
 
-halfword disc_ptr[(vsplit_code + 1)];   /* list pointers */
-
+halfword disc_ptr[(vsplit_code + 1)];       /* list pointers */
 
 @ The |vsplit| procedure, which implements \TeX's \.{\\vsplit} operation,
 is considerably simpler than |line_break| because it doesn't have to
@@ -1431,7 +1555,6 @@ halfword prune_page_top(halfword p, boolean s)
     return vlink(temp_head);
 }
 
-
 @ The next subroutine finds the best place to break a given vertical list
 so as to obtain a box of height~|h|, with maximum depth~|d|.
 A pointer to the beginning of the vertical list is given,
@@ -1441,7 +1564,6 @@ if the best break occurs at this artificial node, the value |null| is returned.
 
 @c
 scaled active_height[10];       /* distance from first active node to~|cur_p| */
-
 
 @ An array of six |scaled| distances is used to keep track of the height
 from the beginning of the list to the current place, just as in |line_break|.
@@ -1596,20 +1718,17 @@ halfword vert_break(halfword p, scaled h, scaled d)
         }
         cur_height = cur_height + prev_dp + width(q);
         prev_dp = 0;
-
       NOT_FOUND:
         if (prev_dp > d) {
             cur_height = cur_height + prev_dp - d;
             prev_dp = d;
         }
-
         prev_p = p;
         p = vlink(prev_p);
     }
   DONE:
     return best_place;
 }
-
 
 @ Now we are ready to consider |vsplit| itself. Most of
 its work is accomplished by the two subroutines that we have just considered.
@@ -1701,7 +1820,6 @@ halfword vsplit(halfword n, scaled h)
                              dimen_par(split_max_depth_code), split_off_group,
                              vdir);
 }
-
 
 @ Now that we can see what eventually happens to boxes, we can consider
 the first steps in their creation. The |begin_box| routine is called when

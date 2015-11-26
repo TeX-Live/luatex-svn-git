@@ -412,6 +412,7 @@ new level (having, initially, the same properties as the old).
 @c
 /* enter a new input level, save the old */
 
+/*
 void push_input(void)
 {
     if (input_ptr > max_in_stack) {
@@ -419,10 +420,24 @@ void push_input(void)
         if (input_ptr == stack_size)
             overflow("input stack size", (unsigned) stack_size);
     }
-    input_stack[input_ptr] = cur_input; /* stack the record */
+    input_stack[input_ptr] = cur_input;
     nofilter = false;
     incr(input_ptr);
 }
+*/
+
+# define pop_input() \
+    cur_input=input_stack[--input_ptr]
+
+# define push_input() \
+    if (input_ptr > max_in_stack) { \
+        max_in_stack = input_ptr; \
+        if (input_ptr == stack_size) \
+            overflow("input stack size", (unsigned) stack_size); \
+    } \
+    input_stack[input_ptr] = cur_input; \
+    nofilter = false; \
+    incr(input_ptr);
 
 @
 Here is a procedure that starts a new level of token-list input, given
