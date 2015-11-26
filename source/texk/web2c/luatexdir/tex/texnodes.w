@@ -529,11 +529,11 @@ static void copy_lua_table(lua_State* L, int index) {
 
 #define lua_properties_copy(target, source) do { \
     if (lua_properties_enabled) { \
-        lua_pushnumber(Luas,source); \
+        lua_pushinteger(Luas,source); \
         lua_rawget(Luas,-2); \
         if (lua_type(Luas,-1)==LUA_TTABLE) { \
             copy_lua_table(Luas,-1); \
-            lua_pushnumber(Luas,target); \
+            lua_pushinteger(Luas,target); \
             lua_insert(Luas,-2); \
             lua_rawset(Luas,-3); \
         } else { \

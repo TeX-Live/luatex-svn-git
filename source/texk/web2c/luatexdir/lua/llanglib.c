@@ -53,7 +53,7 @@ static int lang_id(lua_State * L)
 {
     struct tex_language **lang_ptr;
     lang_ptr = check_islang(L, 1);
-    lua_pushnumber(L, (*lang_ptr)->id);
+    lua_pushinteger(L, (*lang_ptr)->id);
     return 1;
 }
 
@@ -118,7 +118,7 @@ static int lang_pre_hyphen_char(lua_State * L)
         (*lang_ptr)->pre_hyphen_char=(int)lua_tonumber(L, 2);
         return 0;
     } else {
-        lua_pushnumber(L, (*lang_ptr)->pre_hyphen_char);
+        lua_pushinteger(L, (*lang_ptr)->pre_hyphen_char);
         return 1;
     }
 }
@@ -134,7 +134,7 @@ static int lang_post_hyphen_char(lua_State * L)
         (*lang_ptr)->post_hyphen_char=(int)lua_tonumber(L, 2);
         return 0;
     } else {
-        lua_pushnumber(L, (*lang_ptr)->post_hyphen_char);
+        lua_pushinteger(L, (*lang_ptr)->post_hyphen_char);
         return 1;
     }
 }
@@ -151,7 +151,7 @@ static int lang_pre_exhyphen_char(lua_State * L)
         (*lang_ptr)->pre_exhyphen_char=(int)lua_tonumber(L, 2);
         return 0;
     } else {
-        lua_pushnumber(L, (*lang_ptr)->pre_exhyphen_char);
+        lua_pushinteger(L, (*lang_ptr)->pre_exhyphen_char);
         return 1;
     }
 }
@@ -167,7 +167,7 @@ static int lang_post_exhyphen_char(lua_State * L)
         (*lang_ptr)->post_exhyphen_char=(int)lua_tonumber(L, 2);
         return 0;
     } else {
-        lua_pushnumber(L, (*lang_ptr)->post_exhyphen_char);
+        lua_pushinteger(L, (*lang_ptr)->post_exhyphen_char);
         return 1;
     }
 }
@@ -184,7 +184,7 @@ static int lang_hyphenation_min(lua_State * L)
         (*lang_ptr)->hyphenation_min=(int)lua_tonumber(L, 2);
         return 0;
     } else {
-        lua_pushnumber(L, (*lang_ptr)->hyphenation_min);
+        lua_pushinteger(L, (*lang_ptr)->hyphenation_min);
         return 1;
     }
 }

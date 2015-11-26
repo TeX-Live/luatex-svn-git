@@ -338,14 +338,14 @@ static int do_getstat(lua_State * L, int i)
         break;
     case 'N':
         n = stats[i].value;
-        lua_pushnumber(L, n());
+        lua_pushinteger(L, n());
         break;
     case 'G':
         g = stats[i].value;
-        lua_pushnumber(L, g());
+        lua_pushinteger(L, g());
         break;
     case 'g':
-        lua_pushnumber(L, *(int *) (stats[i].value));
+        lua_pushinteger(L, *(int *) (stats[i].value));
         break;
     case 'B':
         g = stats[i].value;

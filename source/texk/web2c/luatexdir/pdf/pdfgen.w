@@ -202,7 +202,6 @@ PDF init_pdf_struct(PDF pdf)
     pdf->page_resources = NULL;
 
     init_pdf_pagecalculations(pdf);
-    pdf->pdflua_ref = new_pdflua();
 
     pdf->vfstruct = new_vfstruct();
 
@@ -1731,7 +1730,6 @@ void pdf_begin_page(PDF pdf)
         pdf_begin_obj(pdf, pdf->last_stream, OBJSTM_NEVER);
         pdf->last_thread = null;
         pdf_begin_dict(pdf);
-        pdflua_begin_page(pdf);
     } else {
         assert(global_shipping_mode == SHIPPING_FORM);
         pdf_begin_obj(pdf, pdf_cur_form, OBJSTM_NEVER);
@@ -1904,7 +1902,6 @@ void pdf_end_page(PDF pdf)
         }
         pdf_end_dict(pdf);
         pdf_end_obj(pdf);
-        pdflua_end_page(pdf, annots, beads);
 
         pdf->img_page_group_val = 0;
 
@@ -2348,7 +2345,6 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
             write_fontstuff(pdf);
 
             pdf->last_pages = output_pages_tree(pdf);
-            pdflua_output_pages_tree(pdf);
             /* Output outlines */
             outlines = print_outlines(pdf);
 

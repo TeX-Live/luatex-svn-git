@@ -178,7 +178,6 @@ size_t          T##_limit
 #  include "pdf/pdflink.h"
 #  include "pdf/pdflistout.h"
 #  include "pdf/pdfliteral.h"
-#  include "pdf/pdfluaapi.h"
 #  include "pdf/pdfobj.h"
 #  include "pdf/pdfoutline.h"
 #  include "pdf/pdfrule.h"

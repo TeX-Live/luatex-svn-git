@@ -101,14 +101,14 @@ static int tex_current_font(lua_State * L)
             return 2;           /* not reached */
         }
     } else {
-        lua_pushnumber(L, get_cur_font());
+        lua_pushinteger(L, get_cur_font());
         return 1;
     }
 }
 
 static int tex_max_font(lua_State * L)
 {
-    lua_pushnumber(L, max_font_id());
+    lua_pushinteger(L, max_font_id());
     return 1;
 }
 
@@ -125,7 +125,7 @@ static int tex_each_font_next(lua_State * L)
         lua_pushnil(L);
         return 1;
     } else {
-        lua_pushnumber(L, i);
+        lua_pushinteger(L, i);
         if (!font_to_lua(L, i))
             lua_pushnil(L);
         return 2;
@@ -135,8 +135,8 @@ static int tex_each_font_next(lua_State * L)
 static int tex_each_font(lua_State * L)
 {
     lua_pushcclosure(L, tex_each_font_next, 0);
-    lua_pushnumber(L, max_font_id());
-    lua_pushnumber(L, 0);
+    lua_pushinteger(L, max_font_id());
+    lua_pushinteger(L, 0);
     return 3;
 }
 
@@ -207,7 +207,7 @@ static int deffont(lua_State * L)
         fprintf(stdout, "font.define(%s,%i): %f seconds\n",
                 font_fullname(i), i, tvdiff);
 #endif
-        lua_pushnumber(L, i);
+        lua_pushinteger(L, i);
         return 1;
     } else {
         lua_pop(L, 1);          /* pop the broken table */
@@ -221,7 +221,7 @@ static int deffont(lua_State * L)
 static int nextfontid(lua_State * L)
 {
     int i = get_fontid();
-    lua_pushnumber(L, i);
+    lua_pushinteger(L, i);
     delete_font(i);
     return 1;
 }
@@ -254,7 +254,7 @@ static int getfontid(lua_State * L)
         } else {
             f = equiv(cs);
         }
-        lua_pushnumber(L, f);
+        lua_pushinteger(L, f);
     } else {
         luaL_error(L, "expected font csname string as argument");
     }

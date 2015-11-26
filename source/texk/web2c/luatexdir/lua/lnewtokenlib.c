@@ -77,11 +77,11 @@ static lua_token *check_istoken(lua_State * L, int ud);
 void make_token_table(lua_State * L, int cmd, int chr, int cs)
 {
     lua_createtable(L, 3, 0);
-    lua_pushnumber(L, cmd);
+    lua_pushinteger(L, cmd);
     lua_rawseti(L, -2, 1);
-    lua_pushnumber(L, chr);
+    lua_pushinteger(L, chr);
     lua_rawseti(L, -2, 2);
-    lua_pushnumber(L, cs);
+    lua_pushinteger(L, cs);
     lua_rawseti(L, -2, 3);
 }
 

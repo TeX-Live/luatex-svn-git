@@ -565,10 +565,10 @@ static int getpdf(lua_State * L)
     if (lua_type(L,-1) == LUA_TSTRING) {
         s =  lua_tostring(L, -1);
         if (lua_key_eq(s,h)) {
-            lua_pushnumber(L, static_pdf->posstruct->pos.h);
+            lua_pushinteger(L, static_pdf->posstruct->pos.h);
             return 1;
         } else if (lua_key_eq(s,v)) {
-            lua_pushnumber(L, static_pdf->posstruct->pos.v);
+            lua_pushinteger(L, static_pdf->posstruct->pos.v);
             return 1;
         } else if (valid_pdf_key) {
             lua_rawgeti(L, LUA_REGISTRYINDEX, luaS_index(pdf_data));
@@ -703,26 +703,26 @@ static int l_pageref(lua_State * L)
     if (n <= 0)
         luaL_error(L, "pdf.pageref() needs page number > 0");
     n = pdf_get_obj(static_pdf, obj_type_page, n, false);
-    lua_pushnumber(L, n);
+    lua_pushinteger(L, n);
     return 1;
 }
 
 static int l_getpos(lua_State * L)
 {
-    lua_pushnumber(L, static_pdf->posstruct->pos.h);
-    lua_pushnumber(L, static_pdf->posstruct->pos.v);
+    lua_pushinteger(L, static_pdf->posstruct->pos.h);
+    lua_pushinteger(L, static_pdf->posstruct->pos.v);
     return 2;
 }
 
 static int l_gethpos(lua_State * L)
 {
-    lua_pushnumber(L, static_pdf->posstruct->pos.h);
+    lua_pushinteger(L, static_pdf->posstruct->pos.h);
     return 1;
 }
 
 static int l_getvpos(lua_State * L)
 {
-    lua_pushnumber(L, static_pdf->posstruct->pos.v);
+    lua_pushinteger(L, static_pdf->posstruct->pos.v);
     return 1;
 }
 
@@ -730,19 +730,19 @@ static int l_getmatrix(lua_State * L)
 {
     if (matrix_stack_used > 0) {
         matrix_entry *m = &matrix_stack[matrix_stack_used - 1];
-        lua_pushnumber(L, m->a);
-        lua_pushnumber(L, m->b);
-        lua_pushnumber(L, m->c);
-        lua_pushnumber(L, m->d);
-        lua_pushnumber(L, m->e);
-        lua_pushnumber(L, m->f);
+        lua_pushinteger(L, m->a);
+        lua_pushinteger(L, m->b);
+        lua_pushinteger(L, m->c);
+        lua_pushinteger(L, m->d);
+        lua_pushinteger(L, m->e);
+        lua_pushinteger(L, m->f);
     } else {
-        lua_pushnumber(L, 1);
-        lua_pushnumber(L, 0);
-        lua_pushnumber(L, 0);
-        lua_pushnumber(L, 1);
-        lua_pushnumber(L, 0);
-        lua_pushnumber(L, 0);
+        lua_pushinteger(L, 1);
+        lua_pushinteger(L, 0);
+        lua_pushinteger(L, 0);
+        lua_pushinteger(L, 1);
+        lua_pushinteger(L, 0);
+        lua_pushinteger(L, 0);
     }
     return 6 ;
 }
@@ -755,25 +755,25 @@ static int l_hasmatrix(lua_State * L)
 
 static int l_get_lastlink(lua_State * L)
 {
-    lua_pushnumber(L, (pdf_last_link));
+    lua_pushinteger(L, (pdf_last_link));
     return 1 ;
 }
 
 static int l_get_retval(lua_State * L)
 {
-    lua_pushnumber(L, (pdf_retval));
+    lua_pushinteger(L, (pdf_retval));
     return 1 ;
 }
 
 static int l_get_lastobj(lua_State * L)
 {
-    lua_pushnumber(L, (pdf_last_obj));
+    lua_pushinteger(L, (pdf_last_obj));
     return 1 ;
 }
 
 static int l_get_lastannot(lua_State * L)
 {
-    lua_pushnumber(L, (pdf_last_annot));
+    lua_pushinteger(L, (pdf_last_annot));
     return 1 ;
 }
 
@@ -788,13 +788,13 @@ static int l_get_lastannot(lua_State * L)
 
 static int l_get_compresslevel(lua_State * L)
 {
-    lua_pushnumber(L, (pdf_compress_level));
+    lua_pushinteger(L, (pdf_compress_level));
     return 1 ;
 }
 
 static int l_get_objcompresslevel(lua_State * L)
 {
-    lua_pushnumber(L, (pdf_objcompresslevel));
+    lua_pushinteger(L, (pdf_objcompresslevel));
     return 1 ;
 }
 
@@ -837,7 +837,7 @@ static int getpdffontname(lua_State * L)
         if (!font_used(c))
             pdf_init_font(static_pdf,c);
         set_ff(c);
-        lua_pushnumber(L, (obj_info(static_pdf, pdf_font_num(ff))));
+        lua_pushinteger(L, (obj_info(static_pdf, pdf_font_num(ff))));
     } else {
         lua_pushnil(L);
     }
@@ -853,7 +853,7 @@ static int getpdffontobjnum(lua_State * L)
         if (!font_used(c))
             pdf_init_font(static_pdf,c);
         set_ff(c);
-        lua_pushnumber(L, (pdf_font_num(ff)));
+        lua_pushinteger(L, (pdf_font_num(ff)));
     } else {
         lua_pushnil(L);
     }
@@ -865,7 +865,7 @@ static int getpdffontsize(lua_State * L)
     int c;
     if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
-        lua_pushnumber(L, (font_size(c)));
+        lua_pushinteger(L, (font_size(c)));
     } else {
         lua_pushnil(L);
     }
@@ -877,7 +877,7 @@ static int getpdfpageref(lua_State * L)
     int c ;
     if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
-        lua_pushnumber(L, (pdf_get_obj(static_pdf, obj_type_page, c, false)));
+        lua_pushinteger(L, (pdf_get_obj(static_pdf, obj_type_page, c, false)));
     } else {
         lua_pushnil(L);
     }
@@ -890,7 +890,7 @@ static int getpdfxformname(lua_State * L)
     if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
         check_obj_type(static_pdf, obj_type_xform, c);
-        lua_pushnumber(L, (obj_info(static_pdf, c)));
+        lua_pushinteger(L, (obj_info(static_pdf, c)));
     } else {
         lua_pushnil(L);
     }
@@ -899,14 +899,14 @@ static int getpdfxformname(lua_State * L)
 
 static int getpdfversion(lua_State * L)
 {
-    lua_pushnumber(L,1);
+    lua_pushinteger(L,1);
     return 1 ;
 }
 
 static int getpdfminorversion(lua_State * L)
 {
- /* lua_pushnumber(L,static_pdf->minor_version); */
-    lua_pushnumber(L,pdf_minor_version);
+ /* lua_pushinteger(L,static_pdf->minor_version); */
+    lua_pushinteger(L,pdf_minor_version);
     return 1 ;
 }
 
@@ -967,7 +967,7 @@ static int newpdfcolorstack(lua_State * L)
         page_start = lua_toboolean(L, 3);
     }
     id = newcolorstack(s, literal_mode, page_start);
-    lua_pushnumber(L, id);
+    lua_pushinteger(L, id);
     return 1 ;
 }
 

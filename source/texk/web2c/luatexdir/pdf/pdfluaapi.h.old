@@ -17,4 +17,13 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
-/* THIS IS AN OLD FILE, KEPT AS REFERENCE */
+
+#ifndef PDFLUAAPI_H
+#  define PDFLUAAPI_H
+
+extern int new_pdflua(void);
+extern void pdflua_begin_page(PDF pdf);
+extern void pdflua_end_page(PDF pdf, int annots, int beads);
+extern void pdflua_output_pages_tree(PDF pdf);
+
+#endif                          /* PDFLUAAPI_H */

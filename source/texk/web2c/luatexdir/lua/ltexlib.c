@@ -163,7 +163,7 @@ static int luactprint(lua_State * L)
             luaL_error(L, "no string to print");
         }
         lua_pushvalue(L, i);    /* push the table */
-        lua_pushnumber(L, 1);
+        lua_pushinteger(L, 1);
         lua_gettable(L, -2);
         if (lua_type(L, -1) == LUA_TNUMBER) {
             cattable=(int)lua_tonumber(L, -1);
@@ -175,7 +175,7 @@ static int luactprint(lua_State * L)
         lua_pop(L, 1);
 
         for (j = startstrings;; j++) {
-            lua_pushnumber(L, j);
+            lua_pushinteger(L, j);
             lua_gettable(L, -2);
             if (lua_isstring(L, -1)) { /* or number */
                 luac_store(L, -1, PARTIAL_LINE, cattable);
@@ -293,7 +293,7 @@ void luacstring_close(int n)
 #define check_register(base) do { \
     int k = get_item_index(L, lua_gettop(L), base); \
     if ((k>=0) && (k <= 65535)) { \
-        lua_pushnumber(L,k); \
+        lua_pushinteger(L,k); \
     } else { \
         lua_pushboolean(L,false); \
     } \
@@ -596,7 +596,7 @@ static int tex_scaledimen(lua_State * L)
         luaL_error(L, "argument must be a string or a number");
         return 0;
     }
-    lua_pushnumber(L, sp);
+    lua_pushinteger(L, sp);
     return 1;
 }
 
@@ -786,7 +786,7 @@ static int getdimen(lua_State * L)
 {
     int value = 0;
     get_item_index_plus(L, lua_gettop(L), scaled_base, "dimen", value, is_dim_assign, get_tex_dimen_register, false);
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     return 1;
 }
 
@@ -868,7 +868,7 @@ static int getcount(lua_State * L)
 {
     int value = 0;
     get_item_index_plus(L, lua_gettop(L), count_base, "count", value, is_int_assign, get_tex_count_register, false);
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     return 1;
 }
 
@@ -900,7 +900,7 @@ static int getattribute(lua_State * L)
 {
     int value = 0;
     get_item_index_plus(L, lua_gettop(L), attribute_base, "attribute", value, is_attr_assign, get_tex_attribute_register, false);
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     return 1;
 }
 
@@ -1131,7 +1131,7 @@ static int getlccode(lua_State * L)
 {
     int ch = (int) luaL_checkinteger(L, -1);
     check_char_range(ch, "getlccode", 65536*17);
-    lua_pushnumber(L, get_lc_code(ch));
+    lua_pushinteger(L, get_lc_code(ch));
     return 1;
 }
 
@@ -1144,7 +1144,7 @@ static int getuccode(lua_State * L)
 {
     int ch = (int) luaL_checkinteger(L, -1);
     check_char_range(ch, "getuccode",  65536*17);
-    lua_pushnumber(L, get_uc_code(ch));
+    lua_pushinteger(L, get_uc_code(ch));
     return 1;
 }
 
@@ -1157,7 +1157,7 @@ static int getsfcode(lua_State * L)
 {
     int ch = (int) luaL_checkinteger(L, -1);
     check_char_range(ch, "getsfcode",  65536*17);
-    lua_pushnumber(L, get_sf_code(ch));
+    lua_pushinteger(L, get_sf_code(ch));
     return 1;
 }
 
@@ -1197,7 +1197,7 @@ static int getcatcode(lua_State * L)
         cattable = luaL_checkinteger(L, -2);
     }
     check_char_range(ch, "getcatcode",  65536*17);
-    lua_pushnumber(L, get_cat_code(cattable, ch));
+    lua_pushinteger(L, get_cat_code(cattable, ch));
     return 1;
 }
 
@@ -1246,11 +1246,11 @@ static int getmathcode(lua_State * L)
     check_char_range(ch, "getmathcode",  65536*17);
     mval = get_math_code(ch);
     lua_newtable(L);
-    lua_pushnumber(L,mval.class_value);
+    lua_pushinteger(L,mval.class_value);
     lua_rawseti(L, -2, 1);
-    lua_pushnumber(L,mval.family_value);
+    lua_pushinteger(L,mval.family_value);
     lua_rawseti(L, -2, 2);
-    lua_pushnumber(L,mval.character_value);
+    lua_pushinteger(L,mval.character_value);
     lua_rawseti(L, -2, 3);
     return 1;
 }
@@ -1261,9 +1261,9 @@ static int getmathcodes(lua_State * L)
     int ch = (int) luaL_checkinteger(L, -1);
     check_char_range(ch, "getmathcodes",  65536*17);
     mval = get_math_code(ch);
-    lua_pushnumber(L,mval.class_value);
-    lua_pushnumber(L,mval.family_value);
-    lua_pushnumber(L,mval.character_value);
+    lua_pushinteger(L,mval.class_value);
+    lua_pushinteger(L,mval.family_value);
+    lua_pushinteger(L,mval.character_value);
     return 3;
 }
 
@@ -1313,16 +1313,16 @@ static int getdelcode(lua_State * L)
     int ch = (int) luaL_checkinteger(L, -1);
     check_char_range(ch, "getdelcode",  65536*17);
     mval = get_del_code(ch);
-    /* lua_pushnumber(L, mval.class_value); */
-    /* lua_pushnumber(L, mval.origin_value); */
+    /* lua_pushinteger(L, mval.class_value); */
+    /* lua_pushinteger(L, mval.origin_value); */
     lua_newtable(L);
-    lua_pushnumber(L,mval.small_family_value);
+    lua_pushinteger(L,mval.small_family_value);
     lua_rawseti(L, -2, 1);
-    lua_pushnumber(L,mval.small_character_value);
+    lua_pushinteger(L,mval.small_character_value);
     lua_rawseti(L, -2, 2);
-    lua_pushnumber(L,mval.large_family_value);
+    lua_pushinteger(L,mval.large_family_value);
     lua_rawseti(L, -2, 3);
-    lua_pushnumber(L,mval.large_character_value);
+    lua_pushinteger(L,mval.large_character_value);
     lua_rawseti(L, -2, 4);
     return 1;
 }
@@ -1333,10 +1333,10 @@ static int getdelcodes(lua_State * L)
     int ch = (int) luaL_checkinteger(L, -1);
     check_char_range(ch, "getdelcodes",  65536*17);
     mval = get_del_code(ch);
-    lua_pushnumber(L,mval.small_family_value);
-    lua_pushnumber(L,mval.small_character_value);
-    lua_pushnumber(L,mval.large_family_value);
-    lua_pushnumber(L,mval.large_character_value);
+    lua_pushinteger(L,mval.small_family_value);
+    lua_pushinteger(L,mval.small_character_value);
+    lua_pushinteger(L,mval.large_family_value);
+    lua_pushinteger(L,mval.large_character_value);
     return 4;
 }
 
@@ -1503,7 +1503,7 @@ static int do_scan_internal(lua_State * L, int cur_cmd1, int cur_code)
         case int_val_level:
         case dimen_val_level:
         case attr_val_level:
-            lua_pushnumber(L, cur_val);
+            lua_pushinteger(L, cur_val);
             break;
         case glue_val_level:
         case mu_val_level:
@@ -1642,7 +1642,7 @@ static int tex_getmathparm(lua_State * L)
             }
             lua_nodelib_push_fast(L, k);
         } else {
-            lua_pushnumber(L, k);
+            lua_pushinteger(L, k);
         }
     }
     return 1;
@@ -1683,9 +1683,9 @@ static int get_parshape(lua_State * L)
         lua_createtable(L, n, 0);
         while (m <= n) {
             lua_createtable(L, 2, 0);
-            lua_pushnumber(L, vlink((par_shape_ptr) + (2 * (m - 1)) + 2));
+            lua_pushinteger(L, vlink((par_shape_ptr) + (2 * (m - 1)) + 2));
             lua_rawseti(L, -2, 1);
-            lua_pushnumber(L, vlink((par_shape_ptr) + (2 * (m - 1)) + 3));
+            lua_pushinteger(L, vlink((par_shape_ptr) + (2 * (m - 1)) + 3));
             lua_rawseti(L, -2, 2);
             lua_rawseti(L, -2, m);
             m++;
@@ -1707,13 +1707,13 @@ static int gettex(lua_State * L)
         const char *st = lua_tolstring(L, t, &k);
 
         if (lua_key_eq(st,prevdepth)) {
-            lua_pushnumber(L, cur_list.prev_depth_field);
+            lua_pushinteger(L, cur_list.prev_depth_field);
             return 1;
         } else if (lua_key_eq(st,prevgraf)) {
-            lua_pushnumber(L, cur_list.pg_field);
+            lua_pushinteger(L, cur_list.pg_field);
             return 1;
         } else if (lua_key_eq(st,spacefactor)) {
-            lua_pushnumber(L, cur_list.space_factor_field);
+            lua_pushinteger(L, cur_list.space_factor_field);
             return 1;
         }
 
@@ -1767,44 +1767,44 @@ static int getlist(lua_State * L)
         str = lua_tostring(L, 2);
         if (lua_key_eq(str,page_ins_head)) {
             if (vlink(page_ins_head) == page_ins_head)
-                lua_pushnumber(L, null);
+                lua_pushinteger(L, null);
             else
-                lua_pushnumber(L, vlink(page_ins_head));
+                lua_pushinteger(L, vlink(page_ins_head));
             lua_nodelib_push(L);
         } else if (lua_key_eq(str,contrib_head)) {
             alink(vlink(contrib_head)) = null ;
-            lua_pushnumber(L, vlink(contrib_head));
+            lua_pushinteger(L, vlink(contrib_head));
             lua_nodelib_push(L);
         } else if (lua_key_eq(str,page_head)) {
             alink(vlink(page_head)) = null ;/*hh-ls */
-            lua_pushnumber(L, vlink(page_head));
+            lua_pushinteger(L, vlink(page_head));
             lua_nodelib_push(L);
         } else if (lua_key_eq(str,temp_head)) {
             alink(vlink(temp_head)) = null ;/*hh-ls */
-            lua_pushnumber(L, vlink(temp_head));
+            lua_pushinteger(L, vlink(temp_head));
             lua_nodelib_push(L);
         } else if (lua_key_eq(str,hold_head)) {
             alink(vlink(hold_head)) = null ;/*hh-ls */
-            lua_pushnumber(L, vlink(hold_head));
+            lua_pushinteger(L, vlink(hold_head));
             lua_nodelib_push(L);
         } else if (lua_key_eq(str,adjust_head)) {
             alink(vlink(adjust_head)) = null ;/*hh-ls */
-            lua_pushnumber(L, vlink(adjust_head));
+            lua_pushinteger(L, vlink(adjust_head));
             lua_nodelib_push(L);
         } else if (lua_key_eq(str,best_page_break)) {
-            lua_pushnumber(L, best_page_break);
+            lua_pushinteger(L, best_page_break);
             lua_nodelib_push(L);
         } else if (lua_key_eq(str,least_page_cost)) {
-            lua_pushnumber(L, least_page_cost);
+            lua_pushinteger(L, least_page_cost);
         } else if (lua_key_eq(str,best_size)) {
-            lua_pushnumber(L, best_size);
+            lua_pushinteger(L, best_size);
         } else if (lua_key_eq(str,pre_adjust_head)) {
             alink(vlink(pre_adjust_head)) = null ;/*hh-ls */
-            lua_pushnumber(L, vlink(pre_adjust_head));
+            lua_pushinteger(L, vlink(pre_adjust_head));
             lua_nodelib_push(L);
         } else if (lua_key_eq(str,align_head)) {
             alink(vlink(align_head)) = null ;/*hh-ls */
-            lua_pushnumber(L, vlink(align_head));
+            lua_pushinteger(L, vlink(align_head));
             lua_nodelib_push(L);
         } else {
             lua_pushnil(L);
@@ -1876,32 +1876,32 @@ static int lua_nest_getfield(lua_State * L)
     const char *field = lua_tostring(L, -1);
     r = *rv;
     if (lua_key_eq(field,mode)) {
-        lua_pushnumber(L, r->mode_field);
+        lua_pushinteger(L, r->mode_field);
     } else if (lua_key_eq(field,head)) {
         lua_nodelib_push_fast(L, r->head_field);
     } else if (lua_key_eq(field,tail)) {
         lua_nodelib_push_fast(L, r->tail_field);
     } else if (lua_key_eq(field,delimptr)) {
-        lua_pushnumber(L, r->eTeX_aux_field);
+        lua_pushinteger(L, r->eTeX_aux_field);
         lua_nodelib_push(L);
     } else if (lua_key_eq(field,prevgraf)) {
-        lua_pushnumber(L, r->pg_field);
+        lua_pushinteger(L, r->pg_field);
     } else if (lua_key_eq(field,modeline)) {
-        lua_pushnumber(L, r->ml_field);
+        lua_pushinteger(L, r->ml_field);
     } else if (lua_key_eq(field,prevdepth)) {
-        lua_pushnumber(L, r->prev_depth_field);
+        lua_pushinteger(L, r->prev_depth_field);
     } else if (lua_key_eq(field,spacefactor)) {
-        lua_pushnumber(L, r->space_factor_field);
+        lua_pushinteger(L, r->space_factor_field);
     } else if (lua_key_eq(field,noad)) {
-        lua_pushnumber(L, r->incompleat_noad_field);
+        lua_pushinteger(L, r->incompleat_noad_field);
         lua_nodelib_push(L);
     } else if (lua_key_eq(field,dirs)) {
-        lua_pushnumber(L, r->dirs_field);
+        lua_pushinteger(L, r->dirs_field);
         lua_nodelib_push(L);
     } else if (lua_key_eq(field,mathdir)) {
         lua_pushboolean(L, r->math_field);
     } else if (lua_key_eq(field,mathstyle)) {
-        lua_pushnumber(L, r->math_style_field);
+        lua_pushinteger(L, r->math_style_field);
     } else {
         lua_pushnil(L);
     }
@@ -1985,7 +1985,7 @@ static int getnest(lua_State * L)
     } else if (t == LUA_TSTRING) {
         const char *s = lua_tostring(L, 2);
         if (lua_key_eq(s,ptr)) {
-            lua_pushnumber(L, nest_ptr);
+            lua_pushinteger(L, nest_ptr);
         } else {
             lua_pushnil(L);
         }
@@ -2016,9 +2016,9 @@ static int tex_roundnumber(lua_State * L)
 {
     double m = (double) lua_tonumber(L, 1) + 0.5;
     if (abs(m) > (double) infinity)
-        lua_pushnumber(L, do_integer_error(m));
+        lua_pushinteger(L, do_integer_error(m));
     else
-        lua_pushnumber(L, floor(m));
+        lua_pushinteger(L, floor(m));
     return 1;
 }
 
@@ -2035,18 +2035,18 @@ static int tex_scaletable(lua_State * L)
                 double m = (double) lua_tonumber(L, -1) * delta + 0.5;
                 lua_pop(L, 1);
                 if (abs(m) > (double) infinity)
-                    lua_pushnumber(L, do_integer_error(m));
+                    lua_pushinteger(L, do_integer_error(m));
                 else
-                    lua_pushnumber(L, floor(m));
+                    lua_pushinteger(L, floor(m));
             }
             lua_rawset(L, 3);
         }
     } else if (lua_type(L,1) == LUA_TNUMBER) {
         double m = (double) lua_tonumber(L, 1) * delta + 0.5;
         if (abs(m) > (double) infinity)
-            lua_pushnumber(L, do_integer_error(m));
+            lua_pushinteger(L, do_integer_error(m));
         else
-            lua_pushnumber(L, floor(m));
+            lua_pushinteger(L, floor(m));
     } else {
         lua_pushnil(L);
     }
@@ -2480,16 +2480,16 @@ static int tex_run_linebreak(lua_State * L)
     lua_nodelib_push_fast(L, vlink(cur_list.head_field));
     lua_newtable(L);
     lua_pushstring(L, "demerits");
-    lua_pushnumber(L, fewest_demerits);
+    lua_pushinteger(L, fewest_demerits);
     lua_settable(L, -3);
     lua_pushstring(L, "looseness");
-    lua_pushnumber(L, actual_looseness);
+    lua_pushinteger(L, actual_looseness);
     lua_settable(L, -3);
     lua_pushstring(L, "prevdepth");
-    lua_pushnumber(L, cur_list.prev_depth_field);
+    lua_pushinteger(L, cur_list.prev_depth_field);
     lua_settable(L, -3);
     lua_pushstring(L, "prevgraf");
-    lua_pushnumber(L, cur_list.pg_field);
+    lua_pushinteger(L, cur_list.pg_field);
     lua_settable(L, -3);
 
     /* restore nest stack */
@@ -2513,7 +2513,7 @@ static int tex_badness(lua_State * L)
     scaled t,s;
     t=(int)lua_tonumber(L,1);
     s=(int)lua_tonumber(L,2);
-    lua_pushnumber(L, badness(t,s));
+    lua_pushinteger(L, badness(t,s));
     return 1;
 }
 
@@ -2586,13 +2586,13 @@ static int tex_unif_rand(lua_State * L)
         return 0;
     }
     sp=(int)lua_tonumber(L, 1);
-    lua_pushnumber(L, unif_rand(sp));
+    lua_pushinteger(L, unif_rand(sp));
     return 1;
 }
 
 static int tex_norm_rand(lua_State * L)
 {
-    lua_pushnumber(L, norm_rand());
+    lua_pushinteger(L, norm_rand());
     return 1;
 }
 
@@ -2686,7 +2686,7 @@ static int tex_save_box_resource(lua_State * L)
     set_obj_xform_depth(static_pdf, index, depth(boxdata));
     box(boxnumber) = null;
     last_saved_box_index = index;
-    lua_pushnumber(L, index);
+    lua_pushinteger(L, index);
     return 1;
 }
 
@@ -2730,9 +2730,9 @@ static int tex_use_box_resource(lua_State * L)
         height(rule) = dim.ht;
         depth(rule) = dim.dp;
         nodelist_to_lua(L, rule);
-        lua_pushnumber(L, (int) dim.wd);
-        lua_pushnumber(L, (int) dim.ht);
-        lua_pushnumber(L, (int) dim.dp);
+        lua_pushinteger(L, (int) dim.wd);
+        lua_pushinteger(L, (int) dim.ht);
+        lua_pushinteger(L, (int) dim.dp);
     }
     return 4;
 }
@@ -2747,9 +2747,9 @@ static int tex_get_box_resource_dimensions(lua_State * L)
     } else {
         index = lua_tonumber(L,1);
         check_obj_type(static_pdf, obj_type_xform, index);
-        lua_pushnumber(L, (int) obj_xform_width(static_pdf, index));
-        lua_pushnumber(L, (int) obj_xform_height(static_pdf, index));
-        lua_pushnumber(L, (int) obj_xform_depth(static_pdf, index));
+        lua_pushinteger(L, (int) obj_xform_width(static_pdf, index));
+        lua_pushinteger(L, (int) obj_xform_height(static_pdf, index));
+        lua_pushinteger(L, (int) obj_xform_depth(static_pdf, index));
     }
     return 3;
 }

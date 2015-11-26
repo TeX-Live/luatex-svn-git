@@ -51,7 +51,6 @@ static const char *const callbacknames[] = {
     "start_page_number", "stop_page_number",
     "start_run", "stop_run",
     "define_font",
-    "token_filter",
     "pre_output_filter",
     "buildpage_filter",
     "hpack_filter", "vpack_filter",
@@ -299,7 +298,7 @@ int do_run_callback(int special, const char *values, va_list vl)
                 lua_pushlstring(L, (const char *)lstr->s, lstr->l);
                 break;
             case CALLBACK_INTEGER: /* int */
-                lua_pushnumber(L, va_arg(vl, int));
+                lua_pushinteger(L, va_arg(vl, int));
                 break;
             case CALLBACK_STRNUMBER:       /* TeX string */
                 s = makeclstring(va_arg(vl, int), &len);
@@ -537,7 +536,7 @@ static int callback_register(lua_State * L)
     lua_pushvalue(L, 2);        /* the function or nil */
     lua_rawseti(L, -2, cb);
     lua_rawseti(L, LUA_REGISTRYINDEX, callback_callbacks_id);
-    lua_pushnumber(L, cb);
+    lua_pushinteger(L, cb);
     return 1;
 }
 
