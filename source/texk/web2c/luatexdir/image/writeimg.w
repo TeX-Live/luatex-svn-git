@@ -151,7 +151,7 @@ static void check_type_by_header(image_dict * idict)
     for (i = 0; (unsigned) i < MAX_HEADER; i++) {
         header[i] = (char) xgetc(file);
         if (feof(file))
-            luatex_fail("reading image file failed");
+            normal_error("pdf backend","reading image file failed");
     }
     xfclose(file, img_filepath(idict));
     /* tests */
@@ -295,7 +295,7 @@ void read_img(image_dict * idict)
     int callback_id;
     assert(idict != NULL);
     if (img_filename(idict) == NULL) {
-        luatex_fail("image file name missing");
+        normal_error("pdf backend","image file name missing");
     }
     callback_id = callback_defined(find_image_file_callback);
     if (img_filepath(idict) == NULL) {
@@ -309,7 +309,7 @@ void read_img(image_dict * idict)
             img_filepath(idict) = kpse_find_file(img_filename(idict), kpse_tex_format, true);
         }
         if (img_filepath(idict) == NULL) {
-            luatex_fail("cannot find image file '%s'", img_filename(idict));
+            formatted_error("pdf backend","cannot find image file '%s'", img_filename(idict));
         }
     }
     recorder_record_input(img_filename(idict));
@@ -335,7 +335,7 @@ void read_img(image_dict * idict)
             read_jbig2_info(idict);
             break;
         default:
-            luatex_fail("internal error: unknown image type (2)");
+            normal_error("pdf backend","internal error: unknown image type");
     }
     cur_file_name = NULL;
     if (img_state(idict) < DICT_FILESCANNED)
@@ -533,11 +533,11 @@ scaled_whd scale_img(image_dict * idict, scaled_whd alt_rule, int transform)
     xr = img_xres(idict);
     yr = img_yres(idict);
     if (x <= 0 || y <= 0 || xr < 0 || yr < 0)
-        luatex_fail("ext1: invalid image dimensions");
+        normal_error("pdf backend","invalid image dimensions");
     if (xr > 65535 || yr > 65535) {
         xr = 0;
         yr = 0;
-        luatex_warn("ext1: too large image resolution ignored");
+        normal_warning("pdf backend","too large image resolution ignored");
     }
     if (((transform - img_rotation(idict)) & 1) == 1) {
         tmp = x;
@@ -596,7 +596,7 @@ void write_img(PDF pdf, image_dict * idict)
             write_pdfstream(pdf, idict);
             break;
         default:
-            luatex_fail("internal error: unknown image type (1)");
+            normal_error("pdf backend","internal error: unknown image type");
         }
         report_stop_file(filetype_image);
         if (img_type(idict) == IMG_TYPE_PNG) {
@@ -619,7 +619,7 @@ void pdf_write_image(PDF pdf, int n)
 void check_pdfstream_dict(image_dict * idict)
 {
     if (!img_is_bbox(idict))
-        luatex_fail("image.stream: no bbox given");
+        normal_error("pdf backend","image.stream: no bbox given");
     if (img_state(idict) < DICT_FILESCANNED)
         img_state(idict) = DICT_FILESCANNED;
 }

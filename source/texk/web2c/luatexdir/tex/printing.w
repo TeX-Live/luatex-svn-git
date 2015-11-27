@@ -265,10 +265,7 @@ void print(int s)
             } else if (s >= 0x110000) {
                 int c = s - 0x110000;
                 if (c >= 256) {
-                    normal_warning("print", "bad raw byte to print (c=", true, false);
-                    print_int(c);
-                    tprint("), skipped.");
-                    print_ln();
+                    formatted_warning("print", "bad raw byte to print (c=%d), skipped",c);
                 } else {
                     print_char(c);
                 }

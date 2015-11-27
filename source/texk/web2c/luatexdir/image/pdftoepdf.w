@@ -50,7 +50,7 @@ static PdfDocument *findPdfDocument(char *file_path)
 {
     PdfDocument *pdf_doc, tmp;
     if (file_path == NULL) {
-        luatex_fail("empty filename when loading pdf file");
+        normal_error("pdf backend","empty filename when loading pdf file");
     } else if (PdfDocumentTree == NULL) {
         return NULL;
     }
@@ -70,12 +70,12 @@ static char *get_file_checksum(const char *a, file_error_mode fe)
         time_t mtime = finfo.st_mtime;
         ck = (char *) malloc(PDF_CHECKSUM_SIZE);
         if (ck == NULL)
-            luatex_fail("PDF inclusion: out of memory while processing '%s'", a);
+            formatted_error("pdf inclusion","out of memory while processing '%s'", a);
         snprintf(ck, PDF_CHECKSUM_SIZE, "%" PRIu64 "_%" PRIu64, (uint64_t) size,(uint64_t) mtime);
    } else {
         switch (fe) {
             case FE_FAIL:
-                luatex_fail("PDF inclusion: could not stat() file '%s'", a);
+                formatted_error("pdf inclusion","could not stat() file '%s'", a);
                 break;
             case FE_RETURN_NULL:
                 if (ck != NULL)
@@ -99,7 +99,7 @@ static char *get_stream_checksum (const char *str, unsigned long long str_size){
     hash = 5381;
     ck = (char *) malloc(STRSTREAM_CHECKSUM_SIZE+1);
     if (ck == NULL)
-        luatex_fail("PDF inclusion: out of memory while processing a memstream");
+        normal_error("pdf inclusion","out of memory while processing a memstream");
     for(i=0; i<(unsigned int)(str_size); i++) {
         hash = ((hash << 5) + hash) + str[i]; /* hash * 33 + str[i] */
     }
@@ -137,7 +137,7 @@ PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe)
         pdf_doc->pc = 0;
     } else {
         if (strncmp(pdf_doc->checksum, checksum, PDF_CHECKSUM_SIZE) != 0) {
-            luatex_fail("PDF inclusion: file has changed '%s'", file_path);
+            formatted_error("pdf inclusion","file has changed '%s'", file_path);
         }
         free(checksum);
         free(path_copy);
@@ -150,7 +150,7 @@ PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe)
         if (!doc->isOk() || !doc->okToPrint()) {
             switch (fe) {
             case FE_FAIL:
-                luatex_fail("PDF inclusion: reading PDF image failed");
+                normal_error("pdf inclusion","reading image failed");
                 break;
             case FE_RETURN_NULL:
                 delete doc;
@@ -218,7 +218,7 @@ PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streams
     } else {
         /* As is now, checksum is in file_path, so this check should be useless. */
         if (strncmp(pdf_doc->checksum, checksum, STRSTREAM_CHECKSUM_SIZE) != 0) {
-            luatex_fail("PDF inclusion: stream has changed '%s'", file_path);
+            formatted_error("pdf inclusion","stream has changed '%s'", file_path);
         }
         free(file_path);
         free(checksum);
@@ -228,7 +228,7 @@ PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streams
         doc = new PDFDoc(docmemstream); /* takes ownership of docmemstream */
         pdf_doc->pc++;
         if (!doc->isOk() || !doc->okToPrint()) {
-            luatex_fail("poppler: reading PDF Stream failed");
+            normal_error("pdf inclusion","reading pdf Stream failed");
     }
         pdf_doc->doc = doc;
     }
@@ -304,8 +304,7 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
     ObjMap *obj_map;
     InObj *p, *q, *n;
     if (ref.num == 0) {
-        luatex_fail("PDF inclusion: reference to invalid object"
-                    " (is the included pdf broken?)");
+        normal_error("pdf inclusion","reference to invalid object (broken pdf)");
     }
     if ((obj_map = findObjMap(pdf_doc, ref)) != NULL)
         return obj_map->out_num;
@@ -495,7 +494,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
     case objError:
     case objEOF:
     case objNone:
-        luatex_fail("PDF inclusion: type <%s> cannot be copied", obj->getTypeName());
+        formatted_error("pdf inclusion","type '%s' cannot be copied", obj->getTypeName());
         break;
     default:
         /* poppler doesn't have any other types */
@@ -579,8 +578,8 @@ void flush_pdf_info(image_dict * idict)
 
 void read_pdf_info(image_dict * idict)
 {
-    PdfDocument *pdf_doc;
-    PDFDoc *doc;
+    PdfDocument *pdf_doc = NULL;
+    PDFDoc *doc = NULL;
     Catalog *catalog;
     Page *page;
     int rotate;
@@ -599,7 +598,7 @@ void read_pdf_info(image_dict * idict)
         pdf_doc = findPdfDocument(img_filepath(idict)) ;
         pdf_doc->occurences++;
     } else {
-        luatex_fail("PDF inclusion: unknown document (1)");
+        normal_error("pdf inclusion","unknown document");
     }
     doc = pdf_doc->doc;
     catalog = doc->getCatalog();
@@ -611,11 +610,11 @@ void read_pdf_info(image_dict * idict)
     pdf_major_version_found = doc->getPDFMajorVersion();
     pdf_minor_version_found = doc->getPDFMinorVersion();
     if ((pdf_major_version_found > 1) || (pdf_minor_version_found > img_pdfminorversion(idict))) {
-        const char *msg = "PDF inclusion: found PDF version <%d.%d>, but at most version <1.%d> allowed";
+        const char *msg = "PDF inclusion: found PDF version '%d.%d', but at most version '1.%d' allowed";
         if (img_errorlevel(idict) > 0) {
-            luatex_fail(msg, pdf_major_version_found, pdf_minor_version_found, img_pdfminorversion(idict));
+            formatted_error("pdf inclusion",msg, pdf_major_version_found, pdf_minor_version_found, img_pdfminorversion(idict));
         } else {
-            luatex_warn(msg, pdf_major_version_found, pdf_minor_version_found, img_pdfminorversion(idict));
+            formatted_warning("pdf inclusion",msg, pdf_major_version_found, pdf_minor_version_found, img_pdfminorversion(idict));
         }
     }
     img_totalpages(idict) = catalog->getNumPages();
@@ -624,20 +623,17 @@ void read_pdf_info(image_dict * idict)
         GooString name(img_pagename(idict));
         LinkDest *link = doc->findDest(&name);
         if (link == NULL || !link->isOk())
-            luatex_fail("PDF inclusion: invalid destination <%s>",
-                        img_pagename(idict));
+            formatted_error("pdf inclusion","invalid destination '%s'",img_pagename(idict));
         Ref ref = link->getPageRef();
         img_pagenum(idict) = catalog->findPage(ref.num, ref.gen);
         if (img_pagenum(idict) == 0)
-            luatex_fail("PDF inclusion: destination is not a page <%s>",
-                        img_pagename(idict));
+            formatted_error("pdf inclusion","destination is not a page '%s'",img_pagename(idict));
         delete link;
     } else {
         /* get page by number */
         if (img_pagenum(idict) <= 0
             || img_pagenum(idict) > img_totalpages(idict))
-            luatex_fail("PDF inclusion: required page <%i> does not exist",
-                        (int) img_pagenum(idict));
+            formatted_error("pdf inclusion","required page '%i' does not exist",(int) img_pagenum(idict));
     }
     /* get the required page */
     page = catalog->getPage(img_pagenum(idict));
@@ -680,7 +676,7 @@ void read_pdf_info(image_dict * idict)
             img_rotation(idict) = 1;
             break;
         default:
-            luatex_warn("PDF inclusion: /Rotate parameter in PDF file not multiple of 90 degrees.");
+            formatted_warning("pdf inclusion","/Rotate parameter in PDF file not multiple of 90 degrees");
     }
     /* currently unused info whether PDF contains a /Group */
     if (page->getGroup() != NULL)
@@ -713,8 +709,8 @@ void read_pdf_info(image_dict * idict)
 
 void write_epdf(PDF pdf, image_dict * idict)
 {
-    PdfDocument *pdf_doc;
-    PDFDoc *doc;
+    PdfDocument *pdf_doc = NULL;
+    PDFDoc *doc = NULL;
     Catalog *catalog;
     Page *page;
     Ref *pageref;
@@ -724,9 +720,8 @@ void write_epdf(PDF pdf, image_dict * idict)
     int i, l;
     double bbox[4];
     char s[256];
-    const char *pagedictkeys[] =
-        { "Group", "LastModified", "Metadata", "PieceInfo", "Resources",
-        "SeparationInfo", NULL
+    const char *pagedictkeys[] = {
+        "Group", "LastModified", "Metadata", "PieceInfo", "Resources", "SeparationInfo", NULL
     };
     /* open PDF file */
     if (img_type(idict) == IMG_TYPE_PDF) {
@@ -735,7 +730,7 @@ void write_epdf(PDF pdf, image_dict * idict)
         pdf_doc = findPdfDocument(img_filepath(idict)) ;
         pdf_doc->occurences++;
     } else {
-        luatex_fail("PDF inclusion: unknown document (2)");
+        normal_error("pdf inclusion","unknown document");
     }
     doc = pdf_doc->doc;
     catalog = doc->getCatalog();
@@ -788,7 +783,7 @@ void write_epdf(PDF pdf, image_dict * idict)
     */
     pageDict->lookupNF("Metadata", &obj1);
     if (!obj1.isNull() && !obj1.isRef())
-        luatex_warn("PDF inclusion: /Metadata must be indirect object");
+        formatted_warning("pdf inclusion","/Metadata must be indirect object");
     obj1.free();
     /* copy selected items in Page dictionary */
     for (i = 0; pagedictkeys[i] != NULL; i++) {
@@ -826,7 +821,7 @@ void write_epdf(PDF pdf, image_dict * idict)
             op2->free();
         };
         if (!op1->isDict())
-            luatex_warn("PDF inclusion: Page /Resources missing.");
+            formatted_warning("pdf inclusion","Page /Resources missing");
         op1->free();
     }
     obj1.free();
@@ -844,7 +839,7 @@ void write_epdf(PDF pdf, image_dict * idict)
         */
         contents.streamGetDict()->lookup("F", &obj1);
         if (!obj1.isNull()) {
-            luatex_fail("PDF inclusion: Unsupported external stream");
+            normal_error("pdf inclusion","unsupported external stream");
         }
         obj1.free();
         contents.streamGetDict()->lookup("Length", &obj1);
@@ -945,7 +940,7 @@ void unrefPdfDocument(char *file_path)
             We either have a mismatch in ref and unref or we're somehow out of sync
             which can happen when we mess with the same file in lua and tex.
         */
-        luatex_warn("PDF inclusion: there can be a mismatch in opening and closing file '%s'",file_path);
+        formatted_warning("pdf inclusion","there can be a mismatch in opening and closing file '%s'",file_path);
     }
 }
 

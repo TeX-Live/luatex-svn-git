@@ -32,9 +32,8 @@ void append_bead(PDF pdf, halfword p)
 {
     int a, b, c, t;
     if (global_shipping_mode == SHIPPING_FORM)
-        normal_error("pdf backend", "threads cannot be inside an XForm");
-    t = pdf_get_obj(pdf, obj_type_thread, pdf_thread_id(p),
-                    pdf_thread_named_id(p));
+        normal_error("pdf backend", "threads cannot be inside an xform");
+    t = pdf_get_obj(pdf, obj_type_thread, pdf_thread_id(p), pdf_thread_named_id(p));
     b = pdf_create_obj(pdf, obj_type_others, 0);
     obj_bead_ptr(pdf, b) = pdf_get_mem(pdf, pdfmem_bead_size);
     set_obj_bead_page(pdf, b, pdf->last_page);
@@ -154,18 +153,12 @@ void thread_title(PDF pdf, int t)
 void pdf_fix_thread(PDF pdf, int t)
 {
     halfword a;
-    normal_warning("pdf backend", "thread destination", false, false);
     if (obj_info(pdf, t) < 0) {
-        tprint("name{");
-        print(-obj_info(pdf, t));
-        tprint("}");
+        char *ss = makecstring(-obj_info(pdf, t));
+        formatted_warning("pdf backend", "unknown thread destination name '%s'",ss);
     } else {
-        tprint("num");
-        print_int(obj_info(pdf, t));
+        formatted_warning("pdf backend", "unknown thread destination num '%d'",obj_info(pdf, t));
     }
-    tprint(" has been referenced but does not exist, replaced by a fixed one");
-    print_ln();
-    print_ln();
     a = pdf_create_obj(pdf, obj_type_others, 0);
     pdf_begin_obj(pdf, a, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);

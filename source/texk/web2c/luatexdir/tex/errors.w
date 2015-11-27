@@ -663,6 +663,11 @@ void normal_error(const char *t, const char *p)
 {
     normalize_selector();
     print_err("error ");
+    if (cur_file_name) {
+        tprint(" (file ");
+        tprint(cur_file_name);
+        tprint(")");
+    }
     if (t != NULL) {
         tprint(" (");
         tprint(t);
@@ -671,11 +676,12 @@ void normal_error(const char *t, const char *p)
     tprint(": ");
     if (p != NULL)
         tprint(p);
+    remove_pdffile(static_pdf);
     succumb();
 }
 
 @ @c
-void normal_warning(const char *t, const char *p, boolean prepend_nl, boolean append_nl)
+void normal_warning(const char *t, const char *p)
 {
     int report_id ;
     if (strcmp(t,"lua") == 0) {
@@ -704,9 +710,13 @@ void normal_warning(const char *t, const char *p, boolean prepend_nl, boolean ap
             strcpy(last_warning_tag,t);
             run_callback(report_id, "->");
         } else {
-            if (prepend_nl)
-                print_ln();
+            print_ln();
             tprint("warning ");
+            if (cur_file_name) {
+                tprint(" (file ");
+                tprint(cur_file_name);
+                tprint(")");
+            }
             if (t != NULL) {
                 tprint(" (");
                 tprint(t);
@@ -715,10 +725,30 @@ void normal_warning(const char *t, const char *p, boolean prepend_nl, boolean ap
             tprint(": ");
             if (p != NULL)
                 tprint(p);
-            if (append_nl)
-                print_ln();
+            print_ln();
         }
         if (history == spotless)
             history = warning_issued;
     }
+}
+
+@ @c
+static char print_buf[PRINTF_BUF_SIZE];
+
+void formatted_error(const char *t, const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(print_buf, PRINTF_BUF_SIZE, fmt, args);
+    normal_error(t,print_buf);
+    va_end(args);
+}
+
+void formatted_warning(const char *t, const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(print_buf, PRINTF_BUF_SIZE, fmt, args);
+    normal_warning(t,print_buf);
+    va_end(args);
 }

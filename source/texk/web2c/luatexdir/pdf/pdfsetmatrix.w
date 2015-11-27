@@ -90,9 +90,8 @@ static void pdfsetmatrix(const char *in, scaledpos pos)
     matrix_entry x, *y, *z;
 
     if (global_shipping_mode == SHIPPING_PAGE) {
-        if (sscanf((const char *) in, " %lf %lf %lf %lf ",
-                   &x.a, &x.b, &x.c, &x.d) != 4) {
-            luatex_warn("unrecognized format of setmatrix: {%s}", in);
+        if (sscanf((const char *) in, " %lf %lf %lf %lf ", &x.a, &x.b, &x.c, &x.d) != 4) {
+            formatted_warning("pdf backend","unrecognized format of setmatrix: %s", in);
             return;
         }
         /* calculate this transformation matrix */

@@ -233,8 +233,7 @@ int colorstackpop(int colstack_no)
 
     if (global_shipping_mode == SHIPPING_PAGE) {
         if (colstack->page_used == 0) {
-            luatex_warn("pop empty color page stack %u",
-                        (unsigned int) colstack_no);
+            formatted_warning("pdf backend","pop empty color page stack %u",(unsigned int) colstack_no);
             return colstack->literal_mode;
         }
         xfree(colstack->page_current);
@@ -242,8 +241,7 @@ int colorstackpop(int colstack_no)
         put_cstring_on_str_pool(colstack->page_current);
     } else {
         if (colstack->form_used == 0) {
-            luatex_warn("pop empty color form stack %u",
-                        (unsigned int) colstack_no);
+            formatted_warning("pdf backend","pop empty color form stack %u",(unsigned int) colstack_no);
             return colstack->literal_mode;
         }
         xfree(colstack->form_current);

@@ -30,7 +30,7 @@
 
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
-        luatex_fail ("snprintf failed: file %s, line %d", __FILE__, __LINE__);
+        formatted_error("pdf backend","snprintf() failed in file %s at line %d", __FILE__, __LINE__);
 
 PDF static_pdf = NULL;
 
@@ -291,9 +291,9 @@ void fix_pdf_minorversion(PDF pdf)
 @ @c
 #define ZIP_BUF_SIZE  32768
 
-#define check_err(f, fn)                        \
-  if (f != Z_OK)                                \
-    luatex_fail("zlib: %s() failed (error code %d)", fn, f)
+#define check_err(f, fn) \
+  if (f != Z_OK) \
+    formatted_error("pdf backend","zlib %s() failed (error code %d)", fn, f)
 
 @ @c
 static void write_zip(PDF pdf)
@@ -304,11 +304,6 @@ static void write_zip(PDF pdf)
     z_stream *s = pdf->c_stream;
     boolean finish = pdf->zip_write_state == ZIP_FINISH;
     assert(pdf->compress_level > 0);
-    /* This was just to suppress the filename report in |luatex_fail|
-       but zlib errors are rare enough (especially now that the
-       compress level is fixed) that I don't care about the slightly
-       ugly error message that could result.
-     */
 #if 0
     cur_file_name = NULL;
 #endif
@@ -354,7 +349,7 @@ static void write_zip(PDF pdf)
         }
         err = deflate(s, flush);
         if (err != Z_OK && err != Z_STREAM_END)
-            luatex_fail("zlib: deflate() failed (error code %d)", err);
+            formatted_error("pdf backend","zlib deflate() failed (error code %d)", err);
     }
     pdf->stream_length = (off_t) s->total_out;
 }
@@ -778,11 +773,9 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
     assert(re != NULL);
     assert(t <= PDF_OBJ_TYPE_MAX);
     if (re->resources_tree == NULL) {
-        re->resources_tree =
-            avl_create(comp_page_resources, NULL, &avl_xallocator);
+        re->resources_tree = avl_create(comp_page_resources, NULL, &avl_xallocator);
         if (re->resources_tree == NULL)
-            luatex_fail
-                ("addto_page_resources(): avl_create() page_resource_tree failed");
+            formatted_error("pdf backend","addto_page_resources(): avl_create() page_resource_tree failed");
     }
     tmp.obj_type = t;
     pr = (pr_entry *) avl_find(re->resources_tree, &tmp);
@@ -792,8 +785,7 @@ void addto_page_resources(PDF pdf, pdf_obj_type t, int k)
         pr->list = NULL;
         pp = avl_probe(re->resources_tree, pr);
         if (pp == NULL)
-            luatex_fail
-                ("addto_page_resources(): avl_probe() out of memory in insertion");
+            formatted_error("pdf backend","addto_page_resources(): avl_probe() out of memory in insertion");
     }
     if (pr->list == NULL) {
         item = xtalloc(1, pdf_object_list);
@@ -969,7 +961,7 @@ static void init_pdf_outputparameters(PDF pdf)
         pdf->os_enable = true;
     } else {
         if (pdf->objcompresslevel > 0) {
-            normal_warning("pdf backend","objcompresslevel > 0 requires minorversion > 4", true, true);
+            normal_warning("pdf backend","objcompresslevel > 0 requires minorversion > 4");
             pdf->objcompresslevel = 0;
         }
         pdf->os_enable = false;
@@ -1452,7 +1444,7 @@ static void print_ID(PDF pdf)
     md5_append(&state, (const md5_byte_t *) time_str, (int) size);
     /* get the file name */
     if (getcwd(pwd, sizeof(pwd)) == NULL)
-        luatex_fail("getcwd() failed (%s), (path too long?)", strerror(errno));
+        formatted_error("pdf backend","getcwd() failed (%s), (path too long?)", strerror(errno));
 #ifdef WIN32
     {
         char *p;
@@ -1652,7 +1644,7 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
         if (strict)
             normal_error("pdf backend", warn_string);
         else
-            normal_warning("pdf backend", warn_string, true, true);
+            normal_warning("pdf backend", warn_string);
     } else if (strict)
         ensure_output_state(pdf, ST_HEADER_WRITTEN);
 }
@@ -1719,8 +1711,7 @@ void pdf_begin_page(PDF pdf)
         pdf->page_resources = xtalloc(1, pdf_resource_struct);
         pdf->page_resources->resources_tree = NULL;
     }
-    pdf->page_resources->last_resources =
-        pdf_create_obj(pdf, obj_type_others, 0);
+    pdf->page_resources->last_resources = pdf_create_obj(pdf, obj_type_others, 0);
     reset_page_resources(pdf);
 
     if (global_shipping_mode == SHIPPING_PAGE) {
@@ -1853,7 +1844,7 @@ void pdf_end_page(PDF pdf)
     /* Finish stream of page/form contents */
     pdf_goto_pagemode(pdf);
     if (pos_stack_used > 0) {
-        luatex_fail("%u unmatched 'save' after %s shipout", (unsigned int) pos_stack_used,
+        formatted_error("pdf backend","%u unmatched 'save' after %s shipout", (unsigned int) pos_stack_used,
             ((global_shipping_mode == SHIPPING_PAGE) ? "page" : "form"));
     }
     pdf_end_stream(pdf);
@@ -2126,19 +2117,12 @@ static void check_nonexisting_destinations(PDF pdf)
     int k;
     for (k = pdf->head_tab[obj_type_dest]; k != 0; k = obj_link(pdf, k)) {
         if (obj_dest_ptr(pdf, k) == null) {
-            normal_warning("pdf backend", "dest ", false, false);
             if (obj_info(pdf, k) < 0) {
-                tprint("name{");
-                print(-obj_info(pdf, k));
-                tprint("}");
+                char *ss = makecstring(-obj_info(pdf, k));
+                formatted_warning("pdf backend", "unreferenced destination with name '%s'",ss);
             } else {
-                tprint("num");
-                print_int(obj_info(pdf, k));
+                formatted_warning("pdf backend", "unreferenced destination with num '%d'",obj_info(pdf,k));
             }
-            tprint
-                (" has been referenced but does not exist, replaced by a fixed one");
-            print_ln();
-            print_ln();
 
             pdf_begin_obj(pdf, k, OBJSTM_ALWAYS);
             pdf_begin_array(pdf);
@@ -2158,13 +2142,8 @@ static void check_nonexisting_pages(PDF pdf)
     struct avl_table *page_tree = pdf->obj_tree[obj_type_page];
     avl_t_init(&t, page_tree);
     /* search from the end backward until the last real page is found */
-    for (p = avl_t_last(&t, page_tree);
-         p != NULL && obj_aux(pdf, p->objptr) == 0; p = avl_t_prev(&t)) {
-        normal_warning("pdf backend", "Page ", false, false);
-        print_int(obj_info(pdf, p->objptr));
-        tprint(" has been referenced but does not exist!");
-        print_ln();
-        print_ln();
+    for (p = avl_t_last(&t, page_tree); p != NULL && obj_aux(pdf, p->objptr) == 0; p = avl_t_prev(&t)) {
+        formatted_warning("pdf backend", "page %s has been referenced but does not exist",obj_info(pdf, p->objptr));
     }
 }
 
@@ -2286,13 +2265,12 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
 
     if (total_pages == 0) {
         if (callback_id == 0) {
-            tprint_nl("No pages of output.");
-            print_ln();
+            normal_warning("pdf backend","no pages of output.");
         } else if (callback_id > 0) {
             run_callback(callback_id, "->");
         }
         if (pdf->gone > 0)
-            garbage_warning();
+            normal_error("pdf backend","dangling objects discarded, no output file produced.");
     } else {
         if (pdf->draftmode == 0) {
             pdf_flush(pdf);     /* to make sure that the output file name has been already created */
@@ -2313,23 +2291,10 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                             pdf_mark_char(i, j);
                     if ((pdf_font_attr(i) == 0) && (pdf_font_attr(k) != 0)) {
                         set_pdf_font_attr(i, pdf_font_attr(k));
-                    } else if ((pdf_font_attr(k) == 0)
-                               && (pdf_font_attr(i) != 0)) {
+                    } else if ((pdf_font_attr(k) == 0) && (pdf_font_attr(i) != 0)) {
                         set_pdf_font_attr(k, pdf_font_attr(i));
-                    } else if ((pdf_font_attr(i) != 0)
-                               && (pdf_font_attr(k) != 0)
-                               &&
-                               (!str_eq_str
-                                (pdf_font_attr(i), pdf_font_attr(k)))) {
-                        normal_warning("pdf backend","fontattr in ", false, false);
-                        print_font_identifier(i);
-                        tprint(" and ");
-                        print_font_identifier(k);
-                        tprint(" have conflicting attributes; the attributes assigned to ");
-                        print_font_identifier(i);
-                        tprint(" are ignored");
-                        print_ln();
-                        print_ln();
+                    } else if ((pdf_font_attr(i) != 0) && (pdf_font_attr(k) != 0) && (!str_eq_str(pdf_font_attr(i), pdf_font_attr(k)))) {
+                        formatted_warning("pdf backend","fontattr of font %d and %d are conflicting, %k is used",i,k,i);
                     }
                 }
             }
@@ -2540,7 +2505,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
         if (pdf->draftmode == 0)
             close_file(pdf->file);
         else
-            normal_warning("pdf backend","draftmode enabled, not changing output pdf",true, true);
+            normal_warning("pdf backend","draftmode enabled, not changing output pdf");
     }
 
     if (callback_id == 0) {

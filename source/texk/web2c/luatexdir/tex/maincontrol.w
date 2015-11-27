@@ -729,7 +729,7 @@ static void run_option(void) {
                 scan_int();
                 word_define(int_base+math_use_old_fraction_scaling_code, cur_val);
             } else {
-                normal_warning("mathoption","unknown key",false,false);
+                normal_warning("mathoption","unknown key");
             }
             break;
         default:

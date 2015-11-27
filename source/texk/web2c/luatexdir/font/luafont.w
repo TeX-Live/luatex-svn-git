@@ -1137,9 +1137,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i, int *l_fonts, b
                     set_charinfo_tag(co, ext_tag);
                     set_charinfo_extensible(co, top, bot, mid, rep);
                 } else {
-                    luatex_warn
-                        ("lua-loaded font %s char [U+%X] has an invalid extensible field!",
-                         font_name(f), (int) i);
+                    formatted_warning("font", "lua-loaded font %s char U+%X has an invalid extensible field",
+                        font_name(f), (int) i);
                 }
             }
             lua_pop(L, 1);
@@ -1246,9 +1245,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i, int *l_fonts, b
                         set_kern_item(ckerns[ctr], k, j);
                         ctr++;
                     } else {
-                        luatex_warn
-                            ("lua-loaded font %s char [U+%X] has an invalid kern field!",
-                             font_name(f), (int) i);
+                        formatted_warning("font", "lua-loaded font %s char U+%X has an invalid kern field",
+                            font_name(f), (int) i);
                     }
                     lua_pop(L, 1);
                 }
@@ -1257,9 +1255,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i, int *l_fonts, b
                     set_kern_item(ckerns[ctr], end_kern, 0);
                     set_charinfo_kerns(co, ckerns);
                 } else {
-                    luatex_warn
-                        ("lua-loaded font %s char [U+%X] has an invalid kerns field!",
-                         font_name(f), (int) i);
+                    formatted_warning("font", "lua-loaded font %s char U+%X has an invalid kerns field",
+                        font_name(f), (int) i);
                 }
             }
             lua_pop(L, 1);
@@ -1312,9 +1309,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i, int *l_fonts, b
                         set_ligature_item(cligs[ctr], (char) ((t * 2) + 1), k, r);
                         ctr++;
                     } else {
-                        luatex_warn
-                            ("lua-loaded font %s char [U+%X] has an invalid ligature field!",
-                             font_name(f), (int) i);
+                        formatted_warning("font", "lua-loaded font %s char U+%X has an invalid ligature field",
+                            font_name(f), (int) i);
                     }
                     lua_pop(L, 1);      /* iterator value */
                 }
@@ -1323,9 +1319,8 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i, int *l_fonts, b
                     set_ligature_item(cligs[ctr], 0, end_ligature, 0);
                     set_charinfo_ligatures(co, cligs);
                 } else {
-                    luatex_warn
-                        ("lua-loaded font %s char [U+%X] has an invalid ligatures field!",
-                         font_name(f), (int) i);
+                    formatted_warning("font", "lua-loaded font %s char U+%X has an invalid ligatures field",
+                        font_name(f), (int) i);
                 }
             }
             lua_pop(L, 1);      /* ligatures table */
@@ -1380,7 +1375,7 @@ int font_from_lua(lua_State * L, int f)
     set_font_fullname(f, s);
 
     if (s == NULL) {
-        luatex_fail("lua-loaded font [%d] has no name!", f);
+        formatted_error("font","lua-loaded font '%d' has no name!", f);
         return false;
     }
     s = n_string_field_copy(L, lua_key_index(psname), NULL);
@@ -1476,14 +1471,14 @@ int font_from_lua(lua_State * L, int f)
                     l_fonts[i] = find_font_id(ss, t);
                 lua_settop(L, s_top);
             } else {
-                luatex_fail("Invalid local font in font %s!\n", font_name(f));
+                formatted_error("font","invalid local font in lua-loaded font '%s'", font_name(f));
             }
             lua_pop(L, 1);      /* pop list entry */
         }
         lua_pop(L, 1);          /* pop list entry */
     } else {
         if (font_type(f) == virtual_font_type) {
-            luatex_fail("Invalid local fonts in font %s!\n", font_name(f));
+            formatted_error("font","invalid local fonts in lua-loaded font '%s'", font_name(f));
         } else {
             l_fonts = xmalloc(3 * sizeof(int));
             l_fonts[0] = 0;
@@ -1594,7 +1589,7 @@ int font_from_lua(lua_State * L, int f)
 
         } else {
             /* jikes, no characters */
-            luatex_warn("lua-loaded font [%d] (%s) has no characters!", f, font_name(f));
+            formatted_warning("font","lua-loaded font '%d' with name '%s' has no characters", f, font_name(f));
         }
 
         if (save_ref > 0) {
@@ -1606,7 +1601,7 @@ int font_from_lua(lua_State * L, int f)
         }
     } else {
         /* jikes, no characters */
-        luatex_warn("lua-loaded font [%d] (%s) has no character table!", f, font_name(f));
+        formatted_warning("font","lua-loaded font '%d' with name '%s' has no character table", f, font_name(f));
     }
 
     if (l_fonts != NULL)

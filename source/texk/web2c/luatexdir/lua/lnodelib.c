@@ -269,7 +269,7 @@ halfword *check_isnode(lua_State * L, int i)
     halfword *p = maybe_isnode(L, i);
     if (p != NULL)
         return p;
-    luatex_fail("There should have been a lua <node> here, not an object with type %s!", luaL_typename(L, i));
+    formatted_error("node lib","lua <node> expected, not an object with type %s", luaL_typename(L, i));
     return NULL;
 }
 
@@ -4403,15 +4403,6 @@ static int lua_nodelib_direct_has_glyph(lua_State * L)
     return 1;
 }
 
-
-/* depricated */
-
-static int lua_nodelib_first_character(lua_State * L)
-{
-    luatex_warn("node.first_character() is deprecated, please update to node.first_glyph()");
-    return lua_nodelib_first_glyph(L);
-}
-
 /* this is too simplistic, but it helps Hans to get going */
 
 static halfword do_ligature_n(halfword prev, halfword stop, halfword lig)
@@ -4530,7 +4521,7 @@ static int lua_nodelib_currentattr(lua_State * L)
        return 1;
     } else {
         /* assign */
-        luatex_warn("Assignment via node.current_attr(<list>) is not supported (yet)");
+        normal_warning("node lib","assignment via node.current_attr(<list>) is not supported (yet)");
         return 0;
     }
 }
@@ -6656,7 +6647,6 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"end_of_math", lua_nodelib_direct_end_of_math},
  /* {"family_font", lua_nodelib_mfont}, */                    /* no node argument */
  /* {"fields", lua_nodelib_fields}, */                        /* no node argument */
- /* {"first_character", lua_nodelib_first_character}, */      /* obsolete */
     {"first_glyph", lua_nodelib_direct_first_glyph},
     {"flush_list", lua_nodelib_direct_flush_list},
     {"flush_node", lua_nodelib_direct_flush_node},
@@ -6746,7 +6736,6 @@ static const struct luaL_Reg nodelib_f[] = {
     {"family_font", lua_nodelib_mfont},
     {"fields", lua_nodelib_fields},
     {"subtypes", lua_nodelib_subtypes},
-    {"first_character", lua_nodelib_first_character},
     {"first_glyph", lua_nodelib_first_glyph},
     {"flush_list", lua_nodelib_flush_list},
     {"flush_node", lua_nodelib_flush_node},

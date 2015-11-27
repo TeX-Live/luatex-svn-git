@@ -201,9 +201,9 @@ static int ygetc(FILE * stream)
     int c = getc(stream);
     if (c < 0) {
         if (c == EOF)
-            luatex_fail("readjbig2: getc() failed, premature end file");
+            normal_error("readjbig2","premature end file");
         else
-            luatex_fail("readjbig2: getc() failed, can't happen");
+            normal_error("readjbig2","can't happen");
     }
     return c;
 }
@@ -376,8 +376,7 @@ static void readfilehdr(FILEINFO * fip)
     xfseek(fip->file, 0, SEEK_SET, fip->filepath);
     for (i = 0; i < 8; i++)
         if (ygetc(fip->file) != jbig2_id[i])
-            luatex_fail
-                ("readfilehdr(): reading JBIG2 image file failed: ID string missing");
+            normal_error("readjbig2","ID string missing");
     /* Annex D.4.2 File header flags */
     fip->filehdrflags = (unsigned int) ygetc(fip->file);
     fip->sequentialaccess = (fip->filehdrflags & 0x01) ? true : false;
@@ -433,7 +432,7 @@ static void checkseghdrflags(SEGINFO * sip)
         case M_Extension:
             break;
         default:
-            luatex_fail("readjbig2: checkseghdrflags(), unknown segment type file");
+            normal_error("readjbig2","unknown segment type file");
             break;
     }
 }
@@ -764,7 +763,7 @@ static void wr_jbig2(PDF pdf, image_dict * idict, FILEINFO * fip,
 boolean supported_jbig2(image_dict * idict)
 {
     if (img_pdfminorversion(idict) < 4) {
-        luatex_fail("readjbig2: you need to generate at least PDF 1.4");
+        normal_error("readjbig2","you need to generate at least PDF 1.4");
         return false;
     } else {
         return true;
@@ -787,7 +786,7 @@ void read_jbig2_info(image_dict * idict)
         /* already an error done */
     }
     if (img_pagenum(idict) < 1) {
-        luatex_fail("readjbig2: page must be > 0");
+        normal_error("readjbig2","page must be > 0");
     }
     if (file_tree == NULL) {
         file_tree = avl_create(comp_file_entry, NULL, &avl_xallocator);
@@ -810,7 +809,7 @@ void read_jbig2_info(image_dict * idict)
     }
     pip = find_pageinfo(&(fip->pages), (unsigned long) img_pagenum(idict));
     if (pip == NULL) {
-        luatex_fail("readjbig2: page %d not found in image file",(int) img_pagenum(idict));
+        formatted_error("readjbig2","page %d not found in image file",(int) img_pagenum(idict));
     }
     img_totalpages(idict) = (int) fip->numofpages;
     img_xsize(idict) = (int) pip->width;

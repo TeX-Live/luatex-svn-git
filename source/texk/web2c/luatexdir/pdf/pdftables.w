@@ -39,8 +39,7 @@ static int compare_info(const void *pa, const void *pb, void *param)
     b = (const oentry *) pb;
     if (a->u_type == b->u_type) {
         if (a->u_type == union_type_int)
-            return ((a->u.int0 <
-                     b->u.int0 ? -1 : (a->u.int0 > b->u.int0 ? 1 : 0)));
+            return ((a->u.int0 < b->u.int0 ? -1 : (a->u.int0 > b->u.int0 ? 1 : 0)));
         else                    /* string type */
             return strcmp(a->u.str0, b->u.str0);
     } else if (a->u_type == union_type_int)
@@ -56,11 +55,11 @@ static void avl_put_obj(PDF pdf, int t, oentry * oe)
     if (pdf->obj_tree[t] == NULL) {
         pdf->obj_tree[t] = avl_create(compare_info, NULL, &avl_xallocator);
         if (pdf->obj_tree[t] == NULL)
-            luatex_fail("avlstuff.c: avl_create() pdf->obj_tree failed");
+            formatted_error("pdf backend","avl_create() pdf->obj_tree failed");
     }
     pp = avl_probe(pdf->obj_tree[t], oe);
     if (pp == NULL)
-        luatex_fail("avlstuff.c: avl_probe() out of memory in insertion");
+        formatted_error("pdf backend","avl_probe() out of memory in insertion");
 }
 
 static void avl_put_int_obj(PDF pdf, int int0, int objptr, int t)
@@ -146,8 +145,7 @@ int pdf_create_obj(PDF pdf, int t, int i)
         obj_link(pdf, pdf->obj_ptr) = pdf->head_tab[t];
         pdf->head_tab[t] = pdf->obj_ptr;
         if ((t == obj_type_dest) && (i < 0))
-            append_dest_name(pdf, makecstring(-obj_info(pdf, pdf->obj_ptr)),
-                             pdf->obj_ptr);
+            append_dest_name(pdf, makecstring(-obj_info(pdf, pdf->obj_ptr)), pdf->obj_ptr); /* why not just -i */
     }
     return pdf->obj_ptr;
 }

@@ -30,7 +30,7 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     scaled_whd alt_rule;
     int k;
     if (global_shipping_mode == SHIPPING_FORM)
-        normal_error("pdf backend", "annotations cannot be inside an XForm");
+        normal_error("pdf backend", "annotations cannot be inside an xform");
     if (doing_leaders)
         return;
     if (is_obj_scheduled(pdf, pdf_annot_objnum(p))) {

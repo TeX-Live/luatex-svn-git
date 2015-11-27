@@ -275,24 +275,24 @@ void read_jpg_info(image_dict * idict)
     unsigned short appmk, length;
     unsigned char jpg_id[] = "JFIF";
     if (img_type(idict) != IMG_TYPE_JPG) {
-        luatex_fail("readjpg: conflicting image dictionary");
+        normal_error("readjpg","conflicting image dictionary");
     }
     if (img_file(idict) != NULL) {
-        luatex_fail("readjpg: image data already read");
+        normal_error("readjpg","image data already read");
     }
     img_totalpages(idict) = 1;
     img_pagenum(idict) = 1;
     img_xres(idict) = img_yres(idict) = 0;
     img_file(idict) = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);
     if (img_file(idict) == NULL) {
-        luatex_fail("readjpg: unable to read image file");
+        normal_error("readjpg","unable to read image file");
     }
     img_jpg_ptr(idict) = xtalloc(1, jpg_img_struct);
     xfseek(img_file(idict), 0, SEEK_END, img_filepath(idict));
     img_jpg_ptr(idict)->length = xftell(img_file(idict), img_filepath(idict));
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
     if ((unsigned int) read2bytes(img_file(idict)) != 0xFFD8) {
-        luatex_fail("readjpg: no header found");
+        normal_error("readjpg","no header found");
     }
     /* currently JFIF and Exif files allow extracting |img_xres| and |img_yres| */
     appmk = read2bytes(img_file(idict));
@@ -313,8 +313,7 @@ void read_jpg_info(image_dict * idict)
             case 1:
                 /* pixels per inch */
                 if ((img_xres(idict) == 1) || (img_yres(idict) == 1)) {
-                    luatex_warn("readjpg: unusual resolution of %ddpi by %ddpi. ",
-                        img_xres(idict), img_yres(idict));
+                    formatted_warning("readjpg","unusual resolution of %ddpi by %ddpi", img_xres(idict), img_yres(idict));
                 }
                 break;
             case 2:
@@ -355,9 +354,9 @@ void read_jpg_info(image_dict * idict)
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
     while (1) {
         if (feof(img_file(idict))) {
-            luatex_fail("readjpg: premature file end");
+            normal_error("readjpg","premature file end");
         } else if (fgetc(img_file(idict)) != 0xFF) {
-            luatex_fail("readjpg: no marker found");
+            normal_error("readjpg","no marker found");
         }
         i = xgetc(img_file(idict));
         switch (i) {
@@ -371,11 +370,11 @@ void read_jpg_info(image_dict * idict)
             case M_SOF13:
             case M_SOF14:
             case M_SOF15: /* lossless */
-                luatex_fail("readjpg: unsupported compression SOF_%d", i - M_SOF0);
+                formatted_error("readjpg","unsupported compression SOF_%d", i - M_SOF0);
                 break;
             case M_SOF2:
                 if (img_pdfminorversion(idict) <= 2) {
-                    luatex_fail("readjpg: progressive DCT with PDF-1.2 is not permitted");
+                    normal_error("readjpg","progressive DCT with PDF-1.2 is not permitted");
                 }
             case M_SOF0:
             case M_SOF1:
@@ -396,7 +395,7 @@ void read_jpg_info(image_dict * idict)
                         img_procset(idict) |= PROCSET_IMAGE_C;
                         break;
                     default:
-                        luatex_fail("readjpg: unsupported color space %i", (int) img_jpg_color(idict));
+                        formatted_error("readjpg","unsupported color space %i", (int) img_jpg_color(idict));
                 }
                 /*
                     So we can optionally keep open a file in img.
@@ -424,7 +423,7 @@ void read_jpg_info(image_dict * idict)
                 break;
         }
     }
-    luatex_fail("readjpg: unknown fatal error");
+    normal_error("readjpg","unknown fatal error");
 }
 
 @ @c
@@ -440,7 +439,7 @@ static void reopen_jpg(image_dict * idict)
     img_keepopen(idict) = 1;
     read_jpg_info(idict);
     if (width != img_xsize(idict) || height != img_ysize(idict) || xres != img_xres(idict) || yres != img_yres(idict)) {
-        luatex_fail("writejpg: image dimensions have changed");
+        normal_error("writejpg","image dimensions have changed");
     }
 }
 
@@ -488,7 +487,7 @@ void write_jpg(PDF pdf, image_dict * idict)
                 pdf_end_array(pdf);
                 break;
             default:
-                luatex_fail("writejpg: unsupported JPEG color space %i", (int) img_jpg_color(idict));
+                formatted_error("writejpg","unsupported JPEG color space %i", (int) img_jpg_color(idict));
         }
     }
     pdf_dict_add_name(pdf, "Filter", "DCTDecode");
@@ -497,7 +496,7 @@ void write_jpg(PDF pdf, image_dict * idict)
     l = (size_t) img_jpg_ptr(idict)->length;
     xfseek(img_file(idict), 0, SEEK_SET, img_filepath(idict));
     if (read_file_to_buf(pdf, img_file(idict), l) != l) {
-        luatex_fail("writejpg: fread failed");
+        normal_error("writejpg","fread failed");
     }
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);

@@ -119,7 +119,7 @@ lua_token *check_istoken(lua_State * L, int ud)
     lua_token *p = maybe_istoken(L, ud);
     if (p != NULL)
         return p;
-    luatex_fail("There should have been a lua <token> here, not an object with type %s!", luaL_typename(L, ud));
+    formatted_error("token lib","lua <token> expected, not an object with type %s", luaL_typename(L, ud));
     return NULL;
 }
 

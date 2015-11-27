@@ -58,10 +58,10 @@ void read_png_info(image_dict * idict)
     png_structp png_p;
     png_infop info_p;
     if (img_type(idict) != IMG_TYPE_PNG) {
-        luatex_fail("readpng: conflicting image dictionary");
+        normal_error("readpng","conflicting image dictionary");
     }
     if (img_file(idict) != NULL) {
-        luatex_fail("readpng: image data already read");
+        normal_error("readpng","image data already read");
     }
     img_totalpages(idict) = 1;
     img_pagenum(idict) = 1;
@@ -69,15 +69,15 @@ void read_png_info(image_dict * idict)
     img_file(idict) = xfopen(img_filepath(idict), FOPEN_RBIN_MODE);
     img_png_ptr(idict) = xtalloc(1, png_img_struct);
     if ((png_p = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, warn)) == NULL) {
-        luatex_fail("readpng: png_create_read_struct() failed");
+        normal_error("readpng","png_create_read_struct() failed");
     }
     img_png_png_ptr(idict) = png_p;
     if ((info_p = png_create_info_struct(png_p)) == NULL) {
-        luatex_fail("readpng: png_create_info_struct() failed");
+        normal_error("readpng","png_create_info_struct() failed");
     }
     img_png_info_ptr(idict) = info_p;
     if (setjmp(png_jmpbuf(png_p))) {
-        luatex_fail("readpng: internal error");
+        normal_error("readpng","internal error");
     }
 #if PNG_LIBPNG_VER >= 10603
     /* ignore possibly incorrect CMF bytes */
@@ -105,8 +105,7 @@ void read_png_info(image_dict * idict)
         img_procset(idict) |= PROCSET_IMAGE_C;
         break;
     default:
-        luatex_fail("readpng: unsupported type of color_type <%i>",
-                    (int) png_get_color_type(png_p, info_p));
+        formatted_error("readpng","unsupported type of color_type '%i'",(int) png_get_color_type(png_p, info_p));
     }
     img_colordepth(idict) = png_get_bit_depth(png_p, info_p);
     /*
@@ -245,7 +244,7 @@ static void write_png_gray(PDF pdf, image_dict * idict)
         xfree(row);
     } else {
         if (png_get_image_height(png_p, info_p) * png_get_rowbytes(png_p, info_p) >= 10240000L) {
-            luatex_warn("pngwrite: large interlaced bitmap might cause out of memory");
+            formatted_warning("pngwrite","large interlaced bitmap might cause out of memory");
         }
         rows = xtalloc(png_get_image_height(png_p, info_p), png_bytep);
         for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++) {
@@ -288,7 +287,7 @@ static void write_png_gray_alpha(PDF pdf, image_dict * idict)
         xfree(row);
     } else {
         if (png_get_image_height(png_p, info_p) * png_get_rowbytes(png_p, info_p) >= 10240000L) {
-            luatex_warn("pngwrite: large interlaced bitmap might cause out of memory");
+            formatted_warning("pngwrite","large interlaced bitmap might cause out of memory");
         }
         rows = xtalloc(png_get_image_height(png_p, info_p), png_bytep);
         for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++) {
@@ -337,7 +336,7 @@ static void write_png_rgb_alpha(PDF pdf, image_dict * idict)
         xfree(row);
     } else {
         if (png_get_image_height(png_p, info_p) * png_get_rowbytes(png_p, info_p) >= 10240000L) {
-            luatex_warn("pngwrite: large interlaced bitmap might cause out of memory");
+            formatted_warning("pngwrite","large interlaced bitmap might cause out of memory");
         }
         rows = xtalloc(png_get_image_height(png_p, info_p), png_bytep);
         for (i = 0; i < (int) png_get_image_height(png_p, info_p); i++) {
@@ -375,7 +374,7 @@ static int spng_getint(FILE * f)
 {
     unsigned char buf[4];
     if (fread(buf, 1, 4, f) != 4) {
-        luatex_fail("writepng: reading chunk type failed");
+        normal_error("writepng", "reading chunk type failed");
     }
     return ((((((int) buf[0] << 8) + buf[1]) << 8) + buf[2]) << 8) + buf[3];
 }
@@ -397,7 +396,7 @@ static void copy_png(PDF pdf, image_dict * idict)
     f = (FILE *) png_get_io_ptr(png_p);
     /* 1st pass to find overall stream /Length */
     if (fseek(f, 8, SEEK_SET) != 0)
-        luatex_fail("writepng: fseek in file failed (1)");
+        normal_error("writepng", "fseek in file failed");
     do {
         len = spng_getint(f);
         type = spng_getint(f);
@@ -409,7 +408,7 @@ static void copy_png(PDF pdf, image_dict * idict)
             streamlength += len;
         default:
             if (fseek(f, len + 4, SEEK_CUR) != 0) {
-                luatex_fail("writepng: fseek in file failed (2)");
+                normal_error("writepng", "fseek in file failed");
             }
         }
     } while (endflag == false);
@@ -428,7 +427,7 @@ static void copy_png(PDF pdf, image_dict * idict)
     /* 2nd pass to copy data */
     endflag = false;
     if (fseek(f, 8, SEEK_SET) != 0)
-        luatex_fail("writepng: fseek in file failed (3)");
+        normal_error("writepng", "fseek in file failed");
     do {
         len = spng_getint(f);
         type = spng_getint(f);
@@ -436,13 +435,13 @@ static void copy_png(PDF pdf, image_dict * idict)
         case SPNG_CHUNK_IDAT:
             /* do copy */
             if (idat == 2) {
-                luatex_fail("writepng: IDAT chunk sequence broken");
+                normal_error("writepng", "IDAT chunk sequence broken");
             }
             idat = 1;
             if (read_file_to_buf(pdf, f, len) != len) {
-                luatex_fail("writepng: fread failed");
+                normal_error("writepng", "fread failed");
             } else if (fseek(f, 4, SEEK_CUR) != 0) {
-                luatex_fail("writepng: fseek in file failed (4)");
+                normal_error("writepng", "fseek in file failed");
             }
             break;
         case SPNG_CHUNK_IEND:
@@ -453,7 +452,7 @@ static void copy_png(PDF pdf, image_dict * idict)
             if (idat == 1)
                 idat = 2;
             if (fseek(f, len + 4, SEEK_CUR) != 0)
-                luatex_fail("writepng: fseek in file failed (5)");
+                normal_error("writepng", "fseek in file failed");
         }
     } while (endflag == false);
     pdf_end_stream(pdf);
@@ -474,7 +473,7 @@ static void reopen_png(image_dict * idict)
     img_keepopen(idict) = 1;
     read_png_info(idict);
     if (width != img_xsize(idict) || height != img_ysize(idict) || xres != img_xres(idict) || yres != img_yres(idict)) {
-        luatex_fail("writepng: image dimensions have changed");
+        normal_error("writepng", "image dimensions have changed");
     }
 }
 
@@ -570,7 +569,7 @@ void write_png(PDF pdf, image_dict * idict)
                 pdf_dict_add_name(pdf, "ColorSpace", "DeviceRGB");
                 break;
             default:
-                luatex_fail("writepng: unsupported color_type <%i>", png_get_color_type(png_p, info_p));
+                formatted_error("writepng", "unsupported color_type '%i'", png_get_color_type(png_p, info_p));
         }
     }
     if (png_copy
@@ -592,34 +591,34 @@ void write_png(PDF pdf, image_dict * idict)
     } else {
         if (img_errorlevel(idict) > 1) {
             if (!png_copy)
-                luatex_warn("pngcopy: failed");
+                normal_warning("pngcopy","failed");
             if (!(pdf->minor_version > 1))
-                luatex_warn("pngcopy: skipped because minorversion=%d ", pdf->minor_version);
+                formatted_warning("pngcopy","skipped because minorversion is '%d'", pdf->minor_version);
             if (!(png_get_interlace_type(png_p, info_p) == PNG_INTERLACE_NONE))
-                luatex_warn("pngcopy: skipped because of interlacing");
+                normal_warning("pngcopy","skipped because of interlacing");
             if (!((png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_GRAY)
                || (png_get_color_type(png_p, info_p) == PNG_COLOR_TYPE_RGB)))
-                luatex_warn("pngcopy: skipped because of colortype");
+                normal_warning("pngcopy","skipped because of colortype");
             if (pdf->image_apply_gamma)
-                luatex_warn("pngcopy: skipped because of gamma (1)");
+                normal_warning("pngcopy","skipped because of gamma (1)");
             if (!(!png_get_valid(png_p, info_p, PNG_INFO_gAMA) || int_file_gamma == PNG_FP_1))
-                luatex_warn("pngcopy: skipped because of gamma (2)");
+                normal_warning("pngcopy","skipped because of gamma (2)");
             if (png_get_valid(png_p, info_p, PNG_INFO_cHRM))
-                luatex_warn("pngcopy: skipped because of cHRM");
+                normal_warning("pngcopy","skipped because of cHRM");
             if (png_get_valid(png_p, info_p, PNG_INFO_iCCP))
-                luatex_warn("pngcopy: skipped because of iCCP");
+                normal_warning("pngcopy","skipped because of iCCP");
             if (png_get_valid(png_p, info_p, PNG_INFO_sBIT))
-                luatex_warn("pngcopy: skipped because of sBIT");
+                normal_warning("pngcopy","skipped because of sBIT");
             if (png_get_valid(png_p, info_p, PNG_INFO_sRGB))
-                luatex_warn("pngcopy: skipped because of sRGB");
+                normal_warning("pngcopy","skipped because of sRGB");
             if (png_get_valid(png_p, info_p, PNG_INFO_bKGD))
-                luatex_warn("pngcopy: skipped because of bKGD");
+                normal_warning("pngcopy","skipped because of bKGD");
             if (png_get_valid(png_p, info_p, PNG_INFO_hIST))
-                luatex_warn("pngcopy: skipped because of hIST");
+                normal_warning("pngcopy","skipped because of hIST");
             if (png_get_valid(png_p, info_p, PNG_INFO_tRNS))
-                luatex_warn("pngcopy: skipped because of tRNS");
+                normal_warning("pngcopy","skipped because of tRNS");
             if (png_get_valid(png_p, info_p, PNG_INFO_sPLT))
-                luatex_warn("pngcopy: skipped because of sPLT");
+                normal_warning("pngcopy","skipped because of sPLT");
         }
         switch (png_get_color_type(png_p, info_p)) {
             case PNG_COLOR_TYPE_PALETTE:

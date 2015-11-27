@@ -194,7 +194,7 @@ static void set_charinfo(internal_font_number f, int c, charinfo * ci)
         if (glyph) {
             font_tables[f]->charinfo[glyph] = *ci;
         } else {
-            luatex_fail("font: %s", "character insertion failed");
+            normal_error("font","character insertion failed");
         }
     } else if (c == left_boundarychar) {
         set_left_boundary(f, ci);
@@ -1939,7 +1939,7 @@ void read_expand_font(void)
             normal_error("font expansion","font has been expanded with different auto expansion value");
     } else {
         if (font_used(f))
-            normal_warning("font expansion", "font should be expanded before its first use", true, true);
+            normal_warning("font expansion", "font should be expanded before its first use");
         set_expand_params(f, auto_expand, stretch_limit, shrink_limit,
                           font_step);
     }

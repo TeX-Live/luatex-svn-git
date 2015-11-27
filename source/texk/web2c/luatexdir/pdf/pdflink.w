@@ -54,7 +54,7 @@ void do_link(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     if (type(p) == vlist_node)
         normal_error("pdf backend", "'startlink' ended up in vlist");
     if (global_shipping_mode == SHIPPING_FORM)
-        normal_error("pdf backend", "link annotations cannot be inside an XForm");
+        normal_error("pdf backend", "link annotations cannot be inside an xform");
     assert(type(parent_box) == hlist_node);
     if (is_obj_scheduled(pdf, pdf_link_objnum(p)))
         pdf_link_objnum(p) = pdf_create_obj(pdf, obj_type_others, 0);

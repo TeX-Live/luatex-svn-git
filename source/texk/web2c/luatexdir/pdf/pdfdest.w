@@ -38,8 +38,7 @@ void append_dest_name(PDF pdf, char *s, int n)
 {
     int a;
     if (pdf->dest_names_ptr == sup_dest_names_size)
-        overflow("number of destination names (dest_names_size)",
-                 (unsigned) pdf->dest_names_size);
+        overflow("number of destination names (dest_names_size)",(unsigned) pdf->dest_names_size);
     if (pdf->dest_names_ptr == pdf->dest_names_size) {
         a = pdf->dest_names_size / 5;
         if (pdf->dest_names_size < sup_dest_names_size - a)
@@ -60,22 +59,16 @@ void append_dest_name(PDF pdf, char *s, int n)
 with the same identifier already exists and give a warning if needed.
 
 @c
-void warn_dest_dup(int id, small_number byname, const char *s1, const char *s2)
+static void warn_dest_dup(int id, small_number byname)
 {
-    normal_warning(s1, "destination with the same identifier (", false, false);
     if (byname > 0) {
-        tprint("name");
-        print_mark(id);
+        char *ss = tokenlist_to_cstring(id, true, NULL);
+        formatted_warning("pdf backend", "ignoring duplicate destination with the name '%s'",ss);
     } else {
-        tprint("num");
-        print_int(id);
+        formatted_warning("pdf backend", "ignoring duplicate destination with the num '%d'",id);
     }
-    tprint(") ");
-    tprint(s2);
-    print_ln();
-    show_context();
+    /* no longer the annoying context */
 }
-
 
 @ @c
 void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
@@ -84,13 +77,12 @@ void do_dest(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     scaled_whd alt_rule;
     int k;
     if (global_shipping_mode == SHIPPING_FORM)
-        normal_error("pdf backend", "destinations cannot be inside an XForm");
+        normal_error("pdf backend", "destinations cannot be inside an xform");
     if (doing_leaders)
         return;
     k = pdf_get_obj(pdf, obj_type_dest, pdf_dest_id(p), pdf_dest_named_id(p));
     if (obj_dest_ptr(pdf, k) != null) {
-        warn_dest_dup(pdf_dest_id(p), (small_number) pdf_dest_named_id(p),
-                      "pdf backend", "has been already used, duplicate ignored");
+        warn_dest_dup(pdf_dest_id(p), (small_number) pdf_dest_named_id(p));
         return;
     }
     obj_dest_ptr(pdf, k) = p;
@@ -271,13 +263,10 @@ void scan_pdfdest(PDF pdf)
         k = find_obj(pdf, obj_type_dest, i, true);
         flush_str(i);
     } else {
-        k = find_obj(pdf, obj_type_dest, pdf_dest_id(cur_list.tail_field),
-                     false);
+        k = find_obj(pdf, obj_type_dest, pdf_dest_id(cur_list.tail_field), false);
     }
     if ((k != 0) && (obj_dest_ptr(pdf, k) != null)) {
-        warn_dest_dup(pdf_dest_id(cur_list.tail_field),
-                      (small_number) pdf_dest_named_id(cur_list.tail_field),
-                      "pdf backend", "has been already used, duplicate ignored");
+        warn_dest_dup(pdf_dest_id(cur_list.tail_field),(small_number) pdf_dest_named_id(cur_list.tail_field));
         flush_node_list(cur_list.tail_field);
         cur_list.tail_field = q;
         vlink(q) = null;

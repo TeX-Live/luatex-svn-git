@@ -586,7 +586,7 @@ lua_State *luatex_error(lua_State * L, int is_fatal)
         lua_close(L);
         return (lua_State *) NULL;
     } else {
-        normal_warning("lua",err,true,true);
+        normal_warning("lua",err);
         return L;
     }
 }
