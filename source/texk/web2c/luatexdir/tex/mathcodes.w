@@ -20,10 +20,9 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
-@ math codes 
+@ math codes
 @c
 static sa_tree mathcode_head = NULL;
 
@@ -146,6 +145,13 @@ static void unsavemathcode(quarterword gl)
             }
         }
         (mathcode_head->stack_ptr)--;
+        /* we can assume some symmetry: needs checking by taco */
+        mathcode_heapptr--;
+    }
+    /* alternatively we could store the current bottom of a heap in the savestack */
+    if (mathcode_heapptr < 0) {
+        /* something went wrong */
+        mathcode_heapptr = 0;
     }
 }
 
@@ -334,8 +340,14 @@ static void unsavedelcode(quarterword gl)
             }
         }
         (delcode_head->stack_ptr)--;
+        /* we can assume some symmetry: needs checking by taco */
+        delcode_heapptr--;
     }
-
+    /* alternatively we could store the current bottom of a heap in the savestack */
+    if (delcode_heapptr < 0) {
+        /* something went wrong */
+        delcode_heapptr = 0;
+    }
 }
 
 @ @c
