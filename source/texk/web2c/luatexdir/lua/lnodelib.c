@@ -1880,6 +1880,29 @@ static int lua_nodelib_has_field(lua_State * L)
     return 1;
 }
 
+/* node.is_char (node[,font]) */
+
+static int lua_nodelib_is_char(lua_State * L)
+{
+    halfword n;
+    halfword f;
+    n = (halfword) lua_tonumber(L, 1);
+    if ((type(n) == glyph_node) && (subtype(n) < 256)) { /* <= 256 */
+        if (lua_type(L,2) == LUA_TNUMBER) {
+            f = (halfword ) lua_tointeger(L, 2);
+            if (f && f == font(n)) {
+                lua_pushinteger(L,character(n));
+                return 1;
+            }
+        } else {
+            lua_pushinteger(L,character(n));
+            return 1;
+        }
+    }
+    lua_pushboolean(L,0);
+    return 1;
+}
+
 /* node.direct.has_field */
 
 static int lua_nodelib_direct_has_field(lua_State * L)
@@ -5657,9 +5680,14 @@ static int lua_nodelib_direct_is_char(lua_State * L)
     halfword f;
     n = (halfword ) lua_tointeger(L, 1);
     if ((type(n) == glyph_node) && (subtype(n) < 256)) { /* <= 256 */
-        f = (halfword ) lua_tointeger(L, 2);
-        if (f && f == font(n)) {
-            lua_pushboolean(L,1);
+        if (lua_type(L,2) == LUA_TNUMBER) {
+            f = (halfword ) lua_tointeger(L, 2);
+            if (f && f == font(n)) {
+                lua_pushinteger(L,character(n));
+                return 1;
+            }
+        } else {
+            lua_pushinteger(L,character(n));
             return 1;
         }
     }
@@ -6755,6 +6783,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"has_glyph", lua_nodelib_has_glyph},
     {"has_attribute", lua_nodelib_has_attribute},
     {"has_field", lua_nodelib_has_field},
+    {"is_char", lua_nodelib_is_char},
     {"hpack", lua_nodelib_hpack},
     {"id", lua_nodelib_id},
     {"insert_after", lua_nodelib_insert_after},
