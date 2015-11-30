@@ -181,7 +181,7 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
     if (get_charinfo_bot_accent(co) != 0 && get_charinfo_bot_accent(co) != INT_MIN) {
        dump_intfield(L,bot_accent,get_charinfo_bot_accent(co));
     }
-    if (get_charinfo_ef(co) != 0) {
+    if (get_charinfo_ef(co) != 1000) {
         dump_intfield(L,expansion_factor,get_charinfo_ef(co));
     }
     if (get_charinfo_lp(co) != 0) {
@@ -202,8 +202,9 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
     if (get_charinfo_tag(co) == list_tag) {
         dump_intfield(L,next,get_charinfo_remainder(co));
     }
-    dump_booleanfield(L,used,(get_charinfo_used(co) ? true : false));
-
+    if (get_charinfo_used(co)) {
+        dump_booleanfield(L,used,(get_charinfo_used(co) ? true : false));
+    }
     if (get_charinfo_tag(co) == ext_tag) {
         extinfo *h;
         h = get_charinfo_hor_variants(co);
@@ -249,13 +250,24 @@ static void font_char_to_lua(lua_State * L, internal_font_number f, charinfo * c
         lua_push_string_by_name(L,kerns);
         lua_createtable(L, 10, 1);
         for (i = 0; !kern_end(ki[i]); i++) {
-            if (kern_char(ki[i]) == right_boundarychar) {
-                lua_push_string_by_name(L,right_boundary);
+            if (kern_disabled(ki[i])) {
+                /* skip like in lookup */
             } else {
-                lua_pushinteger(L, kern_char(ki[i]));
+                lua_rawgeti(L, -1, kern_char(ki[i]));
+                if (lua_type(L,-1) == LUA_TNIL) {
+                    lua_pop(L,1);
+                    if (kern_char(ki[i]) == right_boundarychar) {
+                        lua_push_string_by_name(L,right_boundary);
+                    } else {
+                        lua_pushinteger(L, kern_char(ki[i]));
+                    }
+                    lua_pushinteger(L, kern_kern(ki[i]));
+                    lua_rawset(L, -3);
+                } else {
+                    /* first one wins */
+                    lua_pop(L,1);
+                }
             }
-            lua_pushinteger(L, kern_kern(ki[i]));
-            lua_rawset(L, -3);
         }
         lua_rawset(L, -3);
     }
@@ -1029,7 +1041,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i, int *l_fonts, b
         set_charinfo_vert_italic(co, j);
         j = lua_numeric_field_by_index(L, lua_key_index(index), 0);
         set_charinfo_index(co, j);
-        j = lua_numeric_field_by_index(L, lua_key_index(expansion_factor), 0);
+        j = lua_numeric_field_by_index(L, lua_key_index(expansion_factor), 1000);
         set_charinfo_ef(co, j);
         j = lua_numeric_field_by_index(L, lua_key_index(left_protruding), 0);
         set_charinfo_lp(co, j);
