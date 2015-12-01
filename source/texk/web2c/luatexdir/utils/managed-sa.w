@@ -19,6 +19,7 @@
 
 @* Sparse arrays with an embedded save stack.
 
+
 @ @c
 
 
@@ -81,16 +82,13 @@ void set_sa_item(sa_tree head, int n, sa_tree_item v, int gl)
     m = MIDPART_PART(n);
     l = LOWPART_PART(n);
     if (head->tree == NULL) {
-        head->tree =
-            (sa_tree_item ***) Mxcalloc_array(sa_tree_item **, HIGHPART);
+        head->tree = (sa_tree_item ***) Mxcalloc_array(sa_tree_item **, HIGHPART);
     }
     if (head->tree[h] == NULL) {
-        head->tree[h] =
-            (sa_tree_item **) Mxcalloc_array(sa_tree_item *, MIDPART);
+        head->tree[h] = (sa_tree_item **) Mxcalloc_array(sa_tree_item *, MIDPART);
     }
     if (head->tree[h][m] == NULL) {
-        head->tree[h][m] =
-            (sa_tree_item *) Mxmalloc_array(sa_tree_item, LOWPART);
+        head->tree[h][m] = (sa_tree_item *) Mxmalloc_array(sa_tree_item, LOWPART);
         for (i = 0; i < LOWPART; i++) {
             head->tree[h][m][i] = head->dflt;
         }
@@ -168,13 +166,15 @@ sa_tree copy_sa_tree(sa_tree b)
 }
 
 @ The main reason to fill in the lowest entry branches here immediately
-is that most of the sparse arrays have a bias toward ASCII values. 
+is that most of the sparse arrays have a bias toward ASCII values.
 
 Allocating those here immediately improves the chance of the structure
-|a->tree[0][0][x]| being close together in actual memory locations 
+|a->tree[0][0][x]| being close together in actual memory locations
 
 @c
-sa_tree new_sa_tree(int size, sa_tree_item dflt)
+/* we could save less for type 0 stacks */
+
+sa_tree new_sa_tree(int size, int type, sa_tree_item dflt)
 {
     sa_tree_head *a;
     a = (sa_tree_head *) xmalloc(sizeof(sa_tree_head));
@@ -184,6 +184,7 @@ sa_tree new_sa_tree(int size, sa_tree_item dflt)
     a->tree[0] = (sa_tree_item **) Mxcalloc_array(sa_tree_item *, MIDPART);
     a->stack_size = size;
     a->stack_step = size;
+    a->stack_type = type;
     a->stack_ptr = 0;
     return (sa_tree) a;
 }
@@ -203,19 +204,20 @@ void restore_sa_stack(sa_tree head, int gl)
     }
 }
 
-
 @ @c
 void dump_sa_tree(sa_tree a)
 {
     boolean f;
-    int x;
+    int x, n;
     int h, m, l;
     assert(a != NULL);
     dump_int(a->stack_step);
-    x = (int) a->dflt;
+    x = a->dflt.int_value;
     dump_int(x);
     if (a->tree != NULL) {
         dump_int(1);
+        n = a->stack_type;
+        dump_int(n);
         for (h = 0; h < HIGHPART; h++) {
             if (a->tree[h] != NULL) {
                 f = 1;
@@ -225,8 +227,12 @@ void dump_sa_tree(sa_tree a)
                         f = 1;
                         dump_qqqq(f);
                         for (l = 0; l < LOWPART; l++) {
-                            x = (int) a->tree[h][m][l];
+                            x = a->tree[h][m][l].dump_uint.value_1;
                             dump_int(x);
+                            if (n == 1) {
+                                x = a->tree[h][m][l].dump_uint.value_2;
+                                dump_int(x);
+                            }
                         }
                     } else {
                         f = 0;
@@ -246,7 +252,7 @@ void dump_sa_tree(sa_tree a)
 @ @c
 sa_tree undump_sa_tree(void)
 {
-    int x;
+    int x, n;
     int h, m, l;
     boolean f;
     sa_tree a = (sa_tree) Mxmalloc_array(sa_tree_head, 1);
@@ -254,7 +260,7 @@ sa_tree undump_sa_tree(void)
     a->stack_step = x;
     a->stack_size = x;
     undump_int(x);
-    a->dflt = (sa_tree_item) x;
+    a->dflt.int_value = x;
     a->stack = Mxmalloc_array(sa_stack_item, a->stack_size);
     a->stack_ptr = 0;
     a->tree = NULL;
@@ -262,6 +268,8 @@ sa_tree undump_sa_tree(void)
     if (x == 0)
         return a;
     a->tree = (sa_tree_item ***) Mxcalloc_array(void *, HIGHPART);
+    undump_int(n);
+    a->stack_type = n;
     for (h = 0; h < HIGHPART; h++) {
         undump_qqqq(f);
         if (f > 0) {
@@ -272,7 +280,11 @@ sa_tree undump_sa_tree(void)
                     a->tree[h][m] = Mxmalloc_array(sa_tree_item, LOWPART);
                     for (l = 0; l < LOWPART; l++) {
                         undump_int(x);
-                        a->tree[h][m][l] = (unsigned int) x;
+                        a->tree[h][m][l].dump_uint.value_1 = x;
+                        if (n == 1) {
+                            undump_int(x);
+                            a->tree[h][m][l].dump_uint.value_2 = x;
+                        }
                     }
                 }
             }

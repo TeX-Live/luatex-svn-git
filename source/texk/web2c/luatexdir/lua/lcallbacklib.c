@@ -94,7 +94,7 @@ void get_lua_boolean(const char *table, const char *name, boolean * target)
         if (t == LUA_TBOOLEAN) {
             *target = (boolean) (lua_toboolean(Luas, -1));
         } else if (t == LUA_TNUMBER) {
-            *target = (boolean) (lua_tonumber(Luas, -1) == 0 ? 0 : 1);
+            *target = (boolean) (lua_tointeger(Luas, -1) == 0 ? 0 : 1);
         }
     }
     lua_settop(Luas, stacktop);
@@ -114,7 +114,7 @@ void get_saved_lua_boolean(int r, const char *name, boolean * target)
         if (t == LUA_TBOOLEAN) {
             *target = (boolean) lua_toboolean(Luas, -1);
         } else if (t == LUA_TNUMBER) {
-            *target = (boolean) (lua_tonumber(Luas, -1) == 0 ? 0 : 1);
+            *target = (boolean) (lua_tointeger(Luas, -1) == 0 ? 0 : 1);
         }
     }
     lua_settop(Luas, stacktop);
@@ -130,7 +130,7 @@ void get_lua_number(const char *table, const char *name, int *target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_type(Luas, -1) == LUA_TNUMBER) {
-            *target = (int)lua_tonumber(Luas, -1);
+            *target = (int) lua_tointeger(Luas, -1);
         }
     }
     lua_settop(Luas, stacktop);
@@ -146,7 +146,7 @@ void get_saved_lua_number(int r, const char *name, int *target)
     if (lua_istable(Luas, -1)) {
         lua_getfield(Luas, -1, name);
         if (lua_type(Luas, -1) == LUA_TNUMBER) {
-            *target=(int)lua_tonumber(Luas, -1);
+            *target = (int) lua_tointeger(Luas, -1);
         }
     }
     lua_settop(Luas, stacktop);
@@ -378,7 +378,7 @@ int do_run_callback(int special, const char *values, va_list vl)
                     fprintf(stderr, "callback should return a number, not: %s\n", lua_typename(L, t));
                     goto EXIT;
                 }
-                b = (int) lua_tonumber(L, nres);
+                b = (int) lua_tointeger(L, nres);
                 *va_arg(vl, int *) = b;
                 break;
             case CALLBACK_LINE:    /* TeX line ... happens frequently when we have a plug-in */

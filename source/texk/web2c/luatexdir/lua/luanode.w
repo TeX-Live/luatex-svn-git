@@ -161,7 +161,7 @@ int lua_appendtovlist_callback(halfword box, int location, halfword prev_depth, 
         return 0;
     }
     if (lua_type(L,-1) == LUA_TNUMBER) {
-        *next_depth = lua_tonumber(L,-1);
+        *next_depth = lua_tointeger(L,-1);
         *prev_set = true;
         if (lua_type(L, -2) != LUA_TNIL) {
             p = check_isnode(L, -2);

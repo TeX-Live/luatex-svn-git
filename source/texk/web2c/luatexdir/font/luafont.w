@@ -544,8 +544,6 @@ static void append_float(eight_bits ** cpp, float a)
     *cpp = cp;
 }
 
-/*#define lua_roundnumber(a,b) (int)floor((double)lua_tonumber(L,-1)+0.5)*/
-
 static int n_enum_field(lua_State * L, int name_index, int dflt, const char **values)
 {
     int k, t;
@@ -555,7 +553,7 @@ static int n_enum_field(lua_State * L, int name_index, int dflt, const char **va
     lua_rawget(L, -2);
     t = lua_type(L,-1);
     if (t == LUA_TNUMBER) {
-        i=(int)lua_tonumber(L, -1);
+        i = (int) lua_tointeger(L, -1);
     } else if (t == LUA_TSTRING) {
         s = lua_tostring(L, -1);
         k = 0;
@@ -898,8 +896,8 @@ static void read_lua_parameters(lua_State * L, int f)
         n = 7;
         lua_pushnil(L);         /* first key */
         while (lua_next(L, -2) != 0) {
-            if (lua_isnumber(L, -2)) {
-                i=(int)lua_tonumber(L, -2);
+            if (lua_type(L, -2) == LUA_TNUMBER) {
+                i = (int) lua_tointeger(L, -2);
                 if (i > n)
                     n = i;
             }
@@ -910,8 +908,8 @@ static void read_lua_parameters(lua_State * L, int f)
         /* sometimes it is handy to have all integer keys */
         for (i = 1; i <= 7; i++) {
             lua_rawgeti(L, -1, i);
-            if (lua_isnumber(L, -1)) {
-                n = lua_roundnumber(L, -1);
+            if (lua_type(L, -1) == LUA_TNUMBER) {
+                n = lua_roundnumber(L, -1); /* round ? */
                 set_font_param(f, i, n);
             }
             lua_pop(L, 1);
@@ -970,11 +968,11 @@ static void read_lua_math_parameters(lua_State * L, int f)
         while (lua_next(L, -2) != 0) {
             t = lua_type(L,-2);
             if (t == LUA_TNUMBER) {
-                i=(int)lua_tonumber(L, -2);
+                i = (int) lua_tointeger(L, -2);
             } else if (t == LUA_TSTRING) {
                 i = ff_checkoption(L, -2, NULL, MATH_param_names);
             }
-            n=(int)lua_tonumber(L, -1);
+            n = (int) lua_tointeger(L, -1);
             if (i > 0) {
                 set_font_math_param(f, i, n);
             }
@@ -1241,7 +1239,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i, int *l_fonts, b
                     k = non_boundarychar;
                     lt = lua_type(L,-2);
                     if (lt == LUA_TNUMBER) {
-                        k=(int)lua_tonumber(L, -2); /* adjacent char */
+                        k = (int) lua_tointeger(L, -2); /* adjacent char */
                         if (k < 0)
                             k = non_boundarychar;
                     } else if (lt == LUA_TSTRING) {
@@ -1300,7 +1298,7 @@ font_char_from_lua(lua_State * L, internal_font_number f, int i, int *l_fonts, b
                     k = non_boundarychar;
                     lt = lua_type(L,-2);
                     if (lt == LUA_TNUMBER) {
-                        k=(int)lua_tonumber(L, -2); /* adjacent char */
+                        k = (int) lua_tointeger(L, -2); /* adjacent char */
                         if (k < 0) {
                             k = non_boundarychar;
                         }
@@ -1457,8 +1455,8 @@ int font_from_lua(lua_State * L, int f)
             lua_rawgeti(L, -1, i);
             if (lua_istable(L, -1)) {
                 lua_key_rawgeti(id);
-                if (lua_isnumber(L, -1)) {
-                    l_fonts[i]=(int)lua_tonumber(L, -1);
+                if (lua_type(L, -1) == LUA_TNUMBER) {
+                    l_fonts[i] = (int) lua_tointeger(L, -1);
                     if (l_fonts[i] == 0) {
                         l_fonts[i] = (int) f;
                     }
@@ -1524,7 +1522,7 @@ int font_from_lua(lua_State * L, int f)
         bc = -1;
         lua_pushnil(L);         /* first key */
         while (lua_next(L, -2) != 0) {
-            if (lua_isnumber(L, -2)) {
+            if (lua_type(L, -2) == LUA_TNUMBER) {
                 i = (int) lua_tointeger(L, -2);
                 if (i >= 0) {
                     if (lua_istable(L, -1)) {
@@ -1551,7 +1549,7 @@ int font_from_lua(lua_State * L, int f)
             while (lua_next(L, -2) != 0) {
                 lt = lua_type(L,-2);
                 if (lt == LUA_TNUMBER) {
-                    i=(int)lua_tonumber(L, -2);
+                    i = (int) lua_tointeger(L, -2);
                     if (i >= 0) {
                         font_char_from_lua(L, f, i, l_fonts, !no_math);
                     }

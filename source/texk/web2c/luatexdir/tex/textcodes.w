@@ -19,7 +19,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ @c
@@ -41,7 +40,6 @@ static sa_tree sfcode_head = NULL;
 #define CATCODESTACK 8
 #define CATCODEDEFAULT 12
 
-
 void set_lc_code(int n, halfword v, quarterword gl)
 {
     set_sa_item(lccode_head, n, (sa_tree_item) v, gl);
@@ -49,7 +47,7 @@ void set_lc_code(int n, halfword v, quarterword gl)
 
 halfword get_lc_code(int n)
 {
-    return (halfword) get_sa_item(lccode_head, n);
+    return (halfword) get_sa_item(lccode_head, n).int_value;
 }
 
 static void unsavelccodes(quarterword gl)
@@ -59,7 +57,7 @@ static void unsavelccodes(quarterword gl)
 
 static void initializelccodes(void)
 {
-    lccode_head = new_sa_tree(LCCODESTACK, LCCODEDEFAULT);
+    lccode_head = new_sa_tree(LCCODESTACK, 1, (sa_tree_item) LCCODEDEFAULT);
 }
 
 static void dumplccodes(void)
@@ -79,7 +77,7 @@ void set_uc_code(int n, halfword v, quarterword gl)
 
 halfword get_uc_code(int n)
 {
-    return (halfword) get_sa_item(uccode_head, n);
+    return (halfword) get_sa_item(uccode_head, n).int_value;
 }
 
 static void unsaveuccodes(quarterword gl)
@@ -89,7 +87,7 @@ static void unsaveuccodes(quarterword gl)
 
 static void initializeuccodes(void)
 {
-    uccode_head = new_sa_tree(UCCODESTACK, UCCODEDEFAULT);
+    uccode_head = new_sa_tree(UCCODESTACK, 1, (sa_tree_item) UCCODEDEFAULT);
 }
 
 static void dumpuccodes(void)
@@ -109,7 +107,7 @@ void set_sf_code(int n, halfword v, quarterword gl)
 
 halfword get_sf_code(int n)
 {
-    return (halfword) get_sa_item(sfcode_head, n);
+    return (halfword) get_sa_item(sfcode_head, n).int_value;
 }
 
 static void unsavesfcodes(quarterword gl)
@@ -119,7 +117,7 @@ static void unsavesfcodes(quarterword gl)
 
 static void initializesfcodes(void)
 {
-    sfcode_head = new_sa_tree(SFCODESTACK, SFCODEDEFAULT);
+    sfcode_head = new_sa_tree(SFCODESTACK, 1, (sa_tree_item) SFCODEDEFAULT);
 }
 
 static void dumpsfcodes(void)
@@ -132,21 +130,20 @@ static void undumpsfcodes(void)
     sfcode_head = undump_sa_tree();
 }
 
-
 static sa_tree *catcode_heads = NULL;
 static int catcode_max = 0;
 static unsigned char *catcode_valid = NULL;
 
 #define CATCODE_MAX 32767
 
-#define update_catcode_max(h)  if (h > catcode_max)  catcode_max = h
+#define update_catcode_max(h) if (h > catcode_max) catcode_max = h
 
 void set_cat_code(int h, int n, halfword v, quarterword gl)
 {
     sa_tree s = catcode_heads[h];
     update_catcode_max(h);
     if (s == NULL) {
-        s = new_sa_tree(CATCODESTACK, CATCODEDEFAULT);
+        s = new_sa_tree(CATCODESTACK, 1, (sa_tree_item) CATCODEDEFAULT);
         catcode_heads[h] = s;
     }
     set_sa_item(s, n, (sa_tree_item) v, gl);
@@ -157,10 +154,10 @@ halfword get_cat_code(int h, int n)
     sa_tree s = catcode_heads[h];
     update_catcode_max(h);
     if (s == NULL) {
-        s = new_sa_tree(CATCODESTACK, CATCODEDEFAULT);
+        s = new_sa_tree(CATCODESTACK, 1, (sa_tree_item) CATCODEDEFAULT);
         catcode_heads[h] = s;
     }
-    return (halfword) get_sa_item(s, n);
+    return (halfword) get_sa_item(s, n).int_value;
 }
 
 void unsave_cat_codes(int h, quarterword gl)
@@ -173,26 +170,15 @@ void unsave_cat_codes(int h, quarterword gl)
     }
 }
 
-#if 0
-static void clearcatcodestack(int h)
-{
-    clear_sa_stack(catcode_heads[h]);
-}
-#endif
-
 static void initializecatcodes(void)
 {
     catcode_max = 0;
-#if 0
-    xfree(catcode_heads); /* not needed */
-    xfree(catcode_valid); 
-#endif
     catcode_heads = Mxmalloc_array(sa_tree, (CATCODE_MAX + 1));
     catcode_valid = Mxmalloc_array(unsigned char, (CATCODE_MAX + 1));
     memset(catcode_heads, 0, sizeof(sa_tree) * (CATCODE_MAX + 1));
     memset(catcode_valid, 0, sizeof(unsigned char) * (CATCODE_MAX + 1));
     catcode_valid[0] = 1;
-    catcode_heads[0] = new_sa_tree(CATCODESTACK, CATCODEDEFAULT);
+    catcode_heads[0] = new_sa_tree(CATCODESTACK, 1, (sa_tree_item) CATCODEDEFAULT);
 }
 
 static void dumpcatcodes(void)
@@ -300,7 +286,6 @@ void free_text_codes(void)
     xfree(catcode_heads);
     xfree(catcode_valid);
 }
-
 
 void dump_text_codes(void)
 {

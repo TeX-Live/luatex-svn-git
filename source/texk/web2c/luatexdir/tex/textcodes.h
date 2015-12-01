@@ -1,5 +1,5 @@
 /* textcodes.h
-   
+
    Copyright 2009 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -15,12 +15,12 @@
    License for more details.
 
    You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+*/
 
 #ifndef TEXTCODES_H
 #  define TEXTCODES_H
-
 
 void set_lc_code(int n, halfword v, quarterword gl);
 halfword get_lc_code(int n);
@@ -40,6 +40,5 @@ void undump_text_codes(void);
 void copy_cat_codes(int from, int to);
 void free_math_codes(void);
 void free_text_codes(void);
-
 
 #endif

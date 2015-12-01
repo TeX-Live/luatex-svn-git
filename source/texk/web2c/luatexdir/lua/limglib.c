@@ -660,7 +660,7 @@ static int m_img_mul(lua_State * L)
     } else if (lua_type(L, 2) != LUA_TNUMBER) {  /* n u? */
         (void) luaL_checkudata(L, 1, TYPE_IMG);  /* n a */
     }                                            /* n a */
-    scale = lua_tonumber(L, 2);                  /* n a */
+    scale = lua_tonumber(L, 2); /* float */      /* n a */
     lua_pop(L, 1);                               /* a */
     copy_image(L, scale);                        /* b */
     return 1;

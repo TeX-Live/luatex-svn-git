@@ -3675,11 +3675,10 @@ void initialize(void)
         initialize_text_codes();
         initex_cat_codes(0);
         for (k = '0'; k <= '9'; k++)
-            set_math_code(k, tex_mathcode, var_code, 0, k, level_one);
+            set_math_code(k, var_code, 0, k, level_one);
         for (k = 'A'; k <= 'Z'; k++) {
-            set_math_code(k, tex_mathcode, var_code, 1, k, level_one);
-            set_math_code((k + 32), tex_mathcode, var_code, 1, (k + 32),
-                          level_one);
+            set_math_code(k, var_code, 1, k, level_one);
+            set_math_code((k + 32), var_code, 1, (k + 32), level_one);
             set_lc_code(k, k + 32, level_one);
             set_lc_code(k + 32, k + 32, level_one);
             set_uc_code(k, k, level_one);
@@ -3696,7 +3695,7 @@ void initialize(void)
         max_dead_cycles = 25;
         escape_char = '\\';
         end_line_char = carriage_return;
-        set_del_code('.', tex_mathcode, 0, 0, 0, 0, level_one); /* this null delimiter is used in error recovery */
+        set_del_code('.', 0, 0, 0, 0, level_one); /* this null delimiter is used in error recovery */
         ex_hyphen_char = '-';
         output_box = 255;
         for (k = dimen_base; k <= eqtb_size; k++)

@@ -470,27 +470,45 @@ Make sure that there are at least |n| bytes free in that buffer,
 flush if needed.
 
 @c
+/*
 void pdf_room(PDF pdf, int n)
 {
     os_struct *os = pdf->os;
     strbuf_s *buf = pdf->buf;
     if ((size_t) (n + buf->p - buf->data) <= buf->size)
         return;
-    assert(buf == os->buf[os->curbuf]);
     switch (os->curbuf) {
     case PDFOUT_BUF:
         if ((size_t) n > buf->size)
             overflow("PDF output buffer", (unsigned) buf->size);
         if ((size_t) (n + buf->p - buf->data) < buf->limit)
-            strbuf_room(buf, (size_t) n);       /* grow it if possible */
+            strbuf_room(buf, (size_t) n);
         else
             pdf_flush(pdf);
         break;
     case OBJSTM_BUF:
-        strbuf_room(buf, (size_t) n);   /* just grow it */
+        strbuf_room(buf, (size_t) n);
         break;
     default:
         assert(0);
+    }
+}
+*/
+
+inline void pdf_room(PDF pdf, int n)
+{
+    strbuf_s *buf = pdf->buf;
+    if ((size_t) (n + buf->p - buf->data) <= buf->size)
+        return;
+    if (pdf->os->curbuf == PDFOUT_BUF) {
+        if ((size_t) n > buf->size)
+            overflow("PDF output buffer", (unsigned) buf->size);
+        if ((size_t) (n + buf->p - buf->data) < buf->limit)
+            strbuf_room(buf, (size_t) n);
+        else
+            pdf_flush(pdf);
+    } else {
+        strbuf_room(buf, (size_t) n);
     }
 }
 
