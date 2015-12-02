@@ -621,6 +621,7 @@ void scan_something_internal(int level, boolean negative)
             }
             break;
         case def_del_code_cmd:
+        case extdef_del_code_cmd: /* bonus */
             /* Fetch a character code from some table */
             scan_char_num();
             cur_val1 = get_del_code_num(cur_val);
