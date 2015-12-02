@@ -19,9 +19,14 @@
 
 @* Sparse arrays with an embedded save stack.
 
+These functions are called very often but a few days of experimenting proved that
+there is not much to gain (if at all) from using macros or optimizations like
+preallocating and fast access to the first 128 entries. In practice the overhead
+is mostly in accessing memory and not in (probably inlined) calls. So, we should
+accept fate and wait for faster memory. It's the price we pay for being unicode
+on the one hand and sparse on the other.
 
 @ @c
-
 
 #include "ptexlib.h"
 
@@ -59,12 +64,10 @@ static void skip_in_stack(sa_tree a, int n)
 @ @c
 sa_tree_item get_sa_item(const sa_tree head, const int n)
 {
-    register int h;
-    register int m;
     if (head->tree != NULL) {
-        h = HIGHPART_PART(n);
+        register int h = HIGHPART_PART(n);
         if (head->tree[h] != NULL) {
-            m = MIDPART_PART(n);
+            register int m = MIDPART_PART(n);
             if (head->tree[h][m] != NULL) {
                 return head->tree[h][m][LOWPART_PART(n)];
             }
@@ -76,11 +79,9 @@ sa_tree_item get_sa_item(const sa_tree head, const int n)
 @ @c
 void set_sa_item(sa_tree head, int n, sa_tree_item v, int gl)
 {
-    int h, m, l;
-    int i;
-    h = HIGHPART_PART(n);
-    m = MIDPART_PART(n);
-    l = LOWPART_PART(n);
+    int h = HIGHPART_PART(n);
+    int m = MIDPART_PART(n);
+    int l = LOWPART_PART(n);
     if (head->tree == NULL) {
         head->tree = (sa_tree_item ***) Mxcalloc_array(sa_tree_item **, HIGHPART);
     }
@@ -88,6 +89,7 @@ void set_sa_item(sa_tree head, int n, sa_tree_item v, int gl)
         head->tree[h] = (sa_tree_item **) Mxcalloc_array(sa_tree_item *, MIDPART);
     }
     if (head->tree[h][m] == NULL) {
+        int i;
         head->tree[h][m] = (sa_tree_item *) Mxmalloc_array(sa_tree_item, LOWPART);
         for (i = 0; i < LOWPART; i++) {
             head->tree[h][m][i] = head->dflt;
@@ -118,10 +120,10 @@ void clear_sa_stack(sa_tree a)
 @ @c
 void destroy_sa_tree(sa_tree a)
 {
-    int h, m;
     if (a == NULL)
         return;
     if (a->tree != NULL) {
+        int h, m;
         for (h = 0; h < HIGHPART; h++) {
             if (a->tree[h] != NULL) {
                 for (m = 0; m < MIDPART; m++) {
@@ -139,7 +141,6 @@ void destroy_sa_tree(sa_tree a)
 @ @c
 sa_tree copy_sa_tree(sa_tree b)
 {
-    int h, m;
     sa_tree a = (sa_tree) Mxmalloc_array(sa_tree_head, 1);
     a->stack_step = b->stack_step;
     a->stack_size = b->stack_size;
@@ -148,6 +149,7 @@ sa_tree copy_sa_tree(sa_tree b)
     a->stack_ptr = 0;
     a->tree = NULL;
     if (b->tree != NULL) {
+        int h, m;
         a->tree = (sa_tree_item ***) Mxcalloc_array(void *, HIGHPART);
         for (h = 0; h < HIGHPART; h++) {
             if (b->tree[h] != NULL) {
@@ -172,6 +174,7 @@ Allocating those here immediately improves the chance of the structure
 |a->tree[0][0][x]| being close together in actual memory locations
 
 @c
+
 /* we could save less for type 0 stacks */
 
 sa_tree new_sa_tree(int size, int type, sa_tree_item dflt)
@@ -210,7 +213,6 @@ void dump_sa_tree(sa_tree a)
     boolean f;
     int x, n;
     int h, m, l;
-    assert(a != NULL);
     dump_int(a->stack_step);
     x = a->dflt.int_value;
     dump_int(x);

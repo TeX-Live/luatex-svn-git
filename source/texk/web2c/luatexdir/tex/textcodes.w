@@ -42,13 +42,9 @@ static sa_tree sfcode_head = NULL;
 
 void set_lc_code(int n, halfword v, quarterword gl)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-    tempitem.int_value = (int) v;
-    set_sa_item(lccode_head, n, tempitem, gl);
-#else
-    set_sa_item(lccode_head, n, (sa_tree_item) v, gl);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.int_value = (int) v;
+    set_sa_item(lccode_head, n, sa_value, gl);
 }
 
 halfword get_lc_code(int n)
@@ -63,13 +59,9 @@ static void unsavelccodes(quarterword gl)
 
 static void initializelccodes(void)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-    tempitem.int_value = LCCODEDEFAULT;
-    lccode_head = new_sa_tree(LCCODESTACK, 1, tempitem);
-#else
-    lccode_head = new_sa_tree(LCCODESTACK, 1, (sa_tree_item) LCCODEDEFAULT);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.int_value = LCCODEDEFAULT;
+    lccode_head = new_sa_tree(LCCODESTACK, 1, sa_value);
 }
 
 static void dumplccodes(void)
@@ -84,13 +76,9 @@ static void undumplccodes(void)
 
 void set_uc_code(int n, halfword v, quarterword gl)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-    tempitem.int_value = (int) v;
-    set_sa_item(uccode_head, n, tempitem, gl);
-#else
-    set_sa_item(uccode_head, n, (sa_tree_item) v, gl);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.int_value = (int) v;
+    set_sa_item(uccode_head, n, sa_value, gl);
 }
 
 halfword get_uc_code(int n)
@@ -105,13 +93,9 @@ static void unsaveuccodes(quarterword gl)
 
 static void initializeuccodes(void)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-    tempitem.int_value = UCCODEDEFAULT;
-    uccode_head = new_sa_tree(UCCODESTACK, 1, tempitem);
-#else
-    uccode_head = new_sa_tree(UCCODESTACK, 1, (sa_tree_item) UCCODEDEFAULT);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.int_value = UCCODEDEFAULT;
+    uccode_head = new_sa_tree(UCCODESTACK, 1, sa_value);
 }
 
 static void dumpuccodes(void)
@@ -126,13 +110,9 @@ static void undumpuccodes(void)
 
 void set_sf_code(int n, halfword v, quarterword gl)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-    tempitem.int_value = (int) v;
-    set_sa_item(sfcode_head, n, tempitem, gl);
-#else
-    set_sa_item(sfcode_head, n, (sa_tree_item) v, gl);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.int_value = (int) v;
+    set_sa_item(sfcode_head, n, sa_value, gl);
 }
 
 halfword get_sf_code(int n)
@@ -147,13 +127,9 @@ static void unsavesfcodes(quarterword gl)
 
 static void initializesfcodes(void)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-    tempitem.int_value = SFCODEDEFAULT;
-    sfcode_head = new_sa_tree(SFCODESTACK, 1, tempitem);
-#else
-    sfcode_head = new_sa_tree(SFCODESTACK, 1, (sa_tree_item) SFCODEDEFAULT);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.int_value = SFCODEDEFAULT;
+    sfcode_head = new_sa_tree(SFCODESTACK, 1, sa_value);
 }
 
 static void dumpsfcodes(void)
@@ -176,42 +152,26 @@ static unsigned char *catcode_valid = NULL;
 
 void set_cat_code(int h, int n, halfword v, quarterword gl)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
+    sa_tree_item sa_value = { 0 };
     sa_tree s = catcode_heads[h];
     update_catcode_max(h);
     if (s == NULL) {
-#ifdef _MSC_VER
-        tempitem.int_value = CATCODEDEFAULT;
-        s = new_sa_tree(CATCODESTACK, 1, tempitem);
-#else
-        s = new_sa_tree(CATCODESTACK, 1, (sa_tree_item) CATCODEDEFAULT);
-#endif
+        sa_value.int_value = CATCODEDEFAULT;
+        s = new_sa_tree(CATCODESTACK, 1, sa_value);
         catcode_heads[h] = s;
     }
-#ifdef _MSC_VER
-    tempitem.int_value = (int) v;
-    set_sa_item(s, n, tempitem, gl);
-#else
-    set_sa_item(s, n, (sa_tree_item) v, gl);
-#endif
+    sa_value.int_value = (int) v;
+    set_sa_item(s, n, sa_value, gl);
 }
 
 halfword get_cat_code(int h, int n)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
+    sa_tree_item sa_value = { 0 };
     sa_tree s = catcode_heads[h];
     update_catcode_max(h);
     if (s == NULL) {
-#ifdef _MSC_VER
-        tempitem.int_value = CATCODEDEFAULT;
-        s = new_sa_tree(CATCODESTACK, 1, tempitem);
-#else
-        s = new_sa_tree(CATCODESTACK, 1, (sa_tree_item) CATCODEDEFAULT);
-#endif
+        sa_value.int_value = CATCODEDEFAULT;
+        s = new_sa_tree(CATCODESTACK, 1, sa_value);
         catcode_heads[h] = s;
     }
     return (halfword) get_sa_item(s, n).int_value;
@@ -229,21 +189,15 @@ void unsave_cat_codes(int h, quarterword gl)
 
 static void initializecatcodes(void)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
+    sa_tree_item sa_value = { 0 };
     catcode_max = 0;
     catcode_heads = Mxmalloc_array(sa_tree, (CATCODE_MAX + 1));
     catcode_valid = Mxmalloc_array(unsigned char, (CATCODE_MAX + 1));
     memset(catcode_heads, 0, sizeof(sa_tree) * (CATCODE_MAX + 1));
     memset(catcode_valid, 0, sizeof(unsigned char) * (CATCODE_MAX + 1));
     catcode_valid[0] = 1;
-#ifdef _MSC_VER
-    tempitem.int_value = CATCODEDEFAULT;
-    catcode_heads[0] = new_sa_tree(CATCODESTACK, 1, tempitem);
-#else
-    catcode_heads[0] = new_sa_tree(CATCODESTACK, 1, (sa_tree_item) CATCODEDEFAULT);
-#endif
+    sa_value.int_value = CATCODEDEFAULT;
+    catcode_heads[0] = new_sa_tree(CATCODESTACK, 1, sa_value);
 }
 
 static void dumpcatcodes(void)

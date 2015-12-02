@@ -199,16 +199,10 @@ int fam_fnt(int fam_id, int size_id)
 
 void def_fam_fnt(int fam_id, int size_id, int f, int lvl)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
     int n = fam_id + (256 * size_id);
-#ifdef _MSC_VER
-    tempitem.int_value = f;
-    set_sa_item(math_fam_head, n, tempitem, lvl);
-#else
-    set_sa_item(math_fam_head, n, (sa_tree_item) f, lvl);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.int_value = f;
+    set_sa_item(math_fam_head, n, sa_value, lvl);
     fixup_math_parameters(fam_id, size_id, f, lvl);
     if (int_par(tracing_assigns_code) > 1) {
         begin_diagnostic();
@@ -265,16 +259,10 @@ static sa_tree math_param_head = NULL;
 @ @c
 void def_math_param(int param_id, int style_id, scaled value, int lvl)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
     int n = param_id + (256 * style_id);
-#ifdef _MSC_VER
-    tempitem.int_value = (int)value;
-    set_sa_item(math_param_head, n, tempitem, lvl);
-#else
-    set_sa_item(math_param_head, n, (sa_tree_item) value, lvl);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.int_value = (int) value;
+    set_sa_item(math_param_head, n, sa_value, lvl);
     if (int_par(tracing_assigns_code) > 1) {
         begin_diagnostic();
         tprint("{assigning");
@@ -338,28 +326,16 @@ void unsave_math_data(int gl)
 @c
 void dump_math_data(void)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
-    if (math_fam_head == NULL)
-#ifdef _MSC_VER
-        {
-            tempitem.int_value = MATHFONTDEFAULT;
-            math_fam_head = new_sa_tree(MATHFONTSTACK, 1, tempitem);
-        }
-#else
-        math_fam_head = new_sa_tree(MATHFONTSTACK, 1, (sa_tree_item) MATHFONTDEFAULT);
-#endif
+    sa_tree_item sa_value = { 0 };
+    if (math_fam_head == NULL) {
+        sa_value.int_value = MATHFONTDEFAULT;
+        math_fam_head = new_sa_tree(MATHFONTSTACK, 1, sa_value);
+    }
     dump_sa_tree(math_fam_head);
-    if (math_param_head == NULL)
-#ifdef _MSC_VER
-        {
-            tempitem.int_value = MATHPARAMDEFAULT;
-            math_param_head = new_sa_tree(MATHPARAMSTACK, 1, tempitem);
-        }
-#else
-        math_param_head = new_sa_tree(MATHPARAMSTACK, 1, (sa_tree_item) MATHPARAMDEFAULT);
-#endif
+    if (math_param_head == NULL) {
+        sa_value.int_value = MATHPARAMDEFAULT;
+        math_param_head = new_sa_tree(MATHPARAMSTACK, 1, sa_value);
+    }
     dump_sa_tree(math_param_head);
 }
 
@@ -372,27 +348,14 @@ void undump_math_data(void)
 @ @c
 void initialize_math(void)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
-    if (math_fam_head == NULL)
-#ifdef _MSC_VER
-        {
-            tempitem.int_value = MATHFONTDEFAULT;
-            math_fam_head = new_sa_tree(MATHFONTSTACK, 1, tempitem);
-        }
-#else
-        math_fam_head = new_sa_tree(MATHFONTSTACK, 1, (sa_tree_item) MATHFONTDEFAULT);
-#endif
+    sa_tree_item sa_value = { 0 };
+    if (math_fam_head == NULL) {
+        sa_value.int_value = MATHFONTDEFAULT;
+        math_fam_head = new_sa_tree(MATHFONTSTACK, 1, sa_value);
+    }
     if (math_param_head == NULL) {
-#ifdef _MSC_VER
-        {
-            tempitem.int_value = MATHPARAMDEFAULT;
-            math_param_head = new_sa_tree(MATHPARAMSTACK, 1, tempitem);
-        }
-#else
-        math_param_head = new_sa_tree(MATHPARAMSTACK, 1, (sa_tree_item) MATHPARAMDEFAULT);
-#endif
+        sa_value.int_value = MATHPARAMDEFAULT;
+        math_param_head = new_sa_tree(MATHPARAMSTACK, 1, sa_value);
         initialize_math_spacing();
     }
     return;

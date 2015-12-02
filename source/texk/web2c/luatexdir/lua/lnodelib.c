@@ -2388,14 +2388,17 @@ static int nodelib_direct_aux_next_filtered(lua_State * L)
         t = vlink(t);
         lua_settop(L,2);
     }
-    while (t != null && type(t) != i) {
-        t = vlink(t);
+    while (1) {
+        if (t == null) {
+            break;
+        } else if (type(t) == i) {
+            lua_pushinteger(L,t);
+            return 1;
+        } else {
+            t = vlink(t);
+        }
     }
-    if (t == null) {
-        lua_pushnil(L);
-    } else {
-        lua_pushinteger(L,t);
-    }
+    lua_pushnil(L);
     return 1;
 }
 
@@ -2433,14 +2436,17 @@ static int nodelib_direct_aux_next_char(lua_State * L)
         t = vlink(t);
         lua_settop(L,2);
     }
-    while (t != null && type(t) != glyph_node && subtype(t) < 256) {
-        t = vlink(t);
+    while (1) {
+        if (t == null) {
+            break;
+        } else if ((type(t) == glyph_node) && (subtype(t) < 256)){
+            lua_pushinteger(L,t);
+            return 1;
+        } else {
+            t = vlink(t);
+        }
     }
-    if (t == null) {
-        lua_pushnil(L);
-    } else {
-        lua_pushinteger(L,t);
-    }
+    lua_pushnil(L);
     return 1;
 }
 
@@ -2503,7 +2509,7 @@ static int lua_nodelib_traverse(lua_State * L)
 static int nodelib_aux_next_char(lua_State * L)
 {
     halfword t;        /* traverser */
-    halfword *a;        /* a or *a */
+    halfword *a;
     if (lua_isnil(L, 2)) {      /* first call */
         t = *check_isnode(L, 1);
         lua_settop(L,1);
@@ -2512,13 +2518,15 @@ static int nodelib_aux_next_char(lua_State * L)
         t = vlink(t);
         lua_settop(L,2);
     }
-    while (t != null && type(t) != glyph_node && subtype(t) < 256) {
-        t = vlink(t);
-    }
-    if (t == null) {
-        lua_pushnil(L);
-    } else {
-        fast_metatable_top(t);
+    while (1) {
+        if (t == null) {
+            break;
+        } else if ((type(t) == glyph_node) && (subtype(t) < 256)){
+            fast_metatable_top(t);
+            return 1;
+        } else {
+            t = vlink(t);
+        }
     }
     return 1;
 }

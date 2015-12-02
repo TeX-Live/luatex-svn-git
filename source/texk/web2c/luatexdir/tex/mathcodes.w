@@ -171,13 +171,9 @@ int get_math_code_num(int n)
 @ @c
 static void initializemathcode(void)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-    tempitem.uint_value = MATHCODEDEFAULT;
-    mathcode_head = new_sa_tree(MATHCODESTACK, 1, tempitem);
-#else
-    mathcode_head = new_sa_tree(MATHCODESTACK, 1, (sa_tree_item) MATHCODEDEFAULT);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.uint_value = MATHCODEDEFAULT;
+    mathcode_head = new_sa_tree(MATHCODESTACK, 1, sa_value);
 }
 
 static void dumpmathcode(void)
@@ -292,13 +288,9 @@ int get_del_code_num(int n)
 @ @c
 static void initializedelcode(void)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-    tempitem.uint_value = DELCODEDEFAULT;
-    delcode_head = new_sa_tree(DELCODESTACK, 2, tempitem);
-#else
-    delcode_head = new_sa_tree(DELCODESTACK, 2, (sa_tree_item) DELCODEDEFAULT);
-#endif
+    sa_tree_item sa_value = { 0 };
+    sa_value.uint_value = DELCODEDEFAULT;
+    delcode_head = new_sa_tree(DELCODESTACK, 2, sa_value);
 }
 
 @ @c

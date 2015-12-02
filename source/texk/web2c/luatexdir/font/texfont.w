@@ -92,12 +92,10 @@ void set_max_font_id(int i)
 @ @c
 int new_font(void)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
     int k;
     int id;
     charinfo *ci;
+    sa_tree_item sa_value = { 0 };
     id = new_font_id();
     font_bytes += (int) sizeof(texfont);
     /* most stuff is zero */
@@ -127,12 +125,7 @@ int new_font(void)
         set_font_param(id, k, 0);
     }
     /* character info zero is reserved for notdef */
-#ifdef _MSC_VER
-    font_tables[id]->characters = new_sa_tree(1, 1, tempitem);    /* stack size 1, default item value 0 */
-#else
-    font_tables[id]->characters = new_sa_tree(1, 1, (sa_tree_item) 0);    /* stack size 1, default item value 0 */
-#endif
-
+    font_tables[id]->characters = new_sa_tree(1, 1, sa_value);    /* stack size 1, default item value 0 */
     ci = xcalloc(1, sizeof(charinfo));
     set_charinfo_name(ci, xstrdup(".notdef"));
     font_tables[id]->charinfo = ci;
@@ -158,25 +151,19 @@ void font_malloc_charinfo(internal_font_number f, int num)
 
 charinfo *get_charinfo(internal_font_number f, int c)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
     int glyph;
     charinfo *ci;
     if (proper_char_index(c)) {
         glyph = get_sa_item(font_tables[f]->characters, c).int_value;
         if (!glyph) {
+            sa_tree_item sa_value = { 0 };
             int tglyph = ++font_tables[f]->charinfo_count;
             if (tglyph >= font_tables[f]->charinfo_size) {
                 font_malloc_charinfo(f, 256);
             }
             font_tables[f]->charinfo[tglyph].ef = 1000; /* init */
-#ifdef _MSC_VER
-            tempitem.int_value = tglyph;
-            set_sa_item(font_tables[f]->characters, c, tempitem, 1);       /* 1= global */
-#else
-            set_sa_item(font_tables[f]->characters, c, (sa_tree_item) tglyph, 1);       /* 1= global */
-#endif
+            sa_value.int_value = tglyph;
+            set_sa_item(font_tables[f]->characters, c, sa_value, 1); /* 1 = global */
             glyph = tglyph;
         }
         return &(font_tables[f]->charinfo[glyph]);
@@ -1389,10 +1376,8 @@ void set_no_ligatures(internal_font_number f)
 {
     int c;
     charinfo *co;
-
     if (font_tables[f]->ligatures_disabled)
         return;
-
     co = char_info(f, left_boundarychar);
     set_charinfo_ligatures(co, NULL);
     co = char_info(f, right_boundarychar);      /* this is weird */
@@ -1407,7 +1392,7 @@ void set_no_ligatures(internal_font_number f)
 @ @c
 liginfo get_ligature(internal_font_number f, int lc, int rc)
 {
-    int k;
+    int k = 0;
     liginfo t, u;
     charinfo *co;
     t.lig = 0;
@@ -1415,7 +1400,6 @@ liginfo get_ligature(internal_font_number f, int lc, int rc)
     t.adj = 0;
     if (lc == non_boundarychar || rc == non_boundarychar || (!has_lig(f, lc)))
         return t;
-    k = 0;
     co = char_info(f, lc);
     while (1) {
         u = charinfo_ligature(co, k);
@@ -1433,16 +1417,14 @@ liginfo get_ligature(internal_font_number f, int lc, int rc)
     return t;
 }
 
-
 @ @c
 scaled raw_get_kern(internal_font_number f, int lc, int rc)
 {
-    int k;
+    int k = 0;
     kerninfo u;
     charinfo *co;
     if (lc == non_boundarychar || rc == non_boundarychar)
         return 0;
-    k = 0;
     co = char_info(f, lc);
     while (1) {
         u = charinfo_kern(co, k);
@@ -1759,13 +1741,11 @@ static void undump_font_entry(texfont * f)
 
 void undump_font(int f)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
     int x, i;
     texfont *tt;
     charinfo *ci;
     char *s;
+    sa_tree_item sa_value = { 0 };
     grow_font_table(f);
     tt = xmalloc(sizeof(texfont));
     memset(tt, 0, sizeof(texfont));
@@ -1796,11 +1776,7 @@ void undump_font(int f)
     }
 
     /* stack size 1, default item value 0 */
-#ifdef _MSC_VER
-    font_tables[f]->characters = new_sa_tree(1, 1, tempitem);
-#else
-    font_tables[f]->characters = new_sa_tree(1, 1, (sa_tree_item) 0);
-#endif
+    font_tables[f]->characters = new_sa_tree(1, 1, sa_value);
     ci = xcalloc(1, sizeof(charinfo));
     set_charinfo_name(ci, xstrdup(".notdef"));
     font_tables[f]->charinfo = ci;

@@ -83,12 +83,11 @@ int debug_callback_defined(int i)
 
 void get_lua_boolean(const char *table, const char *name, boolean * target)
 {
-    int stacktop;
-    int t;
-    stacktop = lua_gettop(Luas);
+    int stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_getglobal(Luas, table);
     if (lua_istable(Luas, -1)) {
+        int t;
         lua_getfield(Luas, -1, name);
         t = lua_type(Luas, -1);
         if (t == LUA_TBOOLEAN) {
@@ -103,12 +102,11 @@ void get_lua_boolean(const char *table, const char *name, boolean * target)
 
 void get_saved_lua_boolean(int r, const char *name, boolean * target)
 {
-    int stacktop;
-    int t;
-    stacktop = lua_gettop(Luas);
+    int stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, r);
     if (lua_istable(Luas, -1)) {
+        int t;
         lua_getfield(Luas, -1, name);
         t = lua_type(Luas, -1);
         if (t == LUA_TBOOLEAN) {
@@ -123,8 +121,7 @@ void get_saved_lua_boolean(int r, const char *name, boolean * target)
 
 void get_lua_number(const char *table, const char *name, int *target)
 {
-    int stacktop;
-    stacktop = lua_gettop(Luas);
+    int stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_getglobal(Luas, table);
     if (lua_istable(Luas, -1)) {
@@ -139,8 +136,7 @@ void get_lua_number(const char *table, const char *name, int *target)
 
 void get_saved_lua_number(int r, const char *name, int *target)
 {
-    int stacktop;
-    stacktop = lua_gettop(Luas);
+    int stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, r);
     if (lua_istable(Luas, -1)) {
@@ -155,8 +151,7 @@ void get_saved_lua_number(int r, const char *name, int *target)
 
 void get_lua_string(const char *table, const char *name, char **target)
 {
-    int stacktop;
-    stacktop = lua_gettop(Luas);
+    int stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_getglobal(Luas, table);
     if (lua_type(Luas, -1) == LUA_TTABLE) {
@@ -171,8 +166,7 @@ void get_lua_string(const char *table, const char *name, char **target)
 
 void get_saved_lua_string(int r, const char *name, char **target)
 {
-    int stacktop;
-    stacktop = lua_gettop(Luas);
+    int stacktop = lua_gettop(Luas);
     luaL_checkstack(Luas, 2, "out of stack space");
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, r);
     if (lua_type(Luas, -1) == LUA_TTABLE) {
@@ -280,7 +274,6 @@ int do_run_callback(int special, const char *values, va_list vl)
         lua_pushvalue(L, -2);
     }
     ss = strchr(values, '>');
-    assert(ss);
     luaL_checkstack(L, (int) (ss - values + 1), "out of stack space");
     ss = NULL;
     for (narg = 0; *values; narg++) {
@@ -378,7 +371,7 @@ int do_run_callback(int special, const char *values, va_list vl)
                     fprintf(stderr, "callback should return a number, not: %s\n", lua_typename(L, t));
                     goto EXIT;
                 }
-                b = (int) lua_tointeger(L, nres);
+                b = lua_tointeger(L, nres);
                 *va_arg(vl, int *) = b;
                 break;
             case CALLBACK_LINE:    /* TeX line ... happens frequently when we have a plug-in */
@@ -501,14 +494,13 @@ static int callback_register(lua_State * L)
 {
     int cb;
     const char *s;
-    int t1, t2;
-    t1 = lua_type(L,1);
+    int t1 = lua_type(L,1);
+    int t2 = lua_type(L,2);
     if (t1 != LUA_TSTRING) {
         lua_pushnil(L);
         lua_pushstring(L, "Invalid arguments to callback.register, first argument must be string.");
         return 2;
     }
-    t2 = lua_type(L,2);
     if ((t2 != LUA_TFUNCTION) && (t2 != LUA_TNIL) && ((t2 != LUA_TBOOLEAN) && (lua_toboolean(L, 2) == 0))) {
         lua_pushnil(L);
         lua_pushstring(L, "Invalid arguments to callback.register.");
