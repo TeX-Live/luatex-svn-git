@@ -219,9 +219,6 @@ halfword get_cat_code(int h, int n)
 
 void unsave_cat_codes(int h, quarterword gl)
 {
-#ifdef _MSC_VER
-    sa_tree_item tempitem = {0};
-#endif
     int k;
     update_catcode_max(h);
     for (k = 0; k <= catcode_max; k++) {
