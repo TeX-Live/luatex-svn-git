@@ -38,6 +38,8 @@
 #define text_direction int_par(text_direction_code)
 #define body_direction int_par(body_direction_code)
 
+static void scan_expr(void);
+
 @ Let's turn now to some procedures that \TeX\ calls upon frequently to digest
 certain kinds of patterns in the input. Most of these are quite simple;
 some are quite elaborate. Almost all of the routines call |get_x_token|,
@@ -2126,25 +2128,24 @@ typedef enum {
 @   clear a number or dimension and set |arith_error|
 
 @c
-#define num_error(A) do {			\
-	arith_error=true;			\
-	A=0;					\
-    } while (0)
-
+#define num_error(A) do { \
+    arith_error=true; \
+    A=0; \
+} while (0)
 
 @   clear a glue spec and set |arith_error|
 
 @c
-#define glue_error(A) do {				\
-	arith_error=true;				\
-	delete_glue_ref(A);				\
-	A=new_spec(zero_glue);				\
-    } while (0)
+#define glue_error(A) do { \
+    arith_error=true; \
+    delete_glue_ref(A); \
+    A=new_spec(zero_glue); \
+} while (0)
 
-#define normalize_glue(A) do {				\
-	if (stretch(A)==0) stretch_order(A)=normal;	\
-	if (shrink(A)==0) shrink_order(A)=normal;	\
-    } while (0)
+#define normalize_glue(A) do { \
+    if (stretch(A)==0) stretch_order(A)=normal; \
+    if (shrink(A)==0) shrink_order(A)=normal; \
+} while (0)
 
 @ Parenthesized subexpressions can be inside expressions, and this
 nesting has a stack.  Seven local variables represent the top of the
@@ -2171,7 +2172,7 @@ numerator for a combined multiplication and division, if any.
   |max_answer|.
 
 @c
-int add_or_sub(int x, int y, int max_answer, boolean negative)
+inline static int add_or_sub(int x, int y, int max_answer, boolean negative)
 {
     int a;                      /* the answer */
     if (negative)
@@ -2196,7 +2197,7 @@ int add_or_sub(int x, int y, int max_answer, boolean negative)
 $q=\lfloor n/d+{1\over2}\rfloor$, when $n$ and $d$ are positive.
 
 @c
-int quotient(int n, int d)
+inline static int quotient(int n, int d)
 {
     boolean negative;           /* should the answer be negated? */
     int a;                      /* the answer */
@@ -2282,8 +2283,6 @@ int fract(int x, int n, int d, int max_answer)
         x = n;
         n = t;
     }
-
-
     /* now |0<n<=x<d| */
     /* Compute $f=\lfloor xn/d+{1\over2}\rfloor$; */
     /* The loop here preserves the following invariant relations
@@ -2337,7 +2336,7 @@ int fract(int x, int n, int d, int max_answer)
 }
 
 @ @c
-void scan_expr(void)
+static void scan_expr(void)
 {                               /* scans and evaluates an expression */
     boolean a, b;               /* saved values of |arith_error| */
     int l;                      /* type of expression */
@@ -2432,8 +2431,7 @@ void scan_expr(void)
         if (abs(f) > max_dimen)
             num_error(f);
     } else {
-        if ((abs(width(f)) > max_dimen) ||
-            (abs(stretch(f)) > max_dimen) || (abs(shrink(f)) > max_dimen))
+        if ((abs(width(f)) > max_dimen) || (abs(stretch(f)) > max_dimen) || (abs(shrink(f)) > max_dimen))
             glue_error(f);
     }
 
@@ -2494,7 +2492,6 @@ void scan_expr(void)
             expr_s(shrink(t));
         }
         break;
-
     }                           /* there are no other cases */
     if (o > expr_sub) {
         s = o;
@@ -2516,8 +2513,7 @@ void scan_expr(void)
             width(e) = expr_a(width(e), width(t));
             if (stretch_order(e) == stretch_order(t)) {
                 stretch(e) = expr_a(stretch(e), stretch(t));
-            } else if ((stretch_order(e) < stretch_order(t))
-                       && (stretch(t) != 0)) {
+            } else if ((stretch_order(e) < stretch_order(t)) && (stretch(t) != 0)) {
                 stretch(e) = stretch(t);
                 stretch_order(e) = stretch_order(t);
             }

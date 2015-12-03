@@ -2419,7 +2419,7 @@ void after_math(void)
         } else {
             check_display_math_end();
         }
-        run_mlist_to_hlist(p, text_style, false);
+        run_mlist_to_hlist(p, false, text_style);
         a = hpack(vlink(temp_head), 0, additional, -1);
         build_attribute_list(a);
         unsave_math();
@@ -2451,7 +2451,7 @@ void after_math(void)
         if (dir_math_save) {
             tail_append(new_dir(math_direction));
         }
-        run_mlist_to_hlist(p, text_style, (mode > 0));
+        run_mlist_to_hlist(p, (mode > 0), text_style);
         vlink(tail) = vlink(temp_head);
         while (vlink(tail) != null)
             tail = vlink(tail);
@@ -2476,7 +2476,7 @@ void after_math(void)
                 check_display_math_end();
             }
         }
-        run_mlist_to_hlist(p, display_style, false);
+        run_mlist_to_hlist(p, false, display_style);
         finish_displayed_math(l, a, vlink(temp_head));
     }
 }

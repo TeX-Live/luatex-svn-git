@@ -336,7 +336,6 @@ halfword adjust_tail;           /* tail of adjustment list */
 @c
 halfword pre_adjust_tail;
 
-int font_expand_ratio;          /* current expansion ratio */
 halfword last_leftmost_char;
 halfword last_rightmost_char;
 
@@ -353,17 +352,13 @@ void set_prev_char_p(halfword p)
 @ @c
 scaled char_stretch(halfword p)
 {
-    scaled dw;
-    int ef;
-    internal_font_number f;
-    int c, m;
-    f = font(p);
-    m = font_max_stretch(f);
+    internal_font_number f = font(p);
+    int m = font_max_stretch(f);
     if (m > 0) {
-        c = character(p);
-        ef = get_ef_code(f, c);
+        int c = character(p);
+        int ef = get_ef_code(f, c);
         if (ef > 0) {
-            dw = calc_char_width(f, c, m) - char_width(f, c);
+            scaled dw = calc_char_width(f, c, m) - char_width(f, c);
             if (dw > 0) {
                 return round_xn_over_d(dw, ef, 1000);
             }
@@ -375,17 +370,13 @@ scaled char_stretch(halfword p)
 @ @c
 scaled char_shrink(halfword p)
 {
-    scaled dw;
-    int ef;
-    internal_font_number f;
-    int c, m;
-    f = font(p);
-    m = font_max_shrink(f);
+    internal_font_number f = font(p);
+    int m = font_max_shrink(f);
     if (m > 0) {
-        c = character(p);
-        ef = get_ef_code(f, c);
+        int c = character(p);
+        int ef = get_ef_code(f, c);
         if (ef > 0) {
-            dw = char_width(f, c) - calc_char_width(f, c, -m);
+            scaled dw = char_width(f, c) - calc_char_width(f, c, -m);
             if (dw > 0) {
                 return round_xn_over_d(dw, ef, 1000);
             }
@@ -447,11 +438,8 @@ scaled kern_shrink(halfword p)
 @ @c
 void do_subst_font(halfword p, int ex_ratio)
 {
-    internal_font_number f;
-    halfword r;
-    int ef, ex_shrink, ex_stretch;
     if (type(p) == disc_node) {
-        r = vlink(pre_break(p));
+        halfword r = vlink(pre_break(p));
         while (r != null) {
             if (is_char_node(r))
                 do_subst_font(r, ex_ratio);
@@ -474,17 +462,18 @@ void do_subst_font(halfword p, int ex_ratio)
     if (! is_char_node(p)) {
         normal_error("font expansion", "invalid node type");
         return;
-    }
-    f = font(p);
-    ef = get_ef_code(f, character(p));
-    if (ef == 0)
-        return;
-    if ((font_max_stretch(f) > 0) && (ex_ratio > 0)) {
-        ex_stretch = ext_xn_over_d(ex_ratio * ef, font_max_stretch(f), 1000000);
-        ex_glyph(p) = fix_expand_value(f, ex_stretch)*1000;
-    } else if ((font_max_shrink(f) > 0) && (ex_ratio < 0)) {
-        ex_shrink = ext_xn_over_d(ex_ratio * ef, font_max_shrink(f), 1000000);
-        ex_glyph(p) = fix_expand_value(f, ex_shrink)*1000;
+    } else {
+        internal_font_number f = font(p);
+        int ef = get_ef_code(f, character(p));
+        if (ef == 0)
+            return;
+        if ((font_max_stretch(f) > 0) && (ex_ratio > 0)) {
+            int ex_stretch = ext_xn_over_d(ex_ratio * ef, font_max_stretch(f), 1000000);
+            ex_glyph(p) = fix_expand_value(f, ex_stretch)*1000;
+        } else if ((font_max_shrink(f) > 0) && (ex_ratio < 0)) {
+            int ex_shrink = ext_xn_over_d(ex_ratio * ef, font_max_shrink(f), 1000000);
+            ex_glyph(p) = fix_expand_value(f, ex_shrink)*1000;
+        }
     }
 }
 
@@ -536,40 +525,45 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
 {
     halfword r;                 /* the box node that will be returned */
     halfword q;                 /* trails behind |p| */
-    scaled h, d, x;             /* height, depth, and natural width */
+    scaled h = 0;               /* height */
+    scaled d = 0;               /* depth */
+    scaled x = 0;               /* natural width */
     scaled_whd whd;
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
     int o;                      /* order of infinity */
-    halfword dir_ptr1;           /* for managing the direction stack */
+    halfword dir_ptr1 = null;   /* for managing the direction stack */
     int hpack_dir;              /* the current direction */
-    int disc_level;
+    int disc_level = 0;
     halfword pack_interrupt[8];
     scaled font_stretch = 0;
     scaled font_shrink = 0;
+    int font_expand_ratio = 0;  /* current expansion ratio */
     scaled k = 0;
     last_badness = 0;
-    r = new_node(hlist_node, min_quarterword);
+    r = new_node(hlist_node, min_quarterword); /* the box node that will be returned */
     if (pack_direction == -1) {
-        box_dir(r) = text_direction;
+        hpack_dir = text_direction;
     } else {
-        box_dir(r) = pack_direction;
+        hpack_dir = pack_direction;
     }
-    hpack_dir = box_dir(r);
-    dir_ptr1 = null;
-    push_dir(hpack_dir,dir_ptr1);
-    q = r + list_offset;
+    box_dir(r) = hpack_dir;
+
+    /* potential optimimization, save a little but neglectable in practice (not so
+       many empty boxes are used)
+
+        if (p == null) {
+            width(r) = w;
+            return r;
+        }
+    */
+
+    push_dir(hpack_dir,dir_ptr1); /* push null */
+    q = r + list_offset; /* hm, adding something to a node address? */
     vlink(q) = p;
     if (m == cal_expand_ratio) {
-        prev_char_p = null;
-        font_stretch = 0;
-        font_shrink = 0;
-        font_expand_ratio = 0;
+        prev_char_p = null; /* why not always */
     }
-    h = 0;
-    /* Clear dimensions to zero */
-    d = 0;
-    x = 0;
     total_stretch[normal] = 0;
     total_shrink[normal] = 0;
     total_stretch[sfi] = 0;
@@ -581,7 +575,6 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     total_stretch[filll] = 0;
     total_shrink[filll] = 0;
 
-    disc_level = 0;
   RESWITCH:
     while ((p != null) || (disc_level > 0)) {
         if (p == null) {
@@ -716,15 +709,11 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                     int f = font(margin_char(p));
                     do_subst_font(margin_char(p), 1000);
                     if (f != font(margin_char(p)))
-                        font_stretch =
-                            font_stretch - width(p) - char_pw(margin_char(p),
-                                                              subtype(p));
+                        font_stretch = font_stretch - width(p) - char_pw(margin_char(p), subtype(p));
                     font(margin_char(p)) = f;
                     do_subst_font(margin_char(p), -1000);
                     if (f != font(margin_char(p)))
-                        font_shrink =
-                            font_shrink - width(p) - char_pw(margin_char(p),
-                                                             subtype(p));
+                        font_shrink = font_shrink - width(p) - char_pw(margin_char(p), subtype(p));
                     font(margin_char(p)) = f;
                 } else if (m == subst_ex_font) {
                     do_subst_font(margin_char(p), font_expand_ratio);
@@ -745,9 +734,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                         else
                             pdfassert(0);
                         if (k != 0)
-                            width(p) = get_kern(font(prev_char_p),
-                                                character(prev_char_p),
-                                                character(vlink(p)));
+                            width(p) = get_kern(font(prev_char_p), character(prev_char_p), character(vlink(p)));
                     }
                 }
                 x += width(p);
@@ -1111,7 +1098,9 @@ point is simply moved down until the limiting depth is attained.
 halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
 {
     halfword r;                 /* the box node that will be returned */
-    scaled w, d, x;             /* width, depth, and natural height */
+    scaled w = 0;               /* width */
+    scaled d = 0;               /* depth */
+    scaled x = 0;               /* natural height */
     scaled_whd whd;
     scaled s;                   /* shift amount */
     halfword g;                 /* points to a glue specification */
@@ -1126,10 +1115,6 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
     subtype(r) = min_quarterword;
     shift_amount(r) = 0;
     list_ptr(r) = p;
-    w = 0;
-    /* Clear dimensions to zero */
-    d = 0;
-    x = 0;
     total_stretch[normal] = 0;
     total_shrink[normal] = 0;
     total_stretch[sfi] = 0;
@@ -1353,11 +1338,9 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
 }
 
 @ @c
-halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, int grp,
-                           int pack_direction)
+halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, int grp, int pack_direction)
 {
-    halfword q;
-    q = p;
+    halfword q = p;
     q = lua_vpack_filter(q, h, m, l, grp, pack_direction);
     return vpackage(q, h, m, l, pack_direction);
 }
@@ -1503,11 +1486,10 @@ otherwise they are collected in a list starting at |split_disc|.
 @c
 halfword prune_page_top(halfword p, boolean s)
 {
-    halfword prev_p;            /* lags one step behind |p| */
-    halfword q, r;              /* temporary variables for list manipulation */
-    prev_p = temp_head;
+    halfword q;
+    halfword prev_p = temp_head; /* lags one step behind |p| */
+    halfword r = null;
     vlink(temp_head) = p;
-    r = null;
     while (p != null) {
         switch (type(p)) {
         case hlist_node:
@@ -1582,23 +1564,21 @@ of the box that corresponds to the optimum breakpoint found by |vert_break|.
 @c
 scaled best_height_plus_depth;  /* height of the best box, without stretching or shrinking */
 
+/* finds optimum page break */
+
 halfword vert_break(halfword p, scaled h, scaled d)
-{                               /* finds optimum page break */
-    halfword prev_p;            /* if |p| is a glue node, |type(prev_p)| determines
-                                   whether |p| is a legal breakpoint */
+{
+    halfword prev_p = p;        /* if |p| is a glue node, |type(prev_p)| determines whether |p| is a
+                                   legal breakpoint, an initial glue node is not a legal breakpoint */
     halfword q, r;              /* glue specifications */
-    int pi;                     /* penalty value */
+    int pi = 0;                 /* penalty value */
     int b;                      /* badness at a trial breakpoint */
-    int least_cost;             /* the smallest badness plus penalties found so far */
-    halfword best_place;        /* the most recent break that leads to |least_cost| */
-    scaled prev_dp;             /* depth of previous box in the list */
     int t;                      /* |type| of the node following a kern */
-    prev_p = p;                 /* an initial glue node is not a legal breakpoint */
+    int least_cost;             /* the smallest badness plus penalties found so far */
+    halfword best_place = null; /* the most recent break that leads to |least_cost| */
+    scaled prev_dp = 0;         /* depth of previous box in the list */
     least_cost = awful_bad;
     do_all_six(set_height_zero);
-    prev_dp = 0;
-    best_place = null;
-    pi = 0;
     while (1) {
         /* If node |p| is a legal breakpoint, check if this break is
            the best known, and |goto done| if |p| is null or
@@ -1746,13 +1726,15 @@ extracted.  The extracted box is ``void'' if and only if the original
 box was void (or if it was, erroneously, an hlist box).
 
 @c
+/* extracts a page of height |h| from box |n| */
+
 halfword vsplit(halfword n, scaled h)
-{                               /* extracts a page of height |h| from box |n| */
-    halfword v;                 /* the box to be split */
-    int vdir;                   /* the direction of the box to be split */
-    halfword p;                 /* runs through the vlist */
-    halfword q;                 /* points to where the break occurs */
-    halfword i;                 /* for traversing marks lists */
+{
+    halfword v;  /* the box to be split */
+    int vdir;    /* the direction of the box to be split */
+    halfword p;  /* runs through the vlist */
+    halfword q;  /* points to where the break occurs */
+    halfword i;  /* for traversing marks lists */
     v = box(n);
     vdir = box_dir(v);
     flush_node_list(split_disc);

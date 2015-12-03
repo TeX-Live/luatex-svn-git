@@ -325,7 +325,7 @@ extern void set_trick_count(void);
 extern void begin_token_list(halfword p, quarterword t);
 extern void end_token_list(void);
 extern void back_input(void);
-extern int reinsert_token(boolean a, halfword pp);
+extern void reinsert_token(boolean a, halfword pp);
 extern void begin_file_reading(void);
 extern void end_file_reading(void);
 extern void clear_for_error_prompt(void);

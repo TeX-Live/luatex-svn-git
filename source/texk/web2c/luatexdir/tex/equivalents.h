@@ -423,8 +423,6 @@ appears in location |save_ptr+k| of the save stack.
 
 extern void print_save_stack(void);
 
-#  define assign_trace(A,B) if (int_par(tracing_assigns_code)>0) restore_trace((A),(B))
-
 #  define int_par(A)   eqtb[int_base+(A)].cint
 #  define dimen_par(A) eqtb[dimen_base+(A)].cint
 #  define loc_par(A)   equiv(local_base+(A))
@@ -491,7 +489,6 @@ extern void geq_define(halfword p, quarterword t, halfword e);  /* global |eq_de
 extern void geq_word_define(halfword p, int w);                 /* global |eq_word_define| */
 extern void save_for_after(halfword t);
 extern void unsave(void);                                       /* pops the top level off the save stack */
-extern void restore_trace(halfword p, const char *s);           /* |eqtb[p]| has just been restored or retained */
 extern void show_save_groups(void);
 
 #  define level_zero 0                                          /* level for undefined quantities */

@@ -1770,7 +1770,7 @@ static int lua_nodelib_mlist_to_hlist(lua_State * L)
     assign_math_style(L,2,w);
     luaL_checkany(L, 3);
     m = lua_toboolean(L, 3);
-    mlist_to_hlist_args(n, w, m);
+    mlist_to_hlist(n, m, w);
     alink(vlink(temp_head)) = null; /*hh-ls */
     lua_nodelib_push_fast(L, vlink(temp_head));
     return 1;
