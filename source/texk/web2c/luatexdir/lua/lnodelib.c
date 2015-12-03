@@ -4177,39 +4177,74 @@ static int font_tex_ligaturing(lua_State * L)
     /* on the stack are two nodes and a direction */
     /* hh-ls: we need to deal with prev nodes when a range starts with a ligature */
     halfword tmp_head;
-    halfword *h;
+    halfword h;
     halfword t = null;
-    halfword p ; /* hh-ls */
+    halfword p ;
     if (lua_gettop(L) < 1) {
         lua_pushnil(L);
         lua_pushboolean(L, 0);
         return 2;
     }
-    h = check_isnode(L, 1);
+    h = *check_isnode(L, 1);
     if (lua_gettop(L) > 1) {
-        t = *(check_isnode(L, 2));
+        t = *check_isnode(L, 2);
     }
     tmp_head = new_node(nesting_node, 1);
-    p = alink(*h); /* hh-ls */
-    couple_nodes(tmp_head, *h);
+    p = alink(h);
+    couple_nodes(tmp_head, h);
     tlink(tmp_head) = t;
     t = handle_ligaturing(tmp_head, t);
     if (p != null) {
-        vlink(p) = vlink(tmp_head) ; /* hh-ls */
+        vlink(p) = vlink(tmp_head) ;
     }
-    alink(vlink(tmp_head)) = p ; /* hh-ls */
+    alink(vlink(tmp_head)) = p ;
+    /*
     lua_pushinteger(L, vlink(tmp_head));
-    /* can be: lua_nodelib_push_fast(L, head); */
-    flush_node(tmp_head);
     lua_nodelib_push(L);
-    /* can be: lua_nodelib_push_fast(L, t); */
+    */
+    lua_nodelib_push_fast(L, vlink(tmp_head));
+    /*
     lua_pushinteger(L, t);
     lua_nodelib_push(L);
+    */
+    lua_nodelib_push_fast(L, t);
     lua_pushboolean(L, 1);
+    flush_node(tmp_head);
     return 3;
 }
 
-
+static int font_tex_direct_ligaturing(lua_State * L)
+{
+    /* on the stack are two nodes and a direction */
+    /* hh-ls: we need to deal with prev nodes when a range starts with a ligature */
+    halfword tmp_head;
+    halfword h;
+    halfword t = null;
+    halfword p ;
+    if (lua_gettop(L) < 1) {
+        lua_pushnil(L);
+        lua_pushboolean(L, 0);
+        return 2;
+    }
+    h = lua_tointeger(L, 1);
+    if (lua_gettop(L) > 1) {
+        t = lua_tointeger(L, 2);
+    }
+    tmp_head = new_node(nesting_node, 1);
+    p = alink(h);
+    couple_nodes(tmp_head, h);
+    tlink(tmp_head) = t;
+    t = handle_ligaturing(tmp_head, t);
+    if (p != null) {
+        vlink(p) = vlink(tmp_head) ;
+    }
+    alink(vlink(tmp_head)) = p ;
+    lua_pushinteger(L, vlink(tmp_head));
+    lua_pushinteger(L, t);
+    lua_pushboolean(L, 1);
+    flush_node(tmp_head);
+    return 3;
+}
 
 /* node.kerning */
 
@@ -4220,7 +4255,7 @@ static int font_tex_kerning(lua_State * L)
     halfword tmp_head;
     halfword h;
     halfword t = null;
-    halfword p ; /* hh-ls */
+    halfword p ;
     if (lua_gettop(L) < 1) {
         lua_pushnil(L);
         lua_pushboolean(L, 0);
@@ -4239,14 +4274,51 @@ static int font_tex_kerning(lua_State * L)
         vlink(p) = vlink(tmp_head) ;
     }
     alink(vlink(tmp_head)) = p ;
+    /*
     lua_pushinteger(L, vlink(tmp_head));
-    /* can be: lua_nodelib_push_fast(L, head); */
-    flush_node(tmp_head);
     lua_nodelib_push(L);
-    /* can be: lua_nodelib_push_fast(L, t); */
+    */
+    lua_nodelib_push_fast(L, vlink(tmp_head));
+    /*
     lua_pushinteger(L, t);
     lua_nodelib_push(L);
+    */
+    lua_nodelib_push_fast(L, t);
     lua_pushboolean(L, 1);
+    flush_node(tmp_head);
+    return 3;
+}
+
+static int font_tex_direct_kerning(lua_State * L)
+{
+    /* on the stack are two nodes and a direction */
+
+    halfword tmp_head;
+    halfword h;
+    halfword t = null;
+    halfword p ;
+    if (lua_gettop(L) < 1) {
+        lua_pushnil(L);
+        lua_pushboolean(L, 0);
+        return 2;
+    }
+    h = lua_tointeger(L, 1);
+    if (lua_gettop(L) > 1) {
+        t = lua_tointeger(L, 2);
+    }
+    tmp_head = new_node(nesting_node, 1);
+    p = alink(h);
+    couple_nodes(tmp_head, h);
+    tlink(tmp_head) = t;
+    t = handle_kerning(tmp_head, t);
+    if (p != null) {
+        vlink(p) = vlink(tmp_head) ;
+    }
+    alink(vlink(tmp_head)) = p ;
+    lua_pushinteger(L, vlink(tmp_head));
+    lua_pushinteger(L, t);
+    lua_pushboolean(L, 1);
+    flush_node(tmp_head);
     return 3;
 }
 
@@ -4271,6 +4343,18 @@ static int lua_nodelib_protect_glyphs(lua_State * L)
     return 2;
 }
 
+static int lua_nodelib_protect_glyph(lua_State * L)
+{
+    halfword n = *check_isnode(L, 1);
+    if (type(n) == glyph_node) {
+        int s = subtype(n);
+        if (s <= 256) {
+            subtype(n) = (quarterword) (s == 1 ? 256 : 256 + s);
+        }
+    }
+    return 0;
+}
+
 /* node.direct.protect_glyphs */
 
 static int lua_nodelib_direct_protect_glyphs(lua_State * L)
@@ -4290,6 +4374,18 @@ static int lua_nodelib_direct_protect_glyphs(lua_State * L)
     lua_pushboolean(L, t);
     lua_pushvalue(L, 1);
     return 2;
+}
+
+static int lua_nodelib_direct_protect_glyph(lua_State * L)
+{
+    halfword n = (halfword) lua_tointeger(L,1);
+    if ((n != null) && (type(n) == glyph_node)) {
+        int s = subtype(n);
+        if (s <= 256) {
+            subtype(n) = (quarterword) (s == 1 ? 256 : 256 + s);
+        }
+    }
+    return 0;
 }
 
 /* node.unprotect_glyphs (returns also boolean because that signals callback) */
@@ -6619,7 +6715,7 @@ static const struct luaL_Reg nodelib_p[] = {
     {NULL, NULL} /* sentinel */
 };
 
-static void lua_new_properties_table(lua_State * L) /* hh */
+static void lua_new_properties_table(lua_State * L)
 {
     lua_pushstring(L,"node.properties");
     lua_newtable(L);
@@ -6633,8 +6729,6 @@ static void lua_new_properties_table(lua_State * L) /* hh */
     lua_settable(L,LUA_REGISTRYINDEX);
 }
 
-/* end of properties experiment */
-
 /* node.direct.* */
 
 static const struct luaL_Reg direct_nodelib_f[] = {
@@ -6645,8 +6739,8 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"dimensions", lua_nodelib_direct_dimensions},
     {"do_ligature_n", lua_nodelib_direct_do_ligature_n},
     {"end_of_math", lua_nodelib_direct_end_of_math},
- /* {"family_font", lua_nodelib_mfont}, */                    /* no node argument */
- /* {"fields", lua_nodelib_fields}, */                        /* no node argument */
+ /* {"family_font", lua_nodelib_mfont}, */ /* no node argument */
+ /* {"fields", lua_nodelib_fields}, */ /* no node argument */
     {"first_glyph", lua_nodelib_direct_first_glyph},
     {"flush_list", lua_nodelib_direct_flush_list},
     {"flush_node", lua_nodelib_direct_flush_node},
@@ -6669,21 +6763,20 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"has_field", lua_nodelib_direct_has_field},
     {"is_char", lua_nodelib_direct_is_char},
     {"hpack", lua_nodelib_direct_hpack},
- /* {"id", lua_nodelib_id}, */                                /* no node argument */
+ /* {"id", lua_nodelib_id}, */ /* no node argument */
     {"insert_after", lua_nodelib_direct_insert_after},
     {"insert_before", lua_nodelib_direct_insert_before},
     {"is_direct", lua_nodelib_direct_is_direct},
     {"is_node", lua_nodelib_direct_is_node},
- /* {"kerning", font_tex_kerning}, */                         /* maybe direct too (rather basic callback exposure) */
+    {"kerning", font_tex_direct_kerning},
     {"last_node", lua_nodelib_direct_last_node},
     {"length", lua_nodelib_direct_length},
- /* {"ligaturing", font_tex_ligaturing}, */                   /* maybe direct too (rather basic callback exposure) */
- /* {"mlist_to_hlist", lua_nodelib_mlist_to_hset_properties_modelist}, */        /* maybe direct too (rather basic callback exposure) */
+    {"ligaturing", font_tex_direct_ligaturing},
+ /* {"mlist_to_hlist", lua_nodelib_mlist_to_hset_properties_modelist}, */
     {"new", lua_nodelib_direct_new},
- /* {"next", lua_nodelib_next}, */                            /* replaced by getnext */
- /* {"prev", lua_nodelib_prev}, */                            /* replaced by getprev */
     {"tostring", lua_nodelib_direct_tostring},
     {"protect_glyphs", lua_nodelib_direct_protect_glyphs},
+    {"protect_glyph", lua_nodelib_direct_protect_glyph},
     {"protrusion_skippable", lua_nodelib_direct_cp_skipable},
     {"remove", lua_nodelib_direct_remove},
     {"set_attribute", lua_nodelib_direct_set_attribute},
@@ -6696,29 +6789,26 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"setboth", lua_nodelib_direct_setboth},
     {"setlink", lua_nodelib_direct_setlink},
     {"slide", lua_nodelib_direct_slide},
- /* {"subtype", lua_nodelib_subtype}, */                      /* no node argument */
+ /* {"subtype", lua_nodelib_subtype}, */ /* no node argument */
     {"tail", lua_nodelib_direct_tail},
-    {"todirect",  lua_nodelib_direct_todirect},               /* not in node.* */
-    {"tonode", lua_nodelib_direct_tonode},                    /* similar to node.* */
+    {"todirect",  lua_nodelib_direct_todirect},
+    {"tonode", lua_nodelib_direct_tonode},
     {"traverse", lua_nodelib_direct_traverse},
     {"traverse_id", lua_nodelib_direct_traverse_filtered},
     {"traverse_char", lua_nodelib_direct_traverse_char},
- /* {"type", lua_nodelib_type}, */                            /* no node argument */
- /* {"types", lua_nodelib_types}, */                          /* no node argument */
+ /* {"type", lua_nodelib_type}, */ /* no node argument */
+ /* {"types", lua_nodelib_types}, */ /* no node argument */
     {"unprotect_glyphs", lua_nodelib_direct_unprotect_glyphs},
     {"unset_attribute", lua_nodelib_direct_unset_attribute},
     {"usedlist", lua_nodelib_direct_usedlist},
     {"vpack", lua_nodelib_direct_vpack},
- /* {"whatsits", lua_nodelib_whatsits}, */                    /* no node argument */
+ /* {"whatsits", lua_nodelib_whatsits}, */ /* no node argument */
     {"write", lua_nodelib_direct_append},
-    /* an experiment */
- /* {"attributes_to_table",lua_nodelib_attributes_to_table}, */ /* hh experiment */
-    /* an experiment */
-    {"set_properties_mode",lua_nodelib_properties_set_mode}, /* hh experiment */
+    {"set_properties_mode",lua_nodelib_properties_set_mode},
     {"flush_properties_table",lua_nodelib_properties_flush_table}, /* hh experiment */
     {"get_properties_table",lua_nodelib_direct_properties_get_table}, /* hh experiment */
-    {"getproperty", lua_nodelib_direct_get_property}, /* bonus */ /* hh experiment */
-    {"setproperty", lua_nodelib_direct_set_property}, /* bonus */ /* hh experiment */
+    {"getproperty", lua_nodelib_direct_get_property},
+    {"setproperty", lua_nodelib_direct_set_property},
     {"effective_glue", lua_nodelib_direct_effective_glue},
     /* done */
     {NULL, NULL} /* sentinel */
@@ -6773,6 +6863,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"prev", lua_nodelib_prev}, /* getprev is somewhat more efficient, and get* fits better in direct compatibility */
     {"tostring", lua_nodelib_tostring},
     {"protect_glyphs", lua_nodelib_protect_glyphs},
+    {"protect_glyph", lua_nodelib_protect_glyph},
     {"protrusion_skippable", lua_nodelib_cp_skipable},
     {"remove", lua_nodelib_remove},
  /* {"setbox", lua_nodelib_setbox}, */ /* tex.setbox */
