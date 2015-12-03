@@ -76,6 +76,7 @@ already apply that shift.
 #define script_space         dimen_par(script_space_code)
 #define disable_lig          int_par(disable_lig_code)
 #define disable_kern         int_par(disable_kern_code)
+#define disable_space        int_par(disable_space_code)
 #define scripts_mode         int_par(math_scripts_mode_code)
 
 #define nDEBUG

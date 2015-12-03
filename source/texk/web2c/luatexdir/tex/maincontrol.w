@@ -215,8 +215,14 @@ is zero or~not.
 
 @c
 static void run_app_space (void) {
-    if ((abs(mode) + cur_cmd == hmode + spacer_cmd)
-        && (!(space_factor == 1000))) {
+    int method = int_par(disable_space_code) ;
+    if (method == 1) {
+        /* don't inject anything, not even zero skip */
+    } else if (method == 2) {
+        temp_ptr = new_glue(zero_glue);
+        couple_nodes(tail,temp_ptr);
+        tail = temp_ptr;
+    } else if ((abs(mode) + cur_cmd == hmode + spacer_cmd) && (!(space_factor == 1000))) {
         app_space();
     } else {
         /* Append a normal inter-word space to the current list */
@@ -233,14 +239,12 @@ static void run_app_space (void) {
                 space_spec_font = cur_font;
             }
             main_p = space_spec_cache;
-
             temp_ptr = new_glue(main_p);
         } else {
             temp_ptr = new_param_glue(space_skip_code);
         }
         couple_nodes(tail,temp_ptr);
         tail = temp_ptr;
-
     }
 }
 

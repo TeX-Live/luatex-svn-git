@@ -1,4 +1,4 @@
- % commands.w
+% commands.w
 %
 % Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 %
@@ -123,6 +123,7 @@ void initialize_commands(void)
     primitive_luatex("luastartup", assign_int_cmd, int_base + luastartup_id_code, int_base);
     primitive_luatex("nokerns", assign_int_cmd, int_base + disable_kern_code, int_base);
     primitive_luatex("noligs", assign_int_cmd, int_base + disable_lig_code, int_base);
+    primitive_luatex("nospaces", assign_int_cmd, int_base + disable_space_code, int_base);
     primitive_luatex("catcodetable", assign_int_cmd, int_base + cat_code_table_code, int_base);
     primitive_luatex("outputbox", assign_int_cmd, int_base + output_box_code, int_base);
     primitive_luatex("outputmode", assign_int_cmd, int_base + output_mode_code, int_base);
