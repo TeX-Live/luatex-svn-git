@@ -214,8 +214,6 @@ dist_libluatex_sources += \
 ##
 luatex_lua_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/lua $(ctangle)
 
-luagen.c: ctangle$(EXEEXT) luatexdir/lua/luagen.w
-	$(luatex_lua_ctangle) luagen.w
 luainit.c: ctangle$(EXEEXT) luatexdir/lua/luainit.w
 	$(luatex_lua_ctangle) luainit.w
 luajitstuff.c: ctangle$(EXEEXT) luatexdir/lua/luajitstuff.w
@@ -231,11 +229,13 @@ texluac.c: ctangle$(EXEEXT) luatexdir/lua/texluac.w
 texluajitc.c: ctangle$(EXEEXT) luatexdir/lua/texluajitc.w
 	$(luatex_lua_ctangle) texluajitc.w
 
-libluatex_web += luatexdir/lua/luagen.w luatexdir/lua/luainit.w luatexdir/lua/luajitstuff.w
+libluatex_web += luatexdir/lua/luainit.w luatexdir/lua/luajitstuff.w
 libluatex_web += luatexdir/lua/luanode.w luatexdir/lua/luastuff.w luatexdir/lua/luatoken.w
 libluatex_web += luatexdir/lua/texluac.w luatexdir/lua/texluajitc.w
 
-nodist_libluatex_sources += luagen.c luainit.c luanode.c luatoken.c
+nodist_libluatex_sources +=  luainit.c luanode.c luatoken.c
+
+
 
 dist_libluatex_sources += \
 	luatexdir/lua/lcallbacklib.c \
@@ -256,7 +256,6 @@ dist_libluatex_sources += \
 	luatexdir/lua/ltexlib.c \
 	luatexdir/lua/ltokenlib.c \
 	luatexdir/lua/lnewtokenlib.c \
-	luatexdir/lua/luagen.h \
 	luatexdir/lua/luatex-api.h
 
 ## from luatexdir/pdf
