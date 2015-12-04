@@ -526,7 +526,9 @@ void close_files_and_terminate(void)
     }
     wake_up_terminal();
     /* rubish, these pdf arguments, passed, needs to be fixed, e.g. with a dummy in dvi */
-    wrapup_backend_after_error();
+    if (history == fatal_error_stop) {
+       wrapup_backend_after_error();
+    }
     /* Close {\sl Sync\TeX} file and write status */
     synctexterminate(log_opened_global);       /* Let the {\sl Sync\TeX} controller close its files. */
     free_text_codes();
