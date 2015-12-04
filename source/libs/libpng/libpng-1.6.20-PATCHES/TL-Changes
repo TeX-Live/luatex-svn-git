@@ -1,0 +1,19 @@
+Changes applied to the libpng-1.6.20/ tree as obtained from:
+	http://sourceforge.net/projects/libpng/files/libpng16/1.6.20/libpng-1.6.20.tar.gz/download
+
+Copied:
+	scripts/pnglibconf.h.prebuilt -> pnglibconf.h
+
+Removed:
+	Makefile.in
+	aclocal.m4
+	compile
+	config.guess
+	config.sub
+	configure
+	depcomp
+	install-sh
+	ltmain.sh
+	missing
+	test-driver
+
