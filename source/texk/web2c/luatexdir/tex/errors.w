@@ -659,6 +659,24 @@ void char_warning(internal_font_number f, int c)
 }
 
 @ @c
+
+void wrapup_backend_after_error(void) {
+    ensure_output_state(static_pdf, ST_OMODE_FIX);
+    switch (output_mode_used) {
+        case OMODE_NONE:           /* during initex run */
+            print_err(" ==> Fatal error occurred, no output FMT file produced!");
+            break;
+        case OMODE_PDF:
+            remove_pdffile(static_pdf);
+            print_err(" ==> Fatal error occurred, no output PDF file produced!");
+            break;
+        case OMODE_DVI:
+         /* remove_dvifile(pdf); */
+            print_err(" ==> Fatal error occurred, no valid DVI file produced!");
+            break;
+    }
+}
+
 void normal_error(const char *t, const char *p)
 {
     normalize_selector();
@@ -676,8 +694,10 @@ void normal_error(const char *t, const char *p)
     tprint(": ");
     if (p != NULL)
         tprint(p);
-    remove_pdffile(static_pdf);
-    succumb();
+    /* quit */
+    history = fatal_error_stop;
+    wrapup_backend_after_error();
+    exit(EXIT_FAILURE);
 }
 
 @ @c

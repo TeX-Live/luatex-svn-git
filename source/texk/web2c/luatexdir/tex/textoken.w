@@ -815,6 +815,14 @@ void check_outer_validity(void)
 }
 
 @ @c
+
+#if 0
+
+/*
+    The other variant gives less clutter in tracing cache usage when profiling and for
+    some files (like the manual) also a bit of a speedup.
+*/
+
 static boolean get_next_file(void)
 {
   SWITCH:
@@ -1001,6 +1009,276 @@ static boolean get_next_file(void)
     }
     return true;
 }
+
+#else
+
+/* 10 times less Bim in callgrind */
+
+/*
+    escape_cmd left_brace_cmd right_brace_cmd math_shift_cmd
+    tab_mark_cmd car_ret_cmd mac_param_cmd sup_mark_cmd
+    sub_mark_cmd ignore_cmd spacer_cmd letter_cmd
+    other_char_cmd active_char_cmd comment_cmd invalid_char_cmd
+*/
+
+static boolean get_next_file(void)
+{
+    int c = 0;
+  SWITCH:
+    if (iloc <= ilimit) {
+        /* current line not yet finished */
+        do_buffer_to_unichar(cur_chr, iloc);
+      RESWITCH:
+        if (detokenized_line()) {
+            cur_cmd = (cur_chr == ' ' ? 10 : 12);
+        } else {
+            do_get_cat_code(cur_cmd, cur_chr);
+        }
+        /*
+           Change state if necessary, and |goto switch| if the current
+           character should be ignored, or |goto reswitch| if the current
+           character changes to another;
+        */
+        c = istate + cur_cmd;
+        if (c == (mid_line + letter_cmd) || c == (mid_line + other_char_cmd)) {
+            return true;
+        } else if (c >= new_line) {
+            switch (c-new_line) {
+                case escape_cmd:
+                    istate = (unsigned char) scan_control_sequence();
+                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                        check_outer_validity();
+                    return true;
+                case left_brace_cmd:
+                    istate = mid_line;
+                    align_state++;
+                    return true;
+                case right_brace_cmd:
+                    istate = mid_line;
+                    align_state--;
+                    return true;
+                case math_shift_cmd:
+                    istate = mid_line;
+                    return true;
+                case tab_mark_cmd:
+                    istate = mid_line;
+                    return true;
+                case car_ret_cmd:
+                    /* Finish line, emit a \.{\\par}; */
+                    iloc = ilimit + 1;
+                    cur_cs = par_loc;
+                    cur_cmd = eq_type(cur_cs);
+                    cur_chr = equiv(cur_cs);
+                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                        check_outer_validity();
+                    return true;
+                case mac_param_cmd:
+                    istate = mid_line;
+                    return true;
+                case sup_mark_cmd:
+                    if (process_sup_mark())
+                        goto RESWITCH;
+                    else
+                        istate = mid_line;
+                    return true;
+                case sub_mark_cmd:
+                    istate = mid_line;
+                    return true;
+                case ignore_cmd:
+                    goto SWITCH;
+                    return true;
+                case spacer_cmd:
+                    /* Cases where character is ignored */
+                    goto SWITCH;
+                case letter_cmd:
+                    istate = mid_line;
+                    return true;
+                case other_char_cmd:
+                    istate = mid_line;
+                    return true;
+                case active_char_cmd:
+                    cur_cs = active_to_cs(cur_chr, false);
+                    cur_cmd = eq_type(cur_cs);
+                    cur_chr = equiv(cur_cs);
+                    istate = mid_line;
+                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                        check_outer_validity();
+                    return true;
+                case comment_cmd:
+                    iloc = ilimit + 1;
+                    goto SWITCH;
+                case invalid_char_cmd:
+                    invalid_character_error();
+                    return false; /* because state may be |token_list| now */
+                default:
+                    istate = mid_line;
+                    return true;
+            }
+        } else if (c >= skip_blanks) {
+            switch (c-skip_blanks) {
+                case escape_cmd:
+                    /* Scan a control sequence ...; */
+                    istate = (unsigned char) scan_control_sequence();
+                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                        check_outer_validity();
+                    return true;
+                case left_brace_cmd:
+                    istate = mid_line;
+                    align_state++;
+                    return true;
+                case right_brace_cmd:
+                    istate = mid_line;
+                    align_state--;
+                    return true;
+                case math_shift_cmd:
+                    istate = mid_line;
+                    return true;
+                case tab_mark_cmd:
+                    istate = mid_line;
+                    return true;
+                case car_ret_cmd:
+                    iloc = ilimit + 1;
+                    goto SWITCH;
+                case mac_param_cmd:
+                    istate = mid_line;
+                    return true;
+                case sup_mark_cmd:
+                    /* If this |sup_mark| starts */
+                    if (process_sup_mark())
+                        goto RESWITCH;
+                    else
+                        istate = mid_line;
+                    return true;
+                case sub_mark_cmd:
+                    istate = mid_line;
+                    return true;
+                case ignore_cmd:
+                    goto SWITCH;
+                case spacer_cmd:
+                    goto SWITCH;
+                case letter_cmd:
+                    istate = mid_line;
+                    return true;
+                case other_char_cmd:
+                    istate = mid_line;
+                    return true;
+                case active_char_cmd:
+                    cur_cs = active_to_cs(cur_chr, false);
+                    cur_cmd = eq_type(cur_cs);
+                    cur_chr = equiv(cur_cs);
+                    istate = mid_line;
+                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                        check_outer_validity();
+                    return true;
+                case comment_cmd:
+                    /* Finish line, |goto switch|; */
+                    iloc = ilimit + 1;
+                    goto SWITCH;
+                case invalid_char_cmd:
+                    /* Decry the invalid character and |goto restart|; */
+                    invalid_character_error();
+                    return false; /* because state may be |token_list| now */
+                default:
+                    istate = mid_line;
+                    return true;
+            }
+        } else if (c >= mid_line) {
+            switch (c-mid_line) {
+                case escape_cmd:
+                    istate = (unsigned char) scan_control_sequence();
+                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                        check_outer_validity();
+                    return true;
+                case left_brace_cmd:
+                    align_state++;
+                    return true;
+                case right_brace_cmd:
+                    align_state--;
+                    return true;
+                case math_shift_cmd:
+                    return true;
+                case tab_mark_cmd:
+                    return true;
+                case car_ret_cmd:
+                    /*
+                        Finish line, emit a space. When a character of type |spacer| gets through, its
+                        character code is changed to $\.{"\ "}=040$. This means that the ASCII codes
+                        for tab and space, and for the space inserted at the end of a line, will be
+                        treated alike when macro parameters are being matched. We do this since such
+                        characters are indistinguishable on most computer terminal displays.
+                     */
+                    iloc = ilimit + 1;
+                    cur_cmd = spacer_cmd;
+                    cur_chr = ' ';
+                    return true;
+                case mac_param_cmd:
+                    return true;
+                case sup_mark_cmd:
+                    if (process_sup_mark())
+                        goto RESWITCH;
+                    else
+                        istate = mid_line;
+                    return true;
+                case sub_mark_cmd:
+                    return true;
+                case ignore_cmd:
+                    goto SWITCH;
+                case spacer_cmd:
+                    /* Enter |skip_blanks| state, emit a space; */
+                    istate = skip_blanks;
+                    cur_chr = ' ';
+                    return true;
+                case letter_cmd:
+                    istate = mid_line;
+                    return true;
+                case other_char_cmd:
+                    istate = mid_line;
+                    return true;
+                case active_char_cmd:
+                    cur_cs = active_to_cs(cur_chr, false);
+                    cur_cmd = eq_type(cur_cs);
+                    cur_chr = equiv(cur_cs);
+                    istate = mid_line;
+                    if (! suppress_outer_error && cur_cmd >= outer_call_cmd)
+                        check_outer_validity();
+                    return true;
+                case comment_cmd:
+                    iloc = ilimit + 1;
+                    goto SWITCH;
+                case invalid_char_cmd:
+                    invalid_character_error();
+                    return false; /* because state may be |token_list| now */
+                default:
+                    istate = mid_line;
+                    return true;
+            }
+        } else {
+            istate = mid_line;
+            return true;
+        }
+    } else {
+        if (iname != 21) {
+            istate = new_line;
+        }
+        /*
+           Move to next line of file, or |goto restart| if there is no next line,
+           or |return| if a \.{\\read} line has finished;
+        */
+        do {
+            next_line_retval r = next_line();
+            if (r == next_line_return) {
+                return true;
+            } else if (r == next_line_restart) {
+                return false;
+            }
+        } while (0);
+        check_interrupt();
+        goto SWITCH;
+    }
+    return true;
+}
+
+#endif
 
 @ @c
 #define is_hex(a) ((a>='0'&&a<='9')||(a>='a'&&a<='f'))

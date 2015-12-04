@@ -488,7 +488,6 @@ This program doesn't bother to close the input files that may still be open.
 void close_files_and_terminate(void)
 {
     int callback_id;
-    PDF pdf = static_pdf;
     callback_id = callback_defined(stop_run_callback);
     finalize_write_files();
     if (int_par(tracing_stats_code) > 0) {
@@ -527,26 +526,9 @@ void close_files_and_terminate(void)
     }
     wake_up_terminal();
     /* rubish, these pdf arguments, passed, needs to be fixed, e.g. with a dummy in dvi */
-    ensure_output_state(pdf, ST_OMODE_FIX);
-    switch (output_mode_used) {
-    case OMODE_NONE:           /* during initex run */
-        break;
-    case OMODE_PDF:
-        if (history == fatal_error_stop) {
-            remove_pdffile(pdf);
-            print_err(" ==> Fatal error occurred, no output PDF file produced!");
-        } else
-            finish_pdf_file(pdf, luatex_version, get_luatexrevision());
-        break;
-    case OMODE_DVI:
-        finish_dvi_file(pdf, luatex_version, get_luatexrevision());
-        break;
-    default:
-        assert(0);
-    }
+    wrapup_backend_after_error();
     /* Close {\sl Sync\TeX} file and write status */
     synctexterminate(log_opened_global);       /* Let the {\sl Sync\TeX} controller close its files. */
-
     free_text_codes();
     free_math_codes();
     if (log_opened_global) {
