@@ -109,6 +109,6 @@ extern void flush_err(void);
 
 extern void char_warning(internal_font_number f, int c);
 
-extern void wrapup_backend_after_error(void);
+extern void wrapup_backend(void);
 
 #endif

@@ -660,19 +660,27 @@ void char_warning(internal_font_number f, int c)
 
 @ @c
 
-void wrapup_backend_after_error(void) {
+void wrapup_backend(void) {
     ensure_output_state(static_pdf, ST_OMODE_FIX);
     switch (output_mode_used) {
-        case OMODE_NONE:           /* during initex run */
-            print_err(" ==> Fatal error occurred, no output FMT file produced!");
+        case OMODE_NONE:
+            print_err(" ==> Fatal error occurred, no FMT file produced!");
             break;
         case OMODE_PDF:
-            remove_pdffile(static_pdf);
-            print_err(" ==> Fatal error occurred, no output PDF file produced!");
+            if (history == fatal_error_stop) {
+                remove_pdffile(static_pdf);
+                print_err(" ==> Fatal error occurred, no output PDF file produced!");
+            } else {
+                finish_pdf_file(static_pdf, luatex_version, get_luatexrevision());
+            }
             break;
         case OMODE_DVI:
-         /* remove_dvifile(pdf); */
-            print_err(" ==> Fatal error occurred, no valid DVI file produced!");
+            if (history == fatal_error_stop) {
+                print_err(" ==> Fatal error occurred, bad output DVI file produced!");
+                finish_dvi_file(static_pdf, luatex_version, get_luatexrevision());
+            } else {
+                finish_dvi_file(static_pdf, luatex_version, get_luatexrevision());
+            }
             break;
     }
 }
@@ -696,7 +704,7 @@ void normal_error(const char *t, const char *p)
         tprint(p);
     /* quit */
     history = fatal_error_stop;
-    wrapup_backend_after_error();
+    wrapup_backend();
     exit(EXIT_FAILURE);
 }
 
