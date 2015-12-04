@@ -2244,291 +2244,294 @@ void conv_toks(void)
     int i = 0;
     /* Scan the argument for command |c| */
     switch (c) {
-    case uchar_code:
-        scan_char_num();
-        push_selector;
-        print(cur_val);
-        pop_selector;
-        break;
-    case number_code:
-        scan_int();
-        push_selector;
-        print_int(cur_val);
-        pop_selector;
-        break;
-    case roman_numeral_code:
-        scan_int();
-        push_selector;
-        print_roman_int(cur_val);
-        pop_selector;
-        break;
-    case string_code:
-        save_scanner_status = scanner_status;
-        scanner_status = normal;
-        get_token();
-        scanner_status = save_scanner_status;
-        push_selector;
-        if (cur_cs != 0)
-            sprint_cs(cur_cs);
-        else
-            print(cur_chr);
-        pop_selector;
-        break;
-    case meaning_code:
-        save_scanner_status = scanner_status;
-        scanner_status = normal;
-        get_token();
-        scanner_status = save_scanner_status;
-        push_selector;
-        print_meaning();
-        pop_selector;
-        break;
-    case etex_code:
-        push_selector;
-        tprint(eTeX_version_string);
-        pop_selector;
-        break;
-    case font_name_code:
-        scan_font_ident();
-        push_selector;
-        append_string((unsigned char *) font_name(cur_val),(unsigned) strlen(font_name(cur_val)));
-        if (font_size(cur_val) != font_dsize(cur_val)) {
-            tprint(" at ");
-            print_scaled(font_size(cur_val));
-            tprint("pt");
-        }
-        pop_selector;
-        break;
-    case font_id_code:
-        scan_font_ident();
-        push_selector;
-        print_int(cur_val);
-        pop_selector;
-        break;
-    case luatex_revision_code:
-        push_selector;
-        print(get_luatexrevision());
-        pop_selector;
-        break;
-    case luatex_date_code:
-        push_selector;
-        print_int(get_luatex_date_info());
-        pop_selector;
-        break;
-    case luatex_banner_code:
-        push_selector;
-        tprint(luatex_banner);
-        pop_selector;
-        break;
-    case left_margin_kern_code:
-        scan_int();
-        if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
-            normal_error("marginkern", "a non-empty hbox expected");
-        push_selector;
-        p = list_ptr(box(cur_val));
-        while ((p != null) && (type(p) == glue_node)) {
-            p = vlink(p);
-        }
-        if ((p != null) && (type(p) == margin_kern_node) && (subtype(p) == left_side))
-            print_scaled(width(p));
-        else
-            print_char('0');
-        tprint("pt");
-        pop_selector;
-        break;
-    case right_margin_kern_code:
-        scan_int();
-        if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
-            normal_error("marginkern", "a non-empty hbox expected");
-        push_selector;
-        p = list_ptr(box(cur_val));
-        if (p != null) {
-            p = tail_of_list(p);
-            /*
-                there can be a leftskip, rightskip, penalty and yes, also a disc node with a nesting
-                node that points to glue spec ... and we don't want to analyze that messy lot
-            */
-            while ((p != null) && (type(p) == glue_node)) {
-                p = alink(p);
+        case number_code:
+            scan_int();
+            push_selector;
+            print_int(cur_val);
+            pop_selector;
+            break;
+        case lua_function_code:
+            scan_int();
+            if (cur_val <= 0) {
+                normal_error("luafunction", "invalid number");
+            } else {
+                u = save_cur_string();
+                luacstrings = 0;
+                luafunctioncall(cur_val);
+                restore_cur_string(u);
+                if (luacstrings > 0)
+                    lua_string_start();
             }
-            if ((p != null) && ! ((type(p) == margin_kern_node) && (subtype(p) == right_side))) {
-                if (type(p) == disc_node) {
-                    q = alink(p);
-                    if ((q != null) && ((type(q) == margin_kern_node) && (subtype(q) == right_side))) {
-                        p = q;
-                    } else {
-                        /*
-                            officially we should look in the replace but currently protrusion doesn't
-                            work anyway with "foo\discretionary{}{}{bar-} " (no following char) so we
-                            don't need it now
-                        */
-                    }
-                }
-            }
-        }
-        if ((p != null) && (type(p) == margin_kern_node) && (subtype(p) == right_side))
-            print_scaled(width(p));
-        else
-            print_char('0');
-        tprint("pt");
-        pop_selector;
-        break;
-    case format_name_code:
-        if (job_name == 0)
-            open_log_file();
-        push_selector;
-        print(format_name);
-        pop_selector;
-        break;
-    case job_name_code:
-        if (job_name == 0)
-            open_log_file();
-        push_selector;
-        print_job_name();
-        pop_selector;
-        break;
-    case uniform_deviate_code:
-        scan_int();
-        push_selector;
-        print_int(unif_rand(cur_val));
-        pop_selector;
-        break;
-    case normal_deviate_code:
-        scan_int();
-        push_selector;
-        print_int(norm_rand());
-        pop_selector;
-        break;
-    case lua_escape_string_code:
-        {
-            lstring escstr;
-            int l = 0;
+            /* no further action */
+            return;
+            break;
+        case lua_code:
+            u = save_cur_string();
             save_scanner_status = scanner_status;
             save_def_ref = def_ref;
             save_warning_index = warning_index;
+            sn = scan_lua_state();
             scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
-            bool = in_lua_escape;
-            in_lua_escape = true;
-            escstr.s = (unsigned char *) tokenlist_to_cstring(def_ref, false, &l);
-            escstr.l = (unsigned) l;
-            in_lua_escape = bool;
-            delete_token_ref(def_ref);
-            def_ref = save_def_ref;
+            s = def_ref;
             warning_index = save_warning_index;
+            def_ref = save_def_ref;
             scanner_status = save_scanner_status;
-            (void) lua_str_toks(escstr);
-            ins_list(token_link(temp_token_head));
-            free(escstr.s);
-            return;
-        }
-        /* no further action */
-        break;
-    case math_style_code:
-        push_selector;
-        print_math_style();
-        pop_selector;
-        break;
-    case math_char_class_code:
-        {
-            mathcodeval mval;
-            scan_int();
-            mval = get_math_code(cur_val);
-            push_selector;
-            print_int(mval.class_value);
-            pop_selector;
-        }
-        break;
-    case math_char_fam_code:
-        {
-            mathcodeval mval;
-            scan_int();
-            mval = get_math_code(cur_val);
-            push_selector;
-            print_int(mval.family_value);
-            pop_selector;
-        }
-        break;
-    case math_char_slot_code:
-        {
-            mathcodeval mval;
-            scan_int();
-            mval = get_math_code(cur_val);
-            push_selector;
-            print_int(mval.character_value);
-            pop_selector;
-        }
-        break;
-    case expanded_code:
-        save_scanner_status = scanner_status;
-        save_warning_index = warning_index;
-        save_def_ref = def_ref;
-        u = save_cur_string();
-        scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
-        warning_index = save_warning_index;
-        scanner_status = save_scanner_status;
-        ins_list(token_link(def_ref));
-        def_ref = save_def_ref;
-        restore_cur_string(u);
-        /* no further action */
-        return;
-        break;
-    case lua_code:
-        u = save_cur_string();
-        save_scanner_status = scanner_status;
-        save_def_ref = def_ref;
-        save_warning_index = warning_index;
-        sn = scan_lua_state();
-        scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
-        s = def_ref;
-        warning_index = save_warning_index;
-        def_ref = save_def_ref;
-        scanner_status = save_scanner_status;
-        luacstrings = 0;
-        luatokencall(s, sn);
-        delete_token_ref(s);
-        restore_cur_string(u);  /* TODO: check this, was different */
-        if (luacstrings > 0)
-            lua_string_start();
-        /* no further action */
-        return;
-        break;
-    case lua_function_code:
-        scan_int();
-        if (cur_val <= 0) {
-            normal_error("luafunction", "invalid number");
-        } else {
-            u = save_cur_string();
             luacstrings = 0;
-            luafunctioncall(cur_val);
-            restore_cur_string(u);
+            luatokencall(s, sn);
+            delete_token_ref(s);
+            restore_cur_string(u);  /* TODO: check this, was different */
             if (luacstrings > 0)
                 lua_string_start();
-        }
-        /* no further action */
-        return;
-        break;
-    case eTeX_revision_code:
-        push_selector;
-        tprint(eTeX_revision);
-        pop_selector;
-        break;
-    case insert_ht_code:
-        scan_register_num();
-        push_selector;
-        i = cur_val;
-        p = page_ins_head;
-        while (i >= subtype(vlink(p)))
-            p = vlink(p);
-        if (subtype(p) == i)
-            print_scaled(height(p));
-        else
-            print_char('0');
-        tprint("pt");
-        pop_selector;
-        break;
-    default:
-        confusion("convert");
-        break;
+            /* no further action */
+            return;
+            break;
+        case expanded_code:
+            save_scanner_status = scanner_status;
+            save_warning_index = warning_index;
+            save_def_ref = def_ref;
+            u = save_cur_string();
+            scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
+            warning_index = save_warning_index;
+            scanner_status = save_scanner_status;
+            ins_list(token_link(def_ref));
+            def_ref = save_def_ref;
+            restore_cur_string(u);
+            /* no further action */
+            return;
+            break;
+        case math_style_code:
+            push_selector;
+            print_math_style();
+            pop_selector;
+            break;
+        case string_code:
+            save_scanner_status = scanner_status;
+            scanner_status = normal;
+            get_token();
+            scanner_status = save_scanner_status;
+            push_selector;
+            if (cur_cs != 0)
+                sprint_cs(cur_cs);
+            else
+                print(cur_chr);
+            pop_selector;
+            break;
+        case roman_numeral_code:
+            scan_int();
+            push_selector;
+            print_roman_int(cur_val);
+            pop_selector;
+            break;
+       case meaning_code:
+            save_scanner_status = scanner_status;
+            scanner_status = normal;
+            get_token();
+            scanner_status = save_scanner_status;
+            push_selector;
+            print_meaning();
+            pop_selector;
+            break;
+        case uchar_code:
+            scan_char_num();
+            push_selector;
+            print(cur_val);
+            pop_selector;
+            break;
+        case lua_escape_string_code:
+            {
+                lstring escstr;
+                int l = 0;
+                save_scanner_status = scanner_status;
+                save_def_ref = def_ref;
+                save_warning_index = warning_index;
+                scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
+                bool = in_lua_escape;
+                in_lua_escape = true;
+                escstr.s = (unsigned char *) tokenlist_to_cstring(def_ref, false, &l);
+                escstr.l = (unsigned) l;
+                in_lua_escape = bool;
+                delete_token_ref(def_ref);
+                def_ref = save_def_ref;
+                warning_index = save_warning_index;
+                scanner_status = save_scanner_status;
+                (void) lua_str_toks(escstr);
+                ins_list(token_link(temp_token_head));
+                free(escstr.s);
+                return;
+            }
+            /* no further action */
+            break;
+        case font_id_code:
+            scan_font_ident();
+            push_selector;
+            print_int(cur_val);
+            pop_selector;
+            break;
+        case font_name_code:
+            scan_font_ident();
+            push_selector;
+            append_string((unsigned char *) font_name(cur_val),(unsigned) strlen(font_name(cur_val)));
+            if (font_size(cur_val) != font_dsize(cur_val)) {
+                tprint(" at ");
+                print_scaled(font_size(cur_val));
+                tprint("pt");
+            }
+            pop_selector;
+            break;
+        case left_margin_kern_code:
+            scan_int();
+            if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
+                normal_error("marginkern", "a non-empty hbox expected");
+            push_selector;
+            p = list_ptr(box(cur_val));
+            while ((p != null) && (type(p) == glue_node)) {
+                p = vlink(p);
+            }
+            if ((p != null) && (type(p) == margin_kern_node) && (subtype(p) == left_side))
+                print_scaled(width(p));
+            else
+                print_char('0');
+            tprint("pt");
+            pop_selector;
+            break;
+        case right_margin_kern_code:
+            scan_int();
+            if ((box(cur_val) == null) || (type(box(cur_val)) != hlist_node))
+                normal_error("marginkern", "a non-empty hbox expected");
+            push_selector;
+            p = list_ptr(box(cur_val));
+            if (p != null) {
+                p = tail_of_list(p);
+                /*
+                    there can be a leftskip, rightskip, penalty and yes, also a disc node with a nesting
+                    node that points to glue spec ... and we don't want to analyze that messy lot
+                */
+                while ((p != null) && (type(p) == glue_node)) {
+                    p = alink(p);
+                }
+                if ((p != null) && ! ((type(p) == margin_kern_node) && (subtype(p) == right_side))) {
+                    if (type(p) == disc_node) {
+                        q = alink(p);
+                        if ((q != null) && ((type(q) == margin_kern_node) && (subtype(q) == right_side))) {
+                            p = q;
+                        } else {
+                            /*
+                                officially we should look in the replace but currently protrusion doesn't
+                                work anyway with "foo\discretionary{}{}{bar-} " (no following char) so we
+                                don't need it now
+                            */
+                        }
+                    }
+                }
+            }
+            if ((p != null) && (type(p) == margin_kern_node) && (subtype(p) == right_side))
+                print_scaled(width(p));
+            else
+                print_char('0');
+            tprint("pt");
+            pop_selector;
+            break;
+        case uniform_deviate_code:
+            scan_int();
+            push_selector;
+            print_int(unif_rand(cur_val));
+            pop_selector;
+            break;
+        case normal_deviate_code:
+            scan_int();
+            push_selector;
+            print_int(norm_rand());
+            pop_selector;
+            break;
+        case math_char_class_code:
+            {
+                mathcodeval mval;
+                scan_int();
+                mval = get_math_code(cur_val);
+                push_selector;
+                print_int(mval.class_value);
+                pop_selector;
+            }
+            break;
+        case math_char_fam_code:
+            {
+                mathcodeval mval;
+                scan_int();
+                mval = get_math_code(cur_val);
+                push_selector;
+                print_int(mval.family_value);
+                pop_selector;
+            }
+            break;
+        case math_char_slot_code:
+            {
+                mathcodeval mval;
+                scan_int();
+                mval = get_math_code(cur_val);
+                push_selector;
+                print_int(mval.character_value);
+                pop_selector;
+            }
+            break;
+        case insert_ht_code:
+            scan_register_num();
+            push_selector;
+            i = cur_val;
+            p = page_ins_head;
+            while (i >= subtype(vlink(p)))
+                p = vlink(p);
+            if (subtype(p) == i)
+                print_scaled(height(p));
+            else
+                print_char('0');
+            tprint("pt");
+            pop_selector;
+            break;
+        case job_name_code:
+            if (job_name == 0)
+                open_log_file();
+            push_selector;
+            print_job_name();
+            pop_selector;
+            break;
+        case format_name_code:
+            if (job_name == 0)
+                open_log_file();
+            push_selector;
+            print(format_name);
+            pop_selector;
+            break;
+        case luatex_banner_code:
+            push_selector;
+            tprint(luatex_banner);
+            pop_selector;
+            break;
+        case luatex_revision_code:
+            push_selector;
+            print(get_luatexrevision());
+            pop_selector;
+            break;
+        case luatex_date_code:
+            push_selector;
+            print_int(get_luatex_date_info());
+            pop_selector;
+            break;
+        case etex_code:
+            push_selector;
+            tprint(eTeX_version_string);
+            pop_selector;
+            break;
+        case eTeX_revision_code:
+            push_selector;
+            tprint(eTeX_revision);
+            pop_selector;
+            break;
+        case font_identifier_code:
+            confusion("convert");
+            break;
+        default:
+            confusion("convert");
+            break;
     }
     str = make_string();
     (void) str_toks(str_lstring(str));
@@ -2651,35 +2654,23 @@ str_number the_convert_string(halfword c, int i)
         case number_code:
             print_int(i);
             break;
-        case uchar_code:
-            print(i);
+     /* case lua_function_code: */
+     /* case lua_code: */
+     /* case expanded_code: */
+        case math_style_code:
+            print_math_style();
             break;
+     /* case string_code: */
         case roman_numeral_code:
             print_roman_int(i);
             break;
-        case etex_code:
-            tprint(eTeX_version_string);
+     /* case meaning_code: */
+        case uchar_code:
+            print(i);
             break;
-        case luatex_revision_code:
-            print(get_luatexrevision());
-            break;
-        case luatex_date_code:
-            print_int(get_luatex_date_info());
-            break;
-        case luatex_banner_code:
-            tprint(luatex_banner);
-            break;
-        case uniform_deviate_code:
-            print_int(unif_rand(i));
-            break;
-        case normal_deviate_code:
-            print_int(norm_rand());
-            break;
-        case format_name_code:
-            print(format_name);
-            break;
-        case job_name_code:
-            print_job_name();
+     /* lua_escape_string_code: */
+        case font_id_code:
+            print_int(i);
             break;
         case font_name_code:
             append_string((unsigned char *) font_name(i),(unsigned) strlen(font_name(i)));
@@ -2689,11 +2680,35 @@ str_number the_convert_string(halfword c, int i)
                 tprint("pt");
             }
             break;
-        case font_id_code:
-            print_int(i);
+     /* left_margin_kern_code: */
+     /* right_margin_kern_code: */
+        case uniform_deviate_code:
+            print_int(unif_rand(i));
             break;
-        case math_style_code:
-            print_math_style();
+        case normal_deviate_code:
+            print_int(norm_rand());
+            break;
+     /* math_char_class_code: */
+     /* math_char_fam_code: */
+     /* math_char_slot_code: */
+     /* insert_ht_code: */
+        case job_name_code:
+            print_job_name();
+            break;
+        case format_name_code:
+            print(format_name);
+            break;
+        case luatex_banner_code:
+            tprint(luatex_banner);
+            break;
+        case luatex_revision_code:
+            print(get_luatexrevision());
+            break;
+        case luatex_date_code:
+            print_int(get_luatex_date_info());
+            break;
+        case etex_code:
+            tprint(eTeX_version_string);
             break;
         case eTeX_revision_code:
             tprint(eTeX_revision);
@@ -2824,7 +2839,7 @@ void read_toks(int n, halfword r, halfword j)
         /* Handle \.{\\readline} and |goto done|; */
         if (j == 1) {
             while (iloc <= ilimit) {    /* current line not yet finished */
-		do_buffer_to_unichar(cur_chr, iloc);
+                do_buffer_to_unichar(cur_chr, iloc);
                 if (cur_chr == ' ')
                     cur_tok = space_token;
                 else
