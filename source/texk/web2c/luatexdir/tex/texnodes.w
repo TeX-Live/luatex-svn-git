@@ -17,6 +17,8 @@
 % You should have received a copy of the GNU General Public License along
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
+/* we can consider less mode sizes: 2 4 6 8 */
+
 @ @c
 
 #include "ptexlib.h"
@@ -35,7 +37,7 @@
 
 #define text_direction int_par(text_direction_code)
 
-#define MAX_CHAIN_SIZE 13 /* why nto a bit larger */
+#define MAX_CHAIN_SIZE 13 /* why not a bit larger */
 
 memory_word *volatile varmem = NULL;
 
@@ -611,14 +613,14 @@ static int test_count = 1;
     if (!(b>=0 && b<c)) {                                        \
         fprintf(stdout,"For node p:=%d, 0<=%d<%d (l.%d,r.%d)\n", \
             (int)a, (int)b, (int)c, __LINE__,test_count);        \
-        confusion("dorangetest");                                \
+        confusion("node range test failed");                     \
     } } while (0)
 
 #define dotest(a,b,c) do {                                     \
     if (b!=c) {                                                \
         fprintf(stdout,"For node p:=%d, %d==%d (l.%d,r.%d)\n", \
             (int)a, (int)b, (int)c, __LINE__,test_count);      \
-        confusion("dotest");                                   \
+        confusion("node test failed");                         \
     } } while (0)
 
 #define check_action_ref(a)    { dorangetest(p,a,var_mem_max); }
@@ -1503,7 +1505,7 @@ static void check_node_wrapup_core(halfword p)
                 case 'd':
                     break;
                 default:
-                    confusion("extuser");
+                    confusion("unknown user node type");
                     break;
             }
             break;
@@ -1511,7 +1513,6 @@ static void check_node_wrapup_core(halfword p)
         case write_node:
         case close_node:
         case save_pos_node:
-            confusion("ext3"); /* why */
             break;
     }
 }
@@ -1566,7 +1567,7 @@ void check_node_wrapup_pdf(halfword p)
         case pdf_end_thread_node:
             break;
         default:
-            confusion("ext3");
+            confusion("wrapup pdf nodes");
             break;
     }
 }
@@ -2633,7 +2634,7 @@ void show_node_wrapup_pdf(int p)
                 tprint(" current");
                 break;
             default:
-                confusion("pdfcolorstack");
+                confusion("colorstack");
                 break;
             }
             if (pdf_colorstack_cmd(p) <= colorstack_data)

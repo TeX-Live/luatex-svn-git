@@ -847,7 +847,6 @@ extern const char *node_subtypes_pdf_literal[];
 extern halfword new_node(int i, int j);
 extern void flush_node_list(halfword);
 extern void flush_node(halfword);
-
 extern halfword do_copy_node_list(halfword, halfword);
 extern halfword copy_node_list(halfword);
 extern halfword copy_node(const halfword);
