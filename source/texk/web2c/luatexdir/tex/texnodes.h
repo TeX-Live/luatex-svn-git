@@ -847,6 +847,7 @@ extern const char *node_subtypes_pdf_literal[];
 extern halfword new_node(int i, int j);
 extern void flush_node_list(halfword);
 extern void flush_node(halfword);
+
 extern halfword do_copy_node_list(halfword, halfword);
 extern halfword copy_node_list(halfword);
 extern halfword copy_node(const halfword);
@@ -862,8 +863,8 @@ extern void flush_node_wrapup_dvi(halfword);
 extern void flush_node_wrapup_pdf(halfword);
 extern void copy_node_wrapup_dvi(halfword, halfword); /* original target */
 extern void copy_node_wrapup_pdf(halfword, halfword); /* original target */
-extern void check_node_wrapup_dvi(halfword);
-extern void check_node_wrapup_pdf(halfword);
+extern void check_node_wrapup_dvi(halfword); /* DEBUG_NODES mode */
+extern void check_node_wrapup_pdf(halfword); /* DEBUG_NODES mode */
 extern void show_node_wrapup_dvi(halfword);
 extern void show_node_wrapup_pdf(halfword);
 

@@ -35,11 +35,21 @@
 
 #define text_direction int_par(text_direction_code)
 
-#define MAX_CHAIN_SIZE 13
+#define MAX_CHAIN_SIZE 13 /* why nto a bit larger */
 
 memory_word *volatile varmem = NULL;
 
-char *varmem_sizes = NULL;
+/*
+    The previously used NDEBUG is also used in lpeg. Some debug stuff has been merged
+    as it was only used in debug mode. At some point we might make this a runtime mode
+    but then we need to store the state in the format too (no big deal).
+*/
+
+#undef DEBUG_NODES
+
+#ifdef DEBUG_NODES
+    char *varmem_sizes = NULL;
+#endif
 
 halfword var_mem_max = 0;
 halfword rover = 0;
@@ -48,10 +58,9 @@ halfword free_chain[MAX_CHAIN_SIZE] = { null };
 
 static int my_prealloc = 0;
 
-int fix_node_lists = 1;
+int fix_node_lists = 1; /* used in font and lang */
 
 halfword slow_get_node(int s);  /* defined below */
-int copy_error(halfword p);     /* define below */
 
 #define fake_node 100
 #define fake_node_size 2
@@ -581,6 +590,206 @@ int lua_properties_use_metatable = 0 ;
 /* Here end the property handlers. */
 
 @ @c
+int valid_node(halfword p)
+{
+    if (p > my_prealloc && p < var_mem_max) {
+#ifdef DEBUG_NODES
+        if (varmem_sizes[p] > 0) {
+            return 1;
+        }
+#else
+        return 1;
+#endif
+    }
+    return 0;
+}
+
+@ @c
+static int test_count = 1;
+
+#define dorangetest(a,b,c)  do {                                 \
+    if (!(b>=0 && b<c)) {                                        \
+        fprintf(stdout,"For node p:=%d, 0<=%d<%d (l.%d,r.%d)\n", \
+            (int)a, (int)b, (int)c, __LINE__,test_count);        \
+        confusion("dorangetest");                                \
+    } } while (0)
+
+#define dotest(a,b,c) do {                                     \
+    if (b!=c) {                                                \
+        fprintf(stdout,"For node p:=%d, %d==%d (l.%d,r.%d)\n", \
+            (int)a, (int)b, (int)c, __LINE__,test_count);      \
+        confusion("dotest");                                   \
+    } } while (0)
+
+#define check_action_ref(a)    { dorangetest(p,a,var_mem_max); }
+#define check_glue_ref(a)      { dorangetest(p,a,var_mem_max); }
+#define check_attribute_ref(a) { dorangetest(p,a,var_mem_max); }
+#define check_token_ref(a)     { confusion("fuzzy token cleanup in node"); }
+
+#ifdef DEBUG_NODES
+
+static void check_static_node_mem(void)
+{
+    dotest(zero_glue, width(zero_glue), 0);
+    dotest(zero_glue, type(zero_glue), glue_spec_node);
+    dotest(zero_glue, vlink(zero_glue), null);
+    dotest(zero_glue, stretch(zero_glue), 0);
+    dotest(zero_glue, stretch_order(zero_glue), normal);
+    dotest(zero_glue, shrink(zero_glue), 0);
+    dotest(zero_glue, shrink_order(zero_glue), normal);
+
+    dotest(sfi_glue, width(sfi_glue), 0);
+    dotest(sfi_glue, type(sfi_glue), glue_spec_node);
+    dotest(sfi_glue, vlink(sfi_glue), null);
+    dotest(sfi_glue, stretch(sfi_glue), 0);
+    dotest(sfi_glue, stretch_order(sfi_glue), sfi);
+    dotest(sfi_glue, shrink(sfi_glue), 0);
+    dotest(sfi_glue, shrink_order(sfi_glue), normal);
+
+    dotest(fil_glue, width(fil_glue), 0);
+    dotest(fil_glue, type(fil_glue), glue_spec_node);
+    dotest(fil_glue, vlink(fil_glue), null);
+    dotest(fil_glue, stretch(fil_glue), unity);
+    dotest(fil_glue, stretch_order(fil_glue), fil);
+    dotest(fil_glue, shrink(fil_glue), 0);
+    dotest(fil_glue, shrink_order(fil_glue), normal);
+
+    dotest(fill_glue, width(fill_glue), 0);
+    dotest(fill_glue, type(fill_glue), glue_spec_node);
+    dotest(fill_glue, vlink(fill_glue), null);
+    dotest(fill_glue, stretch(fill_glue), unity);
+    dotest(fill_glue, stretch_order(fill_glue), fill);
+    dotest(fill_glue, shrink(fill_glue), 0);
+    dotest(fill_glue, shrink_order(fill_glue), normal);
+
+    dotest(ss_glue, width(ss_glue), 0);
+    dotest(ss_glue, type(ss_glue), glue_spec_node);
+    dotest(ss_glue, vlink(ss_glue), null);
+    dotest(ss_glue, stretch(ss_glue), unity);
+    dotest(ss_glue, stretch_order(ss_glue), fil);
+    dotest(ss_glue, shrink(ss_glue), unity);
+    dotest(ss_glue, shrink_order(ss_glue), fil);
+
+    dotest(fil_neg_glue, width(fil_neg_glue), 0);
+    dotest(fil_neg_glue, type(fil_neg_glue), glue_spec_node);
+    dotest(fil_neg_glue, vlink(fil_neg_glue), null);
+    dotest(fil_neg_glue, stretch(fil_neg_glue), -unity);
+    dotest(fil_neg_glue, stretch_order(fil_neg_glue), fil);
+    dotest(fil_neg_glue, shrink(fil_neg_glue), 0);
+    dotest(fil_neg_glue, shrink_order(fil_neg_glue), normal);
+}
+
+static void node_mem_dump(halfword p)
+{
+    halfword r;
+    for (r = my_prealloc + 1; r < var_mem_max; r++) {
+        if (vlink(r) == p) {
+            halfword s = r;
+            while (s > my_prealloc && varmem_sizes[s] == 0) {
+                s--;
+            }
+            if (s != null
+                && s != my_prealloc
+                && s != var_mem_max
+                && (r - s) < get_node_size(type(s), subtype(s))
+                && alink(s) != p) {
+                if (type(s) == disc_node) {
+                    fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ",
+                            get_node_name(type(s), subtype(s)), (int) s,
+                            (int) vlink(s), (int) alink(s));
+                    fprintf(stdout, "pre_break(%d,%d,%d), ",
+                            (int) vlink_pre_break(s), (int) tlink(pre_break(s)),
+                            (int) alink(pre_break(s)));
+                    fprintf(stdout, "post_break(%d,%d,%d), ",
+                            (int) vlink_post_break(s),
+                            (int) tlink(post_break(s)),
+                            (int) alink(post_break(s)));
+                    fprintf(stdout, "no_break(%d,%d,%d)",
+                            (int) vlink_no_break(s), (int) tlink(no_break(s)),
+                            (int) alink(no_break(s)));
+                    fprintf(stdout, "\n");
+                } else {
+                    if (vlink(s) == p
+                        || (type(s) == glyph_node && lig_ptr (s) == p)
+                        || (type(s) == vlist_node && list_ptr(s) == p)
+                        || (type(s) == hlist_node && list_ptr(s) == p)
+                        || (type(s) == unset_node && list_ptr(s) == p)
+                        || (type(s) == ins_node   && ins_ptr (s) == p)
+                        ) {
+                        fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ",
+                                get_node_name(type(s), subtype(s)), (int) s,
+                                (int) vlink(s), (int) alink(s));
+                        if (type(s) == glyph_node) {
+                            fprintf(stdout, "lig_ptr(%d)", (int) lig_ptr(s));
+                        } else if (type(s) == vlist_node || type(s) == hlist_node) {
+                            fprintf(stdout, "list_ptr(%d)", (int) list_ptr(s));
+                        }
+                        fprintf(stdout, "\n");
+                    } else {
+                        if ((type(s) != penalty_node) && (type(s) != math_node) && (type(s) != kern_node)) {
+                            fprintf(stdout, "  pointed to from %s node %d\n",
+                                get_node_name(type(s), subtype(s)), (int) s);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#endif
+
+static int free_error(halfword p)
+{
+    if (p > my_prealloc && p < var_mem_max) {
+#ifdef DEBUG_NODES
+        int i;
+        if (varmem_sizes[p] == 0) {
+            check_static_node_mem();
+            for (i = (my_prealloc + 1); i < var_mem_max; i++) {
+                if (varmem_sizes[i] > 0) {
+                    check_node(i);
+                }
+            }
+            test_count++;
+            if (type(p) == glyph_node) {
+                formatted_error("nodes", "attempt to double-free glyph (%c) node %d, ignored", (int) character(p), (int) p);
+            } else {
+                formatted_error("nodes", "attempt to double-free %s node %d, ignored", get_node_name(type(p), subtype(p)), (int) p);
+            }
+            node_mem_dump(p);
+            return 1;
+        }
+#endif
+    } else {
+        formatted_error("nodes", "attempt to free an impossible node %d", (int) p);
+        return 1;
+    }
+    return 0;
+}
+
+@ @c
+static int copy_error(halfword p)
+{
+    if (p >= 0 && p < var_mem_max) {
+#ifdef DEBUG_NODES
+        if (p > my_prealloc && varmem_sizes[p] == 0) {
+            if (type(p) == glyph_node) {
+                formatted_warning("nodes", "attempt to copy free glyph (%c) node %d, ignored", (int) character(p), (int) p);
+            } else {
+                formatted_warning("nodes", "attempt to copy free %s node %d, ignored", get_node_name(type(p), subtype(p)), (int) p);
+            }
+            return 1;
+        }
+#endif
+    } else {
+        formatted_error("nodes", "attempt to copy an impossible node %d", (int) p);
+        return 1;
+    }
+    return 0;
+}
+
+@ @c
 halfword new_node(int i, int j)
 {
     int s = get_node_size(i, j);
@@ -638,8 +847,7 @@ halfword new_node(int i, int j)
             if (j>0) {
               free_node(n, variable_node_size);
               n = slow_get_node(j);
-              (void) memset((void *) (varmem + n + 1), 0,
-                          (sizeof(memory_word) * ((unsigned) j - 1)));
+              (void) memset((void *) (varmem + n + 1), 0, (sizeof(memory_word) * ((unsigned) j - 1)));
             }
             break;
         default:
@@ -733,33 +941,6 @@ halfword copy_node_list(halfword p)
     return do_copy_node_list(p, null);
 }
 
-/*
-    There is no gain in using a temp var:
-
-    #define copy_sub_list(target,source) do { \
-         l = source; \
-         if (l != null) { \
-             s = copy_node_list(l); \
-             target = s; \
-         } else { \
-             target = null; \
-         } \
-    } while (0)
-
-    #define copy_sub_node(target,source) do { \
-        l = source; \
-        if (l != null) { \
-            s = copy_node(l); \
-            target = s ; \
-        } else { \
-            target = null; \
-        } \
-    } while (0)
-
-    So we use:
-
-*/
-
 #define copy_sub_list(target,source) do { \
      if (source != null) { \
          s = do_copy_node_list(source, null); \
@@ -781,7 +962,6 @@ halfword copy_node_list(halfword p)
 @ make a dupe of a single node
 
 @c
-
 static void copy_node_wrapup_core(halfword p, halfword r)
 {
     halfword s ;
@@ -877,14 +1057,14 @@ halfword copy_node(const halfword p)
     if (int_par(synctex_code)) {
         /* handle synctex extension */
         switch (type(p)) {
-        case math_node:
-            synctex_tag_math(r) = cur_input.synctex_tag_field;
-            synctex_line_math(r) = line;
-            break;
-        case kern_node:
-            synctex_tag_kern(r) = cur_input.synctex_tag_field;
-            synctex_line_kern(r) = line;
-            break;
+            case math_node:
+                synctex_tag_math(r) = cur_input.synctex_tag_field;
+                synctex_line_math(r) = line;
+                break;
+            case kern_node:
+                synctex_tag_kern(r) = cur_input.synctex_tag_field;
+                synctex_line_kern(r) = line;
+                break;
         }
     }
     if (nodetype_has_attributes(type(p))) {
@@ -1014,221 +1194,8 @@ halfword copy_node(const halfword p)
     return r;
 }
 
-@ @c
-int valid_node(halfword p)
-{
-    if (p > my_prealloc && p < var_mem_max) {
-        if (varmem_sizes[p] > 0) {
-            return 1;
-        }
-    } else {
-        /* ignore */
-    }
-    return 0;
-}
-
-@ @c
-static int test_count = 1;
-
-#define dorangetest(a,b,c)  do {                                 \
-    if (!(b>=0 && b<c)) {                                        \
-        fprintf(stdout,"For node p:=%d, 0<=%d<%d (l.%d,r.%d)\n", \
-            (int)a, (int)b, (int)c, __LINE__,test_count);        \
-        confusion("dorangetest");                                \
-    } } while (0)
-
-#define dotest(a,b,c) do {                                     \
-    if (b!=c) {                                                \
-        fprintf(stdout,"For node p:=%d, %d==%d (l.%d,r.%d)\n", \
-            (int)a, (int)b, (int)c, __LINE__,test_count);      \
-        confusion("dotest");                                   \
-    } } while (0)
-
-#define check_action_ref(a)     { dorangetest(p,a,var_mem_max); }
-#define check_glue_ref(a)       { dorangetest(p,a,var_mem_max); }
-#define check_attribute_ref(a)  { dorangetest(p,a,var_mem_max); }
-#define check_token_ref(a)      { confusion("fuzzy token cleanup in node"); }
-
-static void check_static_node_mem(void)
-{
-    dotest(zero_glue, width(zero_glue), 0);
-    dotest(zero_glue, type(zero_glue), glue_spec_node);
-    dotest(zero_glue, vlink(zero_glue), null);
-    dotest(zero_glue, stretch(zero_glue), 0);
-    dotest(zero_glue, stretch_order(zero_glue), normal);
-    dotest(zero_glue, shrink(zero_glue), 0);
-    dotest(zero_glue, shrink_order(zero_glue), normal);
-
-    dotest(sfi_glue, width(sfi_glue), 0);
-    dotest(sfi_glue, type(sfi_glue), glue_spec_node);
-    dotest(sfi_glue, vlink(sfi_glue), null);
-    dotest(sfi_glue, stretch(sfi_glue), 0);
-    dotest(sfi_glue, stretch_order(sfi_glue), sfi);
-    dotest(sfi_glue, shrink(sfi_glue), 0);
-    dotest(sfi_glue, shrink_order(sfi_glue), normal);
-
-    dotest(fil_glue, width(fil_glue), 0);
-    dotest(fil_glue, type(fil_glue), glue_spec_node);
-    dotest(fil_glue, vlink(fil_glue), null);
-    dotest(fil_glue, stretch(fil_glue), unity);
-    dotest(fil_glue, stretch_order(fil_glue), fil);
-    dotest(fil_glue, shrink(fil_glue), 0);
-    dotest(fil_glue, shrink_order(fil_glue), normal);
-
-    dotest(fill_glue, width(fill_glue), 0);
-    dotest(fill_glue, type(fill_glue), glue_spec_node);
-    dotest(fill_glue, vlink(fill_glue), null);
-    dotest(fill_glue, stretch(fill_glue), unity);
-    dotest(fill_glue, stretch_order(fill_glue), fill);
-    dotest(fill_glue, shrink(fill_glue), 0);
-    dotest(fill_glue, shrink_order(fill_glue), normal);
-
-    dotest(ss_glue, width(ss_glue), 0);
-    dotest(ss_glue, type(ss_glue), glue_spec_node);
-    dotest(ss_glue, vlink(ss_glue), null);
-    dotest(ss_glue, stretch(ss_glue), unity);
-    dotest(ss_glue, stretch_order(ss_glue), fil);
-    dotest(ss_glue, shrink(ss_glue), unity);
-    dotest(ss_glue, shrink_order(ss_glue), fil);
-
-    dotest(fil_neg_glue, width(fil_neg_glue), 0);
-    dotest(fil_neg_glue, type(fil_neg_glue), glue_spec_node);
-    dotest(fil_neg_glue, vlink(fil_neg_glue), null);
-    dotest(fil_neg_glue, stretch(fil_neg_glue), -unity);
-    dotest(fil_neg_glue, stretch_order(fil_neg_glue), fil);
-    dotest(fil_neg_glue, shrink(fil_neg_glue), 0);
-    dotest(fil_neg_glue, shrink_order(fil_neg_glue), normal);
-}
-
-static void node_mem_dump(halfword p)
-{
-    halfword r;
-    for (r = my_prealloc + 1; r < var_mem_max; r++) {
-        if (vlink(r) == p) {
-            halfword s = r;
-            while (s > my_prealloc && varmem_sizes[s] == 0) {
-                s--;
-            }
-            if (s != null
-                && s != my_prealloc
-                && s != var_mem_max
-                && (r - s) < get_node_size(type(s), subtype(s))
-                && alink(s) != p) {
-                if (type(s) == disc_node) {
-                    fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ",
-                            get_node_name(type(s), subtype(s)), (int) s,
-                            (int) vlink(s), (int) alink(s));
-                    fprintf(stdout, "pre_break(%d,%d,%d), ",
-                            (int) vlink_pre_break(s), (int) tlink(pre_break(s)),
-                            (int) alink(pre_break(s)));
-                    fprintf(stdout, "post_break(%d,%d,%d), ",
-                            (int) vlink_post_break(s),
-                            (int) tlink(post_break(s)),
-                            (int) alink(post_break(s)));
-                    fprintf(stdout, "no_break(%d,%d,%d)",
-                            (int) vlink_no_break(s), (int) tlink(no_break(s)),
-                            (int) alink(no_break(s)));
-                    fprintf(stdout, "\n");
-                } else {
-                    if (vlink(s) == p
-                        || (type(s) == glyph_node && lig_ptr (s) == p)
-                        || (type(s) == vlist_node && list_ptr(s) == p)
-                        || (type(s) == hlist_node && list_ptr(s) == p)
-                        || (type(s) == unset_node && list_ptr(s) == p)
-                        || (type(s) == ins_node   && ins_ptr (s) == p)
-                        ) {
-                        fprintf(stdout,"  pointed to from %s node %d (vlink %d, alink %d): ",
-                                get_node_name(type(s), subtype(s)), (int) s,
-                                (int) vlink(s), (int) alink(s));
-                        if (type(s) == glyph_node) {
-                            fprintf(stdout, "lig_ptr(%d)", (int) lig_ptr(s));
-                        } else if (type(s) == vlist_node || type(s) == hlist_node) {
-                            fprintf(stdout, "list_ptr(%d)", (int) list_ptr(s));
-                        }
-                        fprintf(stdout, "\n");
-                    } else {
-                        if ((type(s) != penalty_node) && (type(s) != math_node) && (type(s) != kern_node)) {
-                            fprintf(stdout, "  pointed to from %s node %d\n",
-                                get_node_name(type(s), subtype(s)), (int) s);
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-static int free_error(halfword p)
-{
-    if (p > my_prealloc && p < var_mem_max) {
-        int i;
-        if (varmem_sizes[p] == 0) {
-            check_static_node_mem();
-            for (i = (my_prealloc + 1); i < var_mem_max; i++) {
-                if (varmem_sizes[i] > 0) {
-                    check_node(i);
-                }
-            }
-            test_count++;
-            if (type(p) == glyph_node) {
-                formatted_error("nodes", "attempt to double-free glyph (%c) node %d, ignored", (int) character(p), (int) p);
-            } else {
-                formatted_error("nodes", "attempt to double-free %s node %d, ignored", get_node_name(type(p), subtype(p)), (int) p);
-            }
-            node_mem_dump(p);
-            return 1; /* double free */
-        }
-    } else {
-        formatted_error("nodes", "attempt to free an impossible node %d", (int) p);
-    }
-    return 0;
-}
-
-@ @c
-int copy_error(halfword p)
-{
-    if (p >= 0 && p < var_mem_max) {
-        if (p > my_prealloc && varmem_sizes[p] == 0) {
-            if (type(p) == glyph_node) {
-                formatted_warning("nodes", "attempt to copy free glyph (%c) node %d, ignored", (int) character(p), (int) p);
-            } else {
-                formatted_warning("nodes", "attempt to copy free %s node %d, ignored", get_node_name(type(p), subtype(p)), (int) p);
-            }
-            return 1; /* copy free node */
-        }
-    } else {
-        formatted_error("nodes", "attempt to copy an impossible node %d", (int) p);
-    }
-    return 0;
-}
-
-/* No gain in a helper:
-
-    #define free_sub_list(source) do { \
-        l = source; \
-        if (l != null) \
-            flush_node_list(l); \
-    } while (0)
-
-    #define free_sub_node(source) do { \
-        l = source; \
-        if (l != null) \
-            flush_node(l); \
-    } while (0)
-
-    So:
-
-*/
-
-#define free_sub_list(source) do { \
-    if (source != null) \
-        flush_node_list(source); \
-} while (0)
-
-#define free_sub_node(source) do { \
-    if (source != null) \
-        flush_node(source); \
-} while (0)
+#define free_sub_list(source) if (source != null) flush_node_list(source);
+#define free_sub_node(source) if (source != null) flush_node(source);
 
 @ @c
 
@@ -1748,7 +1715,9 @@ halfword get_node(int s)
         r = free_chain[s];
         if (r != null) {
             free_chain[s] = vlink(r);
+#ifdef DEBUG_NODES
             varmem_sizes[r] = (char) s;
+#endif
             vlink(r) = null;
             var_used += s; /* maintain usage statistics */
             return r;
@@ -1768,7 +1737,9 @@ void free_node(halfword p, int s)
         formatted_error("nodes", "node number %d of type %d should not be freed", (int) p, type(p));
         return;
     }
+#ifdef DEBUG_NODES
     varmem_sizes[p] = 0;
+#endif
     if (s < MAX_CHAIN_SIZE) {
         vlink(p) = free_chain[s];
         free_chain[s] = p;
@@ -1790,12 +1761,16 @@ static void free_node_chain(halfword q, int s)
 {
     register halfword p = q;
     while (vlink(p) != null) {
+#ifdef DEBUG_NODES
         varmem_sizes[p] = 0;
+#endif
         var_used -= s;
         p = vlink(p);
     }
     var_used -= s;
+#ifdef DEBUG_NODES
     varmem_sizes[p] = 0;
+#endif
     vlink(p) = free_chain[s];
     free_chain[s] = q;
 }
@@ -1816,11 +1791,14 @@ void init_node_mem(int t)
         overflow("node memory size", (unsigned) var_mem_max);
     }
     memset((void *) (varmem), 0, (unsigned) t * sizeof(memory_word));
+#ifdef DEBUG_NODES
+    normal_warning("nodes","checking enabled, this makes luatex run slower");
     varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * (unsigned) t);
     if (varmem_sizes == NULL) {
         overflow("node memory size", (unsigned) var_mem_max);
     }
     memset((void *) varmem_sizes, 0, sizeof(char) * (unsigned) t);
+#endif
     var_mem_max = t;
     rover = var_mem_stat_max + 1;
     vlink(rover) = rover;
@@ -1946,7 +1924,9 @@ void dump_node_mem(void)
     dump_int(var_mem_max);
     dump_int(rover);
     dump_things(varmem[0], var_mem_max);
+#ifdef DEBUG_NODES
     dump_things(varmem_sizes[0], var_mem_max);
+#endif
     dump_things(free_chain[0], MAX_CHAIN_SIZE);
     dump_int(var_used);
     dump_int(my_prealloc);
@@ -1954,6 +1934,7 @@ void dump_node_mem(void)
 
 @ it makes sense to enlarge the varmem array immediately
 @c
+
 void undump_node_mem(void)
 {
     int x;
@@ -1961,15 +1942,12 @@ void undump_node_mem(void)
     undump_int(rover);
     var_mem_max = (x < 100000 ? 100000 : x);
     varmem = xmallocarray(memory_word, (unsigned) var_mem_max);
-/*
-#if 0
-    memset ((void *)varmem,0,x*sizeof(memory_word));
-#endif
-*/
     undump_things(varmem[0], x);
+#ifdef DEBUG_NODES
     varmem_sizes = xmallocarray(char, (unsigned) var_mem_max);
     memset((void *) varmem_sizes, 0, (unsigned) var_mem_max * sizeof(char));
     undump_things(varmem_sizes[0], x);
+#endif
     undump_things(free_chain[0], MAX_CHAIN_SIZE);
     undump_int(var_used);
     undump_int(my_prealloc);
@@ -1984,22 +1962,6 @@ void undump_node_mem(void)
     }
 }
 
-#if 0
-void test_rovers(char *s)
-{
-    int q = rover;
-    int r = q;
-    fprintf(stdout, "%s: {rover=%d,size=%d,link=%d}", s, r, node_size(r), vlink(r));
-    while (vlink(r) != q) {
-        r = vlink(r);
-        fprintf(stdout, ",{rover=%d,size=%d,link=%d}", r, node_size(r), vlink(r));
-    }
-    fprintf(stdout, "\n");
-}
-#else
-#  define test_rovers(a)
-#endif
-
 @ @c
 halfword slow_get_node(int s)
 {
@@ -2008,7 +1970,6 @@ halfword slow_get_node(int s)
   RETRY:
     t = node_size(rover);
     if (vlink(rover) < var_mem_max && vlink(rover) != 0) {
-        test_rovers("entry");
         if (t > s) {
             /* allocating from the bottom helps decrease page faults */
             register halfword r = rover;
@@ -2024,9 +1985,10 @@ halfword slow_get_node(int s)
             } else {
                 vlink(rover) += s;
             }
-            test_rovers("taken");
             if (vlink(rover) < var_mem_max) {
+#ifdef DEBUG_NODES
                 varmem_sizes[r] = (char) (s > 127 ? 127 : s);
+#endif
                 vlink(r) = null;
                 var_used += s;          /* maintain usage statistics */
                 return r;               /* this is the only exit */
@@ -2047,7 +2009,6 @@ halfword slow_get_node(int s)
                         l = vlink(l);
                     }
                     vlink(l) = rover;
-                    test_rovers("outtake");
                     goto RETRY;
                 } else {
                     halfword l = rover;
@@ -2066,11 +2027,13 @@ halfword slow_get_node(int s)
                 overflow("node memory size", (unsigned) var_mem_max);
             }
             memset((void *) (varmem + var_mem_max), 0, (unsigned) x * sizeof(memory_word));
+#ifdef DEBUG_NODES
             varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * (unsigned) (var_mem_max + x));
             if (varmem_sizes == NULL) {
                 overflow("node memory size", (unsigned) var_mem_max);
             }
             memset((void *) (varmem_sizes + var_mem_max), 0, (unsigned) (x) * sizeof(char));
+#endif
             /* todo ? it is perhaps possible to merge the new memory with an existing rover */
             vlink(var_mem_max) = rover;
             node_size(var_mem_max) = x;
@@ -2079,7 +2042,6 @@ halfword slow_get_node(int s)
             }
             vlink(rover) = var_mem_max;
             rover = var_mem_max;
-            test_rovers("realloc");
             var_mem_max += x;
             goto RETRY;
         }
@@ -2092,12 +2054,15 @@ halfword slow_get_node(int s)
 @ @c
 char *sprint_node_mem_usage(void)
 {
-    int i, b;
 
-    char *s, *ss;
+    char *s;
+#ifdef DEBUG_NODES
+    char *ss;
+    int i;
+    int b = 0;
     char msg[256];
     int node_counts[last_normal_node + last_whatsit_node + 2] = { 0 };
-
+    s = strdup("");
     for (i = (var_mem_max - 1); i > my_prealloc; i--) {
         if (varmem_sizes[i] > 0) {
             if (type(i) > last_normal_node + last_whatsit_node) {
@@ -2109,13 +2074,13 @@ char *sprint_node_mem_usage(void)
             }
         }
     }
-    s = strdup("");
-    b = 0;
     for (i = 0; i < last_normal_node + last_whatsit_node + 2; i++) {
         if (node_counts[i] > 0) {
-            int j = (i > (last_normal_node + 1) ? (i - last_normal_node - 1) : 0);
+            int j =
+                (i > (last_normal_node + 1) ? (i - last_normal_node - 1) : 0);
             snprintf(msg, 255, "%s%d %s", (b ? ", " : ""), (int) node_counts[i],
-                     get_node_name((i > last_normal_node ? whatsit_node : i), j));
+                     get_node_name((i > last_normal_node ? whatsit_node : i),
+                                   j));
             ss = xmalloc((unsigned) (strlen(s) + strlen(msg) + 1));
             strcpy(ss, s);
             strcat(ss, msg);
@@ -2124,14 +2089,19 @@ char *sprint_node_mem_usage(void)
             b = 1;
         }
     }
+#else
+    s = strdup("");
+#endif
     return s;
 }
 
 @ @c
 halfword list_node_mem_usage(void)
 {
+    halfword q = null;
+#ifdef DEBUG_NODES
+    halfword p = null;
     halfword i, j;
-    halfword p = null, q = null;
     char *saved_varmem_sizes = xmallocarray(char, (unsigned) var_mem_max);
     memcpy(saved_varmem_sizes, varmem_sizes, (size_t) var_mem_max);
     for (i = my_prealloc + 1; i < (var_mem_max - 1); i++) {
@@ -2146,6 +2116,7 @@ halfword list_node_mem_usage(void)
         }
     }
     free(saved_varmem_sizes);
+#endif
     return q;
 }
 
@@ -2296,8 +2267,6 @@ void reassign_attribute(halfword n, halfword new)
     node_attr(n) = new ;
 }
 
-
-
 @ @c
 void delete_attribute_ref(halfword b)
 {
@@ -2314,7 +2283,7 @@ void delete_attribute_ref(halfword b)
                 attr_list_ref(b) = 0;
             }
         } else {
-            normal_error("nodes","tryimg to delete an attribute reference of a non attribute node");
+            normal_error("nodes","trying to delete an attribute reference of a non attribute node");
         }
     }
 }
@@ -2404,7 +2373,7 @@ void set_attribute(halfword n, int i, int val)
 
         if (attr_list_ref(p) == 0 ) {
             /* the list is invalid i.e. freed already */
-            fprintf(stdout,"Node %d has an attribute list that is free already\n",(int) n);
+            formatted_warning("nodes","node %d has an attribute list that is free already, case 1",(int) n);
             /* the still dangling list gets ref count 1 */
             attr_list_ref(p) = 1;
         } else if (attr_list_ref(p) == 1) {
@@ -2441,10 +2410,9 @@ void set_attribute(halfword n, int i, int val)
             vlink(p) = r;
         }
     } else {
-       normal_error("nodes","trying to set an attribute fails, case 2");
+        normal_error("nodes","trying to set an attribute fails, case 2");
     }
 }
-
 
 @ @c
 int unset_attribute(halfword n, int i, int val)
@@ -2459,7 +2427,7 @@ int unset_attribute(halfword n, int i, int val)
     if (p == null)
         return UNUSED_ATTRIBUTE;
     if (attr_list_ref(p) == 0) {
-        formatted_warning("nodes","node %d has an attribute list that is free already", (int) n);
+        formatted_warning("nodes","node %d has an attribute list that is free already, case 2", (int) n);
         return UNUSED_ATTRIBUTE;
     }
     if (vlink(p) != null) {
@@ -2552,9 +2520,6 @@ void print_short_node_contents(halfword p)
             short_display(vlink(pre_break(p)));
             short_display(vlink(post_break(p)));
             break;
-        default:
-            normal_error("nodes","something is wrong in printing a short node content");
-            break;
     }
 }
 
@@ -2586,9 +2551,7 @@ static void print_write_whatsit(const char *s, pointer p)
         print_char('-');
 }
 
-
 @ @c
-
 static void show_node_wrapup_core(int p)
 {
     switch (subtype(p)) {
@@ -2856,10 +2819,10 @@ void show_node_wrapup_pdf(int p)
 
 @ Recursive calls on |show_node_list| therefore use the following pattern:
 @c
-#define node_list_display(A) do {               \
-    append_char('.');                           \
-    show_node_list(A);                          \
-    flush_char();                               \
+#define node_list_display(A) do { \
+    append_char('.');             \
+    show_node_list(A);            \
+    flush_char();                 \
 } while (0)
 
 /* prints a node list symbolically */
@@ -3283,7 +3246,6 @@ pointer actual_box_width(pointer r, scaled base_width)
     return w;
 }
 
-
 @ @c
 halfword tail_of_list(halfword p)
 {
@@ -3297,7 +3259,6 @@ halfword tail_of_list(halfword p)
    specification is being withdrawn.
 
 @c
-
 void delete_glue_ref(halfword p)
 {   /* |p| points to a glue specification */
     if (type(p) == glue_spec_node) {
@@ -3446,7 +3407,6 @@ halfword new_glyph(int f, int c)
     return p;
 }
 
-
 @ A subset of the glyphs nodes represent ligatures: characters
 fabricated from the interaction of two or more actual characters.  The
 characters that generated the ligature have not been forgotten, since
@@ -3484,8 +3444,7 @@ halfword new_char(int f, int c)
     set_to_character(p);
     font(p) = f;
     character(p) = c;
-    lang_data(p) =
-        make_lang_data(uc_hyph, cur_lang, left_hyphen_min, right_hyphen_min);
+    lang_data(p) = make_lang_data(uc_hyph, cur_lang, left_hyphen_min, right_hyphen_min);
     return p;
 }
 
@@ -3747,9 +3706,11 @@ the \.{WEB} macro definitions above, so that format changes will leave
 \TeX's other algorithms intact.
 @^system dependencies@>
 
-@ @c
+@ This function creates a |local_paragraph| node
+
+@c
+
 halfword make_local_par_node(void)
-/* This function creates a |local_paragraph| node */
 {
     halfword q;
     halfword p = new_node(local_par_node,0);
