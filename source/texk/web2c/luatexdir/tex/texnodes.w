@@ -17,17 +17,22 @@
 % You should have received a copy of the GNU General Public License along
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
-/* we can consider less mode sizes: 2 4 6 8 */
-
 @ @c
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-@ @c
-#undef name
+/* we can consider less mode sizes: 2 4 6 8 */
 
-#define adjust_pre subtype
+@
+This module started out using NDEBUG to trigger checking invalid node usage,
+something that is needed because users can mess up nodes in Lua. At some point
+that code was always enabled so it is now always on but still can be recognized
+as additional code. And as the performance hit is close to zero so disabling
+makes no sense, not even to make it configureable. There is a little more memory
+used but that is neglectable compared to other memory usage.
+
+@c
 #define attribute(A) eqtb[attribute_base+(A)].cint
 
 #define uc_hyph int_par(uc_hyph_code)
@@ -39,17 +44,11 @@
 
 #define MAX_CHAIN_SIZE 13 /* why not a bit larger */
 
+#define CHECK_NODE_USAGE 1 /* this triggers checking */
+
 memory_word *volatile varmem = NULL;
 
-/*
-    The previously used NDEBUG is also used in lpeg. Some debug stuff has been merged
-    as it was only used in debug mode. At some point we might make this a runtime mode
-    but then we need to store the state in the format too (no big deal).
-*/
-
-#undef DEBUG_NODES
-
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
     char *varmem_sizes = NULL;
 #endif
 
@@ -423,8 +422,7 @@ node_info whatsit_node_data[] = {
 
 #define last_whatsit_node pdf_restore_node
 
-/*
-
+@
 When we copy a node list, there are several possibilities: we do the same as a new node,
 we copy the entry to the table in properties (a reference), we do a deep copy of a table
 in the properties, we create a new table and give it the original one as a metatable.
@@ -449,6 +447,7 @@ following:
 - copy attributes to the properties so that we have fast access at the lua end: in the end
   the overhead is not compensated by speed and convenience, in fact, attributes are not
   that slow when it comes to accessing them
+
 - a bitset in the node but again the gain compared to attributes is neglectable and it also
   demands a pretty string agreement over what bit represents what, and this is unlikely to
   succeed in the tex community (I could use it for font handling, which is cross package,
@@ -462,17 +461,16 @@ alternative is to store a reference in the node itself but that is complicated b
 that the register has some limitations (no numeric keys) and we also don't want to mess with
 it too much.
 
-*/
-
+@c
 int lua_properties_level         = 0 ; /* can be private */
 int lua_properties_enabled       = 0 ;
 int lua_properties_use_metatable = 0 ;
 
-/*
-    We keep track of nesting so that we don't oveflow the stack, and, what is more
-    important, don't keep resolving the registry index.
-*/
+@
+We keep track of nesting so that we don't oveflow the stack, and, what is more
+important, don't keep resolving the registry index.
 
+@c
 #define lua_properties_push do { \
     if (lua_properties_enabled) { \
         lua_properties_level = lua_properties_level + 1 ; \
@@ -595,7 +593,7 @@ int lua_properties_use_metatable = 0 ;
 int valid_node(halfword p)
 {
     if (p > my_prealloc && p < var_mem_max) {
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
         if (varmem_sizes[p] > 0) {
             return 1;
         }
@@ -628,7 +626,7 @@ static int test_count = 1;
 #define check_attribute_ref(a) { dorangetest(p,a,var_mem_max); }
 #define check_token_ref(a)     { confusion("fuzzy token cleanup in node"); }
 
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
 
 static void check_static_node_mem(void)
 {
@@ -744,7 +742,7 @@ static void node_mem_dump(halfword p)
 static int free_error(halfword p)
 {
     if (p > my_prealloc && p < var_mem_max) {
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
         int i;
         if (varmem_sizes[p] == 0) {
             check_static_node_mem();
@@ -774,7 +772,7 @@ static int free_error(halfword p)
 static int copy_error(halfword p)
 {
     if (p >= 0 && p < var_mem_max) {
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
         if (p > my_prealloc && varmem_sizes[p] == 0) {
             if (type(p) == glyph_node) {
                 formatted_warning("nodes", "attempt to copy free glyph (%c) node %d, ignored", (int) character(p), (int) p);
@@ -988,7 +986,7 @@ static void copy_node_wrapup_core(halfword p, halfword r)
                 user_node_value(r) = s;
                 break;
             case 's':
-                /* |add_string_ref(user_node_value(p));| *//* if this was mpost .. */
+                /* |add_string_ref(user_node_value(p));| */
                 break;
             case 't':
                 add_token_ref(user_node_value(p));
@@ -1195,6 +1193,8 @@ halfword copy_node(const halfword p)
     }
     return r;
 }
+
+/* x */
 
 #define free_sub_list(source) if (source != null) flush_node_list(source);
 #define free_sub_node(source) if (source != null) flush_node(source);
@@ -1716,7 +1716,7 @@ halfword get_node(int s)
         r = free_chain[s];
         if (r != null) {
             free_chain[s] = vlink(r);
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
             varmem_sizes[r] = (char) s;
 #endif
             vlink(r) = null;
@@ -1738,7 +1738,7 @@ void free_node(halfword p, int s)
         formatted_error("nodes", "node number %d of type %d should not be freed", (int) p, type(p));
         return;
     }
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
     varmem_sizes[p] = 0;
 #endif
     if (s < MAX_CHAIN_SIZE) {
@@ -1762,14 +1762,14 @@ static void free_node_chain(halfword q, int s)
 {
     register halfword p = q;
     while (vlink(p) != null) {
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
         varmem_sizes[p] = 0;
 #endif
         var_used -= s;
         p = vlink(p);
     }
     var_used -= s;
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
     varmem_sizes[p] = 0;
 #endif
     vlink(p) = free_chain[s];
@@ -1792,8 +1792,7 @@ void init_node_mem(int t)
         overflow("node memory size", (unsigned) var_mem_max);
     }
     memset((void *) (varmem), 0, (unsigned) t * sizeof(memory_word));
-#ifdef DEBUG_NODES
-    normal_warning("nodes","checking enabled, this makes luatex run slower");
+#ifdef CHECK_NODE_USAGE
     varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * (unsigned) t);
     if (varmem_sizes == NULL) {
         overflow("node memory size", (unsigned) var_mem_max);
@@ -1925,7 +1924,7 @@ void dump_node_mem(void)
     dump_int(var_mem_max);
     dump_int(rover);
     dump_things(varmem[0], var_mem_max);
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
     dump_things(varmem_sizes[0], var_mem_max);
 #endif
     dump_things(free_chain[0], MAX_CHAIN_SIZE);
@@ -1944,7 +1943,7 @@ void undump_node_mem(void)
     var_mem_max = (x < 100000 ? 100000 : x);
     varmem = xmallocarray(memory_word, (unsigned) var_mem_max);
     undump_things(varmem[0], x);
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
     varmem_sizes = xmallocarray(char, (unsigned) var_mem_max);
     memset((void *) varmem_sizes, 0, (unsigned) var_mem_max * sizeof(char));
     undump_things(varmem_sizes[0], x);
@@ -1987,7 +1986,7 @@ halfword slow_get_node(int s)
                 vlink(rover) += s;
             }
             if (vlink(rover) < var_mem_max) {
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
                 varmem_sizes[r] = (char) (s > 127 ? 127 : s);
 #endif
                 vlink(r) = null;
@@ -2028,7 +2027,7 @@ halfword slow_get_node(int s)
                 overflow("node memory size", (unsigned) var_mem_max);
             }
             memset((void *) (varmem + var_mem_max), 0, (unsigned) x * sizeof(memory_word));
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
             varmem_sizes = (char *) realloc(varmem_sizes, sizeof(char) * (unsigned) (var_mem_max + x));
             if (varmem_sizes == NULL) {
                 overflow("node memory size", (unsigned) var_mem_max);
@@ -2055,9 +2054,8 @@ halfword slow_get_node(int s)
 @ @c
 char *sprint_node_mem_usage(void)
 {
-
     char *s;
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
     char *ss;
     int i;
     int b = 0;
@@ -2080,8 +2078,7 @@ char *sprint_node_mem_usage(void)
             int j =
                 (i > (last_normal_node + 1) ? (i - last_normal_node - 1) : 0);
             snprintf(msg, 255, "%s%d %s", (b ? ", " : ""), (int) node_counts[i],
-                     get_node_name((i > last_normal_node ? whatsit_node : i),
-                                   j));
+                     get_node_name((i > last_normal_node ? whatsit_node : i), j));
             ss = xmalloc((unsigned) (strlen(s) + strlen(msg) + 1));
             strcpy(ss, s);
             strcat(ss, msg);
@@ -2100,7 +2097,7 @@ char *sprint_node_mem_usage(void)
 halfword list_node_mem_usage(void)
 {
     halfword q = null;
-#ifdef DEBUG_NODES
+#ifdef CHECK_NODE_USAGE
     halfword p = null;
     halfword i, j;
     char *saved_varmem_sizes = xmallocarray(char, (unsigned) var_mem_max);
@@ -3149,7 +3146,7 @@ void show_node_list(int p)
             case adjust_node:
                 /* Display adjustment |p|; */
                 tprint_esc("vadjust");
-                if (adjust_pre(p) != 0)
+                if (subtype(p) != 0)
                     tprint(" pre ");
                 node_list_display(adjust_ptr(p));       /* recursive call */
                 break;
@@ -3632,8 +3629,9 @@ set to the address of the new spec.
 @c
 halfword new_skip_param(int n)
 {
-    halfword p = new_node(glue_node, normal);
+    halfword p;                 /* the new node */
     temp_ptr = new_spec(glue_par(n));
+    p = new_glue(temp_ptr);
     glue_ref_count(temp_ptr) = null;
     subtype(p) = (quarterword) (n + 1);
     return p;
