@@ -360,8 +360,13 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    The \type {^^} notation can come in five and six item repetitions also, to
-    insert characters that do not fit in the BMP.
+    The \type {^^} notation has been extended: after \type {^^^^} four hexadecimal
+    characters are expected and after \type {^^^^^^} six hexadecimal characters
+    have to be given. The original \TEX\ interpretation is still valid for the
+    \type {^^} case but the four and six variants do no backtracking, i.e.\ when
+    they are not followed by the right number of hexadecimal digits they issue an
+    error message. Because \type{^^^} is a normal \TEX\ case, we don't support the
+    odd number of \type {^^^^^} either.
 \stopitem
 
 \startitem

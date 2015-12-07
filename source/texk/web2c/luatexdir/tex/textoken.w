@@ -1280,108 +1280,119 @@ static boolean get_next_file(void)
 
 #endif
 
-@ @c
-#define is_hex(a) ((a>='0'&&a<='9')||(a>='a'&&a<='f'))
-
-#define add_nybble(a)   do {                    \
-    if (a<='9') cur_chr=(cur_chr<<4)+a-'0';     \
-    else        cur_chr=(cur_chr<<4)+a-'a'+10;  \
-  } while (0)
-
-#define hex_to_cur_chr do {                     \
-    if (c<='9')  cur_chr=c-'0';                 \
-    else         cur_chr=c-'a'+10;              \
-    add_nybble(cc);                             \
-  } while (0)
-
-#define four_hex_to_cur_chr do {                \
-    hex_to_cur_chr;                             \
-    add_nybble(ccc); add_nybble(cccc);          \
-  } while (0)
-
-#define five_hex_to_cur_chr  do {               \
-    four_hex_to_cur_chr;                        \
-    add_nybble(ccccc);                          \
-  } while (0)
-
-#define six_hex_to_cur_chr do {                 \
-    five_hex_to_cur_chr;                        \
-    add_nybble(cccccc);                         \
-  } while (0)
-
-
 @ Notice that a code like \.{\^\^8} becomes \.x if not followed by a hex digit.
+We only support a limited set:
+
+^^^^^^XXXXXX
+^^^^XXXXXX
+^^XX ^^<char>
 
 @c
+
+#define is_hex(a) ((a>='0'&&a<='9')||(a>='a'&&a<='f'))
+
+#define add_nybble(c) \
+    if (c<='9') { \
+        cur_chr=(cur_chr<<4)+c-'0'; \
+    } else { \
+        cur_chr=(cur_chr<<4)+c-'a'+10; \
+    }
+
+#define set_nybble(c) \
+    if (c<='9') { \
+        cur_chr=c-'0'; \
+    } else { \
+        cur_chr=c-'a'+10; \
+    }
+
+#define one_hex_to_cur_chr(c1) \
+    set_nybble(c1);
+
+#define two_hex_to_cur_chr(c1,c2) \
+    set_nybble(c1); \
+    add_nybble(c2);
+
+#define four_hex_to_cur_chr(c1,c2,c3,c4) \
+    two_hex_to_cur_chr(c1,c2); \
+    add_nybble(c3); \
+    add_nybble(c4);
+
+#define six_hex_to_cur_chr(c1,c2,c3,c4,c5,c6) \
+    four_hex_to_cur_chr(c1,c2,c3,c4); \
+    add_nybble(c5); \
+    add_nybble(c6);
+
 static boolean process_sup_mark(void)
 {
     if (cur_chr == buffer[iloc]) {
-        int c, cc;
         if (iloc < ilimit) {
-            if (   (cur_chr == buffer[iloc + 1])
-                && (cur_chr == buffer[iloc + 2])
-                && (cur_chr == buffer[iloc + 3])
-                && (cur_chr == buffer[iloc + 4])
-                && ((iloc + 10) <= ilimit)) {
-                int ccc, cccc, ccccc, cccccc;   /* constituents of a possible expanded code */
-                c = buffer[iloc + 5];
-                cc = buffer[iloc + 6];
-                ccc = buffer[iloc + 7];
-                cccc = buffer[iloc + 8];
-                ccccc = buffer[iloc + 9];
-                cccccc = buffer[iloc + 10];
-                if ((is_hex(c)) && (is_hex(cc)) && (is_hex(ccc))
-                    && (is_hex(cccc))
-                    && (is_hex(ccccc)) && (is_hex(cccccc))) {
-                    iloc = iloc + 11;
-                    six_hex_to_cur_chr;
-                    return true;
+            if ((cur_chr == buffer[iloc + 1]) && (cur_chr == buffer[iloc + 2])) {
+                if ((cur_chr == buffer[iloc + 3]) && (cur_chr == buffer[iloc + 4])) {
+                    /* ^^^^^^XXXXXX */
+                    if ((iloc + 10) <= ilimit) {
+                        int c1 = buffer[iloc +  5];
+                        int c2 = buffer[iloc +  6];
+                        int c3 = buffer[iloc +  7];
+                        int c4 = buffer[iloc +  8];
+                        int c5 = buffer[iloc +  9];
+                        int c6 = buffer[iloc + 10];
+                        if (is_hex(c1) && is_hex(c2) && is_hex(c3) &&
+                            is_hex(c4) && is_hex(c5) && is_hex(c6)) {
+                            iloc = iloc + 11;
+                            six_hex_to_cur_chr(c1,c2,c3,c4,c5,c6);
+                            return true;
+                        } else {
+                            tex_error("^^^^^^ needs six hex digits", NULL);
+                        }
+                    } else {
+                        tex_error("^^^^^^ needs six hex digits, end of input", NULL);
+                    }
+                } else {
+                    /* ^^^^XXXX */
+                    if ((iloc + 6) <= ilimit) {
+                        int c1 = buffer[iloc + 3];
+                        int c2 = buffer[iloc + 4];
+                        int c3 = buffer[iloc + 5];
+                        int c4 = buffer[iloc + 6];
+                        if (is_hex(c1) && is_hex(c2) && is_hex(c3) && is_hex(c4)) {
+                            iloc = iloc + 7;
+                            four_hex_to_cur_chr(c1,c2,c3,c4);
+                            return true;
+                        } else {
+                            tex_error("^^^^ needs four hex digits", NULL);
+                        }
+                    } else {
+                        tex_error("^^^^ needs four hex digits, end of input", NULL);
+                    }
                 }
-            }
-            if (   (cur_chr == buffer[iloc + 1])
-                && (cur_chr == buffer[iloc + 2])
-                && (cur_chr == buffer[iloc + 3])
-                && ((iloc + 8) <= ilimit)) {
-                int ccc, cccc, ccccc;   /* constituents of a possible expanded code */
-                c = buffer[iloc + 4];
-                cc = buffer[iloc + 5];
-                ccc = buffer[iloc + 6];
-                cccc = buffer[iloc + 7];
-                ccccc = buffer[iloc + 8];
-                if ((is_hex(c)) && (is_hex(cc)) && (is_hex(ccc))
-                    && (is_hex(cccc)) && (is_hex(ccccc))) {
-                    iloc = iloc + 9;
-                    five_hex_to_cur_chr;
-                    return true;
-                }
-            }
-            if (   (cur_chr == buffer[iloc + 1])
-                && (cur_chr == buffer[iloc + 2])
-                && ((iloc + 6) <= ilimit)) {
-                int ccc, cccc;  /* constituents of a possible expanded code */
-                c = buffer[iloc + 3];
-                cc = buffer[iloc + 4];
-                ccc = buffer[iloc + 5];
-                cccc = buffer[iloc + 6];
-                if ((is_hex(c)) && (is_hex(cc)) && (is_hex(ccc))
-                    && (is_hex(cccc))) {
-                    iloc = iloc + 7;
-                    four_hex_to_cur_chr;
-                    return true;
-                }
-            }
-            c = buffer[iloc + 1];
-            if (c < 0200) {     /* yes we have an expanded char */
-                iloc = iloc + 2;
-                if (is_hex(c) && iloc <= ilimit) {
-                    cc = buffer[iloc];
-                    if (is_hex(cc)) {
-                        incr(iloc);
-                        hex_to_cur_chr;
+            } else {
+                /* ^^XX */
+                if ((iloc + 2) <= ilimit) {
+                    int c1 = buffer[iloc + 1];
+                    int c2 = buffer[iloc + 2];
+                    if (is_hex(c1) && is_hex(c2)) {
+                        iloc = iloc + 3;
+                        two_hex_to_cur_chr(c1,c2);
                         return true;
                     }
                 }
-                cur_chr = (c < 0100 ? c + 0100 : c - 0100);
+                /* go on, no error, good old tex */
+            }
+        }
+        /* the rest */
+        {
+            int c1 = buffer[iloc + 1];
+            if (c1 < 0200) {
+                iloc = iloc + 2;
+                if (is_hex(c1) && (iloc <= ilimit)) {
+                    int c2 = buffer[iloc];
+                    if (is_hex(c2)) {
+                        incr(iloc);
+                        two_hex_to_cur_chr(c1,c2);
+                        return true;
+                    }
+                }
+                cur_chr = (c1 < 0100 ? c1 + 0100 : c1 - 0100);
                 return true;
             }
         }
@@ -1463,49 +1474,56 @@ static boolean check_expanded_code(int *kk)
 {
     int l;
     int k = *kk;
-    int d = 1;                  /* number of excess characters in an expanded code */
-    int c, cc, ccc, cccc, ccccc, cccccc;        /* constituents of a possible expanded code */
+    int d = 1;
     if (buffer[k] == cur_chr && k < ilimit) {
-        if ((cur_chr == buffer[k + 1]) && (cur_chr == buffer[k + 2])
-            && ((k + 6) <= ilimit)) {
-            d = 4;
-            if ((cur_chr == buffer[k + 3]) && ((k + 8) <= ilimit))
-                d = 5;
-            if ((cur_chr == buffer[k + 4]) && ((k + 10) <= ilimit))
-                d = 6;
-            c = buffer[k + d - 1];
-            cc = buffer[k + d];
-            ccc = buffer[k + d + 1];
-            cccc = buffer[k + d + 2];
-            if (d == 6) {
-                ccccc = buffer[k + d + 3];
-                cccccc = buffer[k + d + 4];
-                if (is_hex(c) && is_hex(cc) && is_hex(ccc) && is_hex(cccc)
-                    && is_hex(ccccc) && is_hex(cccccc))
-                    six_hex_to_cur_chr;
-            } else if (d == 5) {
-                ccccc = buffer[k + d + 3];
-                if (is_hex(c) && is_hex(cc) && is_hex(ccc) && is_hex(cccc)
-                    && is_hex(ccccc))
-                    five_hex_to_cur_chr;
+        if ((cur_chr == buffer[k + 1]) && (cur_chr == buffer[k + 2])) {
+            if ((cur_chr == buffer[k + 3]) && (cur_chr == buffer[k + 4])) {
+                if ((k + 10) <= ilimit) {
+                    int c1 = buffer[k + 6 - 1];
+                    int c2 = buffer[k + 6];
+                    int c3 = buffer[k + 6 + 1];
+                    int c4 = buffer[k + 6 + 2];
+                    int c5 = buffer[k + 6 + 3];
+                    int c6 = buffer[k + 6 + 4];
+                    if (is_hex(c1) && is_hex(c2) && is_hex(c3) && is_hex(c4) && is_hex(c5) && is_hex(c6)) {
+                        d = 6;
+                        six_hex_to_cur_chr(c1,c2,c3,c4,c5,c6);
+                    } else {
+                        tex_error("^^^^^^ needs six hex digits", NULL);
+                    }
+                } else {
+                    tex_error("^^^^^^ needs six hex digits, end of input", NULL);
+                }
             } else {
-                if (is_hex(c) && is_hex(cc) && is_hex(ccc) && is_hex(cccc))
-                    four_hex_to_cur_chr;
+                if ((k + 6) <= ilimit) {
+                    int c1 = buffer[k + 4 - 1];
+                    int c2 = buffer[k + 4];
+                    int c3 = buffer[k + 4 + 1];
+                    int c4 = buffer[k + 4 + 2];
+                    if (is_hex(c1) && is_hex(c2) && is_hex(c3) && is_hex(c4)) {
+                        d = 4;
+                        four_hex_to_cur_chr(c1,c2,c3,c4);
+                    } else {
+                        tex_error("^^^^ needs four hex digits", NULL);
+                    }
+                } else {
+                    tex_error("^^^^ needs four hex digits, end of input", NULL);
+                }
             }
         } else {
-            c = buffer[k + 1];
-            if (c < 0200) {
+            int c1 = buffer[k + 1];
+            if (c1 < 0200) {
                 d = 1;
-                if (is_hex(c) && (k + 2) <= ilimit) {
-                    cc = buffer[k + 2];
-                    if (is_hex(c) && is_hex(cc)) {
+                if (is_hex(c1) && (k + 2) <= ilimit) {
+                    int c2 = buffer[k + 2];
+                    if (is_hex(c2)) {
                         d = 2;
-                        hex_to_cur_chr;
+                        two_hex_to_cur_chr(c1,c2);
+                    } else {
+                        cur_chr = (c1 < 0100 ? c1 + 0100 : c1 - 0100);
                     }
-                } else if (c < 0100) {
-                    cur_chr = c + 0100;
                 } else {
-                    cur_chr = c - 0100;
+                    cur_chr = (c1 < 0100 ? c1 + 0100 : c1 - 0100);
                 }
             }
         }
@@ -1524,28 +1542,21 @@ static boolean check_expanded_code(int *kk)
             buffer[k - 1] = (packed_ASCII_code) (0xE0 + cur_chr / 0x1000);
             k++;
             d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 + (cur_chr % 0x1000) / 0x40);
+            buffer[k - 1] = (packed_ASCII_code) (0x80 + (cur_chr % 0x1000) / 0x40);
             k++;
             d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 + (cur_chr % 0x1000) % 0x40);
+            buffer[k - 1] = (packed_ASCII_code) (0x80 + (cur_chr % 0x1000) % 0x40);
         } else {
             buffer[k - 1] = (packed_ASCII_code) (0xF0 + cur_chr / 0x40000);
             k++;
             d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 + (cur_chr % 0x40000) / 0x1000);
+            buffer[k - 1] = (packed_ASCII_code) (0x80 + (cur_chr % 0x40000) / 0x1000);
             k++;
             d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 +
-                                     ((cur_chr % 0x40000) % 0x1000) / 0x40);
+            buffer[k - 1] = (packed_ASCII_code) (0x80 + ((cur_chr % 0x40000) % 0x1000) / 0x40);
             k++;
             d--;
-            buffer[k - 1] =
-                (packed_ASCII_code) (0x80 +
-                                     ((cur_chr % 0x40000) % 0x1000) % 0x40);
+            buffer[k - 1] = (packed_ASCII_code) (0x80 + ((cur_chr % 0x40000) % 0x1000) % 0x40);
         }
         l = k;
         ilimit = ilimit - d;
