@@ -145,9 +145,16 @@ void flush_loggable_info(void)
     }
 }
 
+static int texio_setescape(lua_State * L)
+{
+    escape_controls = lua_tointeger(L,-1);
+    return 0 ;
+}
+
 static const struct luaL_Reg texiolib[] = {
     {"write", texio_print},
     {"write_nl", texio_printnl},
+    {"setescape", texio_setescape},
     {NULL, NULL}
 };
 

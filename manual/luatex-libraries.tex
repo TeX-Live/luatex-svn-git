@@ -6146,6 +6146,11 @@ This function behaves like \type {texio.write}, but make sure that the given
 strings will appear at the beginning of a new line. You can pass a single empty
 string if you only want to move to the next line.
 
+\subsubsection{\type {texio.setescape}}
+
+You can disable \type {^^} escaping of control characters by passing a value of
+zero.
+
 % \section[luatokens]{The \type {oldtoken} library (obsolete)}
 %
 % {\em Nota Bene: This library will disappear soon. It is replaced by the \type

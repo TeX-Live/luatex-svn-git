@@ -36,6 +36,7 @@ typedef enum {
     new_string   = last_file_selector + 6, /* 21 */ /* printing is deflected to the string pool */
 } selector_settings;
 
+extern int escape_controls;
 extern int new_string_line;
 
 #  define ssup_error_line 255
