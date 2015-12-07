@@ -3177,9 +3177,10 @@ ones. The syntax of the string is explained in~\in {section}
 lang.clear_hyphenation(<language> l)
 \stopfunctioncall
 
-Clears the exception dictionary for this language.
+Clears the exception dictionary (string) for this language.
 
 \startfunctioncall
+<string> n = lang.clean(<language> l, <string> o)
 <string> n = lang.clean(<string> o)
 \stopfunctioncall
 
@@ -3248,6 +3249,16 @@ Hyphenation works only on \quote {characters}, a special subtype of all the glyp
 nodes with the node subtype having the value \type {1}. Glyph modes with
 different subtypes are not processed. See \in {section~} [charsandglyphs] for
 more details.
+
+The following two commands can be used to set or query hj codes:
+
+\startfunctioncall
+lang.sethjcode(<language> l, <number> char, <number> usedchar)
+<number> usedchar = lang.gethjcode(<language> l, <number> char)
+\stopfunctioncall
+
+When you set a hjcode the current sets get initialized unless the set was already
+initialized due to \type {\savinghyphcodes} being larger than zero.
 
 \section{The \type {lua} library}
 

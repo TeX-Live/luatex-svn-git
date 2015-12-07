@@ -127,6 +127,32 @@ process the box using the current paragraph language unless there was a
 \type {\setlanguage} issued inside the box. In \LUATEX, all language variables are
 already frozen.
 
+In traditional \TEX\ the process of hyphenation is driven by so called lccodes.
+In \LUATEX\ we made this dependency less strong. There are several strategies
+possible. When you do nothing, the currently used lccodes are used, when loading
+patterns, setting exceptions or hyphenating a list.
+
+When you set \type {\savinghyphcodes} to a value larger than zero the current set of
+lccodes will be saved with the language. In that case changing a lccode afterwards
+has no effect. However, you can adapt the set with:
+
+\starttyping
+\hjcode`a=`a
+\stoptyping
+
+This change is global which makes sense if you keep in mind that the moment that
+hyphenation happens is (normally) when the paragraph or a horizontal box is
+constructed. When \type {\savinghyphcodes} was zero when the language got
+initialized you start out with nothing, otherwise you already have a set.
+
+Carrying all this information with each glyph would give too much overhead and
+also make the definition more complex. A solution with hj codesets was considered
+but rejected because in practice the current approach is sufficient and it would
+not be compatible anyway.
+
+Beware: the values are always saved in the format, independent of the setting
+of \type {\savinghyphcodes} at the mnoment the format is dumped.
+
 \section{The main control loop}
 
 In \LUATEX's main loop, almost all input characters that are to be typeset are

@@ -2740,6 +2740,9 @@ void prefixed_command(void)
                 case 6:
                     new_hyphenation_min();
                     break;
+                case 7:
+                    new_hj_code();
+                    break;
             }
             break;
         case assign_font_dimen_cmd:
@@ -2918,7 +2921,7 @@ void assign_internal_value(int a, halfword p, int val)
             break;
         case language_code:
             if (val < 0) {
-	        word_define(int_base + cur_lang_code, -1);
+                word_define(int_base + cur_lang_code, -1);
                 word_define(p, -1);
             } else if (val > 16383) {
                 print_err("Invalid \\language");
@@ -2927,7 +2930,7 @@ void assign_internal_value(int a, halfword p, int val)
                      "Your invalid assignment will be ignored.");
                 error();
             } else {
-	        word_define(int_base + cur_lang_code, val);
+                word_define(int_base + cur_lang_code, val);
                 word_define(p, val);
             }
             break;

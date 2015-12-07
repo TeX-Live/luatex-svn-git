@@ -638,6 +638,7 @@ void initialize_commands(void)
     primitive_luatex("preexhyphenchar", hyph_data_cmd, 4, 0);
     primitive_luatex("postexhyphenchar", hyph_data_cmd, 5, 0);
     primitive_luatex("hyphenationmin", hyph_data_cmd, 6, 0);
+    primitive_luatex("hjcode", hyph_data_cmd, 7, 0);
     primitive_tex("hyphenchar", assign_font_int_cmd, 0, 0);
     primitive_tex("skewchar", assign_font_int_cmd, 1, 0);
     primitive_luatex("lpcode", assign_font_int_cmd, lp_code_base, 0);

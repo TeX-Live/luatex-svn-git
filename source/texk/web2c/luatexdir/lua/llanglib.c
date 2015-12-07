@@ -91,8 +91,7 @@ static int lang_hyphenation(lua_State * L)
     lang_ptr = check_islang(L, 1);
     if (lua_gettop(L) != 1) {
         if (lua_type(L, 2) != LUA_TSTRING) {
-            return luaL_error(L,
-                           "lang.hyphenation(): argument should be a string");
+            return luaL_error(L, "lang.hyphenation(): argument should be a string");
         }
         load_hyphenation(*lang_ptr, (const unsigned char *) lua_tostring(L, 2));
         return 0;
@@ -155,6 +154,35 @@ static int lang_pre_exhyphen_char(lua_State * L)
     }
 }
 
+static int lang_sethjcode(lua_State * L)
+{
+    struct tex_language **lang_ptr;
+    lang_ptr = check_islang(L, 1);
+    if (lua_type(L, 2) != LUA_TNUMBER) {
+        return luaL_error(L, "lang.sethjcode(): argument should be a character number");
+    } else {
+        int i = (int) lua_tointeger(L, 2) ;
+        if (lua_type(L, 3) == LUA_TNUMBER) {
+            set_hj_code((*lang_ptr)->id,i,(int) lua_tointeger(L, 3),-1);
+        } else {
+            set_hj_code((*lang_ptr)->id,i,i,-1);
+        }
+    }
+    return 0;
+}
+
+static int lang_gethjcode(lua_State * L)
+{
+    struct tex_language **lang_ptr;
+    lang_ptr = check_islang(L, 1);
+    if (lua_type(L, 2) != LUA_TNUMBER) {
+        return luaL_error(L, "lang.gethjcode(): argument should be a character number");
+    } else {
+        lua_pushinteger(L, get_hj_code((*lang_ptr)->id,lua_tointeger(L, 2)));
+    }
+    return 1;
+}
+
 static int lang_post_exhyphen_char(lua_State * L)
 {
     struct tex_language **lang_ptr;
@@ -170,7 +198,6 @@ static int lang_post_exhyphen_char(lua_State * L)
         return 1;
     }
 }
-
 
 static int lang_hyphenation_min(lua_State * L)
 {
@@ -196,14 +223,22 @@ static int lang_clear_hyphenation(lua_State * L)
     return 0;
 }
 
-
 static int do_lang_clean(lua_State * L)
 {
     char *cleaned;
-    if (lua_type(L, 1) != LUA_TSTRING) {
-        return luaL_error(L, "lang.clean(): argument should be a string");
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        (void) clean_hyphenation(int_par(cur_lang_code), lua_tostring(L, 1), &cleaned);
+    } else {
+        struct tex_language **lang_ptr;
+        lang_ptr = check_islang(L, 1);
+        if (lang_ptr == NULL) {
+            return luaL_error(L, "lang.clean(): first argument should be a string or language");
+        } else if (lua_type(L, 2) != LUA_TSTRING) {
+            return luaL_error(L, "lang.clean(): second argument should be a string");
+        } else {
+            (void) clean_hyphenation((*lang_ptr)->id,lua_tostring(L, 2), &cleaned);
+        }
     }
-    (void) clean_hyphenation(lua_tostring(L, 1), &cleaned);
     lua_pushstring(L, cleaned);
     return 1;
 }
@@ -226,7 +261,6 @@ static int do_lang_hyphenate(lua_State * L)
     return 1;
 }
 
-
 static const struct luaL_Reg langlib_d[] = {
     /* *INDENT-OFF* */
     {"clear_patterns",    lang_clear_patterns},
@@ -238,6 +272,8 @@ static const struct luaL_Reg langlib_d[] = {
     {"preexhyphenchar",   lang_pre_exhyphen_char},
     {"postexhyphenchar",  lang_post_exhyphen_char},
     {"hyphenationmin",    lang_hyphenation_min},
+    {"sethjcode",         lang_sethjcode},
+    {"gethjcode",         lang_gethjcode},
     {"id",                lang_id},
     /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
@@ -255,6 +291,8 @@ static const struct luaL_Reg langlib[] = {
     {"preexhyphenchar",   lang_pre_exhyphen_char},
     {"postexhyphenchar",  lang_post_exhyphen_char},
     {"hyphenationmin",    lang_hyphenation_min},
+    {"sethjcode",         lang_sethjcode},
+    {"gethjcode",         lang_gethjcode},
     {"id",                lang_id},
     {"clean",             do_lang_clean},
     {"hyphenate",         do_lang_hyphenate},
