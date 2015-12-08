@@ -529,11 +529,14 @@ boolean scan_keyword(const char *s)
  (inside |shift_case|, for example). This needs thinking.
 
 @c
+
+/*
+
 halfword active_to_cs(int curchr, int force)
 {
     halfword curcs;
     char *a, *b;
-    char *utfbytes = xmalloc(10);
+    char *utfbytes = xmalloc(8);
     int nncs = no_new_control_sequence;
     a = (char *) uni2str(0xFFFF);
     utfbytes = strcpy(utfbytes, a);
@@ -553,6 +556,84 @@ halfword active_to_cs(int curchr, int force)
     free(utfbytes);
     return curcs;
 }
+
+*/
+
+halfword active_to_cs(int curchr, int force)
+{
+    halfword curcs;
+    int nncs = no_new_control_sequence;
+    if (force) {
+        no_new_control_sequence = false;
+    }
+    if (curchr > 0) {
+        char *b = (char *) uni2str((unsigned) curchr);
+        char *utfbytes = xmalloc(8);
+        utfbytes = strcpy(utfbytes, "\xEF\xBF\xBF");
+        utfbytes = strcat(utfbytes, b);
+        free(b);
+        curcs = string_lookup(utfbytes, utf8_size(curchr)+3);
+        free(utfbytes);
+    } else {
+        curcs = string_lookup("\xEF\xBF\xBF", 4); /* 0xFFFF ... why not 3 ?*/
+    }
+    no_new_control_sequence = nncs;
+    return curcs;
+}
+
+/*
+
+static unsigned char *uni2csstr(unsigned unic)
+{
+    unsigned char *buf = xmalloc(8);
+    unsigned char *pt = buf;
+    *pt++ = 239; *pt++ = 191; *pt++ = 191; // 0xFFFF
+    if (unic < 0x80)
+        *pt++ = (unsigned char) unic;
+    else if (unic < 0x800) {
+        *pt++ = (unsigned char) (0xc0 | (unic >> 6));
+        *pt++ = (unsigned char) (0x80 | (unic & 0x3f));
+    } else if (unic >= 0x110000) {
+        *pt++ = (unsigned char) (unic - 0x110000);
+    } else if (unic < 0x10000) {
+        *pt++ = (unsigned char) (0xe0 | (unic >> 12));
+        *pt++ = (unsigned char) (0x80 | ((unic >> 6) & 0x3f));
+        *pt++ = (unsigned char) (0x80 | (unic & 0x3f));
+    } else {
+        int u, z, y, x;
+        unsigned val = unic - 0x10000;
+        u = (int) (((val & 0xf0000) >> 16) + 1);
+        z = (int) ((val & 0x0f000) >> 12);
+        y = (int) ((val & 0x00fc0) >> 6);
+        x = (int) (val & 0x0003f);
+        *pt++ = (unsigned char) (0xf0 | (u >> 2));
+        *pt++ = (unsigned char) (0x80 | ((u & 3) << 4) | z);
+        *pt++ = (unsigned char) (0x80 | y);
+        *pt++ = (unsigned char) (0x80 | x);
+    }
+    *pt = '\0';
+    return buf;
+}
+
+halfword active_to_cs(int curchr, int force)
+{
+    halfword curcs;
+    int nncs = no_new_control_sequence;
+    if (force) {
+        no_new_control_sequence = false;
+    }
+    if (curchr > 0) {
+        char * utfbytes = (char *) uni2csstr((unsigned) curchr);
+        curcs = string_lookup(utfbytes, utf8_size(curchr)+3);
+        free(utfbytes);
+    } else {
+        curcs = string_lookup("\xEF\xBF\xBF", 4); // 0xFFFF ... why not 3 ?
+    }
+    no_new_control_sequence = nncs;
+    return curcs;
+}
+
+*/
 
 @ TODO this function should listen to \.{\\escapechar}
 

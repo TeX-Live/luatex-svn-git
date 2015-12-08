@@ -2283,9 +2283,9 @@ void prefixed_command(void)
             break;
         case let_cmd:
             n = cur_chr;
-            get_r_token();
-            p = cur_cs;
             if (n == normal) {
+                get_r_token();
+                p = cur_cs;
                 do {
                     get_token();
                 } while (cur_cmd == spacer_cmd);
@@ -2294,14 +2294,38 @@ void prefixed_command(void)
                     if (cur_cmd == spacer_cmd)
                         get_token();
                 }
-            } else {
+            } else if (n == normal + 1) {
+                /* futurelet */
+                get_r_token();
+                p = cur_cs;
                 get_token();
                 q = cur_tok;
                 get_token();
                 back_input();
                 cur_tok = q;
-                back_input();       /* look ahead, then back up */
-            }                       /* note that |back_input| doesn't affect |cur_cmd|, |cur_chr| */
+                /* look ahead, then back up */
+                /* note that |back_input| doesn't affect |cur_cmd|, |cur_chr| */
+                back_input();
+            } else {
+                /* letcharcode */
+                scan_int();
+                if (cur_val > 0) {
+                    cur_cs = active_to_cs(cur_val, true);
+                    set_token_info(cur_cs, cur_cs + cs_token_flag);
+                    p = cur_cs;
+                    do {
+                        get_token();
+                    } while (cur_cmd == spacer_cmd);
+                    if (cur_tok == other_token + '=') {
+                        get_token();
+                        if (cur_cmd == spacer_cmd)
+                            get_token();
+                    }
+                } else {
+                    p = null;
+                    tex_error("invalid number for \\letcharcode",NULL);
+                }
+            }
             if (cur_cmd >= call_cmd)
                 add_token_ref(cur_chr);
             define(p, cur_cmd, cur_chr);
