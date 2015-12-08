@@ -30,7 +30,7 @@
 
 int luatex_version = 86;        /* \.{\\luatexversion}  */
 int luatex_revision = '0';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2015111900;     /* the compile date is now hardwired */
+int luatex_date_info = 2015120800;     /* the compile date is now hardwired */
 const char *luatex_version_string = "beta-0.86.0";
 const char *engine_name = my_name;     /* the name of this engine */
 
