@@ -302,6 +302,10 @@ typedef enum {
     boundary_node,
     disc_node,
     whatsit_node,
+#define last_preceding_break_node whatsit_node
+    local_par_node,
+    dir_node,
+#define last_non_discardable_node dir_node
     math_node,
     glue_node,
     kern_node,
@@ -341,11 +345,30 @@ typedef enum {
     delta_node,
     passive_node,
     shape_node,
-    dir_node,
-    local_par_node,
 } node_types;
 
-#  define MAX_NODE_TYPE local_par_node /* 60 */
+#  define MAX_NODE_TYPE shape_node /* 60 */
+
+/*
+    TH: these two defines still need checking. The node ordering in luatex is not
+    quite the same as in tex82, HH: but it's probably ok
+*/
+
+/*
+
+    #  define precedes_break(a) \
+    #      (type(a)<math_node && \
+    #      (type(a)!=whatsit_node || (subtype(a)!=dir_node && subtype(a)!=local_par_node)))
+
+*/
+
+/*
+    #  define precedes_break(a)  (type(a)<math_node)
+    #  define non_discardable(a) (type(a)<math_node || type(a) == dir_node || type(a) == local_par_node)
+*/
+
+#  define precedes_break(a)  (type(a)<=last_preceding_break_node)
+#  define non_discardable(a) (type(a)<=last_non_discardable_node)
 
 #  define known_node_type(i) ( i >= 0 && i <= MAX_NODE_TYPE)
 
@@ -792,26 +815,6 @@ extern void print_short_node_contents(halfword n);
 extern void show_node_list(int i);
 extern pointer actual_box_width(pointer r, scaled base_width);
 
-/*
-    TH: these two defines still need checking. The node ordering in luatex is not
-    quite the same as in tex82
-*/
-
-/*
-
-#  define precedes_break(a) \
-#      (type((a))<math_node && (type(a)!=whatsit_node || (subtype(a)!=dir_node && subtype(a)!=local_par_node)))
-
-*/
-
-/*
-    so what comes before math (as we have put dir_node and local_par_node to the end)
-*/
-
-#  define precedes_break(a) (type((a))<math_node)
-
-#  define non_discardable(a) (type((a))<math_node)
-
 /* from luanode.c */
 
 typedef struct _node_info {
@@ -936,7 +939,6 @@ extern int lua_properties_use_metatable ;
 #define local_broken_penalty int_par(local_broken_penalty_code)
 #define local_left_box equiv(local_left_box_base)
 #define local_right_box equiv(local_right_box_base)
-#define par_direction int_par(par_direction_code)
 
 extern halfword make_local_par_node(void);
 

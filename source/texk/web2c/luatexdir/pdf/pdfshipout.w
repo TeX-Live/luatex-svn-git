@@ -26,7 +26,6 @@
 #define h_offset dimen_par(h_offset_code)
 #define mag int_par(mag_code)
 #define page_bottom_offset dimen_par(page_bottom_offset_code)
-#define page_direction int_par(page_direction_code)
 #define page_height dimen_par(page_height_code)
 #define page_left_offset dimen_par(page_left_offset_code)
 #define page_right_offset dimen_par(page_right_offset_code)

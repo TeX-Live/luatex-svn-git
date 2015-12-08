@@ -502,4 +502,10 @@ extern void show_eqtb(halfword n);
 #define xspace_skip glue_par(xspace_skip_code)
 #define math_skip glue_par(math_skip_code)
 
+#define body_direction int_par(body_direction_code)
+#define page_direction int_par(page_direction_code)
+#define par_direction  int_par(par_direction_code)
+#define text_direction int_par(text_direction_code)
+#define math_direction int_par(math_direction_code)
+
 #endif

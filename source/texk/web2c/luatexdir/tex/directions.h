@@ -31,7 +31,7 @@
 */
 
 #  define dir_TLT  0 /* maybe use this one as unset value */
-#  define dir_TRT  1 /* or swhould we avoid that one because it's a signal too */
+#  define dir_TRT  1 /* or should we avoid that one because it's a signal too */
 #  define dir_LTL  2
 #  define dir_RTT  3
 
@@ -106,21 +106,21 @@ extern int dir_swap;
 
 #  define textdir_is_L(a) (a == dir_TLT)
 
-#  define push_dir(a,b) { \
+#  define push_dir(p,a) { \
     halfword dir_tmp=new_dir((a)); \
-    vlink(dir_tmp)=b; \
-    b=dir_tmp; \
+    vlink(dir_tmp)=p; \
+    p=dir_tmp; \
 }
 
-#  define push_dir_node(a,b) { \
+#  define push_dir_node(p,a) { \
     halfword dir_tmp=copy_node((a)); \
-    vlink(dir_tmp)=b; \
-    b=dir_tmp; \
+    vlink(dir_tmp)=p; \
+    p=dir_tmp; \
 }
 
-#  define pop_dir_node(b) { \
-    halfword dir_tmp=b; \
-    b=vlink(dir_tmp); \
+#  define pop_dir_node(p) { \
+    halfword dir_tmp=p; \
+    p=vlink(dir_tmp); \
     flush_node(dir_tmp); \
 }
 

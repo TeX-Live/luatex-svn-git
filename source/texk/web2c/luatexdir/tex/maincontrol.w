@@ -48,9 +48,7 @@
 #define no_local_whatsits int_par(no_local_whatsits_code)
 #define no_local_dirs int_par(no_local_dirs_code)
 #define err_help equiv(err_help_loc)
-#define text_direction int_par(text_direction_code)
 #define every_par equiv(every_par_loc)
-#define par_direction int_par(par_direction_code)
 
 #define page_left_offset dimen_par(page_left_offset_code)
 #define page_top_offset dimen_par(page_top_offset_code)
@@ -2816,12 +2814,9 @@ void prefixed_command(void)
 @ @c
 void fixup_directions(void)
 {
-    int temp_no_whatsits;
-    int temp_no_dirs;
-    int temporary_dir;
-    temp_no_whatsits = no_local_whatsits;
-    temp_no_dirs = no_local_dirs;
-    temporary_dir = text_direction;
+    int temp_no_whatsits = no_local_whatsits;
+    int temp_no_dirs = no_local_dirs;
+    int temporary_dir = text_direction;
     if (dir_level(text_dir_ptr) == cur_level) {
         /* DIR: Remove from |text_dir_ptr| */
         halfword text_dir_tmp = vlink(text_dir_ptr);

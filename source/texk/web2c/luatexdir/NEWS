@@ -1,6 +1,9 @@
 
 This file is in the public domain.
 
+
+
+
 Upcoming LuaTeX Release 0.86
 
 (major changes)
@@ -18,6 +21,10 @@ Upcoming LuaTeX Release 0.86
 
 - no longer keep track of older math character and delimiter definition states
 
+- only ^^ ^^^^XXXX ^^^^^^XXXXXX supported
+- texio.setescape(0) disables escaping to terminal
+
+- lc codes saved with language
 
 
 

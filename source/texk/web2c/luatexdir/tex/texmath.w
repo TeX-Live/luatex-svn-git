@@ -33,7 +33,6 @@
 #define incompleat_noad cur_list.incompleat_noad_field
 
 #define cur_fam int_par(cur_fam_code)
-#define text_direction int_par(text_direction_code)
 
 /*
 

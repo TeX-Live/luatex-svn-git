@@ -40,8 +40,6 @@ used but that is neglectable compared to other memory usage.
 #define left_hyphen_min int_par(left_hyphen_min_code)
 #define right_hyphen_min int_par(right_hyphen_min_code)
 
-#define text_direction int_par(text_direction_code)
-
 #define MAX_CHAIN_SIZE 13 /* why not a bit larger */
 
 #define CHECK_NODE_USAGE 1 /* this triggers checking */
@@ -327,6 +325,8 @@ node_info node_data[] = { /* the last entry in a row is the etex number */
     { boundary_node,       boundary_size,         node_fields_boundary,                      "boundary",       -1 },
     { disc_node,           disc_node_size,        node_fields_disc,                          "disc",            8 },
     { whatsit_node,        -1,                    NULL,                                      "whatsit",         9 },
+    { local_par_node,      local_par_size,        node_fields_local_par,                     "local_par",      -1 },
+    { dir_node,            dir_node_size,         node_fields_dir,                           "dir",            -1 },
     { math_node,           math_node_size,        node_fields_math,                          "math",           10 },
     { glue_node,           glue_node_size,        node_fields_glue,                          "glue",           11 },
     { kern_node,           kern_node_size,        node_fields_kern,                          "kern",           12 },
@@ -366,8 +366,6 @@ node_info node_data[] = { /* the last entry in a row is the etex number */
     { delta_node,          delta_node_size,       NULL,                                      "delta",          -1 },
     { passive_node,        passive_node_size,     NULL,                                      "passive",        -1 },
     { shape_node,          variable_node_size,    NULL,                                      "shape",          -1 },
-    { dir_node,            dir_node_size,         node_fields_dir,                           "dir",            -1 },
-    { local_par_node,      local_par_size,        node_fields_local_par,                     "local_par",      -1 },
     { -1,                 -1,                     NULL,                                      NULL,             -1 },
 };
 

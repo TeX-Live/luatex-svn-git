@@ -43,7 +43,6 @@
 #define tracing_output int_par(tracing_output_code)
 #define tracing_stats int_par(tracing_stats_code)
 #define tracing_online int_par(tracing_online_code)
-#define page_direction int_par(page_direction_code)
 #define page_width dimen_par(page_width_code)
 #define page_height dimen_par(page_height_code)
 #define page_left_offset dimen_par(page_left_offset_code)

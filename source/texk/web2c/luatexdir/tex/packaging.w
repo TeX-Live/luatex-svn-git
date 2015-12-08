@@ -19,7 +19,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ @c
@@ -29,8 +28,6 @@
 #define space_factor    cur_list.space_factor_field
 #define box(A) eqtb[box_base+(A)].hh.rh
 
-#define text_direction int_par(text_direction_code)
-#define body_direction int_par(body_direction_code)
 #define every_hbox equiv(every_hbox_loc)
 #define every_vbox equiv(every_vbox_loc)
 #define box_max_depth dimen_par(box_max_depth_code)
@@ -293,6 +290,7 @@ void scan_full_spec(group_code c, int spec_direction)
     if (! done) {
         scan_left_brace();
     }
+    /* no gain: if (body_direction != spec_direction) etc */
     eq_word_define(int_base + body_direction_code, spec_direction);
     eq_word_define(int_base + par_direction_code, spec_direction);
     eq_word_define(int_base + text_direction_code, spec_direction);
@@ -558,7 +556,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         }
     */
 
-    push_dir(hpack_dir,dir_ptr1); /* push null */
+    push_dir(dir_ptr1,hpack_dir); /* push null */
     q = r + list_offset; /* hm, adding something to a node address? */
     vlink(q) = p;
     if (m == cal_expand_ratio) {
@@ -672,7 +670,7 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                 /* DIR: Adjust the dir stack for the |hpack| routine */
                 if (dir_dir(p) >= 0) {
                     hpack_dir = dir_dir(p);
-                    push_dir_node(p,dir_ptr1);
+                    push_dir_node(dir_ptr1,p);
                 } else {
                     pop_dir_node(dir_ptr1);
                     if (dir_ptr1 != null)

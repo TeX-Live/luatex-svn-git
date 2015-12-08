@@ -35,9 +35,6 @@
 #define count(A) eqtb[count_base+(A)].hh.rh
 #define box(A) equiv(box_base+(A))
 
-#define text_direction int_par(text_direction_code)
-#define body_direction int_par(body_direction_code)
-
 static void scan_expr(void);
 
 @ Let's turn now to some procedures that \TeX\ calls upon frequently to digest
