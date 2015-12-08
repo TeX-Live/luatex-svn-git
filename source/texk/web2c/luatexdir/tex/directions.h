@@ -56,14 +56,52 @@ extern int dir_swap;
 
 #  define is_rotated(a) (a == dir_RTT)
 
+/*
+
+    #  define textdir_parallel(a,b) ( \
+        ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
+        ((a == dir_LTL || a == dir_RTT) && (b == dir_LTL || b == dir_RTT)) \
+    )
+
+    #  define pardir_parallel(a,b) ( \
+        ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
+        ((a == dir_LTL || a == dir_RTT) && (b == dir_LTL || b == dir_RTT)) \
+    )
+
+    #  define pardir_eq(a,b) ( \
+        ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
+        (a == dir_LTL && b == dir_LTL) || \
+        (a == dir_RTT && b == dir_RTT) \
+    )
+
+    #  define textdir_eq(a,b) ( \
+        (a == dir_TLT && b == dir_TLT) || \
+        (a == dir_TRT && b == dir_TRT) || \
+        (a == dir_LTL && (b == dir_LTL || b == dir_RTT)) || \
+        (a == dir_RTT && (b == dir_LTL || b == dir_RTT))
+
+    #  define partextdir_eq(a,b) ( \
+        ((a == dir_TLT || a == dir_TRT) && (b == dir_LTL || b == dir_RTT)) || \
+        (a == dir_LTL && b == dir_TLT) || \
+        (a == dir_RTT && b == dir_TRT) \
+    )
+
+*/
+
+/* # define dir_TLT_or_TRT(a) (a == dir_TLT || a == dir_TRT) */
+/* # define dir_LTL_or_RTT(a) (a == dir_LTL || a == dir_RTT) */
+
+# define dir_TLT_or_TRT(a) (a < 2)
+# define dir_LTL_or_RTT(a) (a > 1)
+
 #  define textdir_parallel(a,b) ( \
-    ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
-    ((a == dir_LTL || a == dir_RTT) && (b == dir_LTL || b == dir_RTT)) \
+    (dir_TLT_or_TRT(a) && dir_TLT_or_TRT(b)) || \
+    (dir_LTL_or_RTT(a) && dir_LTL_or_RTT(b)) \
 )
 
 #  define pardir_parallel(a,b) ( \
-    ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
-    ((a == dir_LTL || a == dir_RTT) && (b == dir_LTL || b == dir_RTT)) \
+    (dir_TLT_or_TRT(a) && dir_TLT_or_TRT(b)) || \
+    (dir_LTL_or_RTT(a) && dir_LTL_or_RTT(b)) \
 )
 
 #  define pardir_opposite(a,b) ( \
@@ -79,7 +117,7 @@ extern int dir_swap;
 #  define glyphdir_opposite(a,b) 0
 
 #  define pardir_eq(a,b) ( \
-    ((a == dir_TLT || a == dir_TRT) && (b == dir_TLT || b == dir_TRT)) || \
+    (dir_TLT_or_TRT(a) && dir_TLT_or_TRT(b)) || \
     (a == dir_LTL && b == dir_LTL) || \
     (a == dir_RTT && b == dir_RTT) \
 )
@@ -87,8 +125,8 @@ extern int dir_swap;
 #  define textdir_eq(a,b) ( \
     (a == dir_TLT && b == dir_TLT) || \
     (a == dir_TRT && b == dir_TRT) || \
-    (a == dir_LTL && (b == dir_LTL || b == dir_RTT)) || \
-    (a == dir_RTT && (b == dir_LTL || b == dir_RTT) \
+    (a == dir_LTL && dir_LTL_or_RTT(b)) || \
+    (a == dir_RTT && dir_LTL_or_RTT(b)) \
 )
 
 #  define glyphdir_eq(a,b) ( \
@@ -97,7 +135,7 @@ extern int dir_swap;
 )
 
 #  define partextdir_eq(a,b) ( \
-    ((a == dir_TLT || a == dir_TRT)&&(b == dir_LTL || b == dir_RTT)) || \
+    (dir_TLT_or_TRT(a) && dir_LTL_or_RTT(b)) || \
     (a == dir_LTL && b == dir_TLT) || \
     (a == dir_RTT && b == dir_TRT) \
 )
