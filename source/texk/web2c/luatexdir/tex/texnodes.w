@@ -822,10 +822,11 @@ halfword new_node(int i, int j)
         case rule_node:
             depth(n) = null_flag;
             height(n) = null_flag;
+            width(n) = null_flag;
             rule_dir(n) = -1;
             rule_index(n) = 0;
             rule_transform(n) = 0;
-            /* fall through */
+            break;
         case whatsit_node:
             if (j == open_node) {
                 open_name(n) = get_nullstr();
