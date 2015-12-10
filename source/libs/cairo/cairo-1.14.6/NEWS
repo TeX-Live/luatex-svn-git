@@ -1,3 +1,34 @@
+Release 1.14.6    (2015-12-09  Bryce Harrington <bryce@osg.samsung.com>)
+========================================================================
+Simple bugfix release to fix one Windows issue.
+
+For a complete log of changes since 1.14.4, please see:
+
+    http://cairographics.org/releases/ChangeLog.1.14.6
+
+Features
+--------
+None
+
+API Changes
+-----------
+None
+
+Dependency Changes
+------------------
+None
+
+Performance Optimizations
+-------------------------
+None
+
+Bug Fixes
+---------
+* Fix failure on Windows due to reference of the function
+  cairo_win32_surface_create_with_format(), which isn't included in the
+  1.14.4 release. (Bug #92771)
+
+
 Release 1.14.4    (2015-10-28  Bryce Harrington <bryce@osg.samsung.com>)
 ========================================================================
 Just in time for Halloween we see another bug-fix release for Cairo.
@@ -9,7 +40,7 @@ updates to documentation, etc.
 
 For a complete log of changes since 1.14.2, please see:
 
-    http://cairographics.org/releases/ChangeLog.1.14.4
+    http://cairographics.org/releases/ChangeLog.cairo-1.14.4
 
 
 Features
