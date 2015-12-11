@@ -158,6 +158,7 @@ command_item command_names[] = {
     {"variable", variable_cmd, NULL},
     {"feedback", feedback_cmd, NULL},
     {"the", the_cmd, NULL},
+    {"combinetoks", combine_toks_cmd, NULL},
     {"top_bot_mark", top_bot_mark_cmd, NULL},
     {"call", call_cmd, NULL},
     {"long_call", long_call_cmd, NULL},

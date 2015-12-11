@@ -21,6 +21,8 @@
 
 #include "ptexlib.h"
 
+halfword last_cs_name = null_cs;
+
 /* |eqtb[p]| has just been restored or retained */
 
 static void diagnostic_trace(halfword p, const char *s)
@@ -369,23 +371,17 @@ void print_save_stack(void)
 @c
 void show_save_groups(void)
 {
-    int p;                      /* index into |nest| */
+    int p = nest_ptr;           /* index into |nest| */
     int m;                      /* mode */
-    save_pointer v;             /* saved value of |save_ptr| */
-    quarterword l;              /* saved value of |cur_level| */
-    group_code c;               /* saved value of |cur_group| */
-    int a;                      /* to keep track of alignments */
+    save_pointer v = save_ptr;  /* saved value of |save_ptr| */
+    quarterword l = cur_level;  /* saved value of |cur_level| */
+    group_code c = cur_group;   /* saved value of |cur_group| */
+    int a = 1;                  /* to keep track of alignments */
     int i;
     quarterword j;
-    const char *s;
-    p = nest_ptr;
-    v = save_ptr;
-    l = cur_level;
-    c = cur_group;
+    const char *s = NULL;
     save_ptr = cur_boundary;
     decr(cur_level);
-    a = 1;
-    s = NULL;
     tprint_nl("");
     print_ln();
     while (1) {
@@ -723,10 +719,8 @@ belonging to the topmost group is cleared off of the save stack.
 void unsave(void)
 {                               /* pops the top level off the save stack */
     halfword p;                 /* position to be restored */
-    quarterword l;              /* saved level, if in fullword regions of |eqtb| */
-    boolean a;                  /* have we already processed an \.{\\aftergroup} ? */
-    a = false;
-    l = level_one;              /* just in case */
+    quarterword l = level_one;  /* saved level, if in fullword regions of |eqtb| */
+    boolean a = false;          /* have we already processed an \.{\\aftergroup} ? */
     unsave_math_codes(cur_level);
     unsave_cat_codes(int_par(cat_code_table_code), cur_level);
     unsave_text_codes(cur_level);
@@ -777,7 +771,6 @@ void unsave(void)
                     if (trace)
                         diagnostic_trace(p, "retaining");
                 }
-
             }
         }
         if (int_par(tracing_groups_code) > 0)
@@ -787,7 +780,6 @@ void unsave(void)
         cur_group = save_level(save_ptr);
         cur_boundary = save_value(save_ptr);
         decr(save_ptr);
-
     } else {
         confusion("curlevel");  /* |unsave| is not used when |cur_group=bottom_level| */
     }

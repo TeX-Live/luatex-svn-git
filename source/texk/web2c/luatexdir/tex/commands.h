@@ -207,6 +207,7 @@ typedef enum {
     variable_cmd,
     feedback_cmd,
     the_cmd,                              /* expand an internal quantity ( \.{\\the} or \.{\\unexpanded}, \.{\\detokenize} ) */
+    combine_toks_cmd,
     top_bot_mark_cmd,                     /* inserted mark ( \.{\\topmark}, etc.~) */
     call_cmd,                             /* non-long, non-outer control sequence */
     long_call_cmd,                        /* long, non-outer control sequence */

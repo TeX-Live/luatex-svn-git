@@ -63,9 +63,8 @@ procedure run faster).
 @c
 void pass_text(void)
 {
-    int l = 0;                  /* level of $\.{\\if}\ldots\.{\\fi}$ nesting */
-    int save_scanner_status;    /* |scanner_status| upon entry */
-    save_scanner_status = scanner_status;
+    int l = 0;                                /* level of $\.{\\if}\ldots\.{\\fi}$ nesting */
+    int save_scanner_status = scanner_status; /* |scanner_status| upon entry */
     scanner_status = skipping;
     skip_line = line;
     while (1) {
@@ -83,7 +82,6 @@ void pass_text(void)
     if (int_par(tracing_ifs_code) > 0)
         show_cur_cmd_chr();
 }
-
 
 @ When we begin to process a new \.{\\if}, we set |if_limit:=if_code|; then
 if\/ \.{\\or} or \.{\\else} or \.{\\fi} occurs before the current \.{\\if}
@@ -119,18 +117,17 @@ void pop_condition_stack(void)
     flush_node(p);
 }
 
-
 @ Here's a procedure that changes the |if_limit| code corresponding to
 a given value of |cond_ptr|.
 
 @c
 void change_if_limit(int l, halfword p)
 {
-    halfword q;
     if (p == cond_ptr) {
-        if_limit = l;           /* that's the easy case */
+        /* that's the easy case */
+        if_limit = l;
     } else {
-        q = cond_ptr;
+        halfword q = cond_ptr;
         while (1) {
             if (q == null)
                 confusion("if");
@@ -143,13 +140,14 @@ void change_if_limit(int l, halfword p)
     }
 }
 
-
 @ The conditional \.{\\ifcsname} is equivalent to \.{\\expandafter}
 \.{\\expandafter} \.{\\ifdefined} \.{\\csname}, except that no new
 control sequence will be entered into the hash table (once all tokens
 preceding the mandatory \.{\\endcsname} have been expanded).
 
 @c
+static halfword last_tested_cs ;
+
 static boolean test_for_cs(void)
 {
     boolean b = false;          /*is the condition true? */
@@ -164,6 +162,7 @@ static boolean test_for_cs(void)
         store_new_token(cur_tok);
     }
     if (cur_cmd != end_cs_name_cmd) {
+        last_tested_cs = null_cs;
         if (int_par(suppress_ifcsname_error_code)) {
             do {
                 get_x_token();
@@ -202,12 +201,13 @@ static boolean test_for_cs(void)
         p = token_link(p);
     }
     if (m > first) {
-        cur_cs = id_lookup(first, m - first);   /*|no_new_control_sequence| is |true| */
+        cur_cs = id_lookup(first, m - first);  /* |no_new_control_sequence| is |true| */
     } else if (m == first) {
-        cur_cs = null_cs;       /*the list is empty */
+        cur_cs = null_cs;                      /* the list is empty */
     }
     b = (eq_type(cur_cs) != undefined_cs_cmd);
     flush_list(n);
+    last_cs_name = cur_cs;
     return b;
 }
 
@@ -241,9 +241,8 @@ void conditional(void)
     halfword save_cond_ptr;     /*|cond_ptr| corresponding to this conditional */
     int this_if;                /*type of this conditional */
     boolean is_unless;          /*was this if preceded by `\.{\\unless}' ? */
-    if (int_par(tracing_ifs_code) > 0)
-        if (int_par(tracing_commands_code) <= 1)
-            show_cur_cmd_chr();
+    if ((int_par(tracing_ifs_code) > 0) && (int_par(tracing_commands_code) <= 1))
+        show_cur_cmd_chr();
     push_condition_stack();
     save_cond_ptr = cond_ptr;
     is_unless = (cur_chr >= unless_code);
@@ -254,7 +253,8 @@ void conditional(void)
         case if_cat_code:
             /* Test if two characters match */
             get_x_token_or_active_char();
-            if ((cur_cmd > active_char_cmd) || (cur_chr > biggest_char)) {  /*not a character */
+            if ((cur_cmd > active_char_cmd) || (cur_chr > biggest_char)) {
+                /*not a character */
                 m = relax_cmd;
                 n = too_big_char;
             } else {
@@ -276,25 +276,25 @@ void conditional(void)
         case if_abs_dim_code:
         case if_abs_num_code:
             /* Test relation between integers or dimensions */
-            /* Here we use the fact that |"<"|, |"="|, and |">"| are consecutive ASCII
-               codes. */
+            /* Here we use the fact that |"<"|, |"="|, and |">"| are consecutive ASCII codes. */
             if (this_if == if_int_code || this_if == if_abs_num_code)
                 scan_int();
             else
                 scan_normal_dimen();
             n = cur_val;
-            if (n < 0)
-                if (this_if == if_abs_dim_code || this_if == if_abs_num_code)
-                    negate(n);
-
+            if ((n < 0) && (this_if == if_abs_dim_code || this_if == if_abs_num_code))
+                negate(n);
             /* Get the next non-blank non-call... */
             do {
                 get_x_token();
             } while (cur_cmd == spacer_cmd);
-
+            /*
             if ((cur_tok >= other_token + '<') && (cur_tok <= other_token + '>')) {
-                r = cur_tok - other_token;
+               r = cur_tok - other_token;
             } else {
+            */
+            r = cur_tok - other_token;
+            if ((r < '<') || (r > '>')) {
                 print_err("Missing = inserted for ");
                 print_cmd_chr(if_test_cmd, this_if);
                 help1("I was expecting to see `<', `=', or `>'. Didn't.");
@@ -305,11 +305,8 @@ void conditional(void)
                 scan_int();
             else
                 scan_normal_dimen();
-
-            if (cur_val < 0)
-                if (this_if == if_abs_dim_code || this_if == if_abs_num_code)
-                    negate(cur_val);
-
+            if ((cur_val < 0) && (this_if == if_abs_dim_code || this_if == if_abs_num_code))
+                negate(cur_val);
             switch (r) {
                 case '<':
                     b = (n < cur_val);
@@ -321,8 +318,9 @@ void conditional(void)
                     b = (n > cur_val);
                     break;
                 default:
+                    /* can't happen */
                     b = false;
-                    break;              /*can't happen */
+                    break;
             }
             break;
         case if_odd_code:
@@ -342,10 +340,10 @@ void conditional(void)
         case if_inner_code:
             b = (cur_list.mode_field < 0);
             break;
+        /*
         case if_void_code:
         case if_hbox_code:
         case if_vbox_code:
-            /* Test box register status */
             scan_register_num();
             p = box(cur_val);
             if (this_if == if_void_code)
@@ -357,14 +355,32 @@ void conditional(void)
             else
                 b = (type(p) == vlist_node);
             break;
+        */
+        case if_void_code:
+            scan_register_num();
+            p = box(cur_val);
+            b = (p == null);
+            break;
+        case if_hbox_code:
+            scan_register_num();
+            p = box(cur_val);
+            b = (p != null) && (type(p) == hlist_node);
+            break;
+        case if_vbox_code:
+            scan_register_num();
+            p = box(cur_val);
+            b = (p != null) && (type(p) == vlist_node);
+            break;
         case ifx_code:
-            /* Test if two tokens match */
-            /* Note that `\.{\\ifx}' will declare two macros different if one is \\{long}
-               or \\{outer} and the other isn't, even though the texts of the macros are
-               the same.
+            /*
+                Test if two tokens match
 
-               We need to reset |scanner_status|, since \.{\\outer} control sequences
-               are allowed, but we might be scanning a macro definition or preamble.
+                Note that `\.{\\ifx}' will declare two macros different if one is \\{long}
+                or \\{outer} and the other isn't, even though the texts of the macros are
+                the same.
+
+                We need to reset |scanner_status|, since \.{\\outer} control sequences
+                are allowed, but we might be scanning a macro definition or preamble.
              */
             save_scanner_status = scanner_status;
             scanner_status = normal;
@@ -378,22 +394,28 @@ void conditional(void)
             } else if (cur_cmd < call_cmd) {
                 b = (cur_chr == q);
             } else {
-                /* Test if two macro texts match */
-                /* Note also that `\.{\\ifx}' decides that macros \.{\\a} and \.{\\b} are
-                   different in examples like this:
-                   $$\vbox{\halign{\.{#}\hfil&\qquad\.{#}\hfil\cr
-                   {}\\def\\a\{\\c\}&
-                   {}\\def\\c\{\}\cr
-                   {}\\def\\b\{\\d\}&
-                   {}\\def\\d\{\}\cr}}$$ */
+                /*
+                    Test if two macro texts match
+
+                    Note also that `\.{\\ifx}' decides that macros \.{\\a} and \.{\\b} are
+                    different in examples like this:
+
+                    $$\vbox{\halign{\.{#}\hfil&\qquad\.{#}\hfil\cr
+                    {}\\def\\a\{\\c\}&
+                    {}\\def\\c\{\}\cr
+                    {}\\def\\b\{\\d\}&
+                    {}\\def\\d\{\}\cr}}$$
+                */
                 p = token_link(cur_chr);
-                q = token_link(equiv(n));   /*omit reference counts */
+                /*omit reference counts */
+                q = token_link(equiv(n));
                 if (p == q) {
                     b = true;
                 } else {
                     while ((p != null) && (q != null)) {
                         if (token_info(p) != token_info(q)) {
                             p = null;
+                            break;
                         } else {
                             p = token_link(p);
                             q = token_link(q);
@@ -415,10 +437,10 @@ void conditional(void)
             b = false;
             break;
         case if_case_code:
-            /* Select the appropriate case
-               and |return| or |goto common_ending| */
+            /* Select the appropriate case and |return| or |goto common_ending| */
             scan_int();
-            n = cur_val;            /*|n| is the number of cases to pass */
+            /* |n| is the number of cases to pass */
+            n = cur_val;
             if (int_par(tracing_commands_code) > 1) {
                 begin_diagnostic();
                 tprint("{case ");
@@ -438,7 +460,8 @@ void conditional(void)
                 }
             }
             change_if_limit(or_code, save_cond_ptr);
-            return;                 /*wait for \.{\\or}, \.{\\else}, or \.{\\fi} */
+            /*wait for \.{\\or}, \.{\\else}, or \.{\\fi} */
+            return;
             break;
         case if_primitive_code:
             save_scanner_status = scanner_status;
@@ -452,9 +475,11 @@ void conditional(void)
                  (cur_chr == get_prim_equiv(m)));
             break;
         case if_def_code:
-            /* The conditional \.{\\ifdefined} tests if a control sequence is defined. */
-            /* We need to reset |scanner_status|, since \.{\\outer} control sequences
-               are allowed, but we might be scanning a macro definition or preamble. */
+            /*
+                The conditional \.{\\ifdefined} tests if a control sequence is defined.
+                We need to reset |scanner_status|, since \.{\\outer} control sequences
+                are allowed, but we might be scanning a macro definition or preamble.
+            */
             save_scanner_status = scanner_status;
             scanner_status = normal;
             get_next();
@@ -468,14 +493,17 @@ void conditional(void)
             b = is_in_csname;
             break;
         case if_font_char_code:
-            /* The conditional \.{\\iffontchar} tests the existence of a character in
-               a font. */
+            /*
+                The conditional \.{\\iffontchar} tests the existence of a character in
+                a font.
+            */
             scan_font_ident();
             n = cur_val;
             scan_char_num();
             b = char_exists(n, cur_val);
             break;
-        default:                   /* there are no other cases, but for -Wall:  */
+        default:
+            /* there are no other cases, but for -Wall: */
             b = false;
     }
     if (is_unless)
@@ -491,14 +519,16 @@ void conditional(void)
     }
     if (b) {
         change_if_limit(else_code, save_cond_ptr);
-        return;                 /*wait for \.{\\else} or \.{\\fi} */
+        /*wait for \.{\\else} or \.{\\fi} */
+        return;
     }
-    /* Skip to \.{\\else} or \.{\\fi}, then |goto common_ending| */
     /*
-       In a construction like `\.{\\if\\iftrue abc\\else d\\fi}', the first
-       \.{\\else} that we come to after learning that the \.{\\if} is false is
-       not the \.{\\else} we're looking for. Hence the following curious
-       logic is needed.
+        Skip to \.{\\else} or \.{\\fi}, then |goto common_ending|
+
+        In a construction like `\.{\\if\\iftrue abc\\else d\\fi}', the first
+        \.{\\else} that we come to after learning that the \.{\\if} is false is
+        not the \.{\\else} we're looking for. Hence the following curious
+        logic is needed.
      */
     while (1) {
         pass_text();
@@ -513,8 +543,10 @@ void conditional(void)
         }
     }
   COMMON_ENDING:
-    if (cur_chr == fi_code)
+    if (cur_chr == fi_code) {
         pop_condition_stack();
-    else
-        if_limit = fi_code;     /*wait for \.{\\fi} */
+    } else {
+        /*wait for \.{\\fi} */
+        if_limit = fi_code;
+    }
 }

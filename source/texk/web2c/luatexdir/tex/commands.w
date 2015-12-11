@@ -169,6 +169,8 @@ void initialize_commands(void)
     primitive_tex("begingroup", begin_group_cmd, 0, 0);
     primitive_tex("char", char_num_cmd, 0, 0);
     primitive_tex("csname", cs_name_cmd, 0, 0);
+    primitive_luatex("lastnamedcs", cs_name_cmd, 1, 0);
+    primitive_luatex("begincsname", cs_name_cmd, 2, 0);
     primitive_tex("delimiter", delim_num_cmd, 0, 0);
     primitive_luatex("Udelimiter", delim_num_cmd, 1, 0);
     primitive_tex("divide", divide_cmd, 0, 0);
@@ -223,6 +225,10 @@ void initialize_commands(void)
     primitive_luatex("rightghost", char_ghost_cmd, 1, 0);
     primitive_tex("setbox", set_box_cmd, 0, 0);
     primitive_tex("the", the_cmd, 0, 0);
+    primitive_luatex("toksapp", combine_toks_cmd, 0, 0);
+    primitive_luatex("tokspre", combine_toks_cmd, 1, 0);
+    primitive_luatex("etoksapp", combine_toks_cmd, 2, 0);
+    primitive_luatex("etokspre", combine_toks_cmd, 3, 0);
     primitive_tex("toks", toks_register_cmd, 0, 0);
     primitive_tex("vadjust", vadjust_cmd, 0, 0);
     primitive_tex("valign", valign_cmd, 0, 0);
@@ -489,7 +495,7 @@ void initialize_commands(void)
     primitive_tex("xdef", def_cmd, 3, 0);
     primitive_tex("let", let_cmd, normal, 0);
     primitive_tex("futurelet", let_cmd, normal + 1, 0);
-    primitive_tex("letcharcode", let_cmd, normal + 2, 0);
+    primitive_luatex("letcharcode", let_cmd, normal + 2, 0);
     primitive_tex("chardef", shorthand_def_cmd, char_def_code, 0);
     primitive_tex("mathchardef", shorthand_def_cmd, math_char_def_code, 0);
     primitive_luatex("Umathchardef", shorthand_def_cmd, xmath_char_def_code, 0);

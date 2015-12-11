@@ -463,8 +463,7 @@ and appends it to the current list.
 @c
 void new_whatsit(int s)
 {
-    halfword p;                 /* the new node */
-    p = new_node(whatsit_node, s);
+    halfword p = new_node(whatsit_node, s);
     couple_nodes(tail, p);
     tail = p;
 }
@@ -482,11 +481,10 @@ single page, the stack would overflow.
 
 void expand_macros_in_tokenlist(halfword p)
 {
-    int old_mode;               /* saved |mode| */
-    pointer q, r;               /* temporary variables for list manipulation */
-    q = get_avail();
+    int old_mode;
+    pointer q = get_avail();
+    pointer r = get_avail();
     token_info(q) = right_brace_token + '}';
-    r = get_avail();
     token_link(q) = r;
     token_info(r) = end_write_token;
     begin_token_list(q, inserted);
@@ -644,58 +642,58 @@ the name corresponding to |cur_group|.
 void print_group(boolean e)
 {
     switch (cur_group) {
-    case bottom_level:
-        tprint("bottom level");
-        return;
-        break;
-    case simple_group:
-    case semi_simple_group:
-        if (cur_group == semi_simple_group)
-            tprint("semi ");
-        tprint("simple");
-        break;;
-    case hbox_group:
-    case adjusted_hbox_group:
-        if (cur_group == adjusted_hbox_group)
-            tprint("adjusted ");
-        tprint("hbox");
-        break;
-    case vbox_group:
-        tprint("vbox");
-        break;
-    case vtop_group:
-        tprint("vtop");
-        break;
-    case align_group:
-    case no_align_group:
-        if (cur_group == no_align_group)
-            tprint("no ");
-        tprint("align");
-        break;
-    case output_group:
-        tprint("output");
-        break;
-    case disc_group:
-        tprint("disc");
-        break;
-    case insert_group:
-        tprint("insert");
-        break;
-    case vcenter_group:
-        tprint("vcenter");
-        break;
-    case math_group:
-    case math_choice_group:
-    case math_shift_group:
-    case math_left_group:
-        tprint("math");
-        if (cur_group == math_choice_group)
-            tprint(" choice");
-        else if (cur_group == math_shift_group)
-            tprint(" shift");
-        else if (cur_group == math_left_group)
-            tprint(" left");
-        break;
+        case bottom_level:
+            tprint("bottom level");
+            return;
+            break;
+        case simple_group:
+        case semi_simple_group:
+            if (cur_group == semi_simple_group)
+                tprint("semi ");
+            tprint("simple");
+            break;;
+        case hbox_group:
+        case adjusted_hbox_group:
+            if (cur_group == adjusted_hbox_group)
+                tprint("adjusted ");
+            tprint("hbox");
+            break;
+        case vbox_group:
+            tprint("vbox");
+            break;
+        case vtop_group:
+            tprint("vtop");
+            break;
+        case align_group:
+        case no_align_group:
+            if (cur_group == no_align_group)
+                tprint("no ");
+            tprint("align");
+            break;
+        case output_group:
+            tprint("output");
+            break;
+        case disc_group:
+            tprint("disc");
+            break;
+        case insert_group:
+            tprint("insert");
+            break;
+        case vcenter_group:
+            tprint("vcenter");
+            break;
+        case math_group:
+        case math_choice_group:
+        case math_shift_group:
+        case math_left_group:
+            tprint("math");
+            if (cur_group == math_choice_group)
+                tprint(" choice");
+            else if (cur_group == math_shift_group)
+                tprint(" shift");
+            else if (cur_group == math_left_group)
+                tprint(" left");
+            break;
     }                           /* there are no other cases */
     tprint(" group (level ");
     print_int(cur_level);
@@ -751,12 +749,10 @@ synchronized with the |in_open| variable indexing |grp_stack|.
 @c
 void group_warning(void)
 {
-    int i;                      /* index into |grp_stack| */
-    boolean w;                  /* do we need a warning? */
+    boolean w = false;                  /* do we need a warning? */
+    int i = in_open;                    /* index into |grp_stack| */
     base_ptr = input_ptr;
     input_stack[base_ptr] = cur_input;  /* store current state */
-    i = in_open;
-    w = false;
     while ((grp_stack[i] == cur_boundary) && (i > 0)) {
         /* Set variable |w| to indicate if this case should be reported */
         /* This code scans the input stack in order to determine the type of the
@@ -792,12 +788,10 @@ give a warning message (with the same complications as above).
 @c
 void if_warning(void)
 {
-    int i;                      /* index into |if_stack| */
-    boolean w;                  /* do we need a warning? */
+    boolean w = false;                  /* do we need a warning? */
+    int i = in_open;
     base_ptr = input_ptr;
     input_stack[base_ptr] = cur_input;  /* store current state */
-    i = in_open;
-    w = false;
     while (if_stack[i] == cond_ptr) {
         /* Set variable |w| to... */
         if (tracing_nesting > 0) {
@@ -832,13 +826,10 @@ file are still incomplete.
 @c
 void file_warning(void)
 {
-    halfword p;                 /* saved value of |save_ptr| or |cond_ptr| */
-    int l;                      /* saved value of |cur_level| or |if_limit| */
-    int c;                      /* saved value of |cur_group| or |cur_if| */
-    int i;                      /* saved value of |if_line| */
-    p = save_ptr;
-    l = cur_level;
-    c = cur_group;
+    halfword p = save_ptr; /* saved value of |save_ptr| or |cond_ptr| */
+    int l = cur_level;     /* saved value of |cur_level| or |if_limit| */
+    int c = cur_group;     /* saved value of |cur_group| or |cur_if| */
+    int i;                 /* saved value of |if_line| */
     save_ptr = cur_boundary;
     while (grp_stack[in_open] != save_ptr) {
         decr(cur_level);
@@ -999,8 +990,7 @@ int set_tex_attribute_register(int j, scaled v)
 
 int get_tex_toks_register(int j)
 {
-    str_number s;
-    s = get_nullstr();
+    str_number s = get_nullstr();
     if (toks(j) != null) {
         s = tokens_to_string(toks(j));
     }
@@ -1009,9 +999,8 @@ int get_tex_toks_register(int j)
 
 int set_tex_toks_register(int j, lstring s)
 {
-    halfword ref;
     int a;
-    ref = get_avail();
+    halfword ref = get_avail();
     (void) str_toks(s);
     set_token_ref_count(ref, 0);
     set_token_link(ref, token_link(temp_token_head));
@@ -1025,9 +1014,8 @@ int set_tex_toks_register(int j, lstring s)
 
 int scan_tex_toks_register(int j, int c, lstring s)
 {
-    halfword ref;
     int a;
-    ref = get_avail();
+    halfword ref = get_avail();
     (void) str_scan_toks(c,s);
     set_token_ref_count(ref, 0);
     set_token_link(ref, token_link(temp_token_head));
