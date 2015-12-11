@@ -389,7 +389,7 @@ static int l_vf_rule(lua_State * L)
     size.h = store_scaled_f(size.h, vsp->fs_f);
     size.v = store_scaled_f(size.v, vsp->fs_f);
     if (size.h > 0 && size.v > 0)
-        pdf_place_rule(static_pdf, 0, size, 0);    /* the 0 is unused */
+        backend_out[rule_node](static_pdf, 0, size);    /* the 0 is unused */
     mat_p = &(vsp->packet_stack[vsp->packet_stack_level]);
     mat_p->pos.h += size.h;
     synch_pos_with_cur(static_pdf->posstruct, vsp->refpos, mat_p->pos);
