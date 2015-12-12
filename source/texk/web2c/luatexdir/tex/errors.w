@@ -668,7 +668,7 @@ void wrapup_backend(void) {
             break;
         case OMODE_PDF:
             if (history == fatal_error_stop) {
-                remove_pdffile(static_pdf);
+                remove_pdffile(static_pdf); /* will become remove_output_file */
                 print_err(" ==> Fatal error occurred, no output PDF file produced!");
             } else {
                 finish_pdf_file(static_pdf, luatex_version, get_luatexrevision());

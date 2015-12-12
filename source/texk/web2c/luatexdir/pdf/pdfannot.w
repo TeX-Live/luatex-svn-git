@@ -57,7 +57,7 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
     set_depth(tail, alt_rule.dp);
     if ((w == pdf_thread_node) || (w == pdf_start_thread_node)) {
         if (scan_keyword("attr")) {
-            scan_pdf_ext_toks();
+            scan_toks(false, true);
             set_pdf_thread_attr(tail, def_ref);
         } else {
             set_pdf_thread_attr(tail, null);
@@ -89,7 +89,7 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
         new_annot_whatsit(pdf_annot_node);
         obj_annot_ptr(pdf, k) = tail;
         set_pdf_annot_objnum(tail, k);
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_annot_data(tail, def_ref);
     }
     pdf_last_annot = k;

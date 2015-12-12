@@ -152,7 +152,7 @@ static void do_extension_pdf(int immediate)
             set_pdf_literal_mode(tail, direct_page);
         else
             set_pdf_literal_mode(tail, set_origin);
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_literal_type(tail, normal);
         set_pdf_literal_data(tail, def_ref);
     } else if (scan_keyword("dest")) {
@@ -165,7 +165,7 @@ static void do_extension_pdf(int immediate)
         new_whatsit(pdf_restore_node);
     } else if (scan_keyword("setmatrix")) {
         new_whatsit(pdf_setmatrix_node);
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_setmatrix_data(tail, def_ref);
     } else if (scan_keyword("obj")) {
         scan_obj(static_pdf);
@@ -211,7 +211,7 @@ static void do_extension_pdf(int immediate)
             set_pdf_colorstack_cmd(tail, i);
             set_pdf_colorstack_data(tail, null);
             if (i <= colorstack_data) {
-                scan_pdf_ext_toks();
+                scan_toks(false, true);
                 set_pdf_colorstack_data(tail, def_ref);
             }
         } else {
@@ -251,30 +251,30 @@ static void do_extension_pdf(int immediate)
         i = cur_val;
         if (i == null_font)
             normal_error("pdf backend", "invalid font identifier");
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_font_attr(i, tokens_to_string(def_ref));
         if (str_length(pdf_font_attr(i)) == 0) {
             flush_str((str_ptr - 1));   /* from |tokens_to_string| */
             set_pdf_font_attr(i, 0);
         }
     } else if (scan_keyword("mapfile")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         pdfmapfile(def_ref);
         delete_token_ref(def_ref);
     } else if (scan_keyword("mapline")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         pdfmapline(def_ref);
         delete_token_ref(def_ref);
     } else if (scan_keyword("includechars")) {
         pdf_include_chars(static_pdf);
     } else if (scan_keyword("info")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         pdf_info_toks = concat_tokens(pdf_info_toks, def_ref);
     } else if (scan_keyword("names")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         pdf_names_toks = concat_tokens(pdf_names_toks, def_ref);
     } else if (scan_keyword("trailer")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         pdf_trailer_toks = concat_tokens(pdf_trailer_toks, def_ref);
     } else {
         tex_error("unexpected use of \\pdfextension",null);
@@ -586,22 +586,6 @@ boolean open_write_file(int id, char *fn) {
     }
 }
 
-@ We have to check whether \.{\\outputmode} is set for using \pdfTeX{}
-  extensions.
-
-@c
-void scan_pdf_ext_toks(void)
-{
-    (void) scan_toks(false, true);      /* like \.{\\special} */
-}
-
-@ the pdflast* need extra global variables
-
-@c
-int pdf_last_annot;
-int pdf_last_link;
-int pdf_last_obj;
-int pdf_retval;                 /* global multi-purpose return value */
 
 @ To implement primitives as \.{\\pdfextension info}, \.{\\pdfextension catalog} or
 \.{\\pdfextension names} we need to concatenate tokens lists.

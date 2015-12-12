@@ -160,7 +160,7 @@ void scan_obj(PDF pdf)
         if (scan_keyword("stream")) {
             set_obj_obj_is_stream(pdf, k);
             if (scan_keyword("attr")) {
-                scan_pdf_ext_toks();
+                scan_toks(false, true);
                 st = tokenlist_to_lstring(def_ref, true);
                 flush_list(def_ref);
                 lua_pushlstring(Luas, (char *) st->s, st->l);
@@ -171,7 +171,7 @@ void scan_obj(PDF pdf)
         }
         if (scan_keyword("file"))
             set_obj_obj_is_file(pdf, k);
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         st = tokenlist_to_lstring(def_ref, true);
         flush_list(def_ref);
         lua_pushlstring(Luas, (char *) st->s, st->l);

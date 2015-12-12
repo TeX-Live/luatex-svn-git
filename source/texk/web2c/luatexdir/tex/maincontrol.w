@@ -3569,8 +3569,7 @@ void initialize(void)
     initialize_marks();
     initialize_read();
 
-    assert(static_pdf == NULL);
-    static_pdf = init_pdf_struct(static_pdf);
+    static_pdf = init_pdf_struct(static_pdf); /* should be init_backend() */
 
     format_ident = 0;
     format_name = get_nullstr();

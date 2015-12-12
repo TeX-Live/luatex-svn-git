@@ -183,7 +183,7 @@ void pdf_include_chars(PDF pdf)
     pdf_check_vf(cur_val);
     if (!font_used(f))
         pdf_init_font(pdf, f);
-    scan_pdf_ext_toks();
+    scan_toks(false, true);
     s = tokens_to_string(def_ref);
     delete_token_ref(def_ref);
     j = str_string(s) + str_length(s);

@@ -436,10 +436,7 @@ void main_body(void)
     if (draft_mode_option != 0) {
         int_par(draft_mode_code) = draft_mode_value;
     }
-    /* this is specific for the pdf backend */
-    if (int_par(draft_mode_code) != 0) { /* should move */
-        static_pdf->draftmode = int_par(draft_mode_code);
-    }
+    /* can this be moved? */
     pdf_init_map_file((char *) pdftex_map);
     /* */
     if (end_line_char_inactive)

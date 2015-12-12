@@ -99,7 +99,7 @@ void scan_pdfoutline(PDF pdf)
     int j = 0;
     halfword p = null;
     if (scan_keyword("attr")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         r = def_ref;
     } else {
         r = 0;
@@ -116,7 +116,7 @@ void scan_pdfoutline(PDF pdf)
     } else {
         i = 0;
     }
-    scan_pdf_ext_toks();
+    scan_toks(false, true);
     q = def_ref;
     if (j == 0) {
         j = pdf_create_obj(pdf, obj_type_others, 0);

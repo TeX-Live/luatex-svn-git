@@ -150,6 +150,11 @@ typedef enum {
     t_pdf_pk_mode,
 } pdf_backend_tokenlists ;
 
+extern int pdf_last_annot;
+extern int pdf_last_link;
+extern int pdf_last_obj;
+extern int pdf_retval;
+
 #  define pdf_compress_level          get_tex_extension_count_register(c_pdf_compress_level)
 #  define pdf_decimal_digits          get_tex_extension_count_register(c_pdf_decimal_digits)
 #  define pdf_image_resolution        get_tex_extension_count_register(c_pdf_image_resolution)

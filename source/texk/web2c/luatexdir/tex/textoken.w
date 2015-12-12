@@ -2428,7 +2428,7 @@ static int do_feedback_pdf(halfword c)
         save_warning_index = warning_index;
         save_def_ref = def_ref;
         u = save_cur_string();
-        scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
+        scan_toks(false, true);
         s = tokens_to_string(def_ref);
         delete_token_ref(def_ref);
         def_ref = save_def_ref;
@@ -2506,7 +2506,7 @@ void conv_toks(void)
             save_def_ref = def_ref;
             save_warning_index = warning_index;
             sn = scan_lua_state();
-            scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
+            scan_toks(false, true);
             s = def_ref;
             warning_index = save_warning_index;
             def_ref = save_def_ref;
@@ -2525,7 +2525,7 @@ void conv_toks(void)
             save_warning_index = warning_index;
             save_def_ref = def_ref;
             u = save_cur_string();
-            scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
+            scan_toks(false, true);
             warning_index = save_warning_index;
             scanner_status = save_scanner_status;
             ins_list(token_link(def_ref));
@@ -2579,7 +2579,7 @@ void conv_toks(void)
                 save_scanner_status = scanner_status;
                 save_def_ref = def_ref;
                 save_warning_index = warning_index;
-                scan_toks(false, true); /*hh-ls was scan_pdf_ext_toks();*/
+                scan_toks(false, true);
                 bool = in_lua_escape;
                 in_lua_escape = true;
                 escstr.s = (unsigned char *) tokenlist_to_cstring(def_ref, false, &l);

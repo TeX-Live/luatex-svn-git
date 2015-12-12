@@ -1977,10 +1977,10 @@ void make_font_copy(small_number a)
 void glyph_to_unicode(void)
 {
     str_number s1, s2;
-    scan_pdf_ext_toks();
+    scan_toks(false, true);
     s1 = tokens_to_string(def_ref);
     delete_token_ref(def_ref);
-    scan_pdf_ext_toks();
+    scan_toks(false, true);
     s2 = tokens_to_string(def_ref);
     delete_token_ref(def_ref);
     def_tounicode(s1, s2);

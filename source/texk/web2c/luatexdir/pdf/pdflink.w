@@ -148,7 +148,7 @@ void scan_startlink(PDF pdf)
     new_annot_whatsit(pdf_start_link_node);
     set_pdf_link_attr(cur_list.tail_field, null);
     if (scan_keyword("attr")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_link_attr(cur_list.tail_field, def_ref);
     }
     r = scan_action(pdf);

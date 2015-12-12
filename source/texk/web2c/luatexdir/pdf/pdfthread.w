@@ -240,7 +240,7 @@ void scan_thread_id(void)
         set_pdf_thread_id(cur_list.tail_field, cur_val);
         set_pdf_thread_named_id(cur_list.tail_field, 0);
     } else if (scan_keyword("name")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_thread_id(cur_list.tail_field, def_ref);
         set_pdf_thread_named_id(cur_list.tail_field, 1);
     } else {

@@ -38,78 +38,63 @@
 
 @* Patch ImageTypeDetection 2003/02/08 by Heiko Oberdiek.
 
-  Function |readimage| performs some basic initializations.
-  Then it looks at the file extension to determine the
-  image type and calls specific code/functions.
+Function |readimage| performs some basic initializations. Then it looks at the
+file extension to determine the image type and calls specific code/functions. The
+main disadvantage is that standard file extensions have to be used, otherwise
+pdfTeX is not able to detect the correct image type. The patch now looks at the
+file header first regardless of the file extension. This is implemented in
+function |check_type_by_header|. If this check fails, the traditional test of
+standard file extension is tried, done in function |check_type_by_extension|.
 
-    The main disadvantage is that standard file extensions
-  have to be used, otherwise pdfTeX is not able to detect
-  the correct image type.
+Magic headers:
 
-  The patch now looks at the file header first regardless of
-  the file extension. This is implemented in function
-  |check_type_by_header|. If this check fails, the traditional
-  test of standard file extension is tried, done in function
-  |check_type_by_extension|.
+* "PNG (Portable Network Graphics) Specification", Version 1.2
+  (http://www.libpng.org/pub/png):
 
-  Magic headers:
+   3.1. PNG file signature
 
-  * "PNG (Portable Network Graphics) Specification", Version 1.2
-    (http://www.libpng.org/pub/png):
+      The first eight bytes of a PNG file always contain the following
+      (decimal) values: 137 80 78 71 13 10 26 10
 
-     3.1. PNG file signature
+Translation to C: |"\x89PNG\r\n\x1A\n"|
 
-        The first eight bytes of a PNG file always contain the following
-        (decimal) values:
+* "JPEG File Interchange Format", Version 1.02:
 
-           137 80 78 71 13 10 26 10
+  * you can identify a JFIF file by looking for the following sequence:
+    X'FF', SOI X'FF', APP0, <2 bytes to be skipped>, "JFIF", X'00'.
 
-  Translation to C: |"\x89PNG\r\n\x1A\n"|
+Function |check_type_by_header| only looks at the first two bytes: |"\xFF\xD8"|
 
-  * "JPEG File Interchange Format", Version 1.02:
+* ISO/IEC JTC 1/SC 29/WG 1
+  (ITU-T SG8)
+  Coding of Still Pictures
+  Title: 14492 FCD
+  Source: JBIG Committee
+  Project: JTC 1.29.10
+  Status: Final Committee Draft
 
-   o you can identify a JFIF file by looking for the following
-     sequence: X'FF', SOI X'FF', APP0, <2 bytes to be skipped>,
-     "JFIF", X'00'.
+ D.4.1, ID string
 
-  Function |check_type_by_header| only looks at the first two bytes:
-    |"\xFF\xD8"|
+ This is an 8-byte sequence containing 0x97 0x4A 0x42 0x32 0x0D 0x0A 0x1A 0x0A.
 
-  * ISO/IEC JTC 1/SC 29/WG 1
-    (ITU-T SG8)
-    Coding of Still Pictures
-    Title: 14492 FCD
-    Source: JBIG Committee
-    Project: JTC 1.29.10
-    Status: Final Committee Draft
+* "PDF Reference", third edition:
 
-   D.4.1, ID string
+  * The first line should contain \%PDF-1.0 -- \%PDF-1.4 (section 3.4.1 "File Header").
+  * The "implementation notes" say:
 
-   This is an 8-byte sequence containing 0x97 0x4A 0x42 0x32 0x0D 0x0A
-   0x1A 0x0A.
+   3.4.1,  File Header
+     12. Acrobat viewers require only that the header appear somewhere within the
+         first 1024 bytes of the file.
+     13. Acrobat viewers will also accept a header of the form \%!PS-Adobe-N.n PDF-M.m
 
-  * "PDF Reference", third edition:
+The check in function |check_type_by_header| only implements the first issue. The
+implementation notes are not considered. Therefore files with garbage at start of
+file must have the standard extension.
 
-    * The first line should contain "\%PDF-1.0" until "\%PDF-1.4"
-      (section 3.4.1 "File Header").
-    * The "implementation notes" say:
-
-     3.4.1,  File Header
-       12. Acrobat viewers require only that the header appear
-           somewhere within the first 1024 bytes of the file.
-       13. Acrobat viewers will also accept a header of the form
-               \%!PS-Adobe-N.n PDF-M.m
-
-    The check in function |check_type_by_header| only implements
-    the first issue. The implementation notes are not considered.
-    Therefore files with garbage at start of file must have the
-    standard extension.
-
-    Functions |check_type_by_header| and |check_type_by_extension|:
-    |img_type(img)| is set to |IMG_TYPE_NONE| by |new_image_dict()|.
-    Both functions try to detect a type and set |img_type(img)|.
-    Thus a value other than |IMG_TYPE_NONE| indicates that a
-    type has been found.
+Functions |check_type_by_header| and |check_type_by_extension|: |img_type(img)|
+is set to |IMG_TYPE_NONE| by |new_image_dict()|. Both functions try to detect a
+type and set |img_type(img)|. Thus a value other than |IMG_TYPE_NONE| indicates
+that a type has been found.
 
 @c
 #define HEADER_JPG "\xFF\xD8"
@@ -390,12 +375,12 @@ void scan_pdfximage(PDF pdf) /* static_pdf */
     char *named = NULL, *attr = NULL, *file_name = NULL;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     if (scan_keyword("attr")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         attr = tokenlist_to_cstring(def_ref, true, NULL);
         delete_token_ref(def_ref);
     }
     if (scan_keyword("named")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         named = tokenlist_to_cstring(def_ref, true, NULL);
         delete_token_ref(def_ref);
         page = 0;
@@ -413,7 +398,7 @@ void scan_pdfximage(PDF pdf) /* static_pdf */
         if (pagebox == PDF_BOX_SPEC_NONE)
             pagebox = PDF_BOX_SPEC_CROP;
     }
-    scan_pdf_ext_toks();
+    scan_toks(false, true);
     file_name = tokenlist_to_cstring(def_ref, true, NULL);
     assert(file_name != NULL);
     delete_token_ref(def_ref);

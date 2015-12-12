@@ -36,12 +36,12 @@
     else
         normal_error("pdf backend", "action type missing");
     if (pdf_action_type(p) == pdf_action_user) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_action_tokens(p, def_ref);
         return p;
     }
     if (scan_keyword("file")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_action_file(p, def_ref);
     }
     if (scan_keyword("page")) {
@@ -53,10 +53,10 @@
             normal_error("pdf backend", "page number must be positive");
         set_pdf_action_id(p, cur_val);
         set_pdf_action_named_id(p, 0);
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_action_tokens(p, def_ref);
     } else if (scan_keyword("name")) {
-        scan_pdf_ext_toks();
+        scan_toks(false, true);
         set_pdf_action_named_id(p, 1);
         set_pdf_action_id(p, def_ref);
     } else if (scan_keyword("num")) {

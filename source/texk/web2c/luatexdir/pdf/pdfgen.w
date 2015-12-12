@@ -2414,7 +2414,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
 void scan_pdfcatalog(PDF pdf)
 {
     halfword p;
-    scan_pdf_ext_toks();
+    scan_toks(false, true);
     pdf_catalog_toks = concat_tokens(pdf_catalog_toks, def_ref);
     if (scan_keyword("openaction")) {
         if (pdf_catalog_openaction != 0) {

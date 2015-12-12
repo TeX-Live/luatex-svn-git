@@ -92,8 +92,11 @@ static divert_list_entry *get_divert_list(int divnum)
     if (d == NULL) {
         d = new_divert_list_entry();
         d->divnum = divnum;
+        /* the next bit of code can actually be removed */
         aa = avl_probe(divert_list_tree, d);
-        assert(aa!=NULL);
+        if (aa==NULL) {
+            normal_error("pdf backend","page list lookup error");
+        }
     }
     return d;
 }

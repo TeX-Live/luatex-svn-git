@@ -28,6 +28,11 @@ const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] = {
     "bead", "beads", "objstm", "others"
 };
 
+int pdf_last_annot;
+int pdf_last_link;
+int pdf_last_obj;
+int pdf_retval;                 /* global multi-purpose return value */
+
 @ AVL sort entry into |avl_table[]|
 @c
 static int compare_info(const void *pa, const void *pb, void *param)
