@@ -19,7 +19,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ @c
@@ -86,9 +85,8 @@ void do_thread(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 @ @c
 void append_thread(PDF pdf, halfword parent_box, scaledpos cur)
 {
-    halfword p;
     scaled_whd alt_rule;
-    p = new_node(whatsit_node, pdf_thread_data_node);
+    halfword p = new_node(whatsit_node, pdf_thread_data_node);
     width(p) = pdf->thread.wd;
     height(p) = pdf->thread.ht;
     depth(p) = pdf->thread.dp;
@@ -118,18 +116,18 @@ void end_thread(PDF pdf, halfword p)
         normal_error("pdf backend", "'endthread' ended up in different nesting level than 'startthread'");
     if (is_running(pdf->thread.dp) && (pdf->last_thread != null)) {
         switch (pdf->posstruct->dir) {
-        case dir_TLT:
-        case dir_TRT:
-            pdf_ann_bottom(pdf->last_thread) = pos.v - pdf_thread_margin;
-            break;
-        case dir_LTL:
-            pdf_ann_right(pdf->last_thread) = pos.h + pdf_thread_margin;
-            break;
-        case dir_RTT:
-            pdf_ann_left(pdf->last_thread) = pos.h - pdf_thread_margin;
-            break;
-        default:
-            assert(0);
+            case dir_TLT:
+            case dir_TRT:
+                pdf_ann_bottom(pdf->last_thread) = pos.v - pdf_thread_margin;
+                break;
+            case dir_LTL:
+                pdf_ann_right(pdf->last_thread) = pos.h + pdf_thread_margin;
+                break;
+            case dir_RTT:
+                pdf_ann_left(pdf->last_thread) = pos.h - pdf_thread_margin;
+                break;
+            default:
+                formatted_warning("pdf backend","forcing bad dir %i to TLT in end tread",pdf->posstruct->dir);
         }
     }
     if (pdf->last_thread_named_id)
@@ -175,7 +173,6 @@ void pdf_fix_thread(PDF pdf, int t)
     pdf_end_array(pdf);
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
-
     pdf_begin_obj(pdf, t, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
     pdf_add_name(pdf, "I");
@@ -269,9 +266,9 @@ void print_bead_rectangles(PDF pdf)
             l = pdf_create_obj(pdf, obj_type_others, 0);
             pdf_begin_obj(pdf, l, OBJSTM_ALWAYS);
             pdf_begin_array(pdf);
-            i = obj_bead_data(pdf, k->info);    /* pointer to a whatsit or whatsit-like node */
+            i = obj_bead_data(pdf, k->info); /* pointer to a whatsit or whatsit-like node */
             pdf_add_rect_spec(pdf, i);
-            if (subtype(i) == pdf_thread_data_node)     /* thanh says it mis be destroyed here */
+            if (subtype(i) == pdf_thread_data_node)
                 flush_node(i);
             pdf_end_array(pdf);
             pdf_end_obj(pdf);

@@ -19,24 +19,21 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ @c
-pos_entry *pos_stack = 0;       /* the stack */
-int pos_stack_size = 0;         /* initially empty */
-int pos_stack_used = 0;         /* used entries */
+pos_entry *pos_stack = 0; /* the stack */
+int pos_stack_size = 0;   /* initially empty */
+int pos_stack_used = 0;   /* used entries */
 
 @ @c
 static void checkpdfsave(scaledpos pos)
 {
     pos_entry *new_stack;
-
     if (pos_stack_used >= pos_stack_size) {
         pos_stack_size += STACK_INCREMENT;
         new_stack = xtalloc((unsigned) pos_stack_size, pos_entry);
-        memcpy((void *) new_stack, (void *) pos_stack,
-               (unsigned) pos_stack_used * sizeof(pos_entry));
+        memcpy((void *) new_stack, (void *) pos_stack, (unsigned) pos_stack_used * sizeof(pos_entry));
         xfree(pos_stack);
         pos_stack = new_stack;
     }
@@ -66,7 +63,6 @@ static void checkpdfrestore(scaledpos pos)
         matrix_stack_used = pos_stack[pos_stack_used].matrix_stack;
     }
 }
-
 
 @ @c
 void pdf_out_save(PDF pdf, halfword p)

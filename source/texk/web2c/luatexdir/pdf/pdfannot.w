@@ -19,11 +19,10 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ @c
-#define tail          cur_list.tail_field
+#define tail cur_list.tail_field
 
 void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 {
@@ -47,8 +46,8 @@ void do_annot(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
 }
 
 @ create a new whatsit node for annotation
-@c
-void new_annot_whatsit(small_number w)
+
+@c void new_annot_whatsit(small_number w)
 {
     scaled_whd alt_rule;
     new_whatsit(w);
@@ -66,8 +65,9 @@ void new_annot_whatsit(small_number w)
     }
 }
 
-@ @c
-void scan_annot(PDF pdf)
+@ scanning at the \TeX\ end
+
+@c void scan_annot(PDF pdf)
 {
     int k;
     if (scan_keyword("reserveobjnum")) {

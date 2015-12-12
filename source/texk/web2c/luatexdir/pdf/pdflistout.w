@@ -31,21 +31,11 @@ backend_function *backend_out, *backend_out_whatsit;
 @ @c
 static void missing_backend_function(PDF pdf, halfword p)
 {
-    char *b;
-    const char *s;
-    const char *n;
-    char backend_string[15];
-    char err_string[60];
-    assert(backend != NULL);
+    const char *n = get_node_name(type(p), subtype(p));
     if (type(p) == whatsit_node)
-        s = "whatsit";
+        formatted_error("pdf backend","no output function for whatsit %s",n);
     else
-        s = "node";
-    n = get_node_name(type(p), subtype(p));
-    b = backend[output_mode_used].name;
-    snprintf(backend_string, strlen(b) + 10, "%s back-end", b);
-    snprintf(err_string, 59, "no output function for \"%s\" %s", n, s);
-    normal_error(backend_string, err_string);
+        formatted_error("pdf backend","no output function for node %s",n);
 }
 
 @ @c
@@ -285,7 +275,6 @@ void out_what(PDF pdf, halfword p)
 @ @c
 void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
 {
-
     posstructure localpos;      /* the position structure local within this function */
     posstructure *refpos;       /* the list origin pos. on the page, provided by the caller */
     scaledpos cur = { 0, 0 }, tmpcur, basepoint;
@@ -332,7 +321,6 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     }
 
     for (i = 1; i <= pdf->link_stack_ptr; i++) {
-        assert(is_running(width(pdf->link_stack[i].link_node)));
         if (pdf->link_stack[i].nesting_level == cur_s)
             append_link(pdf, this_box, cur, (small_number) i);
     }
@@ -412,7 +400,6 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                                 synctexvoidhlist(p, this_box);
                         }
                     } else {
-                        assert(cur.v == 0);
                         tmpcur.h = cur.h + basepoint.h;
                         tmpcur.v = basepoint.v;
                         synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
@@ -477,24 +464,29 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                             if (subtype(p) == g_leaders) {
                                 save_h = cur.h;
                                 switch (localpos.dir) {
-                                case dir_TLT:
-                                    cur.h += refpos->pos.h - shipbox_refpos.h;
-                                    cur.h = leader_wd * (cur.h / leader_wd);
-                                    cur.h -= refpos->pos.h - shipbox_refpos.h;
-                                    break;
-                                case dir_TRT:
-                                    cur.h = refpos->pos.h - shipbox_refpos.h - cur.h;
-                                    cur.h = leader_wd * (cur.h / leader_wd);
-                                    cur.h = refpos->pos.h - shipbox_refpos.h - cur.h;
-                                    break;
-                                case dir_LTL:
-                                case dir_RTT:
-                                    cur.h = refpos->pos.v - shipbox_refpos.v - cur.h;
-                                    cur.h = leader_wd * (cur.h / leader_wd);
-                                    cur.h = refpos->pos.v - shipbox_refpos.v - cur.h;
-                                    break;
-                                default:
-                                    assert(0);
+                                    case dir_TLT:
+                                        cur.h += refpos->pos.h - shipbox_refpos.h;
+                                        cur.h = leader_wd * (cur.h / leader_wd);
+                                        cur.h -= refpos->pos.h - shipbox_refpos.h;
+                                        break;
+                                    case dir_TRT:
+                                        cur.h = refpos->pos.h - shipbox_refpos.h - cur.h;
+                                        cur.h = leader_wd * (cur.h / leader_wd);
+                                        cur.h = refpos->pos.h - shipbox_refpos.h - cur.h;
+                                        break;
+                                    case dir_LTL:
+                                    case dir_RTT:
+                                        cur.h = refpos->pos.v - shipbox_refpos.v - cur.h;
+                                        cur.h = leader_wd * (cur.h / leader_wd);
+                                        cur.h = refpos->pos.v - shipbox_refpos.v - cur.h;
+                                        break;
+                                    default:
+                                        formatted_warning("pdf backend","forcing bad dir %i to TLT in hlist case 1",localpos.dir);
+                                        localpos.dir = dir_TLT;
+                                        cur.h += refpos->pos.h - shipbox_refpos.h;
+                                        cur.h = leader_wd * (cur.h / leader_wd);
+                                        cur.h -= refpos->pos.h - shipbox_refpos.h;
+                                        break;
                                 }
                                 if (cur.h < save_h)
                                     cur.h += leader_wd;
@@ -542,7 +534,6 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                                     basepoint.v = basepoint.v + shift_amount(leader_box); /* shift the box down */
                                 else
                                     basepoint.v = basepoint.v - shift_amount(leader_box); /* shift the box up */
-                                assert(cur.v == 0);
                                 tmpcur.h = cur.h + basepoint.h;
                                 tmpcur.v = basepoint.v;
                                 synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
@@ -620,24 +611,24 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                 case whatsit_node:
                     /* output the whatsit node |p| in |hlist_out| */
                     switch (subtype(p)) {
-                    case save_pos_node:
-                        last_position = pdf->posstruct->pos;
-                        pos_info.curpos = pdf->posstruct->pos;
-                        pos_info.boxpos.pos = refpos->pos;
-                        pos_info.boxpos.dir = localpos.dir;
-                        pos_info.boxdim.wd = width(this_box);
-                        pos_info.boxdim.ht = height(this_box);
-                        pos_info.boxdim.dp = depth(this_box);
-                        break;
-                    case pdf_annot_node:
-                    case pdf_start_link_node:
-                    case pdf_dest_node:
-                    case pdf_start_thread_node:
-                    case pdf_thread_node:
-                        backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
-                        break;
-                    default:
-                        out_what(pdf, p);
+                        case save_pos_node:
+                            last_position = pdf->posstruct->pos;
+                            pos_info.curpos = pdf->posstruct->pos;
+                            pos_info.boxpos.pos = refpos->pos;
+                            pos_info.boxpos.dir = localpos.dir;
+                            pos_info.boxdim.wd = width(this_box);
+                            pos_info.boxdim.ht = height(this_box);
+                            pos_info.boxdim.dp = depth(this_box);
+                            break;
+                        case pdf_annot_node:
+                        case pdf_start_link_node:
+                        case pdf_dest_node:
+                        case pdf_start_thread_node:
+                        case pdf_thread_node:
+                            backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
+                            break;
+                        default:
+                            out_what(pdf, p);
                     }
                     break;
                 case math_node:
@@ -692,7 +683,12 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                         pos_down(size.v);
                         break;
                     default:
-                        assert(0);
+                        formatted_warning("pdf backend","forcing bad dir %i to TLT in hlist case 2",localpos.dir);
+                        localpos.dir = dir_TLT;
+                        size.h = rule.wd;
+                        size.v = rule.ht + rule.dp;
+                        pos_down(rule.dp);
+                        break;
                 }
                 if (type(p) == glue_node) {
                     q = leader_ptr(p);
@@ -839,7 +835,6 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                             synctexvoidhlist(p, this_box);
                     }
                 } else {
-                    assert(cur.h == 0);
                     tmpcur.h = basepoint.h;
                     tmpcur.v = cur.v + basepoint.v;
                     synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
@@ -903,24 +898,29 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                         if (subtype(p) == g_leaders) {
                             save_v = cur.v;
                             switch (localpos.dir) {
-                            case dir_LTL:
-                                cur.v += refpos->pos.h - shipbox_refpos.h;
-                                cur.v = leader_ht * (cur.v / leader_ht);
-                                cur.v -= refpos->pos.h - shipbox_refpos.h;
-                                break;
-                            case dir_RTT:
-                                cur.v = refpos->pos.h - shipbox_refpos.h - cur.v;
-                                cur.v = leader_ht * (cur.v / leader_ht);
-                                cur.v = refpos->pos.h - shipbox_refpos.h - cur.v;
-                                break;
-                            case dir_TLT:
-                            case dir_TRT:
-                                cur.v = refpos->pos.v - shipbox_refpos.v - cur.v;
-                                cur.v = leader_ht * (cur.v / leader_ht);
-                                cur.v = refpos->pos.v - shipbox_refpos.v - cur.v;
-                                break;
-                            default:
-                                assert(0);
+                                case dir_LTL:
+                                    cur.v += refpos->pos.h - shipbox_refpos.h;
+                                    cur.v = leader_ht * (cur.v / leader_ht);
+                                    cur.v -= refpos->pos.h - shipbox_refpos.h;
+                                    break;
+                                case dir_RTT:
+                                    cur.v = refpos->pos.h - shipbox_refpos.h - cur.v;
+                                    cur.v = leader_ht * (cur.v / leader_ht);
+                                    cur.v = refpos->pos.h - shipbox_refpos.h - cur.v;
+                                    break;
+                                case dir_TLT:
+                                case dir_TRT:
+                                    cur.v = refpos->pos.v - shipbox_refpos.v - cur.v;
+                                    cur.v = leader_ht * (cur.v / leader_ht);
+                                    cur.v = refpos->pos.v - shipbox_refpos.v - cur.v;
+                                    break;
+                                default:
+                                    formatted_warning("pdf backend","forcing bad dir %i to TLT in vlist case 1",localpos.dir);
+                                    localpos.dir = dir_TLT;
+                                    cur.v += refpos->pos.h - shipbox_refpos.h;
+                                    cur.v = leader_ht * (cur.v / leader_ht);
+                                    cur.v -= refpos->pos.h - shipbox_refpos.h;
+                                    break;
                             }
                             if (cur.v < save_v)
                                 cur.v += leader_ht;
@@ -942,7 +942,6 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
 
                         while (cur.v + leader_ht <= edge) {
                             /* output a leader box at |cur.v|, then advance |cur.v| by |leader_ht+lx| */
-                            assert(cur.h == 0);
                             tmpcur.h = shift_amount(leader_box);
                             tmpcur.v = cur.v + height(leader_box);
                             synch_pos_with_cur(pdf->posstruct, refpos, tmpcur);
@@ -968,24 +967,24 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
             case whatsit_node:
                 /* output the whatsit node |p| in |vlist_out| */
                 switch (subtype(p)) {
-                case save_pos_node:
-                    last_position = pdf->posstruct->pos;
-                    pos_info.curpos = pdf->posstruct->pos;
-                    pos_info.boxpos.pos = refpos->pos;
-                    pos_info.boxpos.dir = localpos.dir;
-                    pos_info.boxdim.wd = width(this_box);
-                    pos_info.boxdim.ht = height(this_box);
-                    pos_info.boxdim.dp = depth(this_box);
-                    break;
-                case pdf_annot_node:
-                case pdf_start_link_node:
-                case pdf_dest_node:
-                case pdf_start_thread_node:
-                case pdf_thread_node:
-                    backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
-                    break;
-                default:
-                    out_what(pdf, p);
+                    case save_pos_node:
+                        last_position = pdf->posstruct->pos;
+                        pos_info.curpos = pdf->posstruct->pos;
+                        pos_info.boxpos.pos = refpos->pos;
+                        pos_info.boxpos.dir = localpos.dir;
+                        pos_info.boxdim.wd = width(this_box);
+                        pos_info.boxdim.ht = height(this_box);
+                        pos_info.boxdim.dp = depth(this_box);
+                        break;
+                    case pdf_annot_node:
+                    case pdf_start_link_node:
+                    case pdf_dest_node:
+                    case pdf_start_thread_node:
+                    case pdf_thread_node:
+                        backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
+                        break;
+                    default:
+                        out_what(pdf, p);
                 }
                 break;
             case glyph_node:
@@ -1026,7 +1025,12 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                     pos_down(size.v);
                     break;
                 default:
-                    assert(0);
+                    formatted_warning("pdf backend","forcing bad dir %i to TLT in vlist case 2",localpos.dir);
+                    localpos.dir = dir_TLT;
+                    size.h = rule.wd;
+                    size.v = rule.ht + rule.dp;
+                    pos_down(size.v);
+                    break;
             }
             if (type(p) == glue_node) {
                 q = leader_ptr(p);

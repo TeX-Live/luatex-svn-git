@@ -19,12 +19,11 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ @c
-const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] =
-    { "font", "outline", "dest", "obj", "xform", "ximage", "thread",
+const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] = {
+    "font", "outline", "dest", "obj", "xform", "ximage", "thread",
     "pagestream", "page", "pages", "catalog", "info", "link", "annot", "annots",
     "bead", "beads", "objstm", "others"
 };
@@ -33,25 +32,24 @@ const char *pdf_obj_typenames[PDF_OBJ_TYPE_MAX + 1] =
 @c
 static int compare_info(const void *pa, const void *pb, void *param)
 {
-    const oentry *a, *b;
+    const oentry *a = (const oentry *) pa;
+    const oentry *b = (const oentry *) pb;
     (void) param;
-    a = (const oentry *) pa;
-    b = (const oentry *) pb;
     if (a->u_type == b->u_type) {
         if (a->u_type == union_type_int)
             return ((a->u.int0 < b->u.int0 ? -1 : (a->u.int0 > b->u.int0 ? 1 : 0)));
-        else                    /* string type */
+        else /* string type */
             return strcmp(a->u.str0, b->u.str0);
-    } else if (a->u_type == union_type_int)
+    } else if (a->u_type == union_type_int) {
         return -1;
-    else
+    } else {
         return 1;
+    }
 }
 
 static void avl_put_obj(PDF pdf, int t, oentry * oe)
 {
     void **pp;
-    assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
     if (pdf->obj_tree[t] == NULL) {
         pdf->obj_tree[t] = avl_create(compare_info, NULL, &avl_xallocator);
         if (pdf->obj_tree[t] == NULL)
@@ -64,8 +62,7 @@ static void avl_put_obj(PDF pdf, int t, oentry * oe)
 
 static void avl_put_int_obj(PDF pdf, int int0, int objptr, int t)
 {
-    oentry *oe;
-    oe = xtalloc(1, oentry);
+    oentry *oe = xtalloc(1, oentry);
     oe->u.int0 = int0;
     oe->u_type = union_type_int;
     oe->objptr = objptr;
@@ -74,8 +71,7 @@ static void avl_put_int_obj(PDF pdf, int int0, int objptr, int t)
 
 static void avl_put_str_obj(PDF pdf, char *str0, int objptr, int t)
 {
-    oentry *oe;
-    oe = xtalloc(1, oentry);
+    oentry *oe = xtalloc(1, oentry);
     oe->u.str0 = str0;          /* no xstrdup() here */
     oe->u_type = union_type_cstring;
     oe->objptr = objptr;
@@ -86,7 +82,6 @@ static int avl_find_int_obj(PDF pdf, int t, int i)
 {
     oentry *p;
     oentry tmp;
-    assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
     tmp.u.int0 = i;
     tmp.u_type = union_type_int;
     if (pdf->obj_tree[t] == NULL)
@@ -101,7 +96,6 @@ static int avl_find_str_obj(PDF pdf, int t, char *s)
 {
     oentry *p;
     oentry tmp;
-    assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
     tmp.u.str0 = s;
     tmp.u_type = union_type_cstring;
     if (pdf->obj_tree[t] == NULL)
@@ -127,9 +121,7 @@ int pdf_create_obj(PDF pdf, int t, int i)
             pdf->obj_tab_size = pdf->obj_tab_size + a;
         else
             pdf->obj_tab_size = sup_obj_tab_size;
-        pdf->obj_tab =
-            xreallocarray(pdf->obj_tab, obj_entry,
-                          (unsigned) pdf->obj_tab_size);
+        pdf->obj_tab = xreallocarray(pdf->obj_tab, obj_entry, (unsigned) pdf->obj_tab_size);
     }
     pdf->obj_ptr++;
     obj_info(pdf, pdf->obj_ptr) = i;
@@ -155,7 +147,6 @@ int find_obj(PDF pdf, int t, int i, boolean byname)
 {
     char *ss = NULL;
     int ret;
-    assert(i >= 0);             /* no tricks */
     if (byname) {
         ss = makecstring(i);
         ret = avl_find_str_obj(pdf, t, ss);
@@ -167,19 +158,17 @@ int find_obj(PDF pdf, int t, int i, boolean byname)
 }
 
 @ The following function finds an object with identifier |i| and type |t|.
-   Identifier |i| is either an integer or a token list index. If no
-   such object exists then it will be created. This function is used mainly to
-   find destination for link annotations and outlines; however it is also used
-   in |ship_out| (to check whether a Page object already exists) so we need
-   to declare it together with subroutines needed in |hlist_out| and
-   |vlist_out|.
+Identifier |i| is either an integer or a token list index. If no such object
+exists then it will be created. This function is used mainly to find destination
+for link annotations and outlines; however it is also used in |ship_out| (to
+check whether a Page object already exists) so we need to declare it together
+with subroutines needed in |hlist_out| and |vlist_out|.
 
 @c
 int pdf_get_obj(PDF pdf, int t, int i, boolean byname)
 {
     int r;
     str_number s;
-    assert(i >= 0);
     if (byname > 0) {
         s = tokens_to_string(i);
         r = find_obj(pdf, t, s, true);
@@ -213,28 +202,22 @@ void check_obj_exists(PDF pdf, int objnum)
 void check_obj_type(PDF pdf, int t, int objnum)
 {
     int u;
-    char *s;
     check_obj_exists(pdf, objnum);
     u = obj_type(pdf, objnum);
     if (t != u) {
-        assert(t >= 0 && t <= PDF_OBJ_TYPE_MAX);
-        assert(u >= 0 && u <= PDF_OBJ_TYPE_MAX);
-        s = (char *) xtalloc(128, char);
-        snprintf(s, 127, "referenced object has wrong type %s; should be %s",
-                 pdf_obj_typenames[u], pdf_obj_typenames[t]);
-        normal_error("pdf backend", s);
+        formatted_error("pdf backend", "referenced object has wrong type %s; should be %s",
+            pdf_obj_typenames[u], pdf_obj_typenames[t]);
     }
 }
 
 @ @c
-void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
-                     scaled_whd alt_rule, scaled margin)
+void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur, scaled_whd alt_rule, scaled margin)
 {
-    scaledpos ll, ur;           /* positions relative to cur */
+    scaledpos ll, ur; /* positions relative to cur */
     scaledpos pos_ll, pos_ur, tmp;
     posstructure localpos;
     localpos.dir = pdf->posstruct->dir;
-    ll.h = 0;                   /* pdf contains current point on page */
+    ll.h = 0; /* pdf contains current point on page */
     if (is_running(alt_rule.dp))
         ll.v = depth(parent_box) - cur.v;
     else
@@ -247,12 +230,10 @@ void set_rect_dimens(PDF pdf, halfword p, halfword parent_box, scaledpos cur,
         ur.v = -height(parent_box) - cur.v;
     else
         ur.v = -alt_rule.ht;
-
     synch_pos_with_cur(&localpos, pdf->posstruct, ll);
     pos_ll = localpos.pos;
     synch_pos_with_cur(&localpos, pdf->posstruct, ur);
     pos_ur = localpos.pos;
-
     if (pos_ll.h > pos_ur.h) {
         tmp.h = pos_ll.h;
         pos_ll.h = pos_ur.h;

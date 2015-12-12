@@ -15,24 +15,23 @@
    License for more details.
 
    You should have received a copy of the GNU General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
-
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef PDFLISTOUT_H
 #  define PDFLISTOUT_H
 
-/* a few small helpers */
 #  define pos_right(A) pdf->posstruct->pos.h = pdf->posstruct->pos.h + (A)
 #  define pos_left(A)  pdf->posstruct->pos.h = pdf->posstruct->pos.h - (A)
 #  define pos_up(A)    pdf->posstruct->pos.v = pdf->posstruct->pos.v + (A)
 #  define pos_down(A)  pdf->posstruct->pos.v = pdf->posstruct->pos.v - (A)
 
-typedef void (*backend_function) ();    /* variadic arguments  */
+typedef void (*backend_function) (); /* variadic arguments  */
 
 typedef struct {
-    char *name;                 /* name of the backend */
-    backend_function *node_fu;  /* array of node output functions */
-    backend_function *whatsit_fu;       /* array of whatsit output functions */
+    char *name;                    /* name of the backend */
+    backend_function *node_fu;     /* array of node output functions */
+    backend_function *whatsit_fu;  /* array of whatsit output functions */
 } backend_struct;
 
 extern pos_info_structure pos_info;
