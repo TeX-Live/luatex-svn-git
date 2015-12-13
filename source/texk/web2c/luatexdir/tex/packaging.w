@@ -1,4 +1,4 @@
-4% packaging.w
+% packaging.w
 %
 % Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 %
@@ -32,44 +32,39 @@
 #define every_vbox equiv(every_vbox_loc)
 #define box_max_depth dimen_par(box_max_depth_code)
 
-@ We're essentially done with the parts of \TeX\ that are concerned with
-the input (|get_next|) and the output (|ship_out|). So it's time to
-get heavily into the remaining part, which does the real work of typesetting.
+@ We're essentially done with the parts of \TeX\ that are concerned with the
+input (|get_next|) and the output (|ship_out|). So it's time to get heavily into
+the remaining part, which does the real work of typesetting.
 
-After lists are constructed, \TeX\ wraps them up and puts them into boxes.
-Two major subroutines are given the responsibility for this task: |hpack|
-applies to horizontal lists (hlists) and |vpack| applies to vertical lists
-(vlists). The main duty of |hpack| and |vpack| is to compute the dimensions
-of the resulting boxes, and to adjust the glue if one of those dimensions
-is pre-specified. The computed sizes normally enclose all of the material
-inside the new box; but some items may stick out if negative glue is used,
-if the box is overfull, or if a \.{\\vbox} includes other boxes that have
-been shifted left.
+After lists are constructed, \TeX\ wraps them up and puts them into boxes. Two
+major subroutines are given the responsibility for this task: |hpack| applies to
+horizontal lists (hlists) and |vpack| applies to vertical lists (vlists). The
+main duty of |hpack| and |vpack| is to compute the dimensions of the resulting
+boxes, and to adjust the glue if one of those dimensions is pre-specified. The
+computed sizes normally enclose all of the material inside the new box; but some
+items may stick out if negative glue is used, if the box is overfull, or if a
+\.{\\vbox} includes other boxes that have been shifted left.
 
-The subroutine call |hpack(p,w,m)| returns a pointer to an |hlist_node|
-for a box containing the hlist that starts at |p|. Parameter |w| specifies
-a width; and parameter |m| is either `|exactly|' or `|additional|'.  Thus,
-|hpack(p,w,exactly)| produces a box whose width is exactly |w|, while
-|hpack(p,w,additional)| yields a box whose width is the natural width plus
-|w|.  It is convenient to define a macro called `|natural|' to cover the
-most common case, so that we can say |hpack(p,natural)| to get a box that
-has the natural width of list |p|.
+The subroutine call |hpack(p,w,m)| returns a pointer to an |hlist_node| for a box
+containing the hlist that starts at |p|. Parameter |w| specifies a width; and
+parameter |m| is either `|exactly|' or `|additional|'. Thus, |hpack(p,w,exactly)|
+produces a box whose width is exactly |w|, while |hpack(p,w,additional)| yields a
+box whose width is the natural width plus |w|. It is convenient to define a macro
+called `|natural|' to cover the most common case, so that we can say
+|hpack(p,natural)| to get a box that has the natural width of list |p|.
 
-Similarly, |vpack(p,w,m)| returns a pointer to a |vlist_node| for a
-box containing the vlist that starts at |p|. In this case |w| represents
-a height instead of a width; the parameter |m| is interpreted as in |hpack|.
+Similarly, |vpack(p,w,m)| returns a pointer to a |vlist_node| for a box
+containing the vlist that starts at |p|. In this case |w| represents a height
+instead of a width; the parameter |m| is interpreted as in |hpack|.
 
-
-@ The parameters to |hpack| and |vpack| correspond to \TeX's primitives
-like `\.{\\hbox} \.{to} \.{300pt}', `\.{\\hbox} \.{spread} \.{10pt}'; note
-that `\.{\\hbox}' with no dimension following it is equivalent to
-`\.{\\hbox} \.{spread} \.{0pt}'.  The |scan_spec| subroutine scans such
-constructions in the user's input, including the mandatory left brace that
-follows them, and it puts the specification onto |save_stack| so that the
-desired box can later be obtained by executing the following code:
-$$\vbox{\halign{#\hfil\cr
-|save_ptr:=save_ptr-1;|\cr
-|hpack(p,saved_value(0),saved_level(0)).|\cr}}$$
+@ The parameters to |hpack| and |vpack| correspond to \TeX's primitives like
+`\.{\\hbox} \.{to} \.{300pt}', `\.{\\hbox} \.{spread} \.{10pt}'; note that
+`\.{\\hbox}' with no dimension following it is equivalent to `\.{\\hbox}
+\.{spread} \.{0pt}'. The |scan_spec| subroutine scans such constructions in the
+user's input, including the mandatory left brace that follows them, and it puts
+the specification onto |save_stack| so that the desired box can later be obtained
+by executing the following code: $$\vbox{\halign{#\hfil\cr
+|save_ptr:=save_ptr-1;|\cr |hpack(p,saved_value(0),saved_level(0)).|\cr}}$$
 
 @c
 /*
@@ -105,6 +100,7 @@ void scan_spec(group_code c)
         cur_val = 0;
         done = true;
     } else {
+        /* todo: attr */
         back_input();
         if (scan_keyword("to")) {
             spec_code = exactly;
@@ -126,13 +122,12 @@ void scan_spec(group_code c)
 }
 
 @ When scanning, special care is necessary to ensure that the special
-|save_stack| codes are placed just below the new group code, because
-scanning can change |save_stack| when \.{\\csname} appears.
+|save_stack| codes are placed just below the new group code, because scanning can
+change |save_stack| when \.{\\csname} appears.
 
-This coincides with the text on |dir| and |attr| keywords, as these
-are exaclty the uses of \.{\\hbox}, \.{\\vbox}, and \.{\\vtop} in the
-input stream (the others are \.{\\vcenter}, \.{\\valign}, and
-\.{\\halign}).
+This coincides with the text on |dir| and |attr| keywords, as these are exaclty
+the uses of \.{\\hbox}, \.{\\vbox}, and \.{\\vtop} in the input stream (the
+others are \.{\\vcenter}, \.{\\valign}, and \.{\\halign}).
 
 @c
 /*
@@ -205,7 +200,7 @@ input stream (the others are \.{\\vcenter}, \.{\\valign}, and
 
 /* scans a box specification and left brace */
 
-void scan_full_spec(group_code c, int spec_direction)
+void scan_full_spec(group_code c, int spec_direction, int just_pack)
 {
     int s;
     int i;
@@ -285,7 +280,8 @@ void scan_full_spec(group_code c, int spec_direction)
         set_saved_record(2, saved_boxdir, spec_direction, null);
     }
     set_saved_record(3, saved_boxattr, 0, attr_list);
-    save_ptr += 4;
+    set_saved_record(4, saved_boxpack, 0, just_pack);
+    save_ptr += 5;
     new_save_level(c);
     if (! done) {
         scan_left_brace();
@@ -297,32 +293,30 @@ void scan_full_spec(group_code c, int spec_direction)
 }
 
 @ To figure out the glue setting, |hpack| and |vpack| determine how much
-stretchability and shrinkability are present, considering all four orders
-of infinity. The highest order of infinity that has a nonzero coefficient
-is then used as if no other orders were present.
+stretchability and shrinkability are present, considering all four orders of
+infinity. The highest order of infinity that has a nonzero coefficient is then
+used as if no other orders were present.
 
-For example, suppose that the given list contains six glue nodes with
-the respective stretchabilities 3pt, 8fill, 5fil, 6pt, $-3$fil, $-8$fill.
-Then the total is essentially 2fil; and if a total additional space of 6pt
-is to be achieved by stretching, the actual amounts of stretch will be
-0pt, 0pt, 15pt, 0pt, $-9$pt, and 0pt, since only `fil' glue will be
-considered. (The `fill' glue is therefore not really stretching infinitely
-with respect to `fil'; nobody would actually want that to happen.)
+For example, suppose that the given list contains six glue nodes with the
+respective stretchabilities 3pt, 8fill, 5fil, 6pt, $-3$fil, $-8$fill. Then the
+total is essentially 2fil; and if a total additional space of 6pt is to be
+achieved by stretching, the actual amounts of stretch will be 0pt, 0pt, 15pt,
+0pt, $-9$pt, and 0pt, since only `fil' glue will be considered. (The `fill' glue
+is therefore not really stretching infinitely with respect to `fil'; nobody would
+actually want that to happen.)
 
-The arrays |total_stretch| and |total_shrink| are used to determine how much
-glue of each kind is present. A global variable |last_badness| is used
-to implement \.{\\badness}.
+The arrays |total_stretch| and |total_shrink| are used to determine how much glue
+of each kind is present. A global variable |last_badness| is used to implement
+\.{\\badness}.
 
 @c
 scaled total_stretch[5];
 scaled total_shrink[5];         /* glue found by |hpack| or |vpack| */
 int last_badness;               /* badness of the most recently packaged box */
 
-
-@ If the global variable |adjust_tail| is non-null, the |hpack| routine
-also removes all occurrences of |ins_node|, |mark_node|, and |adjust_node|
-items and appends the resulting material onto the list that ends at
-location |adjust_tail|.
+@ If the global variable |adjust_tail| is non-null, the |hpack| routine also
+removes all occurrences of |ins_node|, |mark_node|, and |adjust_node| items and
+appends the resulting material onto the list that ends at location |adjust_tail|.
 
 @c
 halfword adjust_tail;           /* tail of adjustment list */
@@ -515,8 +509,8 @@ halfword new_margin_kern(scaled w, halfword p, int side)
     return k;
 }
 
-@ Here is |hpack|, which is place where we do font substituting when
-font expansion is being used.
+@ Here is |hpack|, which is place where we do font substituting when font
+expansion is being used.
 
 @c
 halfword hpack(halfword p, scaled w, int m, int pack_direction)
@@ -546,16 +540,15 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         hpack_dir = pack_direction;
     }
     box_dir(r) = hpack_dir;
-
-    /* potential optimimization, save a little but neglectable in practice (not so
-       many empty boxes are used)
+    /*
+        potential optimimization, save a little but neglectable in practice (not so
+        many empty boxes are used)
 
         if (p == null) {
             width(r) = w;
             return r;
         }
     */
-
     push_dir(dir_ptr1,hpack_dir); /* push null */
     q = r + list_offset; /* hm, adding something to a node address? */
     vlink(q) = p;
@@ -580,15 +573,19 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
             p = pack_interrupt[disc_level];
             goto RESWITCH;
         }
-        /* Examine node |p| in the hlist, taking account of its effect
-           on the dimensions of the new box, or moving it to the adjustment list;
-           then advance |p| to the next node */
+        /*
+            Examine node |p| in the hlist, taking account of its effect
+            on the dimensions of the new box, or moving it to the adjustment list;
+            then advance |p| to the next node
+        */
         while (is_char_node(p)) {
-            /* Incorporate character dimensions into the dimensions of
-               the hbox that will contain~it, then move to the next node */
-            /* The following code is part of \TeX's inner loop; i.e., adding another
-               character of text to the user's input will cause each of these instructions
-               to be exercised one more time.
+            /*
+                Incorporate character dimensions into the dimensions of the hbox
+                that will contain~it, then move to the next node.
+
+                The following code is part of \TeX's inner loop; i.e., adding
+                another character of text to the user's input will cause each of
+                these instructions to be exercised one more time.
              */
             if (m >= cal_expand_ratio) {
                 prev_char_p = p;
@@ -609,145 +606,160 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         }
         if (p != null) {
             switch (type(p)) {
-            case hlist_node:
-            case vlist_node:
-                /* Incorporate box dimensions into the dimensions of the hbox that will contain~it */
-                /* The code here implicitly uses the fact that running dimensions are
-                   indicated by |null_flag|, which will be ignored in the calculations
-                   because it is a highly negative number. */
-                s = shift_amount(p);
-                whd = pack_width_height_depth(hpack_dir, box_dir(p), p, false);
-                x += whd.wd;
-                if (whd.ht - s > h)
-                    h = whd.ht - s;
-                if (whd.dp + s > d)
-                    d = whd.dp + s;
-                break;
-            case rule_node:
-            case unset_node:
-                x += width(p);
-                if (type(p) >= rule_node)
-                    s = 0;
-                else
-                    s = shift_amount(p);
-                if (height(p) - s > h)
-                    h = height(p) - s;
-                if (depth(p) + s > d)
-                    d = depth(p) + s;
-                break;
-            case ins_node:
-            case mark_node:
-            case adjust_node:
-                if (adjust_tail != null || pre_adjust_tail != null) {
-                    /* Transfer node |p| to the adjustment list */
+                case hlist_node:
+                case vlist_node:
                     /*
-                       Although node |q| is not necessarily the immediate predecessor of node |p|,
-                       it always points to some node in the list preceding |p|. Thus, we can delete
-                       nodes by moving |q| when necessary. The algorithm takes linear time, and the
-                       extra computation does not intrude on the inner loop unless it is necessary
-                       to make a deletion.
-                     */
-                    while (vlink(q) != p)
-                        q = vlink(q);
-                    if (type(p) == adjust_node) {
-                        if (adjust_pre(p) != 0)
-                            update_adjust_list(pre_adjust_tail);
-                        else
-                            update_adjust_list(adjust_tail);
-                        p = vlink(p);
-                        adjust_ptr(vlink(q)) = null;
-                        flush_node(vlink(q));
-                    } else {
-                        vlink(adjust_tail) = p;
-                        adjust_tail = p;
-                        p = vlink(p);
-                    }
-                    vlink(q) = p;
-                    p = q;
-                }
-                break;
-            case dir_node:
-                /* DIR: Adjust the dir stack for the |hpack| routine */
-                if (dir_dir(p) >= 0) {
-                    hpack_dir = dir_dir(p);
-                    push_dir_node(dir_ptr1,p);
-                } else {
-                    pop_dir_node(dir_ptr1);
-                    if (dir_ptr1 != null)
-                        hpack_dir = dir_dir(dir_ptr1);
-                }
-                break;
-            case math_node:
-                /* begin mathskip code */
-                if (glue_ptr(p) == zero_glue) {
-                    x += surround(p);
+                        Incorporate box dimensions into the dimensions of the hbox
+                        that will contain~it
+
+                        The code here implicitly uses the fact that running dimensions are
+                        indicated by |null_flag|, which will be ignored in the calculations
+                        because it is a highly negative number.
+                    */
+                    s = shift_amount(p);
+                    whd = pack_width_height_depth(hpack_dir, box_dir(p), p, false);
+                    x += whd.wd;
+                    if (whd.ht - s > h)
+                        h = whd.ht - s;
+                    if (whd.dp + s > d)
+                        d = whd.dp + s;
                     break;
-                } else {
-                    /* fall through: mathskip */
-                }
-                /* end mathskip code */
-            case glue_node:
-                /* Incorporate glue into the horizontal totals */
-                g = glue_ptr(p);
-                x += width(g);
-                o = stretch_order(g);
-                total_stretch[o] = total_stretch[o] + stretch(g);
-                o = shrink_order(g);
-                total_shrink[o] = total_shrink[o] + shrink(g);
-                if (subtype(p) >= a_leaders) {
-                    g = leader_ptr(p);
-                    if (height(g) > h)
-                        h = height(g);
-                    if (depth(g) > d)
-                        d = depth(g);
-                }
-                break;
-            case margin_kern_node:
-                if (m == cal_expand_ratio) {
-                    int f = font(margin_char(p));
-                    do_subst_font(margin_char(p), 1000);
-                    if (f != font(margin_char(p)))
-                        font_stretch = font_stretch - width(p) - char_pw(margin_char(p), subtype(p));
-                    font(margin_char(p)) = f;
-                    do_subst_font(margin_char(p), -1000);
-                    if (f != font(margin_char(p)))
-                        font_shrink = font_shrink - width(p) - char_pw(margin_char(p), subtype(p));
-                    font(margin_char(p)) = f;
-                } else if (m == subst_ex_font) {
-                    do_subst_font(margin_char(p), font_expand_ratio);
-                    width(p) = -char_pw(margin_char(p), subtype(p));
-                }
-                x += width(p);
-                break;
-            case kern_node:
-                if (subtype(p) == normal) {
-                    if (m == cal_expand_ratio) {
-                        font_stretch = font_stretch + kern_stretch(p);
-                        font_shrink = font_shrink + kern_shrink(p);
-                    } else if (m == subst_ex_font) {
-                        if (font_expand_ratio > 0)
-                            k = kern_stretch(p);
-                        else if (font_expand_ratio < 0)
-                            k = kern_shrink(p);
-                        else
-                            pdfassert(0);
-                        if (k != 0)
-                            width(p) = get_kern(font(prev_char_p), character(prev_char_p), character(vlink(p)));
+                /*
+                case rule_node:
+                case unset_node:
+                    x += width(p);
+                    if (type(p) >= rule_node) // always
+                        s = 0;
+                    else
+                        s = shift_amount(p);
+                    if (height(p) - s > h)
+                        h = height(p) - s;
+                    if (depth(p) + s > d)
+                        d = depth(p) + s;
+                    break;
+                */
+                case rule_node:
+                case unset_node:
+                    x += width(p);
+                    if (height(p) > h)
+                        h = height(p);
+                    if (depth(p) > d)
+                        d = depth(p);
+                    break;
+                /* */
+                case glue_node:
+                    /* Incorporate glue into the horizontal totals */
+                    g = glue_ptr(p);
+                    x += width(g);
+                    o = stretch_order(g);
+                    total_stretch[o] = total_stretch[o] + stretch(g);
+                    o = shrink_order(g);
+                    total_shrink[o] = total_shrink[o] + shrink(g);
+                    if (subtype(p) >= a_leaders) {
+                        g = leader_ptr(p);
+                        if (height(g) > h)
+                            h = height(g);
+                        if (depth(g) > d)
+                            d = depth(g);
                     }
-                }
-                x += width(p);
-                break;
-            case disc_node:
-                if (m == subst_ex_font)
-                    do_subst_font(p, font_expand_ratio);
-                if ((subtype(p) != select_disc) && (vlink(no_break(p)) != null)) {
-                    pack_interrupt[disc_level] = vlink(p);
-                    incr(disc_level);
-                    p = no_break(p);
-                }
-                break;
-            default:
-                break;
+                    break;
+                case kern_node:
+                    if (subtype(p) == normal) {
+                        if (m == cal_expand_ratio) {
+                            font_stretch = font_stretch + kern_stretch(p);
+                            font_shrink = font_shrink + kern_shrink(p);
+                        } else if (m == subst_ex_font) {
+                            if (font_expand_ratio > 0)
+                                k = kern_stretch(p);
+                            else if (font_expand_ratio < 0)
+                                k = kern_shrink(p);
+                            if (k != 0)
+                                width(p) = get_kern(font(prev_char_p), character(prev_char_p), character(vlink(p)));
+                        }
+                    }
+                    x += width(p);
+                    break;
+                case disc_node:
+                    if (m == subst_ex_font)
+                        do_subst_font(p, font_expand_ratio);
+                    if ((subtype(p) != select_disc) && (vlink(no_break(p)) != null)) {
+                        pack_interrupt[disc_level] = vlink(p);
+                        incr(disc_level);
+                        p = no_break(p);
+                    }
+                    break;
+                case dir_node:
+                    /* Adjust the dir stack for the |hpack| routine */
+                    if (dir_dir(p) >= 0) {
+                        hpack_dir = dir_dir(p);
+                        push_dir_node(dir_ptr1,p);
+                    } else {
+                        pop_dir_node(dir_ptr1);
+                        if (dir_ptr1 != null)
+                            hpack_dir = dir_dir(dir_ptr1);
+                    }
+                    break;
+                case math_node:
+                    /* begin mathskip code */
+                    if (glue_ptr(p) == zero_glue) {
+                        x += surround(p);
+                        break;
+                    } else {
+                        /* fall through: mathskip */
+                    }
+                    /* end mathskip code */
+                case margin_kern_node:
+                    if (m == cal_expand_ratio) {
+                        int f = font(margin_char(p));
+                        do_subst_font(margin_char(p), 1000);
+                        if (f != font(margin_char(p)))
+                            font_stretch = font_stretch - width(p) - char_pw(margin_char(p), subtype(p));
+                        font(margin_char(p)) = f;
+                        do_subst_font(margin_char(p), -1000);
+                        if (f != font(margin_char(p)))
+                            font_shrink = font_shrink - width(p) - char_pw(margin_char(p), subtype(p));
+                        font(margin_char(p)) = f;
+                    } else if (m == subst_ex_font) {
+                        do_subst_font(margin_char(p), font_expand_ratio);
+                        width(p) = -char_pw(margin_char(p), subtype(p));
+                    }
+                    x += width(p);
+                    break;
+                case ins_node:
+                case mark_node:
+                case adjust_node:
+                    /*
+                        Transfer node |p| to the adjustment list.
+
+                        Although node |q| is not necessarily the immediate predecessor of node |p|,
+                        it always points to some node in the list preceding |p|. Thus, we can delete
+                        nodes by moving |q| when necessary. The algorithm takes linear time, and the
+                        extra computation does not intrude on the inner loop unless it is necessary
+                        to make a deletion.
+                     */
+                    if (adjust_tail != null || pre_adjust_tail != null) {
+                        while (vlink(q) != p)
+                            q = vlink(q);
+                        if (type(p) == adjust_node) {
+                            if (adjust_pre(p) != 0)
+                                update_adjust_list(pre_adjust_tail);
+                            else
+                                update_adjust_list(adjust_tail);
+                            p = vlink(p);
+                            adjust_ptr(vlink(q)) = null;
+                            flush_node(vlink(q));
+                        } else {
+                            vlink(adjust_tail) = p;
+                            adjust_tail = p;
+                            p = vlink(p);
+                        }
+                        vlink(q) = p;
+                        p = q;
+                    }
+                    break;
+                /* */
+                default:
+                    break;
             }
             p = vlink(p);
         }
@@ -760,27 +772,32 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         vlink(pre_adjust_tail) = null;
     height(r) = h;
     depth(r) = d;
-    /* Determine the value of |width(r)| and the appropriate glue setting;
-       then |return| or |goto common_ending| */
-    /* When we get to the present part of the program, |x| is the natural width
-       of the box being packaged. */
+    /*
+        Determine the value of |width(r)| and the appropriate glue setting; then
+        |return| or |goto common_ending|.
+
+        When we get to the present part of the program, |x| is the natural width
+        of the box being packaged.
+    */
     if (m == additional)
         w = x + w;
     width(r) = w;
-    x = w - x;                  /* now |x| is the excess to be made up */
+    x = w - x;
+    /* now |x| is the excess to be made up */
     if (x == 0) {
         glue_sign(r) = normal;
         glue_order(r) = normal;
         set_glue_ratio_zero(glue_set(r));
         goto EXIT;
     } else if (x > 0) {
-        /* Determine horizontal glue stretch setting, then |return|
-           or \hbox{|goto common_ending|} */
+        /*
+            Determine horizontal glue stretch setting, then |return|
+            or \hbox{|goto common_ending|}.
 
-        /* If |hpack| is called with |m=cal_expand_ratio| we calculate
-           |font_expand_ratio| and return without checking for overfull or underfull box. */
-
-        /* Determine the stretch order */
+            If |hpack| is called with |m=cal_expand_ratio| we calculate
+            |font_expand_ratio| and return without checking for overfull or
+            underfull box.
+        */
         if (total_stretch[filll] != 0)
             o = filll;
         else if (total_stretch[fill] != 0)
@@ -801,13 +818,16 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         if (total_stretch[o] != 0) {
             glue_set(r) = unfloat((double) x / total_stretch[o]);
         } else {
+            /* there's nothing to stretch */
             glue_sign(r) = normal;
-            set_glue_ratio_zero(glue_set(r));   /* there's nothing to stretch */
+            set_glue_ratio_zero(glue_set(r));
         }
         if (o == normal) {
             if (list_ptr(r) != null) {
-                /* Report an underfull hbox and |goto common_ending|, if this box
-                   is sufficiently bad */
+                /*
+                    Report an underfull hbox and |goto common_ending|, if this box
+                    is sufficiently bad.
+                */
                 last_badness = badness(x, total_stretch[normal]);
                 if (last_badness > int_par(hbadness_code)) {
                     int callback_id = callback_defined(hpack_quality_callback);
@@ -839,9 +859,10 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         }
         goto EXIT;
     } else {
-        /* Determine horizontal glue shrink setting, then |return|
-           or \hbox{|goto common_ending|} */
-        /* Determine the shrink order */
+        /*
+            Determine horizontal glue shrink setting, then |return|
+            or \hbox{|goto common_ending|},
+        */
         if (total_shrink[filll] != 0)
             o = filll;
         else if (total_shrink[fill] != 0)
@@ -862,15 +883,19 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
         if (total_shrink[o] != 0) {
             glue_set(r) = unfloat((double) (-x) / (double) total_shrink[o]);
         } else {
+            /* there's nothing to shrink */
             glue_sign(r) = normal;
-            set_glue_ratio_zero(glue_set(r));   /* there's nothing to shrink */
+            set_glue_ratio_zero(glue_set(r));
         }
         if ((total_shrink[o] < -x) && (o == normal) && (list_ptr(r) != null)) {
             int overshoot = -x - total_shrink[normal] ;
             last_badness = 1000000;
-            set_glue_ratio_one(glue_set(r));    /* use the maximum shrinkage */
-            /* Report an overfull hbox and |goto common_ending|, if this box
-               is sufficiently bad */
+            /* use the maximum shrinkage */
+            set_glue_ratio_one(glue_set(r));
+            /*
+                Report an overfull hbox and |goto common_ending|, if this box
+                is sufficiently bad.
+            */
             if ((overshoot > dimen_par(hfuzz_code)) || (int_par(hbadness_code) < 100)) {
                 int callback_id = callback_defined(hpack_quality_callback);
                 halfword rule = null;
@@ -897,7 +922,10 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
             }
         } else if (o == normal) {
             if (list_ptr(r) != null) {
-                /* Report a tight hbox and |goto common_ending|, if this box is sufficiently bad */
+                /*
+                    Report a tight hbox and |goto common_ending|, if this box is
+                    sufficiently bad.
+                */
                 last_badness = badness(-x, total_shrink[normal]);
                 if (last_badness > int_par(hbadness_code)) {
                     int callback_id = callback_defined(hpack_quality_callback);
@@ -923,7 +951,10 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     }
 
   COMMON_ENDING:
-    /* Finish issuing a diagnostic message for an overfull or underfull hbox */
+    /*
+        Finish issuing a diagnostic message for an overfull or underfull
+        hbox.
+    */
     if (output_active) {
         tprint(") has occurred while \\output is active");
     } else {
@@ -948,7 +979,6 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
     begin_diagnostic();
     show_box(r);
     end_diagnostic(true);
-
   EXIT:
     if ((m == cal_expand_ratio) && (font_expand_ratio != 0)) {
         font_expand_ratio = fix_int(font_expand_ratio, -1000, 1000);
@@ -963,13 +993,38 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
 }
 
 @ @c
+/*
 halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, int grp, int pac)
 {
     halfword q;
     new_hyphenation(p, qt);
-    (void) new_ligkern(p, qt);  /* don't care about the tail in this case */
+    (void) new_ligkern(p, qt);  // we don't care about the tail in this case
     q = vlink(p);
     q = lua_hpack_filter(q, w, m, grp, pac);
+    return hpack(q, w, m, pac);
+}
+*/
+
+halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, int grp, int pac, int just_pack)
+{
+    halfword q;
+    if (just_pack) {
+        q = vlink(p);
+    } else if (type(p) == temp_node && vlink(p) == null) {
+        q = vlink(p);
+        /*
+            q = new_node(hlist_node, min_quarterword);
+            box_dir(q) = (pac == -1) ? text_direction : pac;
+            width(q) = w;
+            return q;
+        */
+    } else {
+        new_hyphenation(p, qt);
+        (void) new_ligkern(p, qt);  /* we don't care about the tail in this case */
+        q = vlink(p);
+        /* maybe here: alink(p) = null */
+        q = lua_hpack_filter(q, w, m, grp, pac); /* ignores empty anyway */ /* maybe also pass tail */
+    }
     return hpack(q, w, m, pac);
 }
 
@@ -979,10 +1034,10 @@ halfword filtered_hpack(halfword p, halfword qt, scaled w, int m, int grp, int p
 scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                          int g_sign, int g_order, int pack_direction)
 {
-    scaled s;                   /* shift amount */
-    halfword g;                 /* points to a glue specification */
+    scaled s;      /* shift amount */
+    halfword g;    /* points to a glue specification */
     int hpack_dir;
-    scaled_whd xx;              /* for recursion */
+    scaled_whd xx; /* for recursion */
     scaled_whd whd, siz = { 0, 0, 0 };
     if (pack_direction == -1) {
         hpack_dir = text_direction;
@@ -1001,71 +1056,82 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
         }
         if (p != pp && p != null) {
             switch (type(p)) {
-            case hlist_node:
-            case vlist_node:
-                s = shift_amount(p);
-                whd = pack_width_height_depth(hpack_dir, box_dir(p), p, false);
-                siz.wd += whd.wd;
-                if (whd.ht - s > siz.ht)
-                    siz.ht = whd.ht - s;
-                if (whd.dp + s > siz.dp)
-                    siz.dp = whd.dp + s;
-                break;
-            case rule_node:
-            case unset_node:
-                siz.wd += width(p);
-                if (type(p) >= rule_node)
-                    s = 0;
-                else
+                case hlist_node:
+                case vlist_node:
                     s = shift_amount(p);
-                if (height(p) - s > siz.ht)
-                    siz.ht = height(p) - s;
-                if (depth(p) + s > siz.dp)
-                    siz.dp = depth(p) + s;
-                break;
-            case math_node:
-                /* begin mathskip code */
-                if (glue_ptr(p) == zero_glue) {
-                    siz.wd += surround(p);
+                    whd = pack_width_height_depth(hpack_dir, box_dir(p), p, false);
+                    siz.wd += whd.wd;
+                    if (whd.ht - s > siz.ht)
+                        siz.ht = whd.ht - s;
+                    if (whd.dp + s > siz.dp)
+                        siz.dp = whd.dp + s;
                     break;
-                } else {
-                    /* fall through: mathskip */
-                }
-                /* end mathskip code */
-            case glue_node:
-                g = glue_ptr(p);
-                siz.wd += width(g);
-                if (g_sign != normal) {
-                    if (g_sign == stretching) {
-                        if (stretch_order(g) == g_order) {
-                            siz.wd += float_round(float_cast(g_mult) * float_cast(stretch(g)));
-                        }
-                    } else if (shrink_order(g) == g_order) {
-                        siz.wd -= float_round(float_cast(g_mult) * float_cast(shrink(g)));
+                /*
+                case rule_node:
+                case unset_node:
+                    siz.wd += width(p);
+                    if (type(p) >= rule_node) // always true
+                        s = 0;
+                    else
+                        s = shift_amount(p);
+                    if (height(p) - s > siz.ht)
+                        siz.ht = height(p) - s;
+                    if (depth(p) + s > siz.dp)
+                        siz.dp = depth(p) + s;
+                    break;
+                */
+                case rule_node:
+                case unset_node:
+                    siz.wd += width(p);
+                    if (height(p) > siz.ht)
+                        siz.ht = height(p);
+                    if (depth(p) > siz.dp)
+                        siz.dp = depth(p);
+                    break;
+                /* */
+                case math_node:
+                    /* begin mathskip code */
+                    if (glue_ptr(p) == zero_glue) {
+                        siz.wd += surround(p);
+                        break;
+                    } else {
+                        /* fall through: mathskip */
                     }
-                }
-                if (subtype(p) >= a_leaders) {
-                    g = leader_ptr(p);
-                    if (height(g) > siz.ht)
-                        siz.ht = height(g);
-                    if (depth(g) > siz.dp)
-                        siz.dp = depth(g);
-                }
-                break;
-            case margin_kern_node:
-            case kern_node:
-                siz.wd += width(p);
-                break;
-            case disc_node:
-                xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order, hpack_dir);
-                siz.wd += xx.wd;
-                if (xx.ht > siz.ht)
-                    siz.ht = xx.ht;
-                if (xx.dp > siz.dp)
-                    siz.dp = xx.dp;
-                break;
-            default:
-                break;
+                    /* end mathskip code */
+                case glue_node:
+                    g = glue_ptr(p);
+                    siz.wd += width(g);
+                    if (g_sign != normal) {
+                        if (g_sign == stretching) {
+                            if (stretch_order(g) == g_order) {
+                                siz.wd += float_round(float_cast(g_mult) * float_cast(stretch(g)));
+                            }
+                        } else if (shrink_order(g) == g_order) {
+                            siz.wd -= float_round(float_cast(g_mult) * float_cast(shrink(g)));
+                        }
+                    }
+                    if (subtype(p) >= a_leaders) {
+                        g = leader_ptr(p);
+                        if (height(g) > siz.ht)
+                            siz.ht = height(g);
+                        if (depth(g) > siz.dp)
+                            siz.dp = depth(g);
+                    }
+                    break;
+                case margin_kern_node:
+                case kern_node:
+                    siz.wd += width(p);
+                    break;
+                case disc_node:
+                    xx = natural_sizes(no_break(p), null, g_mult, g_sign, g_order, hpack_dir);
+                    siz.wd += xx.wd;
+                    if (xx.ht > siz.ht)
+                        siz.ht = xx.ht;
+                    if (xx.dp > siz.dp)
+                        siz.dp = xx.dp;
+                    break;
+                default:
+                    break;
             }
             p = vlink(p);
         }
@@ -1074,10 +1140,10 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
     return siz;
 }
 
-@ In order to provide a decent indication of where an overfull or underfull
-box originated, we use a global variable |pack_begin_line| that is
-set nonzero only when |hpack| is being called by the paragraph builder
-or the alignment finishing routine.
+@ In order to provide a decent indication of where an overfull or underfull box
+originated, we use a global variable |pack_begin_line| that is set nonzero only
+when |hpack| is being called by the paragraph builder or the alignment finishing
+routine.
 
 @ The source file line where the current paragraph or alignment began; a negative
 value denotes alignment:
@@ -1085,12 +1151,12 @@ value denotes alignment:
 @c
 int pack_begin_line;
 
-@ The |vpack| subroutine is actually a special case of a slightly more
-general routine called |vpackage|, which has four parameters. The fourth
-parameter, which is |max_dimen| in the case of |vpack|, specifies the
-maximum depth of the page box that is constructed. The depth is first
-computed by the normal rules; if it exceeds this limit, the reference
-point is simply moved down until the limiting depth is attained.
+@ The |vpack| subroutine is actually a special case of a slightly more general
+routine called |vpackage|, which has four parameters. The fourth parameter, which
+is |max_dimen| in the case of |vpack|, specifies the maximum depth of the page
+box that is constructed. The depth is first computed by the normal rules; if it
+exceeds this limit, the reference point is simply moved down until the limiting
+depth is attained.
 
 @c
 halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
@@ -1125,16 +1191,21 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
     total_shrink[filll] = 0;
 
     while (p != null) {
-        /* Examine node |p| in the vlist, taking account of its effect
-           on the dimensions of the new box; then advance |p| to the next node */
+        /*
+            Examine node |p| in the vlist, taking account of its effect
+            on the dimensions of the new box; then advance |p| to the next
+            node.
+        */
         if (is_char_node(p)) {
             confusion("vpack");
         } else {
             switch (type(p)) {
             case hlist_node:
             case vlist_node:
-                /* Incorporate box dimensions into the dimensions of
-                   the vbox that will contain~it */
+                /*
+                    Incorporate box dimensions into the dimensions of
+                    the vbox that will contain it.
+                */
                 s = shift_amount(p);
                 whd = pack_width_height_depth(box_dir(r), box_dir(p), p, false);
                 if (whd.wd + s > w)
@@ -1142,17 +1213,27 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
                 x += d + whd.ht;
                 d = whd.dp;
                 break;
+            /*
             case rule_node:
             case unset_node:
                 x += d + height(p);
                 d = depth(p);
-                if (type(p) >= rule_node)
+                if (type(p) >= rule_node) // always
                     s = 0;
                 else
                     s = shift_amount(p);
                 if (width(p) + s > w)
                     w = width(p) + s;
                 break;
+            */
+            case rule_node:
+            case unset_node:
+                x += d + height(p);
+                d = depth(p);
+                if (width(p) > w)
+                    w = width(p);
+                break;
+            /* */
             case glue_node:
                 /* Incorporate glue into the vertical totals */
                 x += d;
@@ -1186,23 +1267,28 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
     } else {
         depth(r) = d;
     }
-    /* Determine the value of |height(r)| and the appropriate glue setting;
-       then |return| or |goto common_ending| */
-    /* When we get to the present part of the program, |x| is the natural height
-       of the box being packaged. */
+    /*
+        Determine the value of |height(r)| and the appropriate glue setting;
+        then |return| or |goto common_ending|.
+
+        When we get to the present part of the program, |x| is the natural
+        height of the box being packaged.
+    */
     if (m == additional)
         h = x + h;
     height(r) = h;
-    x = h - x;                  /* now |x| is the excess to be made up */
+    x = h - x;
+    /* now |x| is the excess to be made up */
     if (x == 0) {
         glue_sign(r) = normal;
         glue_order(r) = normal;
         set_glue_ratio_zero(glue_set(r));
         return r;
     } else if (x > 0) {
-        /* Determine vertical glue stretch setting, then |return|
-           or \hbox{|goto common_ending|} */
-        /* Determine the stretch order */
+        /*
+            Determine vertical glue stretch setting, then |return|
+            or \hbox{|goto common_ending|}.
+        */
         if (total_stretch[filll] != 0)
             o = filll;
         else if (total_stretch[fill] != 0)
@@ -1224,8 +1310,10 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
         }
         if (o == normal) {
             if (list_ptr(r) != null) {
-                /* Report an underfull vbox and |goto common_ending|, if this box
-                   is sufficiently bad */
+                /*
+                    Report an underfull vbox and |goto common_ending|, if this box
+                    is sufficiently bad.
+                */
                 last_badness = badness(x, total_stretch[normal]);
                 if (last_badness > int_par(vbadness_code)) {
                     int callback_id = callback_defined(vpack_quality_callback);
@@ -1252,9 +1340,10 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
         return r;
 
     } else {
-        /* Determine vertical glue shrink setting, then |return|
-           or \hbox{|goto common_ending|} */
-        /* Determine the shrink order */
+        /*
+            Determine vertical glue shrink setting, then |return|
+            or \hbox{|goto common_ending|}.
+        */
         if (total_shrink[filll] != 0)
             o = filll;
         else if (total_shrink[fill] != 0)
@@ -1271,14 +1360,19 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
         if (total_shrink[o] != 0) {
             glue_set(r) = unfloat((double) (-x) / total_shrink[o]);
         } else {
+            /* there's nothing to shrink */
             glue_sign(r) = normal;
-            set_glue_ratio_zero(glue_set(r));   /* there's nothing to shrink */
+            set_glue_ratio_zero(glue_set(r));
         }
         if ((total_shrink[o] < -x) && (o == normal) && (list_ptr(r) != null)) {
             int overshoot = -x - total_shrink[normal];
             last_badness = 1000000;
-            set_glue_ratio_one(glue_set(r));    /* use the maximum shrinkage */
-            /* Report an overfull vbox and |goto common_ending|, if this box is sufficiently bad */
+            /* use the maximum shrinkage */
+            set_glue_ratio_one(glue_set(r));
+            /*
+                Report an overfull vbox and |goto common_ending|, if this box
+                is sufficiently bad.
+            */
             if ((overshoot > dimen_par(vfuzz_code)) || (int_par(vbadness_code) < 100)) {
                 int callback_id = callback_defined(vpack_quality_callback);
                 if (callback_id > 0) {
@@ -1294,7 +1388,10 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
             }
         } else if (o == normal) {
             if (list_ptr(r) != null) {
-                /* Report a tight vbox and |goto common_ending|, if this box is sufficiently bad */
+                /*
+                    Report a tight vbox and |goto common_ending|, if this box is
+                    sufficiently bad.
+                */
                 last_badness = badness(-x, total_shrink[normal]);
                 if (last_badness > int_par(vbadness_code)) {
                     int callback_id = callback_defined(vpack_quality_callback);
@@ -1318,7 +1415,8 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
     if (output_active) {
         tprint(") has occurred while \\output is active");
     } else {
-        if (pack_begin_line != 0) {     /* it's actually negative */
+        if (pack_begin_line != 0) {
+            /* it's actually negative */
             tprint(") in alignment at lines ");
             print_int(abs(pack_begin_line));
             tprint("--");
@@ -1336,10 +1434,12 @@ halfword vpackage(halfword p, scaled h, int m, scaled l, int pack_direction)
 }
 
 @ @c
-halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, int grp, int pack_direction)
+halfword filtered_vpackage(halfword p, scaled h, int m, scaled l, int grp, int pack_direction, int just_pack)
 {
     halfword q = p;
-    q = lua_vpack_filter(q, h, m, l, grp, pack_direction);
+    if (!just_pack)
+ /* if (q != null) */
+        q = lua_vpack_filter(q, h, m, l, grp, pack_direction);
     return vpackage(q, h, m, l, pack_direction);
 }
 
@@ -1358,42 +1458,37 @@ void finish_vcenter(void)
 @ @c
 void package(int c)
 {
-    scaled h;                   /* height of box */
-    halfword p;                 /* first node in a box */
-    scaled d;                   /* max depth */
-    int grp;
-    halfword saved0, saved2, saved3;
-    grp = cur_group;
-    d = box_max_depth;
+    halfword saved0, saved2, saved3, saved4;
+    int grp = cur_group;
+    scaled d = box_max_depth; /* max depth */
     unsave();
-    save_ptr -= 4;
+    save_ptr -= 5;
     saved0 = saved_value(0);
     saved2 = saved_value(2);
     saved3 = saved_value(3);
+    saved4 = saved_value(4);
     if (cur_list.mode_field == -hmode) {
-        cur_box = filtered_hpack(cur_list.head_field,
-                                 cur_list.tail_field, saved_value(1),
-                                 saved_level(1), grp, saved_level(2));
+        cur_box = filtered_hpack(cur_list.head_field, cur_list.tail_field,
+            saved_value(1), saved_level(1), grp, saved_level(2), saved4);
         subtype(cur_box) = hbox_list;
     } else {
         cur_box = filtered_vpackage(vlink(cur_list.head_field),
-                                    saved_value(1), saved_level(1), d, grp,
-                                    saved_level(2));
+            saved_value(1), saved_level(1), d, grp, saved_level(2), saved4);
         if (c == vtop_code) {
-            /* Readjust the height and depth of |cur_box|,  for \.{\\vtop} */
-            /* The height of a `\.{\\vtop}' box is inherited from the first item on its list,
-               if that item is an |hlist_node|, |vlist_node|, or |rule_node|; otherwise
-               the \.{\\vtop} height is zero.
-             */
-
-            h = 0;
-            p = list_ptr(cur_box);
-            if (p != null)
-                if (type(p) <= rule_node)
-                    h = height(p);
+            /*
+                Read just the height and depth of |cur_box|, for \.{\\vtop}. The
+                height of a `\.{\\vtop}' box is inherited from the first item on
+                its list, if that item is an |hlist_node|, |vlist_node|, or
+                |rule_node|; otherwise the \.{\\vtop} height is zero.
+            */
+            scaled h = 0;
+            halfword p = list_ptr(cur_box);
+            if ((p != null) && (type(p) <= rule_node)) {
+                /* hlist, vlist, rule */
+                h = height(p);
+            }
             depth(cur_box) = depth(cur_box) - h + height(cur_box);
             height(cur_box) = h;
-
         }
     }
     if (saved2 != null) {
@@ -1407,8 +1502,8 @@ void package(int c)
     box_end(saved0);
 }
 
-@ When a box is being appended to the current vertical list, the
-baselineskip calculation is handled by the |append_to_vlist| routine.
+@ When a box is being appended to the current vertical list, the baselineskip
+calculation is handled by the |append_to_vlist| routine.
 
 @c
 void append_to_vlist(halfword b, int location)
@@ -1439,7 +1534,8 @@ void append_to_vlist(halfword b, int location)
                 p = new_param_glue(line_skip_code);
             } else {
                 p = new_skip_param(baseline_skip_code);
-                width(temp_ptr) = d;        /* |temp_ptr=glue_ptr(p)| */
+                /* |temp_ptr=glue_ptr(p)| */
+                width(temp_ptr) = d;
             }
             couple_nodes(cur_list.tail_field, p);
             cur_list.tail_field = p;
@@ -1454,9 +1550,9 @@ void append_to_vlist(halfword b, int location)
     }
 }
 
-@ When |saving_vdiscards| is positive then the glue, kern, and penalty
-nodes removed by the page builder or by \.{\\vsplit} from the top of a
-vertical list are saved in special lists instead of being discarded.
+@ When |saving_vdiscards| is positive then the glue, kern, and penalty nodes
+removed by the page builder or by \.{\\vsplit} from the top of a vertical list
+are saved in special lists instead of being discarded.
 
 @c
 #define tail_page_disc disc_ptr[copy_code]  /* last item removed by page builder */
@@ -1465,18 +1561,18 @@ vertical list are saved in special lists instead of being discarded.
 
 halfword disc_ptr[(vsplit_code + 1)];       /* list pointers */
 
-@ The |vsplit| procedure, which implements \TeX's \.{\\vsplit} operation,
-is considerably simpler than |line_break| because it doesn't have to
-worry about hyphenation, and because its mission is to discover a single
-break instead of an optimum sequence of breakpoints.  But before we get
-into the details of |vsplit|, we need to consider a few more basic things.
+@ The |vsplit| procedure, which implements \TeX's \.{\\vsplit} operation, is
+considerably simpler than |line_break| because it doesn't have to worry about
+hyphenation, and because its mission is to discover a single break instead of an
+optimum sequence of breakpoints. But before we get into the details of |vsplit|,
+we need to consider a few more basic things.
 
-A subroutine called |prune_page_top| takes a pointer to a vlist and
-returns a pointer to a modified vlist in which all glue, kern, and penalty nodes
-have been deleted before the first box or rule node. However, the first
-box or rule is actually preceded by a newly created glue node designed so that
-the topmost baseline will be at distance |split_top_skip| from the top,
-whenever this is possible without backspacing.
+A subroutine called |prune_page_top| takes a pointer to a vlist and returns a
+pointer to a modified vlist in which all glue, kern, and penalty nodes have been
+deleted before the first box or rule node. However, the first box or rule is
+actually preceded by a newly created glue node designed so that the topmost
+baseline will be at distance |split_top_skip| from the top, whenever this is
+possible without backspacing.
 
 When the second argument |s| is |false| the deleted nodes are destroyed,
 otherwise they are collected in a list starting at |split_disc|.
@@ -1496,7 +1592,8 @@ halfword prune_page_top(halfword p, boolean s)
             /* Insert glue for |split_top_skip| and set~|p:=null| */
             q = new_skip_param(split_top_skip_code);
             vlink(prev_p) = q;
-            vlink(q) = p;       /* now |temp_ptr=glue_ptr(q)| */
+            vlink(q) = p;
+            /* now |temp_ptr=glue_ptr(q)| */
             if (width(temp_ptr) > height(p))
                 width(temp_ptr) = width(temp_ptr) - height(p);
             else
@@ -1535,32 +1632,33 @@ halfword prune_page_top(halfword p, boolean s)
     return vlink(temp_head);
 }
 
-@ The next subroutine finds the best place to break a given vertical list
-so as to obtain a box of height~|h|, with maximum depth~|d|.
-A pointer to the beginning of the vertical list is given,
-and a pointer to the optimum breakpoint is returned. The list is effectively
-followed by a forced break, i.e., a penalty node with the |eject_penalty|;
-if the best break occurs at this artificial node, the value |null| is returned.
+@ The next subroutine finds the best place to break a given vertical list so as
+to obtain a box of height~|h|, with maximum depth~|d|. A pointer to the beginning
+of the vertical list is given, and a pointer to the optimum breakpoint is
+returned. The list is effectively followed by a forced break, i.e., a penalty
+node with the |eject_penalty|; if the best break occurs at this artificial node,
+the value |null| is returned.
 
 @c
-scaled active_height[10];       /* distance from first active node to~|cur_p| */
+scaled active_height[10]; /* distance from first active node to~|cur_p| */
 
-@ An array of six |scaled| distances is used to keep track of the height
-from the beginning of the list to the current place, just as in |line_break|.
-In fact, we use one of the same arrays, only changing its name to reflect
-its new significance.
+@ An array of six |scaled| distances is used to keep track of the height from the
+beginning of the list to the current place, just as in |line_break|. In fact, we
+use one of the same arrays, only changing its name to reflect its new
+significance.
 
 @c
 #define do_all_six(A) A(1);A(2);A(3);A(4);A(5);A(6);A(7)
 #define set_height_zero(A) active_height[A]=0   /* initialize the height to zero */
 
+@ A global variable |best_height_plus_depth| will be set to the natural size of
+the box that corresponds to the optimum breakpoint found by |vert_break|. (This
+value is used by the insertion-splitting algorithm of the page builder.)
 
-@ A global variable |best_height_plus_depth| will be set to the natural size
-of the box that corresponds to the optimum breakpoint found by |vert_break|.
-(This value is used by the insertion-splitting algorithm of the page builder.)
+@ height of the best box, without stretching or shrinking
 
 @c
-scaled best_height_plus_depth;  /* height of the best box, without stretching or shrinking */
+scaled best_height_plus_depth;
 
 /* finds optimum page break */
 
@@ -1708,20 +1806,20 @@ halfword vert_break(halfword p, scaled h, scaled d)
     return best_place;
 }
 
-@ Now we are ready to consider |vsplit| itself. Most of
-its work is accomplished by the two subroutines that we have just considered.
+@ Now we are ready to consider |vsplit| itself. Most of its work is accomplished
+by the two subroutines that we have just considered.
 
-Given the number of a vlist box |n|, and given a desired page height |h|,
-the |vsplit| function finds the best initial segment of the vlist and
-returns a box for a page of height~|h|. The remainder of the vlist, if
-any, replaces the original box, after removing glue and penalties and
-adjusting for |split_top_skip|. Mark nodes in the split-off box are used to
-set the values of |split_first_mark| and |split_bot_mark|; we use the
-fact that |split_first_mark(x)=null| if and only if |split_bot_mark(x)=null|.
+Given the number of a vlist box |n|, and given a desired page height |h|, the
+|vsplit| function finds the best initial segment of the vlist and returns a box
+for a page of height~|h|. The remainder of the vlist, if any, replaces the
+original box, after removing glue and penalties and adjusting for
+|split_top_skip|. Mark nodes in the split-off box are used to set the values of
+|split_first_mark| and |split_bot_mark|; we use the fact that
+|split_first_mark(x)=null| if and only if |split_bot_mark(x)=null|.
 
-The original box becomes ``void'' if and only if it has been entirely
-extracted.  The extracted box is ``void'' if and only if the original
-box was void (or if it was, erroneously, an hlist box).
+The original box becomes ``void'' if and only if it has been entirely extracted.
+The extracted box is ``void'' if and only if the original box was void (or if it
+was, erroneously, an hlist box).
 
 @c
 /* extracts a page of height |h| from box |n| */
@@ -1752,13 +1850,13 @@ halfword vsplit(halfword n, scaled h)
         error();
         return null;
     }
-
     q = vert_break(list_ptr(v), h, dimen_par(split_max_depth_code));
-    /* Look at all the marks in nodes before the break, and set the final
-       link to |null| at the break */
-    /* It's possible that the box begins with a penalty node that is the
-       ``best'' break, so we must be careful to handle this special case correctly. */
-
+    /*
+        Look at all the marks in nodes before the break, and set the final
+        link to |null| at the break. It's possible that the box begins with
+        a penalty node that is the ``best'' break, so we must be careful to
+        handle this special case correctly.
+    */
     p = list_ptr(v);
     if (p == q) {
         list_ptr(v) = null;
@@ -1767,11 +1865,9 @@ halfword vsplit(halfword n, scaled h)
             if (type(p) == mark_node) {
                 if (split_first_mark(mark_class(p)) == null) {
                     set_split_first_mark(mark_class(p), mark_ptr(p));
-                    set_split_bot_mark(mark_class(p),
-                                       split_first_mark(mark_class(p)));
+                    set_split_bot_mark(mark_class(p), split_first_mark(mark_class(p)));
                     set_token_ref_count(split_first_mark(mark_class(p)),
-                                        token_ref_count(split_first_mark
-                                                        (mark_class(p))) + 2);
+                        token_ref_count(split_first_mark(mark_class(p))) + 2);
                 } else {
                     delete_token_ref(split_bot_mark(mark_class(p)));
                     set_split_bot_mark(mark_class(p), mark_ptr(p));
@@ -1785,136 +1881,161 @@ halfword vsplit(halfword n, scaled h)
             p = vlink(p);
         }
     }
-
     q = prune_page_top(q, int_par(saving_vdiscards_code) > 0);
     p = list_ptr(v);
     list_ptr(v) = null;
     flush_node(v);
-    if (q == null)
-        box(n) = null;          /* the |eq_level| of the box stays the same */
-    else
+    if (q == null) {
+        /* the |eq_level| of the box stays the same */
+        box(n) = null;
+    } else {
         box(n) =
-            filtered_vpackage(q, 0, additional, dimen_par(max_depth_code),
-                              split_keep_group, vdir);
-    return filtered_vpackage(p, h, exactly,
-                             dimen_par(split_max_depth_code), split_off_group,
-                             vdir);
+           filtered_vpackage(q, 0, additional, dimen_par(max_depth_code),       split_keep_group, vdir, 0);
+    }
+    return filtered_vpackage(p, h, exactly,    dimen_par(split_max_depth_code), split_off_group,  vdir, 0);
 }
 
-@ Now that we can see what eventually happens to boxes, we can consider
-the first steps in their creation. The |begin_box| routine is called when
-|box_context| is a context specification, |cur_chr| specifies the type of
-box desired, and |cur_cmd=make_box|.
+@ Now that we can see what eventually happens to boxes, we can consider the first
+steps in their creation. The |begin_box| routine is called when |box_context| is
+a context specification, |cur_chr| specifies the type of box desired, and
+|cur_cmd=make_box|.
 
 @c
 void begin_box(int box_context)
 {
-    halfword q;                 /* run through the current list */
-    halfword k;                 /* 0 or |vmode| or |hmode| */
-    int n;                      /* a box number */
+    halfword q; /* run through the current list */
+    halfword k; /* 0 or |vmode| or |hmode| */
+    int n;      /* a box number */
     int spec_direction = -1;
+    int just_pack = 0;
     switch (cur_chr) {
-    case box_code:
-        scan_register_num();
-        cur_box = box(cur_val);
-        box(cur_val) = null;    /* the box becomes void, at the same level */
-        break;
-    case copy_code:
-        scan_register_num();
-        cur_box = copy_node_list(box(cur_val));
-        break;
-    case last_box_code:
-        /* If the current list ends with a box node, delete it from
-           the list and make |cur_box| point to it; otherwise set |cur_box:=null| */
-        cur_box = null;
-        if (abs(cur_list.mode_field) == mmode) {
-            you_cant();
-            help1("Sorry; this \\lastbox will be void.");
-            error();
-        } else if ((cur_list.mode_field == vmode)
-                   && (cur_list.head_field == cur_list.tail_field)) {
-            you_cant();
-            help2("Sorry...I usually can't take things from the current page.",
-                  "This \\lastbox will therefore be void.");
-            error();
-        } else {
-            if (cur_list.head_field != cur_list.tail_field) {   /* todo: new code,  needs testing */
-                if ((type(cur_list.tail_field) == hlist_node)
-                    || (type(cur_list.tail_field) == vlist_node)) {
-                    /* Remove the last box ... */
-                    q = alink(cur_list.tail_field);
-                    if (q == null || vlink(q) != cur_list.tail_field) {
-                        q = cur_list.head_field;
-                        while (vlink(q) != cur_list.tail_field)
-                            q = vlink(q);
+        case box_code:
+            scan_register_num();
+            cur_box = box(cur_val);
+            /* the box becomes void, at the same level */
+            box(cur_val) = null;
+            break;
+        case copy_code:
+            scan_register_num();
+            cur_box = copy_node_list(box(cur_val));
+            break;
+        case last_box_code:
+            /*
+                If the current list ends with a box node, delete it from
+                the list and make |cur_box| point to it; otherwise set
+                |cur_box:=null|.
+            */
+            cur_box = null;
+            if (abs(cur_list.mode_field) == mmode) {
+                you_cant();
+                help1("Sorry; this \\lastbox will be void.");
+                error();
+            } else if ((cur_list.mode_field == vmode) && (cur_list.head_field == cur_list.tail_field)) {
+                you_cant();
+                help2("Sorry...I usually can't take things from the current page.",
+                      "This \\lastbox will therefore be void.");
+                error();
+            } else {
+                if (cur_list.head_field != cur_list.tail_field) {
+                    /* todo: new code,  needs testing */
+
+                    /* maybe: ((type(cur_list.tail_field) == hlist_node) < rule_node) */
+
+                    if ((type(cur_list.tail_field) == hlist_node) || (type(cur_list.tail_field) == vlist_node)) {
+                        /* Remove the last box ... */
+                        q = alink(cur_list.tail_field);
+                        if (q == null || vlink(q) != cur_list.tail_field) {
+                            q = cur_list.head_field;
+                            while (vlink(q) != cur_list.tail_field)
+                                q = vlink(q);
+                        }
+                        uncouple_node(cur_list.tail_field);
+                        cur_box = cur_list.tail_field;
+                        shift_amount(cur_box) = 0;
+                        cur_list.tail_field = q;
+                        vlink(cur_list.tail_field) = null;
                     }
-                    uncouple_node(cur_list.tail_field);
-                    cur_box = cur_list.tail_field;
-                    shift_amount(cur_box) = 0;
-                    cur_list.tail_field = q;
-                    vlink(cur_list.tail_field) = null;
                 }
             }
-        }
-        break;
-    case vsplit_code:
-        /* Split off part of a vertical box, make |cur_box| point to it */
-        /* Here we deal with things like `\.{\\vsplit 13 to 100pt}'. */
-        scan_register_num();
-        n = cur_val;
-        if (!scan_keyword("to")) {
-            print_err("Missing `to' inserted");
-            help2("I'm working on `\\vsplit<box number> to <dimen>';",
-                  "will look for the <dimen> next.");
-            error();
-        }
-        scan_normal_dimen();
-        cur_box = vsplit(n, cur_val);
-        break;
-    default:
-        /* Initiate the construction of an hbox or vbox, then |return| */
-        /* Here is where we enter restricted horizontal mode or internal vertical
-           mode, in order to make a box. */
-        k = cur_chr - vtop_code;
-        set_saved_record(0, saved_boxcontext, 0, box_context);
-        switch (abs(cur_list.mode_field)) {
-        case vmode:
-            spec_direction = body_direction;
             break;
-        case hmode:
-            spec_direction = text_direction;
-            break;
-        case mmode:
-            spec_direction = math_direction;
-            break;
-        }
-        if (k == hmode) {
-            if ((box_context < box_flag) && (abs(cur_list.mode_field) == vmode))
-                scan_full_spec(adjusted_hbox_group, spec_direction);
-            else
-                scan_full_spec(hbox_group, spec_direction);
-        } else {
-            if (k == vmode) {
-                scan_full_spec(vbox_group, spec_direction);
-            } else {
-                scan_full_spec(vtop_group, spec_direction);
-                k = vmode;
+        case vsplit_code:
+            /*
+                Split off part of a vertical box, make |cur_box| point to it. Here we
+                deal with things like `\.{\\vsplit 13 to 100pt}'.
+            */
+            scan_register_num();
+            n = cur_val;
+            if (!scan_keyword("to")) {
+                print_err("Missing `to' inserted");
+                help2("I'm working on `\\vsplit<box number> to <dimen>';",
+                      "will look for the <dimen> next.");
+                error();
             }
-            normal_paragraph();
-        }
-        push_nest();
-        cur_list.mode_field = -k;
-        if (k == vmode) {
-            prev_depth = ignore_depth;
-            if (every_vbox != null)
-                begin_token_list(every_vbox, every_vbox_text);
-        } else {
-            space_factor = 1000;
-            if (every_hbox != null)
-                begin_token_list(every_hbox, every_hbox_text);
-        }
-        return;
-        break;
+            scan_normal_dimen();
+            cur_box = vsplit(n, cur_val);
+            break;
+        default:
+            /*
+                Initiate the construction of an hbox or vbox, then |return|. Here is
+                where we enter restricted horizontal mode or internal vertical mode,
+                in order to make a box.
+            */
+            switch (cur_chr) {
+                case tpack_code:
+                    cur_chr = vtop_code;
+                    just_pack = 1;
+                    break;
+                case vpack_code:
+                    cur_chr = vtop_code + vmode;
+                    just_pack = 1;
+                    break;
+                case hpack_code:
+                    cur_chr = vtop_code + hmode;
+                    just_pack = 1;
+                    break;
+            }
+            /* */
+            k = cur_chr - vtop_code;
+            set_saved_record(0, saved_boxcontext, 0, box_context);
+            switch (abs(cur_list.mode_field)) {
+                case vmode:
+                    spec_direction = body_direction;
+                    break;
+                case hmode:
+                    spec_direction = text_direction;
+                    break;
+                case mmode:
+                    spec_direction = math_direction;
+                    break;
+            }
+            if (k == hmode) {
+                if ((box_context < box_flag) && (abs(cur_list.mode_field) == vmode))
+                    scan_full_spec(adjusted_hbox_group, spec_direction,just_pack);
+                else
+                    scan_full_spec(hbox_group, spec_direction,just_pack);
+            } else {
+                if (k == vmode) {
+                    scan_full_spec(vbox_group, spec_direction,just_pack);
+                } else {
+                    scan_full_spec(vtop_group, spec_direction,just_pack);
+                    k = vmode;
+                }
+                normal_paragraph();
+            }
+            push_nest();
+            cur_list.mode_field = -k;
+            if (k == vmode) {
+                prev_depth = ignore_depth;
+                if (every_vbox != null)
+                    begin_token_list(every_vbox, every_vbox_text);
+            } else {
+                space_factor = 1000;
+                if (every_hbox != null)
+                    begin_token_list(every_hbox, every_hbox_text);
+            }
+            return;
+            break;
     }
-    box_end(box_context);       /* in simple cases, we use the box immediately */
+    /* in simple cases, we use the box immediately */
+    box_end(box_context);
 }

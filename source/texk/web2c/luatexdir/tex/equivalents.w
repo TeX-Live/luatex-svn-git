@@ -153,7 +153,8 @@ an explicit |save_type|, and they are:
 |saved_boxcontext| the box context value,
 |saved_boxspec| the box \.{to} or \.{spread} specification,
 |saved_boxdir| the box \.{dir} specification,
-|saved_boxattr| the box \.{attr} specification.
+|saved_boxattr| the box \.{attr} specification,
+|saved_boxpack| the box \.{pack} specification.
 
 @ The global variable |cur_group| keeps track of what sort of group we are
 currently in. Another global variable, |cur_boundary|, points to the
@@ -243,6 +244,7 @@ static const char *save_stack_type(int v)
         case saved_boxspec:     s = "saved_boxspec";     break;
         case saved_boxdir:      s = "saved_boxdir";      break;
         case saved_boxattr:     s = "saved_boxattr";     break;
+        case saved_boxpack:     s = "saved_boxpack";     break;
         case saved_eqtb:        s = "saved_eqtb";        break;
         default: break;
     }
@@ -342,6 +344,7 @@ void print_save_stack(void)
                 print_dir(dir_dir(save_value(i)));
                 break;
             case saved_boxattr:
+            case saved_boxpack:
                 tprint(", ");
                 print_int(save_value(i));
                 break;

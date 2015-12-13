@@ -415,6 +415,9 @@ void initialize_commands(void)
     primitive_tex("copy", make_box_cmd, copy_code, 0);
     primitive_tex("lastbox", make_box_cmd, last_box_code, 0);
     primitive_tex("vsplit", make_box_cmd, vsplit_code, 0);
+    primitive_tex("tpack", make_box_cmd, tpack_code, 0);
+    primitive_tex("vpack", make_box_cmd, vpack_code, 0);
+    primitive_tex("hpack", make_box_cmd, hpack_code, 0);
     primitive_tex("vtop", make_box_cmd, vtop_code, 0);
     primitive_tex("vbox", make_box_cmd, vtop_code + vmode, 0);
     primitive_tex("hbox", make_box_cmd, vtop_code + hmode, 0);

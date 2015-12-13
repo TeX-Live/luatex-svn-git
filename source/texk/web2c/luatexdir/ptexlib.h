@@ -316,7 +316,6 @@ extern boolean get_callback(lua_State * L, int i);
 /* test whether a char in font is marked */
 #  define pdf_char_marked char_used
 
-#  define pdfassert assert
 #  define voidcast(a) (void *)(a)
 #  define fixmemcast(a) (smemory_word *)(a)
 
