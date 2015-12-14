@@ -200,7 +200,6 @@ PDF init_pdf_struct(PDF pdf)
     pdf->compress_level = 0;
     pdf->draftmode = 0;
     pdf->inclusion_copy_font = 1;
-    pdf->replace_font = 0;
     pdf->pk_resolution = 0;
     pdf->pk_scale_factor = 0;
 
@@ -921,7 +920,6 @@ static void init_pdf_outputparameters(PDF pdf)
     pdf->image_apply_gamma = fix_int(pdf_image_apply_gamma, 0, 1);
     pdf->objcompresslevel = fix_int(pdf_objcompresslevel, 0, MAX_OBJ_COMPRESS_LEVEL);
     pdf->inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
-    pdf->replace_font = fix_int(pdf_replace_font, 0, 1);
     pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
     if ((pdf->minor_version >= 5) && (pdf->objcompresslevel > 0)) {
         pdf->os_enable = true;

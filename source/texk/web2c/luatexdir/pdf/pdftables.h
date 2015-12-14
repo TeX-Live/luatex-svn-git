@@ -130,7 +130,6 @@ typedef enum {
     c_pdf_objcompresslevel,
     c_pdf_inclusion_copy_font,
     c_pdf_gen_tounicode,
-    c_pdf_replace_font,
 } pdf_backend_counters ;
 
 typedef enum {
@@ -171,7 +170,6 @@ extern int pdf_retval;
 #  define pdf_objcompresslevel        get_tex_extension_count_register(c_pdf_objcompresslevel)
 #  define pdf_inclusion_copy_font     get_tex_extension_count_register(c_pdf_inclusion_copy_font)
 #  define pdf_gen_tounicode           get_tex_extension_count_register(c_pdf_gen_tounicode)
-#  define pdf_replace_font            get_tex_extension_count_register(c_pdf_replace_font)
 
 #  define pdf_h_origin                get_tex_extension_dimen_register(d_pdf_h_origin)
 #  define pdf_v_origin                get_tex_extension_dimen_register(d_pdf_v_origin)
