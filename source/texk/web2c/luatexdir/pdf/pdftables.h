@@ -188,4 +188,6 @@ extern int pdf_retval;
 #  define set_pdf_compress_level(i)   set_tex_extension_count_register(c_pdf_compress_level,i)
 #  define set_pdf_objcompresslevel(i) set_tex_extension_count_register(c_pdf_objcompresslevel,i)
 
+#  define set_pdf_decimal_digits(i)   set_tex_extension_count_register(c_pdf_decimal_digits,i)
+
 #endif

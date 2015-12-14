@@ -826,6 +826,27 @@ static int l_set_objcompresslevel(lua_State * L)
     return 0 ;
 }
 
+/* accuracy */
+
+static int l_get_decimal_digits(lua_State * L)
+{
+    lua_pushinteger(L, (pdf_decimal_digits));
+    return 1 ;
+}
+
+
+static int l_set_decimal_digits(lua_State * L)
+{
+    int c ;
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        c = (int) lua_tointeger(L, 1);
+        if (c<0)
+            c = 0 ;
+        set_pdf_decimal_digits(c);
+    }
+    return 0 ;
+}
+
 /* pdf stuff */
 
 static int getpdffontname(lua_State * L)
@@ -1014,6 +1035,8 @@ static const struct luaL_Reg pdflib[] = {
     { "getobjcompresslevel", l_get_objcompresslevel },
     { "setcompresslevel", l_set_compresslevel },
     { "setobjcompresslevel", l_set_objcompresslevel },
+    { "getdecimaldigits", l_get_decimal_digits },
+    { "setdecimaldigits", l_set_decimal_digits },
     /* moved from tex table */
     { "fontname", getpdffontname},
     { "fontobjnum", getpdffontobjnum},
