@@ -254,7 +254,6 @@ dist_libluatex_sources += \
 	luatexdir/lua/lstatslib.c \
 	luatexdir/lua/ltexiolib.c \
 	luatexdir/lua/ltexlib.c \
-	luatexdir/lua/ltokenlib.c \
 	luatexdir/lua/lnewtokenlib.c \
 	luatexdir/lua/luatex-api.h
 
@@ -286,8 +285,6 @@ pdflistout.c: ctangle$(EXEEXT) luatexdir/pdf/pdflistout.w
 	$(luatex_pdf_ctangle) pdflistout.w
 pdfliteral.c: ctangle$(EXEEXT) luatexdir/pdf/pdfliteral.w
 	$(luatex_pdf_ctangle) pdfliteral.w
-pdfluaapi.c: ctangle$(EXEEXT) luatexdir/pdf/pdfluaapi.w
-	$(luatex_pdf_ctangle) pdfluaapi.w
 pdfobj.c: ctangle$(EXEEXT) luatexdir/pdf/pdfobj.w
 	$(luatex_pdf_ctangle) pdfobj.w
 pdfoutline.c: ctangle$(EXEEXT) luatexdir/pdf/pdfoutline.w
@@ -313,7 +310,7 @@ libluatex_web += luatexdir/pdf/pdfpagetree.w luatexdir/pdf/pdfaction.w luatexdir
 libluatex_web += luatexdir/pdf/pdfcolorstack.w luatexdir/pdf/pdfdest.w
 libluatex_web += luatexdir/pdf/pdffont.w luatexdir/pdf/pdfgen.w luatexdir/pdf/pdfglyph.w
 libluatex_web += luatexdir/pdf/pdfimage.w luatexdir/pdf/pdflink.w luatexdir/pdf/pdflistout.w
-libluatex_web += luatexdir/pdf/pdfliteral.w luatexdir/pdf/pdfluaapi.w luatexdir/pdf/pdfobj.w
+libluatex_web += luatexdir/pdf/pdfliteral.w luatexdir/pdf/pdfobj.w
 libluatex_web += luatexdir/pdf/pdfoutline.w luatexdir/pdf/pdfpage.w luatexdir/pdf/pdfrule.w
 libluatex_web += luatexdir/pdf/pdfsaverestore.w luatexdir/pdf/pdfsetmatrix.w
 libluatex_web += luatexdir/pdf/pdfshipout.w luatexdir/pdf/pdftables.w
@@ -321,7 +318,7 @@ libluatex_web += luatexdir/pdf/pdfthread.w luatexdir/pdf/pdfxform.w
 
 nodist_libluatex_sources += pdfpagetree.c pdfaction.c pdfannot.c pdfcolorstack.c pdfdest.c pdffont.c
 nodist_libluatex_sources += pdfgen.c pdfglyph.c pdfimage.c pdflink.c pdflistout.c pdfliteral.c
-nodist_libluatex_sources += pdfluaapi.c pdfobj.c pdfoutline.c pdfpage.c pdfrule.c pdfsaverestore.c
+nodist_libluatex_sources += pdfobj.c pdfoutline.c pdfpage.c pdfrule.c pdfsaverestore.c
 nodist_libluatex_sources += pdfsetmatrix.c pdfshipout.c pdftables.c pdfthread.c pdfxform.c
 
 dist_libluatex_sources += \
@@ -337,7 +334,6 @@ dist_libluatex_sources += \
 	luatexdir/pdf/pdflink.h \
 	luatexdir/pdf/pdflistout.h \
 	luatexdir/pdf/pdfliteral.h \
-	luatexdir/pdf/pdfluaapi.h \
 	luatexdir/pdf/pdfobj.h \
 	luatexdir/pdf/pdfoutline.h \
 	luatexdir/pdf/pdfpage.h \
