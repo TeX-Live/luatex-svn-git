@@ -244,6 +244,8 @@ extern char **environ;
 }
 #endif
 
+extern int luatwrite(lua_State * L);
+
 /*
     Same as in lnodelib.c, but with prefix G_ for now.
     These macros create and access pointers (indices) to keys which is faster. The

@@ -2550,6 +2550,18 @@ void conv_toks(void)
                 print(cur_chr);
             pop_selector;
             break;
+        case cs_string_code:
+            save_scanner_status = scanner_status;
+            scanner_status = normal;
+            get_token();
+            scanner_status = save_scanner_status;
+            push_selector;
+            if (cur_cs != 0)
+                sprint_cs_name(cur_cs);
+            else
+                print(cur_chr);
+            pop_selector;
+            break;
         case roman_numeral_code:
             scan_int();
             push_selector;
@@ -2895,6 +2907,7 @@ str_number the_convert_string(halfword c, int i)
             print_math_style();
             break;
      /* case string_code: */
+     /* case cs_string_code: */
         case roman_numeral_code:
             print_roman_int(i);
             break;

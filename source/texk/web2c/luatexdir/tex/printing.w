@@ -753,6 +753,18 @@ void sprint_cs(pointer p)
     }
 }
 
+void sprint_cs_name(pointer p)
+{
+    str_number t;
+    if (p != null_cs) {
+        t = cs_text(p);
+        if (is_active_cs(t))
+            print(active_cs_value(t));
+        else
+            print(t);
+    }
+}
+
 @ This procedure is never called when |interaction<scroll_mode|.
 
 @c

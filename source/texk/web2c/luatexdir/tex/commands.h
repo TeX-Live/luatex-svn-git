@@ -240,6 +240,7 @@ typedef enum {
     expanded_code,              /* command code for \.{\\expanded} */
     math_style_code,            /* command code for \.{\\mathstyle} */
     string_code,                /* command code for \.{\\string} */
+    cs_string_code,             /* command code for \.{\\csstring} */
     roman_numeral_code,         /* command code for \.{\\romannumeral} */
     meaning_code,               /* command code for \.{\\meaning} */
     uchar_code,                 /* command code for \.{\\Uchar} */

@@ -43,6 +43,7 @@ typedef struct {
     void *next;
     boolean partial;
     int cattable;
+ /* halfword tok; */
 } rope;
 
 typedef struct {
@@ -78,6 +79,7 @@ static void luac_store(lua_State * L, int i, int partial, int cattable)
         rn->partial = partial;
         rn->cattable = cattable;
         rn->next = NULL;
+     /* rn->tok = 0; */
         if (write_spindle.head == NULL) {
             assert(write_spindle.tail == NULL);
             write_spindle.head = rn;
@@ -136,6 +138,54 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     }
     return 0;
 }
+
+/*
+
+// some first experiments .. somewhat tricky at the other end
+
+int luatwrite(lua_State * L)
+{
+    int top = lua_gettop(L);
+    if (top>0) {
+        rope *rn = xmalloc(sizeof(rope)); // overkill
+        int i = 1 ;
+        luacstrings++; // should be luactokens
+        rn->text = NULL;
+        rn->tsize = 0;
+        rn->partial = 0;
+        rn->cattable = DEFAULT_CAT_TABLE;
+        rn->next = NULL;
+        rn->tok = 0;
+        if (write_spindle.head == NULL) {
+            write_spindle.head = rn;
+        } else {
+            write_spindle.tail->next = rn;
+        }
+        write_spindle.tail = rn;
+        write_spindle.complete = 0;
+        while (1) {
+            rn->tok = lua_tointeger(L,i);
+            if (i<top) {
+                rope *r = xmalloc(sizeof(rope)); // overkill
+                r->text = NULL;
+                r->tsize = 0;
+                r->partial = 0;
+                r->cattable = DEFAULT_CAT_TABLE;
+                r->next = NULL;
+                r->tok = 0;
+                rn->next = r;
+                rn = r;
+                write_spindle.tail = rn;
+                i++;
+            } else {
+                break;
+            }
+        }
+    }
+    return 0;
+}
+
+*/
 
 static int luacwrite(lua_State * L)
 {
@@ -208,6 +258,7 @@ int luacstring_final_line(void)
 int luacstring_input(void)
 {
     rope *t = read_spindle.head;
+    int ret = 1 ;
     if (!read_spindle.complete) {
         read_spindle.complete = 1;
         read_spindle.tail = NULL;
@@ -232,13 +283,17 @@ int luacstring_input(void)
         }
         free(t->text);
         t->text = NULL;
+    /*
+    } else if (t->tok > 0) {
+        ret = - t->tok;
+    */
     }
     if (read_spindle.tail != NULL) {    /* not a one-liner */
         free(read_spindle.tail);
     }
     read_spindle.tail = t;
     read_spindle.head = t->next;
-    return 1;
+    return ret;
 }
 
 /* open for reading, and make a new one for writing */
@@ -1429,6 +1484,7 @@ static int do_convert(lua_State * L, int cur_code)
         case left_margin_kern_code:        /* arg box */
         case right_margin_kern_code:       /* arg box */
         case string_code:                  /* arg token */
+        case cs_string_code:               /* arg token */
         case meaning_code:                 /* arg token */
             break;
 

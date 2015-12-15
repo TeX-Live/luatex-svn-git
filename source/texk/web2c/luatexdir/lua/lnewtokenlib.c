@@ -471,104 +471,187 @@ static int lua_tokenlib_free(lua_State * L)
     return 1;
 }
 
-static int lua_tokenlib_getfield(lua_State * L)
+/* fast accessors */
+
+inline static int lua_tokenlib_get_command(lua_State * L)
 {
-    lua_token *n;
-    const char *s;
-    halfword t, e ;
-    n = check_istoken(L, 1);
-    s = lua_tostring(L, 2);
-    t = token_info(n->token);
-    if (lua_key_eq(s, command)) {
-        if (t >= cs_token_flag) {
-            lua_pushinteger(L,(int) eq_type((t - cs_token_flag)));
-        } else {
-            lua_pushinteger(L, token_cmd(t));
-        }
-    } else if (lua_key_eq(s, index)) {
-        int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-        e = equiv(t - cs_token_flag);
-        switch (cmd) {
-            case assign_int_cmd:
-                e -= count_base;
-                break;
-            case assign_attr_cmd:
-                e -= attribute_base;
-                break;
-            case assign_dimen_cmd:
-                e -= dimen_base;
-                break;
-            case assign_glue_cmd:
-                e -= skip_base;
-                break;
-            case assign_mu_glue_cmd:
-                e -= mu_skip_base;
-                break;
-            case assign_toks_cmd:
-                e -= toks_base;
-                break;
-            default:
-                e = -1;
-                break;
-        }
-        if ((e >= 0) && (e <= 65535)) {
-            lua_pushinteger(L, e);
-        } else {
-            lua_pushnil(L);
-        }
-    } else if (lua_key_eq(s, mode)) {
-        if (t >= cs_token_flag) {
-            lua_pushinteger(L, equiv(t - cs_token_flag));
-        } else {
-            lua_pushinteger(L, token_chr(t));
-        }
-    } else if (lua_key_eq(s, cmdname)) {
-        int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-        lua_pushstring(L, command_names[cmd].cmd_name); /* can be sped up */
-    } else if (lua_key_eq(s, csname)) {
-        unsigned char *s;
-        if (t >= cs_token_flag && ((s = get_cs_text(t - cs_token_flag)) != (unsigned char *) NULL)) {
-            if (is_active_string(s))
-                lua_pushstring(L, (char *) (s + 3));
-            else
-                lua_pushstring(L, (char *) s);
-        } else {
-            lua_pushnil(L);
-        }
-    } else if (lua_key_eq(s, id)) {
-       lua_pushinteger(L, n->token);
-    } else if (lua_key_eq(s, tok)) {
-       lua_pushinteger(L, t);
-    } else if (lua_key_eq(s, active)) {
-        unsigned char *s;
-        if (t >= cs_token_flag && ((s = get_cs_text(t - cs_token_flag)) != (unsigned char *) NULL)) {
-            if (is_active_string(s))
-                lua_pushboolean(L,1);
-            else
-                lua_pushboolean(L,0);
-            free(s);
-        } else {
-            lua_pushboolean(L,0);
-        }
-    } else if (lua_key_eq(s, expandable)) {
-        int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-        if (cmd > max_command_cmd) {
-            lua_pushboolean(L, 1);
-        } else {
-            lua_pushboolean(L, 0);
-        }
-    } else if (lua_key_eq(s, protected)) {
-        int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-        int chr = (t >= cs_token_flag ? equiv(t - cs_token_flag) : token_chr(t));
-        if (cmd > max_command_cmd && ((cmd >= call_cmd) && (cmd < end_template_cmd)) &&
-            token_info(token_link(chr)) == protected_token) {
-            lua_pushboolean(L, 1);
-        } else {
-            lua_pushboolean(L, 0);
-        }
+    lua_token *n = check_istoken(L, 1);
+    halfword t = token_info(n->token);
+    if (t >= cs_token_flag) {
+        lua_pushinteger(L,(int) eq_type((t - cs_token_flag)));
+    } else {
+        lua_pushinteger(L, token_cmd(t));
     }
     return 1;
 }
+
+inline static int lua_tokenlib_get_index(lua_State * L)
+{
+    lua_token *n = check_istoken(L, 1);
+    halfword t = token_info(n->token);
+    int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
+    halfword e = equiv(t - cs_token_flag);
+    switch (cmd) {
+        case assign_int_cmd:
+            e -= count_base;
+            break;
+        case assign_attr_cmd:
+            e -= attribute_base;
+            break;
+        case assign_dimen_cmd:
+            e -= dimen_base;
+            break;
+        case assign_glue_cmd:
+            e -= skip_base;
+            break;
+        case assign_mu_glue_cmd:
+            e -= mu_skip_base;
+            break;
+        case assign_toks_cmd:
+            e -= toks_base;
+            break;
+        default:
+            e = -1;
+            break;
+    }
+    if ((e >= 0) && (e <= 65535)) {
+        lua_pushinteger(L, e);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+inline static int lua_tokenlib_get_mode(lua_State * L)
+{
+    lua_token *n = check_istoken(L, 1);
+    halfword t = token_info(n->token);
+    if (t >= cs_token_flag) {
+        lua_pushinteger(L, equiv(t - cs_token_flag));
+    } else {
+        lua_pushinteger(L, token_chr(t));
+    }
+    return 1;
+}
+
+inline static int lua_tokenlib_get_cmdname(lua_State * L)
+{
+    lua_token *n = check_istoken(L, 1);
+    halfword t = token_info(n->token);
+    int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
+    lua_pushstring(L, command_names[cmd].cmd_name); /* can be sped up */
+    return 1;
+}
+
+inline static int lua_tokenlib_get_csname(lua_State * L)
+{
+    lua_token *n = check_istoken(L, 1);
+    halfword t = token_info(n->token);
+    unsigned char *s;
+    if (t >= cs_token_flag && ((s = get_cs_text(t - cs_token_flag)) != (unsigned char *) NULL)) {
+        if (is_active_string(s))
+            lua_pushstring(L, (char *) (s + 3));
+        else
+            lua_pushstring(L, (char *) s);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+inline static int lua_tokenlib_get_id(lua_State * L)
+{
+    lua_token *n = check_istoken(L, 1);
+    lua_pushinteger(L, n->token);
+    return 1;
+}
+
+inline static int lua_tokenlib_get_tok(lua_State * L)
+{
+    lua_token *n = check_istoken(L, 1);
+    halfword t = token_info(n->token);
+    lua_pushinteger(L, t);
+    return 1;
+}
+
+inline static int lua_tokenlib_get_active(lua_State * L)
+{
+    lua_token *n = check_istoken(L, 1);
+    halfword t = token_info(n->token);
+    unsigned char *s;
+    if (t >= cs_token_flag && ((s = get_cs_text(t - cs_token_flag)) != (unsigned char *) NULL)) {
+        if (is_active_string(s))
+            lua_pushboolean(L,1);
+        else
+            lua_pushboolean(L,0);
+        free(s);
+    } else {
+        lua_pushboolean(L,0);
+    }
+    return 1;
+}
+
+inline static int lua_tokenlib_get_expandable(lua_State * L)
+{
+    lua_token *n = check_istoken(L, 1);
+    halfword t = token_info(n->token);
+    int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
+    if (cmd > max_command_cmd) {
+        lua_pushboolean(L, 1);
+    } else {
+        lua_pushboolean(L, 0);
+    }
+    return 1;
+}
+
+inline static int lua_tokenlib_get_protected(lua_State * L)
+{
+    lua_token *n = check_istoken(L, 1);
+    halfword t = token_info(n->token);
+    int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
+    if (cmd > max_command_cmd && (cmd >= call_cmd) && (cmd < end_template_cmd)) {
+        int chr = (t >= cs_token_flag ? equiv(t - cs_token_flag) : token_chr(t));
+        if (token_info(token_link(chr)) == protected_token) {
+            lua_pushboolean(L, 1);
+        } else {
+            lua_pushboolean(L, 0);
+        }
+    } else {
+        lua_pushboolean(L, 0);
+    }
+    return 1;
+}
+
+static int lua_tokenlib_getfield(lua_State * L)
+{
+    const char *s = lua_tostring(L, 2);
+    if (lua_key_eq(s, command)) {
+        return lua_tokenlib_get_command(L);
+    } else if (lua_key_eq(s, index)) {
+        return lua_tokenlib_get_index(L);
+    } else if (lua_key_eq(s, mode)) {
+        return lua_tokenlib_get_mode(L);
+    } else if (lua_key_eq(s, cmdname)) {
+        return lua_tokenlib_get_cmdname(L);
+    } else if (lua_key_eq(s, csname)) {
+        return lua_tokenlib_get_csname(L);
+    } else if (lua_key_eq(s, id)) {
+        return lua_tokenlib_get_id(L);
+    } else if (lua_key_eq(s, tok)) {
+        return lua_tokenlib_get_tok(L);
+    } else if (lua_key_eq(s, active)) {
+        return lua_tokenlib_get_active(L);
+    } else if (lua_key_eq(s, expandable)) {
+        return lua_tokenlib_get_expandable(L);
+    } else if (lua_key_eq(s, protected)) {
+        return lua_tokenlib_get_protected(L);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+/* end */
 
 static int lua_tokenlib_equal(lua_State * L)
 {
@@ -743,26 +826,44 @@ static int set_macro(lua_State * L)
 }
 
 static const struct luaL_Reg tokenlib[] = {
-    {"is_token", lua_tokenlib_is_token},
-    {"get_next", run_get_next},
-    {"scan_keyword", run_scan_keyword},
-    {"scan_int", run_scan_int},
-    {"scan_dimen", run_scan_dimen},
-    {"scan_glue", run_scan_glue},
-    {"scan_toks", run_scan_toks},
-    {"scan_code", run_scan_code},
-    {"scan_string", run_scan_string},
-    {"scan_word", run_scan_word},
-    {"scan_csname", run_scan_csname},
-    {"type", lua_tokenlib_type},
-    {"create", run_build},
-    {"scan_token", run_scan_token}, /* expands next token if needed */
-    {"set_macro", set_macro},
+    { "type", lua_tokenlib_type },
+    { "create", run_build },
+    { "is_token", lua_tokenlib_is_token },
+    /* scanners */
+    { "get_next", run_get_next },
+    { "scan_keyword", run_scan_keyword },
+    { "scan_int", run_scan_int },
+    { "scan_dimen", run_scan_dimen },
+    { "scan_glue", run_scan_glue },
+    { "scan_toks", run_scan_toks },
+    { "scan_code", run_scan_code },
+    { "scan_string", run_scan_string },
+    { "scan_word", run_scan_word },
+    { "scan_csname", run_scan_csname },
+    { "scan_token", run_scan_token }, /* expands next token if needed */
+    /* push into input stream */
+    /*
+    { "write",luatwrite },
+    */
+    /* getters */
+    { "get_command", lua_tokenlib_get_command },
+    { "get_index", lua_tokenlib_get_index },
+    { "get_mode", lua_tokenlib_get_mode },
+    { "get_cmdname", lua_tokenlib_get_cmdname },
+    { "get_csname", lua_tokenlib_get_csname },
+    { "get_id", lua_tokenlib_get_id },
+    { "get_tok", lua_tokenlib_get_tok },
+    { "get_active", lua_tokenlib_get_active },
+    { "get_expandable", lua_tokenlib_get_expandable },
+    { "get_protected", lua_tokenlib_get_protected },
+    /* maybe more setters */
+    { "set_macro", set_macro },
+    /* probably never */
  /* {"expand", run_expand},               */ /* does not work yet! */
  /* {"csname_id", run_get_csname_id},     */ /* yes or no */
  /* {"command_id", run_get_command_id},   */ /* yes or no */
  /* {"cs_offset", run_get_cs_offset},     */ /* not that useful */
-    {NULL, NULL} /* sentinel */
+    {NULL, NULL}
 };
 
 static const struct luaL_Reg tokenlib_m[] = {
