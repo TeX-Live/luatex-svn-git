@@ -1,3 +1,7 @@
+2015-11-25  Luigi Scarso  <luigi.scarso@gmail.com>
+
+	* Imported gmp-6.1.0
+
 2015-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* Makefile.am: Better dependencies for 'make check'.

@@ -768,6 +768,37 @@ You can now open upto 127 files with \type {\openout}. When no file is open
 writes will go to the console and log. As a consequence a system command is
 no longer possible but one can use \type {os.execute} to do the same.
 
+\section{\type{\nospaces}}
+
+This new primitive can be used to overrule the usual \type {\spaceskip}
+related heuristics when a space character is seen in a text flow. The
+value~\type{1} triggers no injection while \type{2} results in injection of
+a zero skip. Below we see the results for four characters separated by a
+space.
+
+\startlinecorrection
+\startcombination[3*2]
+    {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=0\relax x x x x \par}\hss}} {\type {0 / hsize 10mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=1\relax x x x x \par}\hss}} {\type {1 / hsize 10mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=2\relax x x x x \par}\hss}} {\type {2 / hsize 10mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=0\relax x x x x \par}\hss}} {\type {0 / hsize 1mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=1\relax x x x x \par}\hss}} {\type {1 / hsize 1mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=2\relax x x x x \par}\hss}} {\type {2 / hsize 1mm}}
+\stopcombination
+\stoplinecorrection
+
+\section{\type{\letcharcode}}
+
+This primitive is still experimental but can be used to assign a meaning to an active
+character, as in:
+
+\starttyping
+\def\foo{bar} \letcharcode123\foo
+\stoptyping
+
+This can be a bit nicer that using the uppercase tricks (using the property of
+\type {\uppercase} that it treats active characters special).
+
 \stopchapter
 
 \stopcomponent

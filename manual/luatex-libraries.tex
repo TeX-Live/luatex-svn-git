@@ -392,36 +392,36 @@ inside this function or infinite recursion may occur. If you return \type {nil},
 
 This callback does not replace any internal code.
 
-\subsubsection{\type {token_filter}}
-
-This callback allows you to replace the way \LUATEX\ fetches lexical tokens.
-
-\startfunctioncall
-function()
-    return <table> token
-end
-\stopfunctioncall
-
-The calling convention for this callback is a bit more complicated than for most
-other callbacks. The function should either return a \LUA\ table representing a
-valid to|-|be|-|processed token or tokenlist, or something else like \type {nil}
-or an empty table.
-
-If your \LUA\ function does not return a table representing a valid token, it
-will be immediately called again, until it eventually does return a useful token
-or tokenlist (or until you reset the callback value to nil). See the description
-of \type {token} for some handy functions to be used in conjunction with this
-callback.
-
-If your function returns a single usable token, then that token will be processed
-by \LUATEX\ immediately. If the function returns a token list (a table consisting
-of a list of consecutive token tables), then that list will be pushed to the
-input stack at a completely new token list level, with its token type set to
-\quote {inserted}. In either case, the returned token(s) will not be fed back
-into the callback function.
-
-Setting this callback to \type {false} has no effect (because otherwise nothing
-would happen, forever).
+% \subsubsection{\type {token_filter}}
+%
+% This callback allows you to replace the way \LUATEX\ fetches lexical tokens.
+%
+% \startfunctioncall
+% function()
+%     return <table> token
+% end
+% \stopfunctioncall
+%
+% The calling convention for this callback is a bit more complicated than for most
+% other callbacks. The function should either return a \LUA\ table representing a
+% valid to|-|be|-|processed token or tokenlist, or something else like \type {nil}
+% or an empty table.
+%
+% If your \LUA\ function does not return a table representing a valid token, it
+% will be immediately called again, until it eventually does return a useful token
+% or tokenlist (or until you reset the callback value to nil). See the description
+% of \type {token} for some handy functions to be used in conjunction with this
+% callback.
+%
+% If your function returns a single usable token, then that token will be processed
+% by \LUATEX\ immediately. If the function returns a token list (a table consisting
+% of a list of consecutive token tables), then that list will be pushed to the
+% input stack at a completely new token list level, with its token type set to
+% \quote {inserted}. In either case, the returned token(s) will not be fed back
+% into the callback function.
+%
+% Setting this callback to \type {false} has no effect (because otherwise nothing
+% would happen, forever).
 
 \subsection{Node list processing callbacks}
 
@@ -606,25 +606,6 @@ end
 
 This callback does not replace any internal code.
 
-\subsubsection{\type {hpack_quality} and \type {vpack_quality}}
-
-These two callbacks can be used to intercept the overfull messages. They get a few
-arguments:
-
-\startfunctioncall
-function(<string> incident, <number> detail, <node> head, <number> first,
-         <number> last)
-    return <node> whatever
-end
-\stopfunctioncall
-
-The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
-\type {tight}. The detail is either the amount of overflow (in case of \type
-{overerful}, or the badness. The head is the list that is constructed (when
-protrusion or expansion is enabled, this is an intermediate list). For a hpack
-you can return a node (for instance an overfull rule indicator). That node will
-be appended to the list (just like \TEX's own rule would).
-
 \subsubsection{\type {hpack_quality}}
 
 This callback can be used to intercept the overfull messages that can result from
@@ -660,6 +641,13 @@ end
 The incident is one of \type {overfull}, \type {underfull}, \type {loose} or
 \type {tight}. The detail is either the amount of overflow in case of \type
 {overfull}, or the badness otherwise. The head is the list that is constructed.
+
+\subsubsection{\type {process_rule}}
+
+This is an experimental callback. It can be used with rules of subtype~4
+(user). The callback gets three arguments: the node, the width and the
+height. The callback can use \type {pdf.print} to write code to the \PDF\
+file but beware of not messing up the final result. No checking is done.
 
 \subsubsection{\type {pre_output_filter}}
 
@@ -3189,9 +3177,10 @@ ones. The syntax of the string is explained in~\in {section}
 lang.clear_hyphenation(<language> l)
 \stopfunctioncall
 
-Clears the exception dictionary for this language.
+Clears the exception dictionary (string) for this language.
 
 \startfunctioncall
+<string> n = lang.clean(<language> l, <string> o)
 <string> n = lang.clean(<string> o)
 \stopfunctioncall
 
@@ -3260,6 +3249,16 @@ Hyphenation works only on \quote {characters}, a special subtype of all the glyp
 nodes with the node subtype having the value \type {1}. Glyph modes with
 different subtypes are not processed. See \in {section~} [charsandglyphs] for
 more details.
+
+The following two commands can be used to set or query hj codes:
+
+\startfunctioncall
+lang.sethjcode(<language> l, <number> char, <number> usedchar)
+<number> usedchar = lang.gethjcode(<language> l, <number> char)
+\stopfunctioncall
+
+When you set a hjcode the current sets get initialized unless the set was already
+initialized due to \type {\savinghyphcodes} being larger than zero.
 
 \section{The \type {lua} library}
 
@@ -4378,11 +4377,26 @@ The preferred interface is now \type {pdf.setxformattributes} and \type
 These two functions set the level of compression. The minimum valu sis~0,
 the maximum is~9.
 
+\subsection{\type {pdf.setdecimaldigits} and \type {pdf.getdecimaldigits}}
+
+These two functions set the accuracy of floats written to the \PDF file.
+
 \subsection{\type {pdf.lastobj}, \type {pdf.lastlink}, \type {pdf.lastannot},
 and \type {pdf.retval}}
 
 These status variables are similar to the ones traditionally used at the \TEX\
 end.
+
+\subsection{\type {pdf.setorigin}}
+
+This one is used to set the horizonal and/or vertical offset (a traditional
+backend property).
+
+\starttyping
+pdf.setorigin() -- sets both to 0pt
+pdf.setorigin(tex.sp("1in")) -- sets both to 1in
+pdf.setorigin(tex.sp("1in"),tex.sp("1in"))
+\stoptyping
 
 \subsection{\type {pdf.h}, \type {pdf.v}}
 
@@ -4810,10 +4824,11 @@ The current list is:
 \NC callbacks          \NC total number of executed callbacks so far \NC \NR
 \NC indirect_callbacks \NC number of those that were themselves
                            a result of other callbacks (e.g. file readers) \NC \NR
-\NC luatex_svn         \NC the luatex repository id  \NC \NR
 \NC luatex_version     \NC the luatex version number \NC \NR
 \NC luatex_revision    \NC the luatex revision string \NC \NR
 \NC ini_version        \NC \type {true} if this is an \INITEX\ run \NC \NR
+\NC shell_escape       \NC \type {0} means disabled, \type {1} is restricted and
+                           \type {2} means anything is permitted \NC \NR
 \stoptabulate
 
 The error and warning messages can be wiped with the \type {resetmessages}
@@ -4920,24 +4935,6 @@ tex.month
 tex.newlinechar
 tex.outputpenalty
 tex.pausing
-tex.pdfadjustspacing
-tex.pdfcompresslevel
-tex.pdfdecimaldigits
-tex.pdfgamma
-tex.pdfgentounicode
-tex.pdfimageapplygamma
-tex.pdfimagegamma
-tex.pdfimagehicolor
-tex.pdfimageresolution
-tex.pdfinclusionerrorlevel
-tex.pdfminorversion
-tex.pdfobjcompresslevel
-tex.pdfoutput
-tex.pdfpagebox
-tex.pdfpkresolution
-tex.pdfprotrudechars
-tex.pdftracingfonts
-tex.pdfuniqueresname
 tex.postdisplaypenalty
 tex.predisplaydirection
 tex.predisplaypenalty
@@ -4970,6 +4967,25 @@ tex.widowpenalty
 tex.year
 \stoptyping
 \stoptwocolumns
+
+% tex.pdfadjustspacing
+% tex.pdfcompresslevel
+% tex.pdfdecimaldigits
+% tex.pdfgamma
+% tex.pdfgentounicode
+% tex.pdfimageapplygamma
+% tex.pdfimagegamma
+% tex.pdfimagehicolor
+% tex.pdfimageresolution
+% tex.pdfinclusionerrorlevel
+% tex.pdfminorversion
+% tex.pdfobjcompresslevel
+% tex.pdfoutput
+% tex.pdfpagebox
+% tex.pdfpkresolution
+% tex.pdfprotrudechars
+% tex.pdftracingfonts
+% tex.pdfuniqueresname
 
 Read|-|only:
 
@@ -6135,131 +6151,136 @@ This function behaves like \type {texio.write}, but make sure that the given
 strings will appear at the beginning of a new line. You can pass a single empty
 string if you only want to move to the next line.
 
-\section[luatokens]{The \type {oldtoken} library (obsolete)}
+\subsubsection{\type {texio.setescape}}
 
-{\em Nota Bene: This library will disappear soon. It is replaced by the \type
-{token} library, that used to be called \type {newroken}.}
+You can disable \type {^^} escaping of control characters by passing a value of
+zero.
 
-The \type {token} table contains interface functions to \TEX's handling of
-tokens. These functions are most useful when combined with the \type
-{token_filter} callback, but they could be used standalone as well.
-
-A token is represented in \LUA\ as a small table. For the moment, this table
-consists of three numeric entries:
-
-\starttabulate[|l|l|p|]
-\NC \bf index \NC \bf meaning         \NC \bf description \NC \NR
-\NC 1         \NC command code        \NC this is a value between~$0$ and~$130$ (approximately)\NC \NR
-\NC 2         \NC command modifier    \NC this is a value between~$0$ and~$2^{21}$ \NC \NR
-\NC 3         \NC control sequence id \NC for commands that are not the result of control
-                                          sequences, like letters and characters, it is zero,
-                                          otherwise, it is a number pointing into the \quote
-                                          {equivalence table} \NC \NR
-\stoptabulate
-
-\subsection{\type {oldtoken.get_next}}
-
-\startfunctioncall
-token t = oldtoken.get_next()
-\stopfunctioncall
-
-This fetches the next input token from the current input source, without
-expansion.
-
-\subsection{\type {oldtoken.is_expandable}}
-
-\startfunctioncall
-<boolean> b = oldtoken.is_expandable(<token> t)
-\stopfunctioncall
-
-This tests if the token \type {t} could be expanded.
-
-\subsection{\type {oldtoken.expand}}
-
-\startfunctioncall
-oldtoken.expand(<token> t)
-\stopfunctioncall
-
-If a token is expandable, this will expand one level of it, so that the first
-token of the expansion will now be the next token to be read by \type
-{oldtoken.get_next()}.
-
-\subsection{\type {oldtoken.is_activechar}}
-
-\startfunctioncall
-<boolean> b = oldtoken.is_activechar(<token> t)
-\stopfunctioncall
-
-This is a special test that is sometimes handy. Discovering whether some control
-sequence is the result of an active character turned out to be very hard
-otherwise.
-
-\subsection{\type {oldtoken.create}}
-
-\startfunctioncall
-token t = oldtoken.create(<string> csname)
-token t = oldtoken.create(<number> charcode)
-token t = oldtoken.create(<number> charcode, <number> catcode)
-\stopfunctioncall
-
-This is the token factory. If you feed it a string, then it is the name of a
-control sequence (without leading backslash), and it will be looked up in the
-equivalence table.
-
-If you feed it number, then this is assumed to be an input character, and an
-optional second number gives its category code. This means it is possible to
-overrule a character's category code, with a few exceptions: the category codes~0
-(escape), 9~(ignored), 13~(active), 14~(comment), and 15 (invalid) cannot occur
-inside a token. The values~0, 9, 14 and~15 are therefore illegal as input to
-\type {oldtoken.create()}, and active characters will be resolved immediately.
-
-Note: unknown string sequences and never defined active characters will result in
-a token representing an \quote {undefined control sequence} with a near|-|random
-name. It is {\em not} possible to define brand new control sequences using
-\type {oldtoken.create}!
-
-\subsection{\type {oldtoken.command_name}}
-
-\startfunctioncall
-<string> commandname = oldtoken.command_name(<token> t)
-\stopfunctioncall
-
-This returns the name associated with the \quote {command} value of the token in
-\LUATEX. There is not always a direct connection between these names and
-primitives. For instance, all \type {\ifxxx} tests are grouped under \type
-{if_test}, and the \quote {command modifier} defines which test is to be run.
-
-\subsection{\type {oldtoken.command_id}}
-
-\startfunctioncall
-<number> i = oldtoken.command_id(<string> commandname)
-\stopfunctioncall
-
-This returns a number that is the inverse operation of the previous command, to
-be used as the first item in a token table.
-
-\subsection{\type {oldtoken.csname_name}}
-
-\startfunctioncall
-<string> csname = oldtoken.csname_name(<token> t)
-\stopfunctioncall
-
-This returns the name associated with the \quote {equivalence table} value of the
-token in \LUATEX. It returns the string value of the command used to create the
-current token, or an empty string if there is no associated control sequence.
-
-Keep in mind that there are potentially two control sequences that return the
-same csname string: single character control sequences and active characters have
-the same \quote {name}.
-
-\subsection{\type {oldtoken.csname_id}}
-
-\startfunctioncall
-<number> i = oldtoken.csname_id(<string> csname)
-\stopfunctioncall
-
-This returns a number that is the inverse operation of the previous command, to
-be used as the third item in a token table.
+% \section[luatokens]{The \type {oldtoken} library (obsolete)}
+%
+% {\em Nota Bene: This library will disappear soon. It is replaced by the \type
+% {token} library, that used to be called \type {newroken}.}
+%
+% The \type {token} table contains interface functions to \TEX's handling of
+% tokens. These functions are most useful when combined with the \type
+% {token_filter} callback, but they could be used standalone as well.
+%
+% A token is represented in \LUA\ as a small table. For the moment, this table
+% consists of three numeric entries:
+%
+% \starttabulate[|l|l|p|]
+% \NC \bf index \NC \bf meaning         \NC \bf description \NC \NR
+% \NC 1         \NC command code        \NC this is a value between~$0$ and~$130$ (approximately)\NC \NR
+% \NC 2         \NC command modifier    \NC this is a value between~$0$ and~$2^{21}$ \NC \NR
+% \NC 3         \NC control sequence id \NC for commands that are not the result of control
+%                                           sequences, like letters and characters, it is zero,
+%                                           otherwise, it is a number pointing into the \quote
+%                                           {equivalence table} \NC \NR
+% \stoptabulate
+%
+% \subsection{\type {oldtoken.get_next}}
+%
+% \startfunctioncall
+% token t = oldtoken.get_next()
+% \stopfunctioncall
+%
+% This fetches the next input token from the current input source, without
+% expansion.
+%
+% \subsection{\type {oldtoken.is_expandable}}
+%
+% \startfunctioncall
+% <boolean> b = oldtoken.is_expandable(<token> t)
+% \stopfunctioncall
+%
+% This tests if the token \type {t} could be expanded.
+%
+% \subsection{\type {oldtoken.expand}}
+%
+% \startfunctioncall
+% oldtoken.expand(<token> t)
+% \stopfunctioncall
+%
+% If a token is expandable, this will expand one level of it, so that the first
+% token of the expansion will now be the next token to be read by \type
+% {oldtoken.get_next()}.
+%
+% \subsection{\type {oldtoken.is_activechar}}
+%
+% \startfunctioncall
+% <boolean> b = oldtoken.is_activechar(<token> t)
+% \stopfunctioncall
+%
+% This is a special test that is sometimes handy. Discovering whether some control
+% sequence is the result of an active character turned out to be very hard
+% otherwise.
+%
+% \subsection{\type {oldtoken.create}}
+%
+% \startfunctioncall
+% token t = oldtoken.create(<string> csname)
+% token t = oldtoken.create(<number> charcode)
+% token t = oldtoken.create(<number> charcode, <number> catcode)
+% \stopfunctioncall
+%
+% This is the token factory. If you feed it a string, then it is the name of a
+% control sequence (without leading backslash), and it will be looked up in the
+% equivalence table.
+%
+% If you feed it number, then this is assumed to be an input character, and an
+% optional second number gives its category code. This means it is possible to
+% overrule a character's category code, with a few exceptions: the category codes~0
+% (escape), 9~(ignored), 13~(active), 14~(comment), and 15 (invalid) cannot occur
+% inside a token. The values~0, 9, 14 and~15 are therefore illegal as input to
+% \type {oldtoken.create()}, and active characters will be resolved immediately.
+%
+% Note: unknown string sequences and never defined active characters will result in
+% a token representing an \quote {undefined control sequence} with a near|-|random
+% name. It is {\em not} possible to define brand new control sequences using
+% \type {oldtoken.create}!
+%
+% \subsection{\type {oldtoken.command_name}}
+%
+% \startfunctioncall
+% <string> commandname = oldtoken.command_name(<token> t)
+% \stopfunctioncall
+%
+% This returns the name associated with the \quote {command} value of the token in
+% \LUATEX. There is not always a direct connection between these names and
+% primitives. For instance, all \type {\ifxxx} tests are grouped under \type
+% {if_test}, and the \quote {command modifier} defines which test is to be run.
+%
+% \subsection{\type {oldtoken.command_id}}
+%
+% \startfunctioncall
+% <number> i = oldtoken.command_id(<string> commandname)
+% \stopfunctioncall
+%
+% This returns a number that is the inverse operation of the previous command, to
+% be used as the first item in a token table.
+%
+% \subsection{\type {oldtoken.csname_name}}
+%
+% \startfunctioncall
+% <string> csname = oldtoken.csname_name(<token> t)
+% \stopfunctioncall
+%
+% This returns the name associated with the \quote {equivalence table} value of the
+% token in \LUATEX. It returns the string value of the command used to create the
+% current token, or an empty string if there is no associated control sequence.
+%
+% Keep in mind that there are potentially two control sequences that return the
+% same csname string: single character control sequences and active characters have
+% the same \quote {name}.
+%
+% \subsection{\type {oldtoken.csname_id}}
+%
+% \startfunctioncall
+% <number> i = oldtoken.csname_id(<string> csname)
+% \stopfunctioncall
+%
+% This returns a number that is the inverse operation of the previous command, to
+% be used as the third item in a token table.
 
 \subsection{The \type {token} libray}
 

@@ -1105,32 +1105,18 @@ The \type {type} can have one of five distinct values:
 
 \section{Two access models}
 
-After doing lots of tests with \LUATEX\ and \LUAJITTEX\, with and without just in
-time compilation enabled, and with and without using ffi, we came to the
-conclusion that userdata prevents a speedup. We also found that the checking of
-metatables as well as assignment comes with overhead that can't be neglected.
-This is normally not really a problem but when processing fonts for more complex
-scripts it could have quite some overhead.
-
-Because the userdata approach has some benefits, this remains the recommended way
-to access nodes. We did several experiments with faster access using this model,
-but eventually settled for the \quote {direct} approach. For code that is proven
-to be okay, one can use this access model that operates on nodes more directly.
-
-Deep down in \TEX\ a node has a number which is an entry in a memory table. In
-fact, this model, where \TEX\ manages memory is real fast and one of the reasons
-why plugging in callbacks that operate on nodes is quite fast. No matter what
-future memory model \LUATEX\ has, an internal reference will always be a simple
-data type (like a number or light userdata in \LUA\ speak). So, if you use the
-direct model, even if you know that you currently deal with numbers, you should
+Deep down in \TEX\ a node has a number which is an numeric entry in a memory
+table. In fact, this model, where \TEX\ manages memory is real fast and one of
+the reasons why plugging in callbacks that operate on nodes is quite fast. So, if
+you use the direct model, even if you know that you deal with numbers, you should
 not depend on that property but treat it an abstraction just like traditional
 nodes. In fact, the fact that we use a simple basic datatype has the penalty that
 less checking can be done, but less checking is also the reason why it's somewhat
 faster. An important aspect is that one cannot mix both methods, but you can cast
 both models.
 
-So our advice is: use the indexed approach when possible and investigate the
-direct one when speed might be an issue. For that reason we also provide the
+So our advice is: use the indexed (table) approach when possible and investigate
+the direct one when speed might be an issue. For that reason we also provide the
 \type {get*} and \type {set*} functions in the top level node namespace. There is
 a limited set of getters. When implementing this direct approach the regular
 index by key variant was also optimized, so direct access only makes sense when
@@ -1262,14 +1248,15 @@ summarized this:
 \NC \type {is_char}              \NC \yes \NC \yes  \NC \NR
 \NC \type {is_direct}            \NC \nop \NC \yes  \NC \NR
 \NC \type {is_node}              \NC \yes \NC \yes  \NC \NR
-\NC \type {kerning}              \NC \yes \NC \nop  \NC \NR
+\NC \type {kerning}              \NC \yes \NC \yes  \NC \NR
 \NC \type {last_node}            \NC \yes \NC \yes  \NC \NR
 \NC \type {length}               \NC \yes \NC \yes  \NC \NR
-\NC \type {ligaturing}           \NC \yes \NC \nop  \NC \NR
+\NC \type {ligaturing}           \NC \yes \NC \yes  \NC \NR
 \NC \type {mlist_to_hlist}       \NC \yes \NC \nop  \NC \NR
 \NC \type {new}                  \NC \yes \NC \yes  \NC \NR
 \NC \type {next}                 \NC \yes \NC \nop  \NC \NR
 \NC \type {prev}                 \NC \yes \NC \nop  \NC \NR
+\NC \type {protect_glyph}        \NC \yes \NC \yes  \NC \NR
 \NC \type {protect_glyphs}       \NC \yes \NC \yes  \NC \NR
 \NC \type {protrusion_skippable} \NC \yes \NC \yes  \NC \NR
 \NC \type {remove}               \NC \yes \NC \yes  \NC \NR
@@ -1290,6 +1277,7 @@ summarized this:
 \NC \type {tonode}               \NC \yes \NC \yes  \NC \NR
 \NC \type {tostring}             \NC \yes \NC \yes  \NC \NR
 \NC \type {traverse_id}          \NC \yes \NC \yes  \NC \NR
+\NC \type {traverse_char}        \NC \yes \NC \yes  \NC \NR
 \NC \type {traverse}             \NC \yes \NC \yes  \NC \NR
 \NC \type {types}                \NC \yes \NC \nop  \NC \NR
 \NC \type {type}                 \NC \yes \NC \nop  \NC \NR
