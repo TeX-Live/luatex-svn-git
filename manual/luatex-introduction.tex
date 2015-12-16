@@ -7,7 +7,11 @@
 
 This book will eventually become the reference manual of \LUATEX. At the moment,
 it simply reports the behavior of the executable matching the snapshot or beta
-release date in the title page.
+release date in the title page. We don't claim it is complete and we assume that
+the reader knows about \TEX\ as described in \quotation {The \TEX\ Book}, the
+\quotation {\ETEX\ manual}, the \quotation {\PDFTEX\ manual}, etc. Additional
+reference material is published in journals of user groups and \CONTEXT\ related
+documentation.
 
 Features may come and go. The current version of \LUATEX\ can be used for
 production (in fact it is used in production by the authors) but users cannot
@@ -18,11 +22,21 @@ list. We're still not at version 1 but when we reach that state the interface
 will be stable. Of course we then can decide to move towards version 2 with
 different properties.
 
+This means that occasionally you can encounter functionality not described here.
+Just consider that experimental then. They are either a playground or are being
+tested in real situations first before being finalized. And we can equally well
+kick them out again. When they stay we will descibe them in the manual or more
+extensively in articles.
+
 Don't expect \LUATEX\ to behave the same as \PDFTEX ! Although the core
 functionality of that 8 bit engine is present, \LUATEX\ can behave different due
-to not only its 32 bit character: there is native \UTF\ input, support for wide
-fonts, and the math machinery is tuned for \OPENTYPE\ math. Also, the log output
-can differ (and will likely differ more as we move forward).
+to its wide (32 bit) characters, many registers and large memory support. There
+is native \UTF\ input, support for large (more that 8 bit) fonts, and the math
+machinery is tuned for \OPENTYPE\ math. Ther ei ssupport for directional
+typesetting too. The log output can differ from other engines and will likely
+differ more as we move forward. When you run plain \TEX\ for sure \LUATEX\ runs
+slower than \PDFTEX\ but when you run for instance \CONTEXT\ it might be faster. But
+in any case: 32 bit all||over combined with more features has a price.
 
 \LUATEX\ consists of a number of interrelated but (still) distinguishable parts.
 The organization of the source code is adapted so that it cna glue all these
@@ -67,7 +81,8 @@ code in \TEX\ engines (especially code that is not needed any longer).
 
 Neither \ALEPH's I/O translation processes, nor tcx files, nor \ENCTEX\ can be
 used, these encoding|-|related functions are superseded by a \LUA|-|based
-solution (reader callbacks).
+solution (reader callbacks). Most of the \PDFTEX\ backend is available but via a
+bit different interface.
 
 The yearly \TEXLIVE\ version is the stable version, any version between them is
 considered beta. Keep in mind that new (or changed) features also need to be
