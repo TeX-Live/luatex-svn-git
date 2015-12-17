@@ -1,3 +1,8 @@
+2015-12-16  Luigi Scarso  <luigi.scarso@gmail.com>
+	Updated to cairo-1.14.6, gmp-6.1.0 and libpng-1.6.20.
+	Fixed some issues with tfm files.
+	
+
 2015-03-21  Luigi Scarso  <luigi.scarso@gmail.com>
 	make_text for mplib only.
 
