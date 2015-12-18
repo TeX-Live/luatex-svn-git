@@ -1156,7 +1156,7 @@ if next then
 end
 \stoptyping
 
-There are several such function based accessors now:
+If performance matters you can use an function instead:
 
 \starttabulate[|T|p|]
 \NC getnext    \NC parsing nodelist always involves this one \NC \NR
@@ -1166,7 +1166,8 @@ There are several such function based accessors now:
 \NC getsubtype \NC consulted less but also a topper \NC \NR
 \NC getfont    \NC used a lot in otf handling (glyph nodes are consulted a lot) \NC \NR
 \NC getchar    \NC idem and also in other places \NC \NR
-\NC getdisc    \NC returns the \type {pre}, \type {post} an d\type {replace} fields \NC \NR
+\NC getdisc    \NC returns the \type {pre}, \type {post} and \type {replace} fields and
+                   optionally when true is passed also the tail fields. \NC \NR
 \NC getlist    \NC we often parse nested lists so this is a convenient one too
                    (only works for hlist and vlist!) \NC \NR
 \NC getleader  \NC comparable to list, seldom used in \TEX\ (but needs frequent consulting
@@ -1175,28 +1176,8 @@ There are several such function based accessors now:
                    often shared so a specific getter makes no sense then) \NC \NR
 \stoptabulate
 
-Some have setter counterparts:
-
-There are several such function based accessors now:
-
-\starttabulate[|T|p|]
-\NC setnext    \NC assigns a value to the next field \NC \NR
-\NC setprev    \NC assigns a value to the prev field \NC \NR
-\NC setboth    \NC assigns a value to the prev and next field \NC \NR
-\NC setlink    \NC links two noded \NC \NR
-\NC setchar    \NC sets the character field \NC \NR
-\NC setdisc    \NC sets the \type {pre}, \type {post} and \type {replace} fields and optionally the
-                   \type {subtype} and \type {penalty} fields \NC \NR  \NC \NR
-\NC getfont    \NC used a lot in otf handling (glyph nodes are consulted a lot) \NC \NR
-\NC getchar    \NC idem and also in other places \NC \NR
-\NC getdisc    \NC returns the \type {pre}, \type {post} an d\type {replace} fields \NC \NR
-\NC getlist    \NC we often parse nested lists so this is a convenient one too
-                   (only works for hlist and vlist!) \NC \NR
-\NC getleader  \NC comparable to list, seldom used in \TEX\ (but needs frequent consulting
-                   like lists; leaders could have been made a dedicated node type) \NC \NR
-\NC getfield   \NC generic getter, sufficient for the rest (other field names are
-                   often shared so a specific getter makes no sense then) \NC \NR
-\stoptabulate
+The direct variants also have setters, where the discretionary setter takes three
+(optional) arguments plus an optional fourth indicating the subtype.
 
 It doesn't make sense to add more. Profiling demonstrated that these fields can
 get accesses way more times than other fields. Even in complex documents, many
