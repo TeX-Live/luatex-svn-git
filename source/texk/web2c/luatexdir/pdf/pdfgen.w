@@ -921,6 +921,10 @@ static void init_pdf_outputparameters(PDF pdf)
     pdf->objcompresslevel = fix_int(pdf_objcompresslevel, 0, MAX_OBJ_COMPRESS_LEVEL);
     pdf->inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
     pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
+    if (pdf->decimal_digits < 4) {
+        pdf->decimal_digits = 4;
+        formatted_warning("pdf backend","forcing decimal digits to %d",pdf->decimal_digits);
+    }
     if ((pdf->minor_version >= 5) && (pdf->objcompresslevel > 0)) {
         pdf->os_enable = true;
     } else {

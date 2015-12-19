@@ -330,18 +330,18 @@ void dump_math_data(void)
         sa_value.int_value = MATHFONTDEFAULT;
         math_fam_head = new_sa_tree(MATHFONTSTACK, 1, sa_value);
     }
-    dump_sa_tree(math_fam_head);
+    dump_sa_tree(math_fam_head, "mathfonts");
     if (math_param_head == NULL) {
         sa_value.int_value = MATHPARAMDEFAULT;
         math_param_head = new_sa_tree(MATHPARAMSTACK, 1, sa_value);
     }
-    dump_sa_tree(math_param_head);
+    dump_sa_tree(math_param_head, "mathparameters");
 }
 
 void undump_math_data(void)
 {
-    math_fam_head = undump_sa_tree();
-    math_param_head = undump_sa_tree();
+    math_fam_head = undump_sa_tree("mathfonts");
+    math_param_head = undump_sa_tree("mathparameters");
 }
 
 @ @c
@@ -1100,8 +1100,7 @@ static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
         NULL
     };
     delcodeval d;
-    int mcls, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
-    mcls = 0;
+    int mcls = 0, msfam = 0, mschr = 0, mlfam = 0, mlchr = 0;
     if (extcode == tex_mathcode) {      /* \.{\\delcode}, this is the easiest */
         scan_int();
         /*  "MFCCFCC or "FCCFCC */
@@ -1192,17 +1191,31 @@ mathcodeval scan_mathchar(int extcode)
         /* "TFCC */
         scan_int();
         if (cur_val > 0x8000) {
-            tex_error("Invalid math code", hlp);
-            cur_val = 0;
+            /*
+                tex_error("Invalid math code", hlp);
+                cur_val = 0;
+            */
+            /* needed for latex: fallback to umathnum_mathcode */
+            mfam = (cur_val / 0x200000) & 0x7FF;
+            mcls = mfam % 0x08;
+            mfam = mfam / 0x08;
+            mchr = cur_val & 0x1FFFFF;
+            if (mchr > 0x10FFFF) {
+                tex_error("Invalid math code during > 0x8000 mathcode fallback", hlp);
+                mcls = 0;
+                mfam = 0;
+                mchr = 0;
+            }
+        } else {
+            if (cur_val < 0) {
+                snprintf(errstr, 255, "Bad mathchar (%d)", (int)cur_val);
+                tex_error(errstr, hlp);
+                cur_val = 0;
+            }
+            mcls = (cur_val / 0x1000);
+            mfam = ((cur_val % 0x1000) / 0x100);
+            mchr = (cur_val % 0x100);
         }
-        if (cur_val < 0) {
-            snprintf(errstr, 255, "Bad mathchar (%d)", (int)cur_val);
-            tex_error(errstr, hlp);
-            cur_val = 0;
-        }
-        mcls = (cur_val / 0x1000);
-        mfam = ((cur_val % 0x1000) / 0x100);
-        mchr = (cur_val % 0x100);
     } else if (extcode == umath_mathcode) {
         /* <0-0x7> <0-0xFF> <0-0x10FFFF> */
         scan_int();

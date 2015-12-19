@@ -88,6 +88,10 @@ Unaltered:
 \NC \type {\radical}     \NC 0--7FFFFFF               \NC \NR
 \stoptabulate
 
+For practical reasons \type {\mathchardef} will silently accept values larger
+that \type {0x8000} and interpret it as \type {\Umathcharnumdef}. This is needed
+to satisfy older macro packages.
+
 New primitives that are compatible with \XETEX:
 
 \starttabulate[|l|l|l|l|]
