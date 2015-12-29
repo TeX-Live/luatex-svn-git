@@ -15322,9 +15322,6 @@ uninstall-bin-links:
 @WIN32_FALSE@	  rm -f $(DESTDIR)$(bindir)/$$link; \
 @WIN32_FALSE@	done
 
-# We don't need it anymore, but we left it as example
-#include $(srcdir)/luatexdir/am/txt2zlib.am
-
 install-exec-hook: install-bin-links $(install_exe_links)
 uninstall-hook: uninstall-bin-links $(uninstall_exe_links)
 

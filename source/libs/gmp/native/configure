@@ -584,7 +584,7 @@ PACKAGE_STRING='gmp native 6.1.0'
 PACKAGE_BUGREPORT='tex-k@tug.org'
 PACKAGE_URL=''
 
-ac_unique_file="../gmp-6.1.0/gmp-impl.h"
+ac_unique_file="../gmp-src/gmp-impl.h"
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
@@ -4427,7 +4427,7 @@ case $ac_cv_search_pow in #(
 esac
 
 
-GMP_TREE=../gmp-6.1.0
+GMP_TREE=../gmp-src
 
 
 ac_config_headers="$ac_config_headers config.h"

@@ -1,4 +1,4 @@
-batchmode;
+%batchmode;
 delimiters ();
 def -- = {curl 1}..{curl 1} enddef;
 showstats;

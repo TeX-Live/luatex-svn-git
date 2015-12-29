@@ -1800,6 +1800,11 @@ into a subdirectory that is configured natively as is done for
 The module 'libs/freetype2' uses the value of 'CC_BUILD', 'BUILD-gcc',
 'gcc', or 'cc' as compiler for the auxiliary program.
 
+   Building LuaTeX (or LuaJITTeX) uses the auxiliary program 'txt2zlib'
+to create 'pdflua.c' and, if necessary, update the distributed version
+of that file.  In a cross compilation we simply use that distributed
+file.
+
    The situation for installable programs needed by the build process is
 somewhat different.  A quite expensive possibility, chosen for the ICU
 libraries in module 'libs/icu', is to first compile natively for the
@@ -4567,7 +4572,7 @@ Index
 * cross compilation configuring:         Cross configuring.    (line  6)
 * cross compilation problems:            Cross problems.       (line  6)
 * cross compilation, with host binary:   'xdvik' package.      (line 14)
-* ctangle:                               Cross problems.       (line 26)
+* ctangle:                               Cross problems.       (line 31)
 * CXX:                                   Variables for configure.
                                                                (line 11)
 * declarations and definitions, in source code: Declarations and definitions.
@@ -4620,7 +4625,7 @@ Index
 * GNU/Linux distro:                      Distro builds.        (line  6)
 * Gnulib, used for common files:         Top-level directories.
                                                                (line 30)
-* ICU cross compiling:                   Cross problems.       (line 20)
+* ICU cross compiling:                   Cross problems.       (line 25)
 * ICU libraries:                         Variables for configure.
                                                                (line 24)
 * icu-config:                            Variables for configure.
@@ -4759,7 +4764,7 @@ Index
 * one package, building:                 Build one package.    (line  6)
 * OpenGL, required for Asymptote:        'asymptote'.          (line  6)
 * operating system distribution, building for: Distro builds.  (line  6)
-* otangle:                               Cross problems.       (line 26)
+* otangle:                               Cross problems.       (line 31)
 * overall build process:                 Building.             (line  6)
 * parallel build:                        Build in parallel.    (line  6)
 * paths, for installation:               Installation directories.
@@ -4823,18 +4828,19 @@ Index
                                                                (line 64)
 * system distribution, building for:     Distro builds.        (line  6)
 * t1utils package:                       't1utils' package.    (line  6)
-* tangle:                                Cross problems.       (line 26)
+* tangle:                                Cross problems.       (line 31)
 * tests, running:                        Overview of build system.
                                                                (line  6)
 * TeX-specific library module, adding:   Adding a new TeX-specific library module.
                                                                (line  6)
 * texlive.tlpdb, TeX Live database:      Installing.           (line  8)
-* tie:                                   Cross problems.       (line 26)
+* tie:                                   Cross problems.       (line 31)
 * timestamps, in repository:             Build system tools.   (line 34)
 * tools, for building:                   Build system tools.   (line  6)
 * top-level directories:                 Top-level directories.
                                                                (line  6)
 * touching files to avoid rerunning:     Build system tools.   (line 39)
+* txt2zlib:                              Cross problems.       (line 20)
 * type cast, avoiding:                   Const.                (line 38)
 * use-commit-times, Subversion:          Build system tools.   (line 34)
 * variable declarations, in source code: Declarations and definitions.
@@ -4870,7 +4876,7 @@ Index
 * xindy <1>:                             'xindy' package.      (line  6)
 * xindy <2>:                             Configure options for 'utils/xindy'.
                                                                (line  6)
-* 'xindy' cross compiling impossible:    Cross problems.       (line 33)
+* 'xindy' cross compiling impossible:    Cross problems.       (line 38)
 * XInput:                                Configure options for 'texk/xdvik'.
                                                                (line 13)
 * Xlib:                                  Configure options for 'texk/web2c'.
@@ -4952,244 +4958,244 @@ Node: Variables for configure66535
 Node: Cross compilation67963
 Node: Cross configuring69262
 Node: Cross problems70935
-Node: Coding conventions72577
-Node: Declarations and definitions73246
-Node: Const75428
-Node: install-tl77291
-Node: install-tl NAME77632
-Node: install-tl SYNOPSIS77790
-Node: install-tl DESCRIPTION77998
-Node: install-tl REFERENCES78999
-Node: install-tl OPTIONS79515
-Ref: install-tl *-gui* [[=]_module_]79869
-Ref: install-tl 'text'80078
-Ref: install-tl 'wizard'80201
-Ref: install-tl 'perltk'80355
-Ref: install-tl *-no-gui*80789
-Ref: install-tl *-lang* _llcode_80870
-Ref: install-tl *-repository* _url|path_81557
-Ref: install-tl *-select-repository*83368
-Ref: install-tl *-all-options*83804
-Ref: install-tl *-custom-bin* _path_84111
-Ref: install-tl *-debug-translation*84766
-Ref: install-tl *-force-platform* _platform_84985
-Ref: install-tl *-help*, *--help*, *-?*85229
-Ref: install-tl *-in-place*85622
-Ref: install-tl *-logfile* _file_86149
-Ref: install-tl *-no-cls*86500
-Ref: install-tl *-non-admin*86631
-Ref: install-tl *--persistent-downloads*86736
-Ref: install-tl *--no-persistent-downloads*86764
-Ref: install-tl *-portable*87372
-Ref: install-tl *-print-platform*87511
-Ref: install-tl *-profile* _profile_87704
-Ref: install-tl *-q*89198
-Ref: install-tl *-scheme* _scheme_89260
-Ref: install-tl *-v*89734
-Ref: install-tl *-version*, *--version*89895
-Node: install-tl ENVIRONMENT VARIABLES90026
-Ref: install-tl 'TEXLIVE_INSTALL_ENV_NOCHECK'90415
-Ref: install-tl 'TEXLIVE_INSTALL_NO_CONTEXT_CACHE'90617
-Ref: install-tl 'TEXLIVE_INSTALL_PREFIX'90723
-Ref: install-tl 'TEXLIVE_INSTALL_TEXMFCONFIG'90754
-Ref: install-tl 'TEXLIVE_INSTALL_TEXMFHOME'90783
-Ref: install-tl 'TEXLIVE_INSTALL_TEXMFLOCAL'90813
-Ref: install-tl 'TEXLIVE_INSTALL_TEXMFSYSCONFIG'90847
-Ref: install-tl 'TEXLIVE_INSTALL_TEXMFSYSVAR'90878
-Ref: install-tl 'TEXLIVE_INSTALL_TEXMFVAR'90906
-Ref: install-tl 'NOPERLDOC'90961
-Node: install-tl AUTHORS AND COPYRIGHT91025
-Node: tlmgr91383
-Node: tlmgr NAME91820
-Node: tlmgr SYNOPSIS91945
-Node: tlmgr DESCRIPTION92135
-Node: tlmgr EXAMPLES93231
-Ref: tlmgr 'tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet'93522
-Ref: tlmgr 'tlmgr update --list'93703
-Ref: tlmgr 'tlmgr update --all'93796
-Ref: tlmgr 'tlmgr info' _pkg_93952
-Node: tlmgr OPTIONS94158
-Ref: tlmgr *--repository* _url|path_94678
-Ref: tlmgr *--gui* [_action_]95403
-Ref: tlmgr *--gui-lang* _llcode_95810
-Ref: tlmgr *--debug-translation*96493
-Ref: tlmgr *--machine-readable*96696
-Ref: tlmgr *--no-execute-actions*96964
-Ref: tlmgr *--package-logfile* _file_97157
-Ref: tlmgr *--pause*97412
-Ref: tlmgr *--persistent-downloads*97567
-Ref: tlmgr *--no-persistent-downloads*97595
-Ref: tlmgr *--pin-file*98089
-Ref: tlmgr *--usermode*98307
-Ref: tlmgr *--usertree* _dir_98427
-Node: tlmgr ACTIONS98977
-Node: tlmgr help100209
-Node: tlmgr version100685
-Node: tlmgr backup [--clean[=_N_]] [--backupdir _dir_] [--all | _pkg_]...101003
-Ref: tlmgr *--backupdir* _directory_102097
-Ref: tlmgr *--all*102294
-Ref: tlmgr *--clean*[=_N_]102516
-Ref: tlmgr *--dry-run*102813
-Node: tlmgr candidates _pkg_102933
-Ref: tlmgr *candidates _pkg_* 1103220
-Node: tlmgr check [_option_]... [files|depends|executes|runfiles|all]103364
-Ref: tlmgr *files*103807
-Ref: tlmgr *depends*103942
-Ref: tlmgr *executes*104284
-Ref: tlmgr *runfiles*104402
-Ref: tlmgr *--use-svn*104514
-Node: tlmgr conf [texmf|tlmgr|updmap [--conffile _file_] [--delete] [_key_ [_value_]]]104631
-Node: tlmgr dump-tlpdb [--local|--remote]106703
-Ref: tlmgr *--local*107213
-Ref: tlmgr *--remote*107252
-Node: tlmgr generate [_option_]... _what_107674
-Ref: tlmgr *generate language*107915
-Ref: tlmgr *generate language.dat*107940
-Ref: tlmgr *generate language.def*107965
-Ref: tlmgr *generate language.dat.lua*107994
-Ref: tlmgr *generate fmtutil*108014
-Ref: tlmgr *--dest* _output_file_110251
-Ref: tlmgr *--localcfg* _local_conf_file_110827
-Ref: tlmgr *--rebuild-sys*110950
-Node: tlmgr gui111811
-Node: tlmgr info [_option_...] [collections|schemes|_pkg_...]112055
-Ref: tlmgr *--list*113260
-Ref: tlmgr *--only-installed*113539
-Ref: tlmgr *--taxonomy*113754
-Ref: tlmgr *--keyword*113766
-Ref: tlmgr *--functionality*113784
-Ref: tlmgr *--characterization*113805
-Node: tlmgr init-usertree114018
-Node: tlmgr install [_option_]... _pkg_...114444
-Ref: tlmgr *--file*114808
-Ref: tlmgr *--reinstall*115034
-Ref: tlmgr *--no-depends*115414
-Ref: tlmgr *--no-depends-at-all*115573
-Ref: tlmgr *--dry-run* 1115971
-Ref: tlmgr *--force*116089
-Node: tlmgr option116295
-Ref: tlmgr *option [show]*116468
-Ref: tlmgr *option showall*116486
-Ref: tlmgr *option _key_ [_value_]*116512
-Node: tlmgr paper120360
-Ref: tlmgr *paper [a4|letter]*120545
-Ref: tlmgr *[xdvi|pdftex|dvips|dvipdfmx|context|psutils] paper [_papersize_|--list]*120619
-Node: tlmgr path [--w32mode=user|admin] [add|remove]121646
-Node: tlmgr pinning123129
-Ref: tlmgr 'pinning show'123436
-Ref: tlmgr 'pinning add' _repo_ _pkgglob_...123509
-Ref: tlmgr 'pinning remove' _repo_ _pkgglob_...123628
-Ref: tlmgr 'pinning remove _repo_ --all'123781
-Node: tlmgr platform list|add|remove _platform_...123835
-Node: tlmgr platform set _platform_124083
-Node: tlmgr platform set auto124311
-Ref: tlmgr *--dry-run* 2125428
-Node: tlmgr postaction [--w32mode=user|admin] [--fileassocmode=1|2] [--all] [install|remove] [shortcut|fileassoc|script] [_pkg_]...125537
-Node: tlmgr print-platform126839
-Node: tlmgr restore [--backupdir _dir_] [--all | _pkg_ [_rev_]]127311
-Ref: tlmgr *--all* 1128207
-Ref: tlmgr *--backupdir* _directory_ 1128401
-Ref: tlmgr *--dry-run* 3128557
-Ref: tlmgr *--force* 1128674
-Node: tlmgr remove [_option_]... _pkg_...128702
-Ref: tlmgr *--no-depends* 1129225
-Ref: tlmgr *--no-depends-at-all* 1129287
-Ref: tlmgr *--force* 2129343
-Ref: tlmgr *--dry-run* 4129815
-Node: tlmgr repository129922
-Ref: tlmgr *repository list*130130
-Ref: tlmgr *repository list _path|tag_*130160
-Ref: tlmgr *repository add _path_ [_tag_]*130193
-Ref: tlmgr *repository remove _path|tag_*130225
-Ref: tlmgr *repository set _path_[#_tag_] [_path_[#_tag_] ...]*130279
-Node: tlmgr search [_option_...] _what_131363
-Node: tlmgr search [_option_...] --file _what_131874
-Node: tlmgr search [_option_...] --taxonomy _what_132125
-Node: tlmgr search [_option_...] --keyword _what_132436
-Node: tlmgr search [_option_...] --functionality _what_132754
-Node: tlmgr search [_option_...] --characterization _what_133092
-Node: tlmgr search [_option_...] --all _what_133432
-Ref: tlmgr *--global*133880
-Ref: tlmgr *--word*133992
-Ref: tlmgr *--list* 1134231
-Ref: tlmgr *--file* 1134577
-Ref: tlmgr *--taxonomy* 1134634
-Ref: tlmgr *--keyword* 1134646
-Ref: tlmgr *--functionality* 1134664
-Ref: tlmgr *--characterization* 1134685
-Ref: tlmgr *--all* 2134840
-Node: tlmgr uninstall134923
-Ref: tlmgr *--force* 3135177
-Node: tlmgr update [_option_]... [_pkg_]...135233
-Ref: tlmgr *--all* 3135604
-Ref: tlmgr *--self*137345
-Ref: tlmgr *--dry-run* 5138109
-Ref: tlmgr *--list* [_pkg_]138286
-Ref: tlmgr *--exclude* _pkg_138975
-Ref: tlmgr *--no-auto-remove* [_pkg_]...139668
-Ref: tlmgr *--no-auto-install* [_pkg_]...140119
-Ref: tlmgr *--reinstall-forcibly-removed*140775
-Ref: tlmgr *--backup* and *--backupdir* _directory_141339
-Ref: tlmgr *--no-depends* 2142520
-Ref: tlmgr *--no-depends-at-all* 2142723
-Ref: tlmgr *--force* 4142779
-Node: tlmgr USER MODE143205
-Node: tlmgr user mode install146016
-Node: tlmgr user mode backup; restore; remove; update146963
-Node: tlmgr user mode generate; option; paper147405
-Node: tlmgr CONFIGURATION FILE FOR TLMGR147781
-Node: tlmgr TAXONOMIES148872
-Ref: tlmgr '--keyword' 2149498
-Ref: tlmgr '--functionality' 2149583
-Ref: tlmgr '--characterization' 2149739
-Ref: tlmgr '--taxonomy' 2149880
-Node: tlmgr MULTIPLE REPOSITORIES150421
-Node: tlmgr Pinning152142
-Node: tlmgr GUI FOR TLMGR154117
-Node: tlmgr Main display155339
-Node: tlmgr Display configuration area155591
-Ref: tlmgr Status155952
-Ref: tlmgr Category156116
-Ref: tlmgr Match156302
-Ref: tlmgr Selection156562
-Ref: tlmgr Display configuration buttons156766
-Node: tlmgr Package list area156949
-Ref: tlmgr a checkbox157533
-Ref: tlmgr package name157669
-Ref: tlmgr local revision (and version)157768
-Ref: tlmgr remote revision (and version)158143
-Ref: tlmgr short description158440
-Node: tlmgr Main display action buttons158485
-Ref: tlmgr Update all installed158751
-Ref: tlmgr Update159123
-Ref: tlmgr Install159173
-Ref: tlmgr Remove159359
-Ref: tlmgr Backup159537
-Node: tlmgr Menu bar159694
-Ref: tlmgr 'tlmgr' menu159891
-Ref: tlmgr 'Options menu'160199
-Ref: tlmgr 'Actions menu'161282
-Ref: tlmgr 'Help menu'161710
-Node: tlmgr MACHINE-READABLE OUTPUT161843
-Node: tlmgr Machine-readable 'update' and 'install' output162659
-Ref: tlmgr 'location-url' _location_163941
-Ref: tlmgr 'total-bytes' _count_164157
-Ref: tlmgr _pkgname_164567
-Ref: tlmgr _status_164777
-Ref: tlmgr 'd'164855
-Ref: tlmgr 'f'164915
-Ref: tlmgr 'u'165094
-Ref: tlmgr 'r'165140
-Ref: tlmgr 'a'165263
-Ref: tlmgr 'i'165441
-Ref: tlmgr 'I'165560
-Ref: tlmgr _localrev_165662
-Ref: tlmgr _serverrev_165769
-Ref: tlmgr _size_165881
-Ref: tlmgr _runtime_166050
-Ref: tlmgr _esttot_166120
-Node: tlmgr Machine-readable 'option' output166153
-Node: tlmgr AUTHORS AND COPYRIGHT166671
-Node: Index167018
+Node: Coding conventions72796
+Node: Declarations and definitions73465
+Node: Const75647
+Node: install-tl77510
+Node: install-tl NAME77851
+Node: install-tl SYNOPSIS78009
+Node: install-tl DESCRIPTION78217
+Node: install-tl REFERENCES79218
+Node: install-tl OPTIONS79734
+Ref: install-tl *-gui* [[=]_module_]80088
+Ref: install-tl 'text'80297
+Ref: install-tl 'wizard'80420
+Ref: install-tl 'perltk'80574
+Ref: install-tl *-no-gui*81008
+Ref: install-tl *-lang* _llcode_81089
+Ref: install-tl *-repository* _url|path_81776
+Ref: install-tl *-select-repository*83587
+Ref: install-tl *-all-options*84023
+Ref: install-tl *-custom-bin* _path_84330
+Ref: install-tl *-debug-translation*84985
+Ref: install-tl *-force-platform* _platform_85204
+Ref: install-tl *-help*, *--help*, *-?*85448
+Ref: install-tl *-in-place*85841
+Ref: install-tl *-logfile* _file_86368
+Ref: install-tl *-no-cls*86719
+Ref: install-tl *-non-admin*86850
+Ref: install-tl *--persistent-downloads*86955
+Ref: install-tl *--no-persistent-downloads*86983
+Ref: install-tl *-portable*87591
+Ref: install-tl *-print-platform*87730
+Ref: install-tl *-profile* _profile_87923
+Ref: install-tl *-q*89417
+Ref: install-tl *-scheme* _scheme_89479
+Ref: install-tl *-v*89953
+Ref: install-tl *-version*, *--version*90114
+Node: install-tl ENVIRONMENT VARIABLES90245
+Ref: install-tl 'TEXLIVE_INSTALL_ENV_NOCHECK'90634
+Ref: install-tl 'TEXLIVE_INSTALL_NO_CONTEXT_CACHE'90836
+Ref: install-tl 'TEXLIVE_INSTALL_PREFIX'90942
+Ref: install-tl 'TEXLIVE_INSTALL_TEXMFCONFIG'90973
+Ref: install-tl 'TEXLIVE_INSTALL_TEXMFHOME'91002
+Ref: install-tl 'TEXLIVE_INSTALL_TEXMFLOCAL'91032
+Ref: install-tl 'TEXLIVE_INSTALL_TEXMFSYSCONFIG'91066
+Ref: install-tl 'TEXLIVE_INSTALL_TEXMFSYSVAR'91097
+Ref: install-tl 'TEXLIVE_INSTALL_TEXMFVAR'91125
+Ref: install-tl 'NOPERLDOC'91180
+Node: install-tl AUTHORS AND COPYRIGHT91244
+Node: tlmgr91602
+Node: tlmgr NAME92039
+Node: tlmgr SYNOPSIS92164
+Node: tlmgr DESCRIPTION92354
+Node: tlmgr EXAMPLES93450
+Ref: tlmgr 'tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet'93741
+Ref: tlmgr 'tlmgr update --list'93922
+Ref: tlmgr 'tlmgr update --all'94015
+Ref: tlmgr 'tlmgr info' _pkg_94171
+Node: tlmgr OPTIONS94377
+Ref: tlmgr *--repository* _url|path_94897
+Ref: tlmgr *--gui* [_action_]95622
+Ref: tlmgr *--gui-lang* _llcode_96029
+Ref: tlmgr *--debug-translation*96712
+Ref: tlmgr *--machine-readable*96915
+Ref: tlmgr *--no-execute-actions*97183
+Ref: tlmgr *--package-logfile* _file_97376
+Ref: tlmgr *--pause*97631
+Ref: tlmgr *--persistent-downloads*97786
+Ref: tlmgr *--no-persistent-downloads*97814
+Ref: tlmgr *--pin-file*98308
+Ref: tlmgr *--usermode*98526
+Ref: tlmgr *--usertree* _dir_98646
+Node: tlmgr ACTIONS99196
+Node: tlmgr help100428
+Node: tlmgr version100904
+Node: tlmgr backup [--clean[=_N_]] [--backupdir _dir_] [--all | _pkg_]...101222
+Ref: tlmgr *--backupdir* _directory_102316
+Ref: tlmgr *--all*102513
+Ref: tlmgr *--clean*[=_N_]102735
+Ref: tlmgr *--dry-run*103032
+Node: tlmgr candidates _pkg_103152
+Ref: tlmgr *candidates _pkg_* 1103439
+Node: tlmgr check [_option_]... [files|depends|executes|runfiles|all]103583
+Ref: tlmgr *files*104026
+Ref: tlmgr *depends*104161
+Ref: tlmgr *executes*104503
+Ref: tlmgr *runfiles*104621
+Ref: tlmgr *--use-svn*104733
+Node: tlmgr conf [texmf|tlmgr|updmap [--conffile _file_] [--delete] [_key_ [_value_]]]104850
+Node: tlmgr dump-tlpdb [--local|--remote]106922
+Ref: tlmgr *--local*107432
+Ref: tlmgr *--remote*107471
+Node: tlmgr generate [_option_]... _what_107893
+Ref: tlmgr *generate language*108134
+Ref: tlmgr *generate language.dat*108159
+Ref: tlmgr *generate language.def*108184
+Ref: tlmgr *generate language.dat.lua*108213
+Ref: tlmgr *generate fmtutil*108233
+Ref: tlmgr *--dest* _output_file_110470
+Ref: tlmgr *--localcfg* _local_conf_file_111046
+Ref: tlmgr *--rebuild-sys*111169
+Node: tlmgr gui112030
+Node: tlmgr info [_option_...] [collections|schemes|_pkg_...]112274
+Ref: tlmgr *--list*113479
+Ref: tlmgr *--only-installed*113758
+Ref: tlmgr *--taxonomy*113973
+Ref: tlmgr *--keyword*113985
+Ref: tlmgr *--functionality*114003
+Ref: tlmgr *--characterization*114024
+Node: tlmgr init-usertree114237
+Node: tlmgr install [_option_]... _pkg_...114663
+Ref: tlmgr *--file*115027
+Ref: tlmgr *--reinstall*115253
+Ref: tlmgr *--no-depends*115633
+Ref: tlmgr *--no-depends-at-all*115792
+Ref: tlmgr *--dry-run* 1116190
+Ref: tlmgr *--force*116308
+Node: tlmgr option116514
+Ref: tlmgr *option [show]*116687
+Ref: tlmgr *option showall*116705
+Ref: tlmgr *option _key_ [_value_]*116731
+Node: tlmgr paper120579
+Ref: tlmgr *paper [a4|letter]*120764
+Ref: tlmgr *[xdvi|pdftex|dvips|dvipdfmx|context|psutils] paper [_papersize_|--list]*120838
+Node: tlmgr path [--w32mode=user|admin] [add|remove]121865
+Node: tlmgr pinning123348
+Ref: tlmgr 'pinning show'123655
+Ref: tlmgr 'pinning add' _repo_ _pkgglob_...123728
+Ref: tlmgr 'pinning remove' _repo_ _pkgglob_...123847
+Ref: tlmgr 'pinning remove _repo_ --all'124000
+Node: tlmgr platform list|add|remove _platform_...124054
+Node: tlmgr platform set _platform_124302
+Node: tlmgr platform set auto124530
+Ref: tlmgr *--dry-run* 2125647
+Node: tlmgr postaction [--w32mode=user|admin] [--fileassocmode=1|2] [--all] [install|remove] [shortcut|fileassoc|script] [_pkg_]...125756
+Node: tlmgr print-platform127058
+Node: tlmgr restore [--backupdir _dir_] [--all | _pkg_ [_rev_]]127530
+Ref: tlmgr *--all* 1128426
+Ref: tlmgr *--backupdir* _directory_ 1128620
+Ref: tlmgr *--dry-run* 3128776
+Ref: tlmgr *--force* 1128893
+Node: tlmgr remove [_option_]... _pkg_...128921
+Ref: tlmgr *--no-depends* 1129444
+Ref: tlmgr *--no-depends-at-all* 1129506
+Ref: tlmgr *--force* 2129562
+Ref: tlmgr *--dry-run* 4130034
+Node: tlmgr repository130141
+Ref: tlmgr *repository list*130349
+Ref: tlmgr *repository list _path|tag_*130379
+Ref: tlmgr *repository add _path_ [_tag_]*130412
+Ref: tlmgr *repository remove _path|tag_*130444
+Ref: tlmgr *repository set _path_[#_tag_] [_path_[#_tag_] ...]*130498
+Node: tlmgr search [_option_...] _what_131582
+Node: tlmgr search [_option_...] --file _what_132093
+Node: tlmgr search [_option_...] --taxonomy _what_132344
+Node: tlmgr search [_option_...] --keyword _what_132655
+Node: tlmgr search [_option_...] --functionality _what_132973
+Node: tlmgr search [_option_...] --characterization _what_133311
+Node: tlmgr search [_option_...] --all _what_133651
+Ref: tlmgr *--global*134099
+Ref: tlmgr *--word*134211
+Ref: tlmgr *--list* 1134450
+Ref: tlmgr *--file* 1134796
+Ref: tlmgr *--taxonomy* 1134853
+Ref: tlmgr *--keyword* 1134865
+Ref: tlmgr *--functionality* 1134883
+Ref: tlmgr *--characterization* 1134904
+Ref: tlmgr *--all* 2135059
+Node: tlmgr uninstall135142
+Ref: tlmgr *--force* 3135396
+Node: tlmgr update [_option_]... [_pkg_]...135452
+Ref: tlmgr *--all* 3135823
+Ref: tlmgr *--self*137564
+Ref: tlmgr *--dry-run* 5138328
+Ref: tlmgr *--list* [_pkg_]138505
+Ref: tlmgr *--exclude* _pkg_139194
+Ref: tlmgr *--no-auto-remove* [_pkg_]...139887
+Ref: tlmgr *--no-auto-install* [_pkg_]...140338
+Ref: tlmgr *--reinstall-forcibly-removed*140994
+Ref: tlmgr *--backup* and *--backupdir* _directory_141558
+Ref: tlmgr *--no-depends* 2142739
+Ref: tlmgr *--no-depends-at-all* 2142942
+Ref: tlmgr *--force* 4142998
+Node: tlmgr USER MODE143424
+Node: tlmgr user mode install146235
+Node: tlmgr user mode backup; restore; remove; update147182
+Node: tlmgr user mode generate; option; paper147624
+Node: tlmgr CONFIGURATION FILE FOR TLMGR148000
+Node: tlmgr TAXONOMIES149091
+Ref: tlmgr '--keyword' 2149717
+Ref: tlmgr '--functionality' 2149802
+Ref: tlmgr '--characterization' 2149958
+Ref: tlmgr '--taxonomy' 2150099
+Node: tlmgr MULTIPLE REPOSITORIES150640
+Node: tlmgr Pinning152361
+Node: tlmgr GUI FOR TLMGR154336
+Node: tlmgr Main display155558
+Node: tlmgr Display configuration area155810
+Ref: tlmgr Status156171
+Ref: tlmgr Category156335
+Ref: tlmgr Match156521
+Ref: tlmgr Selection156781
+Ref: tlmgr Display configuration buttons156985
+Node: tlmgr Package list area157168
+Ref: tlmgr a checkbox157752
+Ref: tlmgr package name157888
+Ref: tlmgr local revision (and version)157987
+Ref: tlmgr remote revision (and version)158362
+Ref: tlmgr short description158659
+Node: tlmgr Main display action buttons158704
+Ref: tlmgr Update all installed158970
+Ref: tlmgr Update159342
+Ref: tlmgr Install159392
+Ref: tlmgr Remove159578
+Ref: tlmgr Backup159756
+Node: tlmgr Menu bar159913
+Ref: tlmgr 'tlmgr' menu160110
+Ref: tlmgr 'Options menu'160418
+Ref: tlmgr 'Actions menu'161501
+Ref: tlmgr 'Help menu'161929
+Node: tlmgr MACHINE-READABLE OUTPUT162062
+Node: tlmgr Machine-readable 'update' and 'install' output162878
+Ref: tlmgr 'location-url' _location_164160
+Ref: tlmgr 'total-bytes' _count_164376
+Ref: tlmgr _pkgname_164786
+Ref: tlmgr _status_164996
+Ref: tlmgr 'd'165074
+Ref: tlmgr 'f'165134
+Ref: tlmgr 'u'165313
+Ref: tlmgr 'r'165359
+Ref: tlmgr 'a'165482
+Ref: tlmgr 'i'165660
+Ref: tlmgr 'I'165779
+Ref: tlmgr _localrev_165881
+Ref: tlmgr _serverrev_165988
+Ref: tlmgr _size_166100
+Ref: tlmgr _runtime_166269
+Ref: tlmgr _esttot_166339
+Node: tlmgr Machine-readable 'option' output166372
+Node: tlmgr AUTHORS AND COPYRIGHT166890
+Node: Index167237
 
 End Tag Table

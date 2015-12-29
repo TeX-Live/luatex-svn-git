@@ -10,6 +10,7 @@ Removed:
 	INSTALL.autoconf
 	Makefile.in
 	aclocal.m4
+	compile
 	configfsf.guess
 	configfsf.sub
 	configure
@@ -35,4 +36,3 @@ Removed:
 Renamed:
 	config.guess => configgmp.guess
 	config.sub => configgmp.sub
-

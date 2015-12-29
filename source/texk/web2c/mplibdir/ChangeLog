@@ -1,7 +1,34 @@
 2015-12-16  Luigi Scarso  <luigi.scarso@gmail.com>
 	Updated to cairo-1.14.6, gmp-6.1.0 and libpng-1.6.20.
 	Fixed some issues with tfm files.
-	
+
+2015-11-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* mp.w: Sync with the upstream.
+
+2015-10-16  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* mpmathbinary.w: Sync with the upstream.
+
+2015-10-15  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* mpmathbinary.w: Sync with the upstream.
+
+2015-10-07  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* mpmath.w, mpmathbinary.w, mpmathdecimal.w, mp.w, mpmathdouble.w:
+	Sync with the upstream trunk.
+
+2015-09-21  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* mpmathdecimal.w: Sync with the upstream trunk.
+
+2015-07-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* mptraptest (removed): Renamed ...
+	* mptraptest.test (new):  ... into this.
+	* am/mplib.am: Better dependencies for 'make check'.
+
 
 2015-03-21  Luigi Scarso  <luigi.scarso@gmail.com>
 	make_text for mplib only.
