@@ -1,5 +1,5 @@
 Changes applied to the libpng-1.6.20/ tree as obtained from:
-	http://sourceforge.net/projects/libpng/files/libpng16/1.6.20/libpng-1.6.20.tar.gz/download
+	http://www.libpng.org/ libpng-1.6.20.tar.xz
 
 Copied:
 	scripts/pnglibconf.h.prebuilt -> pnglibconf.h
@@ -16,4 +16,3 @@ Removed:
 	ltmain.sh
 	missing
 	test-driver
-

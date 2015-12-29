@@ -585,7 +585,7 @@ PACKAGE_STRING='poppler (TeX Live) 0.39.0'
 PACKAGE_BUGREPORT='tex-k@tug.org'
 PACKAGE_URL=''
 
-ac_unique_file="poppler-0.39.0/poppler/Array.cc"
+ac_unique_file="poppler-src/poppler/Array.cc"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -6573,7 +6573,7 @@ fi
 ac_config_headers="$ac_config_headers config.h"
 
 
-ac_config_headers="$ac_config_headers poppler-config.h:poppler-0.39.0/poppler/poppler-config.h.in"
+ac_config_headers="$ac_config_headers poppler-config.h:poppler-src/poppler/poppler-config.h.in"
 
 
 
@@ -6712,7 +6712,7 @@ fi
 $as_echo "#define ENABLE_ZLIB 1" >>confdefs.h
 
 
-POPPLER_TREE=poppler-0.39.0
+POPPLER_TREE=poppler-src
 
 
 ac_config_files="$ac_config_files Makefile include/Makefile include/goo/Makefile include/fofi/Makefile"
@@ -7469,7 +7469,7 @@ do
   case $ac_config_target in
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
-    "poppler-config.h") CONFIG_HEADERS="$CONFIG_HEADERS poppler-config.h:poppler-0.39.0/poppler/poppler-config.h.in" ;;
+    "poppler-config.h") CONFIG_HEADERS="$CONFIG_HEADERS poppler-config.h:poppler-src/poppler/poppler-config.h.in" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
     "include/goo/Makefile") CONFIG_FILES="$CONFIG_FILES include/goo/Makefile" ;;

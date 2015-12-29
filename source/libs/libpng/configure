@@ -585,7 +585,7 @@ PACKAGE_STRING='libpng (TeX Live) 1.6.20'
 PACKAGE_BUGREPORT='tex-k@tug.org'
 PACKAGE_URL=''
 
-ac_unique_file="libpng-1.6.20/pngget.c"
+ac_unique_file="libpng-src/pngget.c"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -5774,7 +5774,7 @@ LIBS=$kpse_save_LIBS
 echo timestamp >config.force
 fi
 
-LIBPNG_TREE=libpng-1.6.20
+LIBPNG_TREE=libpng-src
 
 
 LIBPNG_DEFINES='-DPNG_CONFIGURE_LIBPNG -DPNG_NO_MMX_CODE'

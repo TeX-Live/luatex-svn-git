@@ -585,7 +585,7 @@ PACKAGE_STRING='cairo (TeX Live) 1.14.6'
 PACKAGE_BUGREPORT='tex-k@tug.org'
 PACKAGE_URL=''
 
-ac_unique_file="cairo-1.14.6/src/cairo.h"
+ac_unique_file="cairo-src/src/cairo.h"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -6616,7 +6616,7 @@ LIBS=$kpse_save_LIBS
 echo timestamp >config.force
 fi
 
-CAIRO_TREE=cairo-1.14.6
+CAIRO_TREE=cairo-src
 
 
 ac_config_files="$ac_config_files Makefile cairo/Makefile"

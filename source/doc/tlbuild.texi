@@ -2205,6 +2205,11 @@ into a subdirectory that is configured natively as is done for
 value of @code{CC_BUILD}, @file{@var{build}-gcc}, @file{gcc}, or
 @file{cc} as compiler for the auxiliary program.
 
+@pindex txt2zlib
+Building Lua@TeX{} (or LuaJIT@TeX{}) uses the auxiliary program
+@file{txt2zlib} to create @file{pdflua.c} and, if necessary, update the
+distributed version of that file.  In a cross compilation we simply use that
+distributed file.
 
 @cindex ICU cross compiling
 The situation for installable programs needed by the build process is

@@ -90,6 +90,11 @@ into a subdirectory that is configured natively as is done for
 The module 'libs/freetype2' uses the value of 'CC_BUILD', 'BUILD-gcc',
 'gcc', or 'cc' as compiler for the auxiliary program.
 
+   Building LuaTeX (or LuaJITTeX) uses the auxiliary program 'txt2zlib'
+to create 'pdflua.c' and, if necessary, update the distributed version
+of that file.  In a cross compilation we simply use that distributed
+file.
+
    The situation for installable programs needed by the build process is
 somewhat different.  A quite expensive possibility, chosen for the ICU
 libraries in module 'libs/icu', is to first compile natively for the

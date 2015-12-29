@@ -565,7 +565,7 @@ am__DIST_COMMON = $(srcdir)/../../am/dist_hook.am \
 	$(top_srcdir)/../../build-aux/install-sh \
 	$(top_srcdir)/../../build-aux/missing \
 	$(top_srcdir)/../../build-aux/test-driver \
-	$(top_srcdir)/gmp-6.1.0/gmp-h.in ../../build-aux/compile \
+	$(top_srcdir)/gmp-src/gmp-h.in ../../build-aux/compile \
 	../../build-aux/config.guess ../../build-aux/config.sub \
 	../../build-aux/depcomp ../../build-aux/install-sh \
 	../../build-aux/ltmain.sh ../../build-aux/missing \
@@ -1179,7 +1179,7 @@ $(srcdir)/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
-gmp.h: $(top_builddir)/config.status $(top_srcdir)/gmp-6.1.0/gmp-h.in
+gmp.h: $(top_builddir)/config.status $(top_srcdir)/gmp-src/gmp-h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 clean-noinstLIBRARIES:

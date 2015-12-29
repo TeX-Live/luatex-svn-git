@@ -1,4 +1,4 @@
-$Id: README 38597 2015-10-09 08:32:06Z peter $
+$Id: README 39217 2015-12-28 23:25:11Z kakuto $
 Copyright 2006-2015 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -59,10 +59,10 @@ dvipos - ?
 
 dvipsk - maintained here, by us
 
-dvisvgm 1.11 - checked 29sep15
+dvisvgm 1.14 - checked 28dec15
   http://dvisvgm.bplaced.net/Downloads
 
-gregorio 4.0.0-rc1 - checked 9oct15
+gregorio 4.0.0 - checked 9dec15
   https://github.com/gregorio-project/gregorio/releases/
 
 gsftopk - from Paul Vojta's xdvi?

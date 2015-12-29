@@ -351,6 +351,7 @@ texmf_other_scripts = \
 	ltximg/ltximg.pl \
 	luaotfload/luaotfload-tool.lua \
 	m-tx/m-tx.lua \
+	makedtx/makedtx.pl \
 	make4ht/make4ht \
 	match_parens/match_parens \
 	mathspic/mathspic.pl \
@@ -366,6 +367,7 @@ texmf_other_scripts = \
 	pdfcrop/pdfcrop.pl \
 	pedigree-perl/pedigree.pl \
 	perltex/perltex.pl \
+	petri-nets/pn2pdf \
 	pfarrei/a5toa4.tlu \
 	pfarrei/pfarrei.tlu \
 	pkfix-helper/pkfix-helper \
