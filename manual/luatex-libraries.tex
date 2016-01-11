@@ -4387,7 +4387,7 @@ and \type {pdf.retval}}
 These status variables are similar to the ones traditionally used at the \TEX\
 end.
 
-\subsection{\type {pdf.setorigin}}
+\subsection{\type {pdf.setorigin}, \type {pdf.getorigin}}
 
 This one is used to set the horizonal and/or vertical offset (a traditional
 backend property).
@@ -4397,6 +4397,16 @@ pdf.setorigin() -- sets both to 0pt
 pdf.setorigin(tex.sp("1in")) -- sets both to 1in
 pdf.setorigin(tex.sp("1in"),tex.sp("1in"))
 \stoptyping
+
+The counterpart of this function returns two values.
+
+\subsection{\type {pdf.setlinkmargin}, \type {pdf.getlinkmargin} \type
+{pdf.setdestmargin}, \type {pdf.getdestmargin} \type {pdf.setthreadmargin},
+\type {pdf.getthreadmargin} \type {pdf.setxformmargin}, \type
+{pdf.getxformmargin}}
+
+These function can be used to set and retrieve the margins that are added to the
+natural boundingboxes of the respective objects.
 
 \subsection{\type {pdf.h}, \type {pdf.v}}
 
@@ -4987,6 +4997,15 @@ tex.year
 % tex.pdftracingfonts
 % tex.pdfuniqueresname
 
+% tex.pdfdestmargin
+% tex.pdflinkmargin
+% tex.pdfthreadmargin
+% tex.pdfxformmargin
+% tex.pdfhorigin
+% tex.pdfvorigin
+
+% tex.pdfpxdimen
+
 Read|-|only:
 
 \startthreecolumns
@@ -5030,14 +5049,6 @@ tex.pagerightoffset
 tex.pagetopoffset
 tex.pagewidth
 tex.parindent
-tex.pdfdestmargin
-tex.pdfhorigin
-tex.pdflinkmargin
-tex.pdfpageheight
-tex.pdfpagewidth
-tex.pdfpxdimen
-tex.pdfthreadmargin
-tex.pdfvorigin
 tex.predisplaysize
 tex.scriptspace
 tex.splitmaxdepth
