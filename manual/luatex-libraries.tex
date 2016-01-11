@@ -5443,8 +5443,10 @@ called xforms in \PDF). You can (re)use the box with \type {\useboxresource} or
 by creating a rule node with subtype~2.
 
 \starttyping
-local index = tex.saveboxresource(n,attributes,resources)
+local index = tex.saveboxresource(n,attributes,resources,immediate)
 \stoptyping
+
+The optional second and third arguments are strings, the fourth is a boolean.
 
 You can generate the reference (a rule type) with:
 
