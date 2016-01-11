@@ -410,46 +410,6 @@ int shell_cmd_is_allowed(const char *cmd, char **safecmd, char **cmdname)
     return allow;
 }
 
-/* We should only be called with shellenabledp == 1.
-   Return value:
-   -1 if a quotation syntax error.
-   0 if CMD is not allowed; given shellenabledp==1, this is because
-      shell escapes are restricted and CMD is not allowed.
-   1 if shell escapes are not restricted, hence any command is allowed.
-   2 if shell escapes are restricted and CMD is allowed.  */
-
-int runsystem(const char *cmd)
-{
-    int allow = 0;
-    char *safecmd = NULL;
-    char *cmdname = NULL;
-    int status = 0;
-    if (shellenabledp <= 0) {
-        return 0;
-    }
-
-    /* If restrictedshell == 0, any command is allowed. */
-    if (restrictedshell == 0)
-        allow = 1;
-    else
-        allow = shell_cmd_is_allowed(cmd, &safecmd, &cmdname);
-
-    if (allow == 1)
-        status = system(cmd);
-    else if (allow == 2)
-        status = system(safecmd);
-    /* Not really meaningful, but we have to manage the return value of system. */
-    if (status==-1)
-       fprintf(stderr,"system returned with code -1\n");
-
-    if (safecmd)
-        free(safecmd);
-    if (cmdname)
-        free(cmdname);
-
-    return allow;
-}
-
 #endif
 
 
