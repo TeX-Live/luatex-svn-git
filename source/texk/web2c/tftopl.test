@@ -5,6 +5,8 @@
 
 test -d tests || mkdir -p tests
 
+./tftopl -char=foo -help || exit 1
+
 ./tftopl -version || exit 1
 
 TEXMFCNF=$srcdir/../kpathsea
