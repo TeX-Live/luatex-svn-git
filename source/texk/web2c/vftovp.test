@@ -5,6 +5,8 @@
 
 test -d tests || mkdir -p tests
 
+./vftovp -char=bar -help  || exit 1
+
 ./vftovp -version  || exit 1
 
 TEXMFCNF=$srcdir/../kpathsea

@@ -304,6 +304,13 @@ extern void paintrow (/*screenrow, pixelcolor, transspec, screencol*/);
 #define	undumpthings(base, len) \
   do_undump ((char *) &(base), sizeof (base), (int) (len), DUMP_FILE)
 
+#ifndef PRIdPTR
+#define PRIdPTR "ld"
+#endif
+#ifndef PRIxPTR
+#define PRIxPTR "lx"
+#endif
+
 /* Like do_undump, but check each value against LOW and HIGH.  The
    slowdown isn't significant, and this improves the chances of
    detecting incompatible format files.  In fact, Knuth himself noted
@@ -315,9 +322,10 @@ extern void paintrow (/*screenrow, pixelcolor, transspec, screencol*/);
     undumpthings (base, len);                                           \
     for (i = 0; i < (len); i++) {                                       \
       if ((&(base))[i] < (low) || (&(base))[i] > (high)) {              \
-        FATAL5 ("Item %u (=%ld) of .fmt array at %lx <%ld or >%ld",     \
-                i, (unsigned long) (&(base))[i], (unsigned long) &(base),\
-                (unsigned long) low, (unsigned long) high);                   \
+        FATAL5 ("Item %u (=%" PRIdPTR ") of .fmt array at %" PRIxPTR    \
+                " <%" PRIdPTR " or >%" PRIdPTR,                         \
+                i, (uintptr_t) (&(base))[i], (uintptr_t) &(base),       \
+                (uintptr_t) low, (uintptr_t) high);                     \
       }                                                                 \
     }									\
   } while (0)
@@ -331,9 +339,10 @@ extern void paintrow (/*screenrow, pixelcolor, transspec, screencol*/);
     undumpthings (base, len);                                           \
     for (i = 0; i < (len); i++) {                                       \
       if ((&(base))[i] > (high)) {              			\
-        FATAL4 ("Item %u (=%ld) of .fmt array at %lx >%ld",     	\
-                i, (unsigned long) (&(base))[i], (unsigned long) &(base),\
-                (unsigned long) high);                         		\
+        FATAL4 ("Item %u (=%" PRIdPTR ") of .fmt array at %" PRIxPTR    \
+                " >%" PRIdPTR,                                          \
+                i, (uintptr_t) (&(base))[i], (uintptr_t) &(base),       \
+                (uintptr_t) high);                         		\
       }                                                                 \
     }									\
   } while (0)
