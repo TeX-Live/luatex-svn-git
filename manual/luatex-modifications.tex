@@ -513,18 +513,18 @@ primitives (for as far their functionality is still around) you now can do this:
 The introspective primitives can bve defines as:
 
 \starttyping
-\def\pdftexversion    {\numexpr\pdffeedback version}
+\def\pdftexversion    {\numexpr\pdffeedback version\relax}
 \def\pdftexrevision           {\pdffeedback revision}
-\def\pdflastlink      {\numexpr\pdffeedback lastlink}
-\def\pdfretval        {\numexpr\pdffeedback retval}
-\def\pdflastobj       {\numexpr\pdffeedback lastobj}
-\def\pdflastannot     {\numexpr\pdffeedback lastannot}
-\def\pdfxformname     {\numexpr\pdffeedback xformname}
+\def\pdflastlink      {\numexpr\pdffeedback lastlink\relax}
+\def\pdfretval        {\numexpr\pdffeedback retval\relax}
+\def\pdflastobj       {\numexpr\pdffeedback lastobj\relax}
+\def\pdflastannot     {\numexpr\pdffeedback lastannot\relax}
+\def\pdfxformname     {\numexpr\pdffeedback xformname\relax}
 \def\pdfcreationdate          {\pdffeedback creationdate}
-\def\pdffontname      {\numexpr\pdffeedback fontname}
-\def\pdffontobjnum    {\numexpr\pdffeedback fontobjnum}
-\def\pdffontsize      {\dimexpr\pdffeedback fontsize}
-\def\pdfpageref       {\numexpr\pdffeedback pageref}
+\def\pdffontname      {\numexpr\pdffeedback fontname\relax}
+\def\pdffontobjnum    {\numexpr\pdffeedback fontobjnum\relax}
+\def\pdffontsize      {\dimexpr\pdffeedback fontsize\relax}
+\def\pdfpageref       {\numexpr\pdffeedback pageref\relax}
 \def\pdfcolorstackinit        {\pdffeedback colorstackinit}
 \stoptyping
 
