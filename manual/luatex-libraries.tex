@@ -4379,7 +4379,8 @@ the maximum is~9.
 
 \subsection{\type {pdf.setdecimaldigits} and \type {pdf.getdecimaldigits}}
 
-These two functions set the accuracy of floats written to the \PDF file.
+These two functions set the accuracy of floats written to the \PDF file. You can
+set any value but the backend will not go below 3 and above 6.
 
 \subsection{\type {pdf.lastobj}, \type {pdf.lastlink}, \type {pdf.lastannot},
 and \type {pdf.retval}}
@@ -6385,7 +6386,7 @@ in the input.
 The creator function can be used as follows:
 
 \starttyping
-local t = token("relax")
+local t = token.create("relax")
 \stoptyping
 
 This gives back a token object that has the properties of the \type {\relax}
