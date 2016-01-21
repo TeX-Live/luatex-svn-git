@@ -112,40 +112,26 @@ static boolean writepk(PDF pdf, internal_font_number f)
 
     if (callback_id > 0) {
         /* <base>.dpi/<fontname>.<tdpi>pk */
-/*
-        unsigned mallocsize = 0;
-        char *ftemp = NULL;
-        dpi = round((float) pdf->pk_resolution *
-                    (((float) font_size(f)) / (float) font_dsize(f)));
-        cur_file_name = font_name(f);
-        mallocsize = (unsigned) (strlen(cur_file_name) + 24 + 9);
-        name = xmalloc(mallocsize);
-        snprintf(name, (size_t) mallocsize, "%ddpi/%s.%dpk",
-                 (int) pdf->pk_resolution, cur_file_name, (int) dpi);
-        if (run_callback(callback_id, "Sd->S", cur_file_name, (int) dpi, &ftemp)) {
-            if (ftemp != NULL && strlen(ftemp)) {
-                free(name);
-                name = xstrdup(ftemp);
-                free(ftemp);
-            }
-        }
-*/
         dpi = round((float) pdf->pk_resolution *
                     (((float) font_size(f)) / (float) font_dsize(f)));
         cur_file_name = font_name(f);
         run_callback(callback_id, "Sd->S", cur_file_name, (int) dpi, &name);
+        if (name == NULL || strlen(name) == 0) {
+            formatted_warning("type 3","font %s at %i not found", cur_file_name, (int) dpi);
+            return false;
+        }
     } else {
-        dpi = (int)
-            kpse_magstep_fix((unsigned) round
-                             ((float) pdf->pk_resolution *
-                              ((float) font_size(f) / (float) font_dsize(f))),
-                             (unsigned) pdf->pk_resolution, NULL);
+        dpi = (int) kpse_magstep_fix(
+            (unsigned) round ((float)pdf->pk_resolution * ((float)font_size(f)/(float)font_dsize(f))),
+            (unsigned) pdf->pk_resolution, NULL
+        );
         cur_file_name = font_name(f);
         name = kpse_find_pk(cur_file_name, (unsigned) dpi, &font_ret);
         if (name == NULL ||
             !FILESTRCASEEQ(cur_file_name, font_ret.name) ||
             !kpse_bitmap_tolerance((float) font_ret.dpi, (float) dpi)) {
             formatted_error("type 3","font %s at %i not found", cur_file_name, (int) dpi);
+            return false;
         }
     }
     callback_id = callback_defined(read_pk_file_callback);
@@ -172,8 +158,8 @@ static boolean writepk(PDF pdf, internal_font_number f)
         if (!pdf_char_marked(f, cd.charcode))
             continue;
         t3_char_widths[cd.charcode] = (float)
-            pk_char_width(f, get_charwidth(f, cd.charcode),
-                          pdf->decimal_digits, pdf->pk_scale_factor);
+/*            pk_char_width(f, get_charwidth(f, cd.charcode), pdf->decimal_digits, pdf->pk_scale_factor);*/
+            pk_char_width(f, get_charwidth(f, cd.charcode), 3, pdf->pk_scale_factor);
         if (cd.cwidth < 1 || cd.cheight < 1) {
             cd.xescape = cd.cwidth = round(t3_char_widths[cd.charcode] / 100.0);
             cd.cheight = 1;
@@ -275,8 +261,8 @@ void writet3(PDF pdf, internal_font_number f)
         pdf_out(pdf, '\n');
     }
     if (is_pk_font) {
-        pk_font_scale =
-            get_pk_font_scale(f, pdf->decimal_digits, pdf->pk_scale_factor);
+/*        pk_font_scale = get_pk_font_scale(f, pdf->decimal_digits, pdf->pk_scale_factor); */
+        pk_font_scale = get_pk_font_scale(f, 3, pdf->pk_scale_factor);
         pdf_add_name(pdf, "FontMatrix");
         pdf_begin_array(pdf);
         setpdffloat(pf, (int64_t) pk_font_scale, 5);
