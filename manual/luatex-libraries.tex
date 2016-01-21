@@ -176,15 +176,16 @@ Like \type {find_font_file}, but for subfont definition files.
 
 \subsubsection{\type {find_pk_file}}
 
-Like \type {find_font_file}, but for pk bitmap files. The argument \type
-{asked_name} is a bit special in this case. Its form is
+Like \type {find_font_file}, but for pk bitmap files. This callback takes two
+arguments: \type {name} and \type {dpi}. In your callback you can decide to
+look for:
 
 \starttyping
 <base res>dpi/<fontname>.<actual res>pk
 \stoptyping
 
-So you may be asked for \type {600dpi/manfnt.720pk}. It is up to you to find a
-\quote {reasonable} bitmap file to go with that specification.
+but other strategies are possible. It is up to you to find a \quote {reasonable}
+bitmap file to go with that specification.
 
 \subsubsection{\type {find_data_file}}
 

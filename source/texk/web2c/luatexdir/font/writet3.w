@@ -99,13 +99,11 @@ static boolean writepk(PDF pdf, internal_font_number f)
     pdffloat pf;
     halfword *row;
     char *name;
-    char *ftemp = NULL;
     chardesc cd;
     boolean is_null_glyph, check_preamble;
     int dpi;
     int callback_id = 0;
     int file_opened = 0;
-    unsigned mallocsize = 0;
     xfree(t3_buffer);
     t3_curbyte = 0;
     t3_size = 0;
@@ -113,21 +111,29 @@ static boolean writepk(PDF pdf, internal_font_number f)
     callback_id = callback_defined(find_pk_file_callback);
 
     if (callback_id > 0) {
+        /* <base>.dpi/<fontname>.<tdpi>pk */
+/*
+        unsigned mallocsize = 0;
+        char *ftemp = NULL;
         dpi = round((float) pdf->pk_resolution *
                     (((float) font_size(f)) / (float) font_dsize(f)));
-        /* <base>.dpi/<fontname>.<tdpi>pk */
         cur_file_name = font_name(f);
         mallocsize = (unsigned) (strlen(cur_file_name) + 24 + 9);
         name = xmalloc(mallocsize);
         snprintf(name, (size_t) mallocsize, "%ddpi/%s.%dpk",
                  (int) pdf->pk_resolution, cur_file_name, (int) dpi);
-        if (run_callback(callback_id, "S->S", name, &ftemp)) {
+        if (run_callback(callback_id, "Sd->S", cur_file_name, (int) dpi, &ftemp)) {
             if (ftemp != NULL && strlen(ftemp)) {
                 free(name);
                 name = xstrdup(ftemp);
                 free(ftemp);
             }
         }
+*/
+        dpi = round((float) pdf->pk_resolution *
+                    (((float) font_size(f)) / (float) font_dsize(f)));
+        cur_file_name = font_name(f);
+        run_callback(callback_id, "Sd->S", cur_file_name, (int) dpi, &name);
     } else {
         dpi = (int)
             kpse_magstep_fix((unsigned) round
