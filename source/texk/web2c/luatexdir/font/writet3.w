@@ -158,8 +158,8 @@ static boolean writepk(PDF pdf, internal_font_number f)
         if (!pdf_char_marked(f, cd.charcode))
             continue;
         t3_char_widths[cd.charcode] = (float)
-            pk_char_width(f, get_charwidth(f, cd.charcode),
-                          pdf->decimal_digits, pdf->pk_scale_factor);
+/*            pk_char_width(f, get_charwidth(f, cd.charcode), pdf->decimal_digits, pdf->pk_scale_factor);*/
+            pk_char_width(f, get_charwidth(f, cd.charcode), 3, pdf->pk_scale_factor);
         if (cd.cwidth < 1 || cd.cheight < 1) {
             cd.xescape = cd.cwidth = round(t3_char_widths[cd.charcode] / 100.0);
             cd.cheight = 1;
@@ -261,8 +261,8 @@ void writet3(PDF pdf, internal_font_number f)
         pdf_out(pdf, '\n');
     }
     if (is_pk_font) {
-        pk_font_scale =
-            get_pk_font_scale(f, pdf->decimal_digits, pdf->pk_scale_factor);
+/*        pk_font_scale = get_pk_font_scale(f, pdf->decimal_digits, pdf->pk_scale_factor); */
+        pk_font_scale = get_pk_font_scale(f, 3, pdf->pk_scale_factor);
         pdf_add_name(pdf, "FontMatrix");
         pdf_begin_array(pdf);
         setpdffloat(pf, (int64_t) pk_font_scale, 5);
