@@ -2669,6 +2669,12 @@ Once the image is scanned, all the values in the \type {<image>} except \type
 {width}, \type {height} and \type {depth}, become frozen, and you cannot change
 them any more.
 
+You can use \type {pdf.setignoreunknownimages(1)} (or at the \TEX\ end the \type
+{\pdfvariable} \type {ignoreunknownimages}) to get around a quit when no known
+image type is found (based on name or preamble). Beware: this will not catch
+invalid images and we cannot guarantee side effects. A zero dimension image is
+still included when requested. No special flags are set.
+
 \subsection{\type {img.keys}}
 
 \startfunctioncall
