@@ -2673,7 +2673,8 @@ You can use \type {pdf.setignoreunknownimages(1)} (or at the \TEX\ end the \type
 {\pdfvariable} \type {ignoreunknownimages}) to get around a quit when no known
 image type is found (based on name or preamble). Beware: this will not catch
 invalid images and we cannot guarantee side effects. A zero dimension image is
-still included when requested. No special flags are set.
+still included when requested. No special flags are set. A proper workflow will
+not rely in such a catch but make sure that images are valid.
 
 \subsection{\type {img.keys}}
 
@@ -4389,6 +4390,11 @@ the maximum is~9.
 These two functions set the accuracy of floats written to the \PDF file. You can
 set any value but the backend will not go below 3 and above 6.
 
+\subsection{\type {pdf.setpkresolution} and \type {pdf.getpkresolution}}
+
+These setter takes two arguments: the resolution and an optional zero or one that
+indicates if this is a fixed one. The getter returns these two values.
+
 \subsection{\type {pdf.lastobj}, \type {pdf.lastlink}, \type {pdf.lastannot},
 and \type {pdf.retval}}
 
@@ -4985,34 +4991,6 @@ tex.widowpenalty
 tex.year
 \stoptyping
 \stoptwocolumns
-
-% tex.pdfadjustspacing
-% tex.pdfcompresslevel
-% tex.pdfdecimaldigits
-% tex.pdfgamma
-% tex.pdfgentounicode
-% tex.pdfimageapplygamma
-% tex.pdfimagegamma
-% tex.pdfimagehicolor
-% tex.pdfimageresolution
-% tex.pdfinclusionerrorlevel
-% tex.pdfminorversion
-% tex.pdfobjcompresslevel
-% tex.pdfoutput
-% tex.pdfpagebox
-% tex.pdfpkresolution
-% tex.pdfprotrudechars
-% tex.pdftracingfonts
-% tex.pdfuniqueresname
-
-% tex.pdfdestmargin
-% tex.pdflinkmargin
-% tex.pdfthreadmargin
-% tex.pdfxformmargin
-% tex.pdfhorigin
-% tex.pdfvorigin
-
-% tex.pdfpxdimen
 
 Read|-|only:
 

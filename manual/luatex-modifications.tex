@@ -541,6 +541,7 @@ The configuration related registers have become:
 \edef\pdfimagehicolor             {\pdfvariable imagehicolor}
 \edef\pdfimageaddfilename         {\pdfvariable imageaddfilename}
 \edef\pdfpkresolution             {\pdfvariable pkresolution}
+\edef\pdfpkfixeddpi               {\pdfvariable pkfixeddpi}
 \edef\pdfinclusioncopyfonts       {\pdfvariable inclusioncopyfonts}
 \edef\pdfinclusionerrorlevel      {\pdfvariable inclusionerrorlevel}
 \edef\pdfignoreunknownimages      {\pdfvariable ignoreunknownimages}
@@ -554,7 +555,7 @@ The configuration related registers have become:
 \edef\pdflinkmargin               {\pdfvariable linkmargin}
 \edef\pdfdestmargin               {\pdfvariable destmargin}
 \edef\pdfthreadmargin             {\pdfvariable threadmargin}
-\edef\pdfformmargin               {\pdfvariable formmargin}
+\edef\pdfxformmargin              {\pdfvariable xformmargin}
 
 \edef\pdfpagesattr                {\pdfvariable pagesattr}
 \edef\pdfpageattr                 {\pdfvariable pageattr}
@@ -596,6 +597,7 @@ the defaults; these are:
 \pdfimagehicolor          1
 \pdfimageaddfilename      1
 \pdfpkresolution         72
+\pdfpkfixeddpi            0
 \pdfinclusioncopyfonts    0
 \pdfinclusionerrorlevel   0
 \pdfignoreunknownimages   0
