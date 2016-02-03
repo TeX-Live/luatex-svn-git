@@ -36,7 +36,14 @@
 #  define pdfkeyprefix "PTEX"
 
 #  define i32round(a) (int) floor((a) + 0.5)
-#  define i64round(a) (int64_t) floor((a) + 0.5)
+/*#  define i64round(a) (int64_t) floor((a) + 0.5)*/
+/*#  define i64round(a) (int64_t) ( (double)(a+0.5) - ((int64_t)(a+0.5))%1  ) */
+#ifdef _WIN32
+#  define i64round(a) (int64_t) win32_floor((a) + 0.5)
+#else
+#  define i64round(a) (int64_t) lround((a))
+#endif
+
 
 #  define MAX_OBJ_COMPRESS_LEVEL 3                  /* maximum/clipping value for \pdfobjcompresslevel */
 #  define OBJSTM_UNSET -1                           /* initial value */
