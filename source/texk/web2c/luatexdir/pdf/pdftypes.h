@@ -88,9 +88,12 @@ typedef struct {
 #  define scaled int
 
 typedef struct scaledpos_ {
-    scaled h;
-    scaled v;
-} scaledpos;
+    int64_t h;
+    int64_t v;
+ } scaledpos;
+
+
+
 
 typedef struct scaled_whd_ {
     scaled wd; /* TeX width */
