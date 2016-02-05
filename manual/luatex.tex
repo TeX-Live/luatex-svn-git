@@ -1,0 +1,34 @@
+% macros=mkvi
+
+% \tex vs \type vs \syntax vs. \luatex
+% \em \it \/
+
+% \enabledirectives[nodes.basepass*]
+
+\environment luatex-style
+\environment luatex-logos
+
+\dontcomplain
+
+\startdocument
+  [beta=0.89.0]
+
+\component luatex-titlepage
+
+\startfrontmatter
+    \component luatex-contents
+    \component luatex-introduction
+\stopfrontmatter
+
+\startbodymatter
+    \component luatex-enhancements
+    \component luatex-lua
+    \component luatex-languages
+    \component luatex-fonts
+    \component luatex-math
+    \component luatex-nodes
+    \component luatex-libraries
+    \component luatex-modifications
+\stopbodymatter
+
+\stopdocument
