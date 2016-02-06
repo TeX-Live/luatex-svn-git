@@ -577,11 +577,7 @@ void print_pdffloat(PDF pdf, pdffloat f)
                 pdf_out(pdf, '1');
             } else {
                 char a[24];
-#ifdef _WIN32
-                snprintf(a, 23, "%I64d", m);
-#else
-                snprintf(a, 23, "%ld", m);
-#endif
+                snprintf(a, 23, "%" LONGINTEGER_PRI "d", m);
                 pdf_puts(pdf, a);
             }
         } else {
