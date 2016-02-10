@@ -5459,6 +5459,15 @@ unknown):
 local w, h, d = tex.getboxresourcedimensions(n)
 \stoptyping
 
+You can split a box:
+
+\starttyping
+local vlist = tex.splitbox(n,height)
+\stoptyping
+
+The remainder is kept in the original box and a packaged vlist is returned. This
+operation is comparable to the \type {\vsplit} operation.
+
 \subsection{Math parameters}
 
 It is possible to set and query the internal math parameters using:
