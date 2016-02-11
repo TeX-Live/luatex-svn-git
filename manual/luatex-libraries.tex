@@ -6488,6 +6488,22 @@ The results are like:
  \def\csname{}
 \stoptyping
 
+There is a (for now) experimental putter:
+
+\starttyping
+local t1 = token.get_next()
+local t2 = token.get_next()
+local t3 = token.get_next()
+local t4 = token.get_next()
+-- watch out, we flush in sequence
+token.put_next { t1, t2 }
+-- but this one gets pushed in front
+token.put_next ( t3, t4 )
+\stoptyping
+
+When we scan \type {wxyz!} we get \type {yzwx!} back. The argument is either a table
+with tokens or a list of tokens.
+
 \stopchapter
 
 \stopcomponent
