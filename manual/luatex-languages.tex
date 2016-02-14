@@ -111,7 +111,9 @@ fields, and the new special fields like \quote {attr}
 \stopitemize
 
 Incidentally, \LUATEX\ allows 16383 separate languages, and words can be 256
-characters long.
+characters long. The language is stored with each character. You can set
+\type {\firstvalidlanguage} to for instance~1 and make thereby language~0
+an ignored hyphenation language.
 
 The new primitive \type {\hyphenationmin} can be used to signal the minimal length
 of a word. This value stored with the (current) language.
