@@ -5462,11 +5462,12 @@ local w, h, d = tex.getboxresourcedimensions(n)
 You can split a box:
 
 \starttyping
-local vlist = tex.splitbox(n,height)
+local vlist = tex.splitbox(n,height,mode)
 \stoptyping
 
 The remainder is kept in the original box and a packaged vlist is returned. This
-operation is comparable to the \type {\vsplit} operation.
+operation is comparable to the \type {\vsplit} operation. The mode can be \type
+{additional} or \type {exactly} and concerns the split off box.
 
 \subsection{Math parameters}
 
