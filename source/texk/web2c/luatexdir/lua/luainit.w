@@ -221,7 +221,7 @@ static struct option long_options[] = {
     {"progname", 1, 0, 0},
     {"version", 0, 0, 0},
     {"credits", 0, 0, 0},
-    {"recorder", 1, 0, 0},
+    {"recorder", 0, 0, 0},
     {"etex", 0, 0, 0},
     {"output-comment", 1, 0, 0},
     {"output-directory", 1, 0, 0},
@@ -399,7 +399,7 @@ static void parse_options(int ac, char **av)
             /* Synchronize TeXnology: catching the command line option as a long  */
             synctexoption = (int) strtol(optarg, NULL, 0);
         } else if (ARGUMENT_IS("recorder")) {
-            recorderoption = (int) strtol(optarg, NULL, 0);
+            recorderoption = 1 ; 
         } else if (ARGUMENT_IS("help")) {
             usagehelp(LUATEX_IHELP, BUG_ADDRESS);
         } else if (ARGUMENT_IS("version")) {
@@ -593,7 +593,7 @@ static void fix_dumpname(void)
     } else {
         /* For |dump_name| to be NULL is a bug.  */
         if (!ini_version)
-            abort();
+            normal_error("luatex","no format given");
     }
 }
 
