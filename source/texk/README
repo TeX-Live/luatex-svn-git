@@ -1,4 +1,4 @@
-$Id: README 39470 2016-01-23 22:38:00Z kakuto $
+$Id: README 39776 2016-02-19 09:50:02Z kakuto $
 Copyright 2006-2015 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -62,7 +62,7 @@ dvipsk - maintained here, by us
 dvisvgm 1.14.2 - checked 20jan16
   http://dvisvgm.bplaced.net/Downloads
 
-gregorio 4.1.0-beta1 - checked 23jan16
+gregorio 4.1.0-rc1 - checked 19feb16
   https://github.com/gregorio-project/gregorio/releases/
 
 gsftopk - from Paul Vojta's xdvi?
@@ -74,11 +74,11 @@ lcdf-typetools 2.105 - checked 27sep15
 
 makeindexk - maintained here, by us
 
-makejvf - ?
+makejvf - maintained here, mainly by Takuji Tanaka
 
-mendexk - maintained here, by us (akira et al.)
+mendexk - maintained here, by us (Takuji, Akira et al.)
 
-/musixtnt 2015-02-09 - checked 10feb15
+musixtnt 2016-01-30 - checked 10feb16
   http://mirror.ctan.org/macros/musixtnt/
 
 ps2pk - maintained here, by us
@@ -99,9 +99,28 @@ ttf2pk2 - maintained here, by us
 
 ttfdump - ?
 
-web2c - maintained here, by us - core web2c, plain tex, etc.
-        The TeX variant dirs (pdftexdir, xetexdir, etc.)
-        updated here by their respective maintainers.
+upmendex 0.50 - 
+  http://www.ctan.org/pkg/upmendex
+  http://www.t-lab.opal.ne.jp/tex/uptex_en.html
 
+web2c - maintained here, by us - core web2c, plain tex, etc.
+  The TeX variant dirs (pdftexdir, xetexdir, etc.)
+  updated here by their respective maintainers.  More info:
+       aleph - maintained here
+        ctie - CTAN
+        cweb - knuth, ftp://ftp.cs.stanford.edu/pub/cweb/
+       eptex - https://osdn.jp/projects/eptex/
+        etex - maintained here
+      euptex - https://texwiki.texjp.org/?e-pTeX
+  mflua[jit] - https://github.com/luigiScarso/mflua
+    mplibdir - http://tug.org/metapost
+      luatex - http://luatex.org
+      pdftex - http://pdftex.org
+      pmpost - none
+        ptex - nothing current, old info: http://ascii.asciimw.jp/pb/ptex/
+     synctex - maintained here
+       uptex - https://texwiki.texjp.org/?upTeX%2CupLaTeX
+       xetex - http://tug.org/xetex/
+   
 xdvik 22.87 - checked 14apr14
   http://sourceforge.net/projects/xdvi/files/xdvik/
