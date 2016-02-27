@@ -1,0 +1,69 @@
+\environment luatex-style
+\environment luatex-logos
+
+\startcomponent luatex-titlepage
+
+\startstandardmakeup
+
+    \switchtobodyfont
+      [mainfacemedium]
+
+    \definedfont[Bold*default at \the\dimexpr.08\paperheight\relax] \setupinterlinespace
+
+    \setlayer
+      [page]
+      {\useMPgraphic{luapage}}
+
+    \setlayerframed
+      [page]
+      [preset=middletop,
+       voffset=.05\paperheight]
+      [align=middle,
+       foregroundcolor=blue,
+       frame=off]
+      {Lua\TeX\\Reference}
+
+    \definedfont[Bold*default at 24pt] \setupinterlinespace
+
+    \setlayerframed
+      [page]
+      [preset=middletop,
+       voffset=.35\paperheight]
+      [align=middle,
+       foregroundcolor=blue,
+       frame=off]
+      {\doifsomething{\documentvariable{snapshot}}{snapshot \documentvariable{snapshot}}%
+       \doifsomething{\documentvariable{beta}}    {beta     \documentvariable{beta}}}
+
+\stopstandardmakeup
+
+\startstandardmakeup
+
+    \start
+        \raggedleft
+        \definedfont[Bold*default at 48pt]
+        \setupinterlinespace
+        \blue Lua\TeX \endgraf Reference \endgraf Manual \endgraf
+    \stop
+
+    \vfill
+
+    \definedfont[Bold*default at 12pt]
+
+    \starttabulate[|l|l|]
+        \NC copyright \EQ Lua\TeX\ development team \NC \NR
+        \NC more info \EQ www.luatex.org \NC \NR
+        \NC version   \EQ \currentdate \doifsomething{\documentvariable{snapshot}}{(snapshot \documentvariable{snapshot})} \NC \NR
+    \stoptabulate
+
+\stopstandardmakeup
+
+\setupbackgrounds
+  [leftpage]
+  [setups=pagenumber:left]
+
+\setupbackgrounds
+  [rightpage]
+  [setups=pagenumber:right]
+
+\stopcomponent
