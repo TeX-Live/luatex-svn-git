@@ -5541,15 +5541,17 @@ The virtual table \type {tex.lists} contains the set of internal registers that
 keep track of building page lists.
 
 \starttabulate[|lT|p|]
-\NC \bf field       \NC \bf description \NC \NR
-\NC page_ins_head   \NC circular list of pending insertions \NC \NR
-\NC contrib_head    \NC the recent contributions \NC \NR
-\NC page_head       \NC the current page content \NC \NR
-%NC temp_head       \NC \NC \NR
-\NC hold_head       \NC used for held-over items for next page \NC \NR
-\NC adjust_head     \NC head of the current \type {\vadjust} list \NC \NR
-\NC pre_adjust_head \NC head of the current \type {\vadjust pre} list \NC \NR
-%NC align_head      \NC \NC \NR
+\NC \bf field           \NC \bf description \NC \NR
+\NC page_ins_head       \NC circular list of pending insertions \NC \NR
+\NC contrib_head        \NC the recent contributions \NC \NR
+\NC page_head           \NC the current page content \NC \NR
+%NC temp_head           \NC \NC \NR
+\NC hold_head           \NC used for held-over items for next page \NC \NR
+\NC adjust_head         \NC head of the current \type {\vadjust} list \NC \NR
+\NC pre_adjust_head     \NC head of the current \type {\vadjust pre} list \NC \NR
+%NC align_head          \NC \NC \NR
+\NC page_discards_head  \NC head of the discarded items of a page break \NC \NR
+\NC split_discards_head \NC head of the discarded items in a vsplit \NC \NR
 \stoptabulate
 
 \subsection{Semantic nest levels}

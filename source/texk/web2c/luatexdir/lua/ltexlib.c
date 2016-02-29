@@ -1827,6 +1827,14 @@ static int getlist(lua_State * L)
             alink(vlink(contrib_head)) = null ;
             lua_pushinteger(L, vlink(contrib_head));
             lua_nodelib_push(L);
+        } else if (lua_key_eq(str,page_discards_head)) {
+            alink(vlink(page_disc)) = null ;
+            lua_pushinteger(L, page_disc);
+            lua_nodelib_push(L);
+        } else if (lua_key_eq(str,split_discards_head)) {
+            alink(vlink(split_disc)) = null ;
+            lua_pushinteger(L, split_disc);
+            lua_nodelib_push(L);
         } else if (lua_key_eq(str,page_head)) {
             alink(vlink(page_head)) = null ;/*hh-ls */
             lua_pushinteger(L, vlink(page_head));
@@ -1903,6 +1911,10 @@ static int setlist(lua_State * L)
                 page_tail = (n == 0 ? page_head : tail_of_list(n));
             } else if (lua_key_eq(str,temp_head)) {
                 vlink(temp_head) = n;
+            } else if (lua_key_eq(str,page_discards_head)) {
+                page_disc = n;
+            } else if (lua_key_eq(str,split_discards_head)) {
+                split_disc = n;
             } else if (lua_key_eq(str,hold_head)) {
                 vlink(hold_head) = n;
             } else if (lua_key_eq(str,adjust_head)) {
