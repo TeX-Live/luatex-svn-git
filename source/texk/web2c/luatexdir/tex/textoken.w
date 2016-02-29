@@ -239,13 +239,11 @@ including the expansion of a macro or mark.
 void print_meaning(void)
 {
     /* remap \mathchar onto \Umathchar */
+/*
     if (cur_cmd == math_given_cmd) {
         cur_cmd = xmath_given_cmd ;
-    } /* else if (cur_cmd == math_char_num_cmd) {
-        if (cur_chr == 0) {
-            cur_chr = 1 ;
-        }
-    } */
+    }
+*/
     print_cmd_chr((quarterword) cur_cmd, cur_chr);
     if (cur_cmd >= call_cmd) {
         print_char(':');
@@ -2868,6 +2866,31 @@ void do_variable(void)
             break;
     }
 }
+
+/*
+    The following code is not used as we can only set math options and not query them. If
+    an option is really important we will provide a proper variable. Most options are not
+    meant for users anyway but for development.
+*/
+
+/*
+
+#define do_mathoption_int(i) \
+    cur_cmd = assign_int_cmd; \
+    cur_val = mathoption_int_base + i; \
+    cur_tok = token_val(cur_cmd, cur_val); \
+    back_input();
+
+void do_mathoption(void)
+{
+         if (scan_keyword("old"))                    { do_mathoption_int(c_mathoption_no_italic_compensation_code); }
+         if (scan_keyword("noitaliccompensation"))   { do_mathoption_int(c_mathoption_no_char_italic_code); }
+    else if (scan_keyword("nocharitalic"))           { do_mathoption_int(c_mathoption_use_old_fraction_scaling_code); }
+    else if (scan_keyword("useoldfractionscaling"))  { do_mathoption_int(c_mathoption_old_code); }
+    else if (scan_keyword("umathcodemeaning"))       { do_mathoption_int(c_mathoption_umathcode_meaning_code); }
+}
+
+*/
 
 @ This boolean is keeping track of the lua string escape state
 @c
