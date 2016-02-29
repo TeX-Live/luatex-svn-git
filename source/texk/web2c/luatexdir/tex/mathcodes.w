@@ -63,6 +63,13 @@ static sa_tree delcode_head = NULL;
     two_hex((A)%256);         \
   } while (0)
 
+/*
+    At some point we will drop the mathchardef 8 bit storage (c_mathoption_umathcode_meaning_code => 1)
+    and then some of the conversion can go away. Like mathchar_from_integer: only wide characters are
+    possible then.
+*/
+
+
 @ @c
 mathcodeval mathchar_from_integer(int value, int extcode)
 {

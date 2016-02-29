@@ -2344,23 +2344,22 @@ void prefixed_command(void)
                 break;
             case math_char_def_code:
                 mval = scan_mathchar(tex_mathcode);
-                cur_val =
-                    (mval.class_value * 16 + mval.family_value) * 256 +
-                    mval.character_value;
-                define(p, math_given_cmd, cur_val);
+                if (mathoption_int_par(c_mathoption_umathcode_meaning_code) == 1) {
+                    cur_val = (mval.class_value + (8 * mval.family_value)) * (65536 * 32) + mval.character_value;
+                    define(p, xmath_given_cmd, cur_val);
+                } else {
+                    cur_val = (mval.class_value * 16 + mval.family_value) * 256 + mval.character_value;
+                    define(p, math_given_cmd, cur_val);
+                }
                 break;
             case xmath_char_def_code:
                 mval = scan_mathchar(umath_mathcode);
-                cur_val =
-                    (mval.class_value + (8 * mval.family_value)) * (65536 * 32) +
-                    mval.character_value;
+                cur_val = (mval.class_value + (8 * mval.family_value)) * (65536 * 32) + mval.character_value;
                 define(p, xmath_given_cmd, cur_val);
                 break;
             case umath_char_def_code:
                 mval = scan_mathchar(umathnum_mathcode);
-                cur_val =
-                    (mval.class_value + (8 * mval.family_value)) * (65536 * 32) +
-                    mval.character_value;
+                cur_val = (mval.class_value + (8 * mval.family_value)) * (65536 * 32) + mval.character_value;
                 define(p, xmath_given_cmd, cur_val);
                 break;
             default:
