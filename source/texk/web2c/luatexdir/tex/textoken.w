@@ -35,11 +35,24 @@
 
 #define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
 
-#define do_get_cat_code(a,b) do {                                         \
-    if (line_catcode_table!=DEFAULT_CAT_TABLE)                          \
-      a=get_cat_code(line_catcode_table,b);                       \
-    else                                                                \
-      a=get_cat_code(cat_code_table,b);                           \
+/*
+#define do_get_cat_code(a,b) do { \
+    if (line_catcode_table<=-0xFF) \
+      a= - line_catcode_table - 0xFF ; \
+    else if (line_catcode_table!=DEFAULT_CAT_TABLE) \
+      a=get_cat_code(line_catcode_table,b); \
+    else \
+      a=get_cat_code(cat_code_table,b); \
+  } while (0)
+*/
+
+#define do_get_cat_code(a,b) do { \
+    if (line_catcode_table==DEFAULT_CAT_TABLE) \
+      a=get_cat_code(cat_code_table,b); \
+    else if (line_catcode_table>-0xFF) \
+      a=get_cat_code(line_catcode_table,b); \
+    else \
+      a= - line_catcode_table - 0xFF ; \
   } while (0)
 
 
