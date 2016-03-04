@@ -173,3 +173,45 @@ diff -ur LuaJIT-2.1.0-beta1.orig/src/Makefile.dep LuaJIT-2.1.0-beta1/src/Makefil
  lib_bit.o: lib_bit.c lua.h luaconf.h lauxlib.h lualib.h lj_obj.h lj_def.h \
   lj_arch.h lj_err.h lj_errmsg.h lj_buf.h lj_gc.h lj_str.h lj_strscan.h \
   lj_strfmt.h lj_ctype.h lj_cdata.h lj_cconv.h lj_carith.h lj_ff.h \
+
+
+
+diff -ur LuaJIT-2.1.0-beta1.orig/src/lauxlib.h LuaJIT-2.1.0-beta1/src/lauxlib.h 
+--- LuaJIT-2.1.0-beta1.orig/src/lauxlib.h	2016-03-04 15:52:12.756011152 +0100
++++ LuaJIT-2.1.0-beta1/src/lauxlib.h	2016-03-04 15:53:19.100010049 +0100
+@@ -170,6 +170,8 @@
+ LUALIB_API void (luaL_addvalue) (luaL_Buffer *B);
+ LUALIB_API void (luaL_pushresult) (luaL_Buffer *B);
+ 
++/* Luajittex needs this one because it overloads loadfile */
++LUALIB_API int (luaL_load_aux_JIT) (lua_State *L, int status, int envarg);
+ 
+ /* }====================================================== */
+ 
+
+
+diff -ur LuaJIT-2.1.0-beta1.orig/src/lj_load.c LuaJIT-2.1.0-beta1/src/lj_load.c
+--- LuaJIT-2.1.0-beta1.orig/src/lj_load.c	2016-03-04 15:51:34.328011791 +0100
++++ LuaJIT-2.1.0-beta1/src/lj_load.c	2016-03-04 15:06:31.000000000 +0100
+@@ -166,3 +166,19 @@
+     return 1;
+ }
+ 
++/* -- Luajittex needs this one because it overloads loadfile  -- */
++LUALIB_API int RESERVED_load_aux_JIT(lua_State *L, int status, int envarg)
++{
++  if (status == 0) {
++    if (tvistab(L->base+envarg-1)) {
++      GCfunc *fn = funcV(L->top-1);
++      GCtab *t = tabV(L->base+envarg-1);
++      setgcref(fn->c.env, obj2gco(t));
++      lj_gc_objbarrier(L, fn, t);
++    }
++    return 1;
++  } else {
++    setnilV(L->top-2);
++    return 2;
++  }
++}
+
+

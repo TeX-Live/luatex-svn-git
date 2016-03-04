@@ -22,6 +22,7 @@
 #include "lua/luatex-api.h"
 #include "lua/lauxlib_bridge.h"
 
+
 @ @c
 lua_State *Luas = NULL;
 
@@ -186,12 +187,12 @@ static int luatex_loadfile (lua_State *L) {
   status = luaL_loadfilex(L, fname, mode);
   if (status == LUA_OK) {
     recorder_record_input(fname);
-    if (env) {  /* 'env' parameter? */
-      lua_pushvalue(L, 3);
-      lua_setupvalue(L, -2, 1);  /* set it as 1st upvalue of loaded chunk */
-    }
+    /* if (env) {  *//* 'env' parameter? */
+    /*  lua_pushvalue(L, 3); */
+    /*  lua_setupvalue(L, -2, 1); *//* set it as 1st upvalue of loaded chunk */
+    /*}                       */
   }
-  return load_aux(L, status);
+  return RESERVED_load_aux_JIT(L, status,3);
 }
 
 @ @c
