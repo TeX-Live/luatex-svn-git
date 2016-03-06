@@ -3728,7 +3728,10 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
         subrs->bias = cstype==1 ? 0 :
             subrs->cnt < 1240 ? 107 :
             subrs->cnt <33900 ? 1131 : 32768;
+/*
         cid = dict->charset[i];
+*/
+cid = i ;
         /*encmap->map[cid] = cid;*/
         uni = CID2NameUni(map,cid,buffer,sizeof(buffer));
         info->chars[i] = PSCharStringToBB(
@@ -5069,7 +5072,7 @@ static void readttfpostnames(FILE *ttf,struct ttfinfo *info) {
 		    nm[j] = getc(ttf);
 		nm[j] = '\0';
 		if ( indexes[i]<info->glyph_cnt && info->chars[indexes[i]]!=NULL ) {
-                    if (info->chars[indexes[i]]->name) 
+                    if (info->chars[indexes[i]]->name)
                        free( info->chars[indexes[i]]->name );
 		    info->chars[indexes[i]]->name = nm;
 #if 0			/* Too many fonts have badly named glyphs */
@@ -6083,7 +6086,7 @@ static SplineFont *SFFillFromTTFInfo(struct ttfinfo *info) {
 
     free(info->savetab);
     if (info->chosenname)
-        free(info->chosenname); 
+        free(info->chosenname);
     if ( sf->copyright==NULL )
 	sf->copyright = info->copyright;
     else

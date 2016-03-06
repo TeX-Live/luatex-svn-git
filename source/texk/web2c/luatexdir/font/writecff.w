@@ -3367,7 +3367,10 @@ void write_cid_cff(PDF pdf, cff_font * cffont, fd_entry * fd)
     for (cid = 0; cid <= CID_MAX; cid++) {
         glyph->id = (unsigned) cid;
         if (avl_find(fd->gl_tree, glyph) != NULL) {
+/*
             gid = (card16) cff_charsets_lookup(cffont, (card16) cid);
+*/
+gid = (card16) cid;
             CIDToGIDMap[2 * cid] = (unsigned char) ((gid >> 8) & 0xff);
             CIDToGIDMap[2 * cid + 1] = (unsigned char) (gid & 0xff);
             last_cid = (card16) cid;
