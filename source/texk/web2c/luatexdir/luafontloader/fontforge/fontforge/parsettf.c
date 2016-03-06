@@ -3673,8 +3673,9 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
     /* We'll set the encmap later */
     /*info->map = encmap = EncMapNew(info->glyph_cnt,info->glyph_cnt,&custom);*/
 
-    for ( j=0; subdicts[j]!=NULL; ++j );
+    for ( j=0; subdicts[j]!=NULL; ++j ) {
         info->subfontcnt = j;
+    }
     info->subfonts = gcalloc(j+1,sizeof(SplineFont *));
     for ( j=0; subdicts[j]!=NULL; ++j )  {
         info->subfonts[j] = cffsffillup(subdicts[j],strings,scnt,info);
@@ -3682,21 +3683,22 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
         info->subfonts[j]->glyphmin = -1;
     }
     /* here we also deal with glyphmin */
-
     for ( i=0; i<info->glyph_cnt; ++i ) {
         sf = info->subfonts[ fdselect[i] ];
         cid = dict->charset[i];
         if ( cid>=sf->glyphcnt ) {
-	  if (sf->glyphmin == -1) {
-	    sf->glyphmin = cid;
-	  }
-	  sf->glyphcnt = sf->glyphmax = cid+1;
-	}
-        /*if ( cid>=encmap->enccount )
-            encmap->enccount = cid+1;*/
+            if (sf->glyphmin == -1) {
+                /*
+                    sf->glyphmin = cid;
+                */
+            }
+            sf->glyphcnt = sf->glyphmax = cid+1;
+        }
+        /* if ( cid>=encmap->enccount ) encmap->enccount = cid+1;*/
     }
-    for ( j=0; subdicts[j]!=NULL; ++j )
+    for ( j=0; subdicts[j]!=NULL; ++j ) {
       info->subfonts[j]->glyphs = gcalloc(info->subfonts[j]->glyphcnt,sizeof(SplineChar *));
+    }
 
     /*encmap->encmax = encmap->enccount;*/
     /*encmap->map = galloc(encmap->enccount*sizeof(int));*/
@@ -3721,29 +3723,24 @@ static void cidfigure(struct ttfinfo *info, struct topdicts *dict,
         cstype = subdicts[j]->charstringtype;
         pscontext.is_type2 = cstype-1;
         pscontext.painttype = subdicts[j]->painttype;
-        gsubrs->bias = cstype==1 ? 0 :
-            gsubrs->cnt < 1240 ? 107 :
-            gsubrs->cnt <33900 ? 1131 : 32768;
+        gsubrs->bias = cstype==1 ? 0 : gsubrs->cnt < 1240 ? 107 : gsubrs->cnt <33900 ? 1131 : 32768;
         subrs = &subdicts[j]->local_subrs;
-        subrs->bias = cstype==1 ? 0 :
-            subrs->cnt < 1240 ? 107 :
-            subrs->cnt <33900 ? 1131 : 32768;
-/*
-        cid = dict->charset[i];
-*/
-cid = i ;
+        subrs->bias = cstype==1 ? 0 : subrs->cnt < 1240 ? 107 : subrs->cnt <33900 ? 1131 : 32768;
+        /*
+            cid = dict->charset[i];
+        */
+        cid = i ;
         /*encmap->map[cid] = cid;*/
         uni = CID2NameUni(map,cid,buffer,sizeof(buffer));
-        info->chars[i] = PSCharStringToBB(
-            dict->glyphs.values[i], dict->glyphs.lens[i],&pscontext,
-            subrs,gsubrs,buffer);
+        info->chars[i] = PSCharStringToBB(dict->glyphs.values[i], dict->glyphs.lens[i],&pscontext,subrs,gsubrs,buffer);
         info->chars[i]->vwidth = sf->ascent+sf->descent;
         info->chars[i]->unicodeenc = uni;
         sf->glyphs[cid] = info->chars[i];
         sf->glyphs[cid]->parent = sf;
         sf->glyphs[cid]->orig_pos = i; /* fixed in 0.80.1 */
-        if ( sf->glyphs[cid]->layers[ly_fore].refs!=NULL )
+        if ( sf->glyphs[cid]->layers[ly_fore].refs!=NULL ) {
             IError( "Reference found in CID font. Can't fix it up");
+        }
         THPatchSplineChar(sf->glyphs[cid]);
         if ( cstype==2 ) {
             if ( sf->glyphs[cid]->width == (int16) 0x8000 )
@@ -3751,7 +3748,17 @@ cid = i ;
             else
                 sf->glyphs[cid]->width += subdicts[j]->nominalwidthx;
         }
+        /* moved here */
+        if (sf->glyphmin == -1) {
+/*            if (sf->glyphs[cid] != (struct splinechar *)-1) { */
+                sf->glyphmin = cid ;
+/*            } */
+        }
         ff_progress_next();
+    }
+    /* bonus */
+    if (sf->glyphmin == -1) {
+        sf->glyphmin = 0 ;
     }
     /* No need to do a reference fixup here-- the chars aren't associated */
     /* with any encoding as is required for seac */
@@ -4842,41 +4849,41 @@ return;
 		for ( i=0; i<count; ++i ) {
 		    int gid = getushort(ttf);
 		    if ( dounicode )
-			info->chars[gid]->unicodeenc = first+i;
+                info->chars[gid]->unicodeenc = first+i;
 		    if ( map!=NULL && first+i < map->enccount )
-			map->map[first+i] = gid;
+                map->map[first+i] = gid;
 		}
 	} else if ( format==12 ) {
 	    uint32 ngroups, start, end, startglyph;
 	    if ( !enc->is_unicodefull ) {
-		IError("I don't support 32 bit characters except for the UCS-4 (MS platform, specific=10)" );
-		enc = FindOrMakeEncoding("UnicodeFull");
+            IError("I don't support 32 bit characters except for the UCS-4 (MS platform, specific=10)" );
+            enc = FindOrMakeEncoding("UnicodeFull");
 	    }
 	    ngroups = getlong(ttf);
 	    for ( j=0; j<(int)ngroups; ++j ) {
-		start = getlong(ttf);
-		end = getlong(ttf);
-		startglyph = getlong(ttf);
-		if ( justinuse==git_justinuse ) {
-		  for ( i=start; i<=(int)end; ++i )
-		    if ( startglyph+i-start < (unsigned)info->glyph_cnt )
-			    info->inuse[startglyph+i-start]= 1;
-			else
-		    break;
-		} else
-		  for ( i=start; i<=(int)end; ++i ) {
-		    if ( startglyph+i-start >= (unsigned)info->glyph_cnt ||
-				info->chars[startglyph+i-start]==NULL ) {
-			    LogError( _("Bad font: Encoding data out of range.\n") );
-			    info->bad_cmap = true;
-		    break;
-			} else {
-			    if ( dounicode )
-				info->chars[startglyph+i-start]->unicodeenc = i;
-			    if ( map!=NULL && i < map->enccount && i>=0)
-				map->map[i] = startglyph+i-start;
-			}
-		    }
+            start = getlong(ttf);
+            end = getlong(ttf);
+            startglyph = getlong(ttf);
+            if ( justinuse==git_justinuse ) {
+              for ( i=start; i<=(int)end; ++i )
+                if ( startglyph+i-start < (unsigned)info->glyph_cnt )
+                    info->inuse[startglyph+i-start]= 1;
+                else
+                    break;
+            } else {
+                  for ( i=start; i<=(int)end; ++i ) {
+                    if ( startglyph+i-start >= (unsigned)info->glyph_cnt || info->chars[startglyph+i-start]==NULL ) {
+                        LogError( _("Bad font: Encoding data out of range.\n") );
+                        info->bad_cmap = true;
+                        break;
+                    } else {
+                        if ( dounicode )
+                            info->chars[startglyph+i-start]->unicodeenc = i;
+                        if ( map!=NULL && i < map->enccount && i>=0)
+                            map->map[i] = startglyph+i-start;
+                    }
+                }
+            }
 	    }
 	}
     }
