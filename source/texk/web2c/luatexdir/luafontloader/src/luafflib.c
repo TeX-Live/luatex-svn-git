@@ -35,7 +35,7 @@
 #define FONT_GLYPHS_METATABLE "fontloader.splinefont.glyphs"
 #define FONT_GLYPH_METATABLE "fontloader.splinefont.glyph"
 
-#define LUA_OTF_VERSION "0.4"
+#define LUA_OTF_VERSION "0.5"
 
 extern void normal_error(const char *t, const char *p);
 extern void formatted_error(const char *t, const char *fmt, ...);
