@@ -162,23 +162,13 @@ static void do_openlibs(lua_State * L)
     }
 }
 
-@ @c
-static int load_aux (lua_State *L, int status) {
-  if (status == 0)  /* OK? */
-    return 1;
-  else {
-    lua_pushnil(L);
-    lua_insert(L, -2);  /* put before error message */
-    return 2;  /* return nil plus error message */
-  }
-}
 
 @ @c
 static int luatex_loadfile (lua_State *L) {
   int status = 0;
   const char *fname = luaL_optstring(L, 1, NULL);
   const char *mode = luaL_optstring(L, 2, NULL);
-  int env = !lua_isnone(L, 3);  /* 'env' parameter? */
+  /*int env = !lua_isnone(L, 3);*/  /* 'env' parameter? */
   if (!lua_only && !fname && interaction == batch_mode) {
      lua_pushnil(L);
      lua_pushstring(L, "reading from stdin is disabled in batch mode");
