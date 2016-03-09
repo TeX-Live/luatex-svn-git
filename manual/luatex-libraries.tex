@@ -1840,6 +1840,8 @@ the documentation are not yet finished):
 \NC glyphcnt                     \NC number   \NC number of included glyphs\NC \NR
 \NC glyphmax                     \NC number   \NC maximum used index the glyphs array\NC \NR
 \NC glyphmin                     \NC number   \NC minimum used index the glyphs array\NC \NR
+\NC notdef_loc                   \NC number   \NC location of the \type {.notdef} glyph
+                                                  or \type {-1} when not present \NC \NR
 \NC hasvmetrics                  \NC number   \NC \NC \NR
 \NC onlybitmaps                  \NC number   \NC \NC \NR
 \NC serifcheck                   \NC number   \NC \NC \NR
@@ -5541,15 +5543,17 @@ The virtual table \type {tex.lists} contains the set of internal registers that
 keep track of building page lists.
 
 \starttabulate[|lT|p|]
-\NC \bf field       \NC \bf description \NC \NR
-\NC page_ins_head   \NC circular list of pending insertions \NC \NR
-\NC contrib_head    \NC the recent contributions \NC \NR
-\NC page_head       \NC the current page content \NC \NR
-%NC temp_head       \NC \NC \NR
-\NC hold_head       \NC used for held-over items for next page \NC \NR
-\NC adjust_head     \NC head of the current \type {\vadjust} list \NC \NR
-\NC pre_adjust_head \NC head of the current \type {\vadjust pre} list \NC \NR
-%NC align_head      \NC \NC \NR
+\NC \bf field           \NC \bf description \NC \NR
+\NC page_ins_head       \NC circular list of pending insertions \NC \NR
+\NC contrib_head        \NC the recent contributions \NC \NR
+\NC page_head           \NC the current page content \NC \NR
+%NC temp_head           \NC \NC \NR
+\NC hold_head           \NC used for held-over items for next page \NC \NR
+\NC adjust_head         \NC head of the current \type {\vadjust} list \NC \NR
+\NC pre_adjust_head     \NC head of the current \type {\vadjust pre} list \NC \NR
+%NC align_head          \NC \NC \NR
+\NC page_discards_head  \NC head of the discarded items of a page break \NC \NR
+\NC split_discards_head \NC head of the discarded items in a vsplit \NC \NR
 \stoptabulate
 
 \subsection{Semantic nest levels}
@@ -5685,6 +5689,22 @@ tex.tprint({<number> n, <string> s, ...}, {...})
 This function is basically a shortcut for repeated calls to \type
 {tex.sprint(<number> n, <string> s, ...)}, once for each of the supplied argument
 tables.
+
+\subsubsection{\type {tex.cprint}}
+
+This function takes a number indicating the to be used catcode, plus either a
+table of strings or an argument list of strings that will be pushed into the
+input stream.
+
+\startfunctioncall
+tex.cprint( 1," 1: $&{\\foo}") tex.print("\\par") -- a lot of \bgroup s
+tex.cprint( 2," 2: $&{\\foo}") tex.print("\\par") -- matching \egroup s
+tex.cprint( 9," 9: $&{\\foo}") tex.print("\\par") -- all get ignored
+tex.cprint(10,"10: $&{\\foo}") tex.print("\\par") -- all become spaces
+tex.cprint(11,"11: $&{\\foo}") tex.print("\\par") -- letters
+tex.cprint(12,"12: $&{\\foo}") tex.print("\\par") -- other characters
+tex.cprint(14,"12: $&{\\foo}") tex.print("\\par") -- comment triggers
+\stopfunctioncall
 
 \subsubsection{\type {tex.write}}
 
