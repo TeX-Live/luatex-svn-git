@@ -3091,6 +3091,8 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             lua_pushinteger(L, x_displace(n));
         } else if (lua_key_eq(s, yoffset)) {
             lua_pushinteger(L, y_displace(n));
+        } else if (lua_key_eq(s, xadvance)) {
+            lua_pushinteger(L, x_advance(n));
         } else if (lua_key_eq(s, width)) {
             lua_pushinteger(L, char_width(font(n),character(n)));
         } else if (lua_key_eq(s, height)) {
@@ -3833,6 +3835,8 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             lua_pushinteger(L, x_displace(n));
         } else if (lua_key_eq(s, yoffset)) {
             lua_pushinteger(L, y_displace(n));
+        } else if (lua_key_eq(s, xadvance)) {
+            lua_pushinteger(L, x_advance(n));
         } else if (lua_key_eq(s, width)) {
             lua_pushinteger(L, char_width(font(n),character(n)));
         } else if (lua_key_eq(s, height)) {
@@ -5096,6 +5100,8 @@ static int lua_nodelib_fast_setfield(lua_State * L)
             x_displace(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, yoffset)) {
             y_displace(n) = (halfword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, xadvance)) {
+            x_advance(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, width)) {
             /* not yet */
         } else if (lua_key_eq(s, height)) {
@@ -5956,6 +5962,8 @@ static int lua_nodelib_direct_setfield(lua_State * L)
             x_displace(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, yoffset)) {
             y_displace(n) = (halfword) lua_tointeger(L, 3);
+        } else if (lua_key_eq(s, xadvance)) {
+            x_advance(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, width)) {
             /* not yet */
         } else if (lua_key_eq(s, height)) {

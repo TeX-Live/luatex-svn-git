@@ -763,6 +763,7 @@ make_lua_key(vtop);\
 make_lua_key(width);\
 make_lua_key(writable);\
 make_lua_key(x_height);\
+make_lua_key(xadvance);\
 make_lua_key(xformresources);\
 make_lua_key(xformattributes);\
 make_lua_key(xoffset);\
@@ -1089,6 +1090,7 @@ init_lua_key(vtop);\
 init_lua_key(width);\
 init_lua_key(writable);\
 init_lua_key(x_height);\
+init_lua_key(xadvance);\
 init_lua_key(xformresources);\
 init_lua_key(xformattributes);\
 init_lua_key(xoffset);\
@@ -1484,6 +1486,7 @@ use_lua_key(vtop);
 use_lua_key(width);
 use_lua_key(writable);
 use_lua_key(x_height);
+use_lua_key(xadvance);
 use_lua_key(xformresources);
 use_lua_key(xformattributes);
 use_lua_key(xoffset);
