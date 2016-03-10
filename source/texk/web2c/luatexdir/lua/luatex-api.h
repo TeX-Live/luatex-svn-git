@@ -324,6 +324,7 @@ preassign these at startup time. */
 
 #define PACK_TYPE_SIZE        4
 #define GROUP_CODE_SIZE      23
+#define LOCAL_PAR_SIZE        5
 #define MATH_STYLE_NAME_SIZE  8
 #define APPEND_LIST_SIZE      5
 #define DIR_PAR_SIZE          8
@@ -331,12 +332,14 @@ preassign these at startup time. */
 
 extern int l_pack_type_index       [PACK_TYPE_SIZE];
 extern int l_group_code_index      [GROUP_CODE_SIZE];
+extern int l_local_par_index       [LOCAL_PAR_SIZE];
 extern int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
 extern int l_dir_par_index         [DIR_PAR_SIZE];
 extern int l_dir_text_index        [DIR_TEXT_SIZE];
 
 #define lua_push_pack_type(L,pack_type)        lua_rawgeti(L, LUA_REGISTRYINDEX, l_pack_type_index[pack_type] );
 #define lua_push_group_code(L,group_code)      lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index[group_code]);
+#define lua_push_local_par_mode(L,par_mode)    lua_rawgeti(L, LUA_REGISTRYINDEX, l_local_par_index[par_mode]);
 #define lua_push_math_style_name(L,style_name) lua_rawgeti(L, LUA_REGISTRYINDEX, l_math_style_name_index[style_name]);
 #define lua_push_dir_par(L,dir)                lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir+dir_swap])
 #define lua_push_dir_text(L,dir)               lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index[dir+dir_swap])
@@ -374,6 +377,13 @@ l_group_code_index[19] = lua_key_index(split_keep);\
 l_group_code_index[20] = lua_key_index(preamble);\
 l_group_code_index[21] = lua_key_index(align_set);\
 l_group_code_index[22] = lua_key_index(fin_row)
+
+#define set_l_local_par_index \
+l_local_par_index[0] = lua_key_index(new_graf);\
+l_local_par_index[1] = lua_key_index(local_box);\
+l_local_par_index[2] = lua_key_index(hmode_par);\
+l_local_par_index[3] = lua_key_index(penalty);\
+l_local_par_index[4] = lua_key_index(math);
 
 #define set_l_math_style_name_index \
 l_math_style_name_index[0] = lua_key_index(display);\

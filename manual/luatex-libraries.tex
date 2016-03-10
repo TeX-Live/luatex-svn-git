@@ -721,6 +721,19 @@ pass.
 You must not ruin the node list. For instance, the head normally is a local par node,
 and the tail a glue. Messing too much can push \LUATEX\ into panic mode.
 
+\subsubsection{\type {insert_local_par}}
+
+Each paragraph starts with a local par node that keeps track of for instance
+the direction. You can hook a callback into the creator:
+
+\startfunctioncall
+function(<node> local_par, <string> location)
+end
+\stopfunctioncall
+
+There is no return value and you should make sure that the node stays valid
+as otherwise \TEX\ can get confused.
+
 \subsubsection{\type {mlist_to_hlist}}
 
 This callback replaces \LUATEX's math list to node list conversion algorithm.

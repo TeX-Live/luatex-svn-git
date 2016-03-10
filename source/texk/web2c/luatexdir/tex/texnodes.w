@@ -3705,8 +3705,9 @@ the \.{WEB} macro definitions above, so that format changes will leave
 
 @c
 
-halfword make_local_par_node(void)
+halfword make_local_par_node(int mode)
 {
+    int callback_id;
     halfword q;
     halfword p = new_node(local_par_node,0);
     local_pen_inter(p) = local_inter_line_penalty;
@@ -3722,5 +3723,26 @@ halfword make_local_par_node(void)
         local_box_right_width(p) = width(local_right_box);
     }
     local_par_dir(p) = par_direction;
+    /* callback with node passed */
+    callback_id = callback_defined(insert_local_par_callback);
+    if (callback_id > 0) {
+        int sfix = lua_gettop(Luas);
+        if (!get_callback(Luas, callback_id)) {
+            lua_settop(Luas, sfix);
+            return p;
+        }
+        nodelist_to_lua(Luas, p);
+        lua_push_local_par_mode(Luas,mode)
+        if (lua_pcall(Luas, 2, 0, 0) != 0) { /* 2 arg, 0 result */
+            char errmsg[256]; /* temp hack ... we will have a formatted error */
+            snprintf(errmsg, 255, "error: %s\n", lua_tostring(Luas, -1));
+            errmsg[255]='\0';
+            lua_settop(Luas, sfix);
+            normal_error("insert_local_par",errmsg); /* to be done */
+            return p;
+        }
+        lua_settop(Luas, sfix);
+    }
+    /* done */
     return p;
 }
