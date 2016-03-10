@@ -473,8 +473,7 @@ important, don't keep resolving the registry index.
     if (lua_properties_enabled) { \
         lua_properties_level = lua_properties_level + 1 ; \
         if (lua_properties_level == 1) { \
-            lua_rawgeti(Luas, LUA_REGISTRYINDEX, luaS_index(node_properties)); \
-            lua_gettable(Luas, LUA_REGISTRYINDEX); \
+            lua_get_metatablelua_l(Luas,node_properties); \
         } \
     } \
 } while(0)
@@ -497,8 +496,7 @@ important, don't keep resolving the registry index.
 #define lua_properties_reset(target) do { \
     if (lua_properties_enabled) { \
         if (lua_properties_level == 0) { \
-            lua_rawgeti(Luas, LUA_REGISTRYINDEX, luaS_index(node_properties)); \
-            lua_gettable(Luas, LUA_REGISTRYINDEX); \
+            lua_get_metatablelua_l(Luas,node_properties); \
             lua_pushnil(Luas); \
             lua_rawseti(Luas,-2,target); \
             lua_pop(Luas,1); \
@@ -549,8 +547,7 @@ important, don't keep resolving the registry index.
 #define lua_properties_copy(target,source) do { \
     if (lua_properties_enabled) { \
         if (lua_properties_level == 0) { \
-            lua_rawgeti(Luas, LUA_REGISTRYINDEX, luaS_index(node_properties)); \
-            lua_gettable(Luas, LUA_REGISTRYINDEX); \
+            lua_get_metatablelua_l(Luas,node_properties); \
             lua_rawgeti(Luas,-1,source); \
             if (lua_type(Luas,-1)==LUA_TTABLE) { \
                 if (lua_properties_use_metatable) { \

@@ -1618,6 +1618,9 @@ void ext_do_line_break(int paragraph_dir,
     minimal_demerits[loose_fit] = awful_bad;
     minimal_demerits[very_loose_fit] = awful_bad;
 
+    fewest_demerits = 0;
+    actual_looseness = 0;
+
     /* We compute the values of |easy_line| and the other local variables relating
        to line length when the |line_break| procedure is initializing itself. */
     if (par_shape_ptr == null) {
