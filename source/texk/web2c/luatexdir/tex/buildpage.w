@@ -906,7 +906,7 @@ void fire_up(halfword c)
     save_vfuzz = vfuzz;
     vfuzz = max_dimen;          /* inhibit error messages */
     box(output_box) = filtered_vpackage(vlink(page_head),
-        best_size, exactly, page_max_depth, output_group, body_direction, 0);
+        best_size, exactly, page_max_depth, output_group, body_direction, 0, 0);
     vbadness = save_vbadness;
     vfuzz = save_vfuzz;
     if (last_glue != max_halfword)
