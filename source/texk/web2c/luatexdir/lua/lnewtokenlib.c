@@ -536,10 +536,7 @@ static int run_build(lua_State * L)
         int chr = (int) lua_tointeger(L, 1);
         int cmd = (int) luaL_optinteger(L, 2, get_cat_code(int_par(cat_code_table_code),chr));
         if (cmd == 0 || cmd == 9 || cmd == 14 || cmd == 15) {
-            fprintf(stdout,
-                    "\n\nluatex error: not a good token.\nCatcode %i can not be returned, so I replaced it by 12 (other)",
-                    (int) cmd);
-            error();
+            formatted_warning("token lib","not a good token, catcode %i can not be returned, so 12 will be used",(int) cmd);
             cmd = 12;
         } else if (cmd == 13) {
             cs = active_to_cs(chr, false);
