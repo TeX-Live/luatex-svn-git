@@ -721,6 +721,19 @@ pass.
 You must not ruin the node list. For instance, the head normally is a local par node,
 and the tail a glue. Messing too much can push \LUATEX\ into panic mode.
 
+\subsubsection{\type {insert_local_par}}
+
+Each paragraph starts with a local par node that keeps track of for instance
+the direction. You can hook a callback into the creator:
+
+\startfunctioncall
+function(<node> local_par, <string> location)
+end
+\stopfunctioncall
+
+There is no return value and you should make sure that the node stays valid
+as otherwise \TEX\ can get confused.
+
 \subsubsection{\type {mlist_to_hlist}}
 
 This callback replaces \LUATEX's math list to node list conversion algorithm.
@@ -1895,6 +1908,7 @@ the documentation are not yet finished):
 \NC horiz_base                   \NC table    \NC \NC \NR
 \NC vert_base                    \NC table    \NC \NC \NR
 \NC extrema_bound                \NC number   \NC \NC \NR
+\NC truetype                     \NC boolean  \NC signals a \TRUETYPE\ font \NC \NR
 \stoptabulate
 
 \subsubsubsection{Glyph items}
@@ -5976,6 +5990,11 @@ This helper function is useful during linebreak calculations. \type {t} and \typ
 {s} are scaled values; the function returns the badness for when total \type {t}
 is supposed to be made from amounts that sum to \type {s}. The returned number is
 a reasonable approximation of $100(t/s)^3$;
+
+\subsubsection{\type {tex.resetparagraph}}
+
+This function resets the parameters that \TEX\ normally resets when a new paragraph
+is seen.
 
 \subsubsection{\type {tex.linebreak}}
 
