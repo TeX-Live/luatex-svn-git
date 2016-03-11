@@ -87,8 +87,6 @@
 #define prev_graf     cur_list.pg_field
 #define dir_save      cur_list.dirs_field
 
-#define check_filter(A) if (!output_active) lua_node_filter_s(buildpage_filter_callback,lua_key_index(A))
-
 #define var_code 7              /* math code meaning ``use the current family'' */
 
 @ We come now to the |main_control| routine, which contains the master
@@ -484,7 +482,7 @@ like \.{\\vbox}, \.{\\insert}, or \.{\\output}.
 static void run_par_end_vmode (void) {
     normal_paragraph();
     if (mode > 0) {
-        check_filter(vmode_par);
+        checked_page_filter(vmode_par);
         build_page();
     }
 }
@@ -495,7 +493,7 @@ static void run_par_end_hmode (void) {
         off_save();         /* this tries to  recover from an alignment that didn't end properly */
     end_graf(bottom_level); /* this takes us to the enclosing mode, if |mode>0| */
     if (mode == vmode) {
-        check_filter(hmode_par);
+        checked_page_filter(hmode_par);
         build_page();
     }
 }
@@ -1114,7 +1112,7 @@ boolean its_all_over(void)
         width(tail) = hsize;
         tail_append(new_glue(fill_glue));
         tail_append(new_penalty(-010000000000));
-        lua_node_filter_s(buildpage_filter_callback,lua_key_index(end));
+        normal_page_filter(end);
         build_page();           /* append \.{\\hbox to \\hsize\{\}\\vfill\\penalty-'10000000000} */
     }
     return false;
@@ -1309,7 +1307,7 @@ void handle_right_brace(void)
             list_ptr(p) = null;
             flush_node(p);
             if (nest_ptr == 0) {
-                check_filter(insert);
+                checked_page_filter(insert);
                 build_page();
             }
             break;
@@ -1435,7 +1433,7 @@ void box_end(int box_context)
                     adjust_tail = null;
                 }
                 if (mode > 0) {
-                    check_filter(box);
+                    checked_page_filter(box);
                     build_page();
                 }
             } else {
@@ -1545,7 +1543,7 @@ void new_graf(boolean indented)
     if (every_par != null)
         begin_token_list(every_par, every_par_text);
     if (nest_ptr == 1) {
-        check_filter(new_graf);
+        checked_page_filter(new_graf);
         build_page();           /* put |par_skip| glue on current page */
     }
 }
@@ -1679,7 +1677,7 @@ void append_penalty(void)
     scan_int();
     tail_append(new_penalty(cur_val));
     if (mode == vmode) {
-        check_filter(penalty);
+        checked_page_filter(penalty);
         build_page();
     }
 }

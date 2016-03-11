@@ -428,6 +428,27 @@ This callback does not replace any internal code.
 
 The description of nodes and node lists is in~\in{chapter}[nodes].
 
+\subsubsection{\type {contribute_filter}}
+
+This callback is called when \LUATEX\ adds contents to list:
+
+\startfunctioncall
+function(<string> extrainfo)
+end
+\stopfunctioncall
+
+The string reports the group code. From this you can deduce from
+what list you can give a treat.
+
+\starttabulate
+\NC \bf group codes        \NC \bf pointer \NC \NR
+\HL
+\NC\type {pre_box}         \NC \type {contrib_head}    \NC \NR
+\NC\type {pre_adjust_tail} \NC \type {pre_adjust_head} \NC \NR
+\NC\type {just}            \NC \type {just_box}        \NC \NR
+\NC\type {adjust_tail}     \NC \type {adjust_head}     \NC \NR
+\stoptabulate
+
 \subsubsection{\type {buildpage_filter}}
 
 This callback is called whenever \LUATEX\ is ready to move stuff to the main

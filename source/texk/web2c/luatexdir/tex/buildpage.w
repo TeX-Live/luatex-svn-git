@@ -1029,6 +1029,6 @@ void resume_after_output(void)
     flush_node_list(page_disc);
     page_disc = null;
     pop_nest();
-    lua_node_filter_s(buildpage_filter_callback,lua_key_index(after_output));
+    normal_page_filter(after_output);
     build_page();
 }
