@@ -2085,6 +2085,11 @@ static int lua_nodelib_subtypes(lua_State * L)
             }
         }
         if (l > 0) {
+            /* add math states */
+            for (i = 0; node_subtypes_mathglue[i] != NULL; i++) {
+                lua_pushstring(L, node_subtypes_mathglue[i]); /* todo */
+                lua_rawseti(L, -2, 98 + i);
+            }
             /* add leaders */
             for (i = 0; node_subtypes_leader[i] != NULL; i++) {
                 lua_pushstring(L, node_subtypes_leader[i]); /* todo */

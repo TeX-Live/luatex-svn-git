@@ -2196,7 +2196,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     } else {
         eqno_w = width(eqno_box);
         eqno_width = eqno_w;
-        eqno_w2 = eqno_w + round_xn_over_d(math_eqno_gap_step, get_math_quad(text_size), 1000);
+        eqno_w2 = eqno_w + round_xn_over_d(math_eqno_gap_step, get_math_quad_style(text_style), 1000);
         subtype(eqno_box) = equation_number_list; /* new */
      /* build_attribute_list(eqno_box); */ /* probably already set */
    }
