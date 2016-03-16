@@ -236,6 +236,8 @@ static void run_app_space (void) {
         } else {
             temp_ptr = new_param_glue(space_skip_code);
         }
+/* so from now we have a subtype with spaces: */
+subtype(temp_ptr) = space_skip_code + 1 ;
         couple_nodes(tail,temp_ptr);
         tail = temp_ptr;
     }
@@ -1001,6 +1003,8 @@ void app_space(void)
     halfword q;                 /* glue node */
     if ((space_factor >= 2000) && (xspace_skip != zero_glue)) {
         q = new_param_glue(xspace_skip_code);
+/* so from now we have a subtype with spaces: */
+subtype(q) = xspace_skip_code + 1;
     } else {
         if (space_skip != zero_glue) {
             main_p = new_spec(space_skip);
@@ -1017,6 +1021,8 @@ void app_space(void)
         shrink(main_p) = xn_over_d(shrink(main_p), 1000, space_factor);
         q = new_glue(main_p);
         glue_ref_count(main_p) = null;
+/* so from now we have a subtype with spaces: */
+subtype(q) = space_skip_code + 1;
     }
     couple_nodes(tail, q);
     tail = q;

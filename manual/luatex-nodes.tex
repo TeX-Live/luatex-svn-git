@@ -345,14 +345,20 @@ The exact meanings of the subtypes are as follows:
 \NC  13 \NC \type {\spaceskip}             \NC \NR
 \NC  14 \NC \type {\xspaceskip}            \NC \NR
 \NC  15 \NC \type {\parfillskip}           \NC \NR
-\NC  16 \NC \type {\thinmuskip}            \NC \NR
-\NC  17 \NC \type {\medmuskip}             \NC \NR
-\NC  18 \NC \type {\thickmuskip}           \NC \NR
+\NC  16 \NC \type {\mathsurroundskip}      \NC \NR
+\NC  17 \NC \type {\thinmuskip}            \NC \NR
+\NC  18 \NC \type {\medmuskip}             \NC \NR
+\NC  19 \NC \type {\thickmuskip}           \NC \NR
+\NC  98 \NC \type {conditional math skip}  \NC \NR
+\NC  99 \NC \type {muglue}                 \NC \NR
 \NC 100 \NC \type {\leaders}               \NC \NR
 \NC 101 \NC \type {\cleaders}              \NC \NR
 \NC 102 \NC \type {\xleaders}              \NC \NR
 \NC 103 \NC \type {\gleaders}              \NC \NR
 \stoptabulate
+
+A regular word space also results in a \type {spaceskip} subtype (this used to be
+a \type {userskip} with subtype zero).
 
 For convenience we provide access to the spec fields directly so that you can
 avoid the spec lookup. So, the following fields can also be queried or set. When
