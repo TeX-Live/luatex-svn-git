@@ -1930,21 +1930,21 @@ static int lua_nodelib_has_field(lua_State * L)
 
 static int lua_nodelib_is_char(lua_State * L)
 {
-    halfword f;
     halfword n = *(check_isnode(L, 1));
-    if ((type(n) == glyph_node) && (subtype(n) < 256)) { /* <= 256 */
-        if (lua_type(L,2) == LUA_TNUMBER) {
-            f = (halfword) lua_tointeger(L, 2);
-            if (f && f == font(n)) {
-                lua_pushinteger(L,character(n));
-                return 1;
-            }
+    if (type(n) != glyph_node) {
+        lua_pushnil(L); /* no glyph at all */
+    } else if (subtype(n) >= 256) {
+        lua_pushboolean(L,0); /* a done glyph */
+    } else if (lua_type(L,2) == LUA_TNUMBER) {
+        halfword f = lua_tointeger(L, 2);
+        if (f && f == font(n)) {
+            lua_pushinteger(L,character(n)); /* a todo glyph in the asked font */
         } else {
-            lua_pushinteger(L,character(n));
-            return 1;
+            lua_pushboolean(L,0); /* a todo glyph in another font */
         }
+    } else {
+        lua_pushinteger(L,character(n)); /* a todo glyph */
     }
-    lua_pushboolean(L,0);
     return 1;
 }
 
@@ -5845,19 +5845,20 @@ static int lua_nodelib_direct_setlink(lua_State * L)
 static int lua_nodelib_direct_is_char(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
-    if ((type(n) == glyph_node) && (subtype(n) < 256)) { /* <= 256 */
-        if (lua_type(L,2) == LUA_TNUMBER) {
-            halfword f = lua_tointeger(L, 2);
-            if (f && f == font(n)) {
-                lua_pushinteger(L,character(n));
-                return 1;
-            }
+    if (type(n) != glyph_node) {
+        lua_pushnil(L); /* no glyph at all */
+    } else if (subtype(n) >= 256) {
+        lua_pushboolean(L,0); /* a done glyph */
+    } else if (lua_type(L,2) == LUA_TNUMBER) {
+        halfword f = lua_tointeger(L, 2);
+        if (f && f == font(n)) {
+            lua_pushinteger(L,character(n)); /* a todo glyph in the asked font */
         } else {
-            lua_pushinteger(L,character(n));
-            return 1;
+            lua_pushboolean(L,0); /* a todo glyph in another font */
         }
+    } else {
+        lua_pushinteger(L,character(n)); /* a todo glyph */
     }
-    lua_pushboolean(L,0);
     return 1;
 }
 
