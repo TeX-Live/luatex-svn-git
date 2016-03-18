@@ -809,6 +809,7 @@ void fin_align(void)
     halfword n;                 /* matching span amount */
     scaled rule_save;           /* temporary storage for |overfull_rule| */
     halfword pd;                /* temporary storage for |prev_depth| */
+    halfword ng;               /*  temporary storage for |new_glue| */
     if (cur_group != align_group)
         confusion("align1");
     unsave();                   /* that |align_group| was for individual entries */
@@ -987,7 +988,8 @@ value is changed to zero and so is the next tabskip.
 
                         s = vlink(s);
                         v = glue_ptr(s);
-                        vlink(u) = new_glue(v);
+                        ng = new_glue(v);
+                        vlink(u) = ng;
                         u = vlink(u);
                         subtype(u) = tab_skip_code + 1;
                         t = t + width(v);
