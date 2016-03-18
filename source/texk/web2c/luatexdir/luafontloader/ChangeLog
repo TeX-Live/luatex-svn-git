@@ -1,0 +1,25 @@
+2013-11-16  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* src/luafflib.c: Values of italicangle were inconsistent between
+	fontloader.info and fontloader.open. A report from Philipp Gesang:
+	http://tug.org/pipermail/luatex/2013-November/004635.html.
+	Now both use dump_floatfield().
+ 
+2013-07-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* fontforge/Unicode/char.c, fontforge/Unicode/memory.c,
+	fontforge/Unicode/usprintf.c, fontforge/Unicode/ustring.c,
+	fontforge/gutils/fsys.c, fontforge/inc/ustring.h,
+	fontforge/inc/utype.h, src/luafflib.c: Make sure <w2c/config.h>
+	or <kpathsea/config.h> is always included first.
+
+2011-10-21  Werner Fink <werner@suse.de>
+
+	* fontforge/fontforge/psread.c (ioescapestopped): Correctly
+	compute `stack' array size.
+
+2009-03-05  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* ff-config.in: new configuration header replacing lots of
+	defines on the command line.
+	* fontforge/fontforge/configure-pfaedit.h: include ff-config.h.

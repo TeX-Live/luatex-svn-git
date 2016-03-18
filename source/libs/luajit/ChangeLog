@@ -1,0 +1,60 @@
+2015-02-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Use the fragment ../../am/dist_hook.am.
+
+2014-12-04  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, configure.ac: Build luajit as (possibly shared)
+	Libtool library, install headers, library, and .pc file.
+	* luajiterror.test: Adapted.
+
+2014-09-20  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac, native/configure.ac: Improved cross-build.
+
+2014-03-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import LuaJIT-2.0.3.
+	* version.ac: Adjust.
+
+2014-03-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am: Use LUAJIT_LDEXTRA when linking the test program.
+
+2014-03-10  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, configure.ac, m4/lj-system.m4: Do not fail when
+	not building the library.
+
+2014-03-03  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luajiterr.test (new): Shell script to test error handling.
+	* jiterr.exp (new): Expected test output.
+	* Makefile.am: Add the new files.  Add lbitlib.c.
+	* configure.ac: The test program requires dlopen().
+
+2014-02-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* m4/lj-system.m4: Define LUAJIT_OS for native/buildvm.
+
+2014-02-22  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* configure.ac: Simplify.
+
+2014-02-14  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* Makefile.am, m4/lj-system.m4, native/Makefile.am: Simplify.
+
+2014-02-13  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* luajit.test (new): Shell script for a basic test.
+	* jittest.c (new): Source code for test program.
+	* Makefile.am, configure.ac, native/Makefile.am,
+	native/configure.ac: Proxy build system.
+	* include, m4: New directories
+
+2014-02-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Import LuaJIT-2.0.2/ from
+	  http://luajit.org/download/LuaJIT-2.0.2.tar.gz.
+
