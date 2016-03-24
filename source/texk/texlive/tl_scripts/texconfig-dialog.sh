@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: texconfig-dialog.sh 34586 2014-07-13 00:06:11Z karl $
+# $Id: texconfig-dialog.sh 40066 2016-03-18 22:29:48Z karl $
 # texconfig-dialog
 # Originally written by Thomas Esser. Public domain.
 # Now maintained as part of TeX Live; correspondence to tex-live@tug.org.
@@ -25,7 +25,7 @@ mydir=`cd "$mydir" && pwd`
 PATH="$mydir:$PATH"; export PATH
 
 # the version string
-version='$Id: texconfig-dialog.sh 34586 2014-07-13 00:06:11Z karl $'
+version='$Id: texconfig-dialog.sh 40066 2016-03-18 22:29:48Z karl $'
 
 : ${PAGER=more}
 progname=texconfig-dialog
@@ -43,7 +43,10 @@ cleanup()
   rc=$1
   $needsCleanup && test -n "$tmpdir" && test -d "$tmpdir" \
     && { cd / && rm -rf "$tmpdir"; }
-  termCtl reset
+  # use clear rather than reset since we cannot easily save and restore
+  # the terminal settings, which is what would be ideal.  See thread
+  # starting at http://tug.org/pipermail/tex-live/2016-March/037852.html.
+  termCtl clear
   (exit $rc); exit $rc
 }
 
