@@ -1429,7 +1429,7 @@ difficult, we start with a simpler implementation using just the first two items
 @c
 static void print_ID(PDF pdf)
 {
-    if ((pdf_suppress_optional_info & 256) == 0) {
+    if ((pdf_suppress_optional_info & 512) == 0) {
         if (pdf_trailer_id != 0) {
             char *s = NULL;
             int len;
@@ -2188,7 +2188,7 @@ static int pdf_print_info(PDF pdf, int luatexversion,
         init_start_time(pdf);
         pdf_dict_add_string(pdf, "ModDate", pdf->start_time_str);
     }
-    if (!trapped_given) {
+    if ((pdf_suppress_optional_info & 256) == 0 && !trapped_given) {
         pdf_dict_add_name(pdf, "Trapped", "False");
     }
     if ((pdf_suppress_optional_info & 1) == 0) {
