@@ -1,3 +1,5 @@
+% language=uk
+
 \environment luatex-style
 \environment luatex-logos
 
@@ -189,7 +191,7 @@ are described as follows:
 
 In \LUATEX\ one can set the styles in more detail which means that you sometimes
 have to set both normal and cramped styles to get the effect you want. If we
-force styles in the scriptr using \type {\scriptstyle} and \type {\crampedscriptstyle}
+force styles in the script using \type {\scriptstyle} and \type {\crampedscriptstyle}
 we get this:
 
 \startbuffer[demo]
@@ -238,7 +240,7 @@ has resulted in many more parameters than were accessible before.
 
 \starttabulate
 \NC \bf primitive name               \NC \bf description \NC \NR
-\NC \type {\Umathquad}               \NC the width of 18mu's \NC \NR
+\NC \type {\Umathquad}               \NC the width of 18 mu's \NC \NR
 \NC \type {\Umathaxis}               \NC height of the vertical center axis of
                                          the math formula above the baseline \NC \NR
 \NC \type {\Umathoperatorsize}       \NC minimum size of large operators in display mode \NC \NR
@@ -306,13 +308,14 @@ needed.
 
 \section{Skips around display math}
 
-The injection of \type {\abovedisplayskip} and \type {\belowdisplayskip} is not symmetrical. An
-above one is always inserted, also when zero, but the below is only inserted when larger than
-zero. Especially the later mkes it sometimes hard to fully control spacing. Therefore \LUATEX\
-comes with a new directive: \type {\mathdisplayskipmode}. The following values apply:
+The injection of \type {\abovedisplayskip} and \type {\belowdisplayskip} is not
+symmetrical. An above one is always inserted, also when zero, but the below is
+only inserted when larger than zero. Especially the later mkes it sometimes hard
+to fully control spacing. Therefore \LUATEX\ comes with a new directive: \type
+{\mathdisplayskipmode}. The following values apply:
 
 \starttabulate
-\NC 0 \NC normal tex behaviour: always above, only below when larger than zero \NC \NR
+\NC 0 \NC normal \TEX\ behaviour: always above, only below when larger than zero \NC \NR
 \NC 1 \NC always \NC \NR
 \NC 2 \NC only when not zero \NC \NR
 \NC 3 \NC never, not even when not zero \NC \NR
@@ -425,24 +428,24 @@ that assumes that an oldstyle \TEX\ font is used. Also, they do not set \type
 {\Umathradicaldegreeraise}. These are then automatically initialized to
 $5/18$quad, $-10/18$quad, and 60.
 
-Note 3: If tfm fonts are used, then the \type {\Umathradicalvgap} is not set until
-the first time \LUATEX\ has to typeset a formula because this needs parameters
-from both family2 and family3. This provides a partial backward compatibility
-with \TEX82, but that compatibility is only partial: once the \type
+Note 3: If \TFM\ fonts are used, then the \type {\Umathradicalvgap} is not set
+until the first time \LUATEX\ has to typeset a formula because this needs
+parameters from both family~2 and family~3. This provides a partial backward
+compatibility with \TEX82, but that compatibility is only partial: once the \type
 {\Umathradicalvgap} is set, it will not be recalculated any more.
 
-Note 4: (also if tfm fonts are used) A similar situation arises wrt. \type
-{\Umathspaceafterscript}: it is not set until the first time \LUATEX\ has to
-typeset a formula. This provides some backward compatibility with \TEX82. But
-once the \type {\Umathspaceafterscript} is set, \type {\scriptspace} will never be
-looked at again.
+Note 4: When \TFM\ fonts are used a similar situation arises with respect to
+\type {\Umathspaceafterscript}: it is not set until the first time \LUATEX\ has
+to typeset a formula. This provides some backward compatibility with \TEX82. But
+once the \type {\Umathspaceafterscript} is set, \type {\scriptspace} will never
+be looked at again.
 
-Note 5: Tfm fonts set \type {\Umathconnectoroverlapmin} to zero because \TEX82\
-always stacks extensibles without any overlap.
+Note 5: Traditional \TFM\ fonts set \type {\Umathconnectoroverlapmin} to zero
+because \TEX82\ always stacks extensibles without any overlap.
 
-Note 6: The \type {\Umathoperatorsize} is only used in \type {\displaystyle}, and is
-only set in \OPENTYPE\ fonts. In \TFM\ font mode, it is artificially set to one
-scaled point more than the initial attempt's size, so that always the \quote
+Note 6: The \type {\Umathoperatorsize} is only used in \type {\displaystyle}, and
+is only set in \OPENTYPE\ fonts. In \TFM\ font mode, it is artificially set to
+one scaled point more than the initial attempt's size, so that always the \quote
 {first next} will be tried, just like in \TEX82.
 
 Note 7: The \type {\Umathradicaldegreeraise} is a special case because it is the
@@ -450,12 +453,12 @@ only parameter that is expressed in a percentage instead of as a number of scale
 points.
 
 Note 8: \type {SubscriptShiftDownWithSuperscript} does not actually exist in the
-\quote {standard} Opentype Math font Cambria, but it is useful enough to be
+\quote {standard} \OPENTYPE\ math font Cambria, but it is useful enough to be
 added.
 
 Note 9: \type {FractionDelimiterDisplayStyleSize} and \type
-{FractionDelimiterSize} do not actually exist in the \quote {standard} Opentype
-Math font Cambria, but were useful enough to be added.
+{FractionDelimiterSize} do not actually exist in the \quote {standard} \OPENTYPE\
+math font Cambria, but were useful enough to be added.
 
 \section{Math spacing setting}
 
@@ -540,8 +543,8 @@ like this:
 \Umathopordspacing\displaystyle=4mu plus 2mu
 \stoptyping
 
-They are all initialized by initex to the values mentioned in the table in
-Chapter~18 of the \TEX book.
+They are all initialized by \type {initex} to the values mentioned in the table
+in Chapter~18 of the \TEX book.
 
 Note 1: for ease of use as well as for backward compatibility, \type
 {\thinmuskip}, \type {\medmuskip} and \type {\thickmuskip} are treated
@@ -587,14 +590,8 @@ followed by its italic correction is used instead.
 
 The vertical placement of a top accent depends on the \type {x_height} of the
 font of the accentee (as explained in the \TEX book), but if value that turns out
-to be zero and the font had a MathConstants table, then \type {AccentBaseHeight}
-is used instead.
-
-% there is no bot_accent in opentype math
-%
-% If a math bottom accent has to be placed, the \type {bot_accent} value is checked
-% instead of \type {top_accent}. Because bottom accents do not exist in \TEX82, the
-% \type {\skewchar} kern is ignored.
+to be zero and the font had a \type {MathConstants} table, then \type
+{AccentBaseHeight} is used instead.
 
 The vertical placement of a bottom accent is straight below the accentee, no
 correction takes place.
@@ -603,7 +600,7 @@ Possible locations are \type {top}, \type {bottom}, \type {both} and \type
 {center}. When no location is given \type {top} is assumed. An additional
 parameter \type {fraction} can be specified followed by a number; a value of for
 instance 1200 means that the criterium is 1.2 times the width of the nuclues. The
-fraction only aplies to the stepwise selected shapes and is mostly meant for the
+fraction only applies to the stepwise selected shapes and is mostly meant for the
 \type {overlay} location. It also works for the other locations but then it
 concerns the width.
 
@@ -624,15 +621,15 @@ The placement of the degree is controlled by the math parameters \type
 
 \section{Math kerning in super- and subscripts}
 
-The character fields in a lua-loaded OpenType math font can have a \quote
+The character fields in a \LUA|-|loaded \OPENTYPE\ math font can have a \quote
 {mathkern} table. The format of this table is the same as the \quote {mathkern}
 table that is returned by the \type {fontloader} library, except that all height
 and kern values have to be specified in actual scaled points.
 
 When a super- or subscript has to be placed next to a math item, \LUATEX\ checks
 whether the super- or subscript and the nucleus are both simple character items.
-If they are, and if the fonts of both character imtes are OpenType fonts (as
-opposed to legacy \TEX\ fonts), then \LUATEX\ will use the OpenType MATH
+If they are, and if the fonts of both character items are \OPENTYPE\ fonts (as
+opposed to legacy \TEX\ fonts), then \LUATEX\ will use the \OPENTYPE\ math
 algorithm for deciding on the horizontal placement of the super- or subscript.
 
 This works as follows:
@@ -656,12 +653,12 @@ This works as follows:
         For each of these two locations:
         \startitemize
             \startitem
-                find the mathkern value at this height for the base (for a subscript
+                find the math kern value at this height for the base (for a subscript
                 placement, this is the bottom_right corner, for a superscript
                 placement the top_right corner)
             \stopitem
             \startitem
-                find the mathkern value at this height for the script (for a
+                find the math kern value at this height for the script (for a
                 subscript placement, this is the top_left corner, for a superscript
                 placement the bottom_left corner)
             \stopitem
@@ -676,9 +673,9 @@ This works as follows:
     \stopitem
 \stopitemize
 
-The mathkern value at a specific height is the kern value that is specified by the
+The math kern value at a specific height is the kern value that is specified by the
 next higher height and kern pair, or the highest one in the character (if there is no
-value high enough in the character), or simply zero (if the character has no mathkern
+value high enough in the character), or simply zero (if the character has no math kern
 pairs at all).
 
 \section{Scripts on horizontally extensible items like arrows}
@@ -895,7 +892,7 @@ of \type {\mathsurround}, we can remain compatible.
 Normally you will force delimiters to certain sizes by putting an empty box or
 rule next to it. The resulting delimiter will either be a character from the
 stepwise size range or an extensible. The latter can be quite differently
-positioned that the characters as it depends on the fit aas well as the fact if
+positioned that the characters as it depends on the fit as well as the fact if
 the used characters in the font have depth or height. Commands like (plain \TEX
 s) \type {\big} need use this feature. In \LUATEX\ we provide a bit more control
 by three variants that supporting optional parameters \type {height}, \type
@@ -923,7 +920,7 @@ by three variants that supporting optional parameters \type {height}, \type
 
 The keyword \type {exact} can be used as directive that the real dimensions
 should be applied when the criteria can't be met which can happen when we're
-still stepping through the succesively larger variants. When no dimensions are
+still stepping through the successively larger variants. When no dimensions are
 given the \type {noaxis} command can be used to prevent shifting over the axis.
 
 You can influence the final class with the keyword \type {class} which will

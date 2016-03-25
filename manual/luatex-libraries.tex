@@ -1,3 +1,5 @@
+% language=uk
+
 \environment luatex-style
 \environment luatex-logos
 
@@ -31,7 +33,7 @@ This library has functions that register, find and list callbacks. Callbacks are
 \LUA\ functions that are called in well defined places. There are two kind of
 callbacks: those that mix with existing functionality, and those that (when
 enabled) replace functionality. In mosty cases the second category is expected to
-behave similar to the built in functiontionality because in a next step specific
+behave similar to the built in functionality because in a next step specific
 data is expected. For instance, you can replace the hyphenation routine. The
 function gets a list that can be hyphenated (or not). The final list should be
 valid and is (normally) used for constructing a paragraph. Another function can
@@ -63,8 +65,6 @@ whatever it would execute by default (when no callback function is registered at
 all). Be warned: this may cause all sorts of grief unless you know {\em exactly}
 what you are doing!
 
-Currently, callbacks are not dumped into the format file.
-
 \startfunctioncall
 <table> info = callback.list()
 \stopfunctioncall
@@ -80,7 +80,7 @@ If the callback is not set, \type {callback.find} returns \type {nil}.
 
 \subsection{File discovery callbacks}
 
-The behavior documented in this subsection is considered stable in the sense that
+The behaviour documented in this subsection is considered stable in the sense that
 there will not be backward|-|incompatible changes any more.
 
 \subsubsection{\type {find_read_file} and \type {find_write_file}}
@@ -220,7 +220,7 @@ Your callback function should have the following conventions:
 \stopfunctioncall
 
 The \type {asked_name} is an image file. Your return value is used to open a file
-from the harddisk, so make sure you return something that is considered the name
+from the hard disk, so make sure you return something that is considered the name
 of a valid file by your operating system.
 
 \subsection[iocallback]{File reading callbacks}
@@ -353,9 +353,8 @@ end
 \stopfunctioncall
 
 If you return \type {nil}, \LUATEX\ will pretend like your callback never
-happened. You can gain a small amount of processing time from that.
-
-This callback does not replace any internal code.
+happened. You can gain a small amount of processing time from that. This callback
+does not replace any internal code.
 
 \subsubsection{\type {process_output_buffer}}
 
@@ -371,9 +370,8 @@ end
 \stopfunctioncall
 
 If you return \type {nil}, \LUATEX\ will pretend like your callback never
-happened. You can gain a small amount of processing time from that.
-
-This callback does not replace any internal code.
+happened. You can gain a small amount of processing time from that. This callback
+does not replace any internal code.
 
 \subsubsection{\type {process_jobname}}
 
@@ -389,40 +387,8 @@ end
 
 The only argument is the actual job name; you should not use \type {tex.jobname}
 inside this function or infinite recursion may occur. If you return \type {nil},
-\LUATEX\ will pretend your callback never happened.
-
-This callback does not replace any internal code.
-
-% \subsubsection{\type {token_filter}}
-%
-% This callback allows you to replace the way \LUATEX\ fetches lexical tokens.
-%
-% \startfunctioncall
-% function()
-%     return <table> token
-% end
-% \stopfunctioncall
-%
-% The calling convention for this callback is a bit more complicated than for most
-% other callbacks. The function should either return a \LUA\ table representing a
-% valid to|-|be|-|processed token or tokenlist, or something else like \type {nil}
-% or an empty table.
-%
-% If your \LUA\ function does not return a table representing a valid token, it
-% will be immediately called again, until it eventually does return a useful token
-% or tokenlist (or until you reset the callback value to nil). See the description
-% of \type {token} for some handy functions to be used in conjunction with this
-% callback.
-%
-% If your function returns a single usable token, then that token will be processed
-% by \LUATEX\ immediately. If the function returns a token list (a table consisting
-% of a list of consecutive token tables), then that list will be pushed to the
-% input stack at a completely new token list level, with its token type set to
-% \quote {inserted}. In either case, the returned token(s) will not be fed back
-% into the callback function.
-%
-% Setting this callback to \type {false} has no effect (because otherwise nothing
-% would happen, forever).
+\LUATEX\ will pretend your callback never happened. This callback does not
+replace any internal code.
 
 \subsection{Node list processing callbacks}
 
@@ -522,7 +488,7 @@ three things:
 
 \startitemize
 \startitem
-    boolean \type {true} signals succesful processing
+    boolean \type {true} signals succesfull processing
 \stopitem
 \startitem
     \type {<node>} signals that the \quote {head} node should be replaced by the
@@ -793,7 +759,7 @@ end
 \stopfunctioncall
 
 This callback replaces the code that prints \LUATEX's banner. Note that for
-successful use, this callback has to be set in the lua initialization script,
+successful use, this callback has to be set in the \LUA\ initialization script,
 otherwise it will be seen only after the run has already started.
 
 \subsubsection{\type {stop_run}}
@@ -836,37 +802,7 @@ end
 This callback is run from inside the \TEX\ error function, and the idea is to
 allow you to do some extra reporting on top of what \TEX\ already does (none of
 the normal actions are removed). You may find some of the values in the \type
-{status} table useful.
-
-This callback does not replace any internal code.
-
-\iffalse % this has been retracted for the moment
-
-    \startitemize
-
-    \sym{message}
-
-    is the formal error message \TEX\ has given to the user. (the line after the
-    \type {'!'}).
-
-    \sym{indicator}
-
-    is either a filename (when it is a string) or a location indicator (a number)
-    that can mean lots of different things like a token list id or a \type {\read}
-    number.
-
-    \sym{lineno}
-
-    is the current line number.
-    \stopitemize
-
-    This is an investigative item for 'testing the water' only. The final goal is the
-    total replacement of \TEX's error handling routines, but that needs lots of
-    adjustments in the web source because \TEX\ deals with errors in a somewhat
-    haphazard fashion. This is why the exact definition of \type {indicator} is not
-    given here.
-
-\fi
+{status} table useful. This callback does not replace any internal code.
 
 \subsubsection{\type {show_error_message}}
 
@@ -885,7 +821,7 @@ function()
 end
 \stopfunctioncall
 
-This callback replaces the code that prints the extra lua error message.
+This callback replaces the code that prints the extra \LUA\ error message.
 
 \subsubsection{\type {start_file}}
 
@@ -937,7 +873,7 @@ function(shippingout)
 end
 \stopfunctioncall
 
-This callback is called after the pdf page stream has been assembled and before
+This callback is called after the \PDF\ page stream has been assembled and before
 the page object gets finalized.
 
 \subsection{Font-related callbacks}
@@ -970,7 +906,7 @@ The \type {id} is the internal number assigned to the font.
 The internal structure of the \type {font} table that is to be returned is
 explained in \in {chapter} [fonts]. That table is saved internally, so you can
 put extra fields in the table for your later \LUA\ code to use. In alternative,
-retval can be a previously defined fontid. This is useful if a previous
+\type {retval} can be a previously defined fontid. This is useful if a previous
 definition can be reused instead of creating a whole new font structure.
 
 Setting this callback to \type {false} is pointless as it will prevent font
@@ -978,12 +914,12 @@ loading completely but will nevertheless generate errors.
 
 \section{The \type {epdf} library}
 
-The \type {epdf} library provides Lua bindings to many \PDF\ access functions
-that are defined by the poppler pdf viewer library (written in C$+{}+$ by
+The \type {epdf} library provides \LUA\ bindings to many \PDF\ access functions
+that are defined by the poppler \PDF\ viewer library (written in C$+{}+$ by
 Kristian H\o gsberg, based on xpdf by Derek Noonburg). Within \LUATEX\ (and
 \PDFTEX), xpdf functionality is being used since long time to embed \PDF\ files.
 The \type {epdf} library shall allow to scrutinize an external \PDF\ file. It
-gives access to its document structure, e.g., catalog, cross-reference table,
+gives access to its document structure: catalog, cross|-|reference table,
 individual pages, objects, annotations, info, and metadata. The \LUATEX\ team is
 evaluating the possibility of reducing the binding to a basic low level \PDF\
 primitives and delegate the complete set of functions to an external shared
@@ -1452,10 +1388,10 @@ case the given length is (at most) the string length.
 The returned object can be used in the \type {img} library instead of a filename.
 Both the memory stream and it's use in the image library is experimental and can
 change. In case you wonder where this can be used: when you use the swiglib
-library for graphic magick, it can return such a userdata object. This permits
-conversion in memory and passing the result directly to the backend. This might
-save some runtime in one|-|pass workflows. This feature is currently not meant
-for production.
+library for \type {graphicmagick}, it can return such a userdata object. This
+permits conversion in memory and passing the result directly to the backend. This
+might save some runtime in one|-|pass workflows. This feature is currently not
+meant for production.
 
 \section{The \type {font} library}
 
@@ -1521,7 +1457,7 @@ font.setfont(<number> n, <table> f)
 \stopfunctioncall
 
 Note that at the moment, each access to the \type {font.fonts} or call to \type
-{font.getfont} creates a lua table for the whole font. This process can be quite
+{font.getfont} creates a \LUA\ table for the whole font. This process can be quite
 slow. In a later version of \LUATEX, this interface will change (it will start
 using userdata objects instead of actual tables).
 
@@ -1611,7 +1547,7 @@ of consecutive numbers: in some cases there can be holes in the sequence.
 \stopfunctioncall
 
 This function returns either \type {nil}, or a \type {table}, or an array of
-small tables (in the case of a TrueType collection). The returned table(s) will
+small tables (in the case of a \TRUETYPE\ collection). The returned table(s) will
 contain some fairly interesting information items from the font(s) defined by the
 file:
 
@@ -1825,11 +1761,11 @@ fontloader.close(f)
 \stoptyping
 
 In this case, the \LUATEX\ memory requirement stays below 100MB on the test
-computer, while the internal stucture generated by \type {to_table()} needs more
+computer, while the internal structure generated by \type {to_table()} needs more
 than 2GB of memory (the font itself is 6.9MB in disk size).
 
 Only the top|-|level font, the subfont table entries, and the glyphs are virtual
-objects, everything else still produces normal lua values and tables.
+objects, everything else still produces normal \LUA\ values and tables.
 
 If you want to know the valid fields in a font or glyph structure, call the \type
 {fields} function on an object of a particular type (either glyph or font):
@@ -3130,9 +3066,8 @@ Test if an (absolute) file name is a readable file.
 
 The return value is the actual absolute filename you should use, because the disk
 name is not always the same as the requested name, due to aliases and
-system|-|specific handling under e.g.\ \MSDOS.
-
-Returns \type {nil} if the file does not exist or is not readable.
+system|-|specific handling under e.g.\ \MSDOS. Returns \type {nil} if the file
+does not exist or is not readable.
 
 \subsection{\type {expand_path}}
 
@@ -3372,7 +3307,7 @@ lua.name[<number> n] = <string> s
 <string> s = lua.name[<number> n]
 \stopfunctioncall
 
-If you want to unset a lua name, you can assign \type {nil} to it.
+If you want to unset a \LUA\ name, you can assign \type {nil} to it.
 
 \section{The \type {mplib} library}
 
@@ -3420,7 +3355,7 @@ with:
                  \type {pfb}, \type {enc} \NC \NR
 \stoptabulate
 
-Return either the full pathname of the found file, or \type {nil} if the file
+Return either the full path name of the found file, or \type {nil} if the file
 cannot be found.
 
 Note that the new version of \MPLIB\ no longer uses binary mem files, so the way
@@ -3466,7 +3401,7 @@ Generally speaking, it is best to keep your chunks small, but beware that all
 chunks have to obey proper syntax, like each of them is a small file. For
 instance, you cannot split a single statement over multiple chunks.
 
-In contrast with the normal standalone \type {mpost} command, there is {\em no}
+In contrast with the normal stand alone \type {mpost} command, there is {\em no}
 implied \quote{input} at the start of the first chunk.
 
 \subsection{\type {mp:finish}}
@@ -3523,7 +3458,7 @@ you can call:
 \NC copy_objects \NC function \NC returns a deep copy of the array of graphic
                                   objects in this \type {fig} \NC \NR
 \NC filename     \NC function \NC the filename this \type {fig}'s \POSTSCRIPT\
-                                  output would have written to in standalone
+                                  output would have written to in stand alone
                                   mode \NC \NR
 \NC width        \NC function \NC the \type {fontcharwd} value \NC \NR
 \NC height       \NC function \NC the \type {fontcharht} value \NC \NR
@@ -4044,7 +3979,7 @@ is also possible:
 
 This calling method takes glue settings into account and is especially useful for
 finding the actual width of a sublist of nodes that are already boxed, for
-example in code like this, which prints the width of the space inbetween the
+example in code like this, which prints the width of the space in between the
 \type {a} and \type {b} as it would be if \type {\box0} was used as-is:
 
 \starttyping
@@ -4119,7 +4054,7 @@ This function also accept string \type {id}'s.
 <node> t = node.traverse(<node> n)
 \stopfunctioncall
 
-This is a lua iterator that loops over the node list that starts at \type {n}.
+This is a \LUA\ iterator that loops over the node list that starts at \type {n}.
 Typically code looks like this:
 
 \starttyping
@@ -4266,7 +4201,7 @@ tail (both \type {n} and \type {m} can change into a new ligature).
 <node> h, <node> t, <boolean> success = node.kerning(<node> n, <node> m)
 \stopfunctioncall
 
-Apply \TEX|-|style kerning to the specified nodelist. The tail node \type {m} is
+Apply \TEX|-|style kerning to the specified node list. The tail node \type {m} is
 optional. The two returned nodes \type {h} and \type {t} are the head and tail
 (either one of these can be an inserted kern node, because special kernings with
 word boundaries are possible).
@@ -4457,7 +4392,7 @@ The counterpart of this function returns two values.
 {pdf.getxformmargin}}
 
 These function can be used to set and retrieve the margins that are added to the
-natural boundingboxes of the respective objects.
+natural bounding boxes of the respective objects.
 
 \subsection{\type {pdf.h}, \type {pdf.v}}
 
@@ -4742,11 +4677,11 @@ iteration down to properly process any other, embedded XObjects.
 Of course, this is not a very useful example in practise, but for the purpose of
 demonstrating \type {pdfscanner}, it is just long enough. It makes use of only
 one \type {scanner} method: \type {scanner:pop()}. That function pops the top
-operand of the internal stack, and returns a lua table where the object at index
+operand of the internal stack, and returns a \LUA\ table where the object at index
 one is a string representing the type of the operand, and object two is its
 value.
 
-The list of possible operand types and associated lua value types is:
+The list of possible operand types and associated \LUA\ value types is:
 
 \starttabulate[|lT|p|]
 \NC integer  \NC <number>  \NC \NR
@@ -4768,7 +4703,7 @@ In case of \type {string}, please bear in mind that PDF actually supports
 different types of strings (with different encodings) in different parts of the
 PDF document, so may need to reencode some of the results; \type {pdfscanner}
 always outputs the byte stream without reencoding anything. \type {pdfscanner}
-does not differentiate between literal strings and hexidecimal strings (the
+does not differentiate between literal strings and hexadecimal strings (the
 hexadecimal values are decoded), and it treats the stream data for inline images
 as a string that is the single operand for \type {EI}.
 
@@ -4873,8 +4808,8 @@ The current list is:
 \NC filename           \NC name of the current input file \NC \NR
 \NC inputid            \NC numeric id of the current input \NC \NR
 \NC linenumber         \NC location in the current input file \NC \NR
-\NC lasterrorstring    \NC last tex error string \NC \NR
-\NC lastluaerrorstring \NC last lua error string \NC \NR
+\NC lasterrorstring    \NC last \TEX\ error string \NC \NR
+\NC lastluaerrorstring \NC last \LUA\ error string \NC \NR
 \NC lastwarningtag     \NC last warning string\NC \NR
 \NC lastwarningstring  \NC last warning tag, normally an indication of in what part\NC \NR
 \NC lasterrorcontext   \NC last error context string (with newlines) \NC \NR
@@ -4885,8 +4820,8 @@ The current list is:
 \NC callbacks          \NC total number of executed callbacks so far \NC \NR
 \NC indirect_callbacks \NC number of those that were themselves
                            a result of other callbacks (e.g. file readers) \NC \NR
-\NC luatex_version     \NC the luatex version number \NC \NR
-\NC luatex_revision    \NC the luatex revision string \NC \NR
+\NC luatex_version     \NC the \LUATEX\ version number \NC \NR
+\NC luatex_revision    \NC the \LUATEX\ revision string \NC \NR
 \NC ini_version        \NC \type {true} if this is an \INITEX\ run \NC \NR
 \NC shell_escape       \NC \type {0} means disabled, \type {1} is restricted and
                            \type {2} means anything is permitted \NC \NR
@@ -5704,7 +5639,7 @@ makes it suitable for use as a partial line input mechanism:
 \starttyping
 before\directlua{tex.sprint("\\relax")tex.sprint(" inbetween")}after
 \stoptyping
-    the space before \type {inbetween} will be gobbled as a result of the \quote
+    the space before \type {in between} will be gobbled as a result of the \quote
     {normal} scanning of \type {\relax}.
 \stopitem
 \stopitemize
@@ -5910,16 +5845,6 @@ will define \type {\LuaTeXformatname} with the same intrinsic meaning as the
 documented primitive \type {\formatname}, provided that the control sequences \type
 {\LuaTeXformatname} is currently undefined.
 
-% Second example:
-%
-% \starttyping
-%   tex.enableprimitives('Omega',tex.extraprimitives ('omega'))
-% \stoptyping
-%
-% will define a whole series of csnames like \type {\Omegatextdir}, \type
-% {\Omegapardir}, etc., but it will stick with \type {\OmegaVersion} instead of
-% creating the doubly-prefixed \type {\OmegaOmegaVersion}.
-
 When \LUATEX\ is run with \type {--ini} only the \TEX82 primitives and \type
 {\directlua} are available, so no extra primitives {\bf at all}.
 
@@ -5970,9 +5895,9 @@ end
 \NC luatex  \NC \ctxlua{document.showprimitives('luatex') } \NC \NR
 \stoptabulate
 
-Note that \type {'luatex'} does not contain \type {directlua}, as that
-isconsidered to be a core primitive, along with all the \TEX82 primitives, so it
-is part of the list that is returned from \type {'core'}.
+Note that \type {'luatex'} does not contain \type {directlua}, as that is
+considered to be a core primitive, along with all the \TEX82 primitives, so it is
+part of the list that is returned from \type {'core'}.
 
 % \type {'umath'} is a subset of \type {'luatex'} that covers the Unicode math
 % primitives as it might be desired to handle the prefixing of that subset
@@ -6138,7 +6063,7 @@ the executable after loading and executing the startup file.
     shell_escape_commands \NC string \NC \NC Comma-separated list of command
     names that may be executed by \type {\write18} even if \type {shell_escape}
     is set to \type {'p'}. Do {\it not\/} use spaces around commas, separate any
-    required command arguments by using a space, and use the ASCII double quote
+    required command arguments by using a space, and use the \ASCII\ double quote
     (\type {"}) for any needed argument or path quoting
 \NC \NR
 
@@ -6172,12 +6097,12 @@ the executable after loading and executing the startup file.
 \NC \NR
 \NC formatname            \NC string   \NC
 \NC
-    if no format name was given on the commandline, this key will be tested first
+    if no format name was given on the command line, this key will be tested first
     instead of simply quitting
 \NC \NR
 \NC jobname               \NC string   \NC
 \NC
-    if no input file name was given on the commandline, this key will be tested
+    if no input file name was given on the command line, this key will be tested
     first instead of simply giving up
 \NC \NR
 \stoptabulate
@@ -6224,132 +6149,6 @@ string if you only want to move to the next line.
 
 You can disable \type {^^} escaping of control characters by passing a value of
 zero.
-
-% \section[luatokens]{The \type {oldtoken} library (obsolete)}
-%
-% {\em Nota Bene: This library will disappear soon. It is replaced by the \type
-% {token} library, that used to be called \type {newroken}.}
-%
-% The \type {token} table contains interface functions to \TEX's handling of
-% tokens. These functions are most useful when combined with the \type
-% {token_filter} callback, but they could be used standalone as well.
-%
-% A token is represented in \LUA\ as a small table. For the moment, this table
-% consists of three numeric entries:
-%
-% \starttabulate[|l|l|p|]
-% \NC \bf index \NC \bf meaning         \NC \bf description \NC \NR
-% \NC 1         \NC command code        \NC this is a value between~$0$ and~$130$ (approximately)\NC \NR
-% \NC 2         \NC command modifier    \NC this is a value between~$0$ and~$2^{21}$ \NC \NR
-% \NC 3         \NC control sequence id \NC for commands that are not the result of control
-%                                           sequences, like letters and characters, it is zero,
-%                                           otherwise, it is a number pointing into the \quote
-%                                           {equivalence table} \NC \NR
-% \stoptabulate
-%
-% \subsection{\type {oldtoken.get_next}}
-%
-% \startfunctioncall
-% token t = oldtoken.get_next()
-% \stopfunctioncall
-%
-% This fetches the next input token from the current input source, without
-% expansion.
-%
-% \subsection{\type {oldtoken.is_expandable}}
-%
-% \startfunctioncall
-% <boolean> b = oldtoken.is_expandable(<token> t)
-% \stopfunctioncall
-%
-% This tests if the token \type {t} could be expanded.
-%
-% \subsection{\type {oldtoken.expand}}
-%
-% \startfunctioncall
-% oldtoken.expand(<token> t)
-% \stopfunctioncall
-%
-% If a token is expandable, this will expand one level of it, so that the first
-% token of the expansion will now be the next token to be read by \type
-% {oldtoken.get_next()}.
-%
-% \subsection{\type {oldtoken.is_activechar}}
-%
-% \startfunctioncall
-% <boolean> b = oldtoken.is_activechar(<token> t)
-% \stopfunctioncall
-%
-% This is a special test that is sometimes handy. Discovering whether some control
-% sequence is the result of an active character turned out to be very hard
-% otherwise.
-%
-% \subsection{\type {oldtoken.create}}
-%
-% \startfunctioncall
-% token t = oldtoken.create(<string> csname)
-% token t = oldtoken.create(<number> charcode)
-% token t = oldtoken.create(<number> charcode, <number> catcode)
-% \stopfunctioncall
-%
-% This is the token factory. If you feed it a string, then it is the name of a
-% control sequence (without leading backslash), and it will be looked up in the
-% equivalence table.
-%
-% If you feed it number, then this is assumed to be an input character, and an
-% optional second number gives its category code. This means it is possible to
-% overrule a character's category code, with a few exceptions: the category codes~0
-% (escape), 9~(ignored), 13~(active), 14~(comment), and 15 (invalid) cannot occur
-% inside a token. The values~0, 9, 14 and~15 are therefore illegal as input to
-% \type {oldtoken.create()}, and active characters will be resolved immediately.
-%
-% Note: unknown string sequences and never defined active characters will result in
-% a token representing an \quote {undefined control sequence} with a near|-|random
-% name. It is {\em not} possible to define brand new control sequences using
-% \type {oldtoken.create}!
-%
-% \subsection{\type {oldtoken.command_name}}
-%
-% \startfunctioncall
-% <string> commandname = oldtoken.command_name(<token> t)
-% \stopfunctioncall
-%
-% This returns the name associated with the \quote {command} value of the token in
-% \LUATEX. There is not always a direct connection between these names and
-% primitives. For instance, all \type {\ifxxx} tests are grouped under \type
-% {if_test}, and the \quote {command modifier} defines which test is to be run.
-%
-% \subsection{\type {oldtoken.command_id}}
-%
-% \startfunctioncall
-% <number> i = oldtoken.command_id(<string> commandname)
-% \stopfunctioncall
-%
-% This returns a number that is the inverse operation of the previous command, to
-% be used as the first item in a token table.
-%
-% \subsection{\type {oldtoken.csname_name}}
-%
-% \startfunctioncall
-% <string> csname = oldtoken.csname_name(<token> t)
-% \stopfunctioncall
-%
-% This returns the name associated with the \quote {equivalence table} value of the
-% token in \LUATEX. It returns the string value of the command used to create the
-% current token, or an empty string if there is no associated control sequence.
-%
-% Keep in mind that there are potentially two control sequences that return the
-% same csname string: single character control sequences and active characters have
-% the same \quote {name}.
-%
-% \subsection{\type {oldtoken.csname_id}}
-%
-% \startfunctioncall
-% <number> i = oldtoken.csname_id(<string> csname)
-% \stopfunctioncall
-%
-% This returns a number that is the inverse operation of the previous command, to
-% be used as the third item in a token table.
 
 \subsection{The \type {token} libray}
 

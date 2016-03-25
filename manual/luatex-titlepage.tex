@@ -23,17 +23,17 @@
        frame=off]
       {Lua\TeX\\Reference}
 
-    \definedfont[Bold*default at 24pt] \setupinterlinespace
+    \definedfont[Bold*default at 18pt] \setupinterlinespace
 
     \setlayerframed
       [page]
-      [preset=middletop,
-       voffset=.35\paperheight]
-      [align=middle,
+      [preset=rightbottom,
+       offset=.01\paperheight]
+      [align=flushright,
        foregroundcolor=blue,
        frame=off]
-      {\doifsomething{\documentvariable{snapshot}}{snapshot \documentvariable{snapshot}}%
-       \doifsomething{\documentvariable{beta}}    {beta     \documentvariable{beta}}}
+      {\currentdate[month,space,year]\par
+       Version \documentvariable{version}}
 
 \stopstandardmakeup
 

@@ -1,3 +1,5 @@
+% language=uk
+
 \environment luatex-style
 \environment luatex-logos
 
@@ -26,11 +28,11 @@ interpreter:
 \stopitemize
 
 In this mode, it will set \LUA's \type {arg[0]} to the found script name, pushing
-preceding options in negative values and the rest of the commandline in the
+preceding options in negative values and the rest of the command line in the
 positive values, just like the \LUA\ interpreter.
 
 \LUATEX\ will exit immediately after executing the specified \LUA\ script and is,
-in effect, a somewhat bulky standalone \LUA\ interpreter with a bunch of extra
+in effect, a somewhat bulky stand alone \LUA\ interpreter with a bunch of extra
 preloaded libraries.
 
 \subsection{\LUATEX\ as a \LUA\ byte compiler}
@@ -38,18 +40,18 @@ preloaded libraries.
 There are two situations that make \LUATEX\ behave like the \LUA\ byte compiler:
 
 \startitemize[packed]
-\startitem if a \type {--luaconly} option is given on the commandline, or \stopitem
+\startitem if a \type {--luaconly} option is given on the command line, or \stopitem
 \startitem if the executable is named \type {texluac} \stopitem
 \stopitemize
 
-In this mode, \LUATEX\ is exactly like \type {luac} from the standalone \LUA\
+In this mode, \LUATEX\ is exactly like \type {luac} from the stand alone \LUA\
 distribution, except that it does not have the \type {-l} switch, and that it
 accepts (but ignores) the \type {--luaconly} switch.
 
 \subsection{Other commandline processing}
 
-When the \LUATEX\ executable starts, it looks for the \type {--lua} commandline
-option. If there is no \type {--lua} option, the commandline is interpreted in a
+When the \LUATEX\ executable starts, it looks for the \type {--lua} command line
+option. If there is no \type {--lua} option, the command line is interpreted in a
 similar fashion as in traditional \PDFTEX\ and \ALEPH. Some options are accepted
 but have no consequence. The following command|-|line options are understood:
 
@@ -59,7 +61,7 @@ but have no consequence. The following command|-|line options are understood:
 \NC --safer                      \NC disable easily exploitable \LUA\ commands \NC\NR
 \NC --nosocket                   \NC disable the \LUA\ socket library \NC\NR
 \NC --help                       \NC display help and exit \NC\NR
-\NC --ini                        \NC be iniluatex, for dumping formats \NC\NR
+\NC --ini                        \NC be \type {iniluatex}, for dumping formats \NC\NR
 \NC --interaction=STRING         \NC set interaction mode: \type {batchmode}, \type {nonstopmode}
                                      \type {scrollmode} or \type {errorstopmode} \NC \NR
 \NC --halt-on-error              \NC stop processing at the first error\NC \NR
@@ -129,16 +131,16 @@ any other web2c-based typesetting engine, except that \LUATEX\ has a few extra
 switches.
 
 If the \type {--lua} option is present, \LUATEX\ will enter an alternative mode
-of commandline processing in comparison to the standard web2c programs.
+of command line processing in comparison to the standard web2c programs.
 
 In this mode, a small series of actions is taken in order. First, it will parse
-the commandline as usual, but it will only interpret a small subset of the
+the command line as usual, but it will only interpret a small subset of the
 options immediately: \type {--safer}, \type {--nosocket}, \type
 {--[no-]shell-escape}, \type {--enable-write18}, \type {--disable-write18}, \type
 {--shell-restricted}, \type {--help}, \type {--version}, and \type {--credits}.
 
 Now it searches for the requested \LUA\ initialization script. If it cannot be
-found using the actual name given on the commandline, a second attempt is made by
+found using the actual name given on the command line, a second attempt is made by
 prepending the value of the environment variable \type {LUATEXDIR}, if that
 variable is defined in the environment.
 
@@ -156,10 +158,10 @@ Then it checks the various safety switches. You can use those to disable some
 Furthermore, it disables loading of compiled \LUA\ libraries and it makes \type
 {io.open()} fail on files that are opened for anything besides reading.
 
-When \LUATEX\ starts it set the locale to a neutral value. If for some reason you use
-\type {os.locale}, you need to make sire you nil it afterwards because otherise it
-can interfere with code that for instance generates dates. You can nil the
-locale with
+When \LUATEX\ starts it set the locale to a neutral value. If for some reason you
+use \type {os.locale}, you need to make sure you \type {nil} it afterwards
+because otherwise it can interfere with code that for instance generates dates.
+You can nil the locale with
 
 \starttyping
 os.setlocale(nil.nil)
@@ -174,15 +176,15 @@ make \type {io.popen()}, \type {os.execute}, \type {os.exec} and \type {os.spawn
 adhere to the requested option.
 
 Next the initialization script is loaded and executed. From within the script,
-the entire commandline is available in the \LUA\ table \type {arg}, beginning with
+the entire command line is available in the \LUA\ table \type {arg}, beginning with
 \type {arg[0]}, containing the name of the executable. As consequence, the warning
 about unrecognized option is suppressed.
 
-Commandline processing happens very early on. So early, in fact, that none of
+Command line processing happens very early on. So early, in fact, that none of
 \TEX's initializations have taken place yet. For that reason, the tables that
 deal with typesetting, like \type {tex}, \type {token}, \type {node} and
 \type {pdf}, are off|-|limits during the execution of the startup file (they
-are nilled). Special care is taken that \type {texio.write} and \type
+are \type {nil}'d). Special care is taken that \type {texio.write} and \type
 {texio.write_nl} function properly, so that you can at least report your actions
 to the log file when (and if) it eventually becomes opened (note that \TEX\ does
 not even know its \type {\jobname} yet at this point). See \in {chapter} [libraries]
@@ -196,17 +198,17 @@ should not store anything in variables or within tables with these four global
 names, as they will be overwritten completely.
 
 We recommend you use the startup file only for your own \TEX|-|independent
-initializations (if you need any), to parse the commandline, set values in the
+initializations (if you need any), to parse the command line, set values in the
 \type {texconfig} table, and register the callbacks you need.
 
-\LUATEX\ allows some of the commandline options to be overridden by reading
+\LUATEX\ allows some of the command line options to be overridden by reading
 values from the \type {texconfig} table at the end of script execution (see the
 description of the \type {texconfig} table later on in this document for more
 details on which ones exactly).
 
 Unless the \type {texconfig} table tells \LUATEX\ not to initialize \KPATHSEA\
 at all (set \type {texconfig.kpse_init} to \type {false} for that), \LUATEX\
-acts on some more commandline options after the initialization script is
+acts on some more command line options after the initialization script is
 finished: in order to initialize the built|-|in \KPATHSEA\ library properly,
 \LUATEX\ needs to know the correct program name to use, and for that it needs to
 check \type {--progname}, or \type {--ini} and \type {--fmt}, if \type
@@ -270,7 +272,7 @@ In keeping with the other \TEX|-|like programs in \TEXLIVE, the two \LUA\ functi
 {shell_escape} and|/|or \type {shell_escape_commands} in account. Whenever
 \LUATEX\ is run with the assumed intention to typeset a document (and by that we
 mean that it is called as \type {luatex}, as opposed to \type {texlua}, and that
-the commandline option \type {--luaonly} was not given), it will only run the
+the command line option \type {--luaonly} was not given), it will only run the
 four functions above if the matching \type {texmf.cnf} variable(s) or their \type
 {texconfig} (see \in {section} [texconfig]) counterparts allow execution of the
 requested system command. In \quote {script interpreter} runs of \LUATEX, these
@@ -370,7 +372,7 @@ The \type {os} library has a few extra functions and variables:
     The set of consecutive values starting at integer~1 in the table are the
     arguments that are passed on to the command (the value at index~1 becomes
     \type {arg[0]}). The command is searched for in the execution path, so there
-    is normally no need to pass on a fully qualified pathname.
+    is normally no need to pass on a fully qualified path name.
 
     If the argument is a string, then it is automatically converted into a table
     by splitting on whitespace. In this case, it is impossible for the command
@@ -483,7 +485,7 @@ LC_NUMERIC=C
 
 \section {\LUA\ modules}
 
-The implied use of the built|-|in Lua modules in this section is deprecated. If
+The implied use of the built|-|in \LUA\ modules in this section is deprecated. If
 you want to use one of these libraries, please start your source file with a
 proper \type {require} line. At some point \LUATEX\ will switch to loading these
 modules on demand.
@@ -494,42 +496,40 @@ Some modules that are normally external to \LUA\ are statically linked in with
 \startitemize
 
 \startitem
-    \type {slnunicode}, from the \type {Selene} libraries, \hyphenatedurl
-    {http://luaforge.net/projects/sln}. (version 1.1) This library has been
-    slightly extended so that the \type {unicode.utf8.*} functions also accept the
-    first 256 values of plane~18. This is the range \LUATEX\ uses for raw binary
-    output, as explained above.
+    \type {slnunicode}, from the \type {selene} libraries, \hyphenatedurl
+    {http://luaforge.net/projects/sln}. This library has been slightly extended
+    so that the \type {unicode.utf8.*} functions also accept the first 256 values
+    of plane~18. This is the range \LUATEX\ uses for raw binary output, as
+    explained above.
 \stopitem
 
 \startitem
-    \type {luazip}, from the kepler project,
-    \hyphenatedurl{http://www.keplerproject.org/luazip/}. (version 1.2.1, but
-    patched for compilation with \LUA\ 5.2)
+    \type {luazip}, from the kepler project, \hyphenatedurl
+    {http://www.keplerproject.org/luazip/}.
 \stopitem
 
 \startitem
     \type {luafilesystem}, also from the kepler project, \hyphenatedurl
-    {http://www.keplerproject.org/luafilesystem/}. (version 1.5.0)
+    {http://www.keplerproject.org/luafilesystem/}.
 \stopitem
 
 \startitem
     \type {lpeg}, by Roberto Ierusalimschy, \hyphenatedurl
-    {http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html}. (version 0.10.2) This
-    library is not \UNICODE|-|aware, but interprets strings on a
-    byte|-|per|-|byte basis. This mainly means that \type {lpeg.S} cannot be
-    used with \UTF\ characters encoded in more than two bytes, and thus \type
-    {lpeg.S} will look for one of those two bytes when matching, not the
-    combination of the two. The same is true for \type {lpeg.R}, although the
-    latter will display an error message if used with multibyte characters.
-    Therefore \type {lpeg.R('aä')} results in the message \type {bad argument
-    #1 to 'R' (range must have two characters)}, since to \type {lpeg}, \type {ä}
-    is two 'characters' (bytes), so \type {aä} totals three. In practice this is
-    no real issue.
+    {http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html}. This library is not
+    \UNICODE|-|aware, but interprets strings on a byte|-|per|-|byte basis. This
+    mainly means that \type {lpeg.S} cannot be used with \UTF\ characters encoded
+    in more than two bytes, and thus \type {lpeg.S} will look for one of those
+    two bytes when matching, not the combination of the two. The same is true for
+    \type {lpeg.R}, although the latter will display an error message if used
+    with multibyte characters. Therefore \type {lpeg.R('aä')} results in the
+    message \type {bad argument #1 to 'R' (range must have two characters)},
+    since to \type {lpeg}, \type {ä} is two 'characters' (bytes), so \type {aä}
+    totals three. In practice this is no real issue.
 \stopitem
 
 \startitem
     \type {lzlib}, by Tiago Dionizio, \hyphenatedurl
-    {http://luaforge.net/projects/lzlib/}. (version 0.2)
+    {http://luaforge.net/projects/lzlib/}.
 \stopitem
 
 \startitem
@@ -539,9 +539,9 @@ Some modules that are normally external to \LUA\ are statically linked in with
 
 \startitem
     \type {luasocket}, by Diego Nehab \hyphenatedurl
-    {http://w3.impa.br/~diego/software/luasocket/} (version 2.0.2). The \type
-    {.lua} support modules from \type {luasocket} are also preloaded inside the
-    executable, there are no external file dependencies.
+    {http://w3.impa.br/~diego/software/luasocket/}. The \type {.lua} support
+    modules from \type {luasocket} are also preloaded inside the executable,
+    there are no external file dependencies.
 \stopitem
 
 \stopitemize
