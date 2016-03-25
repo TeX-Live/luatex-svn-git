@@ -1296,6 +1296,13 @@ taken for providing meta information about nodes. Note: The getters do only basi
 checking for valid keys. You should just stick to the keys mentioned in the
 sections that describe node properties.
 
+Some nodes have indirect references. For instance a math character refers to a
+family instead of a font. In that case we provide a virtual font field as
+accessor. So, \type {getfont} and \type {.font} can be used on them. The same is
+true for the \type {width}, \type {height} and \type {depth} of glue nodes. These
+actually access the spec node properties, and here we can set as well as get the
+values.
+
 \stopchapter
 
 \stopcomponent
