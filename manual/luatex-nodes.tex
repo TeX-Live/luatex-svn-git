@@ -462,7 +462,11 @@ The \type {is_char} function checks if a node is a glyphnode with a subtype stil
 less than 256. This function can be used to determine if applying font logic to a
 glyph node makes sense. The value \type {nil} gets returned when the node is not
 a glyph, a character number is returned if the node is still tagged as character
-and \type {false} gets returned otherwise.
+and \type {false} gets returned otherwise. When nil is returned, the id is also
+returned. The \type {is_glyph} variant doesn't check for a subtype being less
+than 256, so it returns either the character value or nil plus the id. These
+helpers are not always faster than separate calls but they sometimes permit
+making more readable tests.
 
 \subsubsection{margin_kern nodes}
 
@@ -1236,6 +1240,7 @@ summarized this:
 \NC \type {insert_after}         \NC \yes \NC \yes  \NC \NR
 \NC \type {insert_before}        \NC \yes \NC \yes  \NC \NR
 \NC \type {is_char}              \NC \yes \NC \yes  \NC \NR
+\NC \type {is_glyph}             \NC \yes \NC \yes  \NC \NR
 \NC \type {is_direct}            \NC \nop \NC \yes  \NC \NR
 \NC \type {is_node}              \NC \yes \NC \yes  \NC \NR
 \NC \type {kerning}              \NC \yes \NC \yes  \NC \NR

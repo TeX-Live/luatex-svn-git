@@ -1,5 +1,5 @@
-$Id: README 39886 2016-02-27 13:55:44Z kakuto $
-Copyright 2006-2015 TeX Users Group.
+$Id: README 39995 2016-03-11 06:12:34Z kakuto $
+Copyright 2006-2016 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
 This TeX Live directory contains the programs that use the kpathsea
@@ -40,8 +40,7 @@ detex 2.8 - checked 10may12
 dtl - ?
 
 dvi2tty 5.3.4 - checked 10may12
-  http://www.mesa.nl/pub/dvi2tty/
-  ftp://ftp.mesa.nl/pub/dvi2tty/
+  https://github.com/t-tk/dvi2tty
 
 dvidvi - maintained here.
 
@@ -62,7 +61,7 @@ dvipsk - maintained here, by us
 dvisvgm 1.15 - checked 27feb16
   http://dvisvgm.bplaced.net/Downloads
 
-gregorio 4.1.0-rc2 - checked 25feb16
+gregorio 4.1.1 - checked 11mar16
   https://github.com/gregorio-project/gregorio/releases/
 
 gsftopk - from Paul Vojta's xdvi?

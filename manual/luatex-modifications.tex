@@ -293,6 +293,35 @@ typical backend specific ones. The index that gets returned is to be considered
 as \quote {just a number} and although it still has the same meaning (object
 related) as before, you should not depend on that.
 
+The protrusion detection mechanism is enhanced a bit to enable a bit more complex
+situations. When protrusion characters are identified some nodes are skipped:
+
+\startitemize[packed]
+\startitem zero glue \stopitem
+\startitem penalties \stopitem
+\startitem empty discretionaries \stopitem
+\startitem normal zero kerns \stopitem
+\startitem rules with zero dimensions \stopitem
+\startitem math nodes with a surround of zero \stopitem
+\startitem dir nodes \stopitem
+\startitem empty horizontal lists \stopitem
+\startitem local par nodes \stopitem
+\startitem inserts, marks and adjusts \stopitem
+\startitem boundaries \stopitem
+\startitem whatsits \stopitem
+\stopitemize
+
+Because this can not be enough, you can also use a boundary node to make the next
+node being ignored. When the boundary value is~1 or~3, the next node will be
+ignored in the test when locating a left boundary condition. When the value is~2
+or~3, the previous node will be ignored when locating a right boundary condition
+(the search goes from right to left). This permits protrusion combined with for
+instance content moved into the margin:
+
+\starttyping
+\boundary1\llap{!\quad}«Who needs protrusion?»
+\stoptyping
+
 \stopsubsection
 
 \startsubsection[title=Changes from \ALEPH\ RC4]
@@ -484,33 +513,35 @@ has already be the case right from the start. If you want the traditional \PDFTE
 primitives (for as far their functionality is still around) you now can do this:
 
 \starttyping
-\protected\def\pdfliteral       {\pdfextension literal}
-\protected\def\pdfcolorstack    {\pdfextension colorstack}
-\protected\def\pdfsetmatrix     {\pdfextension setmatrix}
-\protected\def\pdfsave          {\pdfextension save\relax}
-\protected\def\pdfrestore       {\pdfextension restore\relax}
-\protected\def\pdfobj           {\pdfextension obj }
-\protected\def\pdfrefobj        {\pdfextension refobj }
-\protected\def\pdfannot         {\pdfextension annot }
-\protected\def\pdfstartlink     {\pdfextension startlink }
-\protected\def\pdfendlink       {\pdfextension endlink\relax}
-\protected\def\pdfoutline       {\pdfextension outline }
-\protected\def\pdfdest          {\pdfextension dest }
-\protected\def\pdfthread        {\pdfextension thread }
-\protected\def\pdfstartthread   {\pdfextension startthread }
-\protected\def\pdfendthread     {\pdfextension endthread\relax}
-\protected\def\pdfinfo          {\pdfextension info }
-\protected\def\pdfcatalog       {\pdfextension catalog }
-\protected\def\pdfnames         {\pdfextension names }
-\protected\def\pdfincludechars  {\pdfextension includechars }
-\protected\def\pdffontattr      {\pdfextension fontattr }
-\protected\def\pdfmapfile       {\pdfextension mapfile }
-\protected\def\pdfmapline       {\pdfextension mapline }
-\protected\def\pdftrailer       {\pdfextension trailer }
-\protected\def\pdfglyphtounicode{\pdfextension glyphtounicode }
+\protected\def\pdfliteral             {\pdfextension literal}
+\protected\def\pdfcolorstack          {\pdfextension colorstack}
+\protected\def\pdfsetmatrix           {\pdfextension setmatrix}
+\protected\def\pdfsave                {\pdfextension save\relax}
+\protected\def\pdfrestore             {\pdfextension restore\relax}
+\protected\def\pdfobj                 {\pdfextension obj }
+\protected\def\pdfrefobj              {\pdfextension refobj }
+\protected\def\pdfannot               {\pdfextension annot }
+\protected\def\pdfstartlink           {\pdfextension startlink }
+\protected\def\pdfendlink             {\pdfextension endlink\relax}
+\protected\def\pdfoutline             {\pdfextension outline }
+\protected\def\pdfdest                {\pdfextension dest }
+\protected\def\pdfthread              {\pdfextension thread }
+\protected\def\pdfstartthread         {\pdfextension startthread }
+\protected\def\pdfendthread           {\pdfextension endthread\relax}
+\protected\def\pdfinfo                {\pdfextension info }
+\protected\def\pdfcatalog             {\pdfextension catalog }
+\protected\def\pdfnames               {\pdfextension names }
+\protected\def\pdfincludechars        {\pdfextension includechars }
+\protected\def\pdffontattr            {\pdfextension fontattr }
+\protected\def\pdfmapfile             {\pdfextension mapfile }
+\protected\def\pdfmapline             {\pdfextension mapline }
+\protected\def\pdftrailer             {\pdfextension trailer }
+\protected\def\pdfglyphtounicode      {\pdfextension glyphtounicode }
+\protected\def\pdfsuppressoptionalinfo{\pdfextension suppressoptionalinfo }
+\protected\def\pdfinfoid              {\pdfextension infoid }
 \stoptyping
 
-The introspective primitives can bve defines as:
+The introspective primitives can be defined as:
 
 \starttyping
 \def\pdftexversion    {\numexpr\pdffeedback version\relax}
@@ -672,6 +703,38 @@ The backend is derived from \PDFTEX\ so the same syntax applies. However, the
 \type {outline} command accepts a \type {objnum} followed by a number. No
 checking takes place so when this is used it had better be a valid (flushed)
 object.
+
+In order to be (more or less) compatible with \PDFTEX\ we also support the
+option to suppress some info:
+
+\starttyping
+\pdfvariable suppressoptionalinfo \numexpr
+        0
+    +   1   % PTEX.FullBanner
+    +   2   % PTEX.FileName
+    +   4   % PTEX.PageNumber
+    +   8   % PTEX.InfoDict
+    +  16   % Creator
+    +  32   % CreationDate
+    +  64   % ModDate
+    + 128   % Producer
+    + 256   % Trapped
+    + 512   % ID
+\relax
+\stoptyping
+
+In addition you can overload the trailer id, but we don't do any checking on
+validity, so you have to pass a valid array. The following is like the ones
+normally generated by the engine:
+
+\starttyping
+\pdfvariable trailerid {[
+    <FA052949448907805BA83C1E78896398>
+    <FA052949448907805BA83C1E78896398>
+]}
+\stoptyping
+
+So, you even need to include the brackets!
 
 \stopsubsection
 
