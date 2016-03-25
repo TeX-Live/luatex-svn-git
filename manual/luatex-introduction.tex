@@ -1,3 +1,5 @@
+% language=uk
+
 \environment luatex-style
 \environment luatex-logos
 
@@ -6,40 +8,36 @@
 \startchapter[title=Introduction]
 
 This book will eventually become the reference manual of \LUATEX. At the moment,
-it simply reports the behavior of the executable matching the snapshot or beta
+it simply reports the behaviour of the executable matching the snapshot or beta
 release date in the title page. We don't claim it is complete and we assume that
 the reader knows about \TEX\ as described in \quotation {The \TEX\ Book}, the
 \quotation {\ETEX\ manual}, the \quotation {\PDFTEX\ manual}, etc. Additional
 reference material is published in journals of user groups and \CONTEXT\ related
 documentation.
 
-Features may come and go. The current version of \LUATEX\ can be used for
-production (in fact it is used in production by the authors) but users cannot
-depend on complete stability, nor on functionality staying the same. This means
-that when you update your binary, you also need to check if something fundamental
-has changed. Normally this is communicated in articles or messages to a mailing
-list. We're still not at version 1 but when we reach that state the interface
-will be stable. Of course we then can decide to move towards version 2 with
-different properties.
-
-This means that occasionally you can encounter functionality not described here.
-Just consider that experimental then. They are either a playground or are being
-tested in real situations first before being finalized. And we can equally well
-kick them out again. When they stay we will descibe them in the manual or more
-extensively in articles.
+Successive versions brought new functionality, more control, some cleanup of
+internals and experimental features evolved into stable ones or were dropped.
+Already quite early \LUATEX\ could be used for production and it was used in
+production by the authors. Successive versions sometimes demanded a adaption to
+the \LUA\ interfacing, but the concepts were unchanged. The current version can
+be considered stable in functionality and there will be no fundamental changes
+between 0.90 and 1.00. Of course we then can decide to move towards version 2.00
+with different properties.
 
 Don't expect \LUATEX\ to behave the same as \PDFTEX ! Although the core
-functionality of that 8 bit engine is present, \LUATEX\ can behave different due
-to its wide (32 bit) characters, many registers and large memory support. There
-is native \UTF\ input, support for large (more that 8 bit) fonts, and the math
-machinery is tuned for \OPENTYPE\ math. Ther ei ssupport for directional
+functionality of that 8 bit engine was starting point, it has been combined with
+the directional support of \OMEGA\ (\ALEPH). But, \LUATEX\ can behave different
+due to its wide (32 bit) characters, many registers and large memory support.
+There is native \UTF\ input, support for large (more that 8 bit) fonts, and the
+math machinery is tuned for \OPENTYPE\ math. There is support for directional
 typesetting too. The log output can differ from other engines and will likely
 differ more as we move forward. When you run plain \TEX\ for sure \LUATEX\ runs
-slower than \PDFTEX\ but when you run for instance \CONTEXT\ it might be faster. But
-in any case: 32 bit all||over combined with more features has a price.
+slower than \PDFTEX\ but when you run for instance \CONTEXT\ \MKIV\ it might be
+faster on more complex documents. But in any case: 32 bit all||over combined with
+more features has a price.
 
 \LUATEX\ consists of a number of interrelated but (still) distinguishable parts.
-The organization of the source code is adapted so that it cna glue all these
+The organization of the source code is adapted so that it can glue all these
 components together. We continue cleaning up side effects of the accumulated
 code in \TEX\ engines (especially code that is not needed any longer).
 
@@ -47,53 +45,69 @@ code in \TEX\ engines (especially code that is not needed any longer).
     \startitem
         Most of \PDFTEX\ version 1.40.9, converted to C (with patches from later
         releases). Some experimental features have been removed and some utility
-        macros are not inherited as their functionality can be done in \LUA. We
-        still use the \type {\pdf*} primitive namespace.
+        macros are not inherited as their functionality can be done in \LUA. The
+        number of backend interface commands has been reduced to a few. The
+        extensions are separated from the core (which we keep close to the
+        original \TEX\ core). Some mechanisms like expansion and protrusion can
+        behave different from the original due to some cleanup and optimization.
+        Some whatsit based functionality (image support and reusable content)
+        is now core functionality.
     \stopitem
     \startitem
         The direction model and some other bits from \ALEPH\ RC4 (derived from
-        \OMEGA) is included. The related primitives are part of core \LUATEX.
+        \OMEGA) is included. The related primitives are part of core \LUATEX\ but
+        at the node level directional support is no longer based on so called
+        whatsits but on real nodes. In fact, whatsits are now only used for
+        backend specific extensions.
+    \stopitem
+    \startitem
+        Neither \ALEPH's I/O translation processes, nor tcx files, nor \ENCTEX\
+        can be used, these encoding|-|related functions are superseded by a
+        \LUA|-|based solution (reader callbacks). In a similar fashion all file
+        \IO\ can be intercepted.
     \stopitem
     \startitem
         We currently use \LUA\ 5.2.*. At some point we might decide to move to
-        5.3.* but that is yet to be decided.
-    \stopitem
-    \startitem
-        There are few \LUA\ libraries that we consider part of the core \LUA\
-        machinery.
-    \stopitem
-    \startitem
+        5.3.* but that is yet to be decided. There are few \LUA\ libraries that
+        we consider part of the core \LUA\ machinery, for instance \type {lpeg}.
         There are additional \LUA\ libraries that interface to the internals of
         \TEX.
     \stopitem
     \startitem
         There are various \TEX\ extensions but only those that cannot be done
-        using the \LUA\ interfaces.
+        using the \LUA\ interfaces. The math machinery often has two code paths:
+        one traditional and the other more suitable for wide \OPENTYPE\ fonts.
     \stopitem
     \startitem
         The fontloader uses parts of \FONTFORGE\ 2008.11.17 combined with
-        additionaL code specific for usage in a \TEX\ engine.
+        additionaL code specific for usage in a \TEX\ engine. We try to minimize
+        specific font support to what \TEX needs: character references and
+        dimensions and delegate everything else to \LUA. That way we keep \TEX\
+        open for extensions without touching the core.
     \stopitem
     \startitem
-        the \METAPOST\ library
+        The \METAPOST\ library is integral part of \LUATEX. This gives \TEX\ some
+        graphical capabilities using a relative high speed graphical subsystem.
+        Again \LUA\ is used as glue between the frontend and backend. Further
+        development of \METAPOST\ is closely related to \LUATEX.
     \stopitem
 \stopitemize
 
-Neither \ALEPH's I/O translation processes, nor tcx files, nor \ENCTEX\ can be
-used, these encoding|-|related functions are superseded by a \LUA|-|based
-solution (reader callbacks). Most of the \PDFTEX\ backend is available but via a
-bit different interface.
+The yearly \TEXLIVE\ version is the stable version, any version between them are
+to be considered beta. The beta releases are normally available via the \CONTEXT\
+distribution channels (the garden and so called minimals).
 
-The yearly \TEXLIVE\ version is the stable version, any version between them is
-considered beta. Keep in mind that new (or changed) features also need to be
-reflected in the macro package that you use.
+\blank[1*big]
+
+Hans Hagen, Harmut Henkel, \crlf
+Taco Hoekwater \& Luigi Scarso
 
 \blank[3*big]
 
 \starttabulate
-\NC \LUATEX   \EQ Version \number\luatexversion.\luatexrevision \NC \NR
-\NC \CONTEXT  \EQ \contextversion \NC \NR
-\NC timestamp \EQ \currentdate \NC \NR
+\NC Version  \EQ \currentdate \NC \NR
+\NC \LUATEX  \EQ Snapshot \number\luatexversion.\luatexrevision \NC \NR
+\NC \CONTEXT \EQ \contextversion \NC \NR
 \stoptabulate
 
 \stopchapter

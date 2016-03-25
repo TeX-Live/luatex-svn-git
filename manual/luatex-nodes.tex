@@ -1,3 +1,5 @@
+% language=uk
+
 \environment luatex-style
 \environment luatex-logos
 
@@ -138,9 +140,9 @@ Id: \showid{hlist}
 A warning: never assign a node list to the \type {head} field unless you are sure
 its internal link structure is correct, otherwise an error may result.
 
-Note: the new field name \type {head} was introduced in 0.65 to replace the old
-name \type {list}. Use of the name \type {list} is now deprecated, but it will
-stay available until at least version 0.80.
+Note: the field name \type {head} and \type {list} are both valid. Sometimes it
+makes more sense to refer to a list by \type {head}, sometimes \type {list} makes
+more sense.
 
 \subsubsection{vlist nodes}
 
@@ -177,7 +179,7 @@ image.
                                         backend specific). \NC \NR
 \stoptabulate
 
-The subtypes 1 and~2 replace the xform and ximage whatsits and in nodelists they
+The subtypes 1 and~2 replace the xform and ximage whatsits and in node lists they
 behave like rules of subtype_0 when it comes to dimensions. Subtype~3 only has
 dimensions.
 
@@ -458,7 +460,7 @@ replaced them by expansion factors that travel with glyph nodes. Apart from a
 cleaner approach this is also a step towards a better separation between front-
 and backend.
 
-The \type {is_char} function checks if a node is a glyphnode with a subtype still
+The \type {is_char} function checks if a node is a glyph node with a subtype still
 less than 256. This function can be used to determine if applying font logic to a
 glyph node makes sense. The value \type {nil} gets returned when the node is not
 a glyph, a character number is returned if the node is still tagged as character
@@ -558,8 +560,8 @@ version as an extension to the \type {small_char}.
 \subsubsection{Math core nodes}
 
 First, there are the objects (the \TEX book calls then \quote {atoms}) that are
-associated with the simple math objects: Ord, Op, Bin, Rel, Open, Close, Punct,
-Inner, Over, Under, Vcent. These all have the same fields, and they are combined
+associated with the simple math objects: ord, op, bin, rel, open, close, punct,
+inner, over, under, vcent. These all have the same fields, and they are combined
 into a single node type with separate subtypes for differentiation.
 
 \subsubsubsection{simple nodes}
@@ -829,8 +831,8 @@ Id: \showid{dir}
 \NC attr        \NC \syntax{<node>} \NC \NC \NR
 \NC dir         \NC string          \NC the direction (but see below) \NC \NR
 \NC level       \NC number          \NC nesting level of this direction whatsit \NC \NR
-\NC dvi_ptr     \NC number          \NC a saved dvi buffer byte offset \NC \NR
-\NC dir_h       \NC number          \NC a saved dvi position \NC \NR
+\NC dvi_ptr     \NC number          \NC a saved \DVI\ buffer byte offset \NC \NR
+\NC dir_h       \NC number          \NC a saved \DVI\ position \NC \NR
 \stoptabulate
 
 A note on \type {dir} strings. Direction specifiers are three|-|letter
@@ -943,7 +945,7 @@ Id: \showid{whatsit,pdf_dest}
 \NC width       \NC number          \NC \NC \NR
 \NC height      \NC number          \NC \NC \NR
 \NC depth       \NC number          \NC \NC \NR
-\NC named_id    \NC number          \NC is the dest_id a string value? \NC \NR
+\NC named_id    \NC number          \NC is the \type {dest_id} a string value? \NC \NR
 \NC dest_id     \NC number          \NC the destination id \NC \NR
 \NC             \NC string          \NC the destination name \NC \NR
 \NC dest_type   \NC number          \NC type of destination \NC \NR
@@ -981,7 +983,7 @@ Id: \showid{whatsit,pdf_thread}
 \NC width       \NC number          \NC \NC \NR
 \NC height      \NC number          \NC \NC \NR
 \NC depth       \NC number          \NC \NC \NR
-\NC named_id    \NC number          \NC is the tread_id a string value? \NC \NR
+\NC named_id    \NC number          \NC is \type {tread_id} a string value? \NC \NR
 \NC tread_id    \NC number          \NC the thread id \NC \NR
 \NC             \NC string          \NC the thread name \NC \NR
 \NC thread_attr \NC number          \NC extra thread information \NC \NR
@@ -998,7 +1000,7 @@ Id: \showid{whatsit,pdf_start_thread}
 \NC width       \NC number          \NC \NC \NR
 \NC height      \NC number          \NC \NC \NR
 \NC depth       \NC number          \NC \NC \NR
-\NC named_id    \NC number          \NC is the tread_id a string value? \NC \NR
+\NC named_id    \NC number          \NC is \type {tread_id} a string value? \NC \NR
 \NC tread_id    \NC number          \NC the thread id \NC \NR
 \NC             \NC string          \NC the thread name \NC \NR
 \NC thread_attr \NC number          \NC extra thread information \NC \NR
@@ -1034,7 +1036,7 @@ Id: \showid{whatsit,late_lua}
 \NC attr        \NC \syntax{<node>} \NC \NC \NR
 \NC data        \NC string          \NC data to execute \NC \NR
 \NC string      \NC string          \NC data to execute \NC \NR
-\NC name        \NC string          \NC the name to use for lua error reporting \NC \NR
+\NC name        \NC string          \NC the name to use for \LUA\ error reporting \NC \NR
 \stoptabulate
 
 The difference between \type {data} and \type {string} is that on assignment, the
@@ -1173,11 +1175,11 @@ If performance matters you can use an function instead:
 
 \starttabulate[|T|p|]
 \NC getnext    \NC parsing nodelist always involves this one \NC \NR
-\NC getprev    \NC used less but is logical companion to getnext \NC \NR
+\NC getprev    \NC used less but is logical companion to \type {getnext} \NC \NR
 \NC getboth    \NC returns the next and prev pointer of a node \NC \NR
 \NC getid      \NC consulted a lot \NC \NR
 \NC getsubtype \NC consulted less but also a topper \NC \NR
-\NC getfont    \NC used a lot in otf handling (glyph nodes are consulted a lot) \NC \NR
+\NC getfont    \NC used a lot in \OPENTYPE\ handling (glyph nodes are consulted a lot) \NC \NR
 \NC getchar    \NC idem and also in other places \NC \NR
 \NC getdisc    \NC returns the \type {pre}, \type {post} and \type {replace} fields and
                    optionally when true is passed also the tail fields. \NC \NR

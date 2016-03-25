@@ -1,3 +1,5 @@
+% language=uk
+
 \environment luatex-style
 \environment luatex-logos
 
@@ -11,8 +13,8 @@
 
 The first version of \LUATEX\ only had a few extra primitives and it was largely
 the same as \PDFTEX. Then we merged substantial parts of \ALEPH\ into the code
-and got more primitives. When we got more stable teh decision was made to clean
-up the rather hybrid nature of the program. This means that some primnitives have
+and got more primitives. When we got more stable the decision was made to clean
+up the rather hybrid nature of the program. This means that some primitives have
 been promoted to core primitives, often with a different name, and that others
 were removed. This made it possible to start cleaning up the code base. We will
 describe most in following paragraphs.
@@ -69,7 +71,7 @@ most still comes from the original. But we divert a bit.
 \startsubsection[title=Changes from \ETEX\ 2.2]
 
 Being the de factor standard extension of course we provide the \ETEX\
-functionality, but with a few small adaptions.
+functionality, but with a few small adaptations.
 
 \startitemize
 
@@ -132,7 +134,7 @@ which in turn triggered renaming primitives.
 \stopitem
 
 \startitem
-    A number of \quote {pdftex primitives} have been removed as they can be
+    A number of \quote {\PDFTEX\ primitives} have been removed as they can be
     implemented using \LUA:
 
     \start \raggedright
@@ -181,7 +183,7 @@ which in turn triggered renaming primitives.
 
 \startitem
     The current version of \LUATEX\ no longer replaces and|/|or merges fonts in
-    embedded pdf files with fonts of the enveloping \PDF\ document. This
+    embedded \PDF\ files with fonts of the enveloping \PDF\ document. This
     regression may be temporary, depending on how the rewritten font backend will
     look like.
 \stopitem
@@ -213,7 +215,7 @@ which in turn triggered renaming primitives.
 
 \startitem
     When \type {\adjustspacing} has value~2, hz optimization will be applied to
-    glyphs and kerns. When the valus is~3, only glyphs will be treated. A value
+    glyphs and kerns. When the value is~3, only glyphs will be treated. A value
     smaller than~2 disables this feature.
 \stopitem
 
@@ -270,7 +272,7 @@ which in turn triggered renaming primitives.
 One change involves the so called xforms and ximages. In \PDFTEX\ these are
 implemented as so called whatsits. But contrary to other whatsits they have
 dimensions that need to be taken into account when for instance calculating
-optimal linebreaks. In \LUATEX\ these are now promoted to normal nodes, which
+optimal line breaks. In \LUATEX\ these are now promoted to normal nodes, which
 simplifies code that needs those dimensions.
 
 Another reason for promotion is that these are useful concepts. Backends can
@@ -493,7 +495,7 @@ others promoted to core \LUATEX\ primitives. That is only part of the story. In
 order to separate the backend specific primitives in de code these commands are
 now replaced by only a few. In traditional \TEX\ we only had the \DVI\ backend
 but now we have two: \DVI\ and \PDF. Additional functionality is implemented as
-\quote {extensions} in \TEX speak. By seperating more strickly we are able to
+\quote {extensions} in \TEX speak. By separating more strickly we are able to
 keep the core (fontend) clean and stable. If for some reason an extra backend
 option is needed, it can be implemented without touching the core. The three
 \PDF\ backend related primitives are
@@ -826,7 +828,7 @@ All of the internal code is changed in such a way that if one of the \type
 basically the same convention as the callback: a single read into a buffer big
 enough to hold the entire file contents. While this uses more memory than the
 previous code (that mostly used \type {getc} calls), it can be quite a bit faster
-(depending on your I/O subsystem).
+(depending on your \IO\ subsystem).
 
 \stopsubsection
 

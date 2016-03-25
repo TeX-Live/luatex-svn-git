@@ -1,3 +1,5 @@
+% language=uk
+
 \environment luatex-style
 \environment luatex-logos
 
@@ -54,7 +56,7 @@ The top|-|level keys in the table are as follows:
 \NC \NR
 \NC psname             \NC no       \NC no       \NC yes \NC string \NC
     actual (\POSTSCRIPT) name (this is the PS fontname in the incoming font
-    source, also used as fontname identifier in the \PDF\ output, new in 0.43)
+    source, also used as fontname identifier in the \PDF\ output)
 \NC \NR
 \NC fullname           \NC no       \NC no       \NC yes \NC string \NC
     output font name, used as a fallback in the \PDF\ output
@@ -110,16 +112,15 @@ The top|-|level keys in the table are as follows:
     the \type {\pdffontattr}
 \NC \NR
 \NC cache              \NC no       \NC no       \NC yes \NC string \NC
-    this key controls caching of the lua table on the \type {tex} end. \type {yes}:
-    use a reference to the table that is passed to \LUATEX\ (this is the
-    default). \type {no}: don't store the table reference, don't cache any lua
-    data for this font. \type {renew}: don't store the table reference, but save a
-    reference to the table that is created at the first access to one of its
-    fields in font.fonts. (new in 0.40.0, before that caching was always
-    \type {yes}). Note: the saved reference is thread-local, so be careful when
-    you are using coroutines: an error will be thrown if the table has been
-    cached in one thread, but you reference it from another thread ($\approx$
-    coroutine)
+    this key controls caching of the \LUA\ table on the \type {tex} end. \type
+    {yes}: use a reference to the table that is passed to \LUATEX\ (this is the
+    default). \type {no}: don't store the table reference, don't cache any \LUA\
+    data for this font. \type {renew}: don't store the table reference, but save
+    a reference to the table that is created at the first access to one of its
+    fields in font.fonts. Note: the saved reference is thread-local, so be
+    careful when you are using coroutines: an error will be thrown if the table
+    has been cached in one thread, but you reference it from another thread
+    ($\approx$ coroutine)
 \NC \NR
 \NC nomath              \NC no       \NC no       \NC yes \NC boolean\NC
     this key allows a minor speedup for text fonts. if it is present and true,
@@ -241,11 +242,11 @@ The following top|-|level keys can be present inside a character hash:
 \NC left_protruding  \NC no          \NC no           \NC maybe    \NC number         \NC character's \type {\lpcode} \NC\NR
 \NC right_protruding \NC no          \NC no           \NC maybe    \NC number         \NC character's \type {\rpcode} \NC\NR
 \NC expansion_factor \NC no          \NC no           \NC maybe    \NC number         \NC character's \type {\efcode} \NC\NR
-\NC tounicode        \NC no          \NC no           \NC maybe    \NC string         \NC character's Unicode equivalent(s), in UTF-16BE hexadecimal format\NC\NR
-\NC next             \NC no          \NC yes          \NC yes      \NC number         \NC the \quote{next larger} character index \NC\NR
+\NC tounicode        \NC no          \NC no           \NC maybe    \NC string         \NC character's \UNICODE\ equivalent(s), in \UTF|-|16BE hexadecimal format \NC\NR
+\NC next             \NC no          \NC yes          \NC yes      \NC number         \NC the \quote {next larger} character index \NC\NR
 \NC extensible       \NC no          \NC yes          \NC yes      \NC table          \NC the constituent parts of an extensible recipe \NC\NR
-\NC vert_variants    \NC no          \NC no           \NC yes      \NC table          \NC constituent parts of a vertical variant set\NC \NR
-\NC horiz_variants   \NC no          \NC no           \NC yes      \NC table          \NC constituent parts of a horizontal variant set\NC \NR
+\NC vert_variants    \NC no          \NC no           \NC yes      \NC table          \NC constituent parts of a vertical variant set \NC \NR
+\NC horiz_variants   \NC no          \NC no           \NC yes      \NC table          \NC constituent parts of a horizontal variant set \NC \NR
 \NC kerns            \NC no          \NC yes          \NC yes      \NC table          \NC kerning information \NC\NR
 \NC ligatures        \NC no          \NC yes          \NC yes      \NC table          \NC ligaturing information \NC\NR
 \NC commands         \NC yes         \NC no           \NC yes      \NC array          \NC virtual font commands \NC\NR
@@ -271,13 +272,13 @@ entry for the \PDF\ font (or font subset) based on the character|-|level \type
 {tounicode} strings, where they are available. If a character does not have a
 sensible \UNICODE\ equivalent, do not provide a string either (no empty strings).
 
-If the font-level \type {tounicode} is not set, then \LUATEX\ will build up \type
+If the font level \type {tounicode} is not set, then \LUATEX\ will build up \type
 {/ToUnicode} based on the \TEX\ code points you used, and any character-level
-\type {tounicodes} will be ignored. {\it At the moment, the string format is
-exactly the format that is expected by Adobe \CMAP\ files (\UTF-16BE in
-hexadecimal encoding), minus the enclosing angle brackets. This may change in the
-future.} Small example: the \type {tounicode} for a \type {fi} ligature would be
-\type {00660069}.
+\type {tounicodes} will be ignored. The string format is exactly the format that
+is expected by Adobe \CMAP\ files (\UTF-16BE in hexadecimal encoding), minus the
+enclosing angle brackets. Small example: the \type {tounicode} for a \type {fi}
+ligature would be \type {00660069}. When you pass a number the conversion will be
+done for you.
 
 The presence of \type {extensible} will overrule \type {next}, if that is also
 present. It in in turn can be overruled by \type {vert_variants}.
@@ -301,7 +302,7 @@ Each of those components is itself a hash of up to five keys:
 \NC extender  \NC number   \NC One (1) if this part is repeatable, zero (0) otherwise. \NC \NR
 \NC start     \NC number   \NC Maximum overlap at the starting side (in scaled points). \NC \NR
 \NC end       \NC number   \NC Maximum overlap at the ending side (in scaled points). \NC \NR
-\NC advance   \NC number   \NC Total advance width of this item (can be zero or missing,
+\NC advance   \NC number   \NC The total advance width of this item (can be zero or missing,
                                then the natural size of the glyph for character \type {component}
                                is used). \NC \NR
 \stoptabulate
@@ -390,7 +391,7 @@ and \TRUETYPE\ fonts loaded via \LUA. For \TYPEONE\ fonts, you have to set \type
 supported at all.
 
 If no special care is needed, \LUATEX\ currently falls back to the
-mapfile|-|based solution used by \PDFTEX\ and \DVIPS. This behavior will be
+mapfile|-|based solution used by \PDFTEX\ and \DVIPS. This behaviour will be
 removed in the future, when the existing code becomes integrated in the new
 subsystem.
 
@@ -495,7 +496,7 @@ fonts = {
 
 says that the first referenced font (index 1) in this virtual font is \type
 {ptrmr8a} loaded at 10pt, and the second is \type {psyr} loaded at a little over
-9pt. The third one is previously defined font that is known to \LUATEX\ as fontid
+9pt. The third one is previously defined font that is known to \LUATEX\ as font id
 \quote {38}.
 
 The array index numbers are used by the character command definitions that are

@@ -1,3 +1,5 @@
+% language=uk
+
 \environment luatex-style
 \environment luatex-logos
 
@@ -32,17 +34,15 @@ it may be needed to put these assignments before the above line:
 \catcode `\}=2
 \stoptyping
 
-More fine-grained primitives control is possible, you can look up the details in
+More fine|-|grained primitives control is possible, you can look up the details in
 \in {section} [luaprimitives]. For simplicity's sake, this manual assumes that you
 have executed the \type {\directlua} command as given above.
 
-The startup behavior documented above is considered stable in the sense that
-there will not be backward|-|incompatible changes any more. However, we can
-decide to promite some primitives to the \LUATEX\ namespace. For instance, after
-version 0.80.1 we promoted some rather generic \PDFTEX\ primitives to core
-\LUATEX\ ones, and the ones inherited frome \ALEPH\ (\OMEGA) are also promoted.
-Effectively this means that we now have the \type {tex}, \type {etex}, \type
-{luatex} and \type {pdftex} (sub)sets left.
+The startup behaviour documented above is considered stable in the sense that
+there will not be backward|-|incompatible changes any more. We have promoted some
+rather generic \PDFTEX\ primitives to core \LUATEX\ ones, and the ones inherited
+frome \ALEPH\ (\OMEGA) are also promoted. Effectively this means that we now have
+the \type {tex}, \type {etex}, \type {luatex} and \type {pdftex} (sub)sets left.
 
 \section{Version information}
 
@@ -327,7 +327,7 @@ can break up \LUATEX\ pretty bad. If you are not careful while working with the
 node list interface, you may even end up with assertion errors from within the
 \TEX\ portion of the executable.
 
-The behavior documented in the above subsection is considered stable in the sense
+The behaviour documented in the above subsection is considered stable in the sense
 that there will not be backward-incompatible changes any more.
 
 \subsection{\type {\latelua}}
@@ -478,7 +478,7 @@ preambles.
 Catcode tables are a new feature that allows you to switch to a predefined
 catcode regime in a single statement. You can have a practically unlimited number
 of different tables. This subsystem is backward compatible: if you never use the
-following commands, your document will not notice any difference in behavior
+following commands, your document will not notice any difference in behaviour
 compared to traditional \TEX. The contents of each catcode table is independent
 from any other catcode tables, and their contents is stored and retrieved from
 the format file.
@@ -565,8 +565,9 @@ If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
 about non-expandable commands appearing in the middle of a \type {\ifcsname}
 expansion. Instead, it will keep getting expanded tokens from the input until it
 encounters an \type {\endcsname} command. Use with care! This command is
-experimental: if the input expansion is unbalanced wrt. \type {\csname} \ldots
-\type {\endcsname} pairs, the \LUATEX\ process may hang indefinitely.
+experimental: if the input expansion is unbalanced with respect to \type
+{\csname} \ldots \type {\endcsname} pairs, the \LUATEX\ process may hang
+indefinitely.
 
 \subsection{\type {\suppressoutererror}}
 
@@ -597,7 +598,7 @@ a $
 \section{\type {\matheqnogapstep}}
 
 By default \TEX\ will add one quad between the equation and the number. This is
-hardcoded. A new primitive can control this:
+hard coded. A new primitive can control this:
 
 \startsyntax
 \matheqnogapstep = 1000

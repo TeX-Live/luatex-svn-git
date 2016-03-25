@@ -1,3 +1,5 @@
+% language=uk
+
 \environment luatex-style
 \environment luatex-logos
 
@@ -59,8 +61,8 @@ stored in the same place as other nodes like boxes and kerns and glues.
 
 In \LUATEX, these two types are merged into one, somewhat larger structure called
 a \type {glyph_node}. Besides having the old character, font, and component
-fields, and the new special fields like \quote {attr}
-(see~\in{section}[glyphnodes]), these nodes also contain:
+fields, and the new special fields like \quote {attr} (see~\in {section}
+[glyphnodes]), these nodes also contain:
 
 \startitemize
 
@@ -153,7 +155,7 @@ but rejected because in practice the current approach is sufficient and it would
 not be compatible anyway.
 
 Beware: the values are always saved in the format, independent of the setting
-of \type {\savinghyphcodes} at the mnoment the format is dumped.
+of \type {\savinghyphcodes} at the moment the format is dumped.
 
 \section{The main control loop}
 
@@ -173,10 +175,10 @@ achieve the same effect.
 
 This change of meaning did happen with \type {\char}, that now generates \quote
 {glyph} nodes with a character subtype. In traditional \TEX\ there was a strong
-relationship betwene the 8|-|bit input encoding, hyphenation and glyph staken
+relationship between the 8|-|bit input encoding, hyphenation and glyphs taken
 from a font. In \LUATEX\ we have \UTF\ input, and in most cases this maps
 directly to a character in a font, apart from glyph replacement in the font
-engine. If you want to access arbitrary glyphs in a font directly you can alwasy
+engine. If you want to access arbitrary glyphs in a font directly you can always
 use \LUA\ to do so, because fonts are available as \LUA\ table.
 
 Second, all the results of processing in math mode eventually become nodes with
@@ -207,7 +209,7 @@ control loop.
 The only use \LUATEX\ has for \type {\hyphenchar} is at the check whether a word
 should be considered for hyphenation at all. If the \type {\hyphenchar} of the font
 attached to the first character node in a word is negative, then hyphenation of
-that word is abandoned immediately. {\bf This behavior is added for backward
+that word is abandoned immediately. {\bf This behaviour is added for backward
 compatibility only, and the use of \type {\hyphenchar=-1} as a means of
 preventing hyphenation should not be used in new \LUATEX\ documents.}
 
@@ -294,7 +296,7 @@ speed gain would be lost if it had to interpret command sequences while doing so
 It is possible to specify extra hyphenation points in compound words by using
 \type {{-}{}{-}} for the explicit hyphen character (replace \type {-} by the
 actual explicit hyphen character if needed). For example, this matches the word
-\quote {multi|-|word|-|boundaries} and allows an extra break inbetweem \quote
+\quote {multi|-|word|-|boundaries} and allows an extra break inbetween \quote
 {boun} and \quote {daries}:
 
 \starttyping
@@ -353,8 +355,8 @@ Differences between \LUATEX\ and \TEX82 that are a direct result of that:
     discretionaries (instead of \TEX82's empty discretionary).
 \stopitem
 \startitem
-    The value of the two counters related to hyphenation, \type {hyphenpenalty}
-    and \type {exhyphenpenalty}, are now stored in the discretionary nodes. This
+    The value of the two counters related to hyphenation, \type {\hyphenpenalty}
+    and \type {\exhyphenpenalty}, are now stored in the discretionary nodes. This
     permits a local overload for explicit \type {\discretionary} commands. The
     value current when the hyphenation pass is applied is used. When no callbacks
     are used this is compatible with traditional \TEX. When you apply the \LUA\
@@ -391,14 +393,14 @@ word boundary).
 All languages start out with \type {\prehyphenchar=`\-}, \type {\posthyphenchar=0},
 \type {\preexhyphenchar=0} and \type {\postexhyphenchar=0}. When you assign the
 values of one of these four parameters, you are actually changing the settings
-for the current \type {\language}, this behavior is compatible with \type {\patterns}
+for the current \type {\language}, this behaviour is compatible with \type {\patterns}
 and \type {\hyphenation}.
 
 \LUATEX\ also hyphenates the first word in a paragraph. Words can be up to 256
 characters long (up from 64 in \TEX82). Longer words generate an error right now,
 but eventually either the limitation will be removed or perhaps it will become
 possible to silently ignore the excess characters (this is what happens in
-\TEX82, but there the behavior cannot be controlled).
+\TEX82, but there the behaviour cannot be controlled).
 
 If you are using the \LUA\ function \type {lang.hyphenate}, you should be aware
 that this function expects to receive a list of \quote {character} nodes. It will
