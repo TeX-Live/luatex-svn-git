@@ -423,48 +423,6 @@ node_info whatsit_node_data[] = {
 
 #define last_whatsit_node pdf_restore_node
 
-int glue_is_zero(halfword p) {
-	if (p == null) {
-		return 1;
-	} else {
-		return (
-		    width(p) == 0 &&
-		    stretch(p) == 0 &&
-		    shrink(p) == 0 &&
-		    stretch_order(p) == 0 &&
-		    shrink_order(p) == 0
-		) ;
-	}
-}
-
-void reset_glue_to_zero(halfword p) {
-	if (p != null) {
-	    width(p) = 0;
-	    stretch(p) = 0;
-	    shrink(p) = 0;
-	    stretch_order(p) = 0;
-	    shrink_order(p) = 0;
-	}
-}
-
-void copy_glue_values(halfword p, halfword q) {
-	if (q == null) {
-	    width(p) = 0;
-	    stretch(p) = 0;
-	    shrink(p) = 0;
-	    stretch_order(p) = 0;
-	    shrink_order(p) = 0;
-	} else {
-	    width(p) = width(q);
-	    stretch(p) = stretch(q);
-	    shrink(p) = shrink(q);
-	    stretch_order(p) = stretch_order(q);
-	    shrink_order(p) = shrink_order(q);
-    }
-}
-
-
-
 @
 When we copy a node list, there are several possibilities: we do the same as a new node,
 we copy the entry to the table in properties (a reference), we do a deep copy of a table

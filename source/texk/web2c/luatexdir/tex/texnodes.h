@@ -147,9 +147,39 @@ typedef enum {
 #  define synctex_tag_glue(a)  vinfo((a)+6)
 #  define synctex_line_glue(a) vlink((a)+6)
 
-extern int glue_is_zero(halfword p);
-extern void reset_glue_to_zero(halfword p);
-extern void copy_glue_values(halfword p,halfword q);
+#define glue_is_zero(p) \
+	((p == null) || ( \
+        width(p) == 0 && \
+        stretch(p) == 0 && \
+        shrink(p) == 0 && \
+        stretch_order(p) == 0 && \
+        shrink_order(p) == 0 \
+    ))
+
+#define reset_glue_to_zero(p) \
+	if (p != null) { \
+	    width(p) = 0; \
+	    stretch(p) = 0; \
+	    shrink(p) = 0; \
+	    stretch_order(p) = 0; \
+	    shrink_order(p) = 0; \
+	}
+
+#define copy_glue_values(p,q) \
+	if (q == null) { \
+	    width(p) = 0; \
+	    stretch(p) = 0; \
+	    shrink(p) = 0; \
+	    stretch_order(p) = 0; \
+	    shrink_order(p) = 0; \
+	} else { \
+	    width(p) = width(q); \
+	    stretch(p) = stretch(q); \
+	    shrink(p) = shrink(q); \
+	    stretch_order(p) = stretch_order(q); \
+	    shrink_order(p) = shrink_order(q); \
+    }
+
 
 /*
     disc nodes could eventually be smaller, because the indirect
