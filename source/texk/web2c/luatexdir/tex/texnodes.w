@@ -3533,9 +3533,7 @@ to be exactly one reference to the new specification.
 @c
 halfword new_spec(halfword p)
 {
-    /* maybe check for p == null here and copy zero_glue then */
-    halfword q = copy_node(p);
-    return q;
+    return copy_node(p == null ? zero_glue : p);
 }
 
 @ And here's a function that creates a glue node for a given parameter
