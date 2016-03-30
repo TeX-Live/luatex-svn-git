@@ -32,7 +32,8 @@
       [align=flushright,
        foregroundcolor=blue,
        frame=off]
-      {\currentdate[month,space,year]\par
+      {\doifsomething{\documentvariable{status}}{\documentvariable{status}\par}
+       \currentdate[month,space,year]\par
        Version \documentvariable{version}}
 
 \stopstandardmakeup

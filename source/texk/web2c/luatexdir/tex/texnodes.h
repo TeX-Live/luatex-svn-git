@@ -68,8 +68,6 @@ extern void undump_node_mem(void);
 #  define rlink(a)      vlink((a)+1) /* aka alink() */
 #  define tlink(a)      vinfo((a)+1) /* overlaps with node_attr() */
 
-#  define add_glue_ref(a) glue_ref_count(a)++   /* new reference to a glue spec */
-
 /* really special head node pointers that only need links */
 
 #  define temp_node_size 2
@@ -106,15 +104,6 @@ extern void update_attribute_cache(void);
 extern halfword copy_attribute_list(halfword n);
 extern halfword do_set_attribute(halfword p, int i, int val);
 
-/* a glue spec */
-#  define glue_spec_size 4
-#  define stretch(a)        vlink((a)+1)
-/* width == a+2 */
-#  define shrink(a)         vinfo((a)+1)
-#  define stretch_order(a)  type((a)+3)
-#  define shrink_order(a)   subtype((a)+3)
-#  define glue_ref_count(a) vlink((a)+3)
-
 #  define width_offset 2
 #  define depth_offset 3
 #  define height_offset 4
@@ -138,11 +127,29 @@ typedef enum {
 #  define penalty_node_size    3
 #  define penalty(a)           vlink((a)+2)
 
+/*
 #  define glue_node_size       4
 #  define glue_ptr(a)          vinfo((a)+2)
 #  define leader_ptr(a)        vlink((a)+2)
 #  define synctex_tag_glue(a)  vinfo((a)+3)
 #  define synctex_line_glue(a) vlink((a)+3)
+*/
+
+#  define glue_node_size       7
+#  define glue_spec_size       5
+/* define width(a)             vinfo((a)+2) */
+/* define leader_ptr(a)        vlink((a)+2) */
+#  define shrink(a)            vinfo((a)+3)
+#  define stretch(a)           vlink((a)+3)
+#  define stretch_order(a)     vinfo((a)+4)
+#  define shrink_order(a)      vlink((a)+4)
+#  define leader_ptr(a)        vlink((a)+5) /* should be in vlink((a)+2) but fails */
+#  define synctex_tag_glue(a)  vinfo((a)+6)
+#  define synctex_line_glue(a) vlink((a)+6)
+
+extern int glue_is_zero(halfword p);
+extern void reset_glue_to_zero(halfword p);
+extern void copy_glue_values(halfword p,halfword q);
 
 /*
     disc nodes could eventually be smaller, because the indirect
@@ -282,11 +289,17 @@ typedef enum {
 #  define before     0 /* |subtype| for math node that introduces a formula */
 #  define after      1 /* |subtype| for math node that winds up a formula */
 
-#  define math_node_size       4
-#  define surround(a)          vlink((a)+2)
-/* also:  glue_ptr(a)          vinfo((a)+2) */
-#  define synctex_tag_math(a)  vinfo((a)+3)
-#  define synctex_line_math(a) vlink((a)+3)
+#  define math_node_size       7
+/* define width(a)             vinfo((a)+2) */
+/* overlaps width */
+/* define shrink(a)            vinfo((a)+3) */
+/* define stretch(a)           vlink((a)+3) */
+/* define stretch_order(a)     vinfo((a)+4) */
+/* define shrink_order(a)      vlink((a)+4) */
+/* leader_ptr slot */
+#  define surround(a)          vinfo((a)+5)
+#  define synctex_tag_math(a)  vinfo((a)+6)
+#  define synctex_line_math(a) vlink((a)+6)
 
 #  define ins_node_size    6
 #  define float_cost(a)    varmem[(a)+2].cint
@@ -620,15 +633,13 @@ typedef enum {
 
 #  define special_node_size 3
 
-#  define dir_node_size 6
+#  define dir_node_size 5
 #  define dir_dir(a)       vinfo((a)+2)
 #  define dir_level(a)     vlink((a)+2)
-#  define dir_dvi_ptr(a)   vinfo((a)+3)
-#  define dir_dvi_h(a)     vlink((a)+3) /* obsolete */
-#  define dir_refpos_h(a)  vinfo((a)+4)
-#  define dir_refpos_v(a)  vlink((a)+4)
-#  define dir_cur_h(a)     vinfo((a)+5)
-#  define dir_cur_v(a)     vlink((a)+5)
+#  define dir_refpos_h(a)  vinfo((a)+3)
+#  define dir_refpos_v(a)  vlink((a)+3)
+#  define dir_cur_h(a)     vinfo((a)+4)
+#  define dir_cur_v(a)     vlink((a)+4)
 
 #  define write_node_size 3
 #  define close_node_size 3
@@ -910,10 +921,8 @@ typedef enum {
 #  define is_running(A) ((A)==null_flag)        /* tests for a running dimension */
 
 extern halfword tail_of_list(halfword p);
-extern void delete_glue_ref(halfword p);
 
 extern int var_used;
-extern halfword temp_ptr;
 
 #  define cache_disabled max_halfword
 

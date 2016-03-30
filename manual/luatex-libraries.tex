@@ -5266,8 +5266,8 @@ registers:
 \startfunctioncall
 tex.setskip (<number> n, <node> s)
 tex.setskip (<string> s, <node> s)
-tex.setskip ('global',<number> n, <node> s)
-tex.setskip ('global',<string> s, <node> s)
+tex.setskip ("global",<number> n, <node> s)
+tex.setskip ("global",<string> s, <node> s)
 <node> s = tex.getskip (<number> n)
 <node> s = tex.getskip (<string> s)
 \stopfunctioncall
@@ -5284,6 +5284,19 @@ tex.scantoks("global",0,"$\int\limits^1_2$")
 
 In the function-based interface, it is possible to define values globally by
 using the string \type {global} as the first function argument.
+
+There are four extra skip related helpers:
+
+\startfunctioncall
+tex.setglue (<number> n, width, stretch, shrink, stretch_order, shrink_order)
+tex.setglue (<string> s, width, stretch, shrink, stretch_order, shrink_order)
+tex.setglue ("global",<number> n, width, stretch, shrink, stretch_order, shrink_order)
+tex.setglue ("global",<string> s, width, stretch, shrink, stretch_order, shrink_order)
+width, stretch, shrink, stretch_order, shrink_order = tex.getglue (<number> n)
+width, stretch, shrink, stretch_order, shrink_order = tex.getglue (<string> s)
+\stopfunctioncall
+
+The other two are \type {tex.setmuglue} and \type {tex.getmuglue}.
 
 \subsection{Character code registers}
 
