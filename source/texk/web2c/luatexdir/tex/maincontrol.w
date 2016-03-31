@@ -130,11 +130,7 @@ and kerns, is part of \TeX's ``inner loop''; the whole program runs
 efficiently when its inner loop is fast, so this part has been written
 with particular care.
 
-@c
-static halfword main_p;         /* temporary register for list manipulation */
-static halfword main_s;         /* space factor value */
-
-@ We leave the |space_factor| unchanged if |sf_code(cur_chr)=0|; otherwise we
+We leave the |space_factor| unchanged if |sf_code(cur_chr)=0|; otherwise we
 set it equal to |sf_code(cur_chr)|, except that it should never change
 from a value less than 1000 to a value exceeding 1000. The most common
 case is |sf_code(cur_chr)=1000|, so we want that case to be fast.
@@ -142,16 +138,16 @@ case is |sf_code(cur_chr)=1000|, so we want that case to be fast.
 @c
 void adjust_space_factor(void)
 {
-    main_s = get_sf_code(cur_chr);
-    if (main_s == 1000) {
+    halfword s = get_sf_code(cur_chr);
+    if (s == 1000) {
         space_factor = 1000;
-    } else if (main_s < 1000) {
-        if (main_s > 0)
-            space_factor = main_s;
+    } else if (s < 1000) {
+        if (s > 0)
+            space_factor = s;
     } else if (space_factor < 1000) {
         space_factor = 1000;
     } else {
-        space_factor = main_s;
+        space_factor = s;
     }
 }
 
@@ -217,12 +213,12 @@ static void run_app_space (void) {
     } else {
         /* Append a normal inter-word space to the current list */
         if (glue_is_zero(space_skip)) {
-            /* Find the glue specification, |main_p|, for text spaces in the current font */
+            /* Find the glue specification for text spaces in the current font */
             p = new_glue(zero_glue);
             width(p) = space(cur_font);
             stretch(p) = space_stretch(cur_font);
             shrink(p) = space_shrink(cur_font);
-            main_p = p;
+
         } else {
             p = new_param_glue(space_skip_code);
         }
@@ -997,19 +993,19 @@ void app_space(void)
         subtype(q) = xspace_skip_code + 1;
     } else {
         if (!glue_is_zero(space_skip)) {
-            main_p = new_glue(space_skip);
+            q = new_glue(space_skip);
         } else {
-            main_p = new_glue(zero_glue);
-            width(main_p) = space(cur_font);
-            stretch(main_p) = space_stretch(cur_font);
-            shrink(main_p) = space_shrink(cur_font);
+            q = new_glue(zero_glue);
+            width(q) = space(cur_font);
+            stretch(q) = space_stretch(cur_font);
+            shrink(q) = space_shrink(cur_font);
         }
-        /* Modify the glue specification in |main_p| according to the space factor */
+        /* Modify the glue specification in |q| according to the space factor */
         if (space_factor >= 2000)
-            width(main_p) = width(main_p) + extra_space(cur_font);
-        stretch(main_p) = xn_over_d(stretch(main_p), space_factor, 1000);
-        shrink(main_p) = xn_over_d(shrink(main_p), 1000, space_factor);
-        q = main_p;
+            width(q) = width(q) + extra_space(cur_font);
+        stretch(q) = xn_over_d(stretch(q), space_factor, 1000);
+        shrink(q) = xn_over_d(shrink(q), 1000, space_factor);
+
         /* so from now we have a subtype with spaces: */
         subtype(q) = space_skip_code + 1;
     }
