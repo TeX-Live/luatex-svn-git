@@ -539,8 +539,6 @@ primitives (for as far their functionality is still around) you now can do this:
 \protected\def\pdfmapline             {\pdfextension mapline }
 \protected\def\pdftrailer             {\pdfextension trailer }
 \protected\def\pdfglyphtounicode      {\pdfextension glyphtounicode }
-\protected\def\pdfsuppressoptionalinfo{\pdfextension suppressoptionalinfo }
-\protected\def\pdfinfoid              {\pdfextension infoid }
 \stoptyping
 
 The introspective primitives can be defined as:
@@ -596,6 +594,9 @@ The configuration related registers have become:
 \edef\pdfxformattr                {\pdfvariable xformattr}
 \edef\pdfxformresources           {\pdfvariable xformresources}
 \edef\pdfpkmode                   {\pdfvariable pkmode}
+
+\edef\pdfsuppressoptionalinfo     {\pdfvariable suppressoptionalinfo }
+\edef\pdftrailerid                {\pdfvariable trailerid }
 \stoptyping
 
 The variables are internal ones, so they are anonymous. When you ask for the

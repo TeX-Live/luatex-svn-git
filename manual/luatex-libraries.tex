@@ -4246,12 +4246,52 @@ This is an experimental function that will append a node list to \TEX's \quote
 either!
 
 \subsubsection{\type {node.protrusion_skippable}}
+
 \startfunctioncall
 <boolean> skippable = node.protrusion_skippable(<node> n)
 \stopfunctioncall
 
 Returns \type {true} if, for the purpose of line boundary discovery when
 character protrusion is active, this node can be skipped.
+
+\subsection{Glue handling}
+
+\subsubsection{\type {node.setglue}}
+
+You can set the properties of a glue in one go. If you pass no values, the glue
+will become a zero glue.
+
+\startfunctioncall
+node.setglue(<node> n)
+node.setglue(<node> n,width,stretch,shrink,stretch_order,shrink_order)
+\stopfunctioncall
+
+When you pass values, only arguments that are numbers
+are assigned so
+
+\starttyping
+node.setglue(n,655360,false,65536)
+\stoptyping
+
+will only adapt the width and shrink.
+
+\subsubsection{\type {node.getglue}}
+
+The next call will return 5 values (or northing when no glue is passed).
+
+\startfunctioncall
+<integer> width, <integer> stretch, <integer> shrink, <integer> stretch_order,
+    <integer> shrink_order = node.getglue(<node> n)
+\stopfunctioncall
+
+\subsubsection{\type {node.is_zero_glue}}
+
+This function returns \type {true} when the width, stretch and shrink properties
+are zero.
+
+\startfunctioncall
+<boolean> isglue = node.is_zero_glue(<node> n)
+\stopfunctioncall
 
 \subsection{Attribute handling}
 
@@ -5266,8 +5306,8 @@ registers:
 \startfunctioncall
 tex.setskip (<number> n, <node> s)
 tex.setskip (<string> s, <node> s)
-tex.setskip ('global',<number> n, <node> s)
-tex.setskip ('global',<string> s, <node> s)
+tex.setskip ("global",<number> n, <node> s)
+tex.setskip ("global",<string> s, <node> s)
 <node> s = tex.getskip (<number> n)
 <node> s = tex.getskip (<string> s)
 \stopfunctioncall
@@ -5284,6 +5324,19 @@ tex.scantoks("global",0,"$\int\limits^1_2$")
 
 In the function-based interface, it is possible to define values globally by
 using the string \type {global} as the first function argument.
+
+There are four extra skip related helpers:
+
+\startfunctioncall
+tex.setglue (<number> n, width, stretch, shrink, stretch_order, shrink_order)
+tex.setglue (<string> s, width, stretch, shrink, stretch_order, shrink_order)
+tex.setglue ("global",<number> n, width, stretch, shrink, stretch_order, shrink_order)
+tex.setglue ("global",<string> s, width, stretch, shrink, stretch_order, shrink_order)
+width, stretch, shrink, stretch_order, shrink_order = tex.getglue (<number> n)
+width, stretch, shrink, stretch_order, shrink_order = tex.getglue (<string> s)
+\stopfunctioncall
+
+The other two are \type {tex.setmuglue} and \type {tex.getmuglue}.
 
 \subsection{Character code registers}
 

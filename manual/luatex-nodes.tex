@@ -198,9 +198,13 @@ Id: \showid{ins}
 \NC depth       \NC number          \NC \NC \NR
 \NC head/list   \NC \syntax{<node>} \NC the first node of the body of this
                                         insert \NC \NR
-\NC spec        \NC \syntax{<node>} \NC a pointer to the \type {\splittopskip}
-                                        glue spec \NC \NR
+%NC spec        \NC \syntax{<node>} \NC a pointer to the \type {\splittopskip}
+%                                       glue spec \NC \NR
 \stoptabulate
+
+There is a set of extra fields that concern the associated glue: \type {width},
+\type {stretch}, \type {stretch_order}, \type {shrink} and \type {shrink_order}.
+These are all numbers.
 
 A warning: never assign a node list to the \type {head} field unless you are sure
 its internal link structure is correct, otherwise an error may be result. You can use
@@ -279,6 +283,10 @@ Id: \showid{math}
 \NC surround    \NC number          \NC  width of the \type {\mathsurround} kern \NC \NR
 \stoptabulate
 
+There is a set of extra fields that concern the associated glue: \type {width},
+\type {stretch}, \type {stretch_order}, \type {shrink} and \type {shrink_order}.
+These are all numbers.
+
 \subsubsection{glue nodes}
 
 Skips are about the only type of data objects in traditional \TEX\ that are not a
@@ -292,9 +300,6 @@ called a \type {glue_spec}, and it has the following accessible fields:
 \NC stretch_order \NC number   \NC \NC \NR
 \NC shrink        \NC number   \NC \NC \NR
 \NC shrink_order  \NC number   \NC \NC \NR
-\NC writable      \NC boolean  \NC If this is true, you can't assign to this
-                                   \type {glue_spec} because it is one of the
-                                   preallocated special cases. \NC \NR
 \stoptabulate
 
 % These objects are reference counted, so there is actually an extra read|-|only
@@ -309,25 +314,40 @@ the content fit in the available space. The \type {effective_glue} function that
 takes a glue node and a parent (hlist or vlist) returns the effective width of
 that glue item.
 
-A spec node is normally references to from a glue node:
+A gluespec node is a special kind of node that is used for storing a set of glue
+values in registers. Originally they were also used to store properties of glue
+nodes (using a system of reference counts) but we now keep these properties in
+the glue nodes themselves, which gives a cleaner interface to \LUA.
+
+The indirect spec approach was in fact an optimization in the original \TEX\
+code. First of all it can save quite some memory because all these spaces that
+become glue now share the same specification (only the reference count is
+incremented), and zero testing is also a bit faster because only the pointer has
+to be checked (this is no longer true for engines that implement for instance
+protrusion where we really need to ensure that zero is zero when we test for
+bounds). Another side effect is that glue specifications are read|-|only, so in
+the end copies need to be made when they are used from \LUA\ (each assignment to
+a field can result in a new copy). So in the end the advantages of sharing are
+not that high (and nowadays memory is less an issue, also given that a glue node
+is only a few memory words larger than a spec).
 
 Valid fields: \showfields{glue}\crlf
 Id: \showid{glue}
 
 \starttabulate[|lT|l|p|]
-\NC \ssbf field \NC \bf type        \NC \bf explanation \NC \NR
-\NC subtype     \NC number          \NC \type {0} = \type {\skip},
-                                        \type {1-18} = internal glue parameters,
-                                        \type {100-103} = \quote {leader} subtypes \NC \NR
-\NC attr        \NC \syntax{<node>} \NC \NC \NR
-\NC spec        \NC \syntax{<node>} \NC pointer to a glue_spec item \NC \NR
-\NC leader      \NC \syntax{<node>} \NC pointer to a box or rule for leaders \NC \NR
+\NC \ssbf field   \NC \bf type        \NC \bf explanation \NC \NR
+\NC subtype       \NC number          \NC \type {0} = \type {\skip},
+                                          \type {1-18} = internal glue parameters,
+                                          \type {98-99} = \quote {math glue} subtypes
+                                          \type {100-103} = \quote {leader} subtypes \NC \NR
+\NC attr          \NC \syntax{<node>} \NC \NC \NR
+\NC leader        \NC \syntax{<node>} \NC pointer to a box or rule for leaders \NC \NR
+\NC width         \NC number   \NC \NC \NR
+\NC stretch       \NC number   \NC \NC \NR
+\NC stretch_order \NC number   \NC \NC \NR
+\NC shrink        \NC number   \NC \NC \NR
+\NC shrink_order  \NC number   \NC \NC \NR
 \stoptabulate
-
-The indirect spec approach is an optimization in the original \TEX\ code. First
-of all it saves quite some memory because all these spaces that become glue now
-share the same specification, and zero testing is also faster because only the
-pointer has to be checked.
 
 The exact meanings of the subtypes are as follows:
 
@@ -1205,7 +1225,7 @@ summarized this:
 
 \starttabulate[|T|c|c|]
 \HL
-\NC \bf function                \NC \bf node \NC \bf direct \NC \NR
+\NC \bf function                 \NC \bf node \NC \bf direct \NC \NR
 \HL
 \NC \type {copy_list}            \NC \yes \NC \yes  \NC \NR
 \NC \type {copy}                 \NC \yes \NC \yes  \NC \NR
@@ -1285,6 +1305,9 @@ summarized this:
 \NC \type {whatsits}             \NC \yes \NC \nop  \NC \NR
 \NC \type {whatsitsubtypes}      \NC \yes \NC \nop  \NC \NR
 \NC \type {write}                \NC \yes \NC \yes  \NC \NR
+\NC \type {setglue}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getglue}              \NC \yes \NC \yes  \NC \NR
+\NC \type {glue_is_zero}         \NC \yes \NC \yes  \NC \NR
 \stoptabulate
 
 \stop
