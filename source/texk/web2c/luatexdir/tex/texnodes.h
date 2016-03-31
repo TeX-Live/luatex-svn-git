@@ -148,13 +148,7 @@ typedef enum {
 #  define synctex_line_glue(a) vlink((a)+6)
 
 #define glue_is_zero(p) \
-	((p == null) || ( \
-        width(p) == 0 && \
-        stretch(p) == 0 && \
-        shrink(p) == 0 && \
-        stretch_order(p) == 0 && \
-        shrink_order(p) == 0 \
-    ))
+	((p == null) || (width(p) == 0 && stretch(p) == 0 && shrink(p) == 0))
 
 #define reset_glue_to_zero(p) \
 	if (p != null) { \

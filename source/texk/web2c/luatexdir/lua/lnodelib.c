@@ -2370,8 +2370,9 @@ static int lua_nodelib_direct_unset_attribute(lua_State * L)
     return 1;
 }
 
+/* glue */
 
-static int lua_nodelib_reset_glue(lua_State * L)
+static int lua_nodelib_set_glue(lua_State * L)
 {
     halfword n = *check_isnode(L, 1);
     int top = lua_gettop(L) ;
@@ -2381,11 +2382,13 @@ static int lua_nodelib_reset_glue(lua_State * L)
         shrink(n)        = ((top > 3 && lua_type(L, n) == LUA_TNUMBER)) ? lua_tointeger(L,4) : 0;
         stretch_order(n) = ((top > 4 && lua_type(L, n) == LUA_TNUMBER)) ? lua_tointeger(L,5) : 0;
         shrink_order(n)  = ((top > 5 && lua_type(L, n) == LUA_TNUMBER)) ? lua_tointeger(L,6) : 0;
+        return 0;
+    } else {
+        return luaL_error(L, "glue (spec) expected");
     }
-    return 0;
 }
 
-static int lua_nodelib_direct_reset_glue(lua_State * L)
+static int lua_nodelib_direct_set_glue(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
     int top = lua_gettop(L) ;
@@ -2395,8 +2398,62 @@ static int lua_nodelib_direct_reset_glue(lua_State * L)
         shrink(n)        = ((top > 3 && lua_type(L, n) == LUA_TNUMBER)) ? lua_tointeger(L,4) : 0;
         stretch_order(n) = ((top > 4 && lua_type(L, n) == LUA_TNUMBER)) ? lua_tointeger(L,5) : 0;
         shrink_order(n)  = ((top > 5 && lua_type(L, n) == LUA_TNUMBER)) ? lua_tointeger(L,6) : 0;
+        return 0;
+    } else {
+        return luaL_error(L, "glue (spec) expected");
     }
-    return 0;
+}
+
+static int lua_nodelib_get_glue(lua_State * L)
+{
+    halfword n = *check_isnode(L, 1);
+    if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node)) {
+        lua_pushinteger(L,width(n));
+        lua_pushinteger(L,stretch(n));
+        lua_pushinteger(L,shrink(n));
+        lua_pushinteger(L,stretch_order(n));
+        lua_pushinteger(L,shrink_order(n));
+        return 5;
+    } else {
+        return luaL_error(L, "glue (spec) expected");
+    }
+}
+
+static int lua_nodelib_direct_get_glue(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node)) {
+        lua_pushinteger(L,width(n));
+        lua_pushinteger(L,stretch(n));
+        lua_pushinteger(L,shrink(n));
+        lua_pushinteger(L,stretch_order(n));
+        lua_pushinteger(L,shrink_order(n));
+        return 5;
+    } else {
+        return luaL_error(L, "glue (spec) expected");
+    }
+}
+
+static int lua_nodelib_is_zero_glue(lua_State * L)
+{
+    halfword n = *check_isnode(L, 1);
+    if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node)) {
+        lua_toboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
+        return 1;
+    } else {
+        return luaL_error(L, "glue (spec) expected");
+    }
+}
+
+static int lua_nodelib_direct_is_zero_glue(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node)) {
+        lua_toboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
+        return 1;
+    } else {
+        return luaL_error(L, "glue (spec) expected");
+    }
 }
 
 /* iteration */
@@ -6838,7 +6895,9 @@ static const struct luaL_Reg direct_nodelib_f[] = {
  /* {"types", lua_nodelib_types}, */ /* no node argument */
     {"unprotect_glyphs", lua_nodelib_direct_unprotect_glyphs},
     {"unset_attribute", lua_nodelib_direct_unset_attribute},
-    {"reset_glue",lua_nodelib_direct_reset_glue},
+    {"setglue",lua_nodelib_direct_set_glue},
+    {"getglue",lua_nodelib_direct_get_glue},
+    {"is_zero_glue",lua_nodelib_direct_is_zero_glue},
     {"usedlist", lua_nodelib_direct_usedlist},
     {"vpack", lua_nodelib_direct_vpack},
  /* {"whatsits", lua_nodelib_whatsits}, */ /* no node argument */
@@ -6919,7 +6978,9 @@ static const struct luaL_Reg nodelib_f[] = {
     {"types", lua_nodelib_types},
     {"unprotect_glyphs", lua_nodelib_unprotect_glyphs},
     {"unset_attribute", lua_nodelib_unset_attribute},
-    {"reset_glue",lua_nodelib_reset_glue},
+    {"setglue",lua_nodelib_set_glue},
+    {"getglue",lua_nodelib_get_glue},
+    {"is_zero_glue",lua_nodelib_is_zero_glue},
     {"usedlist", lua_nodelib_usedlist},
     {"vpack", lua_nodelib_vpack},
     {"whatsits", lua_nodelib_whatsits},
