@@ -2,9 +2,10 @@
 This file is in the public domain.
 
 ==============================================================
-LuaTeX Release 0.95
+LuaTeX Release 0.95 was released 2016040415
 ==============================================================
-- this is an experimental version
+
+This is a prerelease of the stable 1.0 version.
 
 - glues now have gluespec merged in (idem math and insert)
 - registers are still glue specs
@@ -12,7 +13,7 @@ LuaTeX Release 0.95
 - extra tex.setglue and tex.setmuglue
 - obsolete dvi related dir fields removed
 
-
+(if we are in time, it will be included in TeX Live 2016)
 
 
 ==============================================================
