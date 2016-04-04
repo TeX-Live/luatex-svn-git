@@ -71,7 +71,6 @@ but have no consequence. The following command|-|line options are understood:
 \NC --version                    \NC display version and exit \NC \NR
 \NC --credits                    \NC display credits and exit \NC \NR
 \NC --recorder                   \NC enable filename recorder \NC \NR
-\NC --etex                       \NC ignored \NC \NR
 \NC --output-comment=STRING      \NC use \type {STRING} for \DVI\ file comment instead of
                                      date (no effect for \PDF) \NC \NR
 \NC --output-directory=DIR       \NC use \type {DIR} as the directory to write files to \NC \NR
@@ -87,24 +86,26 @@ but have no consequence. The following command|-|line options are understood:
 \NC --[no-]file-line-error       \NC disable/enable \type {file:line:error} style messages  \NC \NR
 \NC --[no-]file-line-error-style \NC aliases of \type {--[no-]file-line-error} \NC \NR
 \NC --jobname=STRING             \NC set the job name to \type {STRING} \NC \NR
-\NC --[no-]parse-first-line      \NC ignored \NC \NR
-\NC --translate-file=            \NC ignored \NC \NR
-\NC --default-translate-file=    \NC ignored \NC \NR
-\NC --8bit                       \NC ignored \NC \NR
 \NC --[no-]mktex=FMT             \NC disable/enable \type {mktexFMT} generation with \type {FMT}
                                      is \type {tex} or \type {tfm} \NC \NR
 \NC --synctex=NUMBER             \NC enable \type {synctex} \NC \NR
 \stoptabulate
 
-A note on the creation of the various temporary files and the \type {\jobname}.
+Some of the traditional flags are just ignored:
+\type {--etex},
+\type {--translate-file},
+\type {--8bit}.
+\type {--[no-]parse-first-line},
+\type {--default-translate-file},
+
 The value to use for \type {\jobname} is decided as follows:
 
 \startitemize
 \startitem
-  If \type {--jobname} is given on the command line, its argument will be the
-  value for \type {\jobname}, without any changes. The argument will not be used
-  for actual input so it need not exist. The \type {--jobname} switch only
-  controls the \type {\jobname} setting.
+    If \type {--jobname} is given on the command line, its argument will be the
+    value for \type {\jobname}, without any changes. The argument will not be
+    used for actual input so it need not exist. The \type {--jobname} switch only
+    controls the \type {\jobname} setting.
 \stopitem
 \startitem
     Otherwise, \type {\jobname} will be the name of the first file that is read
@@ -120,7 +121,7 @@ The value to use for \type {\jobname} is decided as follows:
 \stopitemize
 
 The file names for output files that are generated automatically are created by
-attaching the proper extension (\type {.log}, \type {.pdf}, etc.) to the found
+attaching the proper extension (\type {log}, \type {pdf}, etc.) to the found
 \type {\jobname}. These files are created in the directory pointed to by \type
 {--output-directory}, or in the current directory, if that switch is not present.
 

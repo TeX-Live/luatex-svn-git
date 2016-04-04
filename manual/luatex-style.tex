@@ -1,7 +1,5 @@
 \startenvironment luatex-style
 
-% I'll clean this up some day.
-
 \usemodule[abr-02]
 
 \setuplayout
@@ -34,44 +32,37 @@
 \setupwhitespace
   [medium]
 
-\def\|{\string|}
-\def\>{\string>}
+\startluacode
+    local skipped = table.tohash { 'id', 'subtype', 'next', 'prev' }
 
-\def\showfields#1{\ctxlua
-    {
-        local t = string.split('#1',',')
+    function document.functions.showfields(s)
+        local t = string.split(s,',')
         local r = { }
         for _, a in pairs(node.fields(t[1],t[2])) do
-            if not (a == 'id' or a == 'subtype' or a =='next' or a=='prev') then
+            if not skipped[a] then
                 table.insert(r,'\\type{'.. a .. '}')
             end
         end
         tex.sprint(table.concat(r, ', '))
-    }%
-}
+    end
 
-\def\showid#1{\ctxlua
-    {
-        local t = string.split('#1',',')
+    function document.functions.showid(s)
+        local t = string.split(s,',')
         tex.sprint('\\type{'.. node.id(t[1]) .. '}')
         if t[2] then
-          tex.sprint(', \\type{'.. node.subtype(t[2]) .. '}')
+            tex.sprint(', \\type{'.. node.subtype(t[2]) .. '}')
         end
-    }%
-}
+    end
+\stopluacode
 
-\starttexdefinition unexpanded todo #1
-    \dontleavehmode
-    \startcolor[red]
-        \bf<TODO: #1>
-    \stopcolor
-\stoptexdefinition
+\unexpanded\def\showfields#1{\ctxlua{document.functions.showfields("#1")}}
+\unexpanded\def\showid    #1{\ctxlua{document.functions.showid("#1")}}
 
-\definecolor[blue] [b=.5]
-\definecolor[red]  [r=.5]
-\definecolor[green][g=.5]
-
+\definecolor[blue]      [b=.5]
+\definecolor[red]       [r=.5]
+\definecolor[green]     [g=.5]
 \definecolor[maincolor] [b=.5]
+\definecolor[keptcolor] [b=.5]
 \definecolor[othercolor][r=.5,g=.5]
 
 \setupbodyfont[modern] % we need this in examples so we predefine
@@ -319,12 +310,13 @@
 
 \setuplist
   [chapter,section,subsection,subsubsection]
-  [interaction=all]
+  [interaction=all,
+   width=6em]
 
 \setuplist
   [chapter]
   [style=bold,
-   color=maincolor]
+   color=keptcolor]
 
 % Hans doesn't like the bookmarks opening by default so we comment this:
 %

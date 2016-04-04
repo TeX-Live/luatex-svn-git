@@ -334,19 +334,19 @@ forward one or two places. The glyph that ends up to the right of the insertion
 point will become the next \quote {left}.
 
 \starttabulate[|l|c|l|l|]
-\NC \bf textual (Knuth) \NC \bf number \NC \bf string    \NC result \NC\NR
-\NC l + r =: n          \NC 0          \NC \type {=:}     \NC \|n    \NC\NR
-\NC l + r =:\| n        \NC 1          \NC \type {=:|}    \NC \|nr   \NC\NR
-\NC l + r \|=: n        \NC 2          \NC \type {|=:}    \NC \|ln   \NC\NR
-\NC l + r \|=:\| n      \NC 3          \NC \type {|=:|}   \NC \|lnr  \NC\NR
-\NC l + r  =:\|\> n     \NC 5          \NC \type {=:|>}   \NC n\|r   \NC\NR
-\NC l + r \|=:\> n      \NC 6          \NC \type {|=:>}   \NC l\|n   \NC\NR
-\NC l + r \|=:\|\> n    \NC 7          \NC \type {|=:|>}  \NC l\|nr  \NC\NR
-\NC l + r \|=:\|\>\> n  \NC 11         \NC \type {|=:|>>} \NC ln\|r  \NC\NR
+\NC \bf textual (Knuth)   \NC \bf number \NC \bf string     \NC result      \NC\NR
+\NC \type{l + r =: n}     \NC 0          \NC \type {=:}     \NC \type{|n}   \NC\NR
+\NC \type{l + r =:| n}    \NC 1          \NC \type {=:|}    \NC \type{|nr}  \NC\NR
+\NC \type{l + r |=: n}    \NC 2          \NC \type {|=:}    \NC \type{|ln}  \NC\NR
+\NC \type{l + r |=:| n}   \NC 3          \NC \type {|=:|}   \NC \type{|lnr} \NC\NR
+\NC \type{l + r  =:|> n}  \NC 5          \NC \type {=:|>}   \NC \type{n|r}  \NC\NR
+\NC \type{l + r |=:> n}   \NC 6          \NC \type {|=:>}   \NC \type{l|n}  \NC\NR
+\NC \type{l + r |=:|> n}  \NC 7          \NC \type {|=:|>}  \NC \type{l|nr} \NC\NR
+\NC \type{l + r |=:|>> n} \NC 11         \NC \type {|=:|>>} \NC \type{ln|r} \NC\NR
 \stoptabulate
 
 The default value is~0, and can be left out. That signifies a \quote {normal}
-ligature where the ligature replaces both original glyphs. In this table the~\|
+ligature where the ligature replaces both original glyphs. In this table the~\type {|}
 indicates the final insertion point.
 
 The \type {commands} array is explained below.

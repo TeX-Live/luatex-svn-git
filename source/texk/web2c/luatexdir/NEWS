@@ -8,6 +8,7 @@ LuaTeX Release 0.95
 
 - glues now have gluespec merged in (idem math and insert)
 - registers are still glue specs
+- the spec field in glues are gone
 - extra tex.setglue and tex.setmuglue
 - obsolete dvi related dir fields removed
 
