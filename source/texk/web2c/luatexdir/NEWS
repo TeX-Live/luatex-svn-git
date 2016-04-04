@@ -2704,7 +2704,7 @@ Other news:
    we probably introduced new problems as well).
 
 * Most (all?) files now have a corrected Copyright header,
-   and link in $Id$ and  $URL$ into the object file.
+   and link in NEWS source/texk/web2c/luatexdir/NEWS  into the object file.
 
 * Some unnecessary files were removed from the distribution.
 
