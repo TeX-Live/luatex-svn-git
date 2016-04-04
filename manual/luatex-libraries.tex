@@ -415,7 +415,7 @@ what list you can give a treat.
 \NC\type {adjust_tail}     \NC \type {adjust_head}     \NC \NR
 \stoptabulate
 
-\subsubsection{\type {buildpage_filter}}
+\subsubsection{\type {buildpage_filter} and \type {contribute_filter}}
 
 This callback is called whenever \LUATEX\ is ready to move stuff to the main
 vertical list. You can use this callback to do specialized manipulation of the
@@ -427,15 +427,13 @@ end
 \stopfunctioncall
 
 The string \type {extrainfo} gives some additional information about what \TEX's
-state is with respect to the \quote {current page}. The possible values are:
+state is with respect to the \quote {current page}. The possible values for the
+\type {buildpage_filter} callback are:
 
 \starttabulate[|lT|p|]
 \NC \ssbf value     \NC \bf explanation                           \NC \NR
 \NC alignment       \NC a (partial) alignment is being added      \NC \NR
 \NC after_output    \NC an output routine has just finished       \NC \NR
-\NC box             \NC a typeset box is being added              \NC \NR
-%NC pre_box         \NC interline material is being added         \NC \NR
-%NC adjust          \NC \type {\vadjust} material is being added  \NC \NR
 \NC new_graf        \NC the beginning of a new paragraph          \NC \NR
 \NC vmode_par       \NC \type {\par} was found in vertical mode   \NC \NR
 \NC hmode_par       \NC \type {\par} was found in horizontal mode \NC \NR
@@ -446,7 +444,23 @@ state is with respect to the \quote {current page}. The possible values are:
 \NC end             \NC \LUATEX\ is terminating (it's all over)   \NC \NR
 \stoptabulate
 
-This callback does not replace any internal code.
+And for the \type {contribute_filter} called in the post line break handler
+we have four cases (three are only called when there is a need for it).
+
+\starttabulate[|lT|p|]
+\NC \ssbf value     \NC \bf explanation                              \NC \NR
+\NC pre_box         \NC interline material is being added            \NC \NR
+\NC pre_adjust      \NC \type {\vadjust} material is being added     \NC \NR
+\NC box             \NC a typeset box is being added (always called) \NC \NR
+\NC adjust          \NC \type {\vadjust} material is being added     \NC \NR
+\stoptabulate
+
+Just before the \type {box} related call we have a callout to the \type
+{append_to_vlist_filter}.
+
+These callbacks do not replace any internal code.
+
+% pre_box pre_adjust box adjust
 
 \subsubsection{\type {pre_linebreak_filter}}
 
@@ -488,7 +502,7 @@ three things:
 
 \startitemize
 \startitem
-    boolean \type {true} signals succesfull processing
+    boolean \type {true} signals successful processing
 \stopitem
 \startitem
     \type {<node>} signals that the \quote {head} node should be replaced by the
