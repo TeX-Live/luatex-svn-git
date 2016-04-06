@@ -7,18 +7,17 @@
 
 \startchapter[title=Introduction]
 
-This book will eventually become the reference manual of \LUATEX. At the moment,
-it simply reports the behaviour of the executable matching the snapshot or beta
-release date in the title page. We don't claim it is complete and we assume that
-the reader knows about \TEX\ as described in \quotation {The \TEX\ Book}, the
-\quotation {\ETEX\ manual}, the \quotation {\PDFTEX\ manual}, etc. Additional
-reference material is published in journals of user groups and \CONTEXT\ related
-documentation.
+This is the reference manual of \LUATEX. We don't claim it is complete and we
+assume that the reader knows about \TEX\ as described in \quotation {The \TEX\
+Book}, the \quotation {\ETEX\ manual}, the \quotation {\PDFTEX\ manual}, etc.
+Additional reference material is published in journals of user groups and
+\CONTEXT\ related documentation.
 
+It took about a decade to reach stable version 1.0, but for good reason.
 Successive versions brought new functionality, more control, some cleanup of
 internals and experimental features evolved into stable ones or were dropped.
-Already quite early \LUATEX\ could be used for production and it was used in
-production by the authors. Successive versions sometimes demanded a adaption to
+Already quite early \LUATEX\ could be used for production and it was used on a
+daily basis by the authors. Successive versions sometimes demanded a adaption to
 the \LUA\ interfacing, but the concepts were unchanged. The current version can
 be considered stable in functionality and there will be no fundamental changes.
 Of course we then can decide to move towards version 2.00 with different
@@ -32,9 +31,16 @@ There is native \UTF\ input, support for large (more that 8 bit) fonts, and the
 math machinery is tuned for \OPENTYPE\ math. There is support for directional
 typesetting too. The log output can differ from other engines and will likely
 differ more as we move forward. When you run plain \TEX\ for sure \LUATEX\ runs
-slower than \PDFTEX\ but when you run for instance \CONTEXT\ \MKIV\ it might be
-faster on more complex documents. But in any case: 32 bit all||over combined with
-more features has a price.
+slower than \PDFTEX\ but when you run for instance \CONTEXT\ \MKIV\ in many cases
+it runs faster, especially when you have a bit more complex documents or input.
+Anyway, 32 bit all||over combined with more features has a price, but on a modern
+machine this is no real problem.
+
+Testing is done with \CONTEXT, but \LUATEX\ should work fine with other macro
+packages too. For that purpose we provide generic font handlers that are mostly
+the same as used in \CONTEXT. Discussing specific implementations is beyond this
+manual. Even when we keep \LUATEX\ lean and mean, we already have enough to
+discuss here.
 
 \LUATEX\ consists of a number of interrelated but (still) distinguishable parts.
 The organization of the source code is adapted so that it can glue all these
@@ -43,15 +49,14 @@ code in \TEX\ engines (especially code that is not needed any longer).
 
 \startitemize[packed]
     \startitem
-        Most of \PDFTEX\ version 1.40.9, converted to C (with patches from later
-        releases). Some experimental features have been removed and some utility
-        macros are not inherited as their functionality can be done in \LUA. The
-        number of backend interface commands has been reduced to a few. The
-        extensions are separated from the core (which we keep close to the
-        original \TEX\ core). Some mechanisms like expansion and protrusion can
-        behave different from the original due to some cleanup and optimization.
-        Some whatsit based functionality (image support and reusable content)
-        is now core functionality.
+        Most of \PDFTEX\ version 1.40.9, converted to \CCODE. Some experimental
+        features have been removed and some utility macros are not inherited as
+        their functionality can be done in \LUA. The number of backend interface
+        commands has been reduced to a few. The extensions are separated from the
+        core (which we keep close to the original \TEX\ core). Some mechanisms
+        like expansion and protrusion can behave different from the original due
+        to some cleanup and optimization. Some whatsit based functionality (image
+        support and reusable content) is now core functionality.
     \stopitem
     \startitem
         The direction model and some other bits from \ALEPH\ RC4 (derived from
@@ -80,8 +85,8 @@ code in \TEX\ engines (especially code that is not needed any longer).
     \stopitem
     \startitem
         The fontloader uses parts of \FONTFORGE\ 2008.11.17 combined with
-        additionaL code specific for usage in a \TEX\ engine. We try to minimize
-        specific font support to what \TEX needs: character references and
+        additional code specific for usage in a \TEX\ engine. We try to minimize
+        specific font support to what \TEX\ needs: character references and
         dimensions and delegate everything else to \LUA. That way we keep \TEX\
         open for extensions without touching the core.
     \stopitem
@@ -93,9 +98,10 @@ code in \TEX\ engines (especially code that is not needed any longer).
     \stopitem
 \stopitemize
 
-The yearly \TEXLIVE\ version is the stable version, any version between them are
-to be considered beta. The beta releases are normally available via the \CONTEXT\
-distribution channels (the garden and so called minimals).
+The \TEXLIVE\ version is to be considered the current stable version. Any version
+between the yearly \TEXLIVE\ releases are to be considered beta. The beta
+releases are normally available via the \CONTEXT\ distribution channels (the
+garden and so called minimals).
 
 \blank[1*big]
 
