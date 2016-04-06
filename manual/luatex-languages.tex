@@ -5,7 +5,7 @@
 
 \startcomponent luatex-languages
 
-\startchapter[reference=languages,title={Languages and characters, fonts and glyphs}]
+\startchapter[reference=languages,title={Languages, characters, fonts and glyphs}]
 
 \LUATEX's internal handling of the characters and glyphs that eventually become
 typeset is quite different from the way \TEX82 handles those same objects. The
@@ -21,34 +21,32 @@ This packaging is needed because we may want to get the effective width of for
 instance a horizontal box.
 
 When it becomes necessary to hyphenate words in a paragraph, \TEX\ converts (one
-word at time) the \type {char_node} records into a string array by replacing
-ligatures with their components and ignoring the kerning. Then it runs the
-hyphenation algorithm on this string, and converts the hyphenated result back
-into a \quote {horizontal list} that is consecutively spliced back into the
-paragraph stream. Keep in mind that the paragraph may contain unboxed horizontal
-material, which then already contains ligatures and kerns and the words therein
-are part of the hyphenation process.
+word at time) the \type {char_node} records into a string by replacing ligatures
+with their components and ignoring the kerning. Then it runs the hyphenation
+algorithm on this string, and converts the hyphenated result back into a \quote
+{horizontal list} that is consecutively spliced back into the paragraph stream.
+Keep in mind that the paragraph may contain unboxed horizontal material, which
+then already contains ligatures and kerns and the words therein are part of the
+hyphenation process.
 
-The \type {char_node} records are somewhat misnamed, as they are glyph positions
-in specific fonts, and therefore not really \quote {characters} in the linguistic
-sense. There is no language information inside the \type {char_node} records.
-Instead, language information is passed along using \type {language whatsit}
-records inside the horizontal list.
+Those \type {char_node} records are somewhat misnamed, as they are glyph
+positions in specific fonts, and therefore not really \quote {characters} in the
+linguistic sense. There is no language information inside the \type {char_node}
+records at all. Instead, language information is passed along using \type
+{language whatsit} records inside the horizontal list.
 
 In \LUATEX, the situation is quite different. The characters you type are always
 converted into \type {glyph_node} records with a special subtype to identify them
 as being intended as linguistic characters. \LUATEX\ stores the needed language
 information in those records, but does not do any font|-|related processing at
-the time of node creation. It only stores the index of the current font.
+the time of node creation. It only stores the index of the current font and a
+reference to a character in that font.
 
 When it becomes necessary to typeset a paragraph, \LUATEX\ first inserts all
 hyphenation points right into the whole node list. Next, it processes all the
 font information in the whole list (creating ligatures and adjusting kerning),
 and finally it adjusts all the subtype identifiers so that the records are \quote
 {glyph nodes} from now on.
-
-That was the broad overview. The rest of this chapter will deal with the minutiae
-of the new process.
 
 \section[charsandglyphs]{Characters and glyphs}
 
@@ -131,14 +129,14 @@ process the box using the current paragraph language unless there was a
 \type {\setlanguage} issued inside the box. In \LUATEX, all language variables are
 already frozen.
 
-In traditional \TEX\ the process of hyphenation is driven by so called lccodes.
-In \LUATEX\ we made this dependency less strong. There are several strategies
-possible. When you do nothing, the currently used lccodes are used, when loading
-patterns, setting exceptions or hyphenating a list.
+In traditional \TEX\ the process of hyphenation is driven by \type {lccode}s. In
+\LUATEX\ we made this dependency less strong. There are several strategies
+possible. When you do nothing, the currently used \type {lccode}s are used, when
+loading patterns, setting exceptions or hyphenating a list.
 
-When you set \type {\savinghyphcodes} to a value larger than zero the current set of
-lccodes will be saved with the language. In that case changing a lccode afterwards
-has no effect. However, you can adapt the set with:
+When you set \type {\savinghyphcodes} to a value larger than zero the current set
+of \type {lccode}s will be saved with the language. In that case changing a \type
+{lccode} afterwards has no effect. However, you can adapt the set with:
 
 \starttyping
 \hjcode`a=`a
@@ -150,9 +148,9 @@ constructed. When \type {\savinghyphcodes} was zero when the language got
 initialized you start out with nothing, otherwise you already have a set.
 
 Carrying all this information with each glyph would give too much overhead and
-also make the definition more complex. A solution with hj codesets was considered
-but rejected because in practice the current approach is sufficient and it would
-not be compatible anyway.
+also make the process of setting up thee codes more complex. A solution with
+\type {hjcode} sets was considered but rejected because in practice the current
+approach is sufficient and it would not be compatible anyway.
 
 Beware: the values are always saved in the format, independent of the setting
 of \type {\savinghyphcodes} at the moment the format is dumped.
@@ -168,10 +166,11 @@ instead of \quote {character}: one for the actual accent and one for the
 accentee. The primary reason for this is that \type {\accent} in \TEX82 is
 explicitly dependent on the current font encoding, so it would not make much
 sense to attach a new meaning to the primitive's name, as that would invalidate
-many old documents and macro packages. A secondary reason is that in \TEX82,
-\type {\accent} prohibits hyphenation of the current word. Since in \LUATEX\
-hyphenation only takes place on \quote {character} nodes, it is possible to
-achieve the same effect.
+many old documents and macro packages. \footnote {Of course, modern packages will
+not use the \type {\accent} primitive at all but try to map directly on composed
+characters.} A secondary reason is that in \TEX82, \type {\accent} prohibits
+hyphenation of the current word. Since in \LUATEX\ hyphenation only takes place
+on \quote {character} nodes, it is possible to achieve the same effect.
 
 This change of meaning did happen with \type {\char}, that now generates \quote
 {glyph} nodes with a character subtype. In traditional \TEX\ there was a strong
@@ -191,9 +190,11 @@ is added.
 
 Fourth, automatic discretionaries are handled differently. \TEX82 inserts an
 empty discretionary after sensing an input character that matches the \type
-{\hyphenchar} in the current font. This test is wrong, in our opinion: whether or
+{\hyphenchar} in the current font. This test is wrong in our opinion: whether or
 not hyphenation takes place should not depend on the current font, it is a
-language property.
+language property. \footnote {When \TEX\ showed up we didn't have \UNICODE\ yet
+and being limited to eight bits meant that one sometimes had to compromise
+between supporting character input, glyph rendering, hyphenation.}
 
 In \LUATEX, it works like this: if \LUATEX\ senses a string of input characters
 that matches the value of the new integer parameter \type {\exhyphenchar}, it will
@@ -207,11 +208,11 @@ the same time as the other hyphenation processing, {\it not\/} inside the main
 control loop.
 
 The only use \LUATEX\ has for \type {\hyphenchar} is at the check whether a word
-should be considered for hyphenation at all. If the \type {\hyphenchar} of the font
-attached to the first character node in a word is negative, then hyphenation of
-that word is abandoned immediately. {\bf This behaviour is added for backward
+should be considered for hyphenation at all. If the \type {\hyphenchar} of the
+font attached to the first character node in a word is negative, then hyphenation
+of that word is abandoned immediately. This behaviour is added for backward
 compatibility only, and the use of \type {\hyphenchar=-1} as a means of
-preventing hyphenation should not be used in new \LUATEX\ documents.}
+preventing hyphenation should not be used in new \LUATEX\ documents.
 
 Fifth, \type {\setlanguage} no longer creates whatsits. The meaning of \type
 {\setlanguage} is changed so that it is now an integer parameter like all others.
@@ -219,11 +220,10 @@ That integer parameter is used in \type {\glyph_node} creation to add language
 information to the glyph nodes. In conjunction, the \type {\language} primitive is
 extended so that it always also updates the value of \type {\setlanguage}.
 
-Sixth, the \type {\noboundary} command (this command prohibits word boundary
-processing where that would normally take place) now does create whatsits. These
-whatsits are needed because the exact place of the \type {\noboundary} command in
-the input stream has to be retained until after the ligature and font processing
-stages.
+Sixth, the \type {\noboundary} command (that prohibits word boundary processing
+where that would normally take place) now does create nodes. These nodes are
+needed because the exact place of the \type {\noboundary} command in the input
+stream has to be retained until after the ligature and font processing stages.
 
 Finally, there is no longer a \type {main_loop} label in the code. Remember that
 \TEX82 did quite a lot of processing while adding \type {char_nodes} to the
@@ -242,13 +242,11 @@ although it uses essentially the same user input.
 
 After expansion, the argument for \type {\patterns} has to be proper \UTF8 with
 individual patterns separated by spaces, no \type {\char} or \type {\chardef}d
-commands are allowed. The current implementation is even more strict, and will
-reject all non|-|\UNICODE\ characters, but that will be changed in the future.
-For now, the generated errors are a valuable tool in discovering font-encoding
-specific pattern files.
+commands are allowed. The current implementation quite strict and will reject all
+non|-|\UNICODE\ characters.
 
 Likewise, the expanded argument for \type {\hyphenation} also has to be proper
-\UTF8, but here a tiny little bit of extra syntax is provided:
+\UTF8, but here a bit of extra syntax is provided:
 
 \startitemize[n]
 \startitem
@@ -277,7 +275,7 @@ listed items. It is important to note that the keys in an exception dictionary
 can always be generated from the values. Here are a few examples:
 
 \starttabulate[|l|l|l|]
-\NC \ssbf value \NC \ssbf implied key (input) \NC \ssbf effect \NC\NR
+\NC \bf value \NC \bf implied key (input) \NC \bf effect \NC\NR
 \NC \type {ta-ble} \NC table \NC \type {ta\-ble} ($=$ \type {ta\discretionary{-}{}{}ble}) \NC\NR
 \NC \type {ba{k-}{}{c}ken} \NC backen \NC \type {ba\discretionary{k-}{}{c}ken} \NC\NR
 \stoptabulate
@@ -305,9 +303,9 @@ actual explicit hyphen character if needed). For example, this matches the word
 
 The motivation behind the \ETEX\ extension \type {\savinghyphcodes} was that
 hyphenation heavily depended on font encodings. This is no longer true in
-\LUATEX, and the corresponding primitive is ignored pending complete removal. The
-future semantics of \type {\uppercase} and \type {\lowercase} are still under
-consideration, no changes have taken place yet.
+\LUATEX, and the corresponding primitive is basically ignored. Because we now
+have \type {hjcode}, the case relate codes can be used exclusively for \type
+{\uppercase} and \type {\lowercase}.
 
 \section{Applying hyphenation}
 
@@ -319,10 +317,10 @@ First and foremost, there is no \quote {compressed trie} involved in hyphenation
 The algorithm still reads \PATGEN-generated pattern files, but \LUATEX\ uses a
 finite state hash to match the patterns against the word to be hyphenated. This
 algorithm is based on the \quote {libhnj} library used by \OPENOFFICE, which in
-turn is inspired by \TEX. The memory allocation for this new implementation is
-completely dynamic, so the \WEBC\ setting for \type {trie_size} is ignored.
+turn is inspired by \TEX.
 
-Differences between \LUATEX\ and \TEX82 that are a direct result of that:
+There are a few differences between \LUATEX\ and \TEX82 that are a direct result
+of the implementation:
 
 \startitemize
 \startitem
@@ -405,9 +403,7 @@ possible to silently ignore the excess characters (this is what happens in
 If you are using the \LUA\ function \type {lang.hyphenate}, you should be aware
 that this function expects to receive a list of \quote {character} nodes. It will
 not operate properly in the presence of \quote {glyph}, \quote {ligature}, or
-\quote {ghost} nodes, nor does it know how to deal with kerning. In the near
-future, it will be able to skip over \quote {ghost} nodes, and we may add a less
-fuzzy function you can call as well.
+\quote {ghost} nodes, nor does it know how to deal with kerning.
 
 The hyphenation exception dictionary is maintained as key|-|value hash, and that
 is also dynamic, so the \type {hyph_size} setting is not used either.
@@ -432,8 +428,9 @@ perform the tasks normally done by \LUATEX\ itself in order to make sure that th
 other, non|-|overruled, routine continues to function properly.
 
 Work in this area is not yet complete, but most of the possible cases are handled
-by our rewritten ligaturing engine. We are working hard to make sure all of the
-possible inputs will become supported soon.
+by our rewritten ligaturing engine. At some point all of the possible inputs will
+become supported. \footnote {Not all of this makes sense because we nowadays have
+\OPENTYPE\ fonts and ligature building can happen in ,any different ways there.}
 
 For example, take the word \type {office}, hyphenated \type {of-fice}, using a
 \quote {normal} font with all the \type {f}-\type {f} and \type {f}-\type {i}
@@ -549,12 +546,13 @@ But that situation is now fairly common in \LUATEX, due to the changes to the
 ligaturing mechanism. And also, the \LUATEX\ discretionary nodes are implemented
 slightly different from the \TEX82 nodes: the \type {no_break} text is now
 embedded inside the disc node, where previously these nodes kept their place in
-the horizontal list (the discretionary node contained a counter indicating how
-many nodes to skip).
+the horizontal list. In traditional \TEX\ the discretionary node contains a
+counter indicating how many nodes to skip, but in \LUATEX\ we store the pre, post
+and replace text in the discretionary node.
 
 The combined effect of these two differences is that \LUATEX\ does not always use
 all of the potential breakpoints in a paragraph, especially when fonts with many
-ligatures are used.
+ligatures are used. Of course kerning also complicates matters here.
 
 \stopchapter
 
