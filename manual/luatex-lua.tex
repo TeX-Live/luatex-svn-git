@@ -52,8 +52,8 @@ accepts (but ignores) the \type {--luaconly} switch.
 
 When the \LUATEX\ executable starts, it looks for the \type {--lua} command line
 option. If there is no \type {--lua} option, the command line is interpreted in a
-similar fashion as in traditional \PDFTEX\ and \ALEPH. Some options are accepted
-but have no consequence. The following command|-|line options are understood:
+similar fashion as the other \TEX\ engines. Some options are accepted but have no
+consequence. The following command|-|line options are understood:
 
 \starttabulate[|lT|p|]
 \NC --fmt=FORMAT                 \NC load the format file \type {FORMAT} \NC\NR
@@ -62,7 +62,7 @@ but have no consequence. The following command|-|line options are understood:
 \NC --nosocket                   \NC disable the \LUA\ socket library \NC\NR
 \NC --help                       \NC display help and exit \NC\NR
 \NC --ini                        \NC be \type {iniluatex}, for dumping formats \NC\NR
-\NC --interaction=STRING         \NC set interaction mode: \type {batchmode}, \type {nonstopmode}
+\NC --interaction=STRING         \NC set interaction mode: \type {batchmode}, \type {nonstopmode},
                                      \type {scrollmode} or \type {errorstopmode} \NC \NR
 \NC --halt-on-error              \NC stop processing at the first error\NC \NR
 \NC --kpathsea-debug=NUMBER      \NC set path searching debugging flags according to
@@ -71,32 +71,35 @@ but have no consequence. The following command|-|line options are understood:
 \NC --version                    \NC display version and exit \NC \NR
 \NC --credits                    \NC display credits and exit \NC \NR
 \NC --recorder                   \NC enable filename recorder \NC \NR
-\NC --output-comment=STRING      \NC use \type {STRING} for \DVI\ file comment instead of
-                                     date (no effect for \PDF) \NC \NR
-\NC --output-directory=DIR       \NC use \type {DIR} as the directory to write files to \NC \NR
-\NC --draftmode                  \NC switch on draft mode i.e.\ generate no output in \PDF\ mode \NC \NR
-\NC --output-format=FORMAT       \NC use \type {FORMAT} for job output; \type {FORMAT} is \type {dvi} or
-                                     \type {pdf} \NC \NR
-\NC --[no-]shell-escape          \NC disable/enable \type {\write18{SHELL COMMAND}} \NC \NR
-\NC --enable-write18             \NC enable \type {\write18{SHELL COMMAND}} \NC \NR
-\NC --disable-write18            \NC disable \type {\write18{SHELL COMMAND}} \NC \NR
-\NC --shell-restricted           \NC restrict \type {\write18} to a list of commands
+\NC --output-comment=STRING      \NC use \type {STRING} for \DVI\ file comment
+                                     instead of date (no effect for \PDF) \NC \NR
+\NC --output-directory=DIR       \NC use \type {DIR} as the directory to write
+                                     files to \NC \NR
+\NC --draftmode                  \NC switch on draft mode i.e.\ generate no
+                                     output in \PDF\ mode \NC \NR
+\NC --output-format=FORMAT       \NC use \type {FORMAT} for job output; \type
+                                     {FORMAT} is \type {dvi} or \type {pdf} \NC
+                                     \NR
+\NC --[no-]shell-escape          \NC disable/enable system calls \NC \NR
+\NC --enable-write18             \NC enable system calls \NC \NR
+\NC --disable-write18            \NC disable system calls \NC \NR
+\NC --shell-restricted           \NC restrict system calls to a list of commands
                                      given in \type {texmf.cnf} \NC \NR
 \NC --debug-format               \NC enable format debugging \NC \NR
-\NC --[no-]file-line-error       \NC disable/enable \type {file:line:error} style messages  \NC \NR
+\NC --[no-]file-line-error       \NC disable/enable \type {file:line:error} style
+                                     messages \NC \NR
 \NC --[no-]file-line-error-style \NC aliases of \type {--[no-]file-line-error} \NC \NR
 \NC --jobname=STRING             \NC set the job name to \type {STRING} \NC \NR
-\NC --[no-]mktex=FMT             \NC disable/enable \type {mktexFMT} generation with \type {FMT}
-                                     is \type {tex} or \type {tfm} \NC \NR
+\NC --[no-]mktex=FMT             \NC disable/enable \type {mktexFMT} generation
+                                     with \type {FMT} is \type {tex} or \type
+                                     {tfm} \NC \NR
 \NC --synctex=NUMBER             \NC enable \type {synctex} \NC \NR
 \stoptabulate
 
-Some of the traditional flags are just ignored:
-\type {--etex},
-\type {--translate-file},
-\type {--8bit}.
-\type {--[no-]parse-first-line},
-\type {--default-translate-file},
+Some of the traditional flags are just ignored: \type {--etex}, \type
+{--translate-file}, \type {--8bit}. \type {--[no-]parse-first-line}, \type
+{--default-translate-file}. Also, we no longer support write18 because \type
+{os.execute} can do the same.
 
 The value to use for \type {\jobname} is decided as follows:
 
@@ -140,10 +143,10 @@ options immediately: \type {--safer}, \type {--nosocket}, \type
 {--[no-]shell-escape}, \type {--enable-write18}, \type {--disable-write18}, \type
 {--shell-restricted}, \type {--help}, \type {--version}, and \type {--credits}.
 
-Now it searches for the requested \LUA\ initialization script. If it cannot be
-found using the actual name given on the command line, a second attempt is made by
-prepending the value of the environment variable \type {LUATEXDIR}, if that
-variable is defined in the environment.
+Next \LUATEX\ searches for the requested \LUA\ initialization script. If it
+cannot be found using the actual name given on the command line, a second attempt
+is made by prepending the value of the environment variable \type {LUATEXDIR}, if
+that variable is defined in the environment.
 
 Then it checks the various safety switches. You can use those to disable some
 \LUA\ commands that can easily be abused by a malicious document. At the moment,
@@ -151,7 +154,7 @@ Then it checks the various safety switches. You can use those to disable some
 
 \starttabulate[|l|l|]
 \NC \bf library \NC \bf functions \NC \NR
-\NC \type {os}   \NC \type {execute} \type {exec} \type {setenv} \type {rename} \type {remove} \type {tmpdir} \NC \NR
+\NC \type {os}   \NC \type {execute} \type {exec} \type {spawn} \type {setenv} \type {rename} \type {remove} \type {tmpdir} \NC \NR
 \NC \type {io}   \NC \type {popen} \type {output} \type {tmpfile} \NC \NR
 \NC \type {lfs}  \NC \type {rmdir} \type {mkdir} \type {chdir} \type {lock} \type {touch} \NC \NR
 \stoptabulate
@@ -168,8 +171,8 @@ You can nil the locale with
 os.setlocale(nil.nil)
 \stoptyping
 
-\type {--nosocket} makes the socket library unavailable, so that \LUA\ cannot use
-networking.
+The \type {--nosocket} option makes the socket library unavailable, so that \LUA\
+cannot use networking.
 
 The switches \type {--[no-]shell-escape}, \type {--[enable|disable]-write18}, and
 \type {--shell-restricted} have the same effects as in \PDFTEX, and additionally
@@ -178,8 +181,8 @@ adhere to the requested option.
 
 Next the initialization script is loaded and executed. From within the script,
 the entire command line is available in the \LUA\ table \type {arg}, beginning with
-\type {arg[0]}, containing the name of the executable. As consequence, the warning
-about unrecognized option is suppressed.
+\type {arg[0]}, containing the name of the executable. As consequence warnings
+about unrecognized options are suppressed.
 
 Command line processing happens very early on. So early, in fact, that none of
 \TEX's initializations have taken place yet. For that reason, the tables that
@@ -192,8 +195,8 @@ not even know its \type {\jobname} yet at this point). See \in {chapter} [librar
 for more information about the \LUATEX-specific \LUA\ extension tables.
 
 Everything you do in the \LUA\ initialization script will remain visible during
-the rest of the run, with the exception of the aforementioned \type {tex},
-\type {token}, \type {node} and \type {pdf} tables: those will be
+the rest of the run, with the exception of the \TEX\ specific libraries like
+\type {tex}, \type {token}, \type {node} and \type {pdf} tables. These will be
 initialized to their documented state after the execution of the script. You
 should not store anything in variables or within tables with these four global
 names, as they will be overwritten completely.
@@ -217,16 +220,14 @@ check \type {--progname}, or \type {--ini} and \type {--fmt}, if \type
 
 \section{\LUA\ behaviour}
 
-\LUA s \type {tonumber} function may return values in scientific notation,
-thereby confusing the \TEX\ end of things when it is used as the right|-|hand
-side of an assignment to a \type {\dimen} or \type {\count}.
+\LUA s \type {tostring} function (and \type {string.format} may return values in
+scientific notation, thereby confusing the \TEX\ end of things when it is used as
+the right|-|hand side of an assignment to a \type {\dimen} or \type {\count}.
 
 Loading dynamic \LUA\ libraries will fail if there are two \LUA\ libraries loaded
 at the same time (which will typically happen on \type {win32}, because there is
 one \LUA\ 5.2 inside \LUATEX, and another will likely be linked to the \DLL\ file
-of the module itself). We plan to fix that later by switching \LUATEX\ itself to
-using de \DLL\ version of \LUA\ 5.2 inside \LUATEX\ instead of including a static
-version in the binary.
+of the module itself).
 
 \LUATEX\ is able to use the kpathsea library to find \type {require()}d modules.
 For this purpose, \type {package.searchers[2]} is replaced by a different loader
@@ -331,7 +332,7 @@ piecemeal:
 \stopitemize
 
 The \type {string.characterpairs()} and \type {string.bytepairs()} iterators
-are useful especially in the conversion of \UTF-16 encoded data into \UTF-8.
+are useful especially in the conversion of \UTF16 encoded data into \UTF8.
 
 There is also a two|-|argument form of \type {string.dump()}. The second argument
 is a boolean which, if true, strips the symbols from the dumped data. This
@@ -341,7 +342,7 @@ The \type {string} library functions \type {len}, \type {lower}, \type {sub}
 etc.\ are not \UNICODE|-|aware. For strings in the \UTF8 encoding, i.e., strings
 containing characters above code point 127, the corresponding functions from the
 \type {slnunicode} library can be used, e.g., \type {unicode.utf8.len}, \type
-{unicode.utf8.lower} etc. The exceptions are \type {unicode.utf8.find}, that
+{unicode.utf8.lower} etc.\ The exceptions are \type {unicode.utf8.find}, that
 always returns byte positions in a string, and \type {unicode.utf8.match} and
 \type {unicode.utf8.gmatch}. While the latter two functions in general {\it
 are} \UNICODE|-|aware, they fall|-|back to non|-|\UNICODE|-|aware behavior when
@@ -365,10 +366,10 @@ The \type {os} library has a few extra functions and variables:
     \type {os.exec(commandline)} is a variation on \type {os.execute}. Here
     \type {commandline} can be either a single string or a single table.
 
-    If the argument is a table: \LUATEX\ first checks if there is a value at
+    If the argument is a table \LUATEX\ first checks if there is a value at
     integer index zero. If there is, this is the command to be executed.
-    Otherwise, it will use the value at integer index one. (if neither are
-    present, nothing at all happens).
+    Otherwise, it will use the value at integer index one. If neither are
+    present, nothing at all happens.
 
     The set of consecutive values starting at integer~1 in the table are the
     arguments that are passed on to the command (the value at index~1 becomes
@@ -387,7 +388,7 @@ The \type {os} library has a few extra functions and variables:
 
     This function normally does not return control back to the \LUA\ script: the
     command will replace the current process. However, it will return the two
-    values \type {nil} and \type {'error'} if there was a problem while
+    values \type {nil} and \type {error} if there was a problem while
     attempting to execute the command.
 
     On \MSWINDOWS, the current process is actually kept in memory until after the
@@ -405,12 +406,12 @@ The \type {os} library has a few extra functions and variables:
 
     If the command ran ok, then the return value is the exit status of the
     command. Otherwise, it will return the two values \type {nil} and \type
-    {'error'}.
+    {error}.
 \stopitem
 
 \startitem
-    \type {os.setenv('key','value')} sets a variable in the environment.
-    Passing \type {nil} instead of a value string will remove the variable.
+    \type {os.setenv(key,value)} sets a variable in the environment. Passing
+    \type {nil} instead of a value string will remove the variable.
 \stopitem
 
 \startitem
@@ -462,10 +463,6 @@ The \type {os} library has a few extra functions and variables:
 \stopitem
 
 \startitem
-    \type {os.version} is planned as a future extension.
-\stopitem
-
-\startitem
     \type {os.uname()} returns a table with specific operating system
     information acquired at runtime. The keys in the returned table are all
     string valued, and their names are: \type {sysname}, \type {machine}, \type
@@ -485,11 +482,6 @@ LC_NUMERIC=C
 \stoptyping
 
 \section {\LUA\ modules}
-
-The implied use of the built|-|in \LUA\ modules in this section is deprecated. If
-you want to use one of these libraries, please start your source file with a
-proper \type {require} line. At some point \LUATEX\ will switch to loading these
-modules on demand.
 
 Some modules that are normally external to \LUA\ are statically linked in with
 \LUATEX, because they offer useful functionality:
@@ -518,7 +510,7 @@ Some modules that are normally external to \LUA\ are statically linked in with
     \type {lpeg}, by Roberto Ierusalimschy, \hyphenatedurl
     {http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html}. This library is not
     \UNICODE|-|aware, but interprets strings on a byte|-|per|-|byte basis. This
-    mainly means that \type {lpeg.S} cannot be used with \UTF\ characters encoded
+    mainly means that \type {lpeg.S} cannot be used with \UTF8 characters encoded
     in more than two bytes, and thus \type {lpeg.S} will look for one of those
     two bytes when matching, not the combination of the two. The same is true for
     \type {lpeg.R}, although the latter will display an error message if used
@@ -546,6 +538,10 @@ Some modules that are normally external to \LUA\ are statically linked in with
 \stopitem
 
 \stopitemize
+
+At some point (this also depends on distributions) \LUATEX\ might have these
+libraries loaded on demand. For this reason you can best use \type {require} to
+make sure they are loaded.
 
 \stopchapter
 

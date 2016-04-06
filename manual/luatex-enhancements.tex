@@ -10,9 +10,9 @@
 \section{Introduction}
 
 From day one, \LUATEX\ has offered extra features compared to the superset of
-\PDFTEX\ and \ALEPH. That has not been limited to the possibility to execute
+\PDFTEX\ and \ALEPH. This has not been limited to the possibility to execute
 \LUA\ code via \type {\directlua}, but \LUATEX\ also adds functionality via new
-\TEX-side primitives.
+\TEX|-|side primitives or extensions to existing ones.
 
 When \LUATEX\ starts up in \quote {iniluatex} mode (\type {luatex -ini}), it
 defines only the primitive commands known by \TEX82 and the one extra command
@@ -34,21 +34,25 @@ it may be needed to put these assignments before the above line:
 \catcode `\}=2
 \stoptyping
 
-More fine|-|grained primitives control is possible, you can look up the details in
-\in {section} [luaprimitives]. For simplicity's sake, this manual assumes that you
-have executed the \type {\directlua} command as given above.
+More fine|-|grained primitives control is possible and you can look up the
+details in \in {section} [luaprimitives]. For simplicity's sake, this manual
+assumes that you have executed the \type {\directlua} command as given above.
 
 The startup behaviour documented above is considered stable in the sense that
 there will not be backward|-|incompatible changes any more. We have promoted some
 rather generic \PDFTEX\ primitives to core \LUATEX\ ones, and the ones inherited
-frome \ALEPH\ (\OMEGA) are also promoted. Effectively this means that we now have
-the \type {tex}, \type {etex}, \type {luatex} and \type {pdftex} (sub)sets left.
+frome \ALEPH\ (\OMEGA) are also promoted. Effectively this means that we now only
+have the \type {tex}, \type {etex} and \type {luatex} sets left.
+
+In \in {Chapter} [modifications] we discuss several primitives that are derived
+from \PDFTEX\ and \ALEPH\ (\OMEGA). Here we stick to real new ones. In the
+chapters on fonts and math we discuss a few more new ones.
 
 \section{Version information}
 
 There are three new primitives to test the version of \LUATEX:
 
-\starttabulate[|l|p|p|]
+\starttabulate[|l|pl|pl|]
 \NC \bf primitive           \NC \bf explanation                           \NC \bf value          \NC \NR
 \NC \type {\luatexbanner}   \NC the banner reported on the command line   \NC \luatexbanner      \NC \NR
 \NC \type {\luatexversion}  \NC a combination of major and minor number   \NC \the\luatexversion \NC \NR
@@ -86,7 +90,8 @@ always converted to a suitable graphic representation of that character in a
 specific font. However, while processing a list of to|-|be|-|typeset nodes, its
 contents may still be seen as a character. Inside \LUATEX\ there is no clear
 separation between the two concepts. Because the subtype of a glyph node can be
-changed in \LUA\ it is lso up to the user.
+changed in \LUA\ it is up to the user: subtypes larger than 255 indicate that
+font processing has happened.
 
 A few primitives are affected by this, all in a similar fashion: each of them has
 to accommodate for a larger range of acceptable numbers. For instance, \type
@@ -109,10 +114,12 @@ print the single byte corresponding to $c$ minus 1{,}114{,}112.
 
 Output to the terminal uses \type {^^} notation for the lower control range
 ($c<32$), with the exception of \type {^^I}, \type {^^J} and \type {^^M}. These
-are considered \quote {safe} and therefore printed as-is.
+are considered \quote {safe} and therefore printed as|-|is. You can disable
+escaping with \type {texio.setescape(false)} in which case you get the normal
+characters on the console.
 
 Normalization of the \UNICODE\ input can be handled by a macro package during
-callback processing (this will be explained in \in{section}[iocallback]).
+callback processing (this will be explained in \in {section} [iocallback]).
 
 \section{Extended tables}
 
@@ -147,11 +154,9 @@ commands are:
 \stoptyping
 \stopfourcolumns
 
-The glyph properties \type {\efcode}, \type {\lpcode} and \type {\rpcode},
-introduced in \PDFTEX\ that deal with font expansion (hz) and character
-protruding, are also 16-bit. Because font memory management has been rewritten,
-these character properties are no longer shared among fonts instances that
-originate from the same metric file.
+Because font memory management has been rewritten, character properties in fonts
+are no longer shared among fonts instances that originate from the same metric
+file.
 
 \section{Attributes}
 
@@ -179,6 +184,9 @@ from the fact that the numbers and values of all \quote {set} attributes are
 attached to all nodes created in their scope. These can then be queried from any
 \LUA\ code that deals with node processing. Further information about how to use
 attributes for node list processing from \LUA\ is given in~\in {chapter}[nodes].
+
+Attributes are stored in a sorted (sparse) linked list that are shared when
+possible. This permits efficient testing and updating.
 
 \subsection{Box attributes}
 
@@ -231,11 +239,10 @@ syntax is
 
 \startsyntax
 \directlua <general text>!crlf
-\directlua name <general text> <general text>!crlf
 \directlua <16-bit number> <general text>
 \stopsyntax
 
-The last \syntax {<general text>} is expanded fully, and then fed into the \LUA\
+The \syntax {<general text>} is expanded fully, and then fed into the \LUA\
 interpreter. After reading and expansion has been applied to the \syntax
 {<general text>}, the resulting token list is converted to a string as if it was
 displayed using \type {\the\toks}. On the \LUA\ side, each \type {\directlua}
@@ -260,24 +267,11 @@ say:
 Then \LUA\ line comments can be used, since \TEX\ does not replace line endings
 with spaces.
 
-The \syntax {name <general text>} specifies the name of the \LUA\ chunk, mainly
-shown in the stack backtrace of error messages created by \LUA\ code. The \syntax
-{<general text>} is expanded fully, thus macros can be used to generate the chunk
-name, i.e.
-
-\starttyping
-\directlua name{\jobname:\the\inputlineno} ...
-\stoptyping
-
-to include the name of the input file as well as the input line into the chunk
-name.
-
-Likewise, the \syntax {<16-bit number>} designates a name of a \LUA\ chunk, but
-in this case the name will be taken from the \type {lua.name} array (see the
-documentation of the \type {lua} table further in this manual).
-
-The chunk name should not start with a \type {@}, or it will be displayed as a
-file name (this is a quirk in the current \LUA\ implementation).
+Likewise, the \syntax {<16-bit number>} designates a name of a \LUA\ chunk and is
+taken from the \type {lua.name} array (see the documentation of the \type {lua}
+table further in this manual). When a chunk name starts with a \type {@} it will
+be displayed as a file name. This is a side effect of the way \LUA\ implements
+error handling.
 
 The \type {\directlua} command is expandable. Since it passes \LUA\ code to the
 \LUA\ interpreter its expansion from the \TEX\ viewpoint is usually empty.
@@ -332,23 +326,24 @@ that there will not be backward-incompatible changes any more.
 
 \subsection{\type {\latelua}}
 
-\type {\latelua} stores \LUA\ code in a whatsit that will be processed at the time
-of shipping out. Its intended use is a cross between \type {\pdfliteral} and
-\type {\write}. Within the \LUA\ code you can print \PDF\ statements directly to the
-\PDF\ file via \type {pdf.print}, or you can write to other output streams via
-\type {texio.write} or simply using \LUA\ I/O routines.
+Contrary to \type {\directlua}, \type {\latelua} stores \LUA\ code in a whatsit
+that will be processed at the time of shipping out. Its intended use is a cross
+between \PDF\ literals (often available as \type {\pdfliteral}) and the
+traditional \TEX\ extension \type {\write}. Within the \LUA\ code you can print
+\PDF\ statements directly to the \PDF\ file via \type {pdf.print}, or you can
+write to other output streams via \type {texio.write} or simply using \LUA\ \IO\
+routines.
 
 \startsyntax
 \latelua <general text>!crlf
-\latelua name <general text> <general text>!crlf
 \latelua <16-bit number> <general text>
 \stopsyntax
 
-Expansion of macros etcetera in the final \type {<general text>} is delayed until
-just before the whatsit is executed (like in \type {\write}). With regard to \PDF\
-output stream \type {\latelua} behaves as \type {\pdfliteral page}. The \syntax {name
-<general text>} and \syntax {<16-bit number>} behave in the same way as they do
-for \type {\directlua}
+Expansion of macros in the final \type {<general text>} is delayed until just
+before the whatsit is executed (like in \type {\write}). With regard to \PDF\
+output stream \type {\latelua} behaves as \PDF\ page literals. The \syntax
+{name <general text>} and \syntax {<16-bit number>} behave in the same way as
+they do for \type {\directlua}
 
 \subsection{\type {\luaescapestring}}
 
@@ -378,7 +373,7 @@ is easier to keep the code in a separate file and load it using \LUA's
 The \type {\directlua} commands involves tokenization of its argument (after
 picking up an optional name or number specification). The tokenlist is then
 converted into a string and given to \LUA\ to turn into a function that is
-called. The overhead is rather small but when you use this primitive hundreds or
+called. The overhead is rather small but when you use this primitive hundreds of
 thousands of times, it can become noticeable. For this reason there is a variant
 call available: \type {\luafunction}. This command is used as follows:
 
@@ -419,19 +414,19 @@ immediate command.
 \section{\type {\noligs} and \type {\nokerns}}
 
 These primitives prohibit ligature and kerning insertion at the time when the
-initial node list is built by \LUATEX's main control loop. They are part of a
-temporary trick and will be removed in the near future. For now, you need to
-enable these primitives when you want to do node list processing of \quote
-{characters}, where \TEX's normal processing would get in the way.
+initial node list is built by \LUATEX's main control loop. You can enable these
+primitives when you want to do node list processing of \quote {characters}, where
+\TEX's normal processing would get in the way.
 
 \startsyntax
 \noligs <integer>!crlf
 \nokerns <integer>
 \stopsyntax
 
-These primitives can now be implemented by overloading the ligature building and
+These primitives can also be implemented by overloading the ligature building and
 kerning functions, i.e.\ by assigning dummy functions to their associated
-callbacks.
+callbacks. Keep in mind that when you define a font (using \LUA) you can also
+omit the kern and ligature tables, which has the same effect as the above.
 
 \section{\type {\formatname}}
 
@@ -455,8 +450,8 @@ differences are:
     \type {\everyeof} tokens.
 \stopitem
 \startitem
-    The \quote{\unknown\ while end of file \unknown} error tests are not
-    executed, allowing the expansion to end on a different grouping level or
+    There are no \quote {\unknown\ while end of file \unknown} error tests
+    executed. This allows the expansion to end on a different grouping level or
     while a conditional is still incomplete.
 \stopitem
 \stopitemize
@@ -502,16 +497,16 @@ has to be zero. Table zero is initialized by \INITEX.
 The primitive \type {\initcatcodetable} creates a new table with catcodes identical
 to those defined by \INITEX:
 
-\starttabulate[|r|l|l|l|l|]
-\NC  0 \NC \type {\letterbackslash}       \NC         \NC \type {escape}       \NC\NR
-\NC  5 \NC \type {\letterhat\letterhat M} \NC return  \NC \type {car_ret}      \NC (this name may change) \NC\NR
-\NC  9 \NC \type {\letterhat\letterhat @} \NC null    \NC \type {ignore}       \NC\NR
-\NC 10 \NC \type {<space>}                \NC space   \NC \type {spacer}       \NC\NR
-\NC 11 \NC \type {a} -- \type {z}         \NC         \NC \type {letter}       \NC\NR
-\NC 11 \NC \type {A} -- \type {Z}         \NC         \NC \type {letter}       \NC\NR
-\NC 12 \NC everything else                \NC         \NC \type {other}        \NC\NR
-\NC 14 \NC \type {\letterpercent}         \NC         \NC \type {comment}      \NC\NR
-\NC 15 \NC \type {\letterhat\letterhat ?} \NC delete  \NC \type {invalid_char} \NC\NR
+\starttabulate[|r|l|l|l|]
+\NC  0 \NC \tttf \letterbackslash       \NC         \NC \type {escape}       \NC\NR
+\NC  5 \NC \tttf \letterhat\letterhat M \NC return  \NC \type {car_ret}      \NC\NR
+\NC  9 \NC \tttf \letterhat\letterhat @ \NC null    \NC \type {ignore}       \NC\NR
+\NC 10 \NC \tttf <space>                \NC space   \NC \type {spacer}       \NC\NR
+\NC 11 \NC {\tttf a} \endash\ {\tttf z} \NC         \NC \type {letter}       \NC\NR
+\NC 11 \NC {\tttf A} \endash\ {\tttf Z} \NC         \NC \type {letter}       \NC\NR
+\NC 12 \NC everything else              \NC         \NC \type {other}        \NC\NR
+\NC 14 \NC \tttf \letterpercent         \NC         \NC \type {comment}      \NC\NR
+\NC 15 \NC \tttf \letterhat\letterhat ? \NC delete  \NC \type {invalid_char} \NC\NR
 \stoptabulate
 
 The new catcode table is allocated globally: it will not go away after the
@@ -540,10 +535,10 @@ raised.
 \suppressfontnotfounderror = 1
 \stopsyntax
 
-If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
-about font metrics that are not found. Instead it will silently skip the font
-assignment, making the requested csname for the font \type {\ifx} equal to
-\type {\nullfont}, so that it can be tested against that without bothering the user.
+If this integer parameter is non|-|zero, then \LUATEX\ will not complain about
+font metrics that are not found. Instead it will silently skip the font
+assignment, making the requested csname for the font \type {\ifx} equal to \type
+{\nullfont}, so that it can be tested against that without bothering the user.
 
 \subsection{\type {\suppresslongerror}}
 
@@ -551,9 +546,9 @@ assignment, making the requested csname for the font \type {\ifx} equal to
 \suppresslongerror = 1
 \stopsyntax
 
-If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
-about \type {\par} commands encountered in contexts where that is normally
-prohibited (most prominently in the arguments of non-long macros).
+If this integer parameter is non|-|zero, then \LUATEX\ will not complain about
+\type {\par} commands encountered in contexts where that is normally prohibited
+(most prominently in the arguments of non-long macros).
 
 \subsection{\type {\suppressifcsnameerror}}
 
@@ -561,12 +556,11 @@ prohibited (most prominently in the arguments of non-long macros).
 \suppressifcsnameerror = 1
 \stopsyntax
 
-If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
-about non-expandable commands appearing in the middle of a \type {\ifcsname}
-expansion. Instead, it will keep getting expanded tokens from the input until it
-encounters an \type {\endcsname} command. Use with care! This command is
-experimental: if the input expansion is unbalanced with respect to \type
-{\csname} \ldots \type {\endcsname} pairs, the \LUATEX\ process may hang
+If this integer parameter is non|-|zero, then \LUATEX\ will not complain about
+non-expandable commands appearing in the middle of a \type {\ifcsname} expansion.
+Instead, it will keep getting expanded tokens from the input until it encounters
+an \type {\endcsname} command. If the input expansion is unbalanced with respect
+to \type {\csname} \ldots \type {\endcsname} pairs, the \LUATEX\ process may hang
 indefinitely.
 
 \subsection{\type {\suppressoutererror}}
@@ -581,7 +575,7 @@ prohibited.
 
 \subsection{\type {\suppressmathparerror}}
 
-The following setting will permit \par tokens in a math formula:
+The following setting will permit \type {\par} tokens in a math formula:
 
 \startsyntax
 \suppressmathparerror = 1
@@ -681,11 +675,64 @@ node with type \type {boundary} and subtype~0. In addition you can say:
 x\boundary 123\relax y
 \stoptyping
 
-This has the same effect but the subtype is now~1 and the value~123 is stored. The
-traditional ligature builder still sees this as a cancel boundary directive but at the
-\LUA\ end you can implement different behaviour. The added benefit of passing this
-value is a side effect of the generalization.
+This has the same effect but the subtype is now~1 and the value~123 is stored.
+The traditional ligature builder still sees this as a cancel boundary directive
+but at the \LUA\ end you can implement different behaviour. The added benefit of
+passing this value is a side effect of the generalization. The values 1, 3 and~3
+are used in protrusion edge detection (discussed later).
 
+\section{\type {\vpack}, \type {\hpack} and \type {\tpack}}
+
+These three primitives are like \type {\vbox}, \type {\hbox} and \type {\vtop}
+but don't apply the related callbacks.
+
+\section{\type {\csstring}, \type {\begincsname} and \type {\lastnamedcs}}
+
+These are somewhat special. The \type {\csstring} primitive is like
+\type {\string} but it omits the leading escape character. This can be
+somewhat more efficient that stripping it of afterwards.
+
+The \type {\begincsname} primitive is like \type {\csname} but doesn't create
+a relaxed equivalent when there is no such name. It is equivalent to
+
+\starttyping
+\ifcsname foo\endcsname
+  \csname foo\endcsname
+\fi
+\stoptyping
+
+The advantage is that it saves a lookup (don't expect much speedup) but more
+important is that it avoids using the \type {\if}.
+
+The \type {\lastnamedcs} is one that should be used with care. The above
+example could be written as:
+
+\starttyping
+\ifcsname foo\endcsname
+  \lastnamedcs
+\fi
+\stoptyping
+
+This is slightly more efficient than constructing the string twice (deep down in
+\LUATEX\ this also involves some \UTF8 juggling), but probably more relevant is
+that it saves a few tokens and can make code a bit more more readable.
+
+\section{\type {\toksapp}, \type {\tokspre}, \type {\etoksapp} and \type {\etokspre}}
+
+Instead of:
+
+\starttyping
+\toks0\expandafter{\the\toks0 foo}
+\stoptyping
+
+you can use:
+
+\starttyping
+\etoksapp0{foo}
+\stoptyping
+
+The \type {pre} variants prepend instead of append, and the \type {e} variants
+expand the passed general text.
 
 \section{Debugging}
 

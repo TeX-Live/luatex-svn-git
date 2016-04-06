@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# $Id$
 #
 # Copyright (c) 2005-2011 Martin Schröder <martin@luatex.org>
 # Copyright (c) 2009-2014 Taco Hoekwater <taco@luatex.org>
