@@ -20,63 +20,63 @@ The column \quote {\VF} means that this key will be created by the \type
 
 The top|-|level keys in the table are as follows:
 
-\starttabulate[|l|c|c|c|l|p|]
-\NC \bf key                \NC \bf vf \NC \bf tfm \NC \bf used \NC \bf value type \NC \bf description \NC \NR
-\NC \tttf name             \NC yes    \NC yes     \NC yes \NC string \NC metric (file) name \NC \NR
-\NC \tttf area             \NC no     \NC yes     \NC yes \NC string \NC (directory) location, typically empty \NC \NR
-\NC \tttf used             \NC no     \NC yes     \NC yes \NC boolean\NC indicates usage (initial: false) \NC \NR
-\NC \tttf characters       \NC yes    \NC yes     \NC yes \NC table  \NC the defined glyphs of this font \NC \NR
-\NC \tttf checksum         \NC yes    \NC yes     \NC no  \NC number \NC default: 0 \NC \NR
-\NC \tttf designsize       \NC no     \NC yes     \NC yes \NC number \NC expected size (default: 655360 == 10pt) \NC \NR
-\NC \tttf direction        \NC no     \NC yes     \NC yes \NC number \NC default: 0 \NC \NR
-\NC \tttf encodingbytes    \NC no     \NC no      \NC yes \NC number \NC default: depends on \type {format} \NC \NR
-\NC \tttf encodingname     \NC no     \NC no      \NC yes \NC string \NC encoding name \NC \NR
-\NC \tttf fonts            \NC yes    \NC no      \NC yes \NC table  \NC locally used fonts \NC \NR
-\NC \tttf psname           \NC no     \NC no      \NC yes \NC string \NC This is the \POSTSCRIPT\ fontname in the incoming font
-                                                                         source, and it's used as fontname identifier in the \PDF\
-                                                                         output. \NC \NR
-\NC \tttf fullname         \NC no     \NC no      \NC yes \NC string \NC output font name, used as a fallback in the \PDF\ output
-                                                                         if the \type {psname} is not set \NC \NR
-\NC \tttf header           \NC yes    \NC no      \NC no  \NC string \NC header comments, if any \NC \NR
-\NC \tttf hyphenchar       \NC no     \NC no      \NC yes \NC number \NC default: \TEX's \type {\hyphenchar} \NC \NR
-\NC \tttf parameters       \NC no     \NC yes     \NC yes \NC hash   \NC default: 7 parameters, all zero \NC \NR
-\NC \tttf size             \NC no     \NC yes     \NC yes \NC number \NC loaded (at) size. (default: same as designsize) \NC \NR
-\NC \tttf skewchar         \NC no     \NC no      \NC yes \NC number \NC default: \TEX's \type {\skewchar} \NC \NR
-\NC \tttf type             \NC yes    \NC no      \NC yes \NC string \NC basic type of this font \NC \NR
-\NC \tttf format           \NC no     \NC no      \NC yes \NC string \NC disk format type \NC \NR
-\NC \tttf embedding        \NC no     \NC no      \NC yes \NC string \NC \PDF\ inclusion  \NC \NR
-\NC \tttf filename         \NC no     \NC no      \NC yes \NC string \NC the name of the font on disk \NC \NR
-\NC \tttf tounicode        \NC no     \NC yes     \NC yes \NC number \NC When this is set to~1 \LUATEX\ assumes per|-|glyph
-                                                                         tounicode entries are present in the font. \NC \NR
-\NC \tttf stretch          \NC no     \NC no      \NC yes \NC number \NC the \quote {stretch} value from \type
-                                                                         {\expandglyphsinfont} \NC \NR
-\NC \tttf shrink           \NC no     \NC no      \NC yes \NC number \NC the \quote {shrink} value from \type
-                                                                         {\expandglyphsinfont} \NC \NR
-\NC \tttf step             \NC no     \NC no      \NC yes \NC number \NC the \quote {step} value from \type
-                                                                         {\expandglyphsinfont} \NC \NR
-\NC \tttf auto_expand      \NC no     \NC no      \NC yes \NC boolean\NC the \quote {autoexpand} keyword from \crlf
-                                                                         \type {\expandglyphsinfont} \NC \NR
-\NC \tttf expansion_factor \NC no     \NC no      \NC no  \NC number \NC the actual expansion factor of an expanded font \NC \NR
-\NC \tttf attributes       \NC no     \NC no      \NC yes \NC string \NC the \type {\pdffontattr} \NC \NR
-\NC \tttf cache            \NC no     \NC no      \NC yes \NC string \NC This key controls caching of the \LUA\ table on the
-                                                                         \TEX\ end where \type {yes} means: use a reference to
-                                                                         the table that is passed to \LUATEX\ (this is the
-                                                                         default), and no \type {no} means: don't store the
-                                                                         table reference, don't cache any \LUA\ data for this
-                                                                         font while \type {renew} means: don't store the table
-                                                                         reference, but save a reference to the table that is
-                                                                         created at the first access to one of its fields in font.
-                                                                         Note: the saved reference is thread|-|local, so be
-                                                                         careful when you are using coroutines: an error will be
-                                                                         thrown if the table has been cached in one thread, but
-                                                                         you reference it from another thread. \NC \NR
-\NC \tttf nomath           \NC no       \NC no    \NC yes \NC boolean\NC This key allows a minor speedup for text fonts. If it
-                                                                         is present and true, then \LUATEX\ will not check the
-                                                                         character entries for math|-|specific keys. \NC \NR
-\NC \tttf slant            \NC no       \NC no    \NC yes \NC number \NC This has the same semantics as the \type {SlantFont}
-                                                                         operator in font map files. \NC \NR
-\NC \tttf extent           \NC no       \NC no    \NC yes \NC number \NC This has the same semantics as the \type {ExtendFont}
-                                                                         operator in font map files. \NC \NR
+\starttabulate[|Tl|c|c|c|l|p|]
+\NC \rmbf key \NC \bf vf \NC \bf tfm \NC \bf used \NC \bf value type \NC \bf description \NC \NR
+\NC name             \NC yes \NC yes \NC yes \NC string \NC metric (file) name \NC \NR
+\NC area             \NC no  \NC yes \NC yes \NC string \NC (directory) location, typically empty \NC \NR
+\NC used             \NC no  \NC yes \NC yes \NC boolean\NC indicates usage (initial: false) \NC \NR
+\NC characters       \NC yes \NC yes \NC yes \NC table  \NC the defined glyphs of this font \NC \NR
+\NC checksum         \NC yes \NC yes \NC no  \NC number \NC default: 0 \NC \NR
+\NC designsize       \NC no  \NC yes \NC yes \NC number \NC expected size (default: 655360 == 10pt) \NC \NR
+\NC direction        \NC no  \NC yes \NC yes \NC number \NC default: 0 \NC \NR
+\NC encodingbytes    \NC no  \NC no  \NC yes \NC number \NC default: depends on \type {format} \NC \NR
+\NC encodingname     \NC no  \NC no  \NC yes \NC string \NC encoding name \NC \NR
+\NC fonts            \NC yes \NC no  \NC yes \NC table  \NC locally used fonts \NC \NR
+\NC psname           \NC no  \NC no  \NC yes \NC string \NC This is the \POSTSCRIPT\ fontname in the incoming font
+                                                            source, and it's used as fontname identifier in the \PDF\
+                                                            output. \NC \NR
+\NC fullname         \NC no  \NC no  \NC yes \NC string \NC output font name, used as a fallback in the \PDF\ output
+                                                            if the \type {psname} is not set \NC \NR
+\NC header           \NC yes \NC no  \NC no  \NC string \NC header comments, if any \NC \NR
+\NC hyphenchar       \NC no  \NC no  \NC yes \NC number \NC default: \TEX's \type {\hyphenchar} \NC \NR
+\NC parameters       \NC no  \NC yes \NC yes \NC hash   \NC default: 7 parameters, all zero \NC \NR
+\NC size             \NC no  \NC yes \NC yes \NC number \NC loaded (at) size. (default: same as designsize) \NC \NR
+\NC skewchar         \NC no  \NC no  \NC yes \NC number \NC default: \TEX's \type {\skewchar} \NC \NR
+\NC type             \NC yes \NC no  \NC yes \NC string \NC basic type of this font \NC \NR
+\NC format           \NC no  \NC no  \NC yes \NC string \NC disk format type \NC \NR
+\NC embedding        \NC no  \NC no  \NC yes \NC string \NC \PDF\ inclusion  \NC \NR
+\NC filename         \NC no  \NC no  \NC yes \NC string \NC the name of the font on disk \NC \NR
+\NC tounicode        \NC no  \NC yes \NC yes \NC number \NC When this is set to~1 \LUATEX\ assumes per|-|glyph
+                                                            tounicode entries are present in the font. \NC \NR
+\NC stretch          \NC no  \NC no  \NC yes \NC number \NC the \quote {stretch} value from \type
+                                                            {\expandglyphsinfont} \NC \NR
+\NC shrink           \NC no  \NC no  \NC yes \NC number \NC the \quote {shrink} value from \type
+                                                            {\expandglyphsinfont} \NC \NR
+\NC step             \NC no  \NC no  \NC yes \NC number \NC the \quote {step} value from \type
+                                                            {\expandglyphsinfont} \NC \NR
+\NC auto_expand      \NC no  \NC no  \NC yes \NC boolean\NC the \quote {autoexpand} keyword from \crlf
+                                                            \type {\expandglyphsinfont} \NC \NR
+\NC expansion_factor \NC no  \NC no  \NC no  \NC number \NC the actual expansion factor of an expanded font \NC \NR
+\NC attributes       \NC no  \NC no  \NC yes \NC string \NC the \type {\pdffontattr} \NC \NR
+\NC cache            \NC no  \NC no  \NC yes \NC string \NC This key controls caching of the \LUA\ table on the
+                                                            \TEX\ end where \type {yes} means: use a reference to
+                                                            the table that is passed to \LUATEX\ (this is the
+                                                            default), and no \type {no} means: don't store the
+                                                            table reference, don't cache any \LUA\ data for this
+                                                            font while \type {renew} means: don't store the table
+                                                            reference, but save a reference to the table that is
+                                                            created at the first access to one of its fields in font.
+                                                            Note: the saved reference is thread|-|local, so be
+                                                            careful when you are using coroutines: an error will be
+                                                            thrown if the table has been cached in one thread, but
+                                                            you reference it from another thread. \NC \NR
+\NC nomath           \NC no  \NC no  \NC yes \NC boolean\NC This key allows a minor speedup for text fonts. If it
+                                                            is present and true, then \LUATEX\ will not check the
+                                                            character entries for math|-|specific keys. \NC \NR
+\NC slant            \NC no  \NC no  \NC yes \NC number \NC This has the same semantics as the \type {SlantFont}
+                                                            operator in font map files. \NC \NR
+\NC extent           \NC no  \NC no  \NC yes \NC number \NC This has the same semantics as the \type {ExtendFont}
+                                                            operator in font map files. \NC \NR
 \stoptabulate
 
 The key \type {name} is always required. The keys \type {stretch}, \type
@@ -92,16 +92,16 @@ that the font's definition is written to the output file (\DVI\ or \PDF). The
 \TFM\ reader sets it to false. The \type {direction} is a number signalling the
 \quote {normal} direction for this font. There are sixteen possibilities:
 
-\starttabulate[|c|c|c|c|]
-\NC \bf number \NC \bf meaning \NC \bf number \NC \bf meaning \NC\NR
-\NC \tttf 0    \NC \tttf LT    \NC \tttf  8   \NC \tttf TT    \NC\NR
-\NC \tttf 1    \NC \tttf LL    \NC \tttf  9   \NC \tttf TL    \NC\NR
-\NC \tttf 2    \NC \tttf LB    \NC \tttf 10   \NC \tttf TB    \NC\NR
-\NC \tttf 3    \NC \tttf LR    \NC \tttf 11   \NC \tttf TR    \NC\NR
-\NC \tttf 4    \NC \tttf RT    \NC \tttf 12   \NC \tttf BT    \NC\NR
-\NC \tttf 5    \NC \tttf RL    \NC \tttf 13   \NC \tttf BL    \NC\NR
-\NC \tttf 6    \NC \tttf RB    \NC \tttf 14   \NC \tttf BB    \NC\NR
-\NC \tttf 7    \NC \tttf RR    \NC \tttf 15   \NC \tttf BR    \NC\NR
+\starttabulate[|Tc|Tc|Tc|Tc|]
+\NC \rmbf number \NC \rmbf meaning \NC \rmbf number \NC \rmbf meaning \NC\NR
+\NC 0            \NC LT            \NC  8           \NC TT            \NC\NR
+\NC 1            \NC LL            \NC  9           \NC TL            \NC\NR
+\NC 2            \NC LB            \NC 10           \NC TB            \NC\NR
+\NC 3            \NC LR            \NC 11           \NC TR            \NC\NR
+\NC 4            \NC RT            \NC 12           \NC BT            \NC\NR
+\NC 5            \NC RL            \NC 13           \NC BL            \NC\NR
+\NC 6            \NC RB            \NC 14           \NC BB            \NC\NR
+\NC 7            \NC RR            \NC 15           \NC BR            \NC\NR
 \stoptabulate
 
 These are \OMEGA|-|style direction abbreviations: the first character indicates
@@ -118,7 +118,7 @@ gives a nicer user interface.
 The names and their internal remapping are:
 
 \starttabulate[|lT|c|]
-\NC \bf name      \NC \bf remapping \NC\NR
+\NC \rmbf name    \NC \rmbf remapping \NC\NR
 \NC slant         \NC 1 \NC\NR
 \NC space         \NC 2 \NC\NR
 \NC space_stretch \NC 3 \NC\NR
@@ -177,28 +177,28 @@ Each character hash itself is a hash. For example, here is the character \quote
 The following top|-|level keys can be present inside a character hash:
 
 \starttabulate[|lT|c|c|c|l|p|]
-\NC \bf key          \NC \bf vf \NC \bf tfm \NC \bf used \NC \bf type \NC \bf description \NC\NR
-\NC width            \NC yes    \NC yes     \NC yes      \NC number   \NC character's width, in sp (default 0) \NC\NR
-\NC height           \NC no     \NC yes     \NC yes      \NC number   \NC character's height, in sp (default 0) \NC\NR
-\NC depth            \NC no     \NC yes     \NC yes      \NC number   \NC character's depth, in sp (default 0) \NC\NR
-\NC italic           \NC no     \NC yes     \NC yes      \NC number   \NC character's italic correction, in sp (default zero) \NC\NR
-\NC top_accent       \NC no     \NC no      \NC maybe    \NC number   \NC character's top accent alignment place, in sp (default zero) \NC\NR
-\NC bot_accent       \NC no     \NC no      \NC maybe    \NC number   \NC character's bottom accent alignment place, in sp (default zero) \NC\NR
-\NC left_protruding  \NC no     \NC no      \NC maybe    \NC number   \NC character's \type {\lpcode} \NC\NR
-\NC right_protruding \NC no     \NC no      \NC maybe    \NC number   \NC character's \type {\rpcode} \NC\NR
-\NC expansion_factor \NC no     \NC no      \NC maybe    \NC number   \NC character's \type {\efcode} \NC\NR
-\NC tounicode        \NC no     \NC no      \NC maybe    \NC string   \NC character's \UNICODE\ equivalent(s), in \UTF|-|16BE hexadecimal format \NC\NR
-\NC next             \NC no     \NC yes     \NC yes      \NC number   \NC the \quote {next larger} character index \NC\NR
-\NC extensible       \NC no     \NC yes     \NC yes      \NC table    \NC the constituent parts of an extensible recipe \NC\NR
-\NC vert_variants    \NC no     \NC no      \NC yes      \NC table    \NC constituent parts of a vertical variant set \NC \NR
-\NC horiz_variants   \NC no     \NC no      \NC yes      \NC table    \NC constituent parts of a horizontal variant set \NC \NR
-\NC kerns            \NC no     \NC yes     \NC yes      \NC table    \NC kerning information \NC\NR
-\NC ligatures        \NC no     \NC yes     \NC yes      \NC table    \NC ligaturing information \NC\NR
-\NC commands         \NC yes    \NC no      \NC yes      \NC array    \NC virtual font commands \NC\NR
-\NC name             \NC no     \NC no      \NC no       \NC string   \NC the character (\POSTSCRIPT) name \NC\NR
-\NC index            \NC no     \NC no      \NC yes      \NC number   \NC the (\OPENTYPE\ or \TRUETYPE) font glyph index \NC\NR
-\NC used             \NC no     \NC yes     \NC yes      \NC boolean  \NC typeset already (default: false)? \NC\NR
-\NC mathkern         \NC no     \NC no      \NC yes      \NC table    \NC math cut-in specifications \NC\NR
+\NC \rmbf key \NC \bf vf \NC \bf tfm \NC \bf used \NC \bf type \NC \bf description \NC\NR
+\NC width            \NC yes \NC yes \NC yes   \NC number  \NC character's width, in sp (default 0) \NC\NR
+\NC height           \NC no  \NC yes \NC yes   \NC number  \NC character's height, in sp (default 0) \NC\NR
+\NC depth            \NC no  \NC yes \NC yes   \NC number  \NC character's depth, in sp (default 0) \NC\NR
+\NC italic           \NC no  \NC yes \NC yes   \NC number  \NC character's italic correction, in sp (default zero) \NC\NR
+\NC top_accent       \NC no  \NC no  \NC maybe \NC number  \NC character's top accent alignment place, in sp (default zero) \NC\NR
+\NC bot_accent       \NC no  \NC no  \NC maybe \NC number  \NC character's bottom accent alignment place, in sp (default zero) \NC\NR
+\NC left_protruding  \NC no  \NC no  \NC maybe \NC number  \NC character's \type {\lpcode} \NC\NR
+\NC right_protruding \NC no  \NC no  \NC maybe \NC number  \NC character's \type {\rpcode} \NC\NR
+\NC expansion_factor \NC no  \NC no  \NC maybe \NC number  \NC character's \type {\efcode} \NC\NR
+\NC tounicode        \NC no  \NC no  \NC maybe \NC string  \NC character's \UNICODE\ equivalent(s), in \UTF|-|16BE hexadecimal format \NC\NR
+\NC next             \NC no  \NC yes \NC yes   \NC number  \NC the \quote {next larger} character index \NC\NR
+\NC extensible       \NC no  \NC yes \NC yes   \NC table   \NC the constituent parts of an extensible recipe \NC\NR
+\NC vert_variants    \NC no  \NC no  \NC yes   \NC table   \NC constituent parts of a vertical variant set \NC \NR
+\NC horiz_variants   \NC no  \NC no  \NC yes   \NC table   \NC constituent parts of a horizontal variant set \NC \NR
+\NC kerns            \NC no  \NC yes \NC yes   \NC table   \NC kerning information \NC\NR
+\NC ligatures        \NC no  \NC yes \NC yes   \NC table   \NC ligaturing information \NC\NR
+\NC commands         \NC yes \NC no  \NC yes   \NC array   \NC virtual font commands \NC\NR
+\NC name             \NC no  \NC no  \NC no    \NC string  \NC the character (\POSTSCRIPT) name \NC\NR
+\NC index            \NC no  \NC no  \NC yes   \NC number  \NC the (\OPENTYPE\ or \TRUETYPE) font glyph index \NC\NR
+\NC used             \NC no  \NC yes \NC yes   \NC boolean \NC typeset already (default: false)? \NC\NR
+\NC mathkern         \NC no  \NC no  \NC yes   \NC table   \NC math cut-in specifications \NC\NR
 \stoptabulate
 
 The values of \type {top_accent}, \type {bot_accent} and \type {mathkern} are
@@ -231,7 +231,7 @@ present. It in in turn can be overruled by \type {vert_variants}.
 The \type {extensible} table is very simple:
 
 \starttabulate[|lT|l|p|]
-\NC \bf key   \NC \bf type \NC \bf description            \NC\NR
+\NC \rmbf key \NC \bf type \NC \bf description            \NC\NR
 \NC top       \NC number   \NC top character index        \NC\NR
 \NC mid       \NC number   \NC middle character index     \NC\NR
 \NC bot       \NC number   \NC bottom character index     \NC\NR
@@ -242,7 +242,7 @@ The \type {horiz_variants} and \type {vert_variants} are arrays of components.
 Each of those components is itself a hash of up to five keys:
 
 \starttabulate[|lT|l|p|]
-\NC \bf key   \NC \bf type \NC \bf explanation \NC\NR
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC\NR
 \NC glyph     \NC number   \NC The character index. Note that this is an encoding number, not a name. \NC \NR
 \NC extender  \NC number   \NC One (1) if this part is repeatable, zero (0) otherwise. \NC \NR
 \NC start     \NC number   \NC The maximum overlap at the starting side (in scaled points). \NC \NR
@@ -263,7 +263,7 @@ value \type {right_boundary}), with the values being yet another small hash, wit
 two fields:
 
 \starttabulate[|lT|l|p|]
-\NC \bf key   \NC \bf type \NC \bf description \NC \NR
+\NC \rmbf key \NC \bf type \NC \bf description \NC \NR
 \NC type      \NC number   \NC the type of this ligature command, default 0 \NC \NR
 \NC char      \NC number   \NC the character index of the resultant ligature \NC \NR
 \stoptabulate
@@ -302,14 +302,12 @@ Whether or not a \TEX\ font is a \quote {real} font that should be written to th
 \PDF\ document is decided by the \type {type} value in the top|-|level font
 structure. If the value is \type {real}, then this is a proper font, and the
 inclusion mechanism will attempt to add the needed font object definitions to the
-\PDF.
+\PDF. Values for \type {type} are:
 
-Values for \type {type}:
-
-\starttabulate[|l|p|]
-\NC \bf value    \NC \bf description        \NC\NR
-\NC \tttf real   \NC this is a base font    \NC\NR
-\NC \tttf virtual\NC this is a virtual font \NC\NR
+\starttabulate[|Tl|p|]
+\NC \rmbf value \NC \rmbf description      \NC\NR
+\NC real        \NC this is a base font    \NC\NR
+\NC virtual     \NC this is a virtual font \NC\NR
 \stoptabulate
 
 The actions to be taken depend on a number of different variables:
@@ -350,12 +348,12 @@ the separate characters.
 
 Values for \type {format} are:
 
-\starttabulate[|l|p|]
-\NC \bf value      \NC \bf description                                           \NC \NR
-\NC \tttf type1    \NC this is a \POSTSCRIPT\ \TYPEONE\ font                     \NC \NR
-\NC \tttf type3    \NC this is a bitmapped (\PK) font                            \NC \NR
-\NC \tttf truetype \NC this is a \TRUETYPE\ or \TRUETYPE|-|based \OPENTYPE\ font \NC \NR
-\NC \tttf opentype \NC this is a \POSTSCRIPT|-|based \OPENTYPE\ font             \NC \NR
+\starttabulate[|Tl|p|]
+\NC \rmbf value \NC \rmbf description                                         \NC \NR
+\NC type1       \NC this is a \POSTSCRIPT\ \TYPEONE\ font                     \NC \NR
+\NC type3       \NC this is a bitmapped (\PK) font                            \NC \NR
+\NC truetype    \NC this is a \TRUETYPE\ or \TRUETYPE|-|based \OPENTYPE\ font \NC \NR
+\NC opentype    \NC this is a \POSTSCRIPT|-|based \OPENTYPE\ font             \NC \NR
 \stoptabulate
 
 \type {type3} fonts are provided for backward compatibility only, and do not
@@ -363,11 +361,11 @@ support the new wide encoding options.
 
 Values for \type {embedding} are:
 
-\starttabulate[|l|p|]
-\NC \bf value    \NC \bf description \NC \NR
-\NC \tttf no     \NC don't embed the font at all \NC \NR
-\NC \tttf subset \NC include and atttempt to subset the font \NC \NR
-\NC \tttf full   \NC include this font in its entirety \NC \NR
+\starttabulate[|Tl|p|]
+\NC \rmbf value \NC \rmbf description                       \NC \NR
+\NC no          \NC don't embed the font at all             \NC \NR
+\NC subset      \NC include and atttempt to subset the font \NC \NR
+\NC full        \NC include this font in its entirety       \NC \NR
 \stoptabulate
 
 The other fields are used as follows: The \type {fullname} will be the
@@ -448,24 +446,24 @@ with the first entry representing a command and the extra items being the
 parameters to that command. The allowed commands and their arguments are:
 
 \starttabulate[|Tl|l|l|p|]
-\NC \bf command name  \NC \bf arguments \NC \bf type  \NC \bf description \NC\NR
-\NC \tttf font        \NC 1             \NC number    \NC select a new font from the local \type {fonts} table\NC\NR
-\NC \tttf char        \NC 1             \NC number    \NC typeset this character number from the current font,
-                                                          and move right by the character's width\NC\NR
-\NC \tttf node        \NC 1             \NC node      \NC output this node (list), and move right
-                                                          by the width of this list\NC\NR
-\NC \tttf slot        \NC 2             \NC number    \NC a shortcut for the combination of a font and char command\NC\NR
-\NC \tttf push        \NC 0             \NC           \NC save current position\NC\NR
-\NC \tttf nop         \NC 0             \NC           \NC do nothing \NC\NR
-\NC \tttf pop         \NC 0             \NC           \NC pop position \NC\NR
-\NC \tttf rule        \NC 2             \NC 2 numbers \NC output a rule $ht*wd$, and move right.\NC\NR
-\NC \tttf down        \NC 1             \NC number    \NC move down on the page\NC\NR
-\NC \tttf right       \NC 1             \NC number    \NC move right on the page\NC\NR
-\NC \tttf special     \NC 1             \NC string    \NC output a \type {\special} command\NC\NR
-\NC \tttf lua         \NC 1             \NC string    \NC execute a \LUA\ script (at \type {\latelua} time)\NC\NR
-\NC \tttf image       \NC 1             \NC image     \NC output an image (the argument can be either an \type
-                                                          {<image>} variable or an \type {image_spec} table)\NC\NR
-\NC \tttf comment     \NC any           \NC any       \NC the arguments of this command are ignored\NC\NR
+\NC \rmbf command name \NC \bf arguments \NC \bf type \NC \bf description \NC\NR
+\NC font    \NC 1   \NC number    \NC select a new font from the local \type {fonts} table\NC\NR
+\NC char    \NC 1   \NC number    \NC typeset this character number from the current font,
+                                      and move right by the character's width\NC\NR
+\NC node    \NC 1   \NC node      \NC output this node (list), and move right
+                                      by the width of this list\NC\NR
+\NC slot    \NC 2   \NC number    \NC a shortcut for the combination of a font and char command\NC\NR
+\NC push    \NC 0   \NC           \NC save current position\NC\NR
+\NC nop     \NC 0   \NC           \NC do nothing \NC\NR
+\NC pop     \NC 0   \NC           \NC pop position \NC\NR
+\NC rule    \NC 2   \NC 2 numbers \NC output a rule $ht*wd$, and move right.\NC\NR
+\NC down    \NC 1   \NC number    \NC move down on the page\NC\NR
+\NC right   \NC 1   \NC number    \NC move right on the page\NC\NR
+\NC special \NC 1   \NC string    \NC output a \type {\special} command\NC\NR
+\NC lua     \NC 1   \NC string    \NC execute a \LUA\ script (at \type {\latelua} time)\NC\NR
+\NC image   \NC 1   \NC image     \NC output an image (the argument can be either an \type
+                                      {<image>} variable or an \type {image_spec} table)\NC\NR
+\NC comment \NC any \NC any       \NC the arguments of this command are ignored\NC\NR
 \stoptabulate
 
 When a font id is set to~0 then it will be replaced by the currently assigned
@@ -557,6 +555,158 @@ Finally, here is a plain \TEX\ input file with a virtual font demonstration:
 \stopbuffer
 
 \typebuffer
+
+\section{The \type {font} library}
+
+The font library provides the interface into the internals of the font system,
+and also it contains helper functions to load traditional \TEX\ font metrics
+formats. Other font loading functionality is provided by the \type {fontloader}
+library that will be discussed in the next section.
+
+\subsection{Loading a \TFM\ file}
+
+The behavior documented in this subsection is considered stable in the sense that
+there will not be backward-incompatible changes any more.
+
+\startfunctioncall
+<table> fnt =
+    font.read_tfm(<string> name, <number> s)
+\stopfunctioncall
+
+The number is a bit special:
+
+\startitemize
+\startitem
+    If it is positive, it specifies an \quote {at size} in scaled points.
+\stopitem
+\startitem
+    If it is negative, its absolute value represents a \quote {scaled}
+    setting relative to the designsize of the font.
+\stopitem
+\stopitemize
+
+The internal structure of the metrics font table that is returned is explained in
+\in {chapter} [fonts].
+
+\subsection{Loading a \VF\ file}
+
+The behavior documented in this subsection is considered stable in the sense that
+there will not be backward-incompatible changes any more.
+
+\startfunctioncall
+<table> vf_fnt =
+    font.read_vf(<string> name, <number> s)
+\stopfunctioncall
+
+The meaning of the number \type {s} and the format of the returned table are
+similar to the ones in the \type {read_tfm()} function.
+
+\subsection{The fonts array}
+
+The whole table of \TEX\ fonts is accessible from \LUA\ using a virtual array.
+
+\starttyping
+font.fonts[n] = { ... }
+<table> f = font.fonts[n]
+\stoptyping
+
+See \in {chapter} [fonts] for the structure of the tables. Because this is a
+virtual array, you cannot call \type {pairs} on it, but see below for the \type
+{font.each} iterator.
+
+The two metatable functions implementing the virtual array are:
+
+\startfunctioncall
+<table> f = font.getfont(<number> n)
+font.setfont(<number> n, <table> f)
+\stopfunctioncall
+
+Note that at the moment, each access to the \type {font.fonts} or call to \type
+{font.getfont} creates a \LUA\ table for the whole font. This process can be quite
+slow. In a later version of \LUATEX, this interface will change (it will start
+using userdata objects instead of actual tables).
+
+Also note the following: assignments can only be made to fonts that have already
+been defined in \TEX, but have not been accessed {\it at all\/} since that
+definition. This limits the usability of the write access to \type {font.fonts}
+quite a lot, a less stringent ruleset will likely be implemented later.
+
+\subsection{Checking a font's status}
+
+You can test for the status of a font by calling this function:
+
+\startfunctioncall
+<boolean> f =
+    font.frozen(<number> n)
+\stopfunctioncall
+
+The return value is one of \type {true} (unassignable), \type {false} (can be
+changed) or \type {nil} (not a valid font at all).
+
+\subsection{Defining a font directly}
+
+You can define your own font into \type {font.fonts} by calling this function:
+
+\startfunctioncall
+<number> i =
+    font.define(<table> f)
+\stopfunctioncall
+
+The return value is the internal id number of the defined font (the index into
+\type {font.fonts}). If the font creation fails, an error is raised. The table
+is a font structure, as explained in \in {chapter} [fonts].
+
+\subsection{Projected next font id}
+
+\startfunctioncall
+<number> i =
+    font.nextid()
+\stopfunctioncall
+
+This returns the font id number that would be returned by a \type {font.define}
+call if it was executed at this spot in the code flow. This is useful for virtual
+fonts that need to reference themselves.
+
+\subsection{Font id}
+
+\startfunctioncall
+<number> i =
+    font.id(<string> csname)
+\stopfunctioncall
+
+This returns the font id associated with \type {csname} string, or $-1$ if \type
+{csname} is not defined.
+
+\subsection{Currently active font}
+
+\startfunctioncall
+<number> i = font.current()
+font.current(<number> i)
+\stopfunctioncall
+
+This gets or sets the currently used font number.
+
+\subsection{Maximum font id}
+
+\startfunctioncall
+<number> i =
+    font.max()
+\stopfunctioncall
+
+This is the largest used index in \type {font.fonts}.
+
+\subsection{Iterating over all fonts}
+
+\startfunctioncall
+for i,v in font.each() do
+  ...
+end
+\stopfunctioncall
+
+This is an iterator over each of the defined \TEX\ fonts. The first returned
+value is the index in \type {font.fonts}, the second the font itself, as a \LUA\
+table. The indices are listed incrementally, but they do not always form an array
+of consecutive numbers: in some cases there can be holes in the sequence.
 
 \stopchapter
 

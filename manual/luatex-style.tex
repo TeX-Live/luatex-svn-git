@@ -53,10 +53,24 @@
             tex.sprint(', \\type{'.. node.subtype(t[2]) .. '}')
         end
     end
+
+    function document.functions.showsubtypes(s)
+        local s = node.subtypes(s)
+        local d = false
+        for k, v in table.sortedhash(s) do
+            if d then
+                context(', %s = {\\tttf %s}',k,v)
+            else
+                context('%s = {\\tttf %s}',k,v)
+                d = true
+            end
+        end
+    end
 \stopluacode
 
-\unexpanded\def\showfields#1{\ctxlua{document.functions.showfields("#1")}}
-\unexpanded\def\showid    #1{\ctxlua{document.functions.showid("#1")}}
+\unexpanded\def\showfields  #1{\ctxlua{document.functions.showfields("#1")}}
+\unexpanded\def\showid      #1{\ctxlua{document.functions.showid("#1")}}
+\unexpanded\def\showsubtypes#1{\ctxlua{document.functions.showsubtypes("#1")}}
 
 \definecolor[blue]      [b=.5]
 \definecolor[red]       [r=.5]
