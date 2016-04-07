@@ -1,3 +1,22 @@
+2016-04-06  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXMFVAR, TEXMFCONFIG): 2016.
+	(shell_escape_commands): add gregorio, fingers crossed.
+
+	* cnf.c (do_line): do not keep checking ISSPACE beyond
+	end of string.  (Can crash on lines without spaces.)
+	Return error string if problems.
+	* kpathsea_cnf_get: give warning, with line number,
+        if do_line returns a message.
+
+2016-02-03  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmf.cnf: Typo.
+
+2016-04-06  Karl Berry  <karl@tug.org>
+
+	* kpsewhich.c, et al.: copyright 2016.
+
 2016-03-06  Karl Berry  <karl@tug.org>
 
 	* version.ac: remove /dev for start of 2016 builds.
@@ -16,9 +35,9 @@
 
 	* win32lib.h: Update (w32 only).
 
-2015-00-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
+2015-10-01  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
-	* kpsewhich.c (USGAE): Say "list shown by -help-formats".
+	* kpsewhich.c (USAGE): Say "list shown by -help-formats".
 
 2015-07-07  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
@@ -8820,3 +8839,5 @@ Fri Apr 23 16:11:13 1993  Karl Berry  (karl@cs.umb.edu)
 	* pathsrch.c: paths.h need not be included.
 
 	* Created.
+
+(This ChangeLog file public domain.)
