@@ -13,7 +13,8 @@ others so that \UNICODE\ input can be used easily. Second, all of \TEX82's
 internal special values (for example for operator spacing) have been made
 accessible and changeable via control sequences. Third, there are extensions that
 make it easier to use \OPENTYPE\ math fonts. And finally, there are some
-extensions that have been proposed in the past that are now added to the engine.
+extensions that have been proposed or considered in the past that are now added
+to the engine.
 
 \section{The current math style}
 
@@ -71,44 +72,46 @@ The input for such primitives would look like this:
 \def\overbrace{\Umathaccent 0 1 "23DE }
 \stoptyping
 
-Altered \TEX82 primitives:
+The altered \TEX82 primitives are:
 
-\starttabulate[|l|l|l|]
-\NC \bf primitive  \NC \bf value range (in hex) \NC \NR
-\NC \type {\mathcode} \NC 0--10FFFF = 0--8000      \NC \NR
-\NC \type {\delcode}  \NC 0--10FFFF = 0--FFFFFF    \NC \NR
+\starttabulate[|l|l|r|c|l|r|]
+\NC \bf primitive     \NC \bf min \NC \bf max \NC \kern 2em  \NC \bf min \NC \bf max \NC \NR
+\NC \type {\mathcode} \NC 0       \NC 10FFFF  \NC =          \NC 0       \NC 8000    \NC \NR
+\NC \type {\delcode}  \NC 0       \NC 10FFFF  \NC =          \NC 0       \NC FFFFFF  \NC \NR
 \stoptabulate
 
-Unaltered:
+The unaltered ones are:
 
-\starttabulate[|l|l|l|]
-\NC \bf primitive     \NC \bf value range (in hex) \NC \NR
-\NC \type {\mathchardef} \NC 0--8000                  \NC \NR
-\NC \type {\mathchar}    \NC 0--7FFF                  \NC \NR
-\NC \type {\mathaccent}  \NC 0--7FFF                  \NC \NR
-\NC \type {\delimiter}   \NC 0--7FFFFFF               \NC \NR
-\NC \type {\radical}     \NC 0--7FFFFFF               \NC \NR
+\starttabulate[|l|l|r|]
+\NC \bf primitive        \NC \bf min \NC \bf max \NC \NR
+\NC \type {\mathchardef} \NC 0       \NC    8000 \NC \NR
+\NC \type {\mathchar}    \NC 0       \NC    7FFF \NC \NR
+\NC \type {\mathaccent}  \NC 0       \NC    7FFF \NC \NR
+\NC \type {\delimiter}   \NC 0       \NC 7FFFFFF \NC \NR
+\NC \type {\radical}     \NC 0       \NC 7FFFFFF \NC \NR
 \stoptabulate
 
 For practical reasons \type {\mathchardef} will silently accept values larger
 that \type {0x8000} and interpret it as \type {\Umathcharnumdef}. This is needed
 to satisfy older macro packages.
 
-New primitives that are compatible with \XETEX:
+The following new primitives are compatible with \XETEX:
 
-\starttabulate[|l|l|l|l|]
-\NC \bf primitive                \NC \bf value range (in hex)             \NC \NR
-\NC \type {\Umathchardef}        \NC 0+0+0--7+FF+10FFFF$^1$               \NC \NR
-\NC \type {\Umathcharnumdef}$^5$ \NC -80000000--7FFFFFFF$^3$              \NC \NR
-\NC \type {\Umathcode}           \NC 0--10FFFF = 0+0+0--7+FF+10FFFF$^1$   \NC \NR
-\NC \type {\Udelcode}            \NC 0--10FFFF = 0+0--FF+10FFFF$^2$       \NC \NR
-\NC \type {\Umathchar}           \NC 0+0+0--7+FF+10FFFF                   \NC \NR
-\NC \type {\Umathaccent}         \NC 0+0+0--7+FF+10FFFF$^{2,4}$           \NC \NR
-\NC \type {\Udelimiter}          \NC 0+0+0--7+FF+10FFFF$^2$               \NC \NR
-\NC \type {\Uradical}            \NC 0+0--FF+10FFFF$^2$                   \NC \NR
-\NC \type {\Umathcharnum}        \NC -80000000--7FFFFFFF$^3$              \NC \NR
-\NC \type {\Umathcodenum}        \NC 0--10FFFF = -80000000--7FFFFFFF$^3$  \NC \NR
-\NC \type {\Udelcodenum}         \NC 0--10FFFF = -80000000--7FFFFFFF$^3$  \NC \NR
+% somewhat fuzzy:
+
+\starttabulate[|l|l|r|c|l|r|]
+\NC \bf primitive                           \NC \bf min   \NC \bf max             \NC \kern 2em  \NC \bf min   \NC \bf max                    \NC \NR
+\NC \type {\Umathchardef}                   \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{1}}   \NC   \NC           \NC                            \NC \NR
+\NC \type {\Umathcharnumdef}\rlap{\high{5}} \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}}   \NC   \NC           \NC                            \NC \NR
+\NC \type {\Umathcode}                      \NC 0         \NC      10FFFF                  \NC = \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{1}} \NC \NR
+\NC \type {\Udelcode}                       \NC 0         \NC      10FFFF                  \NC = \NC 0+0       \NC   FF+10FFFF\rlap{\high{2}} \NC \NR
+\NC \type {\Umathchar}                      \NC 0+0+0     \NC 7+FF+10FFFF                  \NC   \NC           \NC                            \NC \NR
+\NC \type {\Umathaccent}                    \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{2,4}} \NC   \NC           \NC                            \NC \NR
+\NC \type {\Udelimiter}                     \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{2}}   \NC   \NC           \NC                            \NC \NR
+\NC \type {\Uradical}                       \NC 0+0       \NC   FF+10FFFF\rlap{\high{2}}   \NC   \NC           \NC                            \NC \NR
+\NC \type {\Umathcharnum}                   \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}}   \NC   \NC           \NC                            \NC \NR
+\NC \type {\Umathcodenum}                   \NC 0         \NC      10FFFF                  \NC = \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}} \NC \NR
+\NC \type {\Udelcodenum}                    \NC 0         \NC      10FFFF                  \NC = \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}} \NC \NR
 \stoptabulate
 
 Specifications typically look like:
@@ -118,21 +121,22 @@ Specifications typically look like:
 \Umathcode   123="1"0"789
 \stoptyping
 
-Note 1: The new primitives that deal with delimiter-style objects do not set up a
+Note 1: The new primitives that deal with delimiter|-|style objects do not set up a
 \quote {large family}. Selecting a suitable size for display purposes is expected
 to be dealt with by the font via the \type {\Umathoperatorsize} parameter (more
 information can be found in a following section).
 
 Note 2: For these three primitives, all information is packed into a single
-signed integer. For the first two (\type {\Umathcharnum} and \type {\Umathcodenum}),
-the lowest 21 bits are the character code, the 3 bits above that represent the
-math class, and the family data is kept in the topmost bits (This means that the
-values for math families 128--255 are actually negative). For \type {\Udelcodenum}
-there is no math class; the math family information is stored in the bits
-directly on top of the character code. Using these three commands is not as
-natural as using the two- and three-value commands, so unless you know exactly
-what you are doing and absolutely require the speedup resulting from the faster
-input scanning, it is better to use the verbose commands instead.
+signed integer. For the first two (\type {\Umathcharnum} and \type
+{\Umathcodenum}), the lowest 21 bits are the character code, the 3 bits above
+that represent the math class, and the family data is kept in the topmost bits
+(This means that the values for math families 128--255 are actually negative).
+For \type {\Udelcodenum} there is no math class. The math family information is
+stored in the bits directly on top of the character code. Using these three
+commands is not as natural as using the two- and three|-|value commands, so
+unless you know exactly what you are doing and absolutely require the speedup
+resulting from the faster input scanning, it is better to use the verbose
+commands instead.
 
 Note 3: The \type {\Umathaccent} command accepts optional keywords to control
 various details regarding math accents. See \in {section} [mathacc] below for
@@ -258,9 +262,9 @@ has resulted in many more parameters than were accessible before.
 \NC \type {\Umathradicaldegreeafter} \NC the backward kern that takes place after placement of
                                          the radical degree \NC \NR
 \NC \type {\Umathradicaldegreeraise} \NC this is the percentage of the total height and depth of
-                                         the radical sign that the degree is raised by. It is
+                                         the radical sign that the degree is raised by; it is
                                          expressed in \type {percents}, so 60\% is expressed as the
-                                         integer $60$. \NC \NR
+                                         integer $60$ \NC \NR
 \NC \type {\Umathstackvgap}          \NC vertical clearance between the two
                                          elements in a \type {\atop} stack \NC \NR
 \NC \type {\Umathstacknumup}         \NC numerator shift upward in \type {\atop} stack \NC \NR
@@ -336,9 +340,9 @@ case no attention is paid to which family is being assigned to: the \type
 
 In the table below, the one|-|letter style abbreviations and symbolic tfm font
 dimension names match those using in the \TeX book. Assignments to \type
-{\textfont} set the values for the cramped and uncramped display and text styles.
-Use \type {\scriptfont} for the script styles, and \type {\scriptscriptfont} for the
-scriptscript styles (totalling eight parameters for three font sizes). In the
+{\textfont} set the values for the cramped and uncramped display and text styles,
+\type {\scriptfont} sets the script styles, and \type {\scriptscriptfont} sets
+the scriptscript styles, so we have eight parameters for three font sizes. In the
 \TFM\ case, assignments only happen in family~2 and family~3 (and of course only
 for the parameters for which there are font dimensions).
 
@@ -420,11 +424,11 @@ Note 1: \OPENTYPE\ fonts set \type {\Umathlimitabovekern} and \type
 {\Umathlimitbelowkern} to zero and set \type {\Umathquad} to the font size of the
 used font, because these are not supported in the \type {MATH} table,
 
-Note 2: \TFM\ fonts do not set \type {\Umathradicalrule} because \TEX82\ uses the
-height of the radical instead. When this parameter is indeed not set when
-\LUATEX\ has to typeset a radical, a backward compatibility mode will kick in
-that assumes that an oldstyle \TEX\ font is used. Also, they do not set \type
-{\Umathradicaldegreebefore}, \type {\Umathradicaldegreeafter}, and \type
+Note 2: Traditional \TFM\ fonts do not set \type {\Umathradicalrule} because
+\TEX82\ uses the height of the radical instead. When this parameter is indeed not
+set when \LUATEX\ has to typeset a radical, a backward compatibility mode will
+kick in that assumes that an oldstyle \TEX\ font is used. Also, they do not set
+\type {\Umathradicaldegreebefore}, \type {\Umathradicaldegreeafter}, and \type
 {\Umathradicaldegreeraise}. These are then automatically initialized to
 $5/18$quad, $-10/18$quad, and 60.
 
@@ -732,7 +736,9 @@ $\Uhextensible width 1pt middle 0 "2194$
 \blank \startnarrower \getbuffer \stopnarrower \blank
 
 \LUATEX\ internally uses a structure that supports \OPENTYPE\ \quote
-{MathVariants} as well as \TFM\ \quote {extensible recipes}.
+{MathVariants} as well as \TFM\ \quote {extensible recipes}. In most cases where
+font metrics are involved we have a different code path for traditional fonts end
+\OPENTYPE\ fonts.
 
 \section {Extracting values}
 
@@ -754,7 +760,7 @@ will return:
 [2] [3] [4]
 \stoptyping
 
-These commands are provides as convenience. before they came available you could
+These commands are provides as convenience. Before they came available you could
 do the following:
 
 \starttyping
@@ -776,9 +782,9 @@ $$ { {a} \abovewithdelims() exact 4pt {b} }$$
 
 The math parameter table contains some parameters that specify a horizontal and
 vertical gap for skewed fractions. Of course some guessing is needed in order to
-implement something that uses then. And so we now provide a primitive similar to the
+implement something that uses them. And so we now provide a primitive similar to the
 other fraction related ones but with a few options so that one can influence the
-rendering. Of course a user can mess around a bit with the parameters
+rendering. Of course a user can also mess around a bit with the parameters
 \type {\Umathskewedfractionhgap} and \type {\Umathskewedfractionvgap}.
 
 The syntax used here is:
@@ -830,7 +836,7 @@ For Latin Modern The result looks as follows:
 \subsection {Verbose versions of single-character math commands}
 
 \LUATEX\ defines six new primitives that have the same function as
-\type {^}, \type {_}, \type {$}, and \type {$$}. %$
+\type {^}, \type {_}, \type {$}, and \type {$$}: %$
 
 \starttabulate[|l|l|l|l|]
 \NC \bf primitive           \NC \bf explanation \NC \NR
