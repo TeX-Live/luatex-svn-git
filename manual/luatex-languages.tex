@@ -554,6 +554,127 @@ The combined effect of these two differences is that \LUATEX\ does not always us
 all of the potential breakpoints in a paragraph, especially when fonts with many
 ligatures are used. Of course kerning also complicates matters here.
 
+\section{The \type {lang} library}
+
+This library provides the interface to \LUATEX's structure
+representing a language, and the associated functions.
+
+\startfunctioncall
+<language> l = lang.new()
+<language> l = lang.new(<number> id)
+\stopfunctioncall
+
+This function creates a new userdata object. An object of type \type {<language>}
+is the first argument to most of the other functions in the \type {lang}
+library. These functions can also be used as if they were object methods, using
+the colon syntax.
+
+Without an argument, the next available internal id number will be assigned to
+this object. With argument, an object will be created that links to the internal
+language with that id number.
+
+\startfunctioncall
+<number> n = lang.id(<language> l)
+\stopfunctioncall
+
+returns the internal \type {\language} id number this object refers to.
+
+\startfunctioncall
+<string> n = lang.hyphenation(<language> l)
+lang.hyphenation(<language> l, <string> n)
+\stopfunctioncall
+
+Either returns the current hyphenation exceptions for this language, or adds new
+ones. The syntax of the string is explained in~\in {section}
+[patternsexceptions].
+
+\startfunctioncall
+lang.clear_hyphenation(<language> l)
+\stopfunctioncall
+
+Clears the exception dictionary (string) for this language.
+
+\startfunctioncall
+<string> n = lang.clean(<language> l, <string> o)
+<string> n = lang.clean(<string> o)
+\stopfunctioncall
+
+Creates a hyphenation key from the supplied hyphenation value. The syntax of the
+argument string is explained in~\in {section} [patternsexceptions]. This function
+is useful if you want to do something else based on the words in a dictionary
+file, like spell|-|checking.
+
+\startfunctioncall
+<string> n = lang.patterns(<language> l)
+lang.patterns(<language> l, <string> n)
+\stopfunctioncall
+
+Adds additional patterns for this language object, or returns the current set.
+The syntax of this string is explained in~\in {section} [patternsexceptions].
+
+\startfunctioncall
+lang.clear_patterns(<language> l)
+\stopfunctioncall
+
+Clears the pattern dictionary for this language.
+
+\startfunctioncall
+<number> n = lang.prehyphenchar(<language> l)
+lang.prehyphenchar(<language> l, <number> n)
+\stopfunctioncall
+
+Gets or sets the \quote {pre|-|break} hyphen character for implicit hyphenation
+in this language (initially the hyphen, decimal 45).
+
+\startfunctioncall
+<number> n = lang.posthyphenchar(<language> l)
+lang.posthyphenchar(<language> l, <number> n)
+\stopfunctioncall
+
+Gets or sets the \quote {post|-|break} hyphen character for implicit hyphenation
+in this language (initially null, decimal~0, indicating emptiness).
+
+\startfunctioncall
+<number> n = lang.preexhyphenchar(<language> l)
+lang.preexhyphenchar(<language> l, <number> n)
+\stopfunctioncall
+
+Gets or sets the \quote {pre|-|break} hyphen character for explicit hyphenation
+in this language (initially null, decimal~0, indicating emptiness).
+
+\startfunctioncall
+<number> n = lang.postexhyphenchar(<language> l)
+lang.postexhyphenchar(<language> l, <number> n)
+\stopfunctioncall
+
+Gets or sets the \quote {post|-|break} hyphen character for explicit hyphenation
+in this language (initially null, decimal~0, indicating emptiness).
+
+\startfunctioncall
+<boolean> success = lang.hyphenate(<node> head)
+<boolean> success = lang.hyphenate(<node> head, <node> tail)
+\stopfunctioncall
+
+Inserts hyphenation points (discretionary nodes) in a node list. If \type {tail}
+is given as argument, processing stops on that node. Currently, \type {success}
+is always true if \type {head} (and \type {tail}, if specified) are proper nodes,
+regardless of possible other errors.
+
+Hyphenation works only on \quote {characters}, a special subtype of all the glyph
+nodes with the node subtype having the value \type {1}. Glyph modes with
+different subtypes are not processed. See \in {section~} [charsandglyphs] for
+more details.
+
+The following two commands can be used to set or query hj codes:
+
+\startfunctioncall
+lang.sethjcode(<language> l, <number> char, <number> usedchar)
+<number> usedchar = lang.gethjcode(<language> l, <number> char)
+\stopfunctioncall
+
+When you set a hjcode the current sets get initialized unless the set was already
+initialized due to \type {\savinghyphcodes} being larger than zero.
+
 \stopchapter
 
 \stopcomponent

@@ -1,0 +1,647 @@
+% language=uk
+
+\environment luatex-style
+\environment luatex-logos
+
+\startcomponent luatex-graphics
+
+\startchapter[reference=graphics,title={The graphic libraries}]
+
+\section{The \type {img} library}
+
+The \type {img} library can be used as an alternative to \type {\pdfximage} and
+\type {\pdfrefximage}, and the associated \quote {satellite} commands like \type
+{\pdfximagebbox}. Image objects can also be used within virtual fonts via the
+\type {image} command listed in~\in {section} [virtualfonts].
+
+\subsection{\type {img.new}}
+
+\startfunctioncall
+<image> var = img.new()
+<image> var = img.new(<table> image_spec)
+\stopfunctioncall
+
+This function creates a userdata object of type \quote {image}. The \type
+{image_spec} argument is optional. If it is given, it must be a table, and that
+table must contain a \type {filename} key. A number of other keys can also be
+useful, these are explained below.
+
+You can either say
+
+\starttyping
+a = img.new()
+\stoptyping
+
+followed by
+
+\starttyping
+a.filename = "foo.png"
+\stoptyping
+
+or you can put the file name (and some or all of the other keys) into a table
+directly, like so:
+
+\starttyping
+a = img.new({filename='foo.pdf', page=1})
+\stoptyping
+
+The generated \type {<image>} userdata object allows access to a set of
+user|-|specified values as well as a set of values that are normally filled in
+and updated automatically by \LUATEX\ itself. Some of those are derived from the
+actual image file, others are updated to reflect the \PDF\ output status of the
+object.
+
+There is one required user-specified field: the file name (\type {filename}). It
+can optionally be augmented by the requested image dimensions (\type {width},
+\type {depth}, \type {height}), user|-|specified image attributes (\type {attr}),
+the requested \PDF\ page identifier (\type {page}), the requested boundingbox
+(\type {pagebox}) for \PDF\ inclusion, the requested color space object (\type
+{colorspace}).
+
+The function \type {img.new} does not access the actual image file, it just
+creates the \type {<image>} userdata object and initializes some memory
+structures. The \type {<image>} object and its internal structures are
+automatically garbage collected.
+
+Once the image is scanned, all the values in the \type {<image>} except \type
+{width}, \type {height} and \type {depth}, become frozen, and you cannot change
+them any more.
+
+You can use \type {pdf.setignoreunknownimages(1)} (or at the \TEX\ end the \type
+{\pdfvariable} \type {ignoreunknownimages}) to get around a quit when no known
+image type is found (based on name or preamble). Beware: this will not catch
+invalid images and we cannot guarantee side effects. A zero dimension image is
+still included when requested. No special flags are set. A proper workflow will
+not rely in such a catch but make sure that images are valid.
+
+\subsection{\type {img.keys}}
+
+\startfunctioncall
+<table> keys = img.keys()
+\stopfunctioncall
+
+This function returns a list of all the possible \type {image_spec} keys, both
+user-supplied and automatic ones.
+
+% hahe: i need to add r/w ro column...
+\starttabulate[|l|l|p|]
+\NC \bf field name \NC \bf type \NC description \NC \NR
+\NC attr           \NC string   \NC the image attributes for \LUATEX \NC \NR
+\NC bbox           \NC table    \NC table with 4 boundingbox dimensions
+                                    \type {llx}, \type {lly}, \type {urx},
+                                    and \type {ury} overruling the \type {pagebox}
+                                    entry\NC \NR
+\NC colordepth     \NC number   \NC the number of bits used by the color space\NC \NR
+\NC colorspace     \NC number   \NC the color space object number \NC \NR
+\NC depth          \NC number   \NC the image depth for \LUATEX\
+                                    (in scaled points)\NC \NR
+\NC filename       \NC string   \NC the image file name \NC \NR
+\NC filepath       \NC string   \NC the full (expanded) file name of the image\NC \NR
+\NC height         \NC number   \NC the image height for \LUATEX\
+                                    (in scaled points)\NC \NR
+\NC imagetype      \NC string   \NC one of \type {pdf}, \type {png}, \type {jpg}, \type {jp2},
+                                    \type {jbig2}, or \type {nil} \NC \NR
+\NC index          \NC number   \NC the \PDF\ image name suffix \NC \NR
+\NC objnum         \NC number   \NC the \PDF\ image object number \NC \NR
+\NC page           \NC ??       \NC the identifier for the requested image page
+                                    (type is number or string,
+                                    default is the number 1)\NC \NR
+\NC pagebox        \NC string   \NC the requested bounding box, one of
+                                    \type {none}, \type {media}, \type {crop},
+                                    \type {bleed}, \type {trim}, \type {art} \NC \NR
+\NC pages          \NC number   \NC the total number of available pages \NC \NR
+\NC rotation       \NC number   \NC the image rotation from included \PDF\ file,
+                                    in multiples of 90~deg. \NC \NR
+\NC stream         \NC string   \NC the raw stream data for an \type {/Xobject}
+                                    \type {/Form} object\NC \NR
+\NC transform      \NC number   \NC the image transform, integer number 0..7\NC \NR
+\NC width          \NC number   \NC the image width for \LUATEX\
+                                    (in scaled points)\NC \NR
+\NC xres           \NC number   \NC the horizontal natural image resolution
+                                    (in \DPI) \NC \NR
+\NC xsize          \NC number   \NC the natural image width \NC \NR
+\NC yres           \NC number   \NC the vertical natural image resolution
+                                    (in \DPI) \NC \NR
+\NC ysize          \NC number   \NC the natural image height \NC \NR
+\NC visiblefileame \NC string   \NC when set, this name will find its way in the
+                                    \PDF\ file as \type {PTEX} specification; when
+                                    an empty string is assigned nothing is written
+                                    to file, otherwise the natural filename is taken \NC \NR
+\stoptabulate
+
+A running (undefined) dimension in \type {width}, \type {height}, or \type
+{depth} is represented as \type {nil} in \LUA, so if you want to load an image at
+its \quote {natural} size, you do not have to specify any of those three fields.
+
+The \type {stream} parameter allows to fabricate an \type {/XObject} \type
+{/Form} object from a string giving the stream contents, e.g., for a filled
+rectangle:
+
+\startfunctioncall
+a.stream = "0 0 20 10 re f"
+\stopfunctioncall
+
+When writing the image, an \type {/Xobject} \type {/Form} object is created, like
+with embedded \PDF\ file writing. The object is written out only once. The \type
+{stream} key requires that also the \type {bbox} table is given. The \type
+{stream} key conflicts with the \type {filename} key. The \type {transform} key
+works as usual also with \type {stream}.
+
+The \type {bbox} key needs a table with four boundingbox values, e.g.:
+
+\startfunctioncall
+a.bbox = {"30bp", 0, "225bp", "200bp"}
+\stopfunctioncall
+
+This replaces and overrules any given \type {pagebox} value; with given \type
+{bbox} the box dimensions coming with an embedded \PDF\ file are ignored. The
+\type {xsize} and \type {ysize} dimensions are set accordingly, when the image is
+scaled. The \type {bbox} parameter is ignored for non-\PDF\ images.
+
+The \type {transform} allows to mirror and rotate the image in steps of 90~deg.
+The default value~$0$ gives an unmirrored, unrotated image. Values $1-3$ give
+counterclockwise rotation by $90$, $180$, or $270$~degrees, whereas with values
+$4-7$ the image is first mirrored and then rotated counterclockwise by $90$,
+$180$, or $270$~degrees. The \type {transform} operation gives the same visual
+result as if you would externally preprocess the image by a graphics tool and
+then use it by \LUATEX. If a \PDF\ file to be embedded already contains a \type
+{/Rotate} specification, the rotation result is the combination of the \type
+{/Rotate} rotation followed by the \type {transform} operation.
+
+\subsection{\type {img.scan}}
+
+\startfunctioncall
+<image> var = img.scan(<image> var)
+<image> var = img.scan(<table> image_spec)
+\stopfunctioncall
+
+When you say \type {img.scan(a)} for a new image, the file is scanned, and
+variables such as \type {xsize}, \type {ysize}, image \type {type}, number of
+\type {pages}, and the resolution are extracted. Each of the \type {width}, \type
+{height}, \type {depth} fields are set up according to the image dimensions, if
+they were not given an explicit value already. An image file will never be
+scanned more than once for a given image variable. With all subsequent \type
+{img.scan(a)} calls only the dimensions are again set up (if they have been
+changed by the user in the meantime).
+
+For ease of use, you can do right-away a
+
+\starttyping
+<image> a = img.scan ({ filename = "foo.png" })
+\stoptyping
+
+without a prior \type {img.new}.
+
+Nothing is written yet at this point, so you can do \type {a=img.scan}, retrieve
+the available info like image width and height, and then throw away \type {a}
+again by saying \type {a=nil}. In that case no image object will be reserved in
+the PDF, and the used memory will be cleaned up automatically.
+
+\subsection{\type {img.copy}}
+
+\startfunctioncall
+<image> var = img.copy(<image> var)
+<image> var = img.copy(<table> image_spec)
+\stopfunctioncall
+
+If you say \type {a = b}, then both variables point to the same \type {<image>}
+object. if you want to write out an image with different sizes, you can do a
+\type {b=img.copy(a)}.
+
+Afterwards, \type {a} and \type {b} still reference the same actual image
+dictionary, but the dimensions for \type {b} can now be changed from their
+initial values that were just copies from \type {a}.
+
+\subsection{\type {img.write}}
+
+\startfunctioncall
+<image> var = img.write(<image> var)
+<image> var = img.write(<table> image_spec)
+\stopfunctioncall
+
+By \type {img.write(a)} a \PDF\ object number is allocated, and a whatsit node of
+subtype \type {pdf_refximage} is generated and put into the output list. By this
+the image \type {a} is placed into the page stream, and the image file is written
+out into an image stream object after the shipping of the current page is
+finished.
+
+Again you can do a terse call like
+
+\starttyping
+img.write ({ filename = "foo.png" })
+\stoptyping
+
+The \type {<image>} variable is returned in case you want it for later
+processing.
+
+\subsection{\type {img.immediatewrite}}
+
+\startfunctioncall
+<image> var = img.immediatewrite(<image> var)
+<image> var = img.immediatewrite(<table> image_spec)
+\stopfunctioncall
+
+By \type {img.immediatewrite(a)} a \PDF\ object number is allocated, and the
+image file for image \type {a} is written out immediately into the \PDF\ file as
+an image stream object (like with \type {\immediate}\type {\pdfximage}). The object
+number of the image stream dictionary is then available by the \type {objnum}
+key. No \type {pdf_refximage} whatsit node is generated. You will need an
+\type {img.write(a)} or \type {img.node(a)} call to let the image appear on the
+page, or reference it by another trick; else you will have a dangling image
+object in the \PDF\ file.
+
+Also here you can do a terse call like
+
+\starttyping
+a = img.immediatewrite ({ filename = "foo.png" })
+\stoptyping
+
+The \type {<image>} variable is returned and you will most likely need it.
+
+\subsection{\type {img.node}}
+
+\startfunctioncall
+<node> n = img.node(<image> var)
+<node> n = img.node(<table> image_spec)
+\stopfunctioncall
+
+This function allocates a \PDF\ object number and returns a whatsit node of
+subtype \type {pdf_refximage}, filled with the image parameters \type {width},
+\type {height}, \type {depth}, and \type {objnum}. Also here you can do a terse
+call like:
+
+\starttyping
+n = img.node ({ filename = "foo.png" })
+\stoptyping
+
+This example outputs an image:
+
+\starttyping
+node.write(img.node{filename="foo.png"})
+\stoptyping
+
+\subsection{\type {img.types}}
+
+\startfunctioncall
+<table> types = img.types()
+\stopfunctioncall
+
+This function returns a list with the supported image file type names, currently
+these are \type {pdf}, \type {png}, \type {jpg}, \type {jp2} (JPEG~2000), and
+\type {jbig2}.
+
+\subsection{\type {img.boxes}}
+
+\startfunctioncall
+<table> boxes = img.boxes()
+\stopfunctioncall
+
+This function returns a list with the supported \PDF\ page box names, currently
+these are \type {media}, \type {crop}, \type {bleed}, \type {trim}, and \type
+{art} (all in lowercase letters).
+
+\section{The \type {mplib} library}
+
+The \MP\ library interface registers itself in the table \type {mplib}. It is
+based on \MPLIB\ version \ctxlua {context(mplib.version())}.
+
+\subsection{\type {mplib.new}}
+
+To create a new \METAPOST\ instance, call
+
+\startfunctioncall
+<mpinstance> mp = mplib.new({...})
+\stopfunctioncall
+
+This creates the \type {mp} instance object. The argument hash can have a number
+of different fields, as follows:
+
+\starttabulate[|lT|l|p|p|]
+\NC \ssbf name  \NC \bf type \NC \bf description          \NC \bf default       \NC \NR
+\NC error_line  \NC number   \NC error line width         \NC 79                \NC \NR
+\NC print_line  \NC number   \NC line length in ps output \NC 100               \NC \NR
+\NC random_seed \NC number   \NC the initial random seed  \NC variable          \NC \NR
+\NC interaction \NC string   \NC the interaction mode,
+                                 one of
+                                 \type {batch},
+                                 \type {nonstop},
+                                 \type {scroll},
+                                 \type {errorstop}        \NC \type {errorstop} \NC \NR
+\NC job_name    \NC string   \NC \type {--jobname}        \NC \type {mpout}     \NC \NR
+\NC find_file   \NC function \NC a function to find files \NC only local files  \NC \NR
+\stoptabulate
+
+The \type {find_file} function should be of this form:
+
+\starttyping
+<string> found = finder (<string> name, <string> mode, <string> type)
+\stoptyping
+
+with:
+
+\starttabulate[|lT|l|p|]
+\NC \bf name \NC \bf the requested file \NC \NR
+\NC mode     \NC the file mode: \type {r} or \type {w} \NC \NR
+\NC type     \NC the kind of file, one of: \type {mp}, \type {tfm}, \type {map},
+                 \type {pfb}, \type {enc} \NC \NR
+\stoptabulate
+
+Return either the full path name of the found file, or \type {nil} if the file
+cannot be found.
+
+Note that the new version of \MPLIB\ no longer uses binary mem files, so the way
+to preload a set of macros is simply to start off with an \type {input} command
+in the first \type {mp:execute()} call.
+
+\subsection{\type {mp:statistics}}
+
+You can request statistics with:
+
+\startfunctioncall
+<table> stats = mp:statistics()
+\stopfunctioncall
+
+This function returns the vital statistics for an \MPLIB\ instance. There are
+four fields, giving the maximum number of used items in each of four allocated
+object classes:
+
+\starttabulate[|lT|l|p|]
+\NC main_memory \NC number \NC memory size \NC \NR
+\NC hash_size   \NC number \NC hash size\NC \NR
+\NC param_size  \NC number \NC simultaneous macro parameters\NC \NR
+\NC max_in_open \NC number \NC input file nesting levels\NC \NR
+\stoptabulate
+
+Note that in the new version of \MPLIB, this is informational only. The objects
+are all allocated dynamically, so there is no chance of running out of space
+unless the available system memory is exhausted.
+
+\subsection{\type {mp:execute}}
+
+You can ask the \METAPOST\ interpreter to run a chunk of code by calling
+
+\startfunctioncall
+<table> rettable = mp:execute('metapost language chunk')
+\stopfunctioncall
+
+for various bits of \METAPOST\ language input. Be sure to check the \type
+{rettable.status} (see below) because when a fatal \METAPOST\ error occurs the
+\MPLIB\ instance will become unusable thereafter.
+
+Generally speaking, it is best to keep your chunks small, but beware that all
+chunks have to obey proper syntax, like each of them is a small file. For
+instance, you cannot split a single statement over multiple chunks.
+
+In contrast with the normal stand alone \type {mpost} command, there is {\em no}
+implied \quote{input} at the start of the first chunk.
+
+\subsection{\type {mp:finish}}
+
+\startfunctioncall
+<table> rettable = mp:finish()
+\stopfunctioncall
+
+If for some reason you want to stop using an \MPLIB\ instance while processing is
+not yet actually done, you can call \type {mp:finish}. Eventually, used memory
+will be freed and open files will be closed by the \LUA\ garbage collector, but
+an explicit \type {mp:finish} is the only way to capture the final part of the
+output streams.
+
+\subsection{Result table}
+
+The return value of \type {mp:execute} and \type {mp:finish} is a table with a
+few possible keys (only \type {status} is always guaranteed to be present).
+
+\starttabulate[|l|l|p|]
+\NC log    \NC string \NC output to the \quote {log} stream \NC \NR
+\NC term   \NC string \NC output to the \quote {term} stream \NC \NR
+\NC error  \NC string \NC output to the \quote {error} stream
+                          (only used for \quote {out of memory}) \NC \NR
+\NC status \NC number \NC the return value:
+                          \type {0} = good,
+                          \type {1} = warning,
+                          \type {2} = errors,
+                          \type {3} = fatal error \NC \NR
+\NC fig    \NC table  \NC an array of generated figures (if any) \NC \NR
+\stoptabulate
+
+When \type {status} equals~3, you should stop using this \MPLIB\ instance
+immediately, it is no longer capable of processing input.
+
+If it is present, each of the entries in the \type {fig} array is a userdata
+representing a figure object, and each of those has a number of object methods
+you can call:
+
+\starttabulate[|l|l|p|]
+\NC boundingbox  \NC function \NC returns the bounding box, as an array of 4
+                                  values\NC \NR
+\NC postscript   \NC function \NC returns a string that is the ps output of the
+                                  \type {fig}. this function accepts two optional
+                                  integer arguments for specifying the values of
+                                  \type {prologues} (first argument) and \type
+                                  {procset} (second argument)\NC \NR
+\NC svg          \NC function \NC returns a string that is the svg output of the
+                                  \type {fig}. This function accepts an optional
+                                  integer argument for specifying the value of
+                                  \type {prologues}\NC \NR
+\NC objects      \NC function \NC returns the actual array of graphic objects in
+                                  this \type {fig} \NC \NR
+\NC copy_objects \NC function \NC returns a deep copy of the array of graphic
+                                  objects in this \type {fig} \NC \NR
+\NC filename     \NC function \NC the filename this \type {fig}'s \POSTSCRIPT\
+                                  output would have written to in stand alone
+                                  mode \NC \NR
+\NC width        \NC function \NC the \type {fontcharwd} value \NC \NR
+\NC height       \NC function \NC the \type {fontcharht} value \NC \NR
+\NC depth        \NC function \NC the \type {fontchardp} value \NC \NR
+\NC italcorr     \NC function \NC the \type {fontcharit} value \NC \NR
+\NC charcode     \NC function \NC the (rounded) \type {charcode} value \NC \NR
+\stoptabulate
+
+Note: you can call \type {fig:objects()} only once for any one \type {fig}
+object!
+
+When the boundingbox represents a \quote {negated rectangle}, i.e.\ when the
+first set of coordinates is larger than the second set, the picture is empty.
+
+Graphical objects come in various types that each has a different list of
+accessible values. The types are: \type {fill}, \type {outline}, \type {text},
+\type {start_clip}, \type {stop_clip}, \type {start_bounds}, \type {stop_bounds},
+\type {special}.
+
+There is helper function (\type {mplib.fields(obj)}) to get the list of
+accessible values for a particular object, but you can just as easily use the
+tables given below.
+
+All graphical objects have a field \type {type} that gives the object type as a
+string value; it is not explicit mentioned in the following tables. In the
+following, \type {number}s are \POSTSCRIPT\ points represented as a floating
+point number, unless stated otherwise. Field values that are of type \type
+{table} are explained in the next section.
+
+\subsubsection{fill}
+
+\starttabulate[|l|l|p|]
+\NC path       \NC table  \NC the list of knots \NC \NR
+\NC htap       \NC table  \NC the list of knots for the reversed trajectory \NC \NR
+\NC pen        \NC table  \NC knots of the pen \NC \NR
+\NC color      \NC table  \NC the object's color \NC \NR
+\NC linejoin   \NC number \NC line join style (bare number)\NC \NR
+\NC miterlimit \NC number \NC miterlimit\NC \NR
+\NC prescript  \NC string \NC the prescript text \NC \NR
+\NC postscript \NC string \NC the postscript text \NC \NR
+\stoptabulate
+
+The entries \type {htap} and \type {pen} are optional.
+
+There is helper function (\type {mplib.pen_info(obj)}) that returns a table
+containing a bunch of vital characteristics of the used pen (all values are
+floats):
+
+\starttabulate[|l|l|p|]
+\NC width \NC number \NC width of the pen \NC \NR
+\NC sx    \NC number \NC $x$ scale        \NC \NR
+\NC rx    \NC number \NC $xy$ multiplier  \NC \NR
+\NC ry    \NC number \NC $yx$ multiplier  \NC \NR
+\NC sy    \NC number \NC $y$ scale        \NC \NR
+\NC tx    \NC number \NC $x$ offset       \NC \NR
+\NC ty    \NC number \NC $y$ offset       \NC \NR
+\stoptabulate
+
+\subsubsection{outline}
+
+\starttabulate[|l|l|p|]
+\NC path       \NC table  \NC the list of knots \NC \NR
+\NC pen        \NC table  \NC knots of the pen \NC \NR
+\NC color      \NC table  \NC the object's color \NC \NR
+\NC linejoin   \NC number \NC line join style (bare number) \NC \NR
+\NC miterlimit \NC number \NC miterlimit \NC \NR
+\NC linecap    \NC number \NC line cap style (bare number) \NC \NR
+\NC dash       \NC table  \NC representation of a dash list \NC \NR
+\NC prescript  \NC string \NC the prescript text \NC \NR
+\NC postscript \NC string \NC the postscript text \NC \NR
+\stoptabulate
+
+The entry \type {dash} is optional.
+
+\subsubsection{text}
+
+\starttabulate[|l|l|p|]
+\NC text       \NC string \NC the text \NC \NR
+\NC font       \NC string \NC font tfm name \NC \NR
+\NC dsize      \NC number \NC font size \NC \NR
+\NC color      \NC table  \NC the object's color \NC \NR
+\NC width      \NC number \NC \NC \NR
+\NC height     \NC number \NC \NC \NR
+\NC depth      \NC number \NC \NC \NR
+\NC transform  \NC table  \NC a text transformation \NC \NR
+\NC prescript  \NC string \NC the prescript text \NC \NR
+\NC postscript \NC string \NC the postscript text \NC \NR
+\stoptabulate
+
+\subsubsection{special}
+
+\starttabulate[|l|l|p|]
+\NC prescript \NC string \NC special text \NC \NR
+\stoptabulate
+
+\subsubsection{start_bounds, start_clip}
+
+\starttabulate[|l|l|p|]
+\NC path \NC table \NC the list of knots \NC \NR
+\stoptabulate
+
+\subsubsection{stop_bounds, stop_clip}
+
+Here are no fields available.
+
+\subsection{Subsidiary table formats}
+
+\subsubsection{Paths and pens}
+
+Paths and pens (that are really just a special type of paths as far as \MPLIB\ is
+concerned) are represented by an array where each entry is a table that
+represents a knot.
+
+\starttabulate[|lT|l|p|]
+\NC left_type   \NC string \NC when present: endpoint, but usually absent \NC \NR
+\NC right_type  \NC string \NC like \type {left_type} \NC \NR
+\NC x_coord     \NC number \NC X coordinate of this knot \NC \NR
+\NC y_coord     \NC number \NC Y coordinate of this knot \NC \NR
+\NC left_x      \NC number \NC X coordinate of the precontrol point of this knot \NC \NR
+\NC left_y      \NC number \NC Y coordinate of the precontrol point of this knot \NC \NR
+\NC right_x     \NC number \NC X coordinate of the postcontrol point of this knot \NC \NR
+\NC right_y     \NC number \NC Y coordinate of the postcontrol point of this knot \NC \NR
+\stoptabulate
+
+There is one special case: pens that are (possibly transformed) ellipses have an
+extra string-valued key \type {type} with value \type {elliptical} besides the
+array part containing the knot list.
+
+\subsubsection{Colors}
+
+A color is an integer array with 0, 1, 3 or 4 values:
+
+\starttabulate[|l|l|p|]
+\NC 0 \NC marking only \NC no values                                                     \NC \NR
+\NC 1 \NC greyscale    \NC one value in the range $(0,1)$, \quote {black} is $0$         \NC \NR
+\NC 3 \NC \RGB         \NC three values in the range $(0,1)$, \quote {black} is $0,0,0$  \NC \NR
+\NC 4 \NC \CMYK        \NC four values in the range $(0,1)$, \quote {black} is $0,0,0,1$ \NC \NR
+\stoptabulate
+
+If the color model of the internal object was \type {uninitialized}, then it was
+initialized to the values representing \quote {black} in the colorspace \type
+{defaultcolormodel} that was in effect at the time of the \type {shipout}.
+
+\subsubsection{Transforms}
+
+Each transform is a six|-|item array.
+
+\starttabulate[|l|l|p|]
+\NC 1 \NC number \NC represents x  \NC \NR
+\NC 2 \NC number \NC represents y  \NC \NR
+\NC 3 \NC number \NC represents xx \NC \NR
+\NC 4 \NC number \NC represents yx \NC \NR
+\NC 5 \NC number \NC represents xy \NC \NR
+\NC 6 \NC number \NC represents yy \NC \NR
+\stoptabulate
+
+Note that the translation (index 1 and 2) comes first. This differs from the
+ordering in \POSTSCRIPT, where the translation comes last.
+
+\subsubsection{Dashes}
+
+Each \type {dash} is two-item hash, using the same model as \POSTSCRIPT\ for the
+representation of the dashlist. \type {dashes} is an array of \quote {on} and
+\quote {off}, values, and \type {offset} is the phase of the pattern.
+
+\starttabulate[|l|l|p|]
+\NC dashes \NC hash   \NC an array of on-off numbers \NC \NR
+\NC offset \NC number \NC the starting offset value  \NC \NR
+\stoptabulate
+
+\subsection{Character size information}
+
+These functions find the size of a glyph in a defined font. The \type {fontname}
+is the same name as the argument to \type {infont}; the \type {char} is a glyph
+id in the range 0 to 255; the returned \type {w} is in AFM units.
+
+\subsubsection{\type {mp:char_width}}
+
+\startfunctioncall
+<number> w = mp:char_width(<string> fontname, <number> char)
+\stopfunctioncall
+
+\subsubsection{\type {mp:char_height}}
+
+\startfunctioncall
+<number> w = mp:char_height(<string> fontname, <number> char)
+\stopfunctioncall
+
+\subsubsection{\type {mp:char_depth}}
+
+\startfunctioncall
+<number> w = mp:char_depth(<string> fontname, <number> char)
+\stopfunctioncall
+
+\stopchapter

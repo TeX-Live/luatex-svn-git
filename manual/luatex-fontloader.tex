@@ -1,0 +1,1066 @@
+% language=uk
+
+\environment luatex-style
+\environment luatex-logos
+
+\startcomponent luatex-fontloader
+
+\startchapter[reference=fontloader,title={The fontloader}]
+
+The fontloader library is sort of independent of the rest in the sense that it
+can load font into a \LUA\ table that then can be converted into a table suitable
+for \TEX. The library is an adapted subset of \FONTFORGE\ and as such gives a
+similar view on a font (which has advantages when you want to debug.)
+
+\section{Getting quick information on a font}
+
+When you want to locate font by name you need some basic information that is
+hidden in the font files. For that reason we provide an efficient helper that
+gets the basic information without loading all of the font. Normally this helper
+is used to create a font (name) database.
+
+\startfunctioncall
+<table> info =
+    fontloader.info(<string> filename)
+\stopfunctioncall
+
+This function returns either \type {nil}, or a \type {table}, or an array of
+small tables (in the case of a \TRUETYPE\ collection). The returned table(s) will
+contain some fairly interesting information items from the font(s) defined by the
+file:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key    \NC \bf type \NC \bf explanation \NC \NR
+\NC fontname     \NC string   \NC the \POSTSCRIPT\ name of the font\NC \NR
+\NC fullname     \NC string   \NC the formal name of the font\NC \NR
+\NC familyname   \NC string   \NC the family name this font belongs to\NC \NR
+\NC weight       \NC string   \NC a string indicating the color value of the font\NC \NR
+\NC version      \NC string   \NC the internal font version\NC \NR
+\NC italicangle  \NC float    \NC the slant angle\NC \NR
+\NC units_per_em \NC number   \NC 1000 for \POSTSCRIPT-based fonts, usually 2048 for \TRUETYPE\NC \NR
+\NC pfminfo      \NC table    \NC (see \in{section}[fontloaderpfminfotable])\NC \NR
+\stoptabulate
+
+Getting information through this function is (sometimes much) more efficient than
+loading the font properly, and is therefore handy when you want to create a
+dictionary of available fonts based on a directory contents.
+
+\section{Loading an \OPENTYPE\ or \TRUETYPE\ file}
+
+If you want to use an \OPENTYPE\ font, you have to get the metric information
+from somewhere. Using the \type {fontloader} library, the simplest way to get
+that information is thus:
+
+\starttyping
+function load_font (filename)
+  local metrics = nil
+  local font = fontloader.open(filename)
+  if font then
+     metrics = fontloader.to_table(font)
+     fontloader.close(font)
+  end
+  return metrics
+end
+
+myfont = load_font('/opt/tex/texmf/fonts/data/arial.ttf')
+\stoptyping
+
+The main function call is
+
+\startfunctioncall
+<userdata> f, <table> w = fontloader.open(<string> filename)
+<userdata> f, <table> w = fontloader.open(<string> filename, <string> fontname)
+\stopfunctioncall
+
+The first return value is a userdata representation of the font. The second
+return value is a table containing any warnings and errors reported by fontloader
+while opening the font. In normal typesetting, you would probably ignore the
+second argument, but it can be useful for debugging purposes.
+
+For \TRUETYPE\ collections (when filename ends in 'ttc') and \DFONT\ collections,
+you have to use a second string argument to specify which font you want from the
+collection. Use the \type {fontname} strings that are returned by \type
+{fontloader.info} for that.
+
+To turn the font into a table, \type {fontloader.to_table} is used on the font
+returned by \type {fontloader.open}.
+
+\startfunctioncall
+<table> f = fontloader.to_table(<userdata> font)
+\stopfunctioncall
+
+This table cannot be used directly by \LUATEX\ and should be turned into another
+one as described in~\in {chapter} [fonts]. Do not forget to store the \type
+{fontname} value in the \type {psname} field of the metrics table to be returned
+to \LUATEX, otherwise the font inclusion backend will not be able to find the
+correct font in the collection.
+
+See \in {section} [fontloadertables] for details on the userdata object returned
+by \type {fontloader.open()} and the layout of the \type {metrics} table returned
+by \type {fontloader.to_table()}.
+
+The font file is parsed and partially interpreted by the font loading routines
+from \FONTFORGE. The file format can be \OPENTYPE, \TRUETYPE, \TRUETYPE\
+Collection, \CFF, or \TYPEONE.
+
+There are a few advantages to this approach compared to reading the actual font
+file ourselves:
+
+\startitemize
+
+\startitem
+    The font is automatically re|-|encoded, so that the \type {metrics} table for
+    \TRUETYPE\ and \OPENTYPE\ fonts is using \UNICODE\ for the character indices.
+\stopitem
+
+\startitem
+    Many features are pre|-|processed into a format that is easier to handle than
+    just the bare tables would be.
+\stopitem
+
+\startitem
+    \POSTSCRIPT|-|based \OPENTYPE\ fonts do not store the character height and
+    depth in the font file, so the character boundingbox has to be calculated in
+    some way.
+\stopitem
+
+\startitem
+    In the future, it may be interesting to allow \LUA\ scripts access to
+    the font program itself, perhaps even creating or changing the font.
+\stopitem
+
+\stopitemize
+
+A loaded font is discarded with:
+
+\startfunctioncall
+fontloader.close(<userdata> font)
+\stopfunctioncall
+
+\section{Applying a \quote{feature file}}
+
+You can apply a \quote{feature file} to a loaded font:
+
+\startfunctioncall
+<table> errors = fontloader.apply_featurefile(<userdata> font, <string> filename)
+\stopfunctioncall
+
+A \quote {feature file} is a textual representation of the features in an
+\OPENTYPE\ font. See
+
+\starttyping
+http://www.adobe.com/devnet/opentype/afdko/topic_feature_file_syntax.html
+\stoptyping
+
+and
+
+\starttyping
+http://fontforge.sourceforge.net/featurefile.html
+\stoptyping
+
+for a more detailed description of feature files.
+
+If the function fails, the return value is a table containing any errors reported
+by fontloader while applying the feature file. On success, \type {nil} is
+returned.
+
+\section{Applying an \quote{\AFM\ file}}
+
+You can apply an \quote {\AFM\ file} to a loaded font:
+
+\startfunctioncall
+<table> errors = fontloader.apply_afmfile(<userdata> font, <string> filename)
+\stopfunctioncall
+
+An \AFM\ file is a textual representation of (some of) the meta information
+in a \TYPEONE\ font. See
+
+\starttyping
+ftp://ftp.math.utah.edu/u/ma/hohn/linux/postscript/5004.AFM_Spec.pdf
+\stoptyping
+
+for more information about \AFM\ files.
+
+Note: If you \type {fontloader.open()} a \TYPEONE\ file named \type {font.pfb},
+the library will automatically search for and apply \type {font.afm} if it exists
+in the same directory as the file \type {font.pfb}. In that case, there is no
+need for an explicit call to \type {apply_afmfile()}.
+
+If the function fails, the return value is a table containing any errors reported
+by fontloader while applying the AFM file. On success, \type {nil} is returned.
+
+\section[fontloadertables]{Fontloader font tables}
+
+As mentioned earlier, the return value of \type {fontloader.open()} is a userdata
+object. One way to have access to the actual metrics is to call \type
+{fontloader.to_table()} on this object, returning the table structure that is
+explained in the following sections. In teh following sections we will not
+explain each field in detail. Most fields are self descriptive and for the more
+technical aspects you need to consult the relevant font references.
+
+It turns out that the result from \type {fontloader.to_table()} sometimes needs
+very large amounts of memory (depending on the font's complexity and size) so it
+is possible to access the userdata object directly.
+
+\startitemize
+\startitem
+    All top|-|level keys that would be returned by \type {to_table()}
+    can also be accessed directly.
+\stopitem
+\startitem
+    The top|-|level key \quote {glyphs} returns a {\it virtual\/} array that
+    allows indices from \type {f.glyphmin} to (\type {f.glyphmax}).
+\stopitem
+\startitem
+    The items in that virtual array (the actual glyphs) are themselves also
+    userdata objects, and each has accessors for all of the keys explained in the
+    section \quote {Glyph items} below.
+\stopitem
+\startitem
+    The top|-|level key \quote {subfonts} returns an {\it actual} array of userdata
+    objects, one for each of the subfonts (or nil, if there are no subfonts).
+\stopitem
+\stopitemize
+
+A short example may be helpful. This code generates a printout of all
+the glyph names in the font \type {PunkNova.kern.otf}:
+
+\starttyping
+local f = fontloader.open('PunkNova.kern.otf')
+print (f.fontname)
+local i = 0
+if f.glyphcnt > 0 then
+    for i=f.glyphmin,f.glyphmax do
+       local g = f.glyphs[i]
+       if g then
+          print(g.name)
+       end
+       i = i + 1
+    end
+end
+fontloader.close(f)
+\stoptyping
+
+In this case, the \LUATEX\ memory requirement stays below 100MB on the test
+computer, while the internal structure generated by \type {to_table()} needs more
+than 2GB of memory (the font itself is 6.9MB in disk size).
+
+Only the top|-|level font, the subfont table entries, and the glyphs are virtual
+objects, everything else still produces normal \LUA\ values and tables.
+
+If you want to know the valid fields in a font or glyph structure, call the \type
+{fields} function on an object of a particular type (either glyph or font):
+
+\startfunctioncall
+<table> fields = fontloader.fields(<userdata> font)
+<table> fields = fontloader.fields(<userdata> font_glyph)
+\stopfunctioncall
+
+For instance:
+
+\startfunctioncall
+local fields = fontloader.fields(f)
+local fields = fontloader.fields(f.glyphs[0])
+\stopfunctioncall
+
+\subsection{Table types}
+
+\subsubsection{Top-level}
+
+The top|-|level keys in the returned table are (the explanations in this part of
+the documentation are not yet finished):
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key                    \NC \bf type \NC \bf explanation \NC \NR
+\NC table_version                \NC number   \NC indicates the metrics version (currently~0.3)\NC \NR
+\NC fontname                     \NC string   \NC \POSTSCRIPT\ font name\NC \NR
+\NC fullname                     \NC string   \NC official (human-oriented) font name\NC \NR
+\NC familyname                   \NC string   \NC family name\NC \NR
+\NC weight                       \NC string   \NC weight indicator\NC \NR
+\NC copyright                    \NC string   \NC copyright information\NC \NR
+\NC filename                     \NC string   \NC the file name\NC \NR
+\NC version                      \NC string   \NC font version\NC \NR
+\NC italicangle                  \NC float    \NC slant angle\NC \NR
+\NC units_per_em                 \NC number   \NC 1000 for \POSTSCRIPT-based fonts, usually 2048 for \TRUETYPE\NC \NR
+\NC ascent                       \NC number   \NC height of ascender in \type {units_per_em}\NC \NR
+\NC descent                      \NC number   \NC depth of descender in \type {units_per_em}\NC \NR
+\NC upos                         \NC float    \NC \NC \NR
+\NC uwidth                       \NC float    \NC \NC \NR
+\NC uniqueid                     \NC number   \NC \NC \NR
+\NC glyphs                       \NC array    \NC \NC \NR
+\NC glyphcnt                     \NC number   \NC number of included glyphs\NC \NR
+\NC glyphmax                     \NC number   \NC maximum used index the glyphs array\NC \NR
+\NC glyphmin                     \NC number   \NC minimum used index the glyphs array\NC \NR
+\NC notdef_loc                   \NC number   \NC location of the \type {.notdef} glyph
+                                                  or \type {-1} when not present \NC \NR
+\NC hasvmetrics                  \NC number   \NC \NC \NR
+\NC onlybitmaps                  \NC number   \NC \NC \NR
+\NC serifcheck                   \NC number   \NC \NC \NR
+\NC isserif                      \NC number   \NC \NC \NR
+\NC issans                       \NC number   \NC \NC \NR
+\NC encodingchanged              \NC number   \NC \NC \NR
+\NC strokedfont                  \NC number   \NC \NC \NR
+\NC use_typo_metrics             \NC number   \NC \NC \NR
+\NC weight_width_slope_only      \NC number   \NC \NC \NR
+\NC head_optimized_for_cleartype \NC number   \NC \NC \NR
+\NC uni_interp                   \NC enum     \NC \type {unset}, \type {none}, \type {adobe},
+                                                  \type {greek}, \type {japanese}, \type {trad_chinese},
+                                                  \type {simp_chinese}, \type {korean}, \type {ams}\NC \NR
+\NC origname                     \NC string   \NC the file name, as supplied by the user\NC \NR
+\NC map                          \NC table    \NC \NC \NR
+\NC private                      \NC table    \NC \NC \NR
+\NC xuid                         \NC string   \NC \NC \NR
+\NC pfminfo                      \NC table    \NC \NC \NR
+\NC names                        \NC table    \NC \NC \NR
+\NC cidinfo                      \NC table    \NC \NC \NR
+\NC subfonts                     \NC array    \NC \NC \NR
+\NC commments                    \NC string   \NC \NC \NR
+\NC fontlog                      \NC string   \NC \NC \NR
+\NC cvt_names                    \NC string   \NC \NC \NR
+\NC anchor_classes               \NC table    \NC \NC \NR
+\NC ttf_tables                   \NC table    \NC \NC \NR
+\NC ttf_tab_saved                \NC table    \NC \NC \NR
+\NC kerns                        \NC table    \NC \NC \NR
+\NC vkerns                       \NC table    \NC \NC \NR
+\NC texdata                      \NC table    \NC \NC \NR
+\NC lookups                      \NC table    \NC \NC \NR
+\NC gpos                         \NC table    \NC \NC \NR
+\NC gsub                         \NC table    \NC \NC \NR
+\NC mm                           \NC table    \NC \NC \NR
+\NC chosenname                   \NC string   \NC \NC \NR
+\NC macstyle                     \NC number   \NC \NC \NR
+\NC fondname                     \NC string   \NC \NC \NR
+%NC design_size                  \NC number   \NC \NC \NR
+\NC fontstyle_id                 \NC number   \NC \NC \NR
+\NC fontstyle_name               \NC table    \NC \NC \NR
+%NC design_range_bottom          \NC number   \NC \NC \NR
+%NC design_range_top             \NC number   \NC \NC \NR
+\NC strokewidth                  \NC float    \NC \NC \NR
+\NC mark_classes                 \NC table    \NC \NC \NR
+\NC creationtime                 \NC number   \NC \NC \NR
+\NC modificationtime             \NC number   \NC \NC \NR
+\NC os2_version                  \NC number   \NC \NC \NR
+\NC sfd_version                  \NC number   \NC \NC \NR
+\NC math                         \NC table    \NC \NC \NR
+\NC validation_state             \NC table    \NC \NC \NR
+\NC horiz_base                   \NC table    \NC \NC \NR
+\NC vert_base                    \NC table    \NC \NC \NR
+\NC extrema_bound                \NC number   \NC \NC \NR
+\NC truetype                     \NC boolean  \NC signals a \TRUETYPE\ font \NC \NR
+\stoptabulate
+
+\subsubsection{Glyph items}
+
+The \type {glyphs} is an array containing the per|-|character
+information (quite a few of these are only present if nonzero).
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key         \NC \bf type \NC \bf explanation \NC \NR
+\NC name              \NC string   \NC the glyph name \NC \NR
+\NC unicode           \NC number   \NC unicode code point, or -1 \NC \NR
+\NC boundingbox       \NC array    \NC array of four numbers, see note below \NC \NR
+\NC width             \NC number   \NC only for horizontal fonts \NC \NR
+\NC vwidth            \NC number   \NC only for vertical fonts \NC \NR
+\NC tsidebearing      \NC number   \NC only for vertical ttf/otf fonts, and only if nonzero \NC \NR
+\NC lsidebearing      \NC number   \NC only if nonzero and not equal to boundingbox[1] \NC \NR
+\NC class             \NC string   \NC one of "none", "base", "ligature", "mark", "component"
+                                       (if not present, the glyph class is \quote {automatic}) \NC \NR
+\NC kerns             \NC array    \NC only for horizontal fonts, if set \NC \NR
+\NC vkerns            \NC array    \NC only for vertical fonts, if set \NC \NR
+\NC dependents        \NC array    \NC linear array of glyph name strings, only if nonempty\NC \NR
+\NC lookups           \NC table    \NC only if nonempty \NC \NR
+\NC ligatures         \NC table    \NC only if nonempty \NC \NR
+\NC anchors           \NC table    \NC only if set \NC \NR
+\NC comment           \NC string   \NC only if set \NC \NR
+\NC tex_height        \NC number   \NC only if set \NC \NR
+\NC tex_depth         \NC number   \NC only if set \NC \NR
+\NC italic_correction \NC number   \NC only if set \NC \NR
+\NC top_accent        \NC number   \NC only if set \NC \NR
+\NC is_extended_shape \NC number   \NC only if this character is part of a math extension list \NC \NR
+\NC altuni            \NC table    \NC alternate \UNICODE\ items \NC \NR
+\NC vert_variants     \NC table    \NC \NC \NR
+\NC horiz_variants    \NC table    \NC \NC \NR
+\NC mathkern          \NC table    \NC \NC \NR
+\stoptabulate
+
+On \type {boundingbox}: The boundingbox information for \TRUETYPE\ fonts and
+\TRUETYPE-based \OTF\ fonts is read directly from the font file.
+\POSTSCRIPT-based fonts do not have this information, so the boundingbox of
+traditional \POSTSCRIPT\ fonts is generated by interpreting the actual bezier
+curves to find the exact boundingbox. This can be a slow process, so the
+boundingboxes of \POSTSCRIPT-based \OTF\ fonts (and raw \CFF\ fonts) are
+calculated using an approximation of the glyph shape based on the actual glyph
+points only, instead of taking the whole curve into account. This means that
+glyphs that have missing points at extrema will have a too|-|tight boundingbox,
+but the processing is so much faster that in our opinion the tradeoff is worth
+it.
+
+The \type {kerns} and \type {vkerns} are linear arrays of small hashes:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC char      \NC string   \NC \NC \NR
+\NC off       \NC number   \NC \NC \NR
+\NC lookup    \NC string   \NC \NC \NR
+\stoptabulate
+
+The \type {lookups} is a hash, based on lookup subtable names, with
+the value of each key inside that a linear array of small hashes:
+
+% TODO: fix this description
+\starttabulate[|lT|l|p|]
+\NC \rmbf key     \NC \bf type \NC \bf explanation \NC \NR
+\NC type          \NC enum     \NC \type {position}, \type {pair}, \type
+                                   {substitution}, \type {alternate}, \type
+                                   {multiple}, \type {ligature}, \type {lcaret},
+                                   \type {kerning}, \type {vkerning}, \type
+                                   {anchors}, \type {contextpos}, \type
+                                   {contextsub}, \type {chainpos}, \type
+                                   {chainsub}, \type {reversesub}, \type {max},
+                                   \type {kernback}, \type {vkernback} \NC \NR
+\NC specification \NC table    \NC extra data \NC \NR
+\stoptabulate
+
+For the first seven values of \type {type}, there can be additional
+sub|-|information, stored in the sub-table \type {specification}:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf value  \NC \bf type \NC \bf explanation \NC \NR
+\NC position     \NC table    \NC a table of the \type {offset_specs} type \NC \NR
+\NC pair         \NC table    \NC one string: \type {paired}, and an array of one
+                                  or two \type {offset_specs} tables: \type
+                                  {offsets} \NC \NR
+\NC substitution \NC table    \NC one string: \type {variant} \NC \NR
+\NC alternate    \NC table    \NC one string: \type {components} \NC \NR
+\NC multiple     \NC table    \NC one string: \type {components} \NC \NR
+\NC ligature     \NC table    \NC two strings: \type {components}, \type {char} \NC \NR
+\NC lcaret       \NC array    \NC linear array of numbers \NC \NR
+\stoptabulate
+
+Tables for \type {offset_specs} contain up to four number|-|valued fields: \type
+{x} (a horizontal offset), \type {y} (a vertical offset), \type {h} (an advance
+width correction) and \type {v} (an advance height correction).
+
+The \type {ligatures} is a linear array of small hashes:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key  \NC \bf type \NC \bf explanation \NC \NR
+\NC lig        \NC table    \NC uses the same substructure as a single item in
+                                the \type {lookups} table explained above \NC \NR
+\NC char       \NC string   \NC \NC \NR
+\NC components \NC array    \NC linear array of named components \NC \NR
+\NC ccnt       \NC number   \NC \NC \NR
+\stoptabulate
+
+The \type {anchor} table is indexed by a string signifying the anchor type, which
+is one of
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC mark      \NC table    \NC placement mark \NC \NR
+\NC basechar  \NC table    \NC mark for attaching combining items to a base char \NC \NR
+\NC baselig   \NC table    \NC mark for attaching combining items to a ligature \NC \NR
+\NC basemark  \NC table    \NC generic mark for attaching combining items to connect to \NC \NR
+\NC centry    \NC table    \NC cursive entry point \NC \NR
+\NC cexit     \NC table    \NC cursive exit point \NC \NR
+\stoptabulate
+
+The content of these is a short array of defined anchors, with the
+entry keys being the anchor names. For all except \type {baselig}, the
+value is a single table with this definition:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key    \NC \bf type \NC \bf explanation \NC \NR
+\NC x            \NC number   \NC x location \NC \NR
+\NC y            \NC number   \NC y location \NC \NR
+\NC ttf_pt_index \NC number   \NC truetype point index, only if given \NC \NR
+\stoptabulate
+
+For \type {baselig}, the value is a small array of such anchor sets sets, one for
+each constituent item of the ligature.
+
+For clarification, an anchor table could for example look like this :
+
+\starttyping
+['anchor'] = {
+    ['basemark'] = {
+        ['Anchor-7'] = { ['x']=170, ['y']=1080 }
+    },
+    ['mark'] ={
+        ['Anchor-1'] = { ['x']=160, ['y']=810 },
+        ['Anchor-4'] = { ['x']=160, ['y']=800 }
+    },
+    ['baselig'] = {
+        [1] = { ['Anchor-2'] = { ['x']=160, ['y']=650 } },
+        [2] = { ['Anchor-2'] = { ['x']=460, ['y']=640 } }
+        }
+    }
+\stoptyping
+
+Note: The \type {baselig} table can be sparse!
+
+\subsubsection{map table}
+
+The top|-|level map is a list of encoding mappings. Each of those is a table
+itself.
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC enccount  \NC number   \NC \NC \NR
+\NC encmax    \NC number   \NC \NC \NR
+\NC backmax   \NC number   \NC \NC \NR
+\NC remap     \NC table    \NC \NC \NR
+\NC map       \NC array    \NC non|-|linear array of mappings\NC \NR
+\NC backmap   \NC array    \NC non|-|linear array of backward mappings\NC \NR
+\NC enc       \NC table    \NC \NC \NR
+\stoptabulate
+
+The \type {remap} table is very small:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC firstenc  \NC number   \NC \NC \NR
+\NC lastenc   \NC number   \NC \NC \NR
+\NC infont    \NC number   \NC \NC \NR
+\stoptabulate
+
+The \type {enc} table is a bit more verbose:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key        \NC \bf type \NC \bf explanation \NC \NR
+\NC enc_name         \NC string   \NC \NC \NR
+\NC char_cnt         \NC number   \NC \NC \NR
+\NC char_max         \NC number   \NC \NC \NR
+\NC unicode          \NC array    \NC of \UNICODE\ position numbers\NC \NR
+\NC psnames          \NC array    \NC of \POSTSCRIPT\ glyph names\NC \NR
+\NC builtin          \NC number   \NC \NC \NR
+\NC hidden           \NC number   \NC \NC \NR
+\NC only_1byte       \NC number   \NC \NC \NR
+\NC has_1byte        \NC number   \NC \NC \NR
+\NC has_2byte        \NC number   \NC \NC \NR
+\NC is_unicodebmp    \NC number   \NC only if nonzero\NC \NR
+\NC is_unicodefull   \NC number   \NC only if nonzero\NC \NR
+\NC is_custom        \NC number   \NC only if nonzero\NC \NR
+\NC is_original      \NC number   \NC only if nonzero\NC \NR
+\NC is_compact       \NC number   \NC only if nonzero\NC \NR
+\NC is_japanese      \NC number   \NC only if nonzero\NC \NR
+\NC is_korean        \NC number   \NC only if nonzero\NC \NR
+\NC is_tradchinese   \NC number   \NC only if nonzero [name?]\NC \NR
+\NC is_simplechinese \NC number   \NC only if nonzero\NC \NR
+\NC low_page         \NC number   \NC \NC \NR
+\NC high_page        \NC number   \NC \NC \NR
+\NC iconv_name       \NC string   \NC \NC \NR
+\NC iso_2022_escape  \NC string   \NC \NC \NR
+\stoptabulate
+
+\subsubsection{private table}
+
+This is the font's private \POSTSCRIPT\ dictionary, if any. Keys and values are
+both strings.
+
+\subsubsection{cidinfo table}
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key  \NC \bf type \NC \bf explanation \NC \NR
+\NC registry   \NC string   \NC \NC \NR
+\NC ordering   \NC string   \NC \NC \NR
+\NC supplement \NC number   \NC \NC \NR
+\NC version    \NC number   \NC \NC \NR
+\stoptabulate
+
+\subsubsection[fontloaderpfminfotable]{pfminfo table}
+
+The \type {pfminfo} table contains most of the OS/2 information:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key        \NC \bf type \NC \bf explanation \NC \NR
+\NC pfmset           \NC number   \NC \NC \NR
+\NC winascent_add    \NC number   \NC \NC \NR
+\NC windescent_add   \NC number   \NC \NC \NR
+\NC hheadascent_add  \NC number   \NC \NC \NR
+\NC hheaddescent_add \NC number   \NC \NC \NR
+\NC typoascent_add   \NC number   \NC \NC \NR
+\NC typodescent_add  \NC number   \NC \NC \NR
+\NC subsuper_set     \NC number   \NC \NC \NR
+\NC panose_set       \NC number   \NC \NC \NR
+\NC hheadset         \NC number   \NC \NC \NR
+\NC vheadset         \NC number   \NC \NC \NR
+\NC pfmfamily        \NC number   \NC \NC \NR
+\NC weight           \NC number   \NC \NC \NR
+\NC width            \NC number   \NC \NC \NR
+\NC avgwidth         \NC number   \NC \NC \NR
+\NC firstchar        \NC number   \NC \NC \NR
+\NC lastchar         \NC number   \NC \NC \NR
+\NC fstype           \NC number   \NC \NC \NR
+\NC linegap          \NC number   \NC \NC \NR
+\NC vlinegap         \NC number   \NC \NC \NR
+\NC hhead_ascent     \NC number   \NC \NC \NR
+\NC hhead_descent    \NC number   \NC \NC \NR
+\NC os2_typoascent   \NC number   \NC \NC \NR
+\NC os2_typodescent  \NC number   \NC \NC \NR
+\NC os2_typolinegap  \NC number   \NC \NC \NR
+\NC os2_winascent    \NC number   \NC \NC \NR
+\NC os2_windescent   \NC number   \NC \NC \NR
+\NC os2_subxsize     \NC number   \NC \NC \NR
+\NC os2_subysize     \NC number   \NC \NC \NR
+\NC os2_subxoff      \NC number   \NC \NC \NR
+\NC os2_subyoff      \NC number   \NC \NC \NR
+\NC os2_supxsize     \NC number   \NC \NC \NR
+\NC os2_supysize     \NC number   \NC \NC \NR
+\NC os2_supxoff      \NC number   \NC \NC \NR
+\NC os2_supyoff      \NC number   \NC \NC \NR
+\NC os2_strikeysize  \NC number   \NC \NC \NR
+\NC os2_strikeypos   \NC number   \NC \NC \NR
+\NC os2_family_class \NC number   \NC \NC \NR
+\NC os2_xheight      \NC number   \NC \NC \NR
+\NC os2_capheight    \NC number   \NC \NC \NR
+\NC os2_defaultchar  \NC number   \NC \NC \NR
+\NC os2_breakchar    \NC number   \NC \NC \NR
+\NC os2_vendor       \NC string   \NC \NC \NR
+\NC codepages        \NC table    \NC A two-number array of encoded code pages\NC \NR
+\NC unicoderages     \NC table    \NC A four-number array of encoded unicode ranges\NC \NR
+\NC panose           \NC table    \NC \NC \NR
+\stoptabulate
+
+The \type {panose} subtable has exactly 10 string keys:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key       \NC \bf type \NC \bf explanation \NC \NR
+\NC familytype      \NC string   \NC Values as in the \OPENTYPE\ font
+                                     specification: \type {Any}, \type {No Fit},
+                                     \type {Text and Display}, \type {Script},
+                                     \type {Decorative}, \type {Pictorial} \NC
+                                     \NR
+\NC serifstyle      \NC string   \NC See the \OPENTYPE\ font specification for
+                                     values \NC \NR
+\NC weight          \NC string   \NC id. \NC \NR
+\NC proportion      \NC string   \NC id. \NC \NR
+\NC contrast        \NC string   \NC id. \NC \NR
+\NC strokevariation \NC string   \NC id. \NC \NR
+\NC armstyle        \NC string   \NC id. \NC \NR
+\NC letterform      \NC string   \NC id. \NC \NR
+\NC midline         \NC string   \NC id. \NC \NR
+\NC xheight         \NC string   \NC id. \NC \NR
+\stoptabulate
+
+\subsubsection[fontloadernamestable]{names table}
+
+Each item has two top|-|level keys:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC lang      \NC string   \NC language for this entry \NC \NR
+\NC names     \NC table    \NC \NC \NR
+\stoptabulate
+
+The \type {names} keys are the actual \TRUETYPE\ name strings. The possible keys
+are:
+
+\starttabulate[|lT|p|]
+\NC \rmbf key       \NC \bf explanation \NC \NR
+\NC copyright       \NC \NC \NR
+\NC family          \NC \NC \NR
+\NC subfamily       \NC \NC \NR
+\NC uniqueid        \NC \NC \NR
+\NC fullname        \NC \NC \NR
+\NC version         \NC \NC \NR
+\NC postscriptname  \NC \NC \NR
+\NC trademark       \NC \NC \NR
+\NC manufacturer    \NC \NC \NR
+\NC designer        \NC \NC \NR
+\NC descriptor      \NC \NC \NR
+\NC venderurl       \NC \NC \NR
+\NC designerurl     \NC \NC \NR
+\NC license         \NC \NC \NR
+\NC licenseurl      \NC \NC \NR
+\NC idontknow       \NC \NC \NR
+\NC preffamilyname  \NC \NC \NR
+\NC prefmodifiers   \NC \NC \NR
+\NC compatfull      \NC \NC \NR
+\NC sampletext      \NC \NC \NR
+\NC cidfindfontname \NC \NC \NR
+\NC wwsfamily       \NC \NC \NR
+\NC wwssubfamily    \NC \NC \NR
+\stoptabulate
+
+\subsubsection{anchor_classes table}
+
+The anchor_classes classes:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC name      \NC string   \NC a descriptive id of this anchor class\NC \NR
+\NC lookup    \NC string   \NC \NC \NR
+\NC type      \NC string   \NC one of \type {mark}, \type {mkmk}, \type {curs}, \type {mklg} \NC \NR
+\stoptabulate
+
+% type is actually a lookup subtype, not a feature name. Officially, these
+% strings should be gpos_mark2mark etc.
+
+\subsubsection{gpos table}
+
+The \type {gpos} table has one array entry for each lookup. (The \type {gpos_}
+prefix is somewhat redundant.)
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC type      \NC string   \NC one of \type {gpos_single}, \type {gpos_pair},
+                               \type {gpos_cursive}, \type {gpos_mark2base},\crlf
+                               \type {gpos_mark2ligature}, \type
+                               {gpos_mark2mark}, \type {gpos_context},\crlf \type
+                               {gpos_contextchain} \NC \NR
+\NC flags     \NC table    \NC \NC \NR
+\NC name      \NC string   \NC \NC \NR
+\NC features  \NC array    \NC \NC \NR
+\NC subtables \NC array    \NC \NC \NR
+\stoptabulate
+
+The flags table has a true value for each of the lookup flags that is actually
+set:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key            \NC \bf type \NC \bf explanation \NC \NR
+\NC r2l                  \NC boolean  \NC \NC \NR
+\NC ignorebaseglyphs     \NC boolean  \NC \NC \NR
+\NC ignoreligatures      \NC boolean  \NC \NC \NR
+\NC ignorecombiningmarks \NC boolean  \NC \NC \NR
+\NC mark_class           \NC string   \NC \NC \NR
+\stoptabulate
+
+The features subtable items of gpos have:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC tag       \NC string   \NC \NC \NR
+\NC scripts   \NC table    \NC \NC \NR
+\stoptabulate
+
+The scripts table within features has:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type         \NC \bf explanation \NC \NR
+\NC script    \NC string           \NC \NC \NR
+\NC langs     \NC array of strings \NC \NC \NR
+\stoptabulate
+
+The subtables table has:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key        \NC \bf type \NC \bf explanation \NC \NR
+\NC name             \NC string   \NC \NC \NR
+\NC suffix           \NC string   \NC (only if used)\NC \NR % used by gpos_single to get a default
+\NC anchor_classes   \NC number   \NC (only if used)\NC \NR
+\NC vertical_kerning \NC number   \NC (only if used)\NC \NR
+\NC kernclass        \NC table    \NC (only if used)\NC \NR
+\stoptabulate
+
+The kernclass with subtables table has:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC firsts    \NC array of strings  \NC \NC \NR
+\NC seconds   \NC array of strings   \NC \NC \NR
+\NC lookup    \NC string or array \NC associated lookup(s) \NC \NR
+\NC offsets   \NC array of numbers  \NC \NC \NR
+\stoptabulate
+
+Note: the kernclass (as far as we can see) always has one entry so it could be one level
+deep instead. Also the seconds start at \type {[2]} which is close to the fontforge
+internals so we keep that too.
+
+\subsubsection{gsub table}
+
+This has identical layout to the \type {gpos} table, except for the
+type:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC type      \NC string   \NC one of \type {gsub_single}, \type {gsub_multiple},
+                               \type {gsub_alternate}, \type
+                               {gsub_ligature},\crlf \type {gsub_context}, \type
+                               {gsub_contextchain}, \type
+                               {gsub_reversecontextchain} \NC \NR
+\stoptabulate
+
+\subsubsection{ttf_tables and ttf_tab_saved tables}
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC tag       \NC string   \NC \NC \NR
+\NC len       \NC number   \NC \NC \NR
+\NC maxlen    \NC number   \NC \NC \NR
+\NC data      \NC number   \NC \NC \NR
+\stoptabulate
+
+\subsubsection{mm table}
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key      \NC \bf type \NC \bf explanation \NC \NR
+\NC axes           \NC table    \NC array of axis names \NC \NR
+\NC instance_count \NC number   \NC \NC \NR
+\NC positions      \NC table    \NC array of instance positions
+                                    (\#axes * instances )\NC \NR
+\NC defweights     \NC table    \NC array of default weights for instances \NC \NR
+\NC cdv            \NC string   \NC \NC \NR
+\NC ndv            \NC string   \NC \NC \NR
+\NC axismaps       \NC table    \NC \NC \NR
+\stoptabulate
+
+The \type {axismaps}:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key            \NC \bf type \NC \bf explanation \NC \NR
+\NC blends               \NC table     \NC an array of blend points \NC \NR
+\NC designs              \NC table     \NC an array of design values \NC \NR
+\NC min                  \NC number   \NC \NC \NR
+\NC def                  \NC number   \NC \NC \NR
+\NC max                  \NC number   \NC \NC \NR
+\stoptabulate
+
+\subsubsection{mark_classes table}
+
+The keys in this table are mark class names, and the values are a
+space|-|separated string of glyph names in this class.
+
+\subsubsection{math table}
+
+\starttabulate[|lT|p|]
+\NC ScriptPercentScaleDown                   \NC \NC \NR
+\NC ScriptScriptPercentScaleDown             \NC \NC \NR
+\NC DelimitedSubFormulaMinHeight             \NC \NC \NR
+\NC DisplayOperatorMinHeight                 \NC \NC \NR
+\NC MathLeading                              \NC \NC \NR
+\NC AxisHeight                               \NC \NC \NR
+\NC AccentBaseHeight                         \NC \NC \NR
+\NC FlattenedAccentBaseHeight                \NC \NC \NR
+\NC SubscriptShiftDown                       \NC \NC \NR
+\NC SubscriptTopMax                          \NC \NC \NR
+\NC SubscriptBaselineDropMin                 \NC \NC \NR
+\NC SuperscriptShiftUp                       \NC \NC \NR
+\NC SuperscriptShiftUpCramped                \NC \NC \NR
+\NC SuperscriptBottomMin                     \NC \NC \NR
+\NC SuperscriptBaselineDropMax               \NC \NC \NR
+\NC SubSuperscriptGapMin                     \NC \NC \NR
+\NC SuperscriptBottomMaxWithSubscript        \NC \NC \NR
+\NC SpaceAfterScript                         \NC \NC \NR
+\NC UpperLimitGapMin                         \NC \NC \NR
+\NC UpperLimitBaselineRiseMin                \NC \NC \NR
+\NC LowerLimitGapMin                         \NC \NC \NR
+\NC LowerLimitBaselineDropMin                \NC \NC \NR
+\NC StackTopShiftUp                          \NC \NC \NR
+\NC StackTopDisplayStyleShiftUp              \NC \NC \NR
+\NC StackBottomShiftDown                     \NC \NC \NR
+\NC StackBottomDisplayStyleShiftDown         \NC \NC \NR
+\NC StackGapMin                              \NC \NC \NR
+\NC StackDisplayStyleGapMin                  \NC \NC \NR
+\NC StretchStackTopShiftUp                   \NC \NC \NR
+\NC StretchStackBottomShiftDown              \NC \NC \NR
+\NC StretchStackGapAboveMin                  \NC \NC \NR
+\NC StretchStackGapBelowMin                  \NC \NC \NR
+\NC FractionNumeratorShiftUp                 \NC \NC \NR
+\NC FractionNumeratorDisplayStyleShiftUp     \NC \NC \NR
+\NC FractionDenominatorShiftDown             \NC \NC \NR
+\NC FractionDenominatorDisplayStyleShiftDown \NC \NC \NR
+\NC FractionNumeratorGapMin                  \NC \NC \NR
+\NC FractionNumeratorDisplayStyleGapMin      \NC \NC \NR
+\NC FractionRuleThickness                    \NC \NC \NR
+\NC FractionDenominatorGapMin                \NC \NC \NR
+\NC FractionDenominatorDisplayStyleGapMin    \NC \NC \NR
+\NC SkewedFractionHorizontalGap              \NC \NC \NR
+\NC SkewedFractionVerticalGap                \NC \NC \NR
+\NC OverbarVerticalGap                       \NC \NC \NR
+\NC OverbarRuleThickness                     \NC \NC \NR
+\NC OverbarExtraAscender                     \NC \NC \NR
+\NC UnderbarVerticalGap                      \NC \NC \NR
+\NC UnderbarRuleThickness                    \NC \NC \NR
+\NC UnderbarExtraDescender                   \NC \NC \NR
+\NC RadicalVerticalGap                       \NC \NC \NR
+\NC RadicalDisplayStyleVerticalGap           \NC \NC \NR
+\NC RadicalRuleThickness                     \NC \NC \NR
+\NC RadicalExtraAscender                     \NC \NC \NR
+\NC RadicalKernBeforeDegree                  \NC \NC \NR
+\NC RadicalKernAfterDegree                   \NC \NC \NR
+\NC RadicalDegreeBottomRaisePercent          \NC \NC \NR
+\NC MinConnectorOverlap                      \NC \NC \NR
+\NC FractionDelimiterSize                    \NC \NC \NR
+\NC FractionDelimiterDisplayStyleSize        \NC \NC \NR
+\stoptabulate
+
+\subsubsection{validation_state table}
+
+\starttabulate[|lT|p|]
+\NC \rmbf key         \NC \bf explanation \NC \NR
+\NC bad_ps_fontname   \NC \NC \NR
+\NC bad_glyph_table   \NC \NC \NR
+\NC bad_cff_table     \NC \NC \NR
+\NC bad_metrics_table \NC \NC \NR
+\NC bad_cmap_table    \NC \NC \NR
+\NC bad_bitmaps_table \NC \NC \NR
+\NC bad_gx_table      \NC \NC \NR
+\NC bad_ot_table      \NC \NC \NR
+\NC bad_os2_version   \NC \NC \NR
+\NC bad_sfnt_header   \NC \NC \NR
+\stoptabulate
+
+\subsubsection{horiz_base and vert_base table}
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC tags      \NC table    \NC an array of script list tags\NC \NR
+\NC scripts   \NC table    \NC \NC \NR
+\stoptabulate
+
+The \type {scripts} subtable:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key        \NC \bf type \NC \bf explanation \NC \NR
+\NC baseline         \NC table   \NC \NC \NR
+\NC default_baseline \NC number  \NC \NC \NR
+\NC lang             \NC table   \NC \NC \NR
+\stoptabulate
+
+
+The \type {lang} subtable:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC tag       \NC string   \NC a script tag \NC \NR
+\NC ascent    \NC number   \NC \NC \NR
+\NC descent   \NC number   \NC \NC \NR
+\NC features  \NC table    \NC \NC \NR
+\stoptabulate
+
+The \type {features} points to an array of tables with the same layout except
+that in those nested tables, the tag represents a language.
+
+\subsubsection{altuni table}
+
+An array of alternate \UNICODE\ values. Inside that array are hashes with:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC unicode   \NC number   \NC this glyph is also used for this unicode \NC \NR
+\NC variant   \NC number   \NC the alternative is driven by this unicode selector \NC \NR
+\stoptabulate
+
+\subsubsection{vert_variants and horiz_variants table}
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key         \NC \bf type \NC \bf explanation \NC \NR
+\NC variants          \NC string   \NC \NC \NR
+\NC italic_correction \NC number   \NC \NC \NR
+\NC parts             \NC table    \NC \NC \NR
+\stoptabulate
+
+The \type {parts} table is an array of smaller tables:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC component \NC string   \NC \NC \NR
+\NC extender  \NC number   \NC \NC \NR
+\NC start     \NC number   \NC \NC \NR
+\NC end       \NC number   \NC \NC \NR
+\NC advance   \NC number   \NC \NC \NR
+\stoptabulate
+
+
+\subsubsection{mathkern table}
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key    \NC \bf type \NC \bf explanation \NC \NR
+\NC top_right    \NC table    \NC \NC \NR
+\NC bottom_right \NC table    \NC \NC \NR
+\NC top_left     \NC table    \NC \NC \NR
+\NC bottom_left  \NC table    \NC \NC \NR
+\stoptabulate
+
+Each of the subtables is an array of small hashes with two keys:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC height    \NC number   \NC \NC \NR
+\NC kern      \NC number   \NC \NC \NR
+\stoptabulate
+
+\subsubsection{kerns table}
+
+Substructure is identical to the per|-|glyph subtable.
+
+\subsubsection{vkerns table}
+
+Substructure is identical to the per|-|glyph subtable.
+
+\subsubsection{texdata table}
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC type      \NC string   \NC \type {unset}, \type {text}, \type {math}, \type {mathext} \NC \NR
+\NC params    \NC array    \NC 22 font numeric parameters \NC \NR
+\stoptabulate
+
+\subsubsection{lookups table}
+
+Top|-|level \type {lookups} is quite different from the ones at character level.
+The keys in this hash are strings, the values the actual lookups, represented as
+dictionary tables.
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key     \NC \bf type \NC \bf explanation \NC \NR
+\NC type          \NC string   \NC \NC \NR
+\NC format        \NC enum     \NC one of \type {glyphs}, \type {class}, \type {coverage}, \type {reversecoverage} \NC \NR
+\NC tag           \NC string   \NC \NC \NR
+\NC current_class \NC array    \NC \NC \NR
+\NC before_class  \NC array    \NC \NC \NR
+\NC after_class   \NC array    \NC \NC \NR
+\NC rules         \NC array    \NC an array of rule items\NC \NR
+\stoptabulate
+
+Rule items have one common item and one specialized item:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key       \NC \bf type \NC \bf explanation \NC \NR
+\NC lookups         \NC array    \NC a linear array of lookup names\NC \NR
+\NC glyphs          \NC array    \NC only if the parent's format is \type {glyphs}\NC \NR
+\NC class           \NC array    \NC only if the parent's format is \type {class}\NC \NR
+\NC coverage        \NC array    \NC only if the parent's format is \type {coverage}\NC \NR
+\NC reversecoverage \NC array    \NC only if the parent's format is \type {reversecoverage}\NC \NR
+\stoptabulate
+
+A glyph table is:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC names     \NC string   \NC \NC \NR
+\NC back      \NC string   \NC \NC \NR
+\NC fore      \NC string   \NC \NC \NR
+\stoptabulate
+
+A class table is:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC current   \NC array    \NC of numbers \NC \NR
+\NC before    \NC array    \NC of numbers  \NC \NR
+\NC after     \NC array    \NC of numbers  \NC \NR
+\stoptabulate
+
+coverage:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
+\NC current   \NC array    \NC of strings \NC \NR
+\NC before    \NC array    \NC of strings\NC \NR
+\NC after     \NC array    \NC of strings \NC \NR
+\stoptabulate
+
+reversecoverage:
+
+\starttabulate[|lT|l|p|]
+\NC \rmbf key    \NC \bf type \NC \bf explanation \NC \NR
+\NC current      \NC array    \NC of strings \NC \NR
+\NC before       \NC array    \NC of strings\NC \NR
+\NC after        \NC array    \NC of strings \NC \NR
+\NC replacements \NC string   \NC \NC \NR
+\stoptabulate
+
+\stopcomponent
