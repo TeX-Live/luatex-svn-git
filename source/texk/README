@@ -1,4 +1,4 @@
-$Id: README 39995 2016-03-11 06:12:34Z kakuto $
+$Id: README 40296 2016-04-07 00:56:37Z karl $
 Copyright 2006-2016 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -39,7 +39,7 @@ detex 2.8 - checked 10may12
 
 dtl - ?
 
-dvi2tty 5.3.4 - checked 10may12
+dvi2tty 6.0.0 - checked 05mar16
   https://github.com/t-tk/dvi2tty
 
 dvidvi - maintained here.
@@ -111,7 +111,7 @@ web2c - maintained here, by us - core web2c, plain tex, etc.
        eptex - https://osdn.jp/projects/eptex/
         etex - maintained here
       euptex - https://texwiki.texjp.org/?e-pTeX
-  mflua[jit] - https://github.com/luigiScarso/mflua
+  mflua[jit] - https://foundry.supelec.fr/projects/mflua/
     mplibdir - http://tug.org/metapost
       luatex - http://luatex.org
       pdftex - http://pdftex.org
@@ -121,5 +121,17 @@ web2c - maintained here, by us - core web2c, plain tex, etc.
        uptex - https://texwiki.texjp.org/?upTeX%2CupLaTeX
        xetex - http://tug.org/xetex/
    
-xdvik 22.87 - checked 14apr14
+xdvik 22.87.03 - checked 6apr16
   http://sourceforge.net/projects/xdvi/files/xdvik/
+  Procedure for updating xdvik from sourceforge release:
+tar xf ...
+diff -crN2 \
+  -x .cvsignore -x configure -x autom4te.cache -x Makefile.in -x ChangeLog \
+  xdvik xdvik-22.87.03/texk/xdvik >/tmp/c
+cd xdvik
+patch -p1 </tmp/c
+reautoconf
+add import entry to ChangeLog, update texk/README
+remove unpacked ../xdvik-*
+make sure it builds
+commit.
