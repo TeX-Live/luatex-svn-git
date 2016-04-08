@@ -155,6 +155,31 @@ approach is sufficient and it would not be compatible anyway.
 Beware: the values are always saved in the format, independent of the setting
 of \type {\savinghyphcodes} at the moment the format is dumped.
 
+A boundary node normally would mark the end of a word which interferes with for
+instance discretionary injection. For this you can use the \type {\wordboundary}
+as trigger. Here are a few examples of usage:
+
+\startbuffer
+    discrete---discrete
+\stopbuffer
+\typebuffer \start \dontcomplain \hsize 1pt \getbuffer \par \stop
+\startbuffer
+    discrete\discretionary{}{}{---}discrete
+\stopbuffer
+\typebuffer \start \dontcomplain \hsize 1pt \getbuffer \par \stop
+\startbuffer
+    discrete\wordboundary\discretionary{}{}{---}discrete
+\stopbuffer
+\typebuffer \start \dontcomplain \hsize 1pt \getbuffer \par \stop
+\startbuffer
+    discrete\wordboundary\discretionary{}{}{---}\wordboundary discrete
+\stopbuffer
+\typebuffer \start \dontcomplain \hsize 1pt \getbuffer \par \stop
+\startbuffer
+    discrete\wordboundary\discretionary{---}{}{}\wordboundary discrete
+\stopbuffer
+\typebuffer \start \dontcomplain \hsize 1pt \getbuffer \par \stop
+
 \section{The main control loop}
 
 In \LUATEX's main loop, almost all input characters that are to be typeset are
@@ -417,7 +442,7 @@ ligatures are processed, then all kerning information is applied to the result
 list. But those two stages are somewhat dependent on each other: If the used font
 makes it possible to do so, the ligaturing stage adds virtual \quote {character}
 nodes to the word boundaries in the list. While doing so, it removes and
-interprets \type {noboundary} nodes. The kerning stage deletes those word
+interprets \type {\noboundary} nodes. The kerning stage deletes those word
 boundary items after it is done with them, and it does the same for \quote
 {ghost} nodes. Finally, at the end of the kerning stage, all remaining \quote
 {character} nodes are converted to \quote {glyph} nodes.
