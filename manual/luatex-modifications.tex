@@ -345,15 +345,15 @@ situations. When protrusion characters are identified some nodes are skipped:
 \startitem whatsits \stopitem
 \stopitemize
 
-Because this can not be enough, you can also use a boundary node to make the next
-node being ignored. When the boundary value is~1 or~3, the next node will be
+Because this can not be enough, you can also use a protrusion boundary node to
+make the next node being ignored. When the value is~1 or~3, the next node will be
 ignored in the test when locating a left boundary condition. When the value is~2
 or~3, the previous node will be ignored when locating a right boundary condition
 (the search goes from right to left). This permits protrusion combined with for
 instance content moved into the margin:
 
 \starttyping
-\boundary1\llap{!\quad}«Who needs protrusion?»
+\protrusionboundary1\llap{!\quad}«Who needs protrusion?»
 \stoptyping
 
 \stopsubsection

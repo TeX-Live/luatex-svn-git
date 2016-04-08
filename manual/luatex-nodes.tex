@@ -350,12 +350,13 @@ making more readable tests.
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
+\NC subtype     \NC number   \NC \showsubtypes{boundary} \NC \NR
 \NC attr        \NC node     \NC list of attributes \NC \NR
 \NC value       \NC number   \NC values 0--255 are reserved \NC \NR
 \stoptabulate
 
-This node relates to the \type {\noboundary} primitive but you can use it for
-your own purpose too, in which case \type {\boundary} can come in handy.
+This node relates to the \type {\noboundary}, \type {\boundary}, \type
+{\protrusionboundary} and \type {\wordboundary} primitives.
 
 \subsubsection{local_par nodes}
 

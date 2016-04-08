@@ -666,7 +666,8 @@ within the constraints of the \type {\lefthyphenmin} and \type {\righthyphenmin}
 values (as stored in the glyph node). This primitive accepts a number and stores
 the value with the language.
 
-\section{\type {\boundary} and \type {\noboundary}}
+\section{\type {\boundary}, \type {\noboundary}, \type {\protrusionboundary} and \type
+{\wordboundary}}
 
 The \type {\noboundary} commands used to inject a whatsit node but now injects a normal
 node with type \type {boundary} and subtype~0. In addition you can say:
@@ -678,8 +679,8 @@ x\boundary 123\relax y
 This has the same effect but the subtype is now~1 and the value~123 is stored.
 The traditional ligature builder still sees this as a cancel boundary directive
 but at the \LUA\ end you can implement different behaviour. The added benefit of
-passing this value is a side effect of the generalization. The values 1, 3 and~3
-are used in protrusion edge detection (discussed later).
+passing this value is a side effect of the generalization. The subtypes~2 and~3
+are used to control protrusion and word boundaries in hyphenation.
 
 \section{\type {\vpack}, \type {\hpack} and \type {\tpack}}
 
