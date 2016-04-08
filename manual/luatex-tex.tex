@@ -207,8 +207,7 @@ can\/} be set, it is possible to use \type {global} as the first argument to
 \type {tex.set}; this makes the assignment global instead of local.
 
 \startfunctioncall
-tex.set (<string> n, ...)
-tex.set ("global", <string> n, ...)
+tex.set (["global",] <string> n, ...)
 ... = tex.get (<string> n)
 \stopfunctioncall
 
@@ -602,10 +601,8 @@ for all cases, for example, here is the set of possibilities for \type {\skip}
 registers:
 
 \startfunctioncall
-tex.setskip (<number> n, <node> s)
-tex.setskip (<string> s, <node> s)
-tex.setskip ("global",<number> n, <node> s)
-tex.setskip ("global",<string> s, <node> s)
+tex.setskip (["global",] <number> n, <node> s)
+tex.setskip (["global",] <string> s, <node> s)
 <node> s = tex.getskip (<number> n)
 <node> s = tex.getskip (<string> s)
 \stopfunctioncall
@@ -626,12 +623,14 @@ using the string \type {global} as the first function argument.
 There are four extra skip related helpers:
 
 \startfunctioncall
-tex.setglue (<number> n, width, stretch, shrink, stretch_order, shrink_order)
-tex.setglue (<string> s, width, stretch, shrink, stretch_order, shrink_order)
-tex.setglue ("global",<number> n, width, stretch, shrink, stretch_order, shrink_order)
-tex.setglue ("global",<string> s, width, stretch, shrink, stretch_order, shrink_order)
-width, stretch, shrink, stretch_order, shrink_order = tex.getglue (<number> n)
-width, stretch, shrink, stretch_order, shrink_order = tex.getglue (<string> s)
+tex.setglue (["global"], <number> n,
+    width, stretch, shrink, stretch_order, shrink_order)
+tex.setglue (["global"], <string> s,
+    width, stretch, shrink, stretch_order, shrink_order)
+width, stretch, shrink, stretch_order, shrink_order =
+    tex.getglue (<number> n)
+width, stretch, shrink, stretch_order, shrink_order =
+    tex.getglue (<string> s)
 \stopfunctioncall
 
 The other two are \type {tex.setmuglue} and \type {tex.getmuglue}.
@@ -657,8 +656,7 @@ The function call interfaces are roughly as above, but there are a few twists.
 \type {sfcode}s are the simple ones:
 
 \startfunctioncall
-tex.setsfcode (<number> n, <number> s)
-tex.setsfcode ('global', <number> n, <number> s)
+tex.setsfcode (["global",] <number> n, <number> s)
 <number> s = tex.getsfcode (<number> n)
 \stopfunctioncall
 
@@ -666,11 +664,11 @@ The function call interface for \type {lccode} and \type {uccode} additionally
 allows you to set the associated sibling at the same time:
 
 \startfunctioncall
-tex.setlccode (['global'], <number> n, <number> lc)
-tex.setlccode (['global'], <number> n, <number> lc, <number> uc)
+tex.setlccode (["global"], <number> n, <number> lc)
+tex.setlccode (["global"], <number> n, <number> lc, <number> uc)
 <number> lc = tex.getlccode (<number> n)
-tex.setuccode (['global'], <number> n, <number> uc)
-tex.setuccode (['global'], <number> n, <number> uc, <number> lc)
+tex.setuccode (["global"], <number> n, <number> uc)
+tex.setuccode (["global"], <number> n, <number> uc, <number> lc)
 <number> uc = tex.getuccode (<number> n)
 \stopfunctioncall
 
@@ -679,8 +677,8 @@ category table to use on assignment or on query (default in both cases is the
 current one):
 
 \startfunctioncall
-tex.setcatcode (['global'], <number> n, <number> c)
-tex.setcatcode (['global'], <number> cattable, <number> n, <number> c)
+tex.setcatcode (["global"], <number> n, <number> c)
+tex.setcatcode (["global"], <number> cattable, <number> n, <number> c)
 <number> lc = tex.getcatcode (<number> n)
 <number> lc = tex.getcatcode (<number> cattable, <number> n)
 \stopfunctioncall
@@ -689,29 +687,40 @@ The interfaces for \type {delcode} and \type {mathcode} use small array tables t
 set and retrieve values:
 
 \startfunctioncall
-tex.setmathcode (['global'], <number> n, <table> mval )
+tex.setmathcode (["global"], <number> n, <table> mval )
 <table> mval = tex.getmathcode (<number> n)
-tex.setdelcode (['global'], <number> n, <table> dval )
+tex.setdelcode (["global"], <number> n, <table> dval )
 <table> dval = tex.getdelcode (<number> n)
 \stopfunctioncall
 
 Where the table for \type {mathcode} is an array of 3 numbers, like this:
 
 \starttyping
-{<number> mathclass, <number> family, <number> character}
+{
+    <number> mathclass,
+    <number> family,
+    <number> character
+}
 \stoptyping
 
 And the table for \type {delcode} is an array with 4 numbers, like this:
 
 \starttyping
-{<number> small_fam, <number> small_char, <number> large_fam, <number> large_char}
+{
+    <number> small_fam,
+    <number> small_char,
+    <number> large_fam,
+    <number> large_char
+}
 \stoptyping
 
 You can also avoid the table:
 
 \startfunctioncall
-class, family, char = tex.getmathcodes (<number> n)
-smallfam, smallchar, largefam, largechar = tex.getdelcodes (<number> n)
+class, family, char =
+    tex.getmathcodes (<number> n)
+smallfam, smallchar, largefam, largechar =
+    tex.getdelcodes (<number> n)
 \stopfunctioncall
 
 Normally, the third and fourth values in a delimiter code assignment will be zero
@@ -731,10 +740,8 @@ tex.box
 for array access, or
 
 \starttyping
-tex.setbox(<number> n, <node> s)
-tex.setbox(<string> cs, <node> s)
-tex.setbox('global', <number> n, <node> s)
-tex.setbox('global', <string> cs, <node> s)
+tex.setbox(["global",] <number> n, <node> s)
+tex.setbox(["global",] <string> cs, <node> s)
 <node> n = tex.getbox(<number> n)
 <node> n = tex.getbox(<string> cs)
 \stoptyping
@@ -797,8 +804,7 @@ operation is comparable to the \type {\vsplit} operation. The mode can be \type
 It is possible to set and query the internal math parameters using:
 
 \startfunctioncall
-tex.setmath(<string> n, <string> t, <number> n)
-tex.setmath('global', <string> n, <string> t, <number> n)
+tex.setmath(["global",] <string> n, <string> t, <number> n)
 <number> n = tex.getmath(<string> n, <string> t)
 \stopfunctioncall
 
@@ -806,9 +812,8 @@ As before an optional first parameter \type {global} indicates a global
 assignment.
 
 The first string is the parameter name minus the leading \quote {Umath}, and the
-second string is the style name minus the trailing \quote {style}.
-
-Just to be complete, the values for the math parameter name are:
+second string is the style name minus the trailing \quote {style}. Just to be
+complete, the values for the math parameter name are:
 
 \starttyping
 quad                axis                operatorsize

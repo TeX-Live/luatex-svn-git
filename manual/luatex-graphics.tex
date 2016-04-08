@@ -84,28 +84,23 @@ This function returns a list of all the possible \type {image_spec} keys, both
 user-supplied and automatic ones.
 
 % hahe: i need to add r/w ro column...
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC \bf field name \NC \bf type \NC description \NC \NR
 \NC attr           \NC string   \NC the image attributes for \LUATEX \NC \NR
-\NC bbox           \NC table    \NC table with 4 boundingbox dimensions
-                                    \type {llx}, \type {lly}, \type {urx},
-                                    and \type {ury} overruling the \type {pagebox}
-                                    entry\NC \NR
-\NC colordepth     \NC number   \NC the number of bits used by the color space\NC \NR
+\NC bbox           \NC table    \NC table with 4 boundingbox dimensions \type
+                                    {llx}, \type {lly}, \type {urx} and \type
+                                    {ury} overruling the \type {pagebox} entry \NC \NR
+\NC colordepth     \NC number   \NC the number of bits used by the color space \NC \NR
 \NC colorspace     \NC number   \NC the color space object number \NC \NR
-\NC depth          \NC number   \NC the image depth for \LUATEX\
-                                    (in scaled points)\NC \NR
+\NC depth          \NC number   \NC the image depth for \LUATEX \NC \NR
 \NC filename       \NC string   \NC the image file name \NC \NR
 \NC filepath       \NC string   \NC the full (expanded) file name of the image\NC \NR
-\NC height         \NC number   \NC the image height for \LUATEX\
-                                    (in scaled points)\NC \NR
-\NC imagetype      \NC string   \NC one of \type {pdf}, \type {png}, \type {jpg}, \type {jp2},
-                                    \type {jbig2}, or \type {nil} \NC \NR
+\NC height         \NC number   \NC the image height for \LUATEX \NC \NR
+\NC imagetype      \NC string   \NC one of \type {pdf}, \type {png}, \type {jpg},
+                                    \type {jp2} or \type {jbig2} \NC \NR
 \NC index          \NC number   \NC the \PDF\ image name suffix \NC \NR
 \NC objnum         \NC number   \NC the \PDF\ image object number \NC \NR
-\NC page           \NC ??       \NC the identifier for the requested image page
-                                    (type is number or string,
-                                    default is the number 1)\NC \NR
+\NC page           \NC number   \NC the identifier for the requested image page \NC \NR
 \NC pagebox        \NC string   \NC the requested bounding box, one of
                                     \type {none}, \type {media}, \type {crop},
                                     \type {bleed}, \type {trim}, \type {art} \NC \NR
@@ -115,8 +110,7 @@ user-supplied and automatic ones.
 \NC stream         \NC string   \NC the raw stream data for an \type {/Xobject}
                                     \type {/Form} object\NC \NR
 \NC transform      \NC number   \NC the image transform, integer number 0..7\NC \NR
-\NC width          \NC number   \NC the image width for \LUATEX\
-                                    (in scaled points)\NC \NR
+\NC width          \NC number   \NC the image width for \LUATEX \NC \NR
 \NC xres           \NC number   \NC the horizontal natural image resolution
                                     (in \DPI) \NC \NR
 \NC xsize          \NC number   \NC the natural image width \NC \NR
@@ -126,7 +120,8 @@ user-supplied and automatic ones.
 \NC visiblefileame \NC string   \NC when set, this name will find its way in the
                                     \PDF\ file as \type {PTEX} specification; when
                                     an empty string is assigned nothing is written
-                                    to file, otherwise the natural filename is taken \NC \NR
+                                    to file; otherwise the natural filename is
+                                    taken \NC \NR
 \stoptabulate
 
 A running (undefined) dimension in \type {width}, \type {height}, or \type
@@ -150,7 +145,7 @@ works as usual also with \type {stream}.
 The \type {bbox} key needs a table with four boundingbox values, e.g.:
 
 \startfunctioncall
-a.bbox = {"30bp", 0, "225bp", "200bp"}
+a.bbox = { "30bp", 0, "225bp", "200bp" }
 \stopfunctioncall
 
 This replaces and overrules any given \type {pagebox} value; with given \type
@@ -187,7 +182,7 @@ changed by the user in the meantime).
 For ease of use, you can do right-away a
 
 \starttyping
-<image> a = img.scan ({ filename = "foo.png" })
+<image> a = img.scan { filename = "foo.png" }
 \stoptyping
 
 without a prior \type {img.new}.
@@ -206,7 +201,7 @@ the PDF, and the used memory will be cleaned up automatically.
 
 If you say \type {a = b}, then both variables point to the same \type {<image>}
 object. if you want to write out an image with different sizes, you can do a
-\type {b=img.copy(a)}.
+\type {b = img.copy(a)}.
 
 Afterwards, \type {a} and \type {b} still reference the same actual image
 dictionary, but the dimensions for \type {b} can now be changed from their
@@ -228,7 +223,7 @@ finished.
 Again you can do a terse call like
 
 \starttyping
-img.write ({ filename = "foo.png" })
+img.write { filename = "foo.png" }
 \stoptyping
 
 The \type {<image>} variable is returned in case you want it for later
@@ -253,7 +248,7 @@ object in the \PDF\ file.
 Also here you can do a terse call like
 
 \starttyping
-a = img.immediatewrite ({ filename = "foo.png" })
+a = img.immediatewrite { filename = "foo.png" }
 \stoptyping
 
 The \type {<image>} variable is returned and you will most likely need it.
@@ -298,7 +293,7 @@ these are \type {pdf}, \type {png}, \type {jpg}, \type {jp2} (JPEG~2000), and
 
 This function returns a list with the supported \PDF\ page box names, currently
 these are \type {media}, \type {crop}, \type {bleed}, \type {trim}, and \type
-{art} (all in lowercase letters).
+{art}, all in lowercase letters.
 
 \section{The \type {mplib} library}
 
@@ -317,7 +312,7 @@ This creates the \type {mp} instance object. The argument hash can have a number
 of different fields, as follows:
 
 \starttabulate[|lT|l|p|p|]
-\NC \ssbf name  \NC \bf type \NC \bf description          \NC \bf default       \NC \NR
+\NC \rmbf name  \NC \bf type \NC \bf description          \NC \bf default       \NC \NR
 \NC error_line  \NC number   \NC error line width         \NC 79                \NC \NR
 \NC print_line  \NC number   \NC line length in ps output \NC 100               \NC \NR
 \NC random_seed \NC number   \NC the initial random seed  \NC variable          \NC \NR
@@ -412,7 +407,7 @@ output streams.
 The return value of \type {mp:execute} and \type {mp:finish} is a table with a
 few possible keys (only \type {status} is always guaranteed to be present).
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC log    \NC string \NC output to the \quote {log} stream \NC \NR
 \NC term   \NC string \NC output to the \quote {term} stream \NC \NR
 \NC error  \NC string \NC output to the \quote {error} stream
@@ -432,7 +427,7 @@ If it is present, each of the entries in the \type {fig} array is a userdata
 representing a figure object, and each of those has a number of object methods
 you can call:
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC boundingbox  \NC function \NC returns the bounding box, as an array of 4
                                   values\NC \NR
 \NC postscript   \NC function \NC returns a string that is the ps output of the
@@ -481,7 +476,7 @@ point number, unless stated otherwise. Field values that are of type \type
 
 \subsubsection{fill}
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC path       \NC table  \NC the list of knots \NC \NR
 \NC htap       \NC table  \NC the list of knots for the reversed trajectory \NC \NR
 \NC pen        \NC table  \NC knots of the pen \NC \NR
@@ -498,7 +493,7 @@ There is helper function (\type {mplib.pen_info(obj)}) that returns a table
 containing a bunch of vital characteristics of the used pen (all values are
 floats):
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC width \NC number \NC width of the pen \NC \NR
 \NC sx    \NC number \NC $x$ scale        \NC \NR
 \NC rx    \NC number \NC $xy$ multiplier  \NC \NR
@@ -510,7 +505,7 @@ floats):
 
 \subsubsection{outline}
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC path       \NC table  \NC the list of knots \NC \NR
 \NC pen        \NC table  \NC knots of the pen \NC \NR
 \NC color      \NC table  \NC the object's color \NC \NR
@@ -526,7 +521,7 @@ The entry \type {dash} is optional.
 
 \subsubsection{text}
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC text       \NC string \NC the text \NC \NR
 \NC font       \NC string \NC font tfm name \NC \NR
 \NC dsize      \NC number \NC font size \NC \NR
@@ -541,13 +536,13 @@ The entry \type {dash} is optional.
 
 \subsubsection{special}
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC prescript \NC string \NC special text \NC \NR
 \stoptabulate
 
 \subsubsection{start_bounds, start_clip}
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC path \NC table \NC the list of knots \NC \NR
 \stoptabulate
 
@@ -582,7 +577,7 @@ array part containing the knot list.
 
 A color is an integer array with 0, 1, 3 or 4 values:
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC 0 \NC marking only \NC no values                                                     \NC \NR
 \NC 1 \NC greyscale    \NC one value in the range $(0,1)$, \quote {black} is $0$         \NC \NR
 \NC 3 \NC \RGB         \NC three values in the range $(0,1)$, \quote {black} is $0,0,0$  \NC \NR
@@ -597,7 +592,7 @@ initialized to the values representing \quote {black} in the colorspace \type
 
 Each transform is a six|-|item array.
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC 1 \NC number \NC represents x  \NC \NR
 \NC 2 \NC number \NC represents y  \NC \NR
 \NC 3 \NC number \NC represents xx \NC \NR
@@ -615,7 +610,7 @@ Each \type {dash} is two-item hash, using the same model as \POSTSCRIPT\ for the
 representation of the dashlist. \type {dashes} is an array of \quote {on} and
 \quote {off}, values, and \type {offset} is the phase of the pattern.
 
-\starttabulate[|l|l|p|]
+\starttabulate[|Tl|l|p|]
 \NC dashes \NC hash   \NC an array of on-off numbers \NC \NR
 \NC offset \NC number \NC the starting offset value  \NC \NR
 \stoptabulate
