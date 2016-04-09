@@ -7,6 +7,8 @@
 
 \startchapter[reference=fonts,title={Font structure}]
 
+\section {The font tables}
+
 All \TEX\ fonts are represented to \LUA\ code as tables, and internally as
 \CCODE~structures. All keys in the table below are saved in the internal font
 structure if they are present in the table returned by the \type {define_font}
@@ -391,6 +393,8 @@ In order to make sure that cut and paste of the final document works okay you ca
 best make sure that there is a \type {tounicode} vector enforced.
 
 \section[virtualfonts]{Virtual fonts}
+
+\subsection{The structure}
 
 You have to take the following steps if you want \LUATEX\ to treat the returned
 table from \type {define_font} as a virtual font:

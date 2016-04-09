@@ -263,9 +263,9 @@ local fields = fontloader.fields(f)
 local fields = fontloader.fields(f.glyphs[0])
 \stopfunctioncall
 
-\subsection{Table types}
+\section{Table types}
 
-\subsubsection{Top-level}
+\subsection{Top-level}
 
 The top|-|level keys in the returned table are (the explanations in this part of
 the documentation are not yet finished):
@@ -349,7 +349,7 @@ the documentation are not yet finished):
 \NC truetype                     \NC boolean  \NC signals a \TRUETYPE\ font \NC \NR
 \stoptabulate
 
-\subsubsection{Glyph items}
+\subsection{Glyph items}
 
 The \type {glyphs} is an array containing the per|-|character
 information (quite a few of these are only present if nonzero).
@@ -499,7 +499,7 @@ For clarification, an anchor table could for example look like this :
 
 Note: The \type {baselig} table can be sparse!
 
-\subsubsection{map table}
+\subsection{map table}
 
 The top|-|level map is a list of encoding mappings. Each of those is a table
 itself.
@@ -553,12 +553,12 @@ The \type {enc} table is a bit more verbose:
 \NC iso_2022_escape  \NC string   \NC \NC \NR
 \stoptabulate
 
-\subsubsection{private table}
+\subsection{private table}
 
 This is the font's private \POSTSCRIPT\ dictionary, if any. Keys and values are
 both strings.
 
-\subsubsection{cidinfo table}
+\subsection{cidinfo table}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf key  \NC \bf type \NC \bf explanation \NC \NR
@@ -568,7 +568,7 @@ both strings.
 \NC version    \NC number   \NC \NC \NR
 \stoptabulate
 
-\subsubsection[fontloaderpfminfotable]{pfminfo table}
+\subsection[fontloaderpfminfotable]{pfminfo table}
 
 The \type {pfminfo} table contains most of the OS/2 information:
 
@@ -643,7 +643,7 @@ The \type {panose} subtable has exactly 10 string keys:
 \NC xheight         \NC string   \NC id. \NC \NR
 \stoptabulate
 
-\subsubsection[fontloadernamestable]{names table}
+\subsection[fontloadernamestable]{names table}
 
 Each item has two top|-|level keys:
 
@@ -683,7 +683,7 @@ are:
 \NC wwssubfamily    \NC \NC \NR
 \stoptabulate
 
-\subsubsection{anchor_classes table}
+\subsection{anchor_classes table}
 
 The anchor_classes classes:
 
@@ -697,7 +697,7 @@ The anchor_classes classes:
 % type is actually a lookup subtype, not a feature name. Officially, these
 % strings should be gpos_mark2mark etc.
 
-\subsubsection{gpos table}
+\subsection{gpos table}
 
 The \type {gpos} table has one array entry for each lookup. (The \type {gpos_}
 prefix is somewhat redundant.)
@@ -768,7 +768,7 @@ Note: the kernclass (as far as we can see) always has one entry so it could be o
 deep instead. Also the seconds start at \type {[2]} which is close to the fontforge
 internals so we keep that too.
 
-\subsubsection{gsub table}
+\subsection{gsub table}
 
 This has identical layout to the \type {gpos} table, except for the
 type:
@@ -782,7 +782,7 @@ type:
                                {gsub_reversecontextchain} \NC \NR
 \stoptabulate
 
-\subsubsection{ttf_tables and ttf_tab_saved tables}
+\subsection{ttf_tables and ttf_tab_saved tables}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
@@ -792,7 +792,7 @@ type:
 \NC data      \NC number   \NC \NC \NR
 \stoptabulate
 
-\subsubsection{mm table}
+\subsection{mm table}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf key      \NC \bf type \NC \bf explanation \NC \NR
@@ -817,12 +817,12 @@ The \type {axismaps}:
 \NC max                  \NC number   \NC \NC \NR
 \stoptabulate
 
-\subsubsection{mark_classes table}
+\subsection{mark_classes table}
 
 The keys in this table are mark class names, and the values are a
 space|-|separated string of glyph names in this class.
 
-\subsubsection{math table}
+\subsection{math table}
 
 \starttabulate[|lT|p|]
 \NC ScriptPercentScaleDown                   \NC \NC \NR
@@ -886,7 +886,7 @@ space|-|separated string of glyph names in this class.
 \NC FractionDelimiterDisplayStyleSize        \NC \NC \NR
 \stoptabulate
 
-\subsubsection{validation_state table}
+\subsection{validation_state table}
 
 \starttabulate[|lT|p|]
 \NC \rmbf key         \NC \bf explanation \NC \NR
@@ -902,7 +902,7 @@ space|-|separated string of glyph names in this class.
 \NC bad_sfnt_header   \NC \NC \NR
 \stoptabulate
 
-\subsubsection{horiz_base and vert_base table}
+\subsection{horiz_base and vert_base table}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
@@ -933,7 +933,7 @@ The \type {lang} subtable:
 The \type {features} points to an array of tables with the same layout except
 that in those nested tables, the tag represents a language.
 
-\subsubsection{altuni table}
+\subsection{altuni table}
 
 An array of alternate \UNICODE\ values. Inside that array are hashes with:
 
@@ -943,7 +943,7 @@ An array of alternate \UNICODE\ values. Inside that array are hashes with:
 \NC variant   \NC number   \NC the alternative is driven by this unicode selector \NC \NR
 \stoptabulate
 
-\subsubsection{vert_variants and horiz_variants table}
+\subsection{vert_variants and horiz_variants table}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf key         \NC \bf type \NC \bf explanation \NC \NR
@@ -964,7 +964,7 @@ The \type {parts} table is an array of smaller tables:
 \stoptabulate
 
 
-\subsubsection{mathkern table}
+\subsection{mathkern table}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf key    \NC \bf type \NC \bf explanation \NC \NR
@@ -982,15 +982,15 @@ Each of the subtables is an array of small hashes with two keys:
 \NC kern      \NC number   \NC \NC \NR
 \stoptabulate
 
-\subsubsection{kerns table}
+\subsection{kerns table}
 
 Substructure is identical to the per|-|glyph subtable.
 
-\subsubsection{vkerns table}
+\subsection{vkerns table}
 
 Substructure is identical to the per|-|glyph subtable.
 
-\subsubsection{texdata table}
+\subsection{texdata table}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf key \NC \bf type \NC \bf explanation \NC \NR
@@ -998,7 +998,7 @@ Substructure is identical to the per|-|glyph subtable.
 \NC params    \NC array    \NC 22 font numeric parameters \NC \NR
 \stoptabulate
 
-\subsubsection{lookups table}
+\subsection{lookups table}
 
 Top|-|level \type {lookups} is quite different from the ones at character level.
 The keys in this hash are strings, the values the actual lookups, represented as
