@@ -1,4 +1,4 @@
-$Id: README 40250 2016-04-05 18:20:42Z karl $
+$Id: README 40358 2016-04-09 00:38:06Z kakuto $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -24,7 +24,7 @@ gmp 6.1.0 - checked 28dec15
 graphite2 1.3.8 - checked 31mar16
   http://sourceforge.net/projects/silgraphite/files/graphite2/
 
-harfbuzz 1.2.5 - checked 05apr16
+harfbuzz 1.2.6 - checked 09apr16
   http://www.freedesktop.org/software/harfbuzz/release/
 
 icu 57.1 (release) - checked 27mar16
