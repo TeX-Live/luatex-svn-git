@@ -50,6 +50,8 @@ chapters on fonts and math we discuss a few more new ones.
 
 \section{Version information}
 
+\subsection {\type {\luatexbanner}, \type {\luatexversion} and \type {\luatexrevision}}
+
 There are three new primitives to test the version of \LUATEX:
 
 \starttabulate[|l|pl|pl|]
@@ -80,7 +82,16 @@ The official \LUATEX\ version is defined as follows:
 \stopitem
 \stopitemize
 
+\subsection{\type {\formatname}}
+
+The \type {\formatname} syntax is identical to \type {\jobname}. In \INITEX, the
+expansion is empty. Otherwise, the expansion is the value that \type {\jobname} had
+during the \INITEX\ run that dumped the currently loaded format. You can use this
+token list to provide your own version info.
+
 \section{\UNICODE\ text support}
+
+\subsection {Extended ranges}
 
 Text input and output is now considered to be \UNICODE\ text, so input characters
 can use the full range of \UNICODE\ ($2^{20}+2^{16}-1 = \hbox{0x10FFFF}$). Later
@@ -120,6 +131,11 @@ characters on the console.
 
 Normalization of the \UNICODE\ input can be handled by a macro package during
 callback processing (this will be explained in \in {section} [iocallback]).
+
+\subsection{\type {\Uchar}}
+
+The expandable command \type {\Uchar} reads a number between~0 and $1{,}114{,}111$
+and expands to the associated \UNICODE\ character.
 
 \section{Extended tables}
 
@@ -401,61 +417,6 @@ in the following example the number \type {8} gets typeset.
 }
 \stoptyping
 
-\section{\type {\clearmarks}}
-
-This primitive complements the \ETEX\ mark primitives and clears a mark class
-completely, resetting all three connected mark texts to empty. It is an
-immediate command.
-
-\startsyntax
-\clearmarks <16-bit number>
-\stopsyntax
-
-\section{\type {\noligs} and \type {\nokerns}}
-
-These primitives prohibit ligature and kerning insertion at the time when the
-initial node list is built by \LUATEX's main control loop. You can enable these
-primitives when you want to do node list processing of \quote {characters}, where
-\TEX's normal processing would get in the way.
-
-\startsyntax
-\noligs <integer>!crlf
-\nokerns <integer>
-\stopsyntax
-
-These primitives can also be implemented by overloading the ligature building and
-kerning functions, i.e.\ by assigning dummy functions to their associated
-callbacks. Keep in mind that when you define a font (using \LUA) you can also
-omit the kern and ligature tables, which has the same effect as the above.
-
-\section{\type {\formatname}}
-
-The \type {\formatname} syntax is identical to \type {\jobname}. In \INITEX, the
-expansion is empty. Otherwise, the expansion is the value that \type {\jobname} had
-during the \INITEX\ run that dumped the currently loaded format.
-
-\section{\type {\scantextokens}}
-
-The syntax of \type {\scantextokens} is identical to \type {\scantokens}. This
-primitive is a slightly adapted version of \ETEX's \type {\scantokens}. The
-differences are:
-
-\startitemize
-\startitem
-    The last (and usually only) line does not have a \type {\endlinechar}
-    appended.
-\stopitem
-\startitem
-    \type {\scantextokens} never raises an EOF error, and it does not execute
-    \type {\everyeof} tokens.
-\stopitem
-\startitem
-    There are no \quote {\unknown\ while end of file \unknown} error tests
-    executed. This allows the expansion to end on a different grouping level or
-    while a conditional is still incomplete.
-\stopitem
-\stopitemize
-
 \section {Alignments}
 
 \subsection{\tex {alignmark}}
@@ -589,7 +550,15 @@ $ x + 1 =
 a $
 \stoptyping
 
-\section{\type {\matheqnogapstep}}
+\section {Math}
+
+\subsection{Extensions}
+
+We will cover math in its own chapter because not only the font subsystem and
+spacing model have been enhanced (thereby introducing many new primitives) but
+also because some more control has been added to existing functionality.
+
+\subsection{\type {\matheqnogapstep}}
 
 By default \TEX\ will add one quad between the equation and the number. This is
 hard coded. A new primitive can control this:
@@ -603,17 +572,20 @@ use a step to control the size. A value of zero will suppress the gap. The step
 is divided by 1000 which is the usual way to mimmick floating point factors in
 \TEX.
 
-\section{\type {\outputbox}}
+\section{Fonts}
 
-\startsyntax
-\outputbox = 65535
-\stopsyntax
+\subsection{Font syntax}
 
-This new integer parameter allows you to alter the number of the box that will be
-used to store the page sent to the output routine. Its default value is 255, and
-the acceptable range is from 0 to 65535.
+\LUATEX\ will accept a braced argument as a font name:
 
-\section{\type {\fontid} and \type {\setfontid}}
+\starttyping
+\font\myfont = {cmr10}
+\stoptyping
+
+This allows for embedded spaces, without the need for double quotes. Macro
+expansion takes place inside the argument.
+
+\subsection{\type {\fontid}}
 
 \startsyntax
 \fontid\font
@@ -635,59 +607,89 @@ order of loading fonts. For instance, when in \CONTEXT\ virtual math \UNICODE\
 fonts are used, we can easily get over a hundred ids in use. Not all ids have to
 be bound to a real font, after all it's just a number.
 
+\subsection{\type {\setfontid}}
+
 The primitive \type {\setfontid} can be used to enable a font with the given id
 (which of course needs to be a valid one).
 
-\section{\type {\gleaders}}
+\subsection{\type {\noligs} and \type {\nokerns}}
 
-This type of leaders is anchored to the origin of the box to be shipped out. So
-they are like normal \type {\leaders} in that they align nicely, except that the
-alignment is based on the {\it largest\/} enclosing box instead of the {\it
-smallest\/}. The \type {g} stresses this global nature.
+These primitives prohibit ligature and kerning insertion at the time when the
+initial node list is built by \LUATEX's main control loop. You can enable these
+primitives when you want to do node list processing of \quote {characters}, where
+\TEX's normal processing would get in the way.
 
-\section{\type {\nohrule} and \type {\novrule}}
+\startsyntax
+\noligs <integer>!crlf
+\nokerns <integer>
+\stopsyntax
 
-Because internally box resources and image resources are now stored as a special
-kind of rule, we also introduced an empty rule variant. Because introducing a new
-keyword can cause incompatibilities, two new primitives were introduced: \type
-{\nohrule} and \type {\novrule}. These can be used to reserve space. This is
-often more efficient than creating an empty box with fake dimensions).
+These primitives can also be implemented by overloading the ligature building and
+kerning functions, i.e.\ by assigning dummy functions to their associated
+callbacks. Keep in mind that when you define a font (using \LUA) you can also
+omit the kern and ligature tables, which has the same effect as the above.
 
-\section{\type {\Uchar}}
+\subsection{\type{\nospaces}}
 
-The expandable command \type {\Uchar} reads a number between~0 and $1{,}114{,}111$
-and expands to the associated \UNICODE\ character.
+This new primitive can be used to overrule the usual \type {\spaceskip}
+related heuristics when a space character is seen in a text flow. The
+value~\type{1} triggers no injection while \type{2} results in injection of
+a zero skip. Below we see the results for four characters separated by a
+space.
 
-\section{\type {\hyphenationmin}}
+\startlinecorrection
+\startcombination[3*2]
+    {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=0\relax x x x x \par}\hss}} {\type {0 / hsize 10mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=1\relax x x x x \par}\hss}} {\type {1 / hsize 10mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=2\relax x x x x \par}\hss}} {\type {2 / hsize 10mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=0\relax x x x x \par}\hss}} {\type {0 / hsize 1mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=1\relax x x x x \par}\hss}} {\type {1 / hsize 1mm}}
+    {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=2\relax x x x x \par}\hss}} {\type {2 / hsize 1mm}}
+\stopcombination
+\stoplinecorrection
 
-This primitive can be used to set the minimal word length, so setting it to a value
-of~$5$ means that only words of 6 characters and more will be hyphenated, of course
-within the constraints of the \type {\lefthyphenmin} and \type {\righthyphenmin}
-values (as stored in the glyph node). This primitive accepts a number and stores
-the value with the language.
+\section{Tokens, commands and strings}
 
-\section{\type {\boundary}, \type {\noboundary}, \type {\protrusionboundary} and \type
-{\wordboundary}}
+\subsection{\type {\scantextokens}}
 
-The \type {\noboundary} commands used to inject a whatsit node but now injects a normal
-node with type \type {boundary} and subtype~0. In addition you can say:
+The syntax of \type {\scantextokens} is identical to \type {\scantokens}. This
+primitive is a slightly adapted version of \ETEX's \type {\scantokens}. The
+differences are:
+
+\startitemize
+\startitem
+    The last (and usually only) line does not have a \type {\endlinechar}
+    appended.
+\stopitem
+\startitem
+    \type {\scantextokens} never raises an EOF error, and it does not execute
+    \type {\everyeof} tokens.
+\stopitem
+\startitem
+    There are no \quote {\unknown\ while end of file \unknown} error tests
+    executed. This allows the expansion to end on a different grouping level or
+    while a conditional is still incomplete.
+\stopitem
+\stopitemize
+
+\subsection{\type {\toksapp}, \type {\tokspre}, \type {\etoksapp} and \type {\etokspre}}
+
+Instead of:
 
 \starttyping
-x\boundary 123\relax y
+\toks0\expandafter{\the\toks0 foo}
 \stoptyping
 
-This has the same effect but the subtype is now~1 and the value~123 is stored.
-The traditional ligature builder still sees this as a cancel boundary directive
-but at the \LUA\ end you can implement different behaviour. The added benefit of
-passing this value is a side effect of the generalization. The subtypes~2 and~3
-are used to control protrusion and word boundaries in hyphenation.
+you can use:
 
-\section{\type {\vpack}, \type {\hpack} and \type {\tpack}}
+\starttyping
+\etoksapp0{foo}
+\stoptyping
 
-These three primitives are like \type {\vbox}, \type {\hbox} and \type {\vtop}
-but don't apply the related callbacks.
+The \type {pre} variants prepend instead of append, and the \type {e} variants
+expand the passed general text.
 
-\section{\type {\csstring}, \type {\begincsname} and \type {\lastnamedcs}}
+\subsection{\type {\csstring}, \type {\begincsname} and \type {\lastnamedcs}}
 
 These are somewhat special. The \type {\csstring} primitive is like
 \type {\string} but it omits the leading escape character. This can be
@@ -718,29 +720,46 @@ This is slightly more efficient than constructing the string twice (deep down in
 \LUATEX\ this also involves some \UTF8 juggling), but probably more relevant is
 that it saves a few tokens and can make code a bit more more readable.
 
-\section{\type {\toksapp}, \type {\tokspre}, \type {\etoksapp} and \type {\etokspre}}
+\subsection{\type {\clearmarks}}
 
-Instead of:
+This primitive complements the \ETEX\ mark primitives and clears a mark class
+completely, resetting all three connected mark texts to empty. It is an
+immediate command.
+
+\startsyntax
+\clearmarks <16-bit number>
+\stopsyntax
+
+\subsection{\type{\letcharcode}}
+
+This primitive is still experimental but can be used to assign a meaning to an active
+character, as in:
 
 \starttyping
-\toks0\expandafter{\the\toks0 foo}
+\def\foo{bar} \letcharcode123\foo
 \stoptyping
 
-you can use:
+This can be a bit nicer that using the uppercase tricks (using the property of
+\type {\uppercase} that it treats active characters special).
 
-\starttyping
-\etoksapp0{foo}
-\stoptyping
+\section{Boxes, rules and leaders}
 
-The \type {pre} variants prepend instead of append, and the \type {e} variants
-expand the passed general text.
+\subsection{\type {\outputbox}}
 
-\section{Debugging}
+\startsyntax
+\outputbox = 65535
+\stopsyntax
 
-If \type {\tracingonline} is larger than~2, the node list display will also print
-the node number of the nodes.
+This new integer parameter allows you to alter the number of the box that will be
+used to store the page sent to the output routine. Its default value is 255, and
+the acceptable range is from 0 to 65535.
 
-\section{Images and Forms}
+\subsection{\type {\vpack}, \type {\hpack} and \type {\tpack}}
+
+These three primitives are like \type {\vbox}, \type {\hbox} and \type {\vtop}
+but don't apply the related callbacks.
+
+\subsection{Images and Forms}
 
 These two concepts are now core concepts and no longer whatsits. They are in fact
 now implemented as rules with special properties. Normal rules have subtype~0,
@@ -771,11 +790,58 @@ provides the image with dimensions defined by \type {\saveimageresource}. These
 optional parameters are not implemented for \type {\saveboxresource}.
 
 \starttyping
-\pdfrefximage width 20mm height 10mm depth 5mm \pdflastximage
-\pdfrefxform  width 20mm height 10mm depth 5mm \pdflastxform
+\useimageresource width 20mm height 10mm depth 5mm \lastsavedimageresourceindex
+\useboxresource   width 20mm height 10mm depth 5mm \lastsavedboxresourceindex
 \stoptyping
 
-\section{\type {\outputmode} and \type {\draftmode}}
+\subsection{\type {\nohrule} and \type {\novrule}}
+
+Because introducing a new keyword can cause incompatibilities, two new primitives
+were introduced: \type {\nohrule} and \type {\novrule}. These can be used to
+reserve space. This is often more efficient than creating an empty box with fake
+dimensions).
+
+\subsection{\type {\gleaders}}
+
+This type of leaders is anchored to the origin of the box to be shipped out. So
+they are like normal \type {\leaders} in that they align nicely, except that the
+alignment is based on the {\it largest\/} enclosing box instead of the {\it
+smallest\/}. The \type {g} stresses this global nature.
+
+\section {Languages}
+
+\subsection{\type {\hyphenationmin}}
+
+This primitive can be used to set the minimal word length, so setting it to a value
+of~$5$ means that only words of 6 characters and more will be hyphenated, of course
+within the constraints of the \type {\lefthyphenmin} and \type {\righthyphenmin}
+values (as stored in the glyph node). This primitive accepts a number and stores
+the value with the language.
+
+\subsection{\type {\boundary}, \type {\noboundary}, \type {\protrusionboundary} and \type
+{\wordboundary}}
+
+The \type {\noboundary} commands used to inject a whatsit node but now injects a normal
+node with type \type {boundary} and subtype~0. In addition you can say:
+
+\starttyping
+x\boundary 123\relax y
+\stoptyping
+
+This has the same effect but the subtype is now~1 and the value~123 is stored.
+The traditional ligature builder still sees this as a cancel boundary directive
+but at the \LUA\ end you can implement different behaviour. The added benefit of
+passing this value is a side effect of the generalization. The subtypes~2 and~3
+are used to control protrusion and word boundaries in hyphenation.
+
+\section{Control and debugging}
+
+\subsection {Tracing}
+
+If \type {\tracingonline} is larger than~2, the node list display will also print
+the node number of the nodes.
+
+\subsection{\type {\outputmode} and \type {\draftmode}}
 
 The \type {\outputmode} variable tells \LUATEX\ what it has to produce:
 
@@ -788,7 +854,9 @@ The value of the \type {\draftmode} counter signals the backend if it should
 output less. The \PDF\ backend accepts a value of~$1$, while the \DVI\ backend
 ignores the value.
 
-\section{File syntax}
+\section {Files}
+
+\subsection{File syntax}
 
 \LUATEX\ will accept a braced argument as a file name:
 
@@ -800,53 +868,11 @@ ignores the value.
 This allows for embedded spaces, without the need for double quotes. Macro
 expansion takes place inside the argument.
 
-\section{Font syntax}
-
-\LUATEX\ will accept a braced argument as a font name:
-
-\starttyping
-\font\myfont = {cmr10}
-\stoptyping
-
-This allows for embedded spaces, without the need for double quotes. Macro
-expansion takes place inside the argument.
-
-\section{Writing to file}
+\subsection{Writing to file}
 
 You can now open upto 127 files with \type {\openout}. When no file is open
 writes will go to the console and log. As a consequence a system command is
 no longer possible but one can use \type {os.execute} to do the same.
-
-\section{\type{\nospaces}}
-
-This new primitive can be used to overrule the usual \type {\spaceskip}
-related heuristics when a space character is seen in a text flow. The
-value~\type{1} triggers no injection while \type{2} results in injection of
-a zero skip. Below we see the results for four characters separated by a
-space.
-
-\startlinecorrection
-\startcombination[3*2]
-    {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=0\relax x x x x \par}\hss}} {\type {0 / hsize 10mm}}
-    {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=1\relax x x x x \par}\hss}} {\type {1 / hsize 10mm}}
-    {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=2\relax x x x x \par}\hss}} {\type {2 / hsize 10mm}}
-    {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=0\relax x x x x \par}\hss}} {\type {0 / hsize 1mm}}
-    {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=1\relax x x x x \par}\hss}} {\type {1 / hsize 1mm}}
-    {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=2\relax x x x x \par}\hss}} {\type {2 / hsize 1mm}}
-\stopcombination
-\stoplinecorrection
-
-\section{\type{\letcharcode}}
-
-This primitive is still experimental but can be used to assign a meaning to an active
-character, as in:
-
-\starttyping
-\def\foo{bar} \letcharcode123\foo
-\stoptyping
-
-This can be a bit nicer that using the uppercase tricks (using the property of
-\type {\uppercase} that it treats active characters special).
 
 \stopchapter
 
