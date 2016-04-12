@@ -1,4 +1,4 @@
-$Id: README 40296 2016-04-07 00:56:37Z karl $
+$Id: README 40410 2016-04-11 18:29:03Z karl $
 Copyright 2006-2016 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -118,6 +118,7 @@ web2c - maintained here, by us - core web2c, plain tex, etc.
       pmpost - none
         ptex - nothing current, old info: http://ascii.asciimw.jp/pb/ptex/
      synctex - maintained here
+     upmpost - ? (Kitagawa-san)
        uptex - https://texwiki.texjp.org/?upTeX%2CupLaTeX
        xetex - http://tug.org/xetex/
    
