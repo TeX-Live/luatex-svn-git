@@ -1393,7 +1393,7 @@ See the description of \type {node.hpack()} for a few memory allocation caveats.
     node.dimensions(<node> n, <node> t, <string> dir)
 \stopfunctioncall
 
-This function calculates the natural in-line dimensions of the node list starting
+This function calculates the natural in|-|line dimensions of the node list starting
 at node \type {n} and terminating just before node \type {t} (or the end of the
 list, if there is no second argument). The return values are scaled points. An
 alternative format that starts with glue parameters as the first three arguments
@@ -1430,6 +1430,10 @@ example in code like this, which prints the width of the space in between the
     node.tail(tex.box[0].head)
 )) }
 \stoptyping
+
+You need to keep in mind that this is one of the few places in \TEX\ where floats
+are used, which means that you can get small differences in rounding when you
+compare the width repported by \type {hpack} with \type {dimensions}.
 
 \subsubsection{\type {node.mlist_to_hlist}}
 
