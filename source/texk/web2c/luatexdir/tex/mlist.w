@@ -1610,9 +1610,6 @@ void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
         }
         alink(p) = null ;
         nodelist_to_lua(L, p);
-        /*
-            lua_pushstring(L, math_style_names[mstyle]);
-        */
         lua_push_math_style_name(L,mstyle);
         lua_pushboolean(L, penalties);
         if (lua_pcall(L, 3, 1, 0) != 0) {            /* 3 args, 1 result */
