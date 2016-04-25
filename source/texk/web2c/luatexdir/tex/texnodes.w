@@ -237,8 +237,7 @@ const char *node_fields_whatsit_pdf_dest[] = {
     "xyz_zoom", "objnum", NULL
 };
 const char *node_fields_whatsit_pdf_action[] = {
-    "action_type", "named_id", "action_id", "file", "new_window", "data",
-    "ref_count", NULL
+    "action_type", "named_id", "action_id", "file", "new_window", "data", NULL
 };
 const char *node_fields_whatsit_pdf_thread[] = {
     "attr", "width", "depth", "height",  "named_id", "thread_id", "thread_attr", NULL
@@ -279,6 +278,9 @@ const char *node_subtypes_leader[] = { /* 100+ */
 const char *node_subtypes_fill[] = {
     "stretch", "fi", "fil", "fill", "filll", NULL
 };
+const char *node_subtypes_boundary[] = {
+    "cancel", "user", "protrusion", "word", NULL
+};
 const char *node_subtypes_penalty[] = {
     "userpenalty", NULL
 };
@@ -299,6 +301,9 @@ const char *node_subtypes_marginkern[] = {
 };
 const char *node_subtypes_list[] = {
     "unknown", "line", "box", "indent", "alignment", "cell", "equation", "equationnumber", NULL
+};
+const char *node_subtypes_adjust[] = {
+    "normal", "pre", NULL
 };
 const char *node_subtypes_math[] = {
     "beginmath", "endmath", NULL
@@ -325,7 +330,7 @@ node_info node_data[] = { /* the last entry in a row is the etex number */
     { ins_node,            ins_node_size,         node_fields_insert,                        "ins",             4 },
     { mark_node,           mark_node_size,        node_fields_mark,                          "mark",            5 },
     { adjust_node,         adjust_node_size,      node_fields_adjust,                        "adjust",          6 },
-    { boundary_node,       boundary_size,         node_fields_boundary,                      "boundary",       -1 },
+    { boundary_node,       boundary_node_size,    node_fields_boundary,                      "boundary",       -1 },
     { disc_node,           disc_node_size,        node_fields_disc,                          "disc",            8 },
     { whatsit_node,        -1,                    NULL,                                      "whatsit",         9 },
     { local_par_node,      local_par_size,        node_fields_local_par,                     "local_par",      -1 },
@@ -621,7 +626,13 @@ static int test_count = 1;
 
 #define check_action_ref(a)    { dorangetest(p,a,var_mem_max); }
 #define check_attribute_ref(a) { dorangetest(p,a,var_mem_max); }
-#define check_token_ref(a)     { confusion("fuzzy token cleanup in node"); }
+#define check_token_ref(a) { \
+    if (type(p) == whatsit_node) { \
+        formatted_error("nodes","fuzzy token cleanup in whatsit node with id %i and subtype %i",type(p),subtype(p)); \
+    } else { \
+        formatted_error("nodes","fuzzy token cleanup in node with id %i",type(p)); \
+    } \
+}
 
 #ifdef CHECK_NODE_USAGE
 
@@ -2976,11 +2987,24 @@ void show_node_list(int p)
             case boundary_node:
                 if (subtype(p)==0) {
                     tprint_esc("noboundary");
-                } else{
-                    tprint_esc("boundary");
+                } else {
+                    switch (subtype(p)) {
+                        case 1:
+                            tprint_esc("boundary");
+                            break;
+                        case 2:
+                            tprint_esc("protrusionboundary");
+                            break;
+                        case 3:
+                            tprint_esc("wordboundary");
+                            break;
+                        default:
+                            tprint_esc("boundary");
+                            print_char(':');
+                            print_int(subtype(p));
+                            break;
+                    }
                     print_char('=');
-                    print_int(subtype(p));
-                    print_char(':');
                     print_int(boundary_value(p));
                 }
                 break;
@@ -3022,11 +3046,9 @@ void show_node_list(int p)
                     if (subtype(p) != normal) {
                         print_char('(');
                         if ((subtype(p) - 1) < thin_mu_skip_code) {
-                            print_cmd_chr(assign_glue_cmd,
-                                          glue_base + (subtype(p) - 1));
+                            print_cmd_chr(assign_glue_cmd, glue_base + (subtype(p) - 1));
                         } else if (subtype(p) < cond_math_glue) {
-                            print_cmd_chr(assign_mu_glue_cmd,
-                                          glue_base + (subtype(p) - 1));
+                            print_cmd_chr(assign_mu_glue_cmd, glue_base + (subtype(p) - 1));
                         } else if (subtype(p) == cond_math_glue) {
                             tprint_esc("nonscript");
                         } else {
@@ -3074,9 +3096,12 @@ void show_node_list(int p)
                     tprint("on");
                 else
                     tprint("off");
-                if (width(p) != 0) {
+                if (!glue_is_zero(p)) {
+                    tprint(", glued ");
+                    print_spec(p, NULL);
+                } else if (surround(p) != 0) {
                     tprint(", surrounded ");
-                    print_scaled(width(p));
+                    print_scaled(surround(p));
                 }
                 break;
             case penalty_node:

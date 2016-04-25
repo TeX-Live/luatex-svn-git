@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# $Id: build.sh 5081 2014-11-07 18:38:33Z luigi $
 #
 # Copyright (c) 2005-2011 Martin Schröder <martin@luatex.org>
 # Copyright (c) 2009-2014 Taco Hoekwater <taco@luatex.org>
@@ -272,7 +271,7 @@ $MAKE
 # (perhaps more files needed to be copied from TL?)
 
 (cd libs; $MAKE all )
-(cd libs/zziplib; $MAKE all )
+(cd libs/zzip; $MAKE all )
 (cd libs/zlib; $MAKE all )
 (cd libs/libpng; $MAKE all )
 (cd libs/poppler; $MAKE all )

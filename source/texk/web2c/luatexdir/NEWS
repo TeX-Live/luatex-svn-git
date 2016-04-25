@@ -2,16 +2,28 @@
 This file is in the public domain.
 
 ==============================================================
-LuaTeX Release 0.95
+LuaTeX Release 0.95 for TeX Live 2016 was released 2016042515
 ==============================================================
-- this is an experimental version
+
+This is the official frozen TeXlive 2016 version.
+- deleted 'beta' from the luatex_version_string
+
+
+
+
+==============================================================
+LuaTeX Release 0.95 was released 2016040415
+==============================================================
+
+This is a prerelease of the stable 1.0 version.
 
 - glues now have gluespec merged in (idem math and insert)
 - registers are still glue specs
+- the spec field in glues are gone
 - extra tex.setglue and tex.setmuglue
 - obsolete dvi related dir fields removed
 
-
+(if we are in time, it will be included in TeX Live 2016)
 
 
 ==============================================================
@@ -2702,7 +2714,7 @@ Other news:
    we probably introduced new problems as well).
 
 * Most (all?) files now have a corrected Copyright header,
-   and link in $Id: NEWS 5348 2015-10-07 13:45:11Z luigi $ and  $URL: https://foundry.supelec.fr/svn/luatex/trunk/source/texk/web2c/luatexdir/NEWS $ into the object file.
+   and link in NEWS source/texk/web2c/luatexdir/NEWS  into the object file.
 
 * Some unnecessary files were removed from the distribution.
 

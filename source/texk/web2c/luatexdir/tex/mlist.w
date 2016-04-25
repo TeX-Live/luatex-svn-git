@@ -1532,11 +1532,9 @@ one that is expressed in `\.{mu}', given the value of the math unit.
 
 static pointer math_glue(pointer g, scaled m)
 {
-    pointer p; /* the new glue specification */
-    int n;     /* integer part of |m| */
-    scaled f;  /* fraction part of |m| */
-    n = x_over_n(m, unity);
-    f = tex_remainder;
+    int n = x_over_n(m, unity); /* integer part of |m| */
+    scaled f = tex_remainder;   /* fraction part of |m| */
+    pointer p;                  /* the new glue specification */
     if (f < 0) {
         decr(n);
         f = f + unity;
@@ -1554,6 +1552,22 @@ static pointer math_glue(pointer g, scaled m)
     else
         shrink(p) = shrink(g);
     return p;
+}
+
+static void math_glue_to_glue(pointer p, scaled m)
+{
+    int n = x_over_n(m, unity); /* integer part of |m| */
+    scaled f = tex_remainder;   /* fraction part of |m| */
+    if (f < 0) {
+        decr(n);
+        f = f + unity;
+    }
+    width(p) = mu_mult(width(p)); /* convert \.{mu} to \.{pt} */
+    if (stretch_order(p) == normal)
+        stretch(p) = mu_mult(stretch(p));
+    if (shrink_order(p) == normal)
+        shrink(p) = mu_mult(shrink(p));
+    subtype(p) = normal;
 }
 
 @ The |math_kern| subroutine removes |mu_glue| from a kern node, given
@@ -1596,9 +1610,6 @@ void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
         }
         alink(p) = null ;
         nodelist_to_lua(L, p);
-        /*
-            lua_pushstring(L, math_style_names[mstyle]);
-        */
         lua_push_math_style_name(L,mstyle);
         lua_pushboolean(L, penalties);
         if (lua_pcall(L, 3, 1, 0) != 0) {            /* 3 args, 1 result */
@@ -2172,6 +2183,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     scaled w;              /* width of the accentee, not including sub/superscripts */
     boolean s_is_absolute; /* will be true if a top-accent is placed in |s| */
     scaled fraction ;
+    scaled ic = 0;
     scaled target ;
     extinfo *ext;
     pointer attr_p;
@@ -2263,6 +2275,12 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
             delta = delta + height(x) - h;
             h = height(x);
         }
+    } else if ((vlink(q) != null) && (type(nucleus(q)) == math_char_node)) {
+        /* only pure math char nodes */
+        internal_font_number f = fam_fnt(math_fam(nucleus(q)),cur_size);
+        if (is_new_mathfont(f)) {
+            ic = char_italic(f,math_character(nucleus(q)));
+        }
     }
     /* the top accents of both characters are aligned */
     if (s_is_absolute) {
@@ -2325,6 +2343,10 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
         }
     } else {
         shift_amount(y) = -(h - height(y));
+    }
+    if (ic != 0) {
+        /* old font codepath has ic built in, new font code doesn't */
+        width(r) += ic ;
     }
     math_list(nucleus(q)) = y;
     type(nucleus(q)) = sub_box_node;
@@ -3789,8 +3811,6 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     int t;                                /* the effective |type| of noad |q| during the second pass */
     int t_subtype;                        /* the effective |subtype| of noad |q| during the second pass */
     pointer p = null;
-    pointer x = null;
-    pointer y = null;
     pointer z = null;
     int pen;                              /* a penalty to be inserted */
     scaled max_hl = 0;                    /* maximum height of the list translated so far */
@@ -3964,10 +3984,7 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
 
             */
             if (subtype(q) == mu_glue) {
-                x = q; /* was ptr */
-                y = math_glue(x, cur_mu);
-                q = y; /* we can get rid of the indirect */
-                subtype(q) = normal;
+                math_glue_to_glue(q, cur_mu);
             } else if ((cur_size != text_size) && (subtype(q) == cond_math_glue)) {
                 p = vlink(q);
                 if (p != null)

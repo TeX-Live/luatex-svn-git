@@ -1,7 +1,5 @@
 \startenvironment luatex-style
 
-% I'll clean this up some day.
-
 \usemodule[abr-02]
 
 \setuplayout
@@ -34,44 +32,59 @@
 \setupwhitespace
   [medium]
 
-\def\|{\string|}
-\def\>{\string>}
+\startluacode
+    local skipped = table.tohash { 'id', 'subtype', 'next', 'prev' }
 
-\def\showfields#1{\ctxlua
-    {
-        local t = string.split('#1',',')
-        local r = { }
-        for _, a in pairs(node.fields(t[1],t[2])) do
-            if not (a == 'id' or a == 'subtype' or a =='next' or a=='prev') then
-                table.insert(r,'\\type{'.. a .. '}')
+    function document.functions.showfields(s)
+        local t = string.split(s,',')
+        local f = node.fields(t[1],t[2])
+        if f then
+            local d = false
+            for i=1,#f do
+                local fi = f[i]
+                if skipped[fi] then
+                    -- okay
+                elseif d then
+                    context(', {\tttf %s}', fi)
+                else
+                    context('{\tttf %s}', fi)
+                    d = true
+                end
             end
         end
-        tex.sprint(table.concat(r, ', '))
-    }%
-}
+    end
 
-\def\showid#1{\ctxlua
-    {
-        local t = string.split('#1',',')
-        tex.sprint('\\type{'.. node.id(t[1]) .. '}')
+    function document.functions.showid(s)
+        local t = string.split(s,',')
+        context('{tttf %s}',node.id(t[1]))
         if t[2] then
-          tex.sprint(', \\type{'.. node.subtype(t[2]) .. '}')
+            context(', {tttf %s}',node.subtype(t[2]))
         end
-    }%
-}
+    end
 
-\starttexdefinition unexpanded todo #1
-    \dontleavehmode
-    \startcolor[red]
-        \bf<TODO: #1>
-    \stopcolor
-\stoptexdefinition
+    function document.functions.showsubtypes(s)
+        local s = node.subtypes(s)
+        local d = false
+        for k, v in table.sortedhash(s) do
+            if d then
+                context(', %s = {\\tttf %s}',k,v)
+            else
+                context('%s = {\\tttf %s}',k,v)
+                d = true
+            end
+        end
+    end
+\stopluacode
 
-\definecolor[blue] [b=.5]
-\definecolor[red]  [r=.5]
-\definecolor[green][g=.5]
+\unexpanded\def\showfields  #1{\ctxlua{document.functions.showfields("#1")}}
+\unexpanded\def\showid      #1{\ctxlua{document.functions.showid("#1")}}
+\unexpanded\def\showsubtypes#1{\ctxlua{document.functions.showsubtypes("#1")}}
 
+\definecolor[blue]      [b=.5]
+\definecolor[red]       [r=.5]
+\definecolor[green]     [g=.5]
 \definecolor[maincolor] [b=.5]
+\definecolor[keptcolor] [b=.5]
 \definecolor[othercolor][r=.5,g=.5]
 
 \setupbodyfont[modern] % we need this in examples so we predefine
@@ -116,10 +129,10 @@
 \setupbodyfont % assumes dejavu-math
   [dejavu,10pt]
 
-\setuphead [chapter]      [style=\bfd]
-\setuphead [section]      [style=\bfb]
-\setuphead [subsection]   [style=\bfa]
-\setuphead [subsubsection][style=\bf]
+\setuphead [chapter]      [align={flushleft,broad},style=\bfd]
+\setuphead [section]      [align={flushleft,broad},style=\bfb]
+\setuphead [subsection]   [align={flushleft,broad},style=\bfa]
+\setuphead [subsubsection][align={flushleft,broad},style=\bf]
 
 \setuphead [chapter]      [color=maincolor]
 \setuphead [section]      [color=maincolor]
@@ -150,11 +163,13 @@
   [threecolumns]
   [n=4]
 
-\setuptyping
-  [color=maincolor]
-
-\setuptype
-  [color=maincolor]
+% if we do this we also need to do it in table cells
+%
+% \setuptyping
+%   [color=maincolor]
+%
+% \setuptype
+%   [color=maincolor]
 
 \definetyping
   [functioncall]
@@ -319,12 +334,18 @@
 
 \setuplist
   [chapter,section,subsection,subsubsection]
-  [interaction=all]
+  [interaction=all,
+   width=3em]
 
 \setuplist
   [chapter]
   [style=bold,
-   color=maincolor]
+   color=keptcolor]
+
+\setuplist
+  [subsection,subsubsection]
+  [margin=3em,
+   width=5em]
 
 % Hans doesn't like the bookmarks opening by default so we comment this:
 %

@@ -348,72 +348,72 @@ extern int l_dir_text_index        [DIR_TEXT_SIZE];
 #define lua_push_string_by_name(L,index)       lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(index))
 
 #define set_l_pack_type_index \
-l_pack_type_index[0] = lua_key_index(exactly); \
-l_pack_type_index[1] = lua_key_index(additional); \
-l_pack_type_index[2] = lua_key_index(cal_expand_ratio);\
-l_pack_type_index[3] = lua_key_index(subst_ex_font);
+l_pack_type_index[exactly]          = lua_key_index(exactly); \
+l_pack_type_index[additional]       = lua_key_index(additional); \
+l_pack_type_index[cal_expand_ratio] = lua_key_index(cal_expand_ratio);\
+l_pack_type_index[subst_ex_font]    = lua_key_index(subst_ex_font);
 
 #define set_l_group_code_index \
-l_group_code_index[0]  = lua_key_index(empty_string);\
-l_group_code_index[1]  = lua_key_index(simple);\
-l_group_code_index[2]  = lua_key_index(hbox);\
-l_group_code_index[3]  = lua_key_index(adjusted_hbox);\
-l_group_code_index[4]  = lua_key_index(vbox);\
-l_group_code_index[5]  = lua_key_index(vtop);\
-l_group_code_index[6]  = lua_key_index(align);\
-l_group_code_index[7]  = lua_key_index(no_align);\
-l_group_code_index[8]  = lua_key_index(output);\
-l_group_code_index[9]  = lua_key_index(math);\
-l_group_code_index[10] = lua_key_index(disc);\
-l_group_code_index[11] = lua_key_index(insert);\
-l_group_code_index[12] = lua_key_index(vcenter);\
-l_group_code_index[13] = lua_key_index(math_choice);\
-l_group_code_index[14] = lua_key_index(semi_simple);\
-l_group_code_index[15] = lua_key_index(math_shift);\
-l_group_code_index[16] = lua_key_index(math_left);\
-l_group_code_index[17] = lua_key_index(local_box);\
-l_group_code_index[18] = lua_key_index(split_off);\
-l_group_code_index[19] = lua_key_index(split_keep);\
-l_group_code_index[20] = lua_key_index(preamble);\
-l_group_code_index[21] = lua_key_index(align_set);\
-l_group_code_index[22] = lua_key_index(fin_row)
+l_group_code_index[bottom_level]        = lua_key_index(empty_string);\
+l_group_code_index[simple_group]        = lua_key_index(simple);\
+l_group_code_index[hbox_group]          = lua_key_index(hbox);\
+l_group_code_index[adjusted_hbox_group] = lua_key_index(adjusted_hbox);\
+l_group_code_index[vbox_group]          = lua_key_index(vbox);\
+l_group_code_index[vtop_group]          = lua_key_index(vtop);\
+l_group_code_index[align_group]         = lua_key_index(align);\
+l_group_code_index[no_align_group]      = lua_key_index(no_align);\
+l_group_code_index[output_group]        = lua_key_index(output);\
+l_group_code_index[math_group]          = lua_key_index(math);\
+l_group_code_index[disc_group]          = lua_key_index(disc);\
+l_group_code_index[insert_group]        = lua_key_index(insert);\
+l_group_code_index[vcenter_group]       = lua_key_index(vcenter);\
+l_group_code_index[math_choice_group]   = lua_key_index(math_choice);\
+l_group_code_index[semi_simple_group]   = lua_key_index(semi_simple);\
+l_group_code_index[math_shift_group]    = lua_key_index(math_shift);\
+l_group_code_index[math_left_group]     = lua_key_index(math_left);\
+l_group_code_index[local_box_group]     = lua_key_index(local_box);\
+l_group_code_index[split_off_group]     = lua_key_index(split_off);\
+l_group_code_index[split_keep_group]    = lua_key_index(split_keep);\
+l_group_code_index[preamble_group]      = lua_key_index(preamble);\
+l_group_code_index[align_set_group]     = lua_key_index(align_set);\
+l_group_code_index[fin_row_group]       = lua_key_index(fin_row)
 
 #define set_l_local_par_index \
-l_local_par_index[0] = lua_key_index(new_graf);\
-l_local_par_index[1] = lua_key_index(local_box);\
-l_local_par_index[2] = lua_key_index(hmode_par);\
-l_local_par_index[3] = lua_key_index(penalty);\
-l_local_par_index[4] = lua_key_index(math);
+l_local_par_index[new_graf_par_code]  = lua_key_index(new_graf);\
+l_local_par_index[local_box_par_code] = lua_key_index(local_box);\
+l_local_par_index[hmode_par_par_code] = lua_key_index(hmode_par);\
+l_local_par_index[penalty_par_code]   = lua_key_index(penalty);\
+l_local_par_index[math_par_code]      = lua_key_index(math);
 
 #define set_l_math_style_name_index \
-l_math_style_name_index[0] = lua_key_index(display);\
-l_math_style_name_index[1] = lua_key_index(crampeddisplay);\
-l_math_style_name_index[2] = lua_key_index(text);\
-l_math_style_name_index[3] = lua_key_index(crampedtext);\
-l_math_style_name_index[4] = lua_key_index(script);\
-l_math_style_name_index[5] = lua_key_index(crampedscript);\
-l_math_style_name_index[6] = lua_key_index(scriptscript);\
-l_math_style_name_index[7] = lua_key_index(crampedscriptscript)
+l_math_style_name_index[display_style]               = lua_key_index(display);\
+l_math_style_name_index[cramped_display_style]       = lua_key_index(crampeddisplay);\
+l_math_style_name_index[text_style]                  = lua_key_index(text);\
+l_math_style_name_index[cramped_text_style]          = lua_key_index(crampedtext);\
+l_math_style_name_index[script_style]                = lua_key_index(script);\
+l_math_style_name_index[cramped_script_style]        = lua_key_index(crampedscript);\
+l_math_style_name_index[script_script_style]         = lua_key_index(scriptscript);\
+l_math_style_name_index[cramped_script_script_style] = lua_key_index(crampedscriptscript)
 
 #define set_l_dir_par_index \
-l_dir_par_index[0] = lua_key_index(TLT);\
-l_dir_par_index[1] = lua_key_index(TRT);\
-l_dir_par_index[2] = lua_key_index(LTL);\
-l_dir_par_index[3] = lua_key_index(RTT);\
-l_dir_par_index[4] = lua_key_index(TLT);\
-l_dir_par_index[5] = lua_key_index(TRT);\
-l_dir_par_index[6] = lua_key_index(LTL);\
-l_dir_par_index[7] = lua_key_index(RTT);\
+l_dir_par_index[dir_TLT]   = lua_key_index(TLT);\
+l_dir_par_index[dir_TRT]   = lua_key_index(TRT);\
+l_dir_par_index[dir_LTL]   = lua_key_index(LTL);\
+l_dir_par_index[dir_RTT]   = lua_key_index(RTT);\
+l_dir_par_index[dir_TLT+4] = lua_key_index(TLT);\
+l_dir_par_index[dir_TRT+4] = lua_key_index(TRT);\
+l_dir_par_index[dir_LTL+4] = lua_key_index(LTL);\
+l_dir_par_index[dir_RTT+4] = lua_key_index(RTT);\
 
 #define set_l_dir_text_index \
-l_dir_text_index[0] = lua_key_index(mTLT);\
-l_dir_text_index[1] = lua_key_index(mTRT);\
-l_dir_text_index[2] = lua_key_index(mLTL);\
-l_dir_text_index[3] = lua_key_index(mRTT);\
-l_dir_text_index[4] = lua_key_index(pTLT);\
-l_dir_text_index[5] = lua_key_index(pTRT);\
-l_dir_text_index[6] = lua_key_index(pLTL);\
-l_dir_text_index[7] = lua_key_index(pRTT);\
+l_dir_text_index[dir_TLT]   = lua_key_index(mTLT);\
+l_dir_text_index[dir_TRT]   = lua_key_index(mTRT);\
+l_dir_text_index[dir_LTL]   = lua_key_index(mLTL);\
+l_dir_text_index[dir_RTT]   = lua_key_index(mRTT);\
+l_dir_text_index[dir_TLT+4] = lua_key_index(pTLT);\
+l_dir_text_index[dir_TRT+4] = lua_key_index(pTRT);\
+l_dir_text_index[dir_LTL+4] = lua_key_index(pLTL);\
+l_dir_text_index[dir_RTT+4] = lua_key_index(pRTT);\
 
 #define img_parms_max     25
 #define img_pageboxes_max  6
@@ -503,6 +503,7 @@ make_lua_key(bot);\
 make_lua_key(bot_accent);\
 make_lua_key(bottom_left);\
 make_lua_key(bottom_right);\
+make_lua_key(boundary);\
 make_lua_key(box);\
 make_lua_key(box_left);\
 make_lua_key(box_left_width);\
@@ -597,6 +598,7 @@ make_lua_key(hangindent);\
 make_lua_key(hbox);\
 make_lua_key(head);\
 make_lua_key(height);\
+make_lua_key(hlist);\
 make_lua_key(hmode_par);\
 make_lua_key(hold_head);\
 make_lua_key(horiz_variants);\
@@ -698,7 +700,6 @@ make_lua_key(parameters);\
 make_lua_key(pardir);\
 make_lua_key(parshape);\
 make_lua_key(pdf_data);\
-make_lua_key(pdftex);\
 make_lua_key(pdf_destination);\
 make_lua_key(pdf_literal);\
 make_lua_key(pen_broken);\
@@ -797,7 +798,6 @@ make_lua_key(transform);\
 make_lua_key(trim);\
 make_lua_key(type);\
 make_lua_key(uchyph);\
-make_lua_key(umath);\
 make_lua_key(units_per_em);\
 make_lua_key(used);\
 make_lua_key(user_id);\
@@ -810,6 +810,7 @@ make_lua_key(vert_italic);\
 make_lua_key(vert_variants);\
 make_lua_key(vmode_par);\
 make_lua_key(visiblefilename);\
+make_lua_key(vlist);\
 make_lua_key(vtop);\
 make_lua_key(widowpenalty);\
 make_lua_key(width);\
@@ -866,6 +867,7 @@ init_lua_key(bot);\
 init_lua_key(bot_accent);\
 init_lua_key(bottom_left);\
 init_lua_key(bottom_right);\
+init_lua_key(boundary);\
 init_lua_key(box);\
 init_lua_key(box_left);\
 init_lua_key(box_left_width);\
@@ -959,6 +961,7 @@ init_lua_key(hangindent);\
 init_lua_key(hbox);\
 init_lua_key(head);\
 init_lua_key(height);\
+init_lua_key(hlist);\
 init_lua_key(hmode_par);\
 init_lua_key(hold_head);\
 init_lua_key(horiz_variants);\
@@ -1051,7 +1054,6 @@ init_lua_key(pagesattributes);\
 init_lua_key(parameters);\
 init_lua_key(pardir);\
 init_lua_key(parshape);\
-init_lua_key(pdftex);\
 init_lua_key(pdf_destination);\
 init_lua_key(pdf_literal);\
 init_lua_key(pen_broken);\
@@ -1149,7 +1151,6 @@ init_lua_key(transform);\
 init_lua_key(trim);\
 init_lua_key(type);\
 init_lua_key(uchyph);\
-init_lua_key(umath);\
 init_lua_key(units_per_em);\
 init_lua_key(used);\
 init_lua_key(user_id);\
@@ -1162,6 +1163,7 @@ init_lua_key(vert_italic);\
 init_lua_key(vert_variants);\
 init_lua_key(vmode_par);\
 init_lua_key(visiblefilename);\
+init_lua_key(vlist);\
 init_lua_key(vtop);\
 init_lua_key(widowpenalty);\
 init_lua_key(width);\
@@ -1275,6 +1277,7 @@ use_lua_key(bot);
 use_lua_key(bot_accent);
 use_lua_key(bottom_left);
 use_lua_key(bottom_right);
+use_lua_key(boundary);
 use_lua_key(box);
 use_lua_key(box_left);
 use_lua_key(box_left_width);
@@ -1369,6 +1372,7 @@ use_lua_key(hangindent);
 use_lua_key(hbox);
 use_lua_key(head);
 use_lua_key(height);
+use_lua_key(hlist);
 use_lua_key(hmode_par);
 use_lua_key(hold_head);
 use_lua_key(horiz_variants);
@@ -1470,7 +1474,6 @@ use_lua_key(parameters);
 use_lua_key(pardir);
 use_lua_key(parshape);
 use_lua_key(pdf_data);
-use_lua_key(pdftex);
 use_lua_key(pdf_destination);
 use_lua_key(pdf_literal);
 use_lua_key(pen_broken);
@@ -1569,7 +1572,6 @@ use_lua_key(transform);
 use_lua_key(trim);
 use_lua_key(type);
 use_lua_key(uchyph);
-use_lua_key(umath);
 use_lua_key(units_per_em);
 use_lua_key(used);
 use_lua_key(user_id);
@@ -1582,6 +1584,7 @@ use_lua_key(vert_italic);
 use_lua_key(vert_variants);
 use_lua_key(vmode_par);
 use_lua_key(visiblefilename);
+use_lua_key(vlist);
 use_lua_key(vtop);
 use_lua_key(widowpenalty);
 use_lua_key(width);

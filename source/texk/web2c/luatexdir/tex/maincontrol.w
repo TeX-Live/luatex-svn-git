@@ -231,17 +231,14 @@ static void run_app_space (void) {
 
 @ Append a |boundary_node|
 @c
-static void run_no_boundary (void) {
-    halfword n ;
-    n = new_node(boundary_node,cancel_boundary);
-    couple_nodes(tail, n);
-    tail = n;
-}
 static void run_boundary (void) {
     halfword n ;
-    n = new_node(boundary_node,user_boundary);
-    scan_int();
-    boundary_value(n) = cur_val;
+    n = new_node(boundary_node,cur_chr);
+    if ((cur_chr == 1) || (cur_chr == 2) ) {
+        /* user boundary or protrusion boundary */
+        scan_int();
+        boundary_value(n) = cur_val;
+    }
     couple_nodes(tail, n);
     tail = n;
 }
@@ -742,14 +739,12 @@ static void init_main_control (void) {
     jump_table[hmode + ex_space_cmd] = run_app_space;
     jump_table[mmode + ex_space_cmd] = run_app_space;
     jump_table[hmode + boundary_cmd] = run_boundary;
-    jump_table[hmode + no_boundary_cmd] = run_no_boundary;
     jump_table[hmode + char_ghost_cmd] = run_char_ghost;
     jump_table[mmode + char_ghost_cmd] = run_char_ghost;
     any_mode(relax_cmd, run_relax);
     jump_table[vmode + spacer_cmd] = run_relax;
     jump_table[mmode + spacer_cmd] = run_relax;
     jump_table[mmode + boundary_cmd] = run_relax;
-    jump_table[mmode + no_boundary_cmd] = run_relax;
     any_mode(ignore_spaces_cmd,run_ignore_spaces);
     jump_table[vmode + stop_cmd] = run_stop;
     jump_table[vmode + math_char_num_cmd] = run_non_math_math;
@@ -833,7 +828,6 @@ static void init_main_control (void) {
     jump_table[vmode + valign_cmd] = run_new_graf;
     jump_table[vmode + ex_space_cmd] = run_new_graf;
     jump_table[vmode + boundary_cmd] = run_new_graf;
-    jump_table[vmode + no_boundary_cmd] = run_new_graf;
     jump_table[vmode + par_end_cmd] = run_par_end_vmode;
     jump_table[hmode + par_end_cmd] = run_par_end_hmode;
     jump_table[hmode + stop_cmd] = head_for_vmode;
@@ -1505,7 +1499,7 @@ void new_graf(boolean indented)
     mode = hmode;
     space_factor = 1000;
     /* LOCAL: Add local paragraph node */
-    tail_append(make_local_par_node(0));
+    tail_append(make_local_par_node(new_graf_par_code));
     if (indented) {
         p = new_null_box();
         box_dir(p) = par_direction;
@@ -1875,7 +1869,7 @@ void build_local_box(void)
         eq_define(local_right_box_base, box_ref_cmd, p);
     if (abs(mode) == hmode) {
         /* LOCAL: Add local paragraph node */
-        tail_append(make_local_par_node(1));
+        tail_append(make_local_par_node(local_box_par_code));
     }
     eq_word_define(int_base + no_local_whatsits_code, no_local_whatsits + 1);
 }
@@ -2836,7 +2830,7 @@ void fixup_directions(void)
         }
         if (temp_no_whatsits != 0) {
             /* LOCAL: Add local paragraph node */
-            tail_append(make_local_par_node(2));
+            tail_append(make_local_par_node(hmode_par_par_code));
         }
     }
 }
@@ -2946,7 +2940,7 @@ void assign_internal_value(int a, halfword p, int val)
             ((p == (int_base + local_inter_line_penalty_code)) ||
              (p == (int_base + local_broken_penalty_code)))) {
             /* LOCAL: Add local paragraph node */
-            tail_append(make_local_par_node(3));
+            tail_append(make_local_par_node(penalty_par_code));
 
             eq_word_define(int_base + no_local_whatsits_code,
                            no_local_whatsits + 1);
