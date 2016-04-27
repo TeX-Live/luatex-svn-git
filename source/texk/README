@@ -1,4 +1,4 @@
-$Id: README 40410 2016-04-11 18:29:03Z karl $
+$Id: README 40624 2016-04-19 23:51:42Z kakuto $
 Copyright 2006-2016 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -58,7 +58,7 @@ dvipos - ?
 
 dvipsk - maintained here, by us
 
-dvisvgm 1.15 - checked 27feb16
+dvisvgm 1.15.1 - checked 20apr16
   http://dvisvgm.bplaced.net/Downloads
 
 gregorio 4.1.1 - checked 11mar16
