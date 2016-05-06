@@ -50,8 +50,6 @@ halfword pdf_names_toks;                             /* additional keys of Names
 halfword pdf_trailer_toks;                           /* additional keys of Trailer dictionary */
 shipping_mode_e global_shipping_mode = NOT_SHIPPING; /* set to |shipping_mode| when |ship_out| starts */
 
-extern int utc_option;                               /* set at command line, default 0 */
-
 
 @ Create a new buffer |strbuf_s| of size |size| and maximum allowed size |limit|.
 Initialize it and set |p| to begin of data.
