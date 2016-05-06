@@ -198,6 +198,7 @@ extern void preset_environment(lua_State * L, const parm_struct * p, const char 
 extern char *startup_filename;
 extern int safer_option;
 extern int nosocket_option;
+extern int utc_option;
 
 extern char *last_source_name;
 extern int last_lineno;

@@ -148,6 +148,28 @@ void mk_shellcmdlist(char *v)
 /* Called from maininit.  Not static because also called from
    luatexdir/lua/luainit.c.  */
 
+static int start_time = -1;
+
+int get_start_time(void) {
+    if (start_time < 1) {
+        char *source_date_epoch;
+        unsigned long long epoch;
+        char *endptr;
+        source_date_epoch = getenv("SOURCE_DATE_EPOCH");
+        if (source_date_epoch) {
+            errno = 0;
+            epoch = strtoull(source_date_epoch, &endptr, 10);
+            if (epoch < 0 || *endptr != '\0' || errno != 0) {
+                start_time = 0;
+            }
+            start_time = epoch;
+        } else {
+            start_time = time((time_t *) NULL);
+        }
+    }
+    return start_time;
+}
+
 void init_shell_escape(void)
 {
     if (shellenabledp < 0) {    /* --no-shell-escape on cmd line */
@@ -858,8 +880,13 @@ static RETSIGTYPE catch_interrupt(int arg)
 
 void get_date_and_time(int *minutes, int *day, int *month, int *year)
 {
-    time_t myclock = time((time_t *) 0);
-    struct tm *tmptr = localtime(&myclock);
+    time_t myclock = get_start_time();
+    struct tm *tmptr ;
+    if (utc_option) {
+        tmptr = gmtime(&myclock);
+    } else {
+        tmptr = localtime(&myclock);
+    }
 
     *minutes = tmptr->tm_hour * 60 + tmptr->tm_min;
     *day = tmptr->tm_mday;
@@ -933,8 +960,13 @@ int getrandomseed(void)
     ftime(&tb);
     return (tb.millitm + 1000 * tb.time);
 #else
-    time_t myclock = time((time_t *) NULL);
-    struct tm *tmptr = localtime(&myclock);
+    time_t myclock = get_start_time((time_t *) NULL);
+    struct tm *tmptr ;
+    if (utc_option) {
+        tmptr = gmtime(&myclock);
+    } else {
+        tmptr = localtime(&myclock);
+    }
     return (tmptr->tm_sec + 60 * (tmptr->tm_min + 60 * tmptr->tm_hour));
 #endif
 }

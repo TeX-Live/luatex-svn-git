@@ -3533,7 +3533,7 @@ void initialize(void)
     initialize_directions();
     initialize_write_files();
     seconds_and_micros(epochseconds, microseconds);
-    init_start_time(static_pdf);
+    initialize_start_time(static_pdf);
 
     edit_name_start = 0;
     stop_at_space = true;

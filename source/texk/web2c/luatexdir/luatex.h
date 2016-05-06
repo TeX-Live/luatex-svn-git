@@ -71,6 +71,9 @@
 /* Executing shell commands.  */
 extern void mk_shellcmdlist(char *);
 extern void init_shell_escape(void);
+extern int get_start_time(void);
+extern boolean get_start_time(void);
+
 extern int shell_cmd_is_allowed(const char *cmd, char **safecmd,
                                 char **cmdname);
 

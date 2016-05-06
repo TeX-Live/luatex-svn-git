@@ -88,6 +88,7 @@ const_string LUATEX_IHELP[] = {
     "   --[no-]shell-escape           disable/enable system commands",
     "   --shell-restricted            restrict system commands to a list of commands given in texmf.cnf",
     "   --synctex=NUMBER              enable synctex",
+    "   --utc                         init time to UTC",
     "   --version                     display version and exit",
     "",
     "Alternate behaviour models can be obtained by special switches",
@@ -183,6 +184,7 @@ char *jithash_hashname = NULL;
 
 int safer_option = 0;
 int nosocket_option = 0;
+int utc_option = 0;
 
 @ Reading the options.
 
@@ -212,6 +214,7 @@ static struct option long_options[] = {
     {"jithash", 1, 0, 0},
 #endif
     {"safer", 0, &safer_option, 1},
+    {"utc", 0, &utc_option, 1},
     {"nosocket", 0, &nosocket_option, 1},
     {"help", 0, 0, 0},
     {"ini", 0, &ini_version, 1},
