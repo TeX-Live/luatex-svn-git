@@ -151,7 +151,7 @@ void mk_shellcmdlist(char *v)
 static int start_time = -1;
 
 int get_start_time(void) {
-    if (start_time < 1) {
+    if (start_time < 0) {
         char *source_date_epoch;
         unsigned long long epoch;
         char *endptr;
