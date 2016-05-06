@@ -148,26 +148,75 @@ void mk_shellcmdlist(char *v)
 /* Called from maininit.  Not static because also called from
    luatexdir/lua/luainit.c.  */
 
+/*
+    In order to avoid all kind of time code in the backend code we use a function.
+    The start time can be overloaded in several ways:
+
+    (1) By setting the environmment variable SOURCE_DATE_EPOCH. This will influence
+    the tex parameters, random seed, pdf timestamp and pdf id that is derived
+    from the time. This variable is consulted when the kpse library is enabled
+    which is analogue to other properties.
+
+    (2) By setting the texconfig.start_time variable (as with other variables
+    we use the internal name there). This has the same effect as (1) and is
+    provided for when kpse is not used to set these variables or when an overloaded
+    is wanted. This is analogue to other properties.
+
+    When an utc time is needed one can provide the flag --utc. This property is
+    independent of this time hackery. This flag has a corresponding texconfig
+    option use_utc_time.
+
+    To some extend a cleaner solution would be to have a flag that disables all
+    variable data in one go (like filenames and so) but we just follow the method
+    implemented in pdftex where primitives are used tod disable it.
+
+*/
+
 static int start_time = -1;
 
 int get_start_time(void) {
     if (start_time < 0) {
-        char *source_date_epoch;
+        start_time = time((time_t *) NULL);
+    }
+    return start_time;
+}
+
+/*
+    This one is called as part of the kpse initialization which only happens
+    when this library is enabled.
+*/
+
+void init_start_time(void) {
+    if (start_time < 0) {
         unsigned long long epoch;
         char *endptr;
-        source_date_epoch = getenv("SOURCE_DATE_EPOCH");
-        if (source_date_epoch) {
+        /*
+            We don't really care how kpse sets up this variable but we prefer to
+            just use its abstract interface.
+        */
+     /* char *source_date_epoch = getenv("SOURCE_DATE_EPOCH"); */
+        char *source_date_epoch = kpse_var_value("SOURCE_DATE_EPOCH");
+        if (source_date_epoch && source_date_epoch != '\0' ) {
             errno = 0;
             epoch = strtoull(source_date_epoch, &endptr, 10);
             if (epoch < 0 || *endptr != '\0' || errno != 0) {
                 start_time = 0;
             }
             start_time = epoch;
-        } else {
-            start_time = time((time_t *) NULL);
         }
     }
-    return start_time;
+}
+
+/*
+    This one is used to fetch a value from texconfig which can also be used to
+    set properties. This might come in handy when one has other ways to get date
+    info in the pdf file.
+*/
+
+void set_start_time(int s) {
+    if (s >= 0) {
+        start_time = s ;
+    }
 }
 
 void init_shell_escape(void)

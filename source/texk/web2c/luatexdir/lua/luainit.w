@@ -576,6 +576,7 @@ static void init_kpse(void)
 
     kpse_set_program_name(argv[0], user_progname);
     init_shell_escape();        /* set up 'restrictedshell' */
+    init_start_time();
     program_name_set = 1 ;
     if (recorderoption) {
         recorder_enabled = 1;
@@ -859,6 +860,8 @@ void lua_initialize(int ac, char **av)
     char *banner;
     int kpse_init;
     size_t len;
+    int starttime;
+    int utc;
     static char LC_CTYPE_C[] = "LC_CTYPE=C";
     static char LC_COLLATE_C[] = "LC_COLLATE=C";
     static char LC_NUMERIC_C[] = "LC_NUMERIC=C";
@@ -1033,6 +1036,25 @@ void lua_initialize(int ac, char **av)
                 mk_shellcmdlist(v1);
             free(v1);
             }
+        }
+
+        starttime = -1 ;
+        get_lua_number("texconfig", "start_time", &starttime);
+        if (starttime < 0) {
+            /*
+                We provide this one for compatibility reasons and therefore also in
+                uppercase.
+            */
+            get_lua_number("texconfig", "SOURCE_DATE_EPOCH", &starttime);
+        }
+        if (starttime >= 0) {
+            set_start_time(starttime);
+        }
+
+        utc = -1 ;
+        get_lua_boolean("texconfig", "use_utc_time", &utc);
+        if (utc >= 0 && utc <= 1) {
+            utc_option = utc;
         }
 
         fix_dumpname();
