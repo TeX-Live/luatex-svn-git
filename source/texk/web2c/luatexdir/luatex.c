@@ -185,6 +185,9 @@ int get_start_time(void) {
     This one is called as part of the kpse initialization which only happens
     when this library is enabled.
 */
+#if defined(_MSC_VER)
+#define strtoull _strtoui64
+#endif
 
 void init_start_time(void) {
     if (start_time < 0) {
@@ -202,6 +205,14 @@ void init_start_time(void) {
             if (epoch < 0 || *endptr != '\0' || errno != 0) {
                 start_time = 0;
             }
+#if defined(_MSC_VER)
+            /* We avoid to crash if users test a large value which is not
+             * supported by Visual Studio 2010:
+             * a later time than 3001/01/01 20:59:59.
+             */
+            if (epoch > 32535291599ULL)
+                epoch = 32535291599ULL;
+#endif
             start_time = epoch;
         }
     }
@@ -540,7 +551,10 @@ main (int ac, string *av)
 #    endif
     av[0] = kpse_program_basename (av[0]);
     _setmaxstdio(2048);
+/*
+ *  We choose to crash for fatal errors
     SetErrorMode (SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+ */
     setmode(fileno(stdin), _O_BINARY);
 #  endif
 
