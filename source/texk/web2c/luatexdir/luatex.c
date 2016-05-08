@@ -203,7 +203,7 @@ void init_start_time(void) {
             errno = 0;
             epoch = strtoull(source_date_epoch, &endptr, 10);
             if (epoch < 0 || *endptr != '\0' || errno != 0) {
-                start_time = 0;
+                epoch = 0;
             }
 #if defined(_MSC_VER)
             /* We avoid to crash if users test a large value which is not
