@@ -776,7 +776,7 @@ static halfword find_next_wordstart(halfword r, halfword first_language)
                         hyphenation, ligaturing and kerning steps. A test is cmr with ------.
                     */
                     t = vlink(r) ;
-                    if ((start_ok > 0) && (t!=null) && (type(t) == glyph_node) && (character(t) != ex_hyphen_char)) {
+                    if ((start_ok == 0) && (t!=null) && (type(t) == glyph_node) && (character(t) != ex_hyphen_char)) {
                         t = compound_word_break(r, char_lang(r));
                         subtype(t) = automatic_disc;
                         start_ok = 1 ;

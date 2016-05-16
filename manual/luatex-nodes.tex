@@ -995,6 +995,8 @@ this:
 \NC \type {getprev}              \NC \yes \NC \yes  \NC \NR
 \NC \type {getsubtype}           \NC \yes \NC \yes  \NC \NR
 \NC \type {has_attribute}        \NC \yes \NC \yes  \NC \NR
+\NC \type {get_attribute}        \NC \yes \NC \yes  \NC \NR
+\NC \type {find_attribute}       \NC \yes \NC \yes  \NC \NR
 \NC \type {has_field}            \NC \yes \NC \yes  \NC \NR
 \NC \type {has_glyph}            \NC \yes \NC \yes  \NC \NR
 \NC \type {hpack}                \NC \yes \NC \yes  \NC \NR
@@ -1776,6 +1778,26 @@ efficient to use the dedicated functions associated with them.
 Tests if a node has the attribute with number \type {id} set. If \type {val} is
 also supplied, also tests if the value matches \type {val}. It returns the value,
 or, if no match is found, \type {nil}.
+
+\subsubsection{\type {node.get_attribute}}
+
+\startfunctioncall
+<number> v =
+    node.get_attribute(<node> n, <number> id)
+\stopfunctioncall
+
+Tests if a node has an attribute with number \type {id} set. It returns the
+value, or, if no match is found, \type {nil}.
+
+\subsubsection{\type {node.find_attribute}}
+
+\startfunctioncall
+<number> v, <node> n =
+    node.find_attribute(<node> n, <number> id)
+\stopfunctioncall
+
+Finds the first node that has attribute with number \type {id} set. It returns
+the value and the node if there is a match and otherwise nothing.
 
 \subsubsection{\type {node.set_attribute}}
 
