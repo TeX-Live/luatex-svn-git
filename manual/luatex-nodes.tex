@@ -646,14 +646,14 @@ The \type {type} can have one of six distinct values. The number is the \ASCII\
 value if the first character if the type name (so you can use string.byte("l")
 instead of \type {108}).
 
-\starttabulate[|lT|p|]
-\NC \rmbf value \NC \bf meaning   \NC \bf explanation \NC \NR
-\NC   97        \NC a  \NC list of attributes (a node list) \NC \NR
-\NC  100        \NC d  \NC a \LUA\ number \NC \NR
-\NC  108        \NC l  \NC a \LUA\ value (table, number, boolean, etc) \NC \NR
-\NC  110        \NC n  \NC a node list \NC \NR
-\NC  115        \NC s  \NC a \LUA\ string \NC \NR
-\NC  116        \NC t  \NC a \LUA\ token list in \LUA\ table form (a list of triplets) \NC \NR
+\starttabulate[|lT|lT|p|]
+\NC \rmbf value \NC \bf meaning \NC \bf explanation \NC \NR
+\NC   97        \NC a           \NC list of attributes (a node list) \NC \NR
+\NC  100        \NC d           \NC a \LUA\ number \NC \NR
+\NC  108        \NC l           \NC a \LUA\ value (table, number, boolean, etc) \NC \NR
+\NC  110        \NC n           \NC a node list \NC \NR
+\NC  115        \NC s           \NC a \LUA\ string \NC \NR
+\NC  116        \NC t           \NC a \LUA\ token list in \LUA\ table form (a list of triplets) \NC \NR
 \stoptabulate
 
 \subsubsubsection{save_pos whatsits}

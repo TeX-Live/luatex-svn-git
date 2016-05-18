@@ -1275,6 +1275,9 @@ static void flush_node_wrapup_core(halfword p)
                 break;
             case 'd':
                 break;
+            case 'l':
+                free_user_lua(user_node_value(p));
+                break;
             case 'n':
                 flush_node_list(user_node_value(p));
                 break;
