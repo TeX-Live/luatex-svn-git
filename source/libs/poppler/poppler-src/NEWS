@@ -1,4 +1,24 @@
-Release 0.41.0
+Release 0.43.0
+        core:
+         * Implement sanity check for linearization usage. Bug #92482
+         * Add SymbolMT as an alias for the Symbol font. Bug #93168
+         * Fix some blank files. Bug #94756
+         * cairo: fix fillToStrokePathClip crash and rendering. Bug #62905
+         * cairo: Check if PDF knows the width of 'm' in case of substituted font. Bug #94054
+         * cairo: save mask state and don't extend image mask. bug #94234
+         * SplashOuputDev: Compile with C++11 compilers that don't define isinfinite. Bug #94761
+         * typo fixes
+
+        utils:
+         * pdftocairo: Calculate rotation before scaling. Bug #94655
+
+        qt4:
+         * Fix crash on certain PDF form item activation actions. Bug #94873
+
+        qt5:
+         * Fix crash on certain PDF form item activation actions. Bug #94873
+
+Release 0.42.0
         core:
          * Add the support for version 5 + revision 6 documents. Bug #85368
          * Add initial support for Signature handling

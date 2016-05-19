@@ -36,6 +36,7 @@
 // Copyright (C) 2014 Richard PALO <richard@netbsd.org>
 // Copyright (C) 2015 Tamas Szekeres <szekerest@gmail.com>
 // Copyright (C) 2015 Kenji Uno <ku@digitaldolphins.jp>
+// Copyright (C) 2016 Takahiro Hashimoto <kenya888.en@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -91,6 +92,13 @@ extern "C" int unlink(char *filename);
 #include <ieeefp.h>
 #ifndef isfinite
 #define isfinite(x) finite(x)
+#endif
+#endif
+
+#if __cplusplus > 199711L
+#include <cmath>
+#ifndef isfinite
+#define isfinite(x) std::isfinite(x)
 #endif
 #endif
 
