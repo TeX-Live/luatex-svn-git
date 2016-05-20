@@ -2020,6 +2020,7 @@ void begin_box(int box_context)
     int n;      /* a box number */
     int spec_direction = -1;
     int just_pack = 0;
+    int split_mode = exactly ;
     switch (cur_chr) {
         case box_code:
             scan_register_num();
@@ -2077,15 +2078,17 @@ void begin_box(int box_context)
             */
             scan_register_num();
             n = cur_val;
-            if (!scan_keyword("to")) {
+            if (scan_keyword("upto")) {
+                split_mode = additional ;
+            } else if (!scan_keyword("to")) {
                 print_err("Missing `to' inserted");
                 help2("I'm working on `\\vsplit<box number> to <dimen>';",
                       "will look for the <dimen> next.");
                 error();
             }
             scan_normal_dimen();
-            cur_box = vsplit(n, cur_val, additional);
-            break;
+            cur_box = vsplit(n, cur_val, split_mode);
+         break;
         default:
             /*
                 Initiate the construction of an hbox or vbox, then |return|. Here is
