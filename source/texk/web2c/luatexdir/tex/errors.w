@@ -511,6 +511,11 @@ void overflow(const char *s, unsigned int n)
     print_char('=');
     print_int((int) n);
     print_char(']');
+    if (varmem == NULL) {
+      print_err("Sorry, I ran out of memory.");
+      print_ln();
+      exit(EXIT_FAILURE);
+    }
     help2("If you really absolutely need more capacity,",
           "you can ask a wizard to enlarge me.");
     succumb();
