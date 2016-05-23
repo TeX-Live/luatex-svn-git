@@ -38,7 +38,6 @@ void init_col(void);
 #define incompleat_noad cur_list.incompleat_noad_field
 
 #define every_cr          equiv(every_cr_loc)
-#define display_indent    dimen_par(display_indent_code)
 #define max_depth         dimen_par(max_depth_code)
 #define overfull_rule     dimen_par(overfull_rule_code)
 
@@ -856,7 +855,7 @@ value is changed to zero and so is the next tabskip.
             /* Nullify |width(q)| and the tabskip glue following this column */
             width(q) = 0;
             r = vlink(q);
-            reset_glue_to_zero(r); /* is a lready copy */ 
+            reset_glue_to_zero(r); /* is a lready copy */
         }
         if (span_ptr(q) != end_span) {
             /* Merge the widths in the span nodes of |q| with those of |p|,
