@@ -187,7 +187,7 @@ void load_tex_patterns(int curlang, halfword head)
 @ @c
 #define STORE_CHAR(l,x) do { \
     unsigned xx = get_hj_code(l,x); \
-    if (!xx || xx < 32) { \
+    if (!xx || xx <= 32) { \
         xx = x; \
     } \
     uindex = uni2string(uindex, xx); \
@@ -784,7 +784,7 @@ static halfword find_next_wordstart(halfword r, halfword first_language)
                         start_ok = 0;
                     }
                 } else if (start_ok && (char_lang(r)>=first_language) && ((l = get_hj_code(char_lang(r),chr)) > 0)) {
-                    if (char_uchyph(r) || l == chr || l < 32) {
+                    if (char_uchyph(r) || l == chr || l <= 32) {
                         return r;
                     } else {
                         start_ok = 0;
@@ -900,7 +900,10 @@ void hnj_hyphenation(halfword head, halfword tail)
                 explicit_hyphen = true;
             }
             wordlen++;
-            if (lchar<32) {
+            if (lchar <= 32) {
+                if (lchar == 32) {
+                    lchar = 0 ;
+                }
                 if (wordlen <= lhmin) {
                     lhmin = lhmin - lchar + 1 ;
                 }

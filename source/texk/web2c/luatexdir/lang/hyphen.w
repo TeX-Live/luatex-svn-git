@@ -809,7 +809,7 @@ void hnj_hyphen_hyphenate(HyphenDict * dict,
             ch = '.';
         } else {
             ch = get_hj_code(char_lang(here),get_character(here));
-            if (ch < 32) {
+            if (ch <= 32) {
                 ch = get_character(here);
             }
         }
