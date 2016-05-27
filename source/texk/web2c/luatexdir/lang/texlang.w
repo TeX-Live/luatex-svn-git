@@ -187,7 +187,7 @@ void load_tex_patterns(int curlang, halfword head)
 @ @c
 #define STORE_CHAR(l,x) do { \
     unsigned xx = get_hj_code(l,x); \
-    if (!xx) { \
+    if (!xx || xx < 32) { \
         xx = x; \
     } \
     uindex = uni2string(uindex, xx); \
@@ -784,7 +784,7 @@ static halfword find_next_wordstart(halfword r, halfword first_language)
                         start_ok = 0;
                     }
                 } else if (start_ok && (char_lang(r)>=first_language) && ((l = get_hj_code(char_lang(r),chr)) > 0)) {
-                    if (char_uchyph(r) || l == chr) {
+                    if (char_uchyph(r) || l == chr || l < 32) {
                         return r;
                     } else {
                         start_ok = 0;
@@ -842,7 +842,6 @@ void hnj_hyphenation(halfword head, halfword tail)
     lang_variables langdata;
     char utf8word[(4 * MAX_WORD_LEN) + 1] = { 0 };
     int wordlen = 0;
-    int fakelen = 0;
     char *hy = utf8word;
     char *replacement = NULL;
     boolean explicit_hyphen = false;
@@ -902,9 +901,14 @@ void hnj_hyphenation(halfword head, halfword tail)
             }
             wordlen++;
             if (lchar<32) {
-                fakelen += lchar;
-            } else {
-                fakelen++;
+                if (wordlen <= lhmin) {
+                    lhmin = lhmin - lchar + 1 ;
+                }
+                if (wordlen >= rhmin) {
+                    rhmin = rhmin - lchar + 1 ;
+                }
+                hmin = hmin - lchar + 1 ;
+                lchar = character(r) ;
             }
             hy = uni2string(hy, (unsigned) lchar);
             /* this should not be needed  any more */
@@ -914,10 +918,8 @@ void hnj_hyphenation(halfword head, halfword tail)
         }
         if (     valid_wordend(r)
               && clang >= first_language
-           /* && wordlen >= lhmin + rhmin */
-              && fakelen >= lhmin + rhmin
-           /* && (hmin <= 0 || wordlen >= hmin) */
-              && (hmin <= 0 || fakelen >= hmin)
+              && wordlen >= lhmin + rhmin
+              && (hmin <= 0 || wordlen >= hmin)
               && (hyf_font != 0)
               && (lang = tex_languages[clang]) != NULL
            ) {
@@ -975,7 +977,6 @@ void hnj_hyphenation(halfword head, halfword tail)
         }
         explicit_hyphen = false;
         wordlen = 0;
-        fakelen = 0;
         hy = utf8word;
         if (r == null)
             break;
