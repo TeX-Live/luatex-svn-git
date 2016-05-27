@@ -153,16 +153,22 @@ another one in the patterns and tell the engine that \type {œ} counts as one
 character.
 
 \starttyping
-\hjcode`x=`o  % length 1
-
+% assuming french patterns:
 foobar % foo-bar
+
+\hjcode`x=`o
+
 fxxbar % fxx-bar
 
 \lefthyphenmin3
 
+œdipus % œdi-pus
+
+\lefthyphenmin4
+
 œdipus % œdipus
 
-\hjcode`œ=1    % < 32 then it's the length and code is char code
+\hjcode`œ=2
 
 œdipus % œdi-pus
 \stoptyping
