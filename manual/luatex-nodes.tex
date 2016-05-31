@@ -201,6 +201,26 @@ its internal link structure is correct, otherwise an error may be result.
 The subtype numbers~4 and~5 belong to the \quote {of-f-ice} explanation given
 elsewhere.
 
+These disc nodes are kind of special as at some point they also keep information
+about breakpoints and nested ligatures. The \type {pre}, \type {post} and \type
+{replace} fields at the \LUA\ end are in fact indirectly accessed and have a
+\type {prev} pointer that is not \type {nil}. This means that when you mess
+around with the head of these (three) lists, you also need to reassign them
+because that will restore the proper \type {prev} pointer, so:
+
+\starttyping
+pre = d.pre
+-- change the list starting with pre
+d.pre = pre
+\stoptyping
+
+Otherwise you can end up with an invalid internal perception of reality and
+\LUATEX\ might even decide to crash on you. It also means that running forward
+over for instance \type {pre} is ok but backward you need to stop at \type {pre}.
+And you definitely must not mess with the node that \type {prev} points to, if
+only because it is not really an node but part of the disc data structure (so
+freeing it again might crash \LUATEX).
+
 \subsubsection{math nodes}
 
 \starttabulate[|lT|l|p|]
