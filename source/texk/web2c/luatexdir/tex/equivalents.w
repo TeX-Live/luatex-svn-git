@@ -798,7 +798,7 @@ entire run. The global variable |mag_set| is set to the current magnification
 whenever it becomes necessary to ``freeze'' it at a particular value.
 
 @c
-int mag_set; /* if nonzero, this magnification should be used henceforth */
+int mag_set = 0; /* if nonzero, this magnification should be used henceforth */
 
 @ The |prepare_mag| subroutine is called whenever \TeX\ wants to use |mag|
 for magnification.

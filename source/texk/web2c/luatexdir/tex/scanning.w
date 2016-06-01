@@ -531,7 +531,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                     break;
                 case lastskip_code:
                     if (last_glue != max_halfword)
-                        cur_val = last_glue; /* maybe new_glue */ 
+                        cur_val = last_glue; /* maybe new_glue */
                     break;
                 case last_node_type_code:
                     cur_val = last_node_type;
@@ -1192,15 +1192,16 @@ static void scan_dimen_out_of_range_error(void) {
 
 void scan_dimen(boolean mu, boolean inf, boolean shortcut)
 {
-    boolean negative; /* should the answer be negated? */
-    int f = 0;        /* numerator of a fraction whose denominator is $2^{16}$ */
-    int num, denom;   /* conversion ratio for the scanned units */
-    halfword q;       /* top of decimal digit stack */
-    scaled v;         /* an internal dimension */
-    int save_cur_val; /* temporary storage of |cur_val| */
+    boolean negative = false; /* should the answer be negated? */
+    boolean is_true  = false;
+    int f = 0;                /* numerator of a fraction whose denominator is $2^{16}$ */
+    int num = 0;              /* conversion ratio for the scanned units */
+    int denom = 0;
+    halfword q;               /* top of decimal digit stack */
+    scaled v;                 /* an internal dimension */
+    int save_cur_val;         /* temporary storage of |cur_val| */
     arith_error = false;
     cur_order = normal;
-    negative = false;
     if (!shortcut) {
         /* Get the next non-blank non-sign... */
         do {
@@ -1388,7 +1389,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     */
   PICKUP_UNIT:
     if (scan_keyword("pt")) {
-        goto ATTACH_FRACTION;   /* the easy case */
+        goto SCALE_VALUE;   /* the easy case */
     } else if (scan_keyword("mm")) {
         set_conversion(7227, 2540);
         goto SCALE_VALUE;
@@ -1418,9 +1419,18 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     } else if (scan_keyword("nc")) {
         set_conversion(1370, 107);
         goto SCALE_VALUE;
-    } else if (scan_keyword("true")) {
-        /* Adjust (f)for the magnification ratio */
-        if (output_mode_used == OMODE_DVI) {
+    } else if (!is_true && scan_keyword("true")) {
+        is_true = true;
+        goto PICKUP_UNIT;
+    }
+    /* Complain about unknown unit and |goto done2| */
+    scan_dimen_unknown_unit_error();
+    goto BAD_NEWS;
+  SCALE_VALUE:
+    /* Adjust (f) for the magnification ratio */
+    if (!is_true) {
+        /* maybe at some point we will drop mag completely, even in dvi mode */
+        if (output_mode_used <= OMODE_DVI) {
             prepare_mag();
             if (int_par(mag_code) != 1000) {
                 cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
@@ -1428,18 +1438,18 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
                 cur_val = cur_val + (f / 0200000);
                 f = f % 0200000;
             }
+        } else {
+            /* in pdf mode we're always true */
+            one_true_inch = one_inch; /* saveguard */
         }
-        goto PICKUP_UNIT;
-    } else {
-        /* Complain about unknown unit and |goto done2| */
-        scan_dimen_unknown_unit_error();
-        goto BAD_NEWS;
     }
-  SCALE_VALUE:
-    cur_val = xn_over_d(cur_val, num, denom);
-    f = (num * f + 0200000 * tex_remainder) / denom;
-    cur_val = cur_val + (f / 0200000);
-    f = f % 0200000;
+    /* */
+    if (num) {
+        cur_val = xn_over_d(cur_val, num, denom);
+        f = (num * f + 0200000 * tex_remainder) / denom;
+        cur_val = cur_val + (f / 0200000);
+        f = f % 0200000;
+    }
   BAD_NEWS:
   ATTACH_FRACTION:
     if (cur_val >= 040000) {
@@ -2493,7 +2503,7 @@ static void scan_expr(void)
          */
         t = f;
         if ((l >= glue_val_level) && (o != expr_none)) {
-	        /* do we really need to copy here ? */ 
+	        /* do we really need to copy here ? */
             t = new_spec(f);
             flush_node(f);
             normalize_glue(t);
