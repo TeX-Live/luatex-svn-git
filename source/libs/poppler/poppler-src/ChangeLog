@@ -1,3 +1,136 @@
+commit 58f56a7af99b477f39e57aed74443b6851afe15f
+Author: Thomas Freitag <Thomas.Freitag@alfa.de>
+Date:   Sat May 21 18:25:22 2016 +0200
+
+    Fix Compile in 32bit linux
+
+    Bug #95492
+
+ poppler/Decrypt.cc | 65
+ +++++++++++++++++++++++++++---------------------------
+ 1 file changed, 33 insertions(+), 32 deletions(-)
+
+commit 853e94995255591b35d9bdbeb0174476838097c0
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Apr 17 16:02:57 2016 +0930
+
+    pdftocairo: add -antialias option
+
+    Bug 94977
+
+ poppler/CairoOutputDev.cc | 24 +++++++++++++++++
+ poppler/CairoOutputDev.h  |  4 ++-
+ utils/pdftocairo.1        | 26 +++++++++++++++++++
+ utils/pdftocairo.cc       | 66
+ ++++++++++++++++++++++++++++++++++++++++++-----
+ 4 files changed, 112 insertions(+), 8 deletions(-)
+
+commit 8453966178de8535cdabac090e78ec17857f8975
+Author: Thomas Freitag <Thomas.Freitag@alfa.de>
+Date:   Tue May 17 01:00:37 2016 +0200
+
+    Improve rendering of some dotted lines
+
+    Bug #84693
+
+ splash/Splash.cc | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+commit 182abe4ed5c0773073c6751a26a7c4e40e99e02e
+Author: Thomas Freitag <Thomas.Freitag@alfa.de>
+Date:   Fri May 13 00:07:24 2016 +0200
+
+    Splash: type 3 chars. restore the current position also in output
+    device
+
+    Bug #95344
+
+ poppler/Gfx.cc | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 9c35dc79ec777d9495796124ac7a42bf2b4cf83f
+Author: Jakub Kucharski <jakubkucharski97@gmail.com>
+Date:   Wed May 11 23:34:53 2016 +0200
+
+    goo: refactor GooString::Set()
+
+    it is used only once to concatenate strings and it is in a GooString
+    constructor used specifically for that
+    so I think concatenation should take place in the constructor and
+    GooString::Set
+    should do exactly what it says which is setting the string.
+
+    Bug #94201
+
+ goo/GooString.cc | 40 ++++++++++++++--------------------------
+ goo/GooString.h  | 10 +++++-----
+ 2 files changed, 19 insertions(+), 31 deletions(-)
+
+commit 0ecec576faf7e1ef644f5973f17e0b8244560912
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed May 4 23:23:04 2016 +0200
+
+    Fix typo in GfxPatchMeshShading::parse
+
+ poppler/GfxState.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 890178f9c946931ec34b8b227493ec9f1c6109aa
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed May 4 01:32:47 2016 +0200
+
+    Fix potential crash in SplashOutputDev::doUpdateFont
+
+    If we delete fontLoc we need to set it to NULL since it's not set
+    to any value in all of the
+    branches of this code
+
+ poppler/SplashOutputDev.cc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 86572d7d2835fdd77e82eeb428e3a56c2d0f271d
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed May 4 01:27:54 2016 +0200
+
+    Fix memory leak in SignatureHandler::getDefaultFirefoxCertDB_Linux
+
+ poppler/SignatureHandler.cc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 3707f9d17c5f8a883ddb9614b11676ad49ade5b2
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed May 4 00:59:01 2016 +0200
+
+    Fix potential crash in TextPage::coalesce
+
+    When flows is not null flow was still pointing to an now deleted
+    flow that
+    may had made it crash in the for loop below
+
+ poppler/TextOutputDev.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 6d26d02c39de6546f57b20c46922f8c56aad78a0
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed May 4 00:58:12 2016 +0200
+
+    Remove call that does nothing
+
+    We don't use dict after this call and streamGetDict is a pure getter,
+    i.e. it doesn't change the stream at all
+
+ poppler/GfxState.cc | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+commit 56c71fcaae71c2b3cc91bb981715541518e05684
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed May 4 00:55:06 2016 +0200
+
+    Fix memory leak in PSOutputDev::filterPSLabel
+
+ poppler/PSOutputDev.cc | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
 commit a0c3fd3f18232c126815a129158e0c4cd3a819a9
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Apr 29 00:14:24 2016 +0200

@@ -266,6 +266,7 @@ public:
   void setCairo (cairo_t *cr);
   void setTextPage (TextPage *text);
   void setPrinting (GBool printing) { this->printing = printing; needFontUpdate = gTrue; }
+  void setAntialias(cairo_antialias_t antialias);
 
   void setInType3Char(GBool inType3Char) { this->inType3Char = inType3Char; }
   void getType3GlyphWidth (double *wx, double *wy) { *wx = t3_glyph_wx; *wy = t3_glyph_wy; }
@@ -288,6 +289,7 @@ protected:
 #if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 14, 0)
   GBool setMimeDataForJBIG2Globals (Stream *str, cairo_surface_t *image);
 #endif
+  void setAntialias(cairo_t *cr, cairo_antialias_t antialias);
 
   GfxRGB fill_color, stroke_color;
   cairo_pattern_t *fill_pattern, *stroke_pattern;
@@ -340,7 +342,7 @@ protected:
   double t3_glyph_wx, t3_glyph_wy;
   GBool t3_glyph_has_bbox;
   double t3_glyph_bbox[4];
-
+  cairo_antialias_t antialias;
   GBool prescaleImages;
 
   TextPage *text;		// text for the current page
