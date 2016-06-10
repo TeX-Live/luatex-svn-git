@@ -923,20 +923,24 @@ arguments:
 \NC \type {stream}  \NC this is a (in low level \LUA\ speak) light userdata
                         object, i.e.\ a pointer to a sequence of bytes \NC \NR
 \NC \type {length}  \NC this is the length of the stream in bytes \NC \NR
-\NC \type {name}    \NC this is a unique identifier that us used for hashing the
-                        stream, so that mulltiple doesn't use more memory \NC \NR
+\NC \type {name}    \NC this is a unique identifier that is used for hashing the
+                        stream, so that multiple doesn't use more memory \NC \NR
 \stoptabulate
 
 Instead of a light userdata stream you can also pass a \LUA\ string, in which
 case the given length is (at most) the string length.
 
-The returned object can be used in the \type {img} library instead of a filename.
+The function returns a \type{epdf} object and a string. The string can be used in
+the \type {img} library instead of a filename. You need to prevent garbage
+collection of the object when you use it as image (for instance by storing it
+somewhere).
+
 Both the memory stream and it's use in the image library is experimental and can
 change. In case you wonder where this can be used: when you use the swiglib
 library for \type {graphicmagick}, it can return such a userdata object. This
 permits conversion in memory and passing the result directly to the backend. This
 might save some runtime in one|-|pass workflows. This feature is currently not
-meant for production.
+meant for production and we might come up with a better implementation.
 
 \stopchapter
 

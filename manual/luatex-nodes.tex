@@ -201,6 +201,26 @@ its internal link structure is correct, otherwise an error may be result.
 The subtype numbers~4 and~5 belong to the \quote {of-f-ice} explanation given
 elsewhere.
 
+These disc nodes are kind of special as at some point they also keep information
+about breakpoints and nested ligatures. The \type {pre}, \type {post} and \type
+{replace} fields at the \LUA\ end are in fact indirectly accessed and have a
+\type {prev} pointer that is not \type {nil}. This means that when you mess
+around with the head of these (three) lists, you also need to reassign them
+because that will restore the proper \type {prev} pointer, so:
+
+\starttyping
+pre = d.pre
+-- change the list starting with pre
+d.pre = pre
+\stoptyping
+
+Otherwise you can end up with an invalid internal perception of reality and
+\LUATEX\ might even decide to crash on you. It also means that running forward
+over for instance \type {pre} is ok but backward you need to stop at \type {pre}.
+And you definitely must not mess with the node that \type {prev} points to, if
+only because it is not really an node but part of the disc data structure (so
+freeing it again might crash \LUATEX).
+
 \subsubsection{math nodes}
 
 \starttabulate[|lT|l|p|]
@@ -595,7 +615,7 @@ Whatsit nodes come in many subtypes that you can ask for by running
 \stopluacode
 . % period
 
-\subsubsection{front|-|end whatits}
+\subsubsection{front|-|end whatsits}
 
 \subsubsubsection{open whatsits}
 
@@ -625,7 +645,7 @@ Whatsit nodes come in many subtypes that you can ask for by running
 \NC stream      \NC number   \NC \TEX's stream id number \NC \NR
 \stoptabulate
 
-\subsubsubsection{user_defined whatits}
+\subsubsubsection{user_defined whatsits}
 
 User|-|defined whatsit nodes can only be created and handled from \LUA\ code. In
 effect, they are an extension to the extension mechanism. The \LUATEX\ engine
@@ -642,15 +662,18 @@ will simply step over such whatsits without ever looking at the contents.
 \NC             \NC table    \NC a \LUA\ table \NC \NR
 \stoptabulate
 
-The \type {type} can have one of five distinct values:
+The \type {type} can have one of six distinct values. The number is the \ASCII\
+value if the first character if the type name (so you can use string.byte("l")
+instead of \type {108}).
 
-\starttabulate[|lT|p|]
-\NC \rmbf value \NC \bf explanation \NC \NR
-\NC   97        \NC list of attributes \NC \NR
-\NC  100        \NC a \LUA\ number \NC \NR
-\NC  110        \NC a node list \NC \NR
-\NC  115        \NC a \LUA\ string \NC \NR
-\NC  116        \NC a \LUA\ token list in \LUA\ table form \NC \NR
+\starttabulate[|lT|lT|p|]
+\NC \rmbf value \NC \bf meaning \NC \bf explanation \NC \NR
+\NC   97        \NC a           \NC list of attributes (a node list) \NC \NR
+\NC  100        \NC d           \NC a \LUA\ number \NC \NR
+\NC  108        \NC l           \NC a \LUA\ value (table, number, boolean, etc) \NC \NR
+\NC  110        \NC n           \NC a node list \NC \NR
+\NC  115        \NC s           \NC a \LUA\ string \NC \NR
+\NC  116        \NC t           \NC a \LUA\ token list in \LUA\ table form (a list of triplets) \NC \NR
 \stoptabulate
 
 \subsubsubsection{save_pos whatsits}
@@ -674,9 +697,9 @@ The difference between \type {data} and \type {string} is that on assignment, th
 \type {data} field is converted to a token list, cf. use as \type {\latelua}. The
 \type {string} version is treated as a literal string.
 
-\subsubsection{\DVI\ backend whatits}
+\subsubsection{\DVI\ backend whatsits}
 
-\subsubsection{special whatits}
+\subsubsection{special whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -684,9 +707,9 @@ The difference between \type {data} and \type {string} is that on assignment, th
 \NC data        \NC string   \NC the \type {\special} information \NC \NR
 \stoptabulate
 
-\subsubsection{\PDF\ backend whatits}
+\subsubsection{\PDF\ backend whatsits}
 
-\subsubsubsection{pdf_literal whatits}
+\subsubsubsection{pdf_literal whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -704,7 +727,7 @@ Possible mode values are:
 \NC 2           \NC direct                 \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_refobj whatits}
+\subsubsubsection{pdf_refobj whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -712,7 +735,7 @@ Possible mode values are:
 \NC objnum      \NC number   \NC the referenced \PDF\ object number \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_annot whatits}
+\subsubsubsection{pdf_annot whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -724,7 +747,7 @@ Possible mode values are:
 \NC data        \NC string   \NC the annotation data \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_start_link whatits}
+\subsubsubsection{pdf_start_link whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -737,14 +760,14 @@ Possible mode values are:
 \NC action      \NC node     \NC the action to perform \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_end_link whatits}
+\subsubsubsection{pdf_end_link whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type        \NC \bf explanation \NC \NR
 \NC attr        \NC node \NC \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_dest whatits}
+\subsubsubsection{pdf_dest whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -760,7 +783,7 @@ Possible mode values are:
 \NC objnum      \NC number   \NC the \PDF\ object number \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_action whatits}
+\subsubsubsection{pdf_action whatsits}
 
 These are a special kind of item that only appears inside \PDF\ start link
 objects.
@@ -792,7 +815,7 @@ Valid window types are:
 \NC 2 \NC nonew  \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_thread whatits}
+\subsubsubsection{pdf_thread whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -806,7 +829,7 @@ Valid window types are:
 \NC thread_attr \NC number   \NC extra thread information \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_start_thread whatits}
+\subsubsubsection{pdf_start_thread whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -820,14 +843,14 @@ Valid window types are:
 \NC thread_attr \NC number   \NC extra thread information \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_end_thread whatits}
+\subsubsubsection{pdf_end_thread whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
 \NC attr        \NC node     \NC \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_colorstack whatits}
+\subsubsubsection{pdf_colorstack whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -837,7 +860,7 @@ Valid window types are:
 \NC data        \NC string   \NC data \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_setmatrix whatits}
+\subsubsubsection{pdf_setmatrix whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -845,14 +868,14 @@ Valid window types are:
 \NC data        \NC string   \NC data \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_save whatits}
+\subsubsubsection{pdf_save whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
 \NC attr        \NC node     \NC list of attributes \NC \NR
 \stoptabulate
 
-\subsubsubsection{pdf_restore whatits}
+\subsubsubsection{pdf_restore whatsits}
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field \NC \bf type \NC \bf explanation \NC \NR
@@ -992,6 +1015,8 @@ this:
 \NC \type {getprev}              \NC \yes \NC \yes  \NC \NR
 \NC \type {getsubtype}           \NC \yes \NC \yes  \NC \NR
 \NC \type {has_attribute}        \NC \yes \NC \yes  \NC \NR
+\NC \type {get_attribute}        \NC \yes \NC \yes  \NC \NR
+\NC \type {find_attribute}       \NC \yes \NC \yes  \NC \NR
 \NC \type {has_field}            \NC \yes \NC \yes  \NC \NR
 \NC \type {has_glyph}            \NC \yes \NC \yes  \NC \NR
 \NC \type {hpack}                \NC \yes \NC \yes  \NC \NR
@@ -1773,6 +1798,26 @@ efficient to use the dedicated functions associated with them.
 Tests if a node has the attribute with number \type {id} set. If \type {val} is
 also supplied, also tests if the value matches \type {val}. It returns the value,
 or, if no match is found, \type {nil}.
+
+\subsubsection{\type {node.get_attribute}}
+
+\startfunctioncall
+<number> v =
+    node.get_attribute(<node> n, <number> id)
+\stopfunctioncall
+
+Tests if a node has an attribute with number \type {id} set. It returns the
+value, or, if no match is found, \type {nil}.
+
+\subsubsection{\type {node.find_attribute}}
+
+\startfunctioncall
+<number> v, <node> n =
+    node.find_attribute(<node> n, <number> id)
+\stopfunctioncall
+
+Finds the first node that has attribute with number \type {id} set. It returns
+the value and the node if there is a match and otherwise nothing.
 
 \subsubsection{\type {node.set_attribute}}
 

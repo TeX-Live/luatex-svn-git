@@ -187,7 +187,7 @@ void load_tex_patterns(int curlang, halfword head)
 @ @c
 #define STORE_CHAR(l,x) do { \
     unsigned xx = get_hj_code(l,x); \
-    if (!xx) { \
+    if (!xx || xx <= 32) { \
         xx = x; \
     } \
     uindex = uni2string(uindex, xx); \
@@ -212,7 +212,7 @@ const char *clean_hyphenation(int id, const char *buff, char **cleaned)
         s++;
         if ((s-buff)>MAX_WORD_LEN) {
             /* todo: this is too strict, should count unicode, not bytes */
-    	    *cleaned = NULL;
+            *cleaned = NULL;
             tex_error("exception too long", NULL);
             return s;
         }
@@ -224,7 +224,7 @@ const char *clean_hyphenation(int id, const char *buff, char **cleaned)
     /* build the new word string */
     i = 0;
     while (uword[i]>0) {
-	u = uword[i++];
+        u = uword[i++];
         if (u == '-') {        /* skip */
         } else if (u == '=') {
             STORE_CHAR(id,'-');
@@ -699,6 +699,31 @@ hyphenated, but most european users seem to agree that prohibiting hyphenation
 there was not the best idea ever.
 
 @c
+/*
+    More strict: \hyphenationbounds
+
+    0 = not strict
+    1 = strict start
+    2 = strict end
+    3 = strict start and strict end
+
+    \parindent0pt \hsize=1.1cm
+    12-34-56 \par
+    12-34-\hbox{56} \par
+    12-34-\vrule width 1em height 1.5ex \par
+    12-\hbox{34}-56 \par
+    12-\vrule width 1em height 1.5ex-56 \par
+    \hjcode`\1=`\1 \hjcode`\2=`\2 \hjcode`\3=`\3 \hjcode`\4=`\4 \vskip.5cm
+    12-34-56 \par
+    12-34-\hbox{56} \par
+    12-34-\vrule width 1em height 1.5ex \par
+    12-\hbox{34}-56 \par
+    12-\vrule width 1em height 1.5ex-56 \par
+
+*/
+
+static int more_strict = 0 ;
+
 static halfword find_next_wordstart(halfword r, halfword first_language)
 {
     register int l;
@@ -713,7 +738,13 @@ static halfword find_next_wordstart(halfword r, halfword first_language)
                 start_ok = 1;
             }
             break;
+        case hlist_node: /* new > 0.95 */
+        case vlist_node: /* new > 0.95 */
+        case rule_node:  /* new > 0.95 */
         case whatsit_node:
+            if (more_strict == 1 || more_strict == 3) {
+                start_ok = 0;
+            }
             break;
         case glue_node:
             start_ok = 1;
@@ -745,7 +776,7 @@ static halfword find_next_wordstart(halfword r, halfword first_language)
                         hyphenation, ligaturing and kerning steps. A test is cmr with ------.
                     */
                     t = vlink(r) ;
-                    if ((start_ok > 0) && (t!=null) && (type(t) == glyph_node) && (character(t) != ex_hyphen_char)) {
+                    if ((start_ok == 0) && (t!=null) && (type(t) == glyph_node) && (character(t) != ex_hyphen_char)) {
                         t = compound_word_break(r, char_lang(r));
                         subtype(t) = automatic_disc;
                         start_ok = 1 ;
@@ -753,7 +784,7 @@ static halfword find_next_wordstart(halfword r, halfword first_language)
                         start_ok = 0;
                     }
                 } else if (start_ok && (char_lang(r)>=first_language) && ((l = get_hj_code(char_lang(r),chr)) > 0)) {
-                    if (char_uchyph(r) || l == chr) {
+                    if (char_uchyph(r) || l == chr || l <= 32) {
                         return r;
                     } else {
                         start_ok = 0;
@@ -777,21 +808,28 @@ static int valid_wordend(halfword s)
     register int clang = char_lang(s);
     if (r == null)
         return 1;
-    while ((r != null) && (   (type(r) == glyph_node && is_simple_character(r) && clang == char_lang(r))
-                           || (type(r) == kern_node && (subtype(r) == normal))
-           )) {
+    while ( (r != null) &&
+           (    (type(r) == glyph_node && is_simple_character(r) && clang == char_lang(r))
+             || (type(r) == kern_node && (subtype(r) == normal))
+            )
+           ) {
         r = vlink(r);
     }
     if (r == null || (type(r) == glyph_node && is_simple_character(r) && clang != char_lang(r))
                   ||  type(r) == glue_node
-                  ||  type(r) == boundary_node
-                  ||  type(r) == whatsit_node
-                  ||  type(r) == ins_node
-                  ||  type(r) == adjust_node
                   ||  type(r) == penalty_node
-                  || (type(r) == kern_node && (subtype(r) == explicit_kern ||
+                  || (type(r) == kern_node && (subtype(r) == explicit_kern || /* so why not italic correction ? */
                                                subtype(r) == italic_kern   ||
-                                               subtype(r) == accent_kern   )))
+                                               subtype(r) == accent_kern   ))
+                  ||  ((type(r) == hlist_node   || /* new > 0.95 */
+                        type(r) == vlist_node   || /* new > 0.95 */
+                        type(r) == rule_node    || /* new > 0.95 */
+                        type(r) == whatsit_node ||
+                        type(r) == ins_node     || /* yes or no strict test */
+                        type(r) == adjust_node     /* yes or no strict test */
+                       ) && ! (more_strict == 2 || more_strict == 3))
+                  ||  type(r) == boundary_node
+        )
         return 1;
     return 0;
 }
@@ -858,9 +896,23 @@ void hnj_hyphenation(halfword head, halfword tail)
                         )
                    )
               ) {
-            if (character(r) == ex_hyphen_char)
-    	        explicit_hyphen = true;
+            if (character(r) == ex_hyphen_char) {
+                explicit_hyphen = true;
+            }
             wordlen++;
+            if (lchar <= 32) {
+                if (lchar == 32) {
+                    lchar = 0 ;
+                }
+                if (wordlen <= lhmin) {
+                    lhmin = lhmin - lchar + 1 ;
+                }
+                if (wordlen >= rhmin) {
+                    rhmin = rhmin - lchar + 1 ;
+                }
+                hmin = hmin - lchar + 1 ;
+                lchar = character(r) ;
+            }
             hy = uni2string(hy, (unsigned) lchar);
             /* this should not be needed  any more */
             /*if (vlink(r)!=null) alink(vlink(r))=r; */
@@ -884,15 +936,17 @@ void hnj_hyphenation(halfword head, halfword tail)
                 do_exception(wordstart, r, replacement);
                 free(replacement);
             } else if (explicit_hyphen == true) {
-                /* insert an explicit discretionary after each of the last in a
-	           set of explicit hyphens */
+                /*
+                    insert an explicit discretionary after each of the last in a
+                    set of explicit hyphens
+                */
                 halfword rr = r;
                 halfword t = null;
 #ifdef VERBOSE
                 formatted_warning("hyphenation","explicit hyphen(s) found in %s (c=%d)", utf8word, clang);
 #endif
                 while (rr != wordstart) {
-	            if (is_simple_character(rr)) {
+                if (is_simple_character(rr)) {
                         if (character(rr) == ex_hyphen_char) {
                             t = compound_word_break(rr, clang);
                             subtype(t) = automatic_disc;
@@ -924,7 +978,7 @@ void hnj_hyphenation(halfword head, halfword tail)
                 (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, end_word, wordlen, left, right, &langdata);
             }
         }
-	explicit_hyphen = false;
+        explicit_hyphen = false;
         wordlen = 0;
         hy = utf8word;
         if (r == null)

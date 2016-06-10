@@ -147,6 +147,38 @@ hyphenation happens is (normally) when the paragraph or a horizontal box is
 constructed. When \type {\savinghyphcodes} was zero when the language got
 initialized you start out with nothing, otherwise you already have a set.
 
+When a \type {\hjcode} is larger than $0$ but smaller than $32$ is indicates the
+to be used length. In the following example we map a character (\type {x}) onto
+another one in the patterns and tell the engine that \type {œ} counts as one
+character. Because traditionally zero itself is reserved for inhibiting
+hyphenation, a value of $32$ counts as zero.
+
+\starttyping
+% assuming french patterns:
+foobar % foo-bar
+
+\hjcode`x=`o
+
+fxxbar % fxx-bar
+
+\lefthyphenmin3
+
+œdipus % œdi-pus
+
+\lefthyphenmin4
+
+œdipus % œdipus
+
+\hjcode`œ=2
+
+œdipus % œdi-pus
+
+\hjcode`i=32
+\hjcode`d=32
+
+œdipus % œdipus
+\stoptyping
+
 Carrying all this information with each glyph would give too much overhead and
 also make the process of setting up thee codes more complex. A solution with
 \type {hjcode} sets was considered but rejected because in practice the current

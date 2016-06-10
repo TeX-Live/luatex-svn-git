@@ -439,7 +439,7 @@ scaled kern_stretch(halfword p)
         return 0;
     }
     /* we use the old logic, kind of, but average the ef as we might depend on proper overlap */
-    m = (font_max_shrink(font(l)) + font_max_shrink(font(r)))/2;
+    m = (font_max_stretch(font(l)) + font_max_stretch(font(r)))/2;
     if (m == 0) {
         /* nothing to kern */
         return 0;
@@ -478,7 +478,7 @@ scaled kern_shrink(halfword p)
     // and a reason to kern
     if ((font(l) != font(r)) || (font_max_shrink(font(l)) == 0))
         return 0;
-    m = font_max_stretch(font(l));
+    m = font_max_shrink(font(l));
     d = get_kern(font(l), character(l), character(r)); // real kern, so what is width(p) then; the messed up one
     d = round_xn_over_d(d, 1000 - m, 1000);
     return round_xn_over_d(width(p) - d, get_ef_code(font(l), character(l)), 1000);
@@ -2020,6 +2020,7 @@ void begin_box(int box_context)
     int n;      /* a box number */
     int spec_direction = -1;
     int just_pack = 0;
+    int split_mode = exactly ;
     switch (cur_chr) {
         case box_code:
             scan_register_num();
@@ -2077,15 +2078,17 @@ void begin_box(int box_context)
             */
             scan_register_num();
             n = cur_val;
-            if (!scan_keyword("to")) {
+            if (scan_keyword("upto")) {
+                split_mode = additional ;
+            } else if (!scan_keyword("to")) {
                 print_err("Missing `to' inserted");
                 help2("I'm working on `\\vsplit<box number> to <dimen>';",
                       "will look for the <dimen> next.");
                 error();
             }
             scan_normal_dimen();
-            cur_box = vsplit(n, cur_val, additional);
-            break;
+            cur_box = vsplit(n, cur_val, split_mode);
+         break;
         default:
             /*
                 Initiate the construction of an hbox or vbox, then |return|. Here is

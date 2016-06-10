@@ -56,44 +56,32 @@ similar fashion as the other \TEX\ engines. Some options are accepted but have n
 consequence. The following command|-|line options are understood:
 
 \starttabulate[|lT|p|]
+\NC --credits                    \NC display credits and exit \NC \NR
+\NC --debug-format               \NC enable format debugging \NC \NR
+\NC --draftmode                  \NC switch on draft mode i.e.\ generate no output in \PDF\ mode \NC \NR
+\NC --[no-]file-line-error       \NC disable/enable \type {file:line:error} style messages \NC \NR
+\NC --[no-]file-line-error-style \NC aliases of \type {--[no-]file-line-error} \NC \NR
 \NC --fmt=FORMAT                 \NC load the format file \type {FORMAT} \NC\NR
-\NC --lua=FILE                   \NC load and execute a \LUA\ initialization script\NC\NR
-\NC --safer                      \NC disable easily exploitable \LUA\ commands \NC\NR
-\NC --nosocket                   \NC disable the \LUA\ socket library \NC\NR
+\NC --halt-on-error              \NC stop processing at the first error\NC \NR
 \NC --help                       \NC display help and exit \NC\NR
 \NC --ini                        \NC be \type {iniluatex}, for dumping formats \NC\NR
-\NC --interaction=STRING         \NC set interaction mode: \type {batchmode}, \type {nonstopmode},
-                                     \type {scrollmode} or \type {errorstopmode} \NC \NR
-\NC --halt-on-error              \NC stop processing at the first error\NC \NR
-\NC --kpathsea-debug=NUMBER      \NC set path searching debugging flags according to
-                                     the bits of \type {NUMBER} \NC \NR
-\NC --progname=STRING            \NC set the program name to \type {STRING} \NC \NR
-\NC --version                    \NC display version and exit \NC \NR
-\NC --credits                    \NC display credits and exit \NC \NR
-\NC --recorder                   \NC enable filename recorder \NC \NR
-\NC --output-comment=STRING      \NC use \type {STRING} for \DVI\ file comment
-                                     instead of date (no effect for \PDF) \NC \NR
-\NC --output-directory=DIR       \NC use \type {DIR} as the directory to write
-                                     files to \NC \NR
-\NC --draftmode                  \NC switch on draft mode i.e.\ generate no
-                                     output in \PDF\ mode \NC \NR
-\NC --output-format=FORMAT       \NC use \type {FORMAT} for job output; \type
-                                     {FORMAT} is \type {dvi} or \type {pdf} \NC
-                                     \NR
-\NC --[no-]shell-escape          \NC disable/enable system calls \NC \NR
-\NC --enable-write18             \NC enable system calls \NC \NR
-\NC --disable-write18            \NC disable system calls \NC \NR
-\NC --shell-restricted           \NC restrict system calls to a list of commands
-                                     given in \type {texmf.cnf} \NC \NR
-\NC --debug-format               \NC enable format debugging \NC \NR
-\NC --[no-]file-line-error       \NC disable/enable \type {file:line:error} style
-                                     messages \NC \NR
-\NC --[no-]file-line-error-style \NC aliases of \type {--[no-]file-line-error} \NC \NR
+\NC --interaction=STRING         \NC set interaction mode: \type {batchmode}, \type {nonstopmode}, \type {scrollmode} or \type {errorstopmode} \NC \NR
 \NC --jobname=STRING             \NC set the job name to \type {STRING} \NC \NR
-\NC --[no-]mktex=FMT             \NC disable/enable \type {mktexFMT} generation
-                                     with \type {FMT} is \type {tex} or \type
-                                     {tfm} \NC \NR
+\NC --kpathsea-debug=NUMBER      \NC set path searching debugging flags according to the bits of \type {NUMBER} \NC \NR
+\NC --lua=FILE                   \NC load and execute a \LUA\ initialization script \NC\NR
+\NC --[no-]mktex=FMT             \NC disable/enable \type {mktexFMT} generation with \type {FMT} is \type {tex} or \type {tfm} \NC \NR
+\NC --nosocket                   \NC disable the \LUA\ socket library \NC\NR
+\NC --output-comment=STRING      \NC use \type {STRING} for \DVI\ file comment instead of date (no effect for \PDF) \NC \NR
+\NC --output-directory=DIR       \NC use \type {DIR} as the directory to write files to \NC \NR
+\NC --output-format=FORMAT       \NC use \type {FORMAT} for job output; \type {FORMAT} is \type {dvi} or \type {pdf} \NC \NR
+\NC --progname=STRING            \NC set the program name to \type {STRING} \NC \NR
+\NC --recorder                   \NC enable filename recorder \NC \NR
+\NC --safer                      \NC disable easily exploitable \LUA\ commands \NC\NR
+\NC --[no-]shell-escape          \NC disable/enable system calls \NC \NR
+\NC --shell-restricted           \NC restrict system calls to a list of commands given in \type {texmf.cnf} \NC \NR
 \NC --synctex=NUMBER             \NC enable \type {synctex} \NC \NR
+\NC --utc                        \NC use utc times when applicable \NC \NR
+\NC --version                    \NC display version and exit \NC \NR
 \stoptabulate
 
 Some of the traditional flags are just ignored: \type {--etex}, \type
@@ -542,6 +530,42 @@ Some modules that are normally external to \LUA\ are statically linked in with
 At some point (this also depends on distributions) \LUATEX\ might have these
 libraries loaded on demand. For this reason you can best use \type {require} to
 make sure they are loaded.
+
+\section{Testing}
+
+For development reasons you can influence the used startup date and time. This can
+be done in two ways.
+
+\startitemize[n]
+
+\startitem
+    By setting the environmment variable \type {SOURCE_DATE_EPOCH}. This will
+    influence the \TEX\ parameters \type {time} and \type {date}, the random seed,
+    the \PDF\ timestamp and the \PDF\ id that is derived from the time as well. This
+    variable is consulted when the \KPSE\ library is enabled. Resolving is
+    delegated to this library.
+\stopitem
+
+\startitem
+    By setting the \type {start_time} variable in the \type {texconfig} table; as
+    with other variables we use the internal name there. For compatibility
+    reasons we also honour a \type {SOURCE_DATE_EPOCH} entry. It should be noted
+    that there are no such variables in other engines and this method is only
+    relevant in case the while setup happens in \LUA.
+\stopitem
+
+\stopitemize
+
+When Universal Time is needed, you can pass the flag \type {utc} to the engine. This
+property also works when the date and time are set by \LUATEX\ itself. It has a
+complementary entry \type {use_utc_time} in the \type {texconfig} table.
+
+{\em To some extend a cleaner solution would be to have a flag that disables all
+variable data in one go (like filenames and so) but we just follow the method
+implemented in \PDFTEX\ where primitives are used to influence other properties.}
+
+{\em In \CONTEXT\ we provide the command line argument \type {--nodates} that
+does bit more disabling of dates.}
 
 \stopchapter
 

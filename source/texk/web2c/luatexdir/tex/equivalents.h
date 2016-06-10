@@ -535,14 +535,24 @@ extern halfword last_cs_name;
 
 /* more will move here */
 
-#define space_skip glue_par(space_skip_code)
-#define xspace_skip glue_par(xspace_skip_code)
-#define math_skip glue_par(math_skip_code)
+#define space_skip         glue_par(space_skip_code)
+#define xspace_skip        glue_par(xspace_skip_code)
+#define math_skip          glue_par(math_skip_code)
 
-#define body_direction int_par(body_direction_code)
-#define page_direction int_par(page_direction_code)
-#define par_direction  int_par(par_direction_code)
-#define text_direction int_par(text_direction_code)
-#define math_direction int_par(math_direction_code)
+#define pre_display_size   dimen_par(pre_display_size_code)
+#define display_width      dimen_par(display_width_code)
+#define display_indent     dimen_par(display_indent_code)
+#define math_surround      dimen_par(math_surround_code)
+
+#define display_skip_mode  int_par(math_display_skip_mode_code)
+#define math_eqno_gap_step int_par(math_eqno_gap_step_code)
+
+#define body_direction     int_par(body_direction_code)
+#define page_direction     int_par(page_direction_code)
+#define par_direction      int_par(par_direction_code)
+#define text_direction     int_par(text_direction_code)
+#define math_direction     int_par(math_direction_code)
+
+#define math_use_current_family_code 7
 
 #endif

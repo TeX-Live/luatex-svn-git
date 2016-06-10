@@ -281,15 +281,22 @@ void read_img(image_dict * idict)
     callback_id = callback_defined(find_image_file_callback);
     if (img_filepath(idict) == NULL) {
         if (callback_id > 0) {
+            /* we always callback, also for a mem stream */
             if (run_callback(callback_id, "S->S", img_filename(idict),&filepath)) {
                 if (filepath && (strlen(filepath) > 0)) {
                     img_filepath(idict) = strdup(filepath);
                 }
             }
-        } else {
+        }
+        if (img_filepath(idict) == NULL && (strstr(img_filename(idict),"data:application/pdf,") != NULL)) {
+            /* we need to check here for a pdf memstream */
+            img_filepath(idict) = strdup(img_filename(idict));
+        } else if (callback_id == 0) {
+            /* otherwise we use kpse but only when we don't callback  */
             img_filepath(idict) = kpse_find_file(img_filename(idict), kpse_tex_format, true);
         }
         if (img_filepath(idict) == NULL) {
+            /* in any case we need a name */
             formatted_error("pdf backend","cannot find image file '%s'", img_filename(idict));
         }
     }

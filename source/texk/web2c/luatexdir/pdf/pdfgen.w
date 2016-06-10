@@ -50,6 +50,7 @@ halfword pdf_names_toks;                             /* additional keys of Names
 halfword pdf_trailer_toks;                           /* additional keys of Trailer dictionary */
 shipping_mode_e global_shipping_mode = NOT_SHIPPING; /* set to |shipping_mode| when |ship_out| starts */
 
+
 @ Create a new buffer |strbuf_s| of size |size| and maximum allowed size |limit|.
 Initialize it and set |p| to begin of data.
 
@@ -1455,7 +1456,7 @@ static void print_ID(PDF pdf)
             /* start md5 */
             md5_init(&state);
             /* get the time */
-            t = time(NULL);
+            t = pdf->start_time;
             size = strftime(time_str, sizeof(time_str), "%Y%m%dT%H%M%SZ", gmtime(&t));
             md5_append(&state, (const md5_byte_t *) time_str, (int) size);
             /* get the file name */
@@ -1542,7 +1543,11 @@ static void makepdftime(PDF pdf)
     time_t t = pdf->start_time;
     char *time_str = pdf->start_time_str;
     /* get the time */
-    lt = *localtime(&t);
+    if (utc_option) {
+        lt = *gmtime(&t);
+    } else {
+        lt = *localtime(&t);
+    }
     size = strftime(time_str, TIME_STR_SIZE, "D:%Y%m%d%H%M%S", &lt);
     /* expected format: "YYYYmmddHHMMSS" */
     if (size == 0) {
@@ -1582,10 +1587,10 @@ static void makepdftime(PDF pdf)
 }
 
 @ @c
-void init_start_time(PDF pdf)
+void initialize_start_time(PDF pdf)
 {
     if (pdf->start_time == 0) {
-        pdf->start_time = time((time_t *) NULL);
+        pdf->start_time = get_start_time();
         pdf->start_time_str = xtalloc(TIME_STR_SIZE, char);
         makepdftime(pdf);
     }
@@ -1594,7 +1599,7 @@ void init_start_time(PDF pdf)
 @ @c
 char *getcreationdate(PDF pdf)
 {
-    init_start_time(pdf);
+    initialize_start_time(pdf);
     return pdf->start_time_str;
 }
 
@@ -2176,11 +2181,11 @@ static int pdf_print_info(PDF pdf, int luatexversion,
         pdf_dict_add_string(pdf, "Creator", "TeX");
     }
     if ((pdf_suppress_optional_info & 32) == 0 && !creationdate_given) {
-        init_start_time(pdf);
+        initialize_start_time(pdf);
         pdf_dict_add_string(pdf, "CreationDate", pdf->start_time_str);
     }
     if ((pdf_suppress_optional_info & 64) == 0 && !moddate_given) {
-        init_start_time(pdf);
+        initialize_start_time(pdf);
         pdf_dict_add_string(pdf, "ModDate", pdf->start_time_str);
     }
     if ((pdf_suppress_optional_info & 256) == 0 && !trapped_given) {

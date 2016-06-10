@@ -422,7 +422,7 @@ state is with respect to the \quote {current page}. The possible values for the
 \type {buildpage_filter} callback are:
 
 \starttabulate[|lT|p|]
-\NC \ssbf value     \NC \bf explanation                           \NC \NR
+\NC \rmbf value     \NC \bf explanation                           \NC \NR
 \NC alignment       \NC a (partial) alignment is being added      \NC \NR
 \NC after_output    \NC an output routine has just finished       \NC \NR
 \NC new_graf        \NC the beginning of a new paragraph          \NC \NR
@@ -439,7 +439,7 @@ And for the \type {contribute_filter} called in the post line break handler
 we have four cases (three are only called when there is a need for it).
 
 \starttabulate[|lT|p|]
-\NC \ssbf value     \NC \bf explanation                              \NC \NR
+\NC \rmbf value     \NC \bf explanation                              \NC \NR
 \NC pre_box         \NC interline material is being added            \NC \NR
 \NC pre_adjust      \NC \type {\vadjust} material is being added     \NC \NR
 \NC box             \NC a typeset box is being added (always called) \NC \NR
@@ -467,7 +467,7 @@ for the \type {hpack_filter} and \type {vpack_filter} callbacks that will be
 explained in the next two paragraphs.
 
 \starttabulate[|lT|p|]
-\NC \ssbf value   \NC \bf explanation                                 \NC \NR
+\NC \rmbf value   \NC \bf explanation                                 \NC \NR
 \NC <empty>       \NC main vertical list                              \NC \NR
 \NC hbox          \NC \type {\hbox} in horizontal mode                \NC \NR
 \NC adjusted_hbox \NC \type {\hbox} in vertical mode                  \NC \NR

@@ -2364,7 +2364,7 @@ static int do_feedback_dvi(halfword c)
 
 /* codes not really needed but cleaner when testing */
 
-#define pdftex_version  40  /* these values will not change any more */
+#define pdftex_version  140 /* these values will not change any more */
 #define pdftex_revision "0" /* these values will not change any more */
 
 static int do_feedback_pdf(halfword c)

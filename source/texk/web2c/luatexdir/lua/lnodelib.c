@@ -2180,8 +2180,7 @@ static int lua_nodelib_direct_has_attribute(lua_State * L)
 
 static int lua_nodelib_get_attribute(lua_State * L)
 {
-    halfword p;
-    p = *check_isnode(L, 1);
+    halfword p = *check_isnode(L, 1);
     if (nodetype_has_attributes(type(p))) {
         p = node_attr(p);
         if (p != null) {
@@ -2207,6 +2206,43 @@ static int lua_nodelib_get_attribute(lua_State * L)
     }
     lua_pushnil(L);
     return 1;
+}
+
+static int lua_nodelib_find_attribute(lua_State * L) /* returns attr value and node */
+{
+    halfword c = *check_isnode(L, 1);
+    halfword p ;
+    int i = lua_tointeger(L, 2);
+    while (c != null) {
+        if (nodetype_has_attributes(type(c))) {
+            p = node_attr(c);
+            if (p != null) {
+                p = vlink(p);
+                while (p != null) {
+                    if (attribute_id(p) == i) {
+                        int ret = attribute_value(p);
+                        if (ret == UNUSED_ATTRIBUTE) {
+                            break;
+                        } else {
+                            lua_pushinteger(L,ret);
+                            lua_nodelib_push_fast(L, p);
+                            return 2;
+                        }
+                    } else if (attribute_id(p) > i) {
+                        break;
+                    }
+                    p = vlink(p);
+                }
+            }
+        }
+        c = vlink(c);
+    }
+    /*
+        lua_pushnil(L);
+        lua_pushnil(L);
+        return 2;
+    */
+    return 0;
 }
 
 /* node.direct.get_attribute */
@@ -2239,6 +2275,43 @@ static int lua_nodelib_direct_get_attribute(lua_State * L)
     }
     lua_pushnil(L);
     return 1;
+}
+
+static int lua_nodelib_direct_find_attribute(lua_State * L) /* returns attr value and node */
+{
+    halfword c = lua_tointeger(L, 1);
+    halfword p ;
+    int i = lua_tointeger(L, 2);
+    while (c != null) {
+        if (nodetype_has_attributes(type(c))) {
+            p = node_attr(c);
+            if (p != null) {
+                p = vlink(p);
+                while (p != null) {
+                    if (attribute_id(p) == i) {
+                        int ret = attribute_value(p);
+                        if (ret == UNUSED_ATTRIBUTE) {
+                            break;
+                        } else {
+                            lua_pushinteger(L,ret);
+                            lua_pushinteger(L,p);
+                            return 2;
+                        }
+                    } else if (attribute_id(p) > i) {
+                        break;
+                    }
+                    p = vlink(p);
+                }
+            }
+        }
+        c = vlink(c);
+    }
+    /*
+        lua_pushnil(L);
+        lua_pushnil(L);
+        return 2;
+    */
+    return 0;
 }
 
 /* node.set_attribute */
@@ -6787,6 +6860,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"has_glyph", lua_nodelib_direct_has_glyph},
     {"has_attribute", lua_nodelib_direct_has_attribute},
     {"get_attribute", lua_nodelib_direct_get_attribute},
+    {"find_attribute", lua_nodelib_direct_find_attribute},
     {"has_field", lua_nodelib_direct_has_field},
     {"is_char", lua_nodelib_direct_is_char},
     {"is_glyph", lua_nodelib_direct_is_glyph},
@@ -6881,6 +6955,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"has_glyph", lua_nodelib_has_glyph},
     {"has_attribute", lua_nodelib_has_attribute},
     {"get_attribute", lua_nodelib_get_attribute},
+    {"find_attribute", lua_nodelib_find_attribute},
     {"has_field", lua_nodelib_has_field},
     {"is_char", lua_nodelib_is_char},
     {"is_glyph", lua_nodelib_is_glyph},

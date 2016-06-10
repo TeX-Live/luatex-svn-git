@@ -87,8 +87,6 @@
 #define prev_graf     cur_list.pg_field
 #define dir_save      cur_list.dirs_field
 
-#define var_code 7              /* math code meaning ``use the current family'' */
-
 @ We come now to the |main_control| routine, which contains the master
 switch that causes all the various pieces of \TeX\ to do their things,
 in the right order.
@@ -3533,7 +3531,7 @@ void initialize(void)
     initialize_directions();
     initialize_write_files();
     seconds_and_micros(epochseconds, microseconds);
-    init_start_time(static_pdf);
+    initialize_start_time(static_pdf);
 
     edit_name_start = 0;
     stop_at_space = true;
@@ -3588,10 +3586,10 @@ void initialize(void)
         initialize_text_codes();
         initex_cat_codes(0);
         for (k = '0'; k <= '9'; k++)
-            set_math_code(k, var_code, 0, k, level_one);
+            set_math_code(k, math_use_current_family_code, 0, k, level_one);
         for (k = 'A'; k <= 'Z'; k++) {
-            set_math_code(k, var_code, 1, k, level_one);
-            set_math_code((k + 32), var_code, 1, (k + 32), level_one);
+            set_math_code(k, math_use_current_family_code, 1, k, level_one);
+            set_math_code((k + 32), math_use_current_family_code, 1, (k + 32), level_one);
             set_lc_code(k, k + 32, level_one);
             set_lc_code(k + 32, k + 32, level_one);
             set_uc_code(k, k, level_one);

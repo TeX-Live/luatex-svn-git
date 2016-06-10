@@ -18,8 +18,6 @@
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 @ @c
-
-// define DEBUG
 #include "ptexlib.h"
 
 @ @c
@@ -47,12 +45,6 @@
 
 */
 
-#define display_skip_mode int_par(math_display_skip_mode_code)
-
-#define math_skip glue_par(math_skip_code)
-
-#define var_code 7
-
 @ TODO: not sure if this is the right order
 @c
 #define back_error(A,B) do {                    \
@@ -67,18 +59,12 @@ int scan_math(pointer, int);
 int scan_math_style(pointer, int);
 pointer fin_mlist(pointer);
 
-#define pre_display_size dimen_par(pre_display_size_code)
 #define hsize            dimen_par(hsize_code)
-#define display_width    dimen_par(display_width_code)
-#define display_indent   dimen_par(display_indent_code)
-#define math_surround    dimen_par(math_surround_code)
 #define hang_indent      dimen_par(hang_indent_code)
 #define hang_after       int_par(hang_after_code)
 #define every_math       equiv(every_math_loc)
 #define every_display    equiv(every_display_loc)
 #define par_shape_ptr    equiv(par_shape_loc)
-
-#define math_eqno_gap_step int_par(math_eqno_gap_step_code)
 
 @ When \TeX\ reads a formula that is enclosed between \.\$'s, it constructs an
 {\sl mlist}, which is essentially a tree structure representing that
@@ -1368,7 +1354,7 @@ int scan_math(pointer p, int mstyle)
     }
     type(p) = math_char_node;
     math_character(p) = mval.character_value;
-    if ((mval.class_value == var_code) && fam_in_range)
+    if ((mval.class_value == math_use_current_family_code) && fam_in_range)
         math_fam(p) = cur_fam;
     else
         math_fam(p) = mval.family_value;
@@ -1398,7 +1384,7 @@ void set_math_char(mathcodeval mval)
         nucleus(p) = q;
         math_character(nucleus(p)) = mval.character_value;
         math_fam(nucleus(p)) = mval.family_value;
-        if (mval.class_value == var_code) {
+        if (mval.class_value == math_use_current_family_code) {
             if (fam_in_range)
                 math_fam(nucleus(p)) = cur_fam;
             subtype(p) = ord_noad_type;
@@ -1668,7 +1654,7 @@ void math_ac(void)
         q = new_node(math_char_node, 0);
         top_accent_chr(tail) = q;
         math_character(top_accent_chr(tail)) = t.character_value;
-        if ((t.class_value == var_code) && fam_in_range)
+        if ((t.class_value == math_use_current_family_code) && fam_in_range)
             math_fam(top_accent_chr(tail)) = cur_fam;
         else
             math_fam(top_accent_chr(tail)) = t.family_value;
@@ -1677,7 +1663,7 @@ void math_ac(void)
         q = new_node(math_char_node, 0);
         bot_accent_chr(tail) = q;
         math_character(bot_accent_chr(tail)) = b.character_value;
-        if ((b.class_value == var_code) && fam_in_range)
+        if ((b.class_value == math_use_current_family_code) && fam_in_range)
             math_fam(bot_accent_chr(tail)) = cur_fam;
         else
             math_fam(bot_accent_chr(tail)) = b.family_value;
@@ -1686,7 +1672,7 @@ void math_ac(void)
         q = new_node(math_char_node, 0);
         overlay_accent_chr(tail) = q;
         math_character(overlay_accent_chr(tail)) = o.character_value;
-        if ((o.class_value == var_code) && fam_in_range)
+        if ((o.class_value == math_use_current_family_code) && fam_in_range)
             math_fam(overlay_accent_chr(tail)) = cur_fam;
         else
             math_fam(overlay_accent_chr(tail)) = o.family_value;
@@ -2158,6 +2144,39 @@ At this time we are in vertical mode (or internal vertical mode).
   |l| is true if there was an \.{\\leqno}/ (so |a| is a horizontal box).
 
 @c
+#define inject_display_skip_before(g) \
+    switch (display_skip_mode) { \
+        case 0 : /* normal tex */ \
+            tail_append(new_param_glue(g)); \
+            break;\
+        case 1 : /* always */ \
+            tail_append(new_param_glue(g)); \
+            break; \
+        case 2 : /* non-zero */ \
+            if (g != 0 && ! glue_is_zero(glue_par(g))) \
+                tail_append(new_param_glue(g)); \
+            break; \
+        case 3: /* ignore */ \
+            break; \
+    }
+
+#define inject_display_skip_after(g) \
+    switch (display_skip_mode) { \
+        case 0 : /* normal tex */ \
+            if (g != 0 && glue_is_positive(glue_par(g))) \
+                tail_append(new_param_glue(g)); \
+            break; \
+        case 1 : /* always */ \
+            tail_append(new_param_glue(g)); \
+            break; \
+        case 2 : /* non-zero */ \
+            if (g != 0 && ! glue_is_zero(glue_par(g))) \
+                tail_append(new_param_glue(g)); \
+            break; \
+        case 3: /* ignore */ \
+            break; \
+    }
+
 static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
 {
     pointer eq_box;             /* box containing the equation */
@@ -2268,20 +2287,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
         append_to_vlist(eqno_box,lua_key_index(equation_number));
         tail_append(new_penalty(inf_penalty));
     } else {
-        switch (display_skip_mode) {
-            case 0 : /* normal tex */
-                tail_append(new_param_glue(g1));
-                break;
-            case 1 : /* always */
-                tail_append(new_param_glue(g1));
-                break;
-            case 2 : /* non-zero */
-                if (g1 != 0)
-                    tail_append(new_param_glue(g1));
-                break;
-            case 3: /* ignore */
-                break;
-        }
+        inject_display_skip_before(g1);
     }
 
     if (eqno_w != 0) {
@@ -2391,23 +2397,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
         tail = pre_t;
     }
     tail_append(new_penalty(int_par(post_display_penalty_code)));
-
-    switch (display_skip_mode) {
-        case 0 : /* normal tex */
-            if (g2 > 0)
-                tail_append(new_param_glue(g2));
-            break;
-        case 1 : /* always */
-            tail_append(new_param_glue(g2));
-            break;
-        case 2 : /* non-zero */
-            if (g2 != 0)
-                tail_append(new_param_glue(g2));
-            break;
-        case 3: /* ignore */
-            break;
-    }
-
+    inject_display_skip_after(g2);
     resume_after_display();
 }
 
@@ -2509,12 +2499,12 @@ void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
     }
     pop_nest();
     tail_append(new_penalty(int_par(pre_display_penalty_code)));
-    tail_append(new_param_glue(above_display_skip_code));
+    inject_display_skip_before(above_display_skip_code);
     vlink(tail) = p;
     if (p != null)
         tail = q;
     tail_append(new_penalty(int_par(post_display_penalty_code)));
-    tail_append(new_param_glue(below_display_skip_code));
+    inject_display_skip_after(below_display_skip_code);
     cur_list.prev_depth_field = saved_prevdepth;
     resume_after_display();
 }

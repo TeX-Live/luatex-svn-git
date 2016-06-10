@@ -67,7 +67,17 @@ most still comes from the original. But we divert a bit.
 \stopitem
 
 \startitem
-    Magnification (\type {\mag}) is only supported in \DVI\ output mode.
+    Magnification (\type {\mag}) is only supported in \DVI\ output mode. You can
+    set this parameter and it even works with \type {true} units till you switch
+    to \PDF\ output mode. When you use \PDF\ output you can best not touch the
+    \type {\mag} variable. This fuzzy behaviour is not much different from using
+    \PDF\ backend related functionality while eventually \DVI\ output is
+    required.
+
+    After the output mode has been frozen (normally that happens when the first
+    page is shipped out) or when \PDF\ output is enabled, the \type {true}
+    specification is ignored. When you preload a plain format adapted to
+    \LUATEX\ it can be that the \type {\mag} parameter already has been set.
 \stopitemize
 
 \stopsubsection

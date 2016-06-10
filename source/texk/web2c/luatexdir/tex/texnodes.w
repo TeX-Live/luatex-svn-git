@@ -552,6 +552,8 @@ important, don't keep resolving the registry index.
 
 /* isn't there a faster way to metatable? */
 
+/*
+
 #define lua_properties_copy(target,source) do { \
     if (lua_properties_enabled) { \
         if (lua_properties_level == 0) { \
@@ -578,6 +580,55 @@ important, don't keep resolving the registry index.
                     lua_newtable(Luas); \
                     lua_insert(Luas,-2); \
                     lua_setfield(Luas,-2,"__index"); \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_setmetatable(Luas,-2); \
+                } \
+                lua_rawseti(Luas,-2,target); \
+            } else { \
+                lua_pop(Luas,1); \
+            } \
+        } \
+    } \
+} while(0)
+
+*/
+
+/*
+    A simple testrun on many pages of dumb text shows 1% gain (of course it depends
+    on how properties are used but some other tests confirm it).
+*/
+
+#define lua_properties_copy(target,source) do { \
+    if (lua_properties_enabled) { \
+        if (lua_properties_level == 0) { \
+            lua_get_metatablelua_l(Luas,node_properties); \
+            lua_rawgeti(Luas,-1,source); \
+            if (lua_type(Luas,-1)==LUA_TTABLE) { \
+                if (lua_properties_use_metatable) { \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_push_string_by_name(Luas,__index); \
+                    lua_insert(Luas,-2); \
+                    lua_rawset(Luas, -3); \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_setmetatable(Luas,-2); \
+                } \
+                lua_rawseti(Luas,-2,target); \
+            } else { \
+                lua_pop(Luas,1); \
+            } \
+            lua_pop(Luas,1); \
+        } else { \
+            lua_rawgeti(Luas,-1,source); \
+            if (lua_type(Luas,-1)==LUA_TTABLE) { \
+                if (lua_properties_use_metatable) { \
+                    lua_newtable(Luas); \
+                    lua_insert(Luas,-2); \
+                    lua_push_string_by_name(Luas,__index); \
+                    lua_insert(Luas,-2); \
+                    lua_rawset(Luas, -3); \
                     lua_newtable(Luas); \
                     lua_insert(Luas,-2); \
                     lua_setmetatable(Luas,-2); \
@@ -1223,6 +1274,9 @@ static void flush_node_wrapup_core(halfword p)
                 delete_attribute_ref(user_node_value(p));
                 break;
             case 'd':
+                break;
+            case 'l':
+                free_user_lua(user_node_value(p));
                 break;
             case 'n':
                 flush_node_list(user_node_value(p));
