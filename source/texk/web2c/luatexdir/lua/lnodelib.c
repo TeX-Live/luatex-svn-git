@@ -2465,7 +2465,7 @@ static int lua_nodelib_is_zero_glue(lua_State * L)
 {
     halfword n = *check_isnode(L, 1);
     if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node)) {
-        lua_toboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
+        lua_pushboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
         return 1;
     } else {
         return luaL_error(L, "glue (spec) expected");
@@ -2476,7 +2476,7 @@ static int lua_nodelib_direct_is_zero_glue(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
     if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node)) {
-        lua_toboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
+        lua_pushboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
         return 1;
     } else {
         return luaL_error(L, "glue (spec) expected");
@@ -3364,7 +3364,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             lua_pushinteger(L, height(n));
         } else if ((lua_key_eq(s, list)) || (lua_key_eq(s, head))) { /* already mapped */
             fast_metatable_or_nil_alink(ins_ptr(n));
-		/* glue parameters */
+        /* glue parameters */
         } else if (lua_key_eq(s, width)) {
             lua_pushinteger(L, width(n));
         } else if (lua_key_eq(s, stretch)) {
@@ -3383,7 +3383,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             lua_pushinteger(L, subtype(n));
         } else if (lua_key_eq(s, surround)) {
             lua_pushinteger(L, surround(n));
-		/* glue parameters */
+        /* glue parameters */
         } else if (lua_key_eq(s, width)) {
             lua_pushinteger(L, width(n));
         } else if (lua_key_eq(s, stretch)) {
@@ -4073,7 +4073,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             lua_pushinteger(L, height(n));
         } else if ((lua_key_eq(s, list)) || (lua_key_eq(s, head))) {
             nodelib_pushdirect_or_nil_alink(ins_ptr(n));
-		/* glue */
+        /* glue */
         } else if (lua_key_eq(s, width)) {
             lua_pushinteger(L, width(n));
         } else if (lua_key_eq(s, stretch)) {
