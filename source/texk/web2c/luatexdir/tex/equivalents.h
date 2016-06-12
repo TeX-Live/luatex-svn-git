@@ -296,6 +296,7 @@ the |number_regs| \.{\\dimen} registers.
 #  define par_direction_code  (tex_int_pars+2)
 #  define text_direction_code (tex_int_pars+3)
 #  define math_direction_code (tex_int_pars+4)
+#  define line_direction_code (tex_int_pars+5) /* gets remapped so is no real register */
 
 #  define int_pars (tex_int_pars+5)                                     /* total number of integer parameters */
 

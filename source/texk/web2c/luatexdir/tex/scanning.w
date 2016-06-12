@@ -208,6 +208,9 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         scanned_result(eqtb[m].cint, int_val_level);
         break;
     case assign_dir_cmd:
+        if (m == (int_base + line_direction_code)) {
+            m = int_base + text_direction_code;
+        }
         scanned_result(eqtb[m].cint, dir_val_level);
         break;
     case assign_dimen_cmd:
@@ -215,11 +218,9 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         break;
     case assign_glue_cmd:
         scanned_result(equiv(m), glue_val_level);
-// cur_val = new_spec(cur_val);
         break;
     case assign_mu_glue_cmd:
         scanned_result(equiv(m), mu_val_level);
-// cur_val = new_spec(cur_val);
         break;
     case math_style_cmd:
         scanned_result(m, int_val_level);

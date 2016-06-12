@@ -2182,7 +2182,7 @@ void prefixed_command(void)
     halfword j;                 /* index into a \.{\\parshape} specification */
     halfword p, q;              /* for temporary short-term use */
     int n;                      /* ditto */
-    boolean e;                  /* should a definition be expanded? or was \.{\\let} not done? */
+    boolean e, check_glue;      /* should a definition be expanded? or was \.{\\let} not done? */
     mathcodeval mval;           /* for handling of \.{\\mathchardef}s */
     a = 0;
     while (cur_cmd == prefix_cmd) {
@@ -2462,42 +2462,78 @@ void prefixed_command(void)
             /* DIR: Assign direction codes */
             scan_direction();
             switch (cur_chr) {
-            case int_base + page_direction_code:
-                eq_word_define(int_base + page_direction_code, cur_val);
-                break;
-            case int_base + body_direction_code:
-                eq_word_define(int_base + body_direction_code, cur_val);
-                break;
-            case int_base + par_direction_code:
-                eq_word_define(int_base + par_direction_code, cur_val);
-                break;
-            case int_base + math_direction_code:
-                eq_word_define(int_base + math_direction_code, cur_val);
-                break;
-            case int_base + text_direction_code:
-#if 0
-    /* various tests hint that this is unnecessary and
-     * sometimes even produces weird results, eg
-     *  (\hbox{\textdir TRT ABC\textdir TLT DEF})
-     * becomes
-     *  (DEFCBA)
-     * in the output
-     */
-                if ((no_local_dirs > 0) && (abs(mode) == hmode)) {
-                    /* DIR: Add local dir node */
-                    tail_append(new_dir(text_direction));
+                case int_base + page_direction_code:
+                    eq_word_define(int_base + page_direction_code, cur_val);
+                    break;
+                case int_base + body_direction_code:
+                    eq_word_define(int_base + body_direction_code, cur_val);
+                    break;
+                case int_base + par_direction_code:
+                    eq_word_define(int_base + par_direction_code, cur_val);
+                    break;
+                case int_base + math_direction_code:
+                    eq_word_define(int_base + math_direction_code, cur_val);
+                    break;
+                case int_base + text_direction_code:
+                case int_base + line_direction_code:
+                    /*
+                        pre version 0.97 this was a commented section because various tests hint that this
+                        is unnecessary and sometimes even produces weird results, like:
+
+                            (\hbox{\textdir TRT ABC\textdir TLT DEF}))
+
+                        becomes
+
+                            (DEFCBA)
+
+                        in the output when we use
+
+                            tail_append(new_dir(text_direction)
+
+                        but when we append the reverse of the current it goes better
+
+                    */
+                    check_glue = (cur_chr == (int_base + line_direction_code));
+                    if (check_glue) {
+                        cur_chr = int_base + text_direction_code ;
+                    }
+                    if (abs(mode) == hmode) {
+                        if (no_local_dirs > 0) {
+                            /* tail is non zero but we test anyway */
+                            if (check_glue && (tail != null && type(tail) == glue_node))  {
+                                halfword prev = alink(tail);
+                                halfword dirn = new_dir(text_direction - dir_swap);
+                                couple_nodes(prev,dirn);
+                                couple_nodes(dirn,tail);
+                            } else {
+                                tail_append(new_dir(text_direction - dir_swap));
+                            }
+                        } else {
+                            /* what is the use of nolocaldirs .. maybe we should get rid of it */
+                        }
+                        update_text_dir_ptr(cur_val);
+                        tail_append(new_dir(cur_val));
+                        dir_level(tail) = cur_level;
+                    } else {
+                        update_text_dir_ptr(cur_val);
+                    }
+                    /*  original:
+
+                        // if ((no_local_dirs > 0) && (abs(mode) == hmode)) {
+                        //  // tail_append(new_dir(text_direction)              // kind of wrong
+                        //     tail_append(new_dir(text_direction - dir_swap)); // better
+                        // }
+
+                        update_text_dir_ptr(cur_val);
+                        if (abs(mode) == hmode) {
+                            tail_append(new_dir(cur_val));
+                            dir_level(tail) = cur_level;
+                        }
+                    */
+                    eq_word_define(int_base + text_direction_code, cur_val);
+                    eq_word_define(int_base + no_local_dirs_code, no_local_dirs + 1);
+                    break;
                 }
-#endif
-                update_text_dir_ptr(cur_val);
-                if (abs(mode) == hmode) {
-                    /* DIR: Add local dir node */
-                    tail_append(new_dir(cur_val));
-                    dir_level(tail) = cur_level;
-                }
-                eq_word_define(int_base + text_direction_code, cur_val);
-                eq_word_define(int_base + no_local_dirs_code, no_local_dirs + 1);
-                break;
-            }
             break;
         case assign_dimen_cmd:
             p = cur_chr;

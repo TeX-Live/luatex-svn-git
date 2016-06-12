@@ -689,6 +689,7 @@ void initialize_commands(void)
     primitive_luatex("pardir", assign_dir_cmd, int_base + par_direction_code, dir_base);
     primitive_luatex("textdir", assign_dir_cmd, int_base + text_direction_code, dir_base);
     primitive_luatex("mathdir", assign_dir_cmd, int_base + math_direction_code, dir_base);
+    primitive_luatex("linedir", assign_dir_cmd, int_base + line_direction_code, dir_base);
     primitive_luatex("pageleftoffset", assign_dimen_cmd, dimen_base + page_left_offset_code, dimen_base);
     primitive_luatex("pagetopoffset", assign_dimen_cmd, dimen_base + page_top_offset_code, dimen_base);
     primitive_luatex("pagerightoffset", assign_dimen_cmd, dimen_base + page_right_offset_code, dimen_base);
