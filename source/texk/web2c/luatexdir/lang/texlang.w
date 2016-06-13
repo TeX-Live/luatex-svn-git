@@ -276,14 +276,13 @@ void load_hyphenation(struct tex_language *lang, const unsigned char *buff)
     const char *value;
     char *cleaned;
     int id ;
-    lua_State *L = Luas;
     if (lang == NULL)
         return;
     if (lang->exceptions == 0) {
-        lua_newtable(L);
-        lang->exceptions = luaL_ref(L, LUA_REGISTRYINDEX);
+        lua_newtable(Luas);
+        lang->exceptions = luaL_ref(Luas, LUA_REGISTRYINDEX);
     }
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lang->exceptions);
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, lang->exceptions);
     s = (const char *) buff;
     id = lang->id;
     while (*s) {
@@ -294,9 +293,9 @@ void load_hyphenation(struct tex_language *lang, const unsigned char *buff)
             s = clean_hyphenation(id, s, &cleaned);
             if (cleaned != NULL) {
                 if ((s - value) > 0) {
-                    lua_pushstring(L, cleaned);
-                    lua_pushlstring(L, value, (size_t) (s - value));
-                    lua_rawset(L, -3);
+                    lua_pushstring(Luas, cleaned);
+                    lua_pushlstring(Luas, value, (size_t) (s - value));
+                    lua_rawset(Luas, -3);
                 }
                 free(cleaned);
             } else {
@@ -477,18 +476,17 @@ void set_disc_field(halfword f, halfword t)
 static char *hyphenation_exception(int exceptions, char *w)
 {
     char *ret = NULL;
-    lua_State *L = Luas;
-    lua_checkstack(L, 2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, exceptions);
-    if (lua_istable(L, -1)) {   /* ?? */
-        lua_pushstring(L, w);   /* word table */
-        lua_rawget(L, -2);
-        if (lua_type(L, -1) == LUA_TSTRING) {
-            ret = xstrdup(lua_tostring(L, -1));
+    lua_checkstack(Luas, 2);
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, exceptions);
+    if (lua_istable(Luas, -1)) {   /* ?? */
+        lua_pushstring(Luas, w);   /* word table */
+        lua_rawget(Luas, -2);
+        if (lua_type(Luas, -1) == LUA_TSTRING) {
+            ret = xstrdup(lua_tostring(Luas, -1));
         }
-        lua_pop(L, 2);
+        lua_pop(Luas, 2);
     } else {
-        lua_pop(L, 1);
+        lua_pop(Luas, 1);
     }
     return ret;
 }
@@ -500,16 +498,15 @@ char *exception_strings(struct tex_language *lang)
     size_t size = 0, current = 0;
     size_t l = 0;
     char *ret = NULL;
-    lua_State *L = Luas;
     if (lang->exceptions == 0)
         return NULL;
-    lua_checkstack(L, 2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lang->exceptions);
-    if (lua_istable(L, -1)) {
+    lua_checkstack(Luas, 2);
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, lang->exceptions);
+    if (lua_istable(Luas, -1)) {
         /* iterate and join */
-        lua_pushnil(L);         /* first key */
-        while (lua_next(L, -2) != 0) {
-            value = lua_tolstring(L, -1, &l);
+        lua_pushnil(Luas);         /* first key */
+        while (lua_next(Luas, -2) != 0) {
+            value = lua_tolstring(Luas, -1, &l);
             if (current + 2 + l > size) {
                 ret = xrealloc(ret, (unsigned) ((size + size / 5) + current + l + 1024));
                 size = (size + size / 5) + current + l + 1024;
@@ -517,7 +514,7 @@ char *exception_strings(struct tex_language *lang)
             *(ret + current) = ' ';
             strcpy(ret + current + 1, value);
             current += l + 1;
-            lua_pop(L, 1);
+            lua_pop(Luas, 1);
         }
     }
     return ret;
@@ -998,20 +995,19 @@ void new_hyphenation(halfword head, halfword tail)
     fix_node_list(head);
     callback_id = callback_defined(hyphenate_callback);
     if (callback_id > 0) {
-        lua_State *L = Luas;
-        if (!get_callback(L, callback_id)) {
-            lua_pop(L, 2);
+        if (!get_callback(Luas, callback_id)) {
+            lua_pop(Luas, 2);
             return;
         }
-        nodelist_to_lua(L, head);
-        nodelist_to_lua(L, tail);
-        if (lua_pcall(L, 2, 0, 0) != 0) {
-            formatted_warning("hyphenation","bad specification: %s",lua_tostring(L, -1));
-            lua_pop(L, 2);
-            lua_error(L);
+        nodelist_to_lua(Luas, head);
+        nodelist_to_lua(Luas, tail);
+        if (lua_pcall(Luas, 2, 0, 0) != 0) {
+            formatted_warning("hyphenation","bad specification: %s",lua_tostring(Luas, -1));
+            lua_pop(Luas, 2);
+            lua_error(Luas);
             return;
         }
-        lua_pop(L, 1);
+        lua_pop(Luas, 1);
     } else if (callback_id == 0) {
         hnj_hyphenation(head, tail);
     }

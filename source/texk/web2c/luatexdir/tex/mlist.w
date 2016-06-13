@@ -1595,7 +1595,6 @@ void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
 {
     int callback_id;
     int a, sfix;
-    lua_State *L = Luas;
     if (p == null) {
         vlink(temp_head) = null;
         return;
@@ -1603,26 +1602,26 @@ void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
     finalize_math_parameters();
     callback_id = callback_defined(mlist_to_hlist_callback);
     if (callback_id > 0) {
-        sfix = lua_gettop(L);
-        if (!get_callback(L, callback_id)) {
-            lua_settop(L, sfix);
+        sfix = lua_gettop(Luas);
+        if (!get_callback(Luas, callback_id)) {
+            lua_settop(Luas, sfix);
             return;
         }
         alink(p) = null ;
-        nodelist_to_lua(L, p);
-        lua_push_math_style_name(L,mstyle);
-        lua_pushboolean(L, penalties);
-        if (lua_pcall(L, 3, 1, 0) != 0) {            /* 3 args, 1 result */
+        nodelist_to_lua(Luas, p);
+        lua_push_math_style_name(Luas, mstyle);
+        lua_pushboolean(Luas, penalties);
+        if (lua_pcall(Luas, 3, 1, 0) != 0) {            /* 3 args, 1 result */
             char errmsg[256]; /* temp hack ... we will have a formatted error */
-            snprintf(errmsg, 255, "error: %s\n", lua_tostring(L, -1));
+            snprintf(errmsg, 255, "error: %s\n", lua_tostring(Luas, -1));
             errmsg[255]='\0';
-            lua_settop(L, sfix);
+            lua_settop(Luas, sfix);
             normal_error("mlist to hlist",errmsg); /* to be done */
             return;
         }
-        a = nodelist_from_lua(L);
+        a = nodelist_from_lua(Luas);
         /* alink(vlink(a)) = null; */
-        lua_settop(L, sfix);
+        lua_settop(Luas, sfix);
         vlink(temp_head) = a;
     } else if (callback_id == 0) {
         mlist_to_hlist(p, penalties, mstyle);
