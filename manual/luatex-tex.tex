@@ -1505,27 +1505,16 @@ string if you only want to move to the next line.
 You can disable \type {^^} escaping of control characters by passing a value of
 zero.
 
-\section{The \type {token} libray}
+\section{The \type {token} library}
 
-The current \type {token} library will be replaced by a new one that is more
-flexible and powerful. The transition takes place in steps. In version 0.80 we
-have \type {token} and in version 0.85 the old lib will be replaced
-completely. So if you use this new mechanism in production code you need to be
-aware of incompatible updates between 0.80 and 0.90. Because the related in- and
-output code will also be cleaned up and rewritten you should be aware of
-incompatible logging and error reporting too.
-
-The old library presents tokens as triplets or numbers, the new library presents
-a userdata object. The old library used a callback to intercept tokens in the
-input but the new library provides a basic scanner infrastructure that can be
-used to write macros that accept a wide range of arguments. This interface is on
+The token library provides means to intercept the input and deal with it at the
+\LUA\ level. The library provides a basic scanner infrastructure that can be used
+to write macros that accept a wide range of arguments. This interface is on
 purpose kept general and as performance is quite ok one can build additional
 parsers without too much overhead. It's up to macro package writers to see how
 they can benefit from this as the main principle behind \LUATEX\ is to provide a
-minimal set of tools and no solutions.
-
-The current functions in the \type {token} namespace are given in the next
-table:
+minimal set of tools and no solutions. The functions provided in the \type
+{token} namespace are given in the next table:
 
 \starttabulate[|lT|lT|p|]
 \NC \bf function \NC \bf argument       \NC \bf result \NC \NR
