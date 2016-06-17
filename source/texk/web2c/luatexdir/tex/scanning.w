@@ -1429,7 +1429,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     goto BAD_NEWS;
   SCALE_VALUE:
     /* Adjust (f) for the magnification ratio */
-    if (!is_true) {
+    if (is_true) {
         /* maybe at some point we will drop mag completely, even in dvi mode */
         if (output_mode_used <= OMODE_DVI) {
             prepare_mag();
