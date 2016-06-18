@@ -950,6 +950,20 @@ static int getpdforigin(lua_State * L)
     return 2 ;
 }
 
+static int setpdfimageresolution(lua_State * L)
+{
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        set_tex_extension_count_register(c_pdf_image_resolution,lua_tointeger(L, 1));
+    }
+    return 0;
+}
+
+static int getpdfimageresolution(lua_State * L)
+{
+    lua_pushinteger(L,get_tex_extension_count_register(c_pdf_image_resolution));
+    return 1 ;
+}
+
 static int setpdfthreadmargin(lua_State * L) {
     if (lua_type(L, 1) == LUA_TNUMBER) {
         set_tex_extension_dimen_register(d_pdf_thread_margin,lua_tointeger(L, 1));
@@ -1126,6 +1140,8 @@ static const struct luaL_Reg pdflib[] = {
     { "newcolorstack", newpdfcolorstack },
     { "setorigin", setpdforigin },
     { "getorigin", getpdforigin },
+    { "setimageresolution", setpdfimageresolution },
+    { "getimageresolution", getpdfimageresolution },
     { "setthreadmargin", setpdfthreadmargin },
     { "setdestmargin", setpdfdestmargin },
     { "setlinkmargin", setpdflinkmargin },
