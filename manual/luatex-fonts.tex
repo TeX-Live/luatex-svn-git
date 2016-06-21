@@ -36,7 +36,9 @@ The top|-|level keys in the table are as follows:
 \NC fonts            \NC yes \NC no  \NC yes \NC table  \NC locally used fonts \NC \NR
 \NC psname           \NC no  \NC no  \NC yes \NC string \NC This is the \POSTSCRIPT\ fontname in the incoming font
                                                             source, and it's used as fontname identifier in the \PDF\
-                                                            output. \NC \NR
+                                                            output. This has to be a valid string, e.g.\ no spaces
+                                                            and such, as the backend will not do a cleanup. This gives
+                                                            complete control to the loader. \NC \NR
 \NC fullname         \NC no  \NC no  \NC yes \NC string \NC output font name, used as a fallback in the \PDF\ output
                                                             if the \type {psname} is not set \NC \NR
 \NC header           \NC yes \NC no  \NC no  \NC string \NC header comments, if any \NC \NR
