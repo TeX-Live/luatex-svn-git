@@ -116,7 +116,7 @@ char *luatex_find_read_file(const char *s, int n, int callback_index)
     char *ftemp = NULL;
     int callback_id = callback_defined(callback_index);
     if (callback_id > 0) {
-        (void) run_callback(callback_id, "dS->S", n, s, &ftemp);
+        (void) run_callback(callback_id, "dS->R", n, s, &ftemp);
     } else {
         /* use kpathsea here */
         ftemp = find_in_output_directory(s);
@@ -1137,7 +1137,7 @@ boolean zopen_w_input(FILE ** f, const char *fname, int format,
     char *fnam;
     callbackid = callback_defined(find_format_file_callback);
     if (callbackid > 0) {
-        res = run_callback(callbackid, "S->S", fname, &fnam);
+        res = run_callback(callbackid, "S->R", fname, &fnam);
         if (res && fnam && strlen(fnam) > 0) {
             *f = fopen(fnam, fopen_mode);
             if (*f == NULL) {
