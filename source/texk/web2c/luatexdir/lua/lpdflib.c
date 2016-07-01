@@ -1079,6 +1079,24 @@ static int newpdfcolorstack(lua_State * L)
     return 1 ;
 }
 
+
+static int l_set_font_attributes(lua_State * L)
+{
+    int f = luaL_checkinteger(L, -2);
+    int i ;
+    /*char *s;*/
+    const char *st;
+    if ((lua_type(L,-1) == LUA_TSTRING) && (st = lua_tostring(L, -1)) != NULL) {
+        /* is this dup needed? */
+        /*s = xstrdup(st);*/
+        i = maketexstring(st); /* brrr */
+        set_pdf_font_attr(f, i);
+        /*free(s);*/
+    }
+    return 0;
+}
+
+
 static const struct luaL_Reg pdflib[] = {
     { "gethpos", l_gethpos },
     { "getvpos", l_getvpos },
@@ -1095,6 +1113,7 @@ static const struct luaL_Reg pdflib[] = {
     { "objtype", l_objtype },
     { "getmatrix", l_getmatrix },
     { "hasmatrix", l_hasmatrix },
+    { "setfontattributes", l_set_font_attributes },
     { "setcatalog", l_set_catalog },
     { "setinfo", l_set_info },
     { "setnames", l_set_names },

@@ -302,6 +302,15 @@ are the same as for the similar backend extension primitive.
 pdf.newcolorstack("0 g","page",true) -- page|direct|origin
 \stopfunctioncall
 
+\subsection {\type {setfontattributes}}
+
+This function will force some additional code into the font resource. It can for
+instance be used to add a custom \type {ToUnicode} vector to a bitmap file.
+
+\startfunctioncall
+pdf.setfontattributes(<number> font id, <string> pdf code)
+\stopfunctioncall
+
 \section {The \type {pdfscanner} library}
 
 The \type {pdfscanner} library allows interpretation of \PDF\ content streams and
