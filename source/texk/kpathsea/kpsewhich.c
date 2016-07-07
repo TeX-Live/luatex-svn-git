@@ -30,13 +30,6 @@
 #include <kpathsea/variable.h>
 #include <kpathsea/version.h>
 
-#ifdef WIN32
-#undef fputs
-#undef puts
-#define fputs win32_fputs
-#define puts  win32_puts
-#endif
-
 /* For variable and path expansion.  (-expand-var, -expand-path,
    -show-path) */
 string var_to_expand = NULL;
@@ -272,25 +265,24 @@ find_format (kpathsea kpse, string name, boolean is_filename)
    We don't reallocate the actual strings, just the list elements.
    Perhaps later we will implement wildcards or // or something.  */
 
+#if defined(WIN32)
 static string *
-subdir_match (str_list_type subdirs,  string *matches)
+kpathsea_subdir_match (kpathsea kpse, str_list_type subdirs,  string *matches)
 {
   string *ret = XTALLOC1 (string);
   unsigned len = 1;
   unsigned e;
   unsigned m;
-#if defined(WIN32)
   string p;
 
   for (e = 0; e < STR_LIST_LENGTH (subdirs); e++) {
     for (p = STR_LIST_ELT (subdirs, e); *p; p++) {
       if (*p == '\\')
         *p = '/';
-      else if (IS_KANJI(p))
+      else if (kpathsea_IS_KANJI(kpse, p))
         p++;
     }
   }
-#endif
 
   for (m = 0; matches[m]; m++) {
     unsigned loc;
@@ -322,6 +314,45 @@ subdir_match (str_list_type subdirs,  string *matches)
   return ret;
 }
 
+#else /* WIN32 */
+static string *
+subdir_match (str_list_type subdirs,  string *matches)
+{
+  string *ret = XTALLOC1 (string);
+  unsigned len = 1;
+  unsigned e;
+  unsigned m;
+
+  for (m = 0; matches[m]; m++) {
+    unsigned loc;
+    string s = xstrdup (matches[m]);
+    for (loc = strlen (s); loc > 0 && !IS_DIR_SEP_CH (s[loc-1]); loc--)
+      ;
+    while (loc > 0 && IS_DIR_SEP_CH (s[loc-1])) {
+      loc--;
+    }
+    s[loc] = 0;  /* wipe out basename */
+
+    for (e = 0; e < STR_LIST_LENGTH (subdirs); e++) {
+      string subdir = STR_LIST_ELT (subdirs, e);
+      unsigned subdir_len = strlen (subdir);
+      while (subdir_len > 0 && IS_DIR_SEP_CH (subdir[subdir_len-1])) {
+        subdir_len--;
+        subdir[subdir_len] = 0; /* remove trailing slashes from subdir spec */
+      }
+      if (FILESTRCASEEQ (subdir, s + loc - subdir_len)) {
+        /* matched, save this one.  */
+        XRETALLOC (ret, len + 1, string);
+        ret[len-1] = matches[m];
+        len++;
+      }
+    }
+    free (s);
+  }
+  ret[len-1] = NULL;
+  return ret;
+}
+#endif /* WIN32 */
 
 
 /* Look up a single filename NAME.  Return 0 if success, 1 if failure.  */
@@ -395,7 +426,11 @@ lookup (kpathsea kpse, string name)
 
   /* Filter by subdirectories, if specified.  */
   if (STR_LIST_LENGTH (subdir_paths) > 0) {
+#if defined(WIN32)
+    string *new_list = kpathsea_subdir_match (kpse, subdir_paths, ret_list);
+#else
     string *new_list = subdir_match (subdir_paths, ret_list);
+#endif /* WIN32 */
     free (ret_list);
     ret_list = new_list;
   }
@@ -403,7 +438,11 @@ lookup (kpathsea kpse, string name)
   /* Print output.  */
   if (ret_list) {
     for (i = 0; ret_list[i]; i++)
+#ifdef WIN32
+      kpathsea_win32_puts (kpse, ret_list[i]);
+#else
       puts (ret_list[i]);
+#endif
     /* Save whether we found anything */
     ret = ret_list[0];
     free (ret_list);
@@ -493,7 +532,11 @@ help_formats (kpathsea kpse, string *argv)
     putchar (':');
     for (ext = kpse->format_info[f].suffix; ext && *ext; ext++) {
       putchar (' ');
+#ifdef WIN32
+      kpathsea_win32_fputs (kpse, *ext, stdout);
+#else
       fputs (*ext, stdout);
+#endif
     }
 
     if (kpse->format_info[f].alt_suffix) {
@@ -502,7 +545,11 @@ help_formats (kpathsea kpse, string *argv)
     }
     for (ext = kpse->format_info[f].alt_suffix; ext && *ext; ext++) {
       putchar (' ');
+#ifdef WIN32
+      kpathsea_win32_fputs (kpse, *ext, stdout);
+#else
       fputs (*ext, stdout);
+#endif
     }
 
     printf ("  [variables: %s]\n", envvar_list);
@@ -720,7 +767,7 @@ main (int argc,  string *argv)
       enc = "utf-8";
     else
       enc = kpathsea_var_value (kpse, "command_line_encoding");
-    if (get_command_line_args_utf8(enc, &ac, &av)) {
+    if (kpathsea_get_command_line_args_utf8(kpse, enc, &ac, &av)) {
       optind = 0;
       read_command_line (kpse, ac, av);
       argv = av;
@@ -735,22 +782,38 @@ main (int argc,  string *argv)
 
   /* Variable expansion.  */
   if (var_to_expand)
+#ifdef WIN32
+    kpathsea_win32_puts (kpse, kpathsea_var_expand (kpse, var_to_expand));
+#else
     puts (kpathsea_var_expand (kpse, var_to_expand));
+#endif
 
   /* Brace expansion. */
   if (braces_to_expand)
+#ifdef WIN32
+    kpathsea_win32_puts (kpse, kpathsea_brace_expand (kpse, braces_to_expand));
+#else
     puts (kpathsea_brace_expand (kpse, braces_to_expand));
+#endif
 
   /* Path expansion. */
   if (path_to_expand)
+#ifdef WIN32
+    kpathsea_win32_puts (kpse, kpathsea_path_expand (kpse, path_to_expand));
+#else
     puts (kpathsea_path_expand (kpse, path_to_expand));
+#endif
 
   /* Show a search path. */
   if (path_to_show) {
     if (user_format != kpse_last_format) {
       if (!kpse->format_info[user_format].type) /* needed if arg was numeric */
         kpathsea_init_format (kpse, user_format);
+#ifdef WIN32
+      kpathsea_win32_puts (kpse, kpse->format_info[user_format].path);
+#else
       puts (kpse->format_info[user_format].path);
+#endif
     } else {
       WARNING ("kpsewhich: Cannot show path for unknown file type");
     }
@@ -763,7 +826,11 @@ main (int argc,  string *argv)
       unfound++;
       value = "";
     }
+#ifdef WIN32
+    kpathsea_win32_puts (kpse, value);
+#else
     puts (value);
+#endif
   }
 
   if (safe_in_name) {
