@@ -1701,6 +1701,7 @@ char *get_resname_prefix(PDF pdf)
 void pdf_begin_page(PDF pdf)
 {
     int xform_attributes;
+    int xform_type = 0;
     scaled form_margin = pdf_xform_margin; /* was one_bp until SVN4066 */
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     init_pdf_pagecalculations(pdf);
@@ -1719,12 +1720,12 @@ void pdf_begin_page(PDF pdf)
         pdf->last_thread = null;
         pdf_begin_dict(pdf);
     } else {
+        xform_type = obj_xform_type(pdf, pdf_cur_form) ;
         pdf_begin_obj(pdf, pdf_cur_form, OBJSTM_NEVER);
         pdf->last_stream = pdf_cur_form;
         /* Write out Form stream header */
         pdf_begin_dict(pdf);
-        /* type 1 and 2 skips this */
-        if (obj_xform_type(pdf, pdf_cur_form) == 0) {
+        if (xform_type == 0) {
             pdf_dict_add_name(pdf, "Type", "XObject");
             pdf_dict_add_name(pdf, "Subtype", "Form");
             pdf_dict_add_int(pdf, "FormType", 1);
@@ -1742,8 +1743,7 @@ void pdf_begin_page(PDF pdf)
             luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_attr_str(pdf, pdf_cur_form));
             set_obj_xform_attr_str(pdf, pdf_cur_form, null);
         }
-        /* type 2 skips this */
-        if (obj_xform_type(pdf, pdf_cur_form) <= 1) {
+        if (xform_type == 1 || xform_type == 3) {
             pdf_add_name(pdf, "BBox");
             pdf_begin_array(pdf);
             pdf_add_bp(pdf, -form_margin);
@@ -1751,6 +1751,8 @@ void pdf_begin_page(PDF pdf)
             pdf_add_bp(pdf, pdf->page_size.h + form_margin);
             pdf_add_bp(pdf, pdf->page_size.v + form_margin);
             pdf_end_array(pdf);
+        }
+        if (xform_type == 2 || xform_type == 3) {
             pdf_add_name(pdf, "Matrix");
             pdf_begin_array(pdf);
             pdf_add_int(pdf, 1);
