@@ -988,9 +988,11 @@ static void init_pdf_outputparameters(PDF pdf)
         pk_mode = pdf_pk_mode; /* lookup once */
         if (pk_mode != null) {
             char *s = tokenlist_to_cstring(pk_mode, true, NULL);
+            /* This will become LUATEX in 1.0. */
             kpse_init_prog("PDFTEX", (unsigned) pdf->pk_resolution, s, nil);
             xfree(s);
         } else {
+            /* This will become LUATEX in 1.0. */
             kpse_init_prog("PDFTEX", (unsigned) pdf->pk_resolution, nil, nil);
         }
         if (!kpse_var_value("MKTEXPK"))
@@ -1027,6 +1029,7 @@ static void ensure_pdf_header_written(PDF pdf)
     init_pdf_outputparameters(pdf);
     /* Write \.{PDF} header */
     pdf_printf(pdf, "%%PDF-1.%d\n", pdf->minor_version);
+    /* The next blob will be removed 1.0. */
     pdf_out(pdf, '%');
     pdf_out(pdf, 'P' + 128);
     pdf_out(pdf, 'T' + 128);
