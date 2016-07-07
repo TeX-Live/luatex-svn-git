@@ -2827,6 +2827,7 @@ static int tex_save_box_resource(lua_State * L)
     int index = null;
     int attributes = null;
     int resources = null;
+    int type = 0;
     boolean immediate = false;
     /* box attributes resources */
     halfword boxnumber = lua_tointeger(L,1);
@@ -2840,6 +2841,9 @@ static int tex_save_box_resource(lua_State * L)
     }
     if (lua_type(L,4) == LUA_TBOOLEAN) {
         immediate = lua_toboolean(L, 4);
+    }
+    if (lua_type(L,5) == LUA_TNUMBER) {
+        type = lua_tointeger(L, 5);
     }
     /* more or less same as scanner variant */
     boxdata = box(boxnumber);
@@ -2856,6 +2860,7 @@ static int tex_save_box_resource(lua_State * L)
     set_obj_xform_width(static_pdf, index, width(boxdata));
     set_obj_xform_height(static_pdf, index, height(boxdata));
     set_obj_xform_depth(static_pdf, index, depth(boxdata));
+    set_obj_xform_type(static_pdf, index, type);
     box(boxnumber) = null;
     last_saved_box_index = index;
     lua_pushinteger(L, index);

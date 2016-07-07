@@ -72,6 +72,12 @@ void scan_pdfxform(PDF pdf)
     pdf->xform_count++;
     k = pdf_create_obj(pdf, obj_type_xform, pdf->xform_count);
     set_obj_data_ptr(pdf, k, pdf_get_mem(pdf, pdfmem_xform_size));
+    if (scan_keyword("type")) {
+        scan_int();
+        set_obj_xform_type(pdf, k, cur_val);
+    } else {
+        set_obj_xform_type(pdf, k, 0);
+    }
     if (scan_keyword("attr")) {
         scan_toks(false, true);
         set_obj_xform_attr(pdf, k, def_ref);

@@ -1720,8 +1720,12 @@ void pdf_begin_page(PDF pdf)
         pdf->last_stream = pdf_cur_form;
         /* Write out Form stream header */
         pdf_begin_dict(pdf);
-        pdf_dict_add_name(pdf, "Type", "XObject");
-        pdf_dict_add_name(pdf, "Subtype", "Form");
+        /* type 1 and 2 skips this */
+        if (obj_xform_type(pdf, pdf_cur_form) == 0) {
+            pdf_dict_add_name(pdf, "Type", "XObject");
+            pdf_dict_add_name(pdf, "Subtype", "Form");
+            pdf_dict_add_int(pdf, "FormType", 1);
+        }
         xform_attributes = pdf_xform_attr; /* lookup once */
         if (xform_attributes != null)
             pdf_print_toks(pdf, xform_attributes);
@@ -1735,23 +1739,25 @@ void pdf_begin_page(PDF pdf)
             luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_attr_str(pdf, pdf_cur_form));
             set_obj_xform_attr_str(pdf, pdf_cur_form, null);
         }
-        pdf_add_name(pdf, "BBox");
-        pdf_begin_array(pdf);
-        pdf_add_bp(pdf, -form_margin);
-        pdf_add_bp(pdf, -form_margin);
-        pdf_add_bp(pdf, pdf->page_size.h + form_margin);
-        pdf_add_bp(pdf, pdf->page_size.v + form_margin);
-        pdf_end_array(pdf);
-        pdf_dict_add_int(pdf, "FormType", 1);
-        pdf_add_name(pdf, "Matrix");
-        pdf_begin_array(pdf);
-        pdf_add_int(pdf, 1);
-        pdf_add_int(pdf, 0);
-        pdf_add_int(pdf, 0);
-        pdf_add_int(pdf, 1);
-        pdf_add_int(pdf, 0);
-        pdf_add_int(pdf, 0);
-        pdf_end_array(pdf);
+        /* type 2 skips this */
+        if (obj_xform_type(pdf, pdf_cur_form) <= 1) {
+            pdf_add_name(pdf, "BBox");
+            pdf_begin_array(pdf);
+            pdf_add_bp(pdf, -form_margin);
+            pdf_add_bp(pdf, -form_margin);
+            pdf_add_bp(pdf, pdf->page_size.h + form_margin);
+            pdf_add_bp(pdf, pdf->page_size.v + form_margin);
+            pdf_end_array(pdf);
+            pdf_add_name(pdf, "Matrix");
+            pdf_begin_array(pdf);
+            pdf_add_int(pdf, 1);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 1);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 0);
+            pdf_end_array(pdf);
+        }
         pdf_dict_add_ref(pdf, "Resources", pdf->page_resources->last_resources);
     }
     /* Start stream of page/form contents */

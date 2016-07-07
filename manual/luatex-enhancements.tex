@@ -801,6 +801,12 @@ optional parameters are not implemented for \type {\saveboxresource}.
 \useboxresource   width 20mm height 10mm depth 5mm \lastsavedboxresourceindex
 \stoptyping
 
+The box resources are of course implemented in the backend and therefore we do
+support the \type {attr} and \type {resources} keys that accept a token list. New
+is the \type {type} key. When set to 1 the created form will not have a \type
+{/Type}, and when set to 2 no \type {BBox} and \type {/Matrix} will be written.
+This is a way to get arbitrary content streams in a stream object.
+
 \subsection{\type {\nohrule} and \type {\novrule}}
 
 Because introducing a new keyword can cause incompatibilities, two new primitives
