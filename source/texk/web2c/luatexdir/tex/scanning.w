@@ -165,7 +165,7 @@ static void downgrade_cur_val(boolean delete_glue)
     decr(cur_val_level);
 }
 
-static void negate_cur_val(boolean delete_glue)
+void negate_cur_val(boolean delete_glue)
 {
     halfword m;
     if (cur_val_level >= glue_val_level) {
@@ -720,6 +720,9 @@ void scan_something_internal(int level, boolean negative)
         case assign_font_dimen_cmd:
             /* Fetch a font dimension */
             get_font_dimen();
+            break;
+        case assign_hang_indent_cmd:
+            scanned_result(dimen_par(hang_indent_code), dimen_val_level);
             break;
         case assign_font_int_cmd:
             /* Fetch a font integer */

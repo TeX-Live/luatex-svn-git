@@ -161,6 +161,7 @@ typedef enum {
     assign_mu_glue_cmd,                   /* user-defined muglue ( \.{\\thinmuskip}, etc.~) */
     assign_font_dimen_cmd,                /* user-defined font dimension ( \.{\\fontdimen} ) */
     assign_font_int_cmd,                  /* user-defined font integer ( \.{\\hyphenchar}, \.{\\skewchar} ) */
+    assign_hang_indent_cmd,
     set_aux_cmd,                          /* specify state info ( \.{\\spacefactor}, \.{\\prevdepth} ) */
     set_prev_graf_cmd,                    /* specify state info ( \.{\\prevgraf} ) */
     set_page_dimen_cmd,                   /* specify state info ( \.{\\pagegoal}, etc.~) */

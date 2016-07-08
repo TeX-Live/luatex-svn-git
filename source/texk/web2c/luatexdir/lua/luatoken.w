@@ -113,6 +113,7 @@ command_item command_names[] = {
     {"assign_mu_glue", assign_mu_glue_cmd, NULL},
     {"assign_font_dimen", assign_font_dimen_cmd, NULL},
     {"assign_font_int", assign_font_int_cmd, NULL},
+    {"assign_hang_indent", assign_hang_indent_cmd, NULL},
     {"set_aux", set_aux_cmd, NULL},
     {"set_prev_graf", set_prev_graf_cmd, NULL},
     {"set_page_dimen", set_page_dimen_cmd, NULL},

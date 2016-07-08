@@ -279,11 +279,12 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_display_skip_mode_code 88
 #  define math_scripts_mode_code 89
 #  define synctex_code 90                                               /* is synctex file generation enabled ?  */
-#  define first_valid_language_code 91
+#  define shape_mode_code 91
+#  define first_valid_language_code 92
 
-#  define math_option_code 92
+#  define math_option_code 93
 
-#  define mathoption_int_base (int_base+93)
+#  define mathoption_int_base (int_base+94)                             /* one reserve */
 #  define mathoption_int_last (int_base+99)
 
 #  define backend_int_base (int_base+100)
@@ -553,6 +554,8 @@ extern halfword last_cs_name;
 #define par_direction      int_par(par_direction_code)
 #define text_direction     int_par(text_direction_code)
 #define math_direction     int_par(math_direction_code)
+
+#define shape_mode         int_par(shape_mode_code)
 
 #define math_use_current_family_code 7
 

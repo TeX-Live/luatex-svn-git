@@ -912,6 +912,63 @@ kerns, should be handled in the input or macro package because there is no way w
 can predict the expected behaviour. In fact, the \type {\linedir} is just a
 convenience extra which could also have been implemented using node list parsing.
 
+Another adaptation to the \ALEPH\ directional model is control over shapes driven
+by \type {\hangindent} and \type {\parshape}. This is controlled by a new parameter
+\type {\shapemode}:
+
+\starttabulate[|cTB|c|]
+\NC   \NC \bf \type {\hangindent} \NC \bf \type {\parshape} \NC \NR
+\NC 0 \NC  normal                 \NC normal                \NC \NR
+\NC 1 \NC  mirrored               \NC normal                \NC \NR
+\NC 2 \NC  normal                 \NC mirrored              \NC \NR
+\NC 3 \NC  mirrored               \NC mirrored              \NC \NR
+\stoptabulate
+
+In \in {figure} [fig:shapemode] a few examples are given.
+
+\startplacefigure[reference=fig:shapemode,title={The effect of \type {shapemode}.}]
+    \startcombination[2*3]
+        {\ruledvbox \bgroup \setuptolerance[verytolerant]
+            \hsize .45\textwidth \switchtobodyfont[6pt]
+                \pardir TLT \textdir TLT
+                \hangindent 40pt \hangafter -3
+                \leftskip10pt \input tufte \par
+         \egroup} {TLT: hangindent}
+        {\ruledvbox \bgroup \setuptolerance[verytolerant]
+            \hsize .45\textwidth \switchtobodyfont[6pt]
+            \pardir TLT \textdir TLT
+            \parshape 4 0pt .8\hsize 10pt .8\hsize 20pt .8\hsize 0pt \hsize
+            \input tufte \par
+         \egroup} {TLT: parshape}
+        {\ruledvbox \bgroup \setuptolerance[verytolerant]
+            \hsize .45\textwidth \switchtobodyfont[6pt]
+            \pardir TRT \textdir TRT
+            \hangindent 40pt \hangafter -3
+            \leftskip10pt \input tufte \par
+         \egroup} {TRT: hangindent mode 0}
+        {\ruledvbox \bgroup \setuptolerance[verytolerant]
+            \hsize .45\textwidth \switchtobodyfont[6pt]
+            \pardir TRT \textdir TRT
+            \parshape 4 0pt .8\hsize 10pt .8\hsize 20pt .8\hsize 0pt \hsize
+            \input tufte \par
+         \egroup} {TRT: parshape mode 0}
+        {\ruledvbox \bgroup \setuptolerance[verytolerant]
+            \hsize .45\textwidth \switchtobodyfont[6pt]
+            \shapemode=3
+            \pardir TRT \textdir TRT
+            \hangindent 40pt \hangafter -3
+            \leftskip10pt \input tufte \par
+         \egroup} {TRT: hangindent mode 1 & 3}
+        {\ruledvbox \bgroup \setuptolerance[verytolerant]
+            \hsize .45\textwidth \switchtobodyfont[6pt]
+            \shapemode=3
+            \pardir TRT \textdir TRT
+            \parshape 4 0pt .8\hsize 10pt .8\hsize 20pt .8\hsize 0pt \hsize
+            \input tufte \par
+         \egroup} {TRT: parshape mode 2 & 3}
+    \stopcombination
+\stopplacefigure
+
 \stopsection
 
 \startsection[title=Implementation notes]

@@ -148,7 +148,7 @@ void initialize_commands(void)
     primitive_tex("displaywidth", assign_dimen_cmd, dimen_base + display_width_code, dimen_base);
     primitive_tex("displayindent", assign_dimen_cmd, dimen_base + display_indent_code, dimen_base);
     primitive_tex("overfullrule", assign_dimen_cmd, dimen_base + overfull_rule_code, dimen_base);
-    primitive_tex("hangindent", assign_dimen_cmd, dimen_base + hang_indent_code, dimen_base);
+ /* primitive_tex("hangindent", assign_dimen_cmd, dimen_base + hang_indent_code, dimen_base); */
     primitive_tex("hoffset", assign_dimen_cmd, dimen_base + h_offset_code, dimen_base);
     primitive_tex("voffset", assign_dimen_cmd, dimen_base + v_offset_code, dimen_base);
     primitive_tex("emergencystretch", assign_dimen_cmd, dimen_base + emergency_stretch_code, dimen_base);
@@ -185,6 +185,7 @@ void initialize_commands(void)
     primitive_luatex("copyfont", copy_font_cmd, 0, 0);
     primitive_luatex("setfontid", set_font_id_cmd, 0, 0);
     primitive_tex("fontdimen", assign_font_dimen_cmd, 0, 0);
+    primitive_tex("hangindent", assign_hang_indent_cmd, 0, 0);
     primitive_tex("halign", halign_cmd, 0, 0);
     primitive_tex("hrule", hrule_cmd, 0, 0);
     primitive_luatex("nohrule", no_hrule_cmd, 0, 0);
@@ -767,6 +768,8 @@ void initialize_etex_commands(void)
     primitive_etex("parshapelength", last_item_cmd, par_shape_length_code, 0);
     primitive_etex("parshapeindent", last_item_cmd, par_shape_indent_code, 0);
     primitive_etex("parshapedimen", last_item_cmd, par_shape_dimen_code, 0);
+
+    primitive_luatex("shapemode", assign_int_cmd, int_base + shape_mode_code, int_base);
 
     primitive_etex("showgroups", xray_cmd, show_groups, 0);
 

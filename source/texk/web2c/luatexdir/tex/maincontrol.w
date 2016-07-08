@@ -896,6 +896,7 @@ static void init_main_control (void) {
     any_mode(assign_glue_cmd, prefixed_command);
     any_mode(assign_mu_glue_cmd, prefixed_command);
     any_mode(assign_font_dimen_cmd, prefixed_command);
+    any_mode(assign_hang_indent_cmd, prefixed_command);
     any_mode(assign_font_int_cmd, prefixed_command);
     any_mode(set_aux_cmd, prefixed_command);
     any_mode(set_prev_graf_cmd, prefixed_command);
@@ -2711,13 +2712,20 @@ void prefixed_command(void)
             if (n <= 0) {
                 p = null;
             } else {
+                int indentation = 0;
+                int width = 0;
                 p = new_node(shape_node, 2 * (n + 1) + 1);
                 vinfo(p + 1) = n;
                 for (j = 1; j <= n; j++) {
                     scan_normal_dimen();
-                    varmem[p + 2 * j].cint = cur_val;       /* indentation */
+                    indentation = cur_val;
                     scan_normal_dimen();
-                    varmem[p + 2 * j + 1].cint = cur_val;   /* width */
+                    width = cur_val;
+                    if (shape_mode == 2 || shape_mode == 3) {
+                        indentation =  dimen_par(hsize_code) - width - indentation;
+                    }
+                    varmem[p + 2 * j].cint = indentation;
+                    varmem[p + 2 * j + 1].cint = width;
                 }
             }
             define(q, shape_ref_cmd, p);
@@ -2777,6 +2785,14 @@ void prefixed_command(void)
             break;
         case assign_font_dimen_cmd:
             set_font_dimen();
+            break;
+        case assign_hang_indent_cmd:
+scan_optional_equals();
+scan_normal_dimen();
+if (shape_mode == 1 || shape_mode == 3) {
+    negate(cur_val);
+}
+assign_internal_value(a, dimen_base+hang_indent_code, cur_val);
             break;
         case assign_font_int_cmd:
             n = cur_chr;
