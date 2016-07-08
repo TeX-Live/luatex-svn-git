@@ -286,7 +286,7 @@
 
 \unexpanded\def\nonterminal#1>{\mathematics{\langle\hbox{\rm #1}\rangle}}
 
-% taco's brainwave -)
+% taco's brainwave -) .. todo: create a typing variant so that we can avoid the !crlf
 
 \newcatcodetable\syntaxcodetable
 
@@ -322,6 +322,10 @@
 !gdef!dosyntax     #1{!let<!nonterminal!syntaxbody{#1}!endgroup}
 
 !egroup
+
+\definetyping
+  [texsyntax]
+  [color=maincolor]
 
 % end of wave
 
