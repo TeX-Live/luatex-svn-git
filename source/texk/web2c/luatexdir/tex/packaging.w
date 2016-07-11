@@ -21,11 +21,6 @@
 
 #include "ptexlib.h"
 
-@ @c
-#define scan_normal_dimen() scan_dimen(false,false,false)
-
-#define box(A) eqtb[box_base+(A)].hh.rh
-
 @ We're essentially done with the parts of \TeX\ that are concerned with the
 input (|get_next|) and the output (|ship_out|). So it's time to get heavily into
 the remaining part, which does the real work of typesetting.

@@ -32,8 +32,6 @@
 #define no_lig_code 6
 #define gp_code_base 7
 
-#define box(A) eqtb[box_base+(A)].hh.rh
-
 #define mode          cur_list.mode_field
 #define tail          cur_list.tail_field
 #define head          cur_list.head_field

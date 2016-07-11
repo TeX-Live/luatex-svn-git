@@ -170,7 +170,6 @@ while (vlink(t)!=current && t != null) { \
     t = vlink(t);                        \
 }
 
-#define box(A) eqtb[box_base+(A)].hh.rh
 #define direct_check_index_range(j,s)                                      \
     if (j<0 || j > 65535) {                                                \
         luaL_error(L, "incorrect index value %d for tex.%s()", (int)j, s); \

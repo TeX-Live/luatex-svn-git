@@ -22,8 +22,6 @@
 #include "ptexlib.h"
 
 @ @c
-#define count(A) eqtb[count_base+(A)].cint
-
 scaledpos shipbox_refpos;
 
 @ |ship_out| is used to shipout a box to PDF or DVI mode. If |shipping_mode| is

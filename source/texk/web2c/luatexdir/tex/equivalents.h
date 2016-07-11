@@ -746,15 +746,26 @@ extern halfword last_cs_name;
 
 #define math_use_current_family_code 7
 
-/* todo :
-
-#define attribute(A) eqtb[attribute_base+(A)].hh.rh
-#define dimen(A)     eqtb[scaled_base+(A)].hh.rh
-#define skip(A)      eqtb[skip_base+(A)].hh.rh
-#define mu_skip(A)   eqtb[mu_skip_base+(A)].hh.rh
-#define count(A)     eqtb[count_base+(A)].hh.rh
-#define box(A)       equiv(box_base+(A))
-
+/*
+    #define box(A) equiv(box_base+(A))
+    #define box(A) eqtb[box_base+(A)].hh.rh
 */
+
+#define attribute(A) equiv(attribute_base+(A))
+#define box(A)       equiv(box_base+(A))
+#define count(A)     equiv(count_base+(A))
+#define dimen(A)     equiv(scaled_base+(A))
+#define mu_skip(A)   equiv(mu_skip_base+(A))
+#define skip(A)      equiv(skip_base+(A))
+#define toks(A)      equiv(toks_base+(A))
+
+#define get_tex_attribute_register(j) attribute(j)
+#define get_tex_box_register(j)       box(j)
+#define get_tex_count_register(j)     count(j)
+#define get_tex_dimen_register(j)     dimen(j)
+#define get_tex_mu_skip_register(j)   mu_skip(j)
+#define get_tex_skip_register(j)      skip(j)
+
+#define font_id_text(A) cs_text(font_id_base+(A))
 
 #endif

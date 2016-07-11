@@ -1797,8 +1797,6 @@ void undump_font(int f)
 /* moved from pdffont.w */
 
 @ @c
-#define font_id_text(A) cs_text(font_id_base+(A)) /* a frozen font identifier's name */
-
 int pk_dpi; /* PK pixel density value from \.{texmf.cnf} */
 
 @ @c

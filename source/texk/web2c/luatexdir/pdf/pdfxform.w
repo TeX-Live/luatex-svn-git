@@ -22,8 +22,6 @@
 #include "pdf/pdfpage.h"
 
 @ @c
-#define box(A) eqtb[box_base+(A)].hh.rh
-
 int pdf_cur_form;               /* the form being output */
 
 void pdf_place_form(PDF pdf, halfword p)

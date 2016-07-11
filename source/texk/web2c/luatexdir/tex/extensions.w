@@ -29,9 +29,6 @@
 #define head          cur_list.head_field
 #define dir_save      cur_list.dirs_field
 
-#define box(A) eqtb[box_base+(A)].hh.rh
-#define toks(A) equiv(toks_base+(A))
-
 @ The program above includes a bunch of ``hooks'' that allow further
 capabilities to be added without upsetting \TeX's basic structure.
 Most of these hooks are concerned with ``whatsit'' nodes, which are
@@ -857,9 +854,6 @@ internal stuff has to be accessed from C directly, where lots of the
 defines are not available.
 
 @c
-#define dimen(A) eqtb[scaled_base+(A)].hh.rh
-#define count(A) eqtb[count_base+(A)].hh.rh
-
 #define get_tex_dimen_register(j) dimen(j)
 #define get_tex_skip_register(j) skip(j)
 #define get_tex_mu_skip_register(j) mu_skip(j)

@@ -39,8 +39,6 @@
 
 #define mode cur_list.mode_field        /* current mode */
 
-#define count(A) eqtb[count_base+(A)].cint
-
 @ The most important output produced by a run of \TeX\ is the ``device
 independent'' (\.{DVI}) file that specifies where characters and rules
 are to appear on printed pages. The form of these files was designed by

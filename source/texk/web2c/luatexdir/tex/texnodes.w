@@ -33,11 +33,8 @@ makes no sense, not even to make it configureable. There is a little more memory
 used but that is neglectable compared to other memory usage.
 
 @c
-#define attribute(A) eqtb[attribute_base+(A)].cint
-
-#define MAX_CHAIN_SIZE 13 /* why not a bit larger */
-
-#define CHECK_NODE_USAGE 1 /* this triggers checking */
+#define MAX_CHAIN_SIZE   13 /* why not a bit larger */
+#define CHECK_NODE_USAGE  1 /* this triggers checking */
 
 memory_word *volatile varmem = NULL;
 

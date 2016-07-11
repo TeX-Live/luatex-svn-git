@@ -24,14 +24,6 @@ setter no prev link is created so we can presume that it's not used later on. */
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-#define attribute(A) eqtb[attribute_base+(A)].hh.rh
-#define dimen(A) eqtb[scaled_base+(A)].hh.rh
-#undef skip
-#define skip(A) eqtb[skip_base+(A)].hh.rh
-#define mu_skip(A) eqtb[mu_skip_base+(A)].hh.rh
-#define count(A) eqtb[count_base+(A)].hh.rh
-#define box(A) equiv(box_base+(A))
-
 /* tex random generators */
 extern int unif_rand(int );
 extern int norm_rand(void );

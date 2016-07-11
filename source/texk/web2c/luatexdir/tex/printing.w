@@ -22,8 +22,6 @@
 #include "lua/luatex-api.h" /* for luatex_banner */
 
 @ @c
-#define font_id_text(A) cs_text(font_id_base+(A))
-
 #define wlog(A)  fputc(A,log_file)
 #define wterm(A) fputc(A,term_out)
 

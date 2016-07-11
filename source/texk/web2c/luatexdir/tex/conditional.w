@@ -21,9 +21,6 @@
 
 #include "ptexlib.h"
 
-@ @c
-#define box(A) eqtb[box_base+(A)].hh.rh
-
 @* We consider now the way \TeX\ handles various kinds of \.{\\if} commands.
 
 @ Conditions can be inside conditions, and this nesting has a stack

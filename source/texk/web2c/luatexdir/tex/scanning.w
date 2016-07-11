@@ -22,16 +22,6 @@
 #include "ptexlib.h"
 
 @ @c
-#define font_id_text(A) cs_text(font_id_base+(A))
-
-#define attribute(A) eqtb[attribute_base+(A)].hh.rh
-#define dimen(A) eqtb[scaled_base+(A)].hh.rh
-#undef skip
-#define skip(A) eqtb[skip_base+(A)].hh.rh
-#define mu_skip(A) eqtb[mu_skip_base+(A)].hh.rh
-#define count(A) eqtb[count_base+(A)].hh.rh
-#define box(A) equiv(box_base+(A))
-
 static void scan_expr(void);
 
 @ Let's turn now to some procedures that \TeX\ calls upon frequently to digest

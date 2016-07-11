@@ -22,12 +22,6 @@
 #include "ptexlib.h"
 
 @ @c
-#define box(A) eqtb[box_base+(A)].hh.rh
-#define count(A) eqtb[count_base+(A)].hh.rh
-#undef skip
-#define skip(A) eqtb[skip_base+(A)].hh.rh
-#define dimen(A) eqtb[scaled_base+(A)].hh.rh
-
 #define mode_line cur_list.ml_field
 #define mode cur_list.mode_field
 #define tail cur_list.tail_field

@@ -22,10 +22,6 @@
 #include "ptexlib.h"
 
 @ @c
-
-#define box(A) equiv(box_base+(A))
-#define toks(A) equiv(toks_base+(A))
-
 #define detokenized_line() (line_catcode_table==NO_CAT_TABLE)
 
 /*

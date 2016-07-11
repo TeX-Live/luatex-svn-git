@@ -19,10 +19,7 @@
 
 @ @c
 
-
 #include "ptexlib.h"
-
-#define font_id_text(A) cs_text(font_id_base+(A))
 
 /* we start with 907: the sum of the values of the bytes of "don knuth" */
 
