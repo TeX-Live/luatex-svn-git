@@ -103,8 +103,6 @@ void scan_pdfxform(PDF pdf)
 }
 
 @ @c
-#define tail          cur_list.tail_field
-
 void scan_pdfrefxform(PDF pdf)
 {
     scaled_whd alt_rule, dim, nat;
@@ -120,8 +118,8 @@ void scan_pdfrefxform(PDF pdf)
     } else {
         dim = nat;
     }
-    width(tail) = dim.wd;
-    height(tail) = dim.ht;
-    depth(tail) = dim.dp;
-    rule_index(tail) = cur_val;
+    width(tail_par) = dim.wd;
+    height(tail_par) = dim.ht;
+    depth(tail_par) = dim.dp;
+    rule_index(tail_par) = cur_val;
 }

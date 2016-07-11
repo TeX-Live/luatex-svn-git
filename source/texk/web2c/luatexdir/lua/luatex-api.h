@@ -1185,6 +1185,7 @@ init_lua_key_alias(empty_string,"");\
 init_lua_key_alias(lua_bytecodes_indirect,"lua.bytecodes.indirect");\
 init_lua_key_alias(lua_functions,"lua.functions");\
 init_lua_key_alias(luatex_node, "luatex.node");\
+init_lua_key_alias(luatex_token, "luatex.token");\
 init_lua_key_alias(mLTL,"-LTL");\
 init_lua_key_alias(mRTT,"-RTT");\
 init_lua_key_alias(mTLT,"-TLT");\

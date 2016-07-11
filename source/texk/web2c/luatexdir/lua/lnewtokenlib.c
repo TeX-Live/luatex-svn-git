@@ -63,7 +63,7 @@ typedef struct saved_tex_scanner {
 
 static lua_token *check_istoken(lua_State * L, int ud);
 
-#define TOKEN_METATABLE  "luatex_token"
+#define TOKEN_METATABLE  "luatex.token"
 
 #define DEBUG 0
 #define DEBUG_OUT stdout

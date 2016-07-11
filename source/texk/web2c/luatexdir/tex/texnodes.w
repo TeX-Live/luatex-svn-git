@@ -53,8 +53,8 @@ int fix_node_lists = 1; /* used in font and lang */
 
 halfword slow_get_node(int s);  /* defined below */
 
-#define fake_node 100
-#define fake_node_size 2
+#define fake_node       100
+#define fake_node_size  2
 #define fake_node_name "fake"
 
 #define variable_node_size 2
@@ -135,18 +135,6 @@ const char *node_fields_boundary[] = {
 const char *node_fields_noad[] = {
     "attr", "nucleus", "sub", "sup", NULL
 };
-
-#define node_fields_ord     node_fields_noad
-#define node_fields_op      node_fields_noad
-#define node_fields_bin     node_fields_noad
-#define node_fields_rel     node_fields_noad
-#define node_fields_open    node_fields_noad
-#define node_fields_close   node_fields_noad
-#define node_fields_punct   node_fields_noad
-#define node_fields_inner   node_fields_noad
-#define node_fields_under   node_fields_noad
-#define node_fields_over    node_fields_noad
-#define node_fields_vcenter node_fields_noad
 
 const char *node_fields_style[] = {
     "attr", "style", NULL
@@ -334,7 +322,7 @@ node_info node_data[] = { /* the last entry in a row is the etex number */
     { unset_node,          box_node_size,         node_fields_unset,                         "unset",          14 },
     { style_node,          style_node_size,       node_fields_style,                         "style",          15 },
     { choice_node,         style_node_size,       node_fields_choice,                        "choice",         15 },
-    { simple_noad,         noad_size,             node_fields_ord,                           "noad",           15 },
+    { simple_noad,         noad_size,             node_fields_noad,                          "noad",           15 },
     { radical_noad,        radical_noad_size,     node_fields_radical,                       "radical",        15 },
     { fraction_noad,       fraction_noad_size,    node_fields_fraction,                      "fraction",       15 },
     { accent_noad,         accent_noad_size,      node_fields_accent,                        "accent",         15 },
@@ -368,8 +356,6 @@ node_info node_data[] = { /* the last entry in a row is the etex number */
     { shape_node,          variable_node_size,    NULL,                                      "shape",          -1 },
     { -1,                 -1,                     NULL,                                      NULL,             -1 },
 };
-
-#define last_normal_node shape_node
 
 const char *node_subtypes_pdf_destination[] = {
     "xyz", "fit", "fith", "fitv", "fitb", "fitbh", "fitbv", "fitr", NULL

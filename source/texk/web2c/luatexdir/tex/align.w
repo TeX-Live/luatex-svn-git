@@ -31,9 +31,6 @@ void init_col(void);
 
 #define noDEBUG
 
-#define end_template_token  (cs_token_flag+frozen_end_template)
-#define incompleat_noad     cur_list.incompleat_noad_field
-
 @ It's sort of a miracle whenever \.{\\halign} and \.{\\valign} work, because
 they cut across so many of the control structures of \TeX.
 
@@ -169,10 +166,12 @@ is necessary to store information about what to do when a template ends.
 This information is called the |extra_info| field.
 
 @c
-#define u_part(A) vlink((A)+depth_offset)       /* pointer to \<u_j> token list */
-#define v_part(A) vinfo((A)+depth_offset)       /* pointer to \<v_j> token list */
-#define span_ptr(A) vinfo((A)+1)        /* column spanning list */
-#define extra_info(A) vinfo((A)+list_offset)    /* info to remember during template */
+/* could be in texnodes.h, but documented here*/
+
+#define u_part(A)     vlink((A)+depth_offset) /* pointer to \<u_j> token list */
+#define v_part(A)     vinfo((A)+depth_offset) /* pointer to \<v_j> token list */
+#define span_ptr(A)   vinfo((A)+1)            /* column spanning list */
+#define extra_info(A) vinfo((A)+list_offset)  /* info to remember during template */
 
 @ Alignments can occur within alignments, so a small stack is used to access
 the alignrecord information. At each level we have a |preamble| pointer,
@@ -193,6 +192,8 @@ when they have to be pushed down, they are stored in 6-word nodes, and
 |align_ptr| points to the topmost such node.
 
 @c
+/* could be in texnodes.h but documented here*/
+
 #define preamble vlink(align_head)      /* the current preamble list */
 
 pointer cur_align = null;       /* current position in preamble list */
@@ -324,7 +325,7 @@ void init_align(void)
 
     if ((cur_list.mode_field == mmode)
         && ((cur_list.tail_field != cur_list.head_field)
-            || (incompleat_noad != null))) {
+            || (incompleat_noad_par != null))) {
         const char *hlp[] =
             { "Displays can use special alignments (like \\eqalignno)",
             "only if nothing but the alignment itself is between $$'s.",

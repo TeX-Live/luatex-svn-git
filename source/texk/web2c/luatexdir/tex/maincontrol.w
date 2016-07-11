@@ -22,20 +22,11 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-/* these will move to equivalents.h */
-
 @ @c
-#define lp_code_base 2
-#define rp_code_base 3
-#define ef_code_base 4
-#define tag_code 5
-#define no_lig_code 6
-#define gp_code_base 7
-
-#define mode          cur_list.mode_field
-#define tail          cur_list.tail_field
-#define head          cur_list.head_field
-#define dir_save      cur_list.dirs_field
+#define mode     mode_par
+#define tail     tail_par
+#define head     head_par
+#define dir_save dirs_par
 
 @ We come now to the |main_control| routine, which contains the master
 switch that causes all the various pieces of \TeX\ to do their things,

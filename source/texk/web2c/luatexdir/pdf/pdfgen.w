@@ -26,8 +26,6 @@
 #include "lua/luatex-api.h"
 #include "md5.h"
 
-#define is_hex_char isxdigit
-
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
         formatted_error("pdf backend","snprintf() failed in file %s at line %d", __FILE__, __LINE__);
@@ -634,7 +632,7 @@ void pdf_print_str(PDF pdf, const char *s)
         return;
     }
     s++;
-    while (is_hex_char((unsigned char)*s))
+    while (isxdigit((unsigned char)*s))
         s++;
     if (s != orig + l) {
         pdf_out(pdf, '(');

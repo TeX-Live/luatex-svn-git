@@ -22,10 +22,9 @@
 #include "ptexlib.h"
 
 @ @c
-#define mode_line cur_list.ml_field
-#define mode cur_list.mode_field
-#define tail cur_list.tail_field
-#define head cur_list.head_field
+#define mode mode_par
+#define head head_par
+#define tail tail_par
 
 @ When \TeX\ appends new material to its main vlist in vertical mode, it uses
 a method something like |vsplit| to decide where a page ends, except that
@@ -923,7 +922,7 @@ void fire_up(halfword c)
             push_nest();
             mode = -vmode;
             prev_depth_par = ignore_depth;
-            mode_line = -line;
+            mode_line_par = -line;
             begin_token_list(output_routine_par, output_text);
             new_save_level(output_group);
             normal_paragraph();

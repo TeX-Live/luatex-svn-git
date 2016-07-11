@@ -427,8 +427,6 @@ void scan_pdfximage(PDF pdf) /* static_pdf */
 }
 
 @ @c
-#define tail cur_list.tail_field
-
 void scan_pdfrefximage(PDF pdf)
 {
     int transform = 0;          /* one could scan transform as well */
@@ -441,20 +439,20 @@ void scan_pdfrefximage(PDF pdf)
     idict = idict_array[obj_data_ptr(pdf, cur_val)];
     if (img_state(idict) == DICT_NEW) {
         normal_warning("image","don't rely on the image data to be okay");
-        width(tail) = 0;
-        height(tail) = 0;
-        depth(tail) = 0;
+        width(tail_par) = 0;
+        height(tail_par) = 0;
+        depth(tail_par) = 0;
     } else {
         if (alt_rule.wd != null_flag || alt_rule.ht != null_flag || alt_rule.dp != null_flag) {
             dim = scale_img(idict, alt_rule, transform);
         } else {
             dim = scale_img(idict, img_dimen(idict), img_transform(idict));
         }
-        width(tail) = dim.wd;
-        height(tail) = dim.ht;
-        depth(tail) = dim.dp;
-        rule_transform(tail) = transform;
-        rule_index(tail) = img_index(idict);
+        width(tail_par) = dim.wd;
+        height(tail_par) = dim.ht;
+        depth(tail_par) = dim.dp;
+        rule_transform(tail_par) = transform;
+        rule_index(tail_par) = img_index(idict);
     }
 }
 

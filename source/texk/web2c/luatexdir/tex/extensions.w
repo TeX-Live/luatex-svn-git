@@ -24,10 +24,10 @@
 #include "ptexlib.h"
 
 @ @c
-#define mode          cur_list.mode_field
-#define tail          cur_list.tail_field
-#define head          cur_list.head_field
-#define dir_save      cur_list.dirs_field
+#define mode     mode_par
+#define tail     tail_par
+#define head     head_par
+#define dir_save dirs_par
 
 @ The program above includes a bunch of ``hooks'' that allow further
 capabilities to be added without upsetting \TeX's basic structure.
@@ -469,8 +469,6 @@ above.) If it were not removed, and if there were numerous writes on a
 single page, the stack would overflow.
 
 @c
-#define end_write_token cs_token_flag+end_write
-
 void expand_macros_in_tokenlist(halfword p)
 {
     int old_mode;

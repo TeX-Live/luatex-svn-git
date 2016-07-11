@@ -654,10 +654,19 @@ extern halfword last_cs_name;
 #define no_local_whatsits_par              int_par(no_local_whatsits_code)
 #define no_local_dirs_par                  int_par(no_local_dirs_code)
 
-#define par_shape_par_ptr                  equiv(par_shape_loc)
 #define prev_depth_par                     cur_list.prev_depth_field
 #define prev_graf_par                      cur_list.pg_field
+#define tail_par                           cur_list.tail_field
+#define head_par                           cur_list.head_field
+#define mode_par                           cur_list.mode_field
+#define dirs_par                           cur_list.dirs_field
 #define space_factor_par                   cur_list.space_factor_field
+#define incompleat_noad_par                cur_list.incompleat_noad_field
+#define mode_line_par                      cur_list.ml_field
+#define aux_par                            cur_list.eTeX_aux_field
+#define delim_par                          aux_par
+
+#define par_shape_par_ptr                  equiv(par_shape_loc)
 #define inter_line_penalties_par_ptr       equiv(inter_line_penalties_loc)
 #define club_penalties_par_ptr             equiv(club_penalties_loc)
 #define widow_penalties_par_ptr            equiv(widow_penalties_loc)
@@ -767,5 +776,8 @@ extern halfword last_cs_name;
 #define get_tex_skip_register(j)      skip(j)
 
 #define font_id_text(A) cs_text(font_id_base+(A))
+
+#define end_template_token  (cs_token_flag+frozen_end_template)
+#define end_write_token     (cs_token_flag+end_write)
 
 #endif

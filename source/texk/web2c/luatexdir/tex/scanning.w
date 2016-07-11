@@ -2155,14 +2155,13 @@ parenthesis.
 
 @c
 typedef enum {
-    expr_none = 0,              /* \.( seen, or \.( $\langle\it expr\rangle$ \.) seen */
-    expr_add = 1,               /* \.( $\langle\it expr\rangle$ \.+ seen */
-    expr_sub = 2,               /* \.( $\langle\it expr\rangle$ \.- seen */
-    expr_mult = 3,              /* $\langle\it term\rangle$ \.* seen */
-    expr_div = 4,               /* $\langle\it term\rangle$ \./ seen */
-    expr_scale = 5,             /* $\langle\it term\rangle$ \.*  $\langle\it factor\rangle$ \./ seen */
+    expr_none  = 0, /* \.( seen, or \.( $\langle\it expr\rangle$ \.) seen */
+    expr_add   = 1, /* \.( $\langle\it expr\rangle$ \.+ seen */
+    expr_sub   = 2, /* \.( $\langle\it expr\rangle$ \.- seen */
+    expr_mult  = 3, /* $\langle\it term\rangle$ \.* seen */
+    expr_div   = 4, /* $\langle\it term\rangle$ \./ seen */
+    expr_scale = 5, /* $\langle\it term\rangle$ \.*  $\langle\it factor\rangle$ \./ seen */
 } expression_states;
-
 
 @  We want to make sure that each term and (intermediate) result is in
   the proper range.  Integer values must not exceed |infinity|
@@ -2200,12 +2199,6 @@ term so far and |s| is the state of its evaluation; finally |n| is the
 numerator for a combined multiplication and division, if any.
 
 @c
-#define expr_type(A) type((A)+1)
-#define expr_state(A) subtype((A)+1)
-#define expr_e_field(A) vlink((A)+1)    /* saved expression so far */
-#define expr_t_field(A) vlink((A)+2)    /* saved term so far */
-#define expr_n_field(A) vinfo((A)+2)    /* saved numerator */
-
 #define expr_add_sub(A,B,C) add_or_sub((A),(B),(C),(r==expr_sub))
 #define expr_a(A,B) expr_add_sub((A),(B),max_dimen)
 

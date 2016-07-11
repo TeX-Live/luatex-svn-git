@@ -884,8 +884,6 @@ halfword cur_tok;               /* packed representative of |cur_cmd| and |cur_c
 @ Here is a procedure that displays the current command.
 
 @c
-#define mode cur_list.mode_field
-
 void show_cur_cmd_chr(void)
 {
     int n;                      /* level of \.{\\if...\\fi} nesting */
@@ -893,10 +891,10 @@ void show_cur_cmd_chr(void)
     halfword p;
     begin_diagnostic();
     tprint_nl("{");
-    if (mode != shown_mode) {
-        print_mode(mode);
+    if (mode_par != shown_mode) {
+        print_mode(mode_par);
         tprint(": ");
-        shown_mode = mode;
+        shown_mode = mode_par;
     }
     print_cmd_chr((quarterword) cur_cmd, cur_chr);
     if (tracing_ifs_par > 0) {

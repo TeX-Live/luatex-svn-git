@@ -21,12 +21,10 @@
 #include "ptexlib.h"
 
 @ @c
-#define mode            cur_list.mode_field
-#define head            cur_list.head_field
-#define tail            cur_list.tail_field
-#define eTeX_aux        cur_list.eTeX_aux_field
-#define delim_ptr       eTeX_aux
-#define incompleat_noad cur_list.incompleat_noad_field
+#define mode     mode_par
+#define tail     tail_par
+#define head     head_par
+#define dir_save dirs_par
 
 /*
 
@@ -150,10 +148,10 @@ subroutine empties the current list, assuming that |abs(mode)=mmode|.
 void flush_math(void)
 {
     flush_node_list(vlink(head));
-    flush_node_list(incompleat_noad);
+    flush_node_list(incompleat_noad_par);
     vlink(head) = null;
     tail = head;
-    incompleat_noad = null;
+    incompleat_noad_par = null;
 }
 
 @ Before we can do anything in math mode, we need fonts.
@@ -879,7 +877,7 @@ static void push_math(group_code c, int mstyle)
         dir_math_save = true;
     push_nest();
     mode = -mmode;
-    incompleat_noad = null;
+    incompleat_noad_par = null;
     m_style = mstyle;
     new_save_level_math(c);
 }
@@ -1780,7 +1778,7 @@ void math_fraction(void)
     pointer q;
     halfword options = 0;
     c = cur_chr;
-    if (incompleat_noad != null) {
+    if (incompleat_noad_par != null) {
         const char *hlp[] = {
             "I'm ignoring this fraction specification, since I don't",
             "know whether a construction like `x \\over y \\over z'",
@@ -1795,25 +1793,25 @@ void math_fraction(void)
             scan_normal_dimen();
         tex_error("Ambiguous; you need another { and }", hlp);
     } else {
-        incompleat_noad = new_node(fraction_noad, 0);
-        numerator(incompleat_noad) = new_node(sub_mlist_node, 0);
-        math_list(numerator(incompleat_noad)) = vlink(head);
+        incompleat_noad_par = new_node(fraction_noad, 0);
+        numerator(incompleat_noad_par) = new_node(sub_mlist_node, 0);
+        math_list(numerator(incompleat_noad_par)) = vlink(head);
         vlink(head) = null;
         tail = head;
         m_style = cramped_style(m_style);
 
         if ((c % delimited_code) == skewed_code) {
             q = new_node(delim_node, 0);
-            middle_delimiter(incompleat_noad) = q;
-            scan_delimiter(middle_delimiter(incompleat_noad), no_mathcode);
+            middle_delimiter(incompleat_noad_par) = q;
+            scan_delimiter(middle_delimiter(incompleat_noad_par), no_mathcode);
         }
         if (c >= delimited_code) {
             q = new_node(delim_node, 0);
-            left_delimiter(incompleat_noad) = q;
+            left_delimiter(incompleat_noad_par) = q;
             q = new_node(delim_node, 0);
-            right_delimiter(incompleat_noad) = q;
-            scan_delimiter(left_delimiter(incompleat_noad), no_mathcode);
-            scan_delimiter(right_delimiter(incompleat_noad), no_mathcode);
+            right_delimiter(incompleat_noad_par) = q;
+            scan_delimiter(left_delimiter(incompleat_noad_par), no_mathcode);
+            scan_delimiter(right_delimiter(incompleat_noad_par), no_mathcode);
         }
         switch (c % delimited_code) {
             case above_code:
@@ -1824,15 +1822,15 @@ void math_fraction(void)
                         break;
                     }
                 }
-                fractionoptions(incompleat_noad) = options;
+                fractionoptions(incompleat_noad_par) = options;
                 scan_normal_dimen();
-                thickness(incompleat_noad) = cur_val;
+                thickness(incompleat_noad_par) = cur_val;
                 break;
             case over_code:
-                thickness(incompleat_noad) = default_code;
+                thickness(incompleat_noad_par) = default_code;
                 break;
             case atop_code:
-                thickness(incompleat_noad) = 0;
+                thickness(incompleat_noad_par) = 0;
                 break;
             case skewed_code:
                 while (1) {
@@ -1844,8 +1842,8 @@ void math_fraction(void)
                         break;
                     }
                 }
-                fractionoptions(incompleat_noad) = options;
-                thickness(incompleat_noad) = 0;
+                fractionoptions(incompleat_noad_par) = options;
+                thickness(incompleat_noad_par) = 0;
                 break;
         }
     }
@@ -1861,24 +1859,24 @@ current mlist; this |fence_noad| has not yet been appended.
 pointer fin_mlist(pointer p)
 {
     pointer q;                  /* the mlist to return */
-    if (incompleat_noad != null) {
-        if (denominator(incompleat_noad) != null) {
-            type(denominator(incompleat_noad)) = sub_mlist_node;
+    if (incompleat_noad_par != null) {
+        if (denominator(incompleat_noad_par) != null) {
+            type(denominator(incompleat_noad_par)) = sub_mlist_node;
         } else {
             q = new_node(sub_mlist_node, 0);
-            denominator(incompleat_noad) = q;
+            denominator(incompleat_noad_par) = q;
         }
-        math_list(denominator(incompleat_noad)) = vlink(head);
+        math_list(denominator(incompleat_noad_par)) = vlink(head);
         if (p == null) {
-            q = incompleat_noad;
+            q = incompleat_noad_par;
         } else {
-            q = math_list(numerator(incompleat_noad));
+            q = math_list(numerator(incompleat_noad_par));
             if ((type(q) != fence_noad) || (subtype(q) != left_noad_side)
-                || (delim_ptr == null))
+                || (delim_par == null))
                 confusion("right");     /* this can't happen */
-            math_list(numerator(incompleat_noad)) = vlink(delim_ptr);
-            vlink(delim_ptr) = incompleat_noad;
-            vlink(incompleat_noad) = p;
+            math_list(numerator(incompleat_noad_par)) = vlink(delim_par);
+            vlink(delim_par) = incompleat_noad_par;
+            vlink(incompleat_noad_par) = p;
         }
     } else {
         vlink(tail) = p;
@@ -2050,7 +2048,7 @@ void math_left_right(void)
             push_math(math_left_group, m_style);
             vlink(head) = q;
             tail = p;
-            delim_ptr = p;
+            delim_par = p;
         } else {
             tail_append(new_noad());
             subtype(tail) = inner_noad_type;

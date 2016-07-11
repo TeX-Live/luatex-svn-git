@@ -19,7 +19,6 @@
 
 @ @c
 
-
 #include "ptexlib.h"
 
 @ these are for |show_activities|
@@ -249,8 +248,6 @@ void initialize_nesting(void)
     init_math_fields();
 }
 
-
-
 @ Here is a common way to make the current list grow:
 
 @c
@@ -259,7 +256,6 @@ void tail_append(halfword p)
     couple_nodes(cur_list.tail_field, p);
     cur_list.tail_field = vlink(cur_list.tail_field);
 }
-
 
 @ @c
 halfword pop_tail(void)
@@ -308,7 +304,6 @@ void push_nest(void)
     cur_list.incompleat_noad_field = nest[nest_ptr - 1].incompleat_noad_field;
     init_math_fields();
 }
-
 
 @ Conversely, when \TeX\ is finished on the current level, the former
 state is restored by calling |pop_nest|. This routine will never be

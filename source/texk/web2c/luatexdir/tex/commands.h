@@ -327,11 +327,14 @@ typedef enum {
     expand_font_code,
 } normal_codes;
 
-#  define lp_code_base 2
-#  define rp_code_base 3
-#  define ef_code_base 4
-#  define tag_code 5
-#  define no_lig_code 6
+typedef enum {
+    lp_code_base = 2,
+    rp_code_base = 3,
+    ef_code_base = 4,
+    tag_code     = 5,
+    no_lig_code  = 6,
+    gp_code_base = 7
+} font_codes ;
 
 #  define immediate_code 4      /* command modifier for \.{\\immediate} */
 
