@@ -148,7 +148,6 @@ void initialize_commands(void)
     primitive_tex("displaywidth", assign_dimen_cmd, dimen_base + display_width_code, dimen_base);
     primitive_tex("displayindent", assign_dimen_cmd, dimen_base + display_indent_code, dimen_base);
     primitive_tex("overfullrule", assign_dimen_cmd, dimen_base + overfull_rule_code, dimen_base);
- /* primitive_tex("hangindent", assign_dimen_cmd, dimen_base + hang_indent_code, dimen_base); */
     primitive_tex("hoffset", assign_dimen_cmd, dimen_base + h_offset_code, dimen_base);
     primitive_tex("voffset", assign_dimen_cmd, dimen_base + v_offset_code, dimen_base);
     primitive_tex("emergencystretch", assign_dimen_cmd, dimen_base + emergency_stretch_code, dimen_base);

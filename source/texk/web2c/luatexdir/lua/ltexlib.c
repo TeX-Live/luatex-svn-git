@@ -1920,6 +1920,7 @@ static int gettex(lua_State * L)
             case assign_dimen_cmd:
             case assign_glue_cmd:
             case assign_mu_glue_cmd:
+            case assign_hang_indent_cmd:
             case set_aux_cmd:
             case set_prev_graf_cmd:
             case set_page_int_cmd:

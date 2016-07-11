@@ -1377,6 +1377,8 @@ void normal_paragraph(void)
         eq_define(par_shape_loc, shape_ref_cmd, null);
     if (inter_line_penalties_ptr != null)
         eq_define(inter_line_penalties_loc, shape_ref_cmd, null);
+    if (shape_mode > 0)
+        eq_word_define(dimen_base + shape_mode_code, 0);
 }
 
 @ The global variable |cur_box| will point to a newly-made box. If the box
@@ -2714,6 +2716,7 @@ void prefixed_command(void)
             } else {
                 int indentation = 0;
                 int width = 0;
+                boolean swap = (shape_mode == 2 || shape_mode == 3 || shape_mode == -2 || shape_mode == -3) ;
                 p = new_node(shape_node, 2 * (n + 1) + 1);
                 vinfo(p + 1) = n;
                 for (j = 1; j <= n; j++) {
@@ -2721,7 +2724,7 @@ void prefixed_command(void)
                     indentation = cur_val;
                     scan_normal_dimen();
                     width = cur_val;
-                    if (shape_mode == 2 || shape_mode == 3) {
+                    if (swap) {
                         indentation =  dimen_par(hsize_code) - width - indentation;
                     }
                     varmem[p + 2 * j].cint = indentation;
@@ -2787,12 +2790,12 @@ void prefixed_command(void)
             set_font_dimen();
             break;
         case assign_hang_indent_cmd:
-scan_optional_equals();
-scan_normal_dimen();
-if (shape_mode == 1 || shape_mode == 3) {
-    negate(cur_val);
-}
-assign_internal_value(a, dimen_base+hang_indent_code, cur_val);
+            scan_optional_equals();
+            scan_normal_dimen();
+            if (shape_mode == 1 || shape_mode == 3 || shape_mode == -1 || shape_mode == -3) {
+                negate(cur_val);
+            }
+            assign_internal_value(a, dimen_base+hang_indent_code, cur_val);
             break;
         case assign_font_int_cmd:
             n = cur_chr;
