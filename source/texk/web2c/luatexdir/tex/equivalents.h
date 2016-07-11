@@ -550,12 +550,12 @@ extern halfword last_cs_name;
 #define xspace_skip_par                    glue_par(xspace_skip_code)
 #define math_skip_par                      glue_par(math_skip_code)
 
-#define pre_display_size                   dimen_par(pre_display_size_code)
-#define display_width                      dimen_par(display_width_code)
-#define display_indent                     dimen_par(display_indent_code)
-#define math_surround                      dimen_par(math_surround_code)
+#define pre_display_size_par               dimen_par(pre_display_size_code)
+#define display_width_par                  dimen_par(display_width_code)
+#define display_indent_par                 dimen_par(display_indent_code)
+#define math_surround_par                  dimen_par(math_surround_code)
 
-#define display_skip_mode                  int_par(math_display_skip_mode_code)
+#define display_skip_mode_par              int_par(math_display_skip_mode_code)
 #define math_eqno_gap_step_par             int_par(math_eqno_gap_step_code)
 
 #define body_direction_par                 int_par(body_direction_code)
@@ -633,7 +633,6 @@ extern halfword last_cs_name;
 #define bin_op_penalty_par                 int_par(bin_op_penalty_code)
 #define rel_penalty_par                    int_par(rel_penalty_code)
 #define null_delimiter_space_par           dimen_par(null_delimiter_space_code)
-#define script_space_par                   dimen_par(script_space_code)
 #define disable_lig_par                    int_par(disable_lig_code)
 #define disable_kern_par                   int_par(disable_kern_code)
 #define disable_space_par                  int_par(disable_space_code)
@@ -650,8 +649,6 @@ extern halfword last_cs_name;
 #define every_vbox_par                     equiv(every_vbox_loc)
 #define every_eof_par                      equiv(every_eof_loc)
 #define every_par_par                      equiv(every_par_loc)
-#define every_hbox_par                     equiv(every_hbox_loc)
-#define every_vbox_par                     equiv(every_vbox_loc)
 #define err_help_par                       equiv(err_help_loc)
 
 #define no_local_whatsits_par              int_par(no_local_whatsits_code)

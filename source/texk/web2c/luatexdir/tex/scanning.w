@@ -1369,7 +1369,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     } else if (scan_keyword("ex")) {
         v = x_height(get_cur_font());
     } else if (scan_keyword("px")) {
-        v = px_dimen_code;
+        v = px_dimen_par;
     } else {
         goto PICKUP_UNIT;
     }

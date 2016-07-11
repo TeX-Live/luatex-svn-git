@@ -809,7 +809,7 @@ void fin_align(void)
         confusion("align0");
     unsave();                   /* that |align_group| was for the whole alignment */
     if (nest[nest_ptr - 1].mode_field == mmode)
-        o = display_indent;
+        o = display_indent_par;
     else
         o = 0;
     /* Go through the preamble list, determining the column widths and

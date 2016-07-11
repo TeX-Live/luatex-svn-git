@@ -105,7 +105,6 @@ void initialize_commands(void)
     primitive_tex("outputpenalty", assign_int_cmd, int_base + output_penalty_code, int_base);
     primitive_tex("maxdeadcycles", assign_int_cmd, int_base + max_dead_cycles_code, int_base);
     primitive_tex("hangafter", assign_int_cmd, int_base + hang_after_code, int_base);
-    primitive_tex("hangindent", assign_dimen_cmd, dimen_base + hang_indent_code, dimen_base);
     primitive_tex("floatingpenalty", assign_int_cmd, int_base + floating_penalty_code, int_base);
     primitive_tex("globaldefs", assign_int_cmd, int_base + global_defs_code, int_base);
     primitive_tex("fam", assign_int_cmd, int_base + cur_fam_code, int_base);
@@ -149,6 +148,7 @@ void initialize_commands(void)
     primitive_tex("displaywidth", assign_dimen_cmd, dimen_base + display_width_code, dimen_base);
     primitive_tex("displayindent", assign_dimen_cmd, dimen_base + display_indent_code, dimen_base);
     primitive_tex("overfullrule", assign_dimen_cmd, dimen_base + overfull_rule_code, dimen_base);
+    primitive_tex("hangindent", assign_dimen_cmd, dimen_base + hang_indent_code, dimen_base);
     primitive_tex("hoffset", assign_dimen_cmd, dimen_base + h_offset_code, dimen_base);
     primitive_tex("voffset", assign_dimen_cmd, dimen_base + v_offset_code, dimen_base);
     primitive_tex("emergencystretch", assign_dimen_cmd, dimen_base + emergency_stretch_code, dimen_base);

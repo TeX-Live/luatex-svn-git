@@ -2684,17 +2684,13 @@ void prefixed_command(void)
             if (n <= 0) {
                 p = null;
             } else {
-                int indentation = 0;
-                int width = 0;
                 p = new_node(shape_node, 2 * (n + 1) + 1);
                 vinfo(p + 1) = n;
                 for (j = 1; j <= n; j++) {
                     scan_normal_dimen();
-                    indentation = cur_val;
+                    varmem[p + 2 * j].cint = cur_val;       /* indentation */
                     scan_normal_dimen();
-                    width = cur_val;
-                    varmem[p + 2 * j].cint = indentation;
-                    varmem[p + 2 * j + 1].cint = width;
+                    varmem[p + 2 * j + 1].cint = cur_val;   /* width */
                 }
             }
             define(q, shape_ref_cmd, p);

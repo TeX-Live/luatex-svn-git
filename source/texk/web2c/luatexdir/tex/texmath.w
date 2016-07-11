@@ -2132,7 +2132,7 @@ At this time we are in vertical mode (or internal vertical mode).
 
 @c
 #define inject_display_skip_before(g) \
-    switch (display_skip_mode) { \
+    switch (display_skip_mode_par) { \
         case 0 : /* normal tex */ \
             tail_append(new_param_glue(g)); \
             break;\
@@ -2148,7 +2148,7 @@ At this time we are in vertical mode (or internal vertical mode).
     }
 
 #define inject_display_skip_after(g) \
-    switch (display_skip_mode) { \
+    switch (display_skip_mode_par) { \
         case 0 : /* normal tex */ \
             if (g != 0 && glue_is_positive(glue_par(g))) \
                 tail_append(new_param_glue(g)); \
@@ -2193,8 +2193,8 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     pre_t = pre_adjust_tail;
     pre_adjust_tail = null;
     eq_w = width(eq_box);
-    line_w = display_width;
-    line_s = display_indent;
+    line_w = display_width_par;
+    line_s = display_indent_par;
     if (eqno_box == null) {
         eqno_w = 0;
         eqno_width = 0;
@@ -2249,7 +2249,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     }
 
     tail_append(new_penalty(pre_display_penalty_par));
-    if ((d + line_s <= pre_display_size) || l) {        /* not enough clearance */
+    if ((d + line_s <= pre_display_size_par) || l) {        /* not enough clearance */
         g1 = above_display_skip_code;
         g2 = below_display_skip_code;
     } else {
@@ -2429,7 +2429,7 @@ void after_math(void)
         if (cur_cmd == math_shift_cs_cmd) {
             check_inline_math_end();
         }
-        tail_append(new_math(math_surround, before));
+        tail_append(new_math(math_surround_par, before));
         /* begin mathskip code */
         if (! glue_is_zero(math_skip_par)) {
             copy_glue_values(tail,math_skip_par);
@@ -2448,7 +2448,7 @@ void after_math(void)
             tail_append(new_dir(math_direction_par - dir_swap));
         }
         dir_math_save = false;
-        tail_append(new_math(math_surround, after));
+        tail_append(new_math(math_surround_par, after));
         /* begin mathskip code */
         if (! glue_is_zero(math_skip_par)) {
             copy_glue_values(tail,math_skip_par);
