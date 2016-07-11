@@ -572,8 +572,8 @@ extern halfword last_cs_name;
 #define vsize_par                          dimen_par(vsize_code)
 #define hfuzz_par                          dimen_par(hfuzz_code)
 #define vfuzz_par                          dimen_par(vfuzz_code)
-#define hbadness_par                       dimen_par(hbadness_code)
-#define vbadness_par                       dimen_par(vbadness_code)
+#define hbadness_par                       int_par(hbadness_code)
+#define vbadness_par                       int_par(vbadness_code)
 
 #define baseline_skip_par                  glue_par(baseline_skip_code)
 #define par_indent_par                     dimen_par(par_indent_code)
