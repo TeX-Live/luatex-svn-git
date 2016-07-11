@@ -6568,12 +6568,12 @@ static int lua_nodelib_direct_setbox(lua_State * L)
         }
 
     }
-    save_global_defs = int_par(global_defs_code);
+    save_global_defs = global_defs_par;
     if (isglobal) {
-        int_par(global_defs_code) = 1;
+        global_defs_par = 1;
     }
     err = set_tex_box_register(k, j);
-    int_par(global_defs_code) = save_global_defs;
+    global_defs_par = save_global_defs;
     if (err) {
         luaL_error(L, "incorrect value");
     }

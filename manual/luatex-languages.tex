@@ -212,6 +212,25 @@ as trigger. Here are a few examples of usage:
 \stopbuffer
 \typebuffer \start \dontcomplain \hsize 1pt \getbuffer \par \stop
 
+We only accept an explicit hyphen when there is a preceding glyph and we skip a
+sequence of explicit hyphens as that normally indicates a \type {--} or \type
+{---} ligature in which case we can in a worse case usage get bad node lists
+later on due to messed up ligature building as these dashes are ligatures in base
+fonts. This is a side effect of the separating the hyphenation, ligaturing and
+kerning steps.
+
+The start and end of a characters is signalled by a glue, penalty, kern or boundary
+node. But by default also a hlist, vlist, rule, dir, whatsit, ins, and adjust node
+indicate a start or end. You can omit the last set from the test by setting
+\type {\hyphenationbounds} to a non|-|zero value:
+
+\starttabulate[|Tl|l|]
+\NC 0 \NC not strict \NC \NR
+\NC 1 \NC strict start \NC \NR
+\NC 2 \NC strict end \NC \NR
+\NC 3 \NC strict start and strict end \NC \NR
+\stoptabulate
+
 \section{The main control loop}
 
 In \LUATEX's main loop, almost all input characters that are to be typeset are
@@ -735,3 +754,17 @@ initialized due to \type {\savinghyphcodes} being larger than zero.
 \stopchapter
 
 \stopcomponent
+
+% \parindent0pt \hsize=1.1cm
+% 12-34-56 \par
+% 12-34-\hbox{56} \par
+% 12-34-\vrule width 1em height 1.5ex \par
+% 12-\hbox{34}-56 \par
+% 12-\vrule width 1em height 1.5ex-56 \par
+% \hjcode`\1=`\1 \hjcode`\2=`\2 \hjcode`\3=`\3 \hjcode`\4=`\4 \vskip.5cm
+% 12-34-56 \par
+% 12-34-\hbox{56} \par
+% 12-34-\vrule width 1em height 1.5ex \par
+% 12-\hbox{34}-56 \par
+% 12-\vrule width 1em height 1.5ex-56 \par
+

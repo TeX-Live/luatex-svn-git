@@ -22,9 +22,6 @@
 #include "ptexlib.h"
 
 @ @c
-#define prev_depth cur_list.prev_depth_field
-#define space_factor cur_list.space_factor_field
-#define par_shape_ptr  equiv(par_shape_loc)
 #define font_id_text(A) cs_text(font_id_base+(A))
 
 #define attribute(A) eqtb[attribute_base+(A)].hh.rh
@@ -240,9 +237,9 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
             else
                 scanned_result(0, int_val_level);
         } else if (m == vmode) {
-            scanned_result(prev_depth, dimen_val_level);
+            scanned_result(prev_depth_par, dimen_val_level);
         } else {
-            scanned_result(space_factor, int_val_level);
+            scanned_result(space_factor_par, int_val_level);
         }
         break;
     case set_prev_graf_cmd:
@@ -280,10 +277,10 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         break;
     case set_tex_shape_cmd:
         /* Fetch the |par_shape| size */
-        if (par_shape_ptr == null)
+        if (par_shape_par_ptr == null)
             cur_val = 0;
         else
-            cur_val = vinfo(par_shape_ptr + 1);
+            cur_val = vinfo(par_shape_par_ptr + 1);
         cur_val_level = int_val_level;
         break;
     case set_etex_shape_cmd:
@@ -382,17 +379,17 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
                 case par_shape_dimen_code:
                     q = cur_chr - par_shape_length_code;
                     scan_int();
-                    if ((par_shape_ptr == null) || (cur_val <= 0)) {
+                    if ((par_shape_par_ptr == null) || (cur_val <= 0)) {
                         cur_val = 0;
                     } else {
                         if (q == 2) {
                             q = cur_val % 2;
                             cur_val = (cur_val + q) / 2;
                         }
-                        if (cur_val > vinfo(par_shape_ptr + 1))
-                            cur_val = vinfo(par_shape_ptr + 1);
+                        if (cur_val > vinfo(par_shape_par_ptr + 1))
+                            cur_val = vinfo(par_shape_par_ptr + 1);
                         cur_val =
-                            varmem[par_shape_ptr + 2 * cur_val - q + 1].cint;
+                            varmem[par_shape_par_ptr + 2 * cur_val - q + 1].cint;
                     }
                     cur_val_level = dimen_val_level;
                     break;
@@ -615,7 +612,7 @@ void scan_something_internal(int level, boolean negative)
                 cur_val1 = get_sf_code(cur_val);
                 scanned_result(cur_val1, int_val_level);
             } else if (m == cat_code_base) {
-                cur_val1 = get_cat_code(int_par(cat_code_table_code), cur_val);
+                cur_val1 = get_cat_code(cat_code_table_par, cur_val);
                 scanned_result(cur_val1, int_val_level);
             } else {
                 confusion("def_char");
@@ -691,11 +688,11 @@ void scan_something_internal(int level, boolean negative)
             } else {
                 cur_val1 = get_math_param(cur_val1, cur_chr);
                 if (cur_val1 == thin_mu_skip_code)
-                    cur_val1 = glue_par(thin_mu_skip_code);
+                    cur_val1 = thin_mu_skip_par;
                 else if (cur_val1 == med_mu_skip_code)
-                    cur_val1 = glue_par(med_mu_skip_code);
+                    cur_val1 = med_mu_skip_par;
                 else if (cur_val1 == thick_mu_skip_code)
-                    cur_val1 = glue_par(thick_mu_skip_code);
+                    cur_val1 = thick_mu_skip_par;
                 scanned_result(cur_val1, mu_val_level);
             }
             break;
@@ -720,9 +717,6 @@ void scan_something_internal(int level, boolean negative)
         case assign_font_dimen_cmd:
             /* Fetch a font dimension */
             get_font_dimen();
-            break;
-        case assign_hang_indent_cmd:
-            scanned_result(dimen_par(hang_indent_code), dimen_val_level);
             break;
         case assign_font_int_cmd:
             /* Fetch a font integer */
@@ -807,28 +801,28 @@ void scan_something_internal(int level, boolean negative)
                     goto DEFAULT;
                     break;
                 case 2:
-                    cur_val = get_pre_hyphen_char(int_par(language_code));
+                    cur_val = get_pre_hyphen_char(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 3:
-                    cur_val = get_post_hyphen_char(int_par(language_code));
+                    cur_val = get_post_hyphen_char(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 4:
-                    cur_val = get_pre_exhyphen_char(int_par(language_code));
+                    cur_val = get_pre_exhyphen_char(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 5:
-                    cur_val = get_post_exhyphen_char(int_par(language_code));
+                    cur_val = get_post_exhyphen_char(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 6:
-                    cur_val = get_hyphenation_min(int_par(language_code));
+                    cur_val = get_hyphenation_min(language_par);
                     cur_val_level = int_val_level;
                     break;
                 case 7:
                     scan_int();
-                    cur_val = get_hj_code(int_par(language_code),cur_val);
+                    cur_val = get_hj_code(language_par,cur_val);
                     cur_val_level = int_val_level;
                     break;
             }
@@ -1375,7 +1369,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
     } else if (scan_keyword("ex")) {
         v = x_height(get_cur_font());
     } else if (scan_keyword("px")) {
-        v = dimen_par(px_dimen_code);
+        v = px_dimen_code;
     } else {
         goto PICKUP_UNIT;
     }
@@ -1436,9 +1430,9 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
         /* maybe at some point we will drop mag completely, even in dvi mode */
         if (output_mode_used <= OMODE_DVI) {
             prepare_mag();
-            if (int_par(mag_code) != 1000) {
-                cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
-                f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
+            if (mag_par != 1000) {
+                cur_val = xn_over_d(cur_val, 1000, mag_par);
+                f = (1000 * f + 0200000 * tex_remainder) / mag_par;
                 cur_val = cur_val + (f / 0200000);
                 f = f % 0200000;
             }
@@ -1851,11 +1845,11 @@ halfword scan_rule_spec(void)
     }
     if (cur_cmd == vrule_cmd) {
         width(q) = default_rule;
-        rule_dir(q) = body_direction;
+        rule_dir(q) = body_direction_par;
     } else {
         height(q) = default_rule;
         depth(q) = 0;
-        rule_dir(q) = text_direction;
+        rule_dir(q) = text_direction_par;
     }
   RESWITCH:
     if (scan_keyword("width")) {

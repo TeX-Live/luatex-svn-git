@@ -21,16 +21,12 @@
 #include "ptexlib.h"
 
 @ @c
-#define mode          cur_list.mode_field
-#define head          cur_list.head_field
-#define tail          cur_list.tail_field
-#define prev_graf     cur_list.pg_field
-#define eTeX_aux      cur_list.eTeX_aux_field
-#define delim_ptr     eTeX_aux
-#define space_factor  cur_list.space_factor_field
+#define mode            cur_list.mode_field
+#define head            cur_list.head_field
+#define tail            cur_list.tail_field
+#define eTeX_aux        cur_list.eTeX_aux_field
+#define delim_ptr       eTeX_aux
 #define incompleat_noad cur_list.incompleat_noad_field
-
-#define cur_fam int_par(cur_fam_code)
 
 /*
 
@@ -58,13 +54,6 @@
 int scan_math(pointer, int);
 int scan_math_style(pointer, int);
 pointer fin_mlist(pointer);
-
-#define hsize            dimen_par(hsize_code)
-#define hang_indent      dimen_par(hang_indent_code)
-#define hang_after       int_par(hang_after_code)
-#define every_math       equiv(every_math_loc)
-#define every_display    equiv(every_display_loc)
-#define par_shape_ptr    equiv(par_shape_loc)
 
 @ When \TeX\ reads a formula that is enclosed between \.\$'s, it constructs an
 {\sl mlist}, which is essentially a tree structure representing that
@@ -189,7 +178,7 @@ void def_fam_fnt(int fam_id, int size_id, int f, int lvl)
     sa_value.int_value = f;
     set_sa_item(math_fam_head, n, sa_value, lvl);
     fixup_math_parameters(fam_id, size_id, f, lvl);
-    if (int_par(tracing_assigns_code) > 1) {
+    if (tracing_assigns_par > 1) {
         begin_diagnostic();
         tprint("{assigning");
         print_char(' ');
@@ -215,7 +204,7 @@ static void unsave_math_fam_data(int gl)
         if (st.level > 0) {
             rawset_sa_item(math_fam_head, st.code, st.value);
             /* now do a trace message, if requested */
-            if (int_par(tracing_restores_code) > 1) {
+            if (tracing_restores_par > 1) {
                 int size_id = st.code / 256;
                 int fam_id = st.code % 256;
                 begin_diagnostic();
@@ -248,7 +237,7 @@ void def_math_param(int param_id, int style_id, scaled value, int lvl)
     sa_tree_item sa_value = { 0 };
     sa_value.int_value = (int) value;
     set_sa_item(math_param_head, n, sa_value, lvl);
-    if (int_par(tracing_assigns_code) > 1) {
+    if (tracing_assigns_par > 1) {
         begin_diagnostic();
         tprint("{assigning");
         print_char(' ');
@@ -280,7 +269,7 @@ static void unsave_math_param_data(int gl)
         if (st.level > 0) {
             rawset_sa_item(math_param_head, st.code, st.value);
             /* now do a trace message, if requested */
-            if (int_par(tracing_restores_code) > 1) {
+            if (tracing_restores_par > 1) {
                 int param_id = st.code % 256;
                 int style_id = st.code / 256;
                 begin_diagnostic();
@@ -875,18 +864,18 @@ is about to be processed. The parameter is a code like |math_group|.
 static void new_save_level_math(group_code c)
 {
     set_saved_record(0, saved_textdir, 0, text_dir_ptr);
-    text_dir_ptr = new_dir(math_direction);
+    text_dir_ptr = new_dir(math_direction_par);
     incr(save_ptr);
     new_save_level(c);
-    eq_word_define(int_base + body_direction_code, math_direction);
-    eq_word_define(int_base + par_direction_code, math_direction);
-    eq_word_define(int_base + text_direction_code, math_direction);
+    eq_word_define(int_base + body_direction_code, math_direction_par);
+    eq_word_define(int_base + par_direction_code, math_direction_par);
+    eq_word_define(int_base + text_direction_code, math_direction_par);
 }
 
 @ @c
 static void push_math(group_code c, int mstyle)
 {
-    if (math_direction != text_direction)
+    if (math_direction_par != text_direction_par)
         dir_math_save = true;
     push_nest();
     mode = -mmode;
@@ -900,8 +889,8 @@ static void enter_ordinary_math(void)
 {
     push_math(math_shift_group, text_style);
     eq_word_define(int_base + cur_fam_code, -1);
-    if (every_math != null)
-        begin_token_list(every_math, every_math_text);
+    if (every_math_par != null)
+        begin_token_list(every_math_par, every_math_text);
 }
 
 @ @c
@@ -993,7 +982,7 @@ static boolean math_and_text_reversed_p(void)
     while (i < save_ptr) {
         if (save_type(i) == restore_old_value &&
             save_value(i) == int_base + par_direction_code) {
-            if (textdir_opposite(math_direction, save_value(i - 1)))
+            if (textdir_opposite(math_direction_par, save_value(i - 1)))
                 return true;
         }
         i++;
@@ -1032,27 +1021,27 @@ void enter_display_math(void)
     /* now we are in vertical mode, working on the list that will contain the display */
     /* A displayed equation is considered to be three lines long, so we
        calculate the length and offset of line number |prev_graf+2|. */
-    if (par_shape_ptr == null) {
-        if ((hang_indent != 0) &&
-            (((hang_after >= 0) && (prev_graf + 2 > hang_after)) ||
-             (prev_graf + 1 < -hang_after))) {
-            l = hsize - abs(hang_indent);
-            if (hang_indent > 0)
-                s = hang_indent;
+    if (par_shape_par_ptr == null) {
+        if ((hang_indent_par != 0) && (((hang_after_par >= 0) && (prev_graf_par + 2 > hang_after_par)) || (prev_graf_par + 1 < -hang_after_par))) {
+            halfword used_hang_indent = swap_hang_indent(hang_indent_par);
+            l = hsize_par - abs(used_hang_indent);
+            if (used_hang_indent > 0)
+                s = used_hang_indent;
             else
                 s = 0;
         } else {
-            l = hsize;
+            l = hsize_par;
             s = 0;
         }
     } else {
-        n = vinfo(par_shape_ptr + 1);
-        if (prev_graf + 2 >= n)
-            p = par_shape_ptr + 2 * n + 1;
+        n = vinfo(par_shape_par_ptr + 1);
+        if (prev_graf_par + 2 >= n)
+            p = par_shape_par_ptr + 2 * n + 1;
         else
-            p = par_shape_ptr + 2 * (prev_graf + 2) + 1;
+            p = par_shape_par_ptr + 2 * (prev_graf_par + 2) + 1;
         s = varmem[(p - 1)].cint;
         l = varmem[p].cint;
+        s = swap_parshape_indent(s,l);
     }
 
     push_math(math_shift_group, display_style);
@@ -1062,8 +1051,8 @@ void enter_display_math(void)
     eq_word_define(dimen_base + display_width_code, l);
     eq_word_define(dimen_base + display_indent_code, s);
     eq_word_define(int_base + pre_display_direction_code, (math_and_text_reversed_p() ? -1 : 0));
-    if (every_display != null)
-        begin_token_list(every_display, every_display_text);
+    if (every_display_par != null)
+        begin_token_list(every_display_par, every_display_text);
     if (nest_ptr == 1) {
         checked_page_filter(before_display);
         build_page();
@@ -1076,8 +1065,6 @@ void enter_display_math(void)
  (the class is passed on for conversion to \.{\\mathchar}).
 
 @c
-#define fam_in_range ((cur_fam>=0)&&(cur_fam<256))
-
 static delcodeval do_scan_extdef_del_code(int extcode, boolean doclass)
 {
     const char *hlp[] = {
@@ -1354,8 +1341,8 @@ int scan_math(pointer p, int mstyle)
     }
     type(p) = math_char_node;
     math_character(p) = mval.character_value;
-    if ((mval.class_value == math_use_current_family_code) && fam_in_range)
-        math_fam(p) = cur_fam;
+    if ((mval.class_value == math_use_current_family_code) && cur_fam_par_in_range)
+        math_fam(p) = cur_fam_par;
     else
         math_fam(p) = mval.family_value;
     return 0;
@@ -1385,8 +1372,8 @@ void set_math_char(mathcodeval mval)
         math_character(nucleus(p)) = mval.character_value;
         math_fam(nucleus(p)) = mval.family_value;
         if (mval.class_value == math_use_current_family_code) {
-            if (fam_in_range)
-                math_fam(nucleus(p)) = cur_fam;
+            if (cur_fam_par_in_range)
+                math_fam(nucleus(p)) = cur_fam_par;
             subtype(p) = ord_noad_type;
         } else {
             switch (mval.class_value) {
@@ -1654,8 +1641,8 @@ void math_ac(void)
         q = new_node(math_char_node, 0);
         top_accent_chr(tail) = q;
         math_character(top_accent_chr(tail)) = t.character_value;
-        if ((t.class_value == math_use_current_family_code) && fam_in_range)
-            math_fam(top_accent_chr(tail)) = cur_fam;
+        if ((t.class_value == math_use_current_family_code) && cur_fam_par_in_range)
+            math_fam(top_accent_chr(tail)) = cur_fam_par;
         else
             math_fam(top_accent_chr(tail)) = t.family_value;
     }
@@ -1663,8 +1650,8 @@ void math_ac(void)
         q = new_node(math_char_node, 0);
         bot_accent_chr(tail) = q;
         math_character(bot_accent_chr(tail)) = b.character_value;
-        if ((b.class_value == math_use_current_family_code) && fam_in_range)
-            math_fam(bot_accent_chr(tail)) = cur_fam;
+        if ((b.class_value == math_use_current_family_code) && cur_fam_par_in_range)
+            math_fam(bot_accent_chr(tail)) = cur_fam_par;
         else
             math_fam(bot_accent_chr(tail)) = b.family_value;
     }
@@ -1672,8 +1659,8 @@ void math_ac(void)
         q = new_node(math_char_node, 0);
         overlay_accent_chr(tail) = q;
         math_character(overlay_accent_chr(tail)) = o.character_value;
-        if ((o.class_value == math_use_current_family_code) && fam_in_range)
-            math_fam(overlay_accent_chr(tail)) = cur_fam;
+        if ((o.class_value == math_use_current_family_code) && cur_fam_par_in_range)
+            math_fam(overlay_accent_chr(tail)) = cur_fam_par;
         else
             math_fam(overlay_accent_chr(tail)) = o.family_value;
     }
@@ -2119,10 +2106,10 @@ static void resume_after_display(void)
     if (cur_group != math_shift_group)
         confusion("display");
     unsave_math();
-    prev_graf = prev_graf + 3;
+    prev_graf_par = prev_graf_par + 3;
     push_nest();
     mode = hmode;
-    space_factor = 1000;
+    space_factor_par = 1000;
     /* this needs to be intercepted in the display math start ! */
     tail_append(make_local_par_node(penalty_par_code));
     get_x_token();
@@ -2192,7 +2179,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     pointer pre_t;              /* tail of pre-adjustment list */
     boolean swap_dir;           /* true if the math and surrounding text dirs are opposed */
     scaled eqno_width;
-    swap_dir = (int_par(pre_display_direction_code) < 0 ? true : false );
+    swap_dir = (pre_display_direction_par < 0 ? true : false );
     if (eqno_box != null && swap_dir)
         l = !l;
     adjust_tail = adjust_head;
@@ -2215,7 +2202,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
     } else {
         eqno_w = width(eqno_box);
         eqno_width = eqno_w;
-        eqno_w2 = eqno_w + round_xn_over_d(math_eqno_gap_step, get_math_quad_style(text_style), 1000);
+        eqno_w2 = eqno_w + round_xn_over_d(math_eqno_gap_step_par, get_math_quad_style(text_style), 1000);
         subtype(eqno_box) = equation_number_list; /* new */
      /* build_attribute_list(eqno_box); */ /* probably already set */
    }
@@ -2261,7 +2248,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                     d = 0;
     }
 
-    tail_append(new_penalty(int_par(pre_display_penalty_code)));
+    tail_append(new_penalty(pre_display_penalty_par));
     if ((d + line_s <= pre_display_size) || l) {        /* not enough clearance */
         g1 = above_display_skip_code;
         g2 = below_display_skip_code;
@@ -2280,7 +2267,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
      /* it follows that |type(a)=hlist_node| */
 
     if (eqno_box && l && (eqno_w == 0)) {
-     /* if (math_direction==dir_TLT) { */
+     /* if (math_direction_par==dir_TLT) { */
             shift_amount(eqno_box) = 0;
      /* } else {                       */
      /* }                              */
@@ -2294,8 +2281,8 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
         r = new_kern(line_w - eq_w - eqno_w - d);
         if (l) {
             if (swap_dir) {
-                if (math_direction==dir_TLT) {
-                    /* TRT + TLT + \eqno,    (swap_dir=true,  math_direction=TLT, l=true)  */
+                if (math_direction_par==dir_TLT) {
+                    /* TRT + TLT + \eqno,    (swap_dir=true,  math_direction_par=TLT, l=true)  */
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: CASE 1\n");
 #endif
@@ -2304,7 +2291,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                     try_couple_nodes(r,eq_box);
                     try_couple_nodes(eq_box,s);
                 } else {
-                    /* TLT + TRT + \eqno,    (swap_dir=true,  math_direction=TRT, l=true) */
+                    /* TLT + TRT + \eqno,    (swap_dir=true,  math_direction_par=TRT, l=true) */
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: CASE 2\n");
 #endif
@@ -2312,14 +2299,14 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                     try_couple_nodes(r,eq_box);
                 }
             } else {
-                if (math_direction==dir_TLT) {
-                    /* TLT + TLT + \leqno,   (swap_dir=false, math_direction=TLT, l=true) */ /* OK */
+                if (math_direction_par==dir_TLT) {
+                    /* TLT + TLT + \leqno,   (swap_dir=false, math_direction_par=TLT, l=true) */ /* OK */
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: CASE 3\n");
 #endif
                     s = new_kern(width(r) + eqno_w);
                 } else {
-                    /* TRT + TRT + \leqno,    (swap_dir=false, math_direction=TRT, l=true) */
+                    /* TRT + TRT + \leqno,    (swap_dir=false, math_direction_par=TRT, l=true) */
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: CASE 4\n");
 #endif
@@ -2332,13 +2319,13 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
             eq_box = eqno_box;
         } else {
             if (swap_dir) {
-                if (math_direction==dir_TLT) {
-                    /* TRT + TLT + \leqno,   (swap_dir=true,  math_direction=TLT, l=false) */
+                if (math_direction_par==dir_TLT) {
+                    /* TRT + TLT + \leqno,   (swap_dir=true,  math_direction_par=TLT, l=false) */
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: CASE 5\n");
 #endif
                 } else {
-                    /* TLT + TRT + \leqno,   (swap_dir=true,  math_direction=TRT, l=false) */
+                    /* TLT + TRT + \leqno,   (swap_dir=true,  math_direction_par=TRT, l=false) */
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: CASE 6\n");
 #endif
@@ -2346,14 +2333,14 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
                 try_couple_nodes(eq_box,r);
                 try_couple_nodes(r,eqno_box);
             } else {
-                if (math_direction==dir_TLT) {
-                    /*  TLT + TLT + \eqno,    (swap_dir=false, math_direction=TLT, l=false) */ /* OK */
+                if (math_direction_par==dir_TLT) {
+                    /*  TLT + TLT + \eqno,    (swap_dir=false, math_direction_par=TLT, l=false) */ /* OK */
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: CASE 7\n");
 #endif
                     s = new_kern(d);
                 } else {
-                    /* TRT + TRT + \eqno,   (swap_dir=false, math_direction=TRT, l=false) */
+                    /* TRT + TRT + \eqno,   (swap_dir=false, math_direction_par=TRT, l=false) */
 #ifdef DEBUG
         fprintf(stderr, "\nDEBUG: CASE 8\n");
 #endif
@@ -2377,7 +2364,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
 
     if ((eqno_box != null) && (eqno_w == 0) && !l) {
         tail_append(new_penalty(inf_penalty));
-     /* if (math_direction==dir_TLT) { */
+     /* if (math_direction_par==dir_TLT) { */
             shift_amount(eqno_box) = line_s + line_w - eqno_width ;
      /* } else {                       */
      /* }                              */
@@ -2396,7 +2383,7 @@ static void finish_displayed_math(boolean l, pointer eqno_box, pointer p)
         alink(pre_adjust_tail) = alink(tail);
         tail = pre_t;
     }
-    tail_append(new_penalty(int_par(post_display_penalty_code)));
+    tail_append(new_penalty(post_display_penalty_par));
     inject_display_skip_after(g2);
     resume_after_display();
 }
@@ -2444,13 +2431,13 @@ void after_math(void)
         }
         tail_append(new_math(math_surround, before));
         /* begin mathskip code */
-        if (! glue_is_zero(math_skip)) {
-            copy_glue_values(tail,math_skip);
+        if (! glue_is_zero(math_skip_par)) {
+            copy_glue_values(tail,math_skip_par);
             surround(tail) = 0;
         }
         /* end mathskip code */
         if (dir_math_save) {
-            tail_append(new_dir(math_direction));
+            tail_append(new_dir(math_direction_par));
         }
         run_mlist_to_hlist(p, (mode > 0), text_style);
         vlink(tail) = vlink(temp_head);
@@ -2458,17 +2445,17 @@ void after_math(void)
             tail = vlink(tail);
         }
         if (dir_math_save) {
-            tail_append(new_dir(math_direction - dir_swap));
+            tail_append(new_dir(math_direction_par - dir_swap));
         }
         dir_math_save = false;
         tail_append(new_math(math_surround, after));
         /* begin mathskip code */
-        if (! glue_is_zero(math_skip)) {
-            copy_glue_values(tail,math_skip);
+        if (! glue_is_zero(math_skip_par)) {
+            copy_glue_values(tail,math_skip_par);
             surround(tail) = 0;
         }
         /* end mathskip code */
-        space_factor = 1000;
+        space_factor_par = 1000;
         unsave_math();
     } else {
         if (a == null) {
@@ -2498,12 +2485,12 @@ void finish_display_alignment(pointer p, pointer q, halfword saved_prevdepth)
         check_display_math_end();
     }
     pop_nest();
-    tail_append(new_penalty(int_par(pre_display_penalty_code)));
+    tail_append(new_penalty(pre_display_penalty_par));
     inject_display_skip_before(above_display_skip_code);
     vlink(tail) = p;
     if (p != null)
         tail = q;
-    tail_append(new_penalty(int_par(post_display_penalty_code)));
+    tail_append(new_penalty(post_display_penalty_par));
     inject_display_skip_after(below_display_skip_code);
     cur_list.prev_depth_field = saved_prevdepth;
     resume_after_display();

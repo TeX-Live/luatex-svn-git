@@ -25,10 +25,6 @@
 #include <string.h>
 #include <kpathsea/absolute.h>
 
-@ @c
-#define end_line_char int_par(end_line_char_code)
-
-
 @ The bane of portability is the fact that different operating systems treat
 input and output quite differently, perhaps because computer scientists
 have not given sufficient attention to this problem. People have felt somehow
@@ -844,7 +840,7 @@ void open_log_file(void)
         input_stack[input_ptr] = cur_input;     /* make sure bottom level is in memory */
         tprint_nl("**");
         l = input_stack[0].limit_field; /* last position of first line */
-        if (buffer[l] == end_line_char)
+        if (buffer[l] == end_line_char_par)
             decr(l);            /* TODO: multichar endlinechar */
         for (k = 1; k <= l; k++)
             print_char(buffer[k]);
@@ -978,7 +974,7 @@ void start_input(void)
     if (end_line_char_inactive)
         decr(ilimit);
     else
-        buffer[ilimit] = (packed_ASCII_code) end_line_char;
+        buffer[ilimit] = (packed_ASCII_code) end_line_char_par;
     first = ilimit + 1;
     iloc = istart;
 }

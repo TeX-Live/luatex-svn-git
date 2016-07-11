@@ -1389,9 +1389,9 @@ int font_from_lua(lua_State * L, int f)
         i = FONT_SLANT_MAX;
     set_font_slant(f, i);
 
-    i = lua_numeric_field_by_index(L,lua_key_index(hyphenchar), int_par(default_hyphen_char_code));
+    i = lua_numeric_field_by_index(L,lua_key_index(hyphenchar), default_hyphen_char_par);
     set_hyphen_char(f, i);
-    i = lua_numeric_field_by_index(L,lua_key_index(skewchar), int_par(default_skew_char_code));
+    i = lua_numeric_field_by_index(L,lua_key_index(skewchar), default_skew_char_par);
     set_skew_char(f, i);
     i = n_boolean_field(L, lua_key_index(used), 0);
     set_font_used(f, (char) i);

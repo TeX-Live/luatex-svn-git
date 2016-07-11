@@ -31,15 +31,8 @@ void init_col(void);
 
 #define noDEBUG
 
-#define end_template_token (cs_token_flag+frozen_end_template)
-
-#define prev_depth      cur_list.prev_depth_field
-#define space_factor    cur_list.space_factor_field
-#define incompleat_noad cur_list.incompleat_noad_field
-
-#define every_cr          equiv(every_cr_loc)
-#define max_depth         dimen_par(max_depth_code)
-#define overfull_rule     dimen_par(overfull_rule_code)
+#define end_template_token  (cs_token_flag+frozen_end_template)
+#define incompleat_noad     cur_list.incompleat_noad_field
 
 @ It's sort of a miracle whenever \.{\\halign} and \.{\\valign} work, because
 they cut across so many of the control structures of \TeX.
@@ -300,7 +293,7 @@ static void get_preamble_token(void)
         && (cur_chr == glue_base + tab_skip_code)) {
         scan_optional_equals();
         scan_glue(glue_val_level);
-        if (int_par(global_defs_code) > 0)
+        if (global_defs_par > 0)
             geq_define(glue_base + tab_skip_code, glue_ref_cmd, cur_val);
         else
             eq_define(glue_base + tab_skip_code, glue_ref_cmd, cur_val);
@@ -348,7 +341,7 @@ void init_align(void)
        correct baseline calculations. */
     if (cur_list.mode_field == mmode) {
         cur_list.mode_field = -vmode;
-        prev_depth = nest[nest_ptr - 2].prev_depth_field;
+        prev_depth_par = nest[nest_ptr - 2].prev_depth_field;
     } else if (cur_list.mode_field > 0) {
         cur_list.mode_field = -(cur_list.mode_field);
     }
@@ -444,8 +437,8 @@ void init_align(void)
     scanner_status = normal;
 
     new_save_level(align_group);
-    if (every_cr != null)
-        begin_token_list(every_cr, every_cr_text);
+    if (every_cr_par != null)
+        begin_token_list(every_cr_par, every_cr_text);
     align_peek();               /* look for \.{\\noalign} or \.{\\omit} */
 }
 
@@ -493,9 +486,9 @@ static void init_span(pointer p)
 {
     push_nest();
     if (cur_list.mode_field == -hmode) {
-        space_factor = 1000;
+        space_factor_par = 1000;
     } else {
-        prev_depth = ignore_depth;
+        prev_depth_par = ignore_depth;
         normal_paragraph();
     }
     cur_span = p;
@@ -514,9 +507,9 @@ void init_row(void)
     push_nest();
     cur_list.mode_field = (-hmode - vmode) - cur_list.mode_field;
     if (cur_list.mode_field == -hmode)
-        space_factor = 0;
+        space_factor_par = 0;
     else
-        prev_depth = 0;
+        prev_depth_par = 0;
     tail_append(new_glue(preamble));
     subtype(cur_list.tail_field) = tab_skip_code + 1;
     cur_align = vlink(preamble);
@@ -780,16 +773,16 @@ void fin_row(void)
             append_list(cur_head, cur_tail);
     } else {
         p = filtered_vpackage(vlink(cur_list.head_field),
-            0, additional, max_depth, fin_row_group, -1, 0, 0);
+            0, additional, max_depth_par, fin_row_group, -1, 0, 0);
         pop_nest();
         vlink(cur_list.tail_field) = p;
         cur_list.tail_field = p;
-        space_factor = 1000;
+        space_factor_par = 1000;
     }
     type(p) = unset_node;
     glue_stretch(p) = 0;
-    if (every_cr != null)
-        begin_token_list(every_cr, every_cr_text);
+    if (every_cr_par != null)
+        begin_token_list(every_cr_par, every_cr_text);
     align_peek();
     /* note that |glue_shrink(p)=0| since |glue_shrink==shift_amount| */
 }
@@ -916,10 +909,10 @@ value is changed to zero and so is the next tabskip.
     decr(save_ptr);
     pack_begin_line = -cur_list.ml_field;
     if (cur_list.mode_field == -vmode) {
-        rule_save = overfull_rule;
-        overfull_rule = 0;      /* prevent rule from being packaged */
+        rule_save = overfull_rule_par;
+        overfull_rule_par = 0;      /* prevent rule from being packaged */
         p = hpack(preamble, saved_value(0), saved_level(0), -1);
-        overfull_rule = rule_save;
+        overfull_rule_par = rule_save;
     } else {
         q = vlink(preamble);
         do {
@@ -928,7 +921,7 @@ value is changed to zero and so is the next tabskip.
             q = vlink(vlink(q));
         } while (q != null);
         p = filtered_vpackage(preamble,
-            saved_value(0), saved_level(0), max_depth, preamble_group, -1, 0, 0);
+            saved_value(0), saved_level(0), max_depth_par, preamble_group, -1, 0, 0);
         q = vlink(preamble);
         do {
             width(q) = height(q);
@@ -1119,14 +1112,14 @@ value is changed to zero and so is the next tabskip.
        we will need to insert glue before and after the display; that part of the
        program will be deferred until we're more familiar with such operations.)
      */
-    pd = cur_list.prev_depth_field;
+    pd = prev_depth_par;
     p = vlink(cur_list.head_field);
     q = cur_list.tail_field;
     pop_nest();
     if (cur_list.mode_field == mmode) {
         finish_display_alignment(p, q, pd);
     } else {
-	cur_list.prev_depth_field = pd; /* aux:=aux_save; */
+        prev_depth_par = pd; /* aux:=aux_save; */
         vlink(cur_list.tail_field) = p;
         if (p != null)
             cur_list.tail_field = q;

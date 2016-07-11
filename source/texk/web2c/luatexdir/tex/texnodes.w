@@ -35,11 +35,6 @@ used but that is neglectable compared to other memory usage.
 @c
 #define attribute(A) eqtb[attribute_base+(A)].cint
 
-#define uc_hyph int_par(uc_hyph_code)
-#define cur_lang int_par(cur_lang_code)
-#define left_hyphen_min int_par(left_hyphen_min_code)
-#define right_hyphen_min int_par(right_hyphen_min_code)
-
 #define MAX_CHAIN_SIZE 13 /* why not a bit larger */
 
 #define CHECK_NODE_USAGE 1 /* this triggers checking */
@@ -913,7 +908,7 @@ halfword new_node(int i, int j)
         default:
             break;
     }
-    if (int_par(synctex_code)) {
+    if (synctex_par) {
         /* handle synctex extension */
         switch (i) {
             case math_node:
@@ -1114,7 +1109,7 @@ halfword copy_node(const halfword p)
 
     (void) memcpy((void *) (varmem + r), (void *) (varmem + p), (sizeof(memory_word) * (unsigned) i));
 
-    if (int_par(synctex_code)) {
+    if (synctex_par) {
         /* handle synctex extension */
         switch (type(p)) {
             case math_node:
@@ -2869,7 +2864,7 @@ void show_node_list(int p)
     while (p != null) {
         print_ln();
         print_current_string(); /* display the nesting history */
-        if (int_par(tracing_online_code) < -2)
+        if (tracing_online_par < -2)
             print_int(p);
         incr(n);
         if (n > breadth_max) {  /* time to stop */
@@ -3350,7 +3345,7 @@ The |subtype| field is set to |min_quarterword|, since that's the desired
 halfword new_null_box(void)
 {                               /* creates a new box node */
     halfword p = new_node(hlist_node, min_quarterword);
-    box_dir(p) = text_direction;
+    box_dir(p) = text_direction_par;
     return p;
 }
 
@@ -3467,7 +3462,7 @@ halfword new_char(int f, int c)
     set_to_character(p);
     font(p) = f;
     character(p) = c;
-    lang_data(p) = make_lang_data(uc_hyph, cur_lang, left_hyphen_min, right_hyphen_min);
+    lang_data(p) = make_lang_data(uc_hyph_par, cur_lang_par, left_hyphen_min_par, right_hyphen_min_par);
     return p;
 }
 
@@ -3525,7 +3520,7 @@ not chosen.
 halfword new_disc(void)
 {                               /* creates an empty |disc_node| */
     halfword p = new_node(disc_node, 0);
-    disc_penalty(p) = int_par(hyphen_penalty_code);
+    disc_penalty(p) = hyphen_penalty_par;
     return p;
 }
 
@@ -3748,19 +3743,19 @@ halfword make_local_par_node(int mode)
     int callback_id;
     halfword q;
     halfword p = new_node(local_par_node,0);
-    local_pen_inter(p) = local_inter_line_penalty;
-    local_pen_broken(p) = local_broken_penalty;
-    if (local_left_box != null) {
-        q = copy_node_list(local_left_box);
+    local_pen_inter(p) = local_inter_line_penalty_par;
+    local_pen_broken(p) = local_broken_penalty_par;
+    if (local_left_box_par != null) {
+        q = copy_node_list(local_left_box_par);
         local_box_left(p) = q;
-        local_box_left_width(p) = width(local_left_box);
+        local_box_left_width(p) = width(local_left_box_par);
     }
-    if (local_right_box != null) {
-        q = copy_node_list(local_right_box);
+    if (local_right_box_par != null) {
+        q = copy_node_list(local_right_box_par);
         local_box_right(p) = q;
-        local_box_right_width(p) = width(local_right_box);
+        local_box_right_width(p) = width(local_right_box_par);
     }
-    local_par_dir(p) = par_direction;
+    local_par_dir(p) = par_direction_par;
     /* callback with node passed */
     callback_id = callback_defined(insert_local_par_callback);
     if (callback_id > 0) {

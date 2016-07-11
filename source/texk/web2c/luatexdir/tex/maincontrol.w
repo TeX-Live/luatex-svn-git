@@ -32,59 +32,11 @@
 #define no_lig_code 6
 #define gp_code_base 7
 
-#define prev_depth cur_list.prev_depth_field
-#define space_factor cur_list.space_factor_field
-#define par_shape_ptr  equiv(par_shape_loc)
-
-#define cur_lang int_par(cur_lang_code)
-#define global_defs int_par(global_defs_code)
-#define output_box int_par(output_box_code)
-#define end_line_char int_par(end_line_char_code)
-#define new_line_char int_par(new_line_char_code)
-#define tracing_online int_par(tracing_online_code)
-#define no_local_whatsits int_par(no_local_whatsits_code)
-#define no_local_dirs int_par(no_local_dirs_code)
-#define err_help equiv(err_help_loc)
-#define every_par equiv(every_par_loc)
-
-#define page_left_offset dimen_par(page_left_offset_code)
-#define page_top_offset dimen_par(page_top_offset_code)
-#define page_right_offset dimen_par(page_right_offset_code)
-#define page_bottom_offset dimen_par(page_bottom_offset_code)
-#define px_dimen dimen_par(px_dimen_code)
-
-#define math_eqno_gap_step int_par(math_eqno_gap_step_code)
-
-#define escape_char int_par(escape_char_code)
-#define max_dead_cycles int_par(max_dead_cycles_code)
-#define tolerance int_par(tolerance_code)
-#define mag int_par(mag_code)
-#define cat_code_table int_par(cat_code_table_code)
-
-#define par_indent dimen_par(par_indent_code)
-#define looseness int_par(looseness_code)
-#define space_skip glue_par(space_skip_code)
-#define xspace_skip glue_par(xspace_skip_code)
-#define math_skip glue_par(math_skip_code)
-#define every_vbox equiv(every_vbox_loc)
-
-#define split_top_skip glue_par(split_top_skip_code)
-#define split_max_depth dimen_par(split_max_depth_code)
-
-#define hang_indent dimen_par(hang_indent_code)
-#define hang_after int_par(hang_after_code)
-#define inter_line_penalties_ptr equiv(inter_line_penalties_loc)
-
 #define box(A) eqtb[box_base+(A)].hh.rh
-#define cur_font equiv(cur_font_loc)
-#define hsize dimen_par(hsize_code)
-#define ex_hyphen_char int_par(ex_hyphen_char_code)
-#define floating_penalty int_par(floating_penalty_code)
 
 #define mode          cur_list.mode_field
 #define tail          cur_list.tail_field
 #define head          cur_list.head_field
-#define prev_graf     cur_list.pg_field
 #define dir_save      cur_list.dirs_field
 
 @ We come now to the |main_control| routine, which contains the master
@@ -138,14 +90,14 @@ void adjust_space_factor(void)
 {
     halfword s = get_sf_code(cur_chr);
     if (s == 1000) {
-        space_factor = 1000;
+        space_factor_par = 1000;
     } else if (s < 1000) {
         if (s > 0)
-            space_factor = s;
-    } else if (space_factor < 1000) {
-        space_factor = 1000;
+            space_factor_par = s;
+    } else if (space_factor_par < 1000) {
+        space_factor_par = 1000;
     } else {
-        space_factor = s;
+        space_factor_par = s;
     }
 }
 
@@ -177,12 +129,12 @@ static void run_char_num (void) {
     scan_char_num();
     cur_chr = cur_val;
     adjust_space_factor();
-    tail_append(new_char(cur_font, cur_chr));
+    tail_append(new_char(cur_font_par, cur_chr));
 }
 
 static void run_char (void) {
     adjust_space_factor();
-    tail_append(new_char(cur_font, cur_chr));
+    tail_append(new_char(cur_font_par, cur_chr));
 }
 
 @
@@ -206,16 +158,16 @@ static void run_app_space (void) {
         p = new_glue(zero_glue);
         couple_nodes(tail,p);
         tail = p;
-    } else if ((abs(mode) + cur_cmd == hmode + spacer_cmd) && (!(space_factor == 1000))) {
+    } else if ((abs(mode) + cur_cmd == hmode + spacer_cmd) && (!(space_factor_par == 1000))) {
         app_space();
     } else {
         /* Append a normal inter-word space to the current list */
-        if (glue_is_zero(space_skip)) {
+        if (glue_is_zero(space_skip_par)) {
             /* Find the glue specification for text spaces in the current font */
             p = new_glue(zero_glue);
-            width(p) = space(cur_font);
-            stretch(p) = space_stretch(cur_font);
-            shrink(p) = space_shrink(cur_font);
+            width(p) = space(cur_font_par);
+            stretch(p) = space_stretch(cur_font_par);
+            shrink(p) = space_shrink(cur_font_par);
 
         } else {
             p = new_param_glue(space_skip_code);
@@ -349,9 +301,9 @@ mode, by setting |prev_depth:=ignore_depth|.
 static void run_rule (void) {
     tail_append(scan_rule_spec());
     if (abs(mode) == vmode)
-        prev_depth = ignore_depth;
+        prev_depth_par = ignore_depth;
     else if (abs(mode) == hmode)
-        space_factor = 1000;
+        space_factor_par = 1000;
 }
 
 @
@@ -565,9 +517,9 @@ static void run_vcenter (void) {
     normal_paragraph();
     push_nest();
     mode = -vmode;
-    prev_depth = ignore_depth;
-    if (every_vbox != null)
-        begin_token_list(every_vbox, every_vbox_text);
+    prev_depth_par = ignore_depth;
+    if (every_vbox_par != null)
+        begin_token_list(every_vbox_par, every_vbox_text);
 }
 
 @ @c
@@ -627,12 +579,12 @@ static void run_normal (void) {
                 help1("All \\catcode table ids must be between 0 and 0x7FFF");
                 error();
             } else {
-                if (cur_val == cat_code_table) {
+                if (cur_val == cat_code_table_par) {
                     print_err("Invalid \\catcode table");
                     help1("You cannot overwrite the current \\catcode table");
                     error();
                 } else {
-                    copy_cat_codes(cat_code_table, cur_val);
+                    copy_cat_codes(cat_code_table_par, cur_val);
                 }
             }
             break;
@@ -643,7 +595,7 @@ static void run_normal (void) {
                 help1("All \\catcode table ids must be between 0 and 0x7FFF");
                 error();
             } else {
-                if (cur_val == cat_code_table) {
+                if (cur_val == cat_code_table_par) {
                     print_err("Invalid \\catcode table");
                     help1("You cannot overwrite the current \\catcode table");
                     error();
@@ -896,7 +848,6 @@ static void init_main_control (void) {
     any_mode(assign_glue_cmd, prefixed_command);
     any_mode(assign_mu_glue_cmd, prefixed_command);
     any_mode(assign_font_dimen_cmd, prefixed_command);
-    any_mode(assign_hang_indent_cmd, prefixed_command);
     any_mode(assign_font_int_cmd, prefixed_command);
     any_mode(set_aux_cmd, prefixed_command);
     any_mode(set_prev_graf_cmd, prefixed_command);
@@ -964,7 +915,7 @@ void main_control(void)
             check_interrupt();
             continue;
         }
-        if (int_par(tracing_commands_code) > 0)
+        if (tracing_commands_par > 0)
             show_cur_cmd_chr();
 
         (jump_table[(abs(mode) + cur_cmd)])(); /* run the command */
@@ -980,24 +931,24 @@ void main_control(void)
 void app_space(void)
 {                               /* handle spaces when |space_factor<>1000| */
     halfword q;                 /* glue node */
-    if ((space_factor >= 2000) && (! glue_is_zero(xspace_skip))) {
+    if ((space_factor_par >= 2000) && (! glue_is_zero(xspace_skip_par))) {
         q = new_param_glue(xspace_skip_code);
         /* so from now we have a subtype with spaces: */
         subtype(q) = xspace_skip_code + 1;
     } else {
-        if (!glue_is_zero(space_skip)) {
-            q = new_glue(space_skip);
+        if (!glue_is_zero(space_skip_par)) {
+            q = new_glue(space_skip_par);
         } else {
             q = new_glue(zero_glue);
-            width(q) = space(cur_font);
-            stretch(q) = space_stretch(cur_font);
-            shrink(q) = space_shrink(cur_font);
+            width(q) = space(cur_font_par);
+            stretch(q) = space_stretch(cur_font_par);
+            shrink(q) = space_shrink(cur_font_par);
         }
         /* Modify the glue specification in |q| according to the space factor */
-        if (space_factor >= 2000)
-            width(q) = width(q) + extra_space(cur_font);
-        stretch(q) = xn_over_d(stretch(q), space_factor, 1000);
-        shrink(q) = xn_over_d(shrink(q), 1000, space_factor);
+        if (space_factor_par >= 2000)
+            width(q) = width(q) + extra_space(cur_font_par);
+        stretch(q) = xn_over_d(stretch(q), space_factor_par, 1000);
+        shrink(q) = xn_over_d(shrink(q), 1000, space_factor_par);
 
         /* so from now we have a subtype with spaces: */
         subtype(q) = space_skip_code + 1;
@@ -1093,7 +1044,7 @@ boolean its_all_over(void)
         }
         back_input();           /* we will try to end again after ejecting residual material */
         tail_append(new_null_box());
-        width(tail) = hsize;
+        width(tail) = hsize_par;
         tail_append(new_glue(fill_glue));
         tail_append(new_penalty(-010000000000));
         normal_page_filter(end);
@@ -1264,9 +1215,9 @@ void handle_right_brace(void)
             break;
         case insert_group:
             end_graf(insert_group);
-            q = new_glue(split_top_skip);
-            d = split_max_depth;
-            f = floating_penalty;
+            q = new_glue(split_top_skip_par);
+            d = split_max_depth_par;
+            f = floating_penalty_par;
             unsave();
             save_ptr--;
             /* now |saved_value(0)| is the insertion number, or the |vadjust| subtype */
@@ -1367,17 +1318,17 @@ default values after every paragraph and when internal vertical mode is entered.
 @c
 void normal_paragraph(void)
 {
-    if (looseness != 0)
+    if (looseness_par != 0)
         eq_word_define(int_base + looseness_code, 0);
-    if (hang_indent != 0)
+    if (hang_indent_par != 0)
         eq_word_define(dimen_base + hang_indent_code, 0);
-    if (hang_after != 1)
+    if (hang_after_par != 1)
         eq_word_define(int_base + hang_after_code, 1);
-    if (par_shape_ptr != null)
+    if (par_shape_par_ptr != null)
         eq_define(par_shape_loc, shape_ref_cmd, null);
-    if (inter_line_penalties_ptr != null)
+    if (inter_line_penalties_par_ptr != null)
         eq_define(inter_line_penalties_loc, shape_ref_cmd, null);
-    if (shape_mode > 0)
+    if (shape_mode_par > 0)
         eq_word_define(dimen_base + shape_mode_code, 0);
 }
 
@@ -1422,7 +1373,7 @@ void box_end(int box_context)
                 }
             } else {
                 if (abs(mode) == hmode)
-                    space_factor = 1000;
+                    space_factor_par = 1000;
                 else
                     cur_box = new_sub_box(cur_box);
                 couple_nodes(tail, cur_box);
@@ -1492,19 +1443,19 @@ void new_graf(boolean indented)
 {
     halfword p, q, dir_graf_tmp;
     halfword dir_rover;
-    prev_graf = 0;
+    prev_graf_par = 0;
     if ((mode == vmode) || (head != tail)) {
         tail_append(new_param_glue(par_skip_code));
     }
     push_nest();
     mode = hmode;
-    space_factor = 1000;
+    space_factor_par = 1000;
     /* LOCAL: Add local paragraph node */
     tail_append(make_local_par_node(new_graf_par_code));
     if (indented) {
         p = new_null_box();
-        box_dir(p) = par_direction;
-        width(p) = par_indent;
+        box_dir(p) = par_direction_par;
+        width(p) = par_indent_par;
         subtype(p) = indent_list;
         q = tail;
         tail_append(p);
@@ -1513,7 +1464,7 @@ void new_graf(boolean indented)
     }
     dir_rover = text_dir_ptr;
     while (dir_rover != null) {
-        if ((vlink(dir_rover) != null) || (dir_dir(dir_rover) != par_direction)) {
+        if ((vlink(dir_rover) != null) || (dir_dir(dir_rover) != par_direction_par)) {
             dir_graf_tmp = new_dir(dir_dir(dir_rover));
             try_couple_nodes(dir_graf_tmp,vlink(q));
             couple_nodes(q,dir_graf_tmp);
@@ -1524,8 +1475,8 @@ void new_graf(boolean indented)
     while (vlink(q) != null)
         q = vlink(q);
     tail = q;
-    if (every_par != null)
-        begin_token_list(every_par, every_par_text);
+    if (every_par_par != null)
+        begin_token_list(every_par_par, every_par_text);
     if (nest_ptr == 1) {
         checked_page_filter(new_graf);
         build_page();           /* put |par_skip| glue on current page */
@@ -1538,9 +1489,9 @@ void indent_in_hmode(void)
     halfword p;
     if (cur_chr > 0) {          /* \.{\\indent} */
         p = new_null_box();
-        width(p) = par_indent;
+        width(p) = par_indent_par;
         if (abs(mode) == hmode)
-            space_factor = 1000;
+            space_factor_par = 1000;
         else
             p = new_sub_box(p);
         tail_append(p);
@@ -1597,9 +1548,9 @@ void begin_insert_or_adjust(void)
 {
     if (cur_cmd != vadjust_cmd) {
         scan_register_num();
-        if (cur_val == output_box) {
+        if (cur_val == output_box_par) {
             print_err("You can't \\insert");
-            print_int(output_box);
+            print_int(output_box_par);
             help1("I'm changing to \\insert0; box \\outputbox is special.");
             error();
             cur_val = 0;
@@ -1616,7 +1567,7 @@ void begin_insert_or_adjust(void)
     normal_paragraph();
     push_nest();
     mode = -vmode;
-    prev_depth = ignore_depth;
+    prev_depth_par = ignore_depth;
 }
 
 @ I (TH)'ve renamed the |make_mark| procedure to this, because if the
@@ -1801,7 +1752,7 @@ void append_local_box(int kind)
     scan_left_brace();
     push_nest();
     mode = -hmode;
-    space_factor = 1000;
+    space_factor_par = 1000;
 }
 
 @ Discretionary nodes are easy in the common case `\.{\\-}', but in the
@@ -1818,13 +1769,13 @@ void append_discretionary(void)
     subtype(tail) = (quarterword) cur_chr;
     if (cur_chr == explicit_disc) {
         /* \- */
-        c = get_pre_hyphen_char(cur_lang);
+        c = get_pre_hyphen_char(cur_lang_par);
         if (c != 0) {
             vlink(pre_break(tail)) = new_char(equiv(cur_font_loc), c);
             alink(vlink(pre_break(tail))) = pre_break(tail);
             tlink(pre_break(tail)) = vlink(pre_break(tail));
         }
-        c = get_post_hyphen_char(cur_lang);
+        c = get_post_hyphen_char(cur_lang_par);
         if (c != 0) {
             vlink(post_break(tail)) = new_char(equiv(cur_font_loc), c);
             alink(vlink(post_break(tail))) = post_break(tail);
@@ -1843,7 +1794,7 @@ void append_discretionary(void)
         scan_left_brace();
         push_nest();
         mode = -hmode;
-        space_factor = 1000;
+        space_factor_par = 1000;
         /* already preset: disc_penalty(tail) = int_par(hyphen_penalty_code); */
     }
 }
@@ -1872,7 +1823,7 @@ void build_local_box(void)
         /* LOCAL: Add local paragraph node */
         tail_append(make_local_par_node(local_box_par_code));
     }
-    eq_word_define(int_base + no_local_whatsits_code, no_local_whatsits + 1);
+    eq_word_define(int_base + no_local_whatsits_code, no_local_whatsits_par + 1);
 }
 
 @ The three discretionary lists are constructed somewhat as if they were
@@ -1955,7 +1906,7 @@ void build_discretionary(void)
     scan_left_brace();
     push_nest();
     mode = -hmode;
-    space_factor = 1000;
+    space_factor_par = 1000;
 }
 
 @ The positioning of accents is straightforward but tedious. Given an accent
@@ -2024,7 +1975,7 @@ void make_accent(void)
         }
         couple_nodes(tail, p);
         tail = p;
-        space_factor = 1000;
+        space_factor_par = 1000;
     }
 }
 
@@ -2178,6 +2129,25 @@ following program is careful to check each case properly.
 } while (0)
 
 @ @c
+/*
+halfword swap_hang_indent(halfword indentation, halfword shape_mode) {
+    if (shape_mode == 1 || shape_mode == 3 || shape_mode == -1 || shape_mode == -3) {
+        return negate(indentation);
+    } else {
+        return indentation;
+    }
+}
+
+halfword swap_parshape_indent(halfword indentation, halfword width, halfword shape_mode) {
+    if (shape_mode == 2 || shape_mode == 3 || shape_mode == -2 || shape_mode == -3) {
+        return hsize_par - width - indentation;
+    } else {
+        return indentation;
+    }
+}
+
+*/
+
 void prefixed_command(void)
 {
     int a;                      /* accumulated prefix codes so far */
@@ -2207,7 +2177,7 @@ void prefixed_command(void)
             back_error();
             return;
         }
-        if (int_par(tracing_commands_code) > 2)
+        if (tracing_commands_par > 2)
             show_cur_cmd_chr();
     }
     /* Discard the prefixes \.{\\long} and \.{\\outer} if they are irrelevant */
@@ -2225,8 +2195,8 @@ void prefixed_command(void)
         error();
     }
     /* Adjust for the setting of \.{\\globaldefs} */
-    if (global_defs != 0) {
-        if (global_defs < 0) {
+    if (global_defs_par != 0) {
+        if (global_defs_par < 0) {
             if (is_global(a))
                 a = a - 4;
         } else {
@@ -2245,7 +2215,7 @@ void prefixed_command(void)
                |cur_chr| is odd if the definition is supposed to be global, and
                |cur_chr>=2| if the definition is supposed to be expanded. */
 
-            if (odd(cur_chr) && !is_global(a) && (global_defs >= 0))
+            if (odd(cur_chr) && !is_global(a) && (global_defs_par >= 0))
                 a = a + 4;
             e = (cur_chr >= 2);
             get_r_token();
@@ -2491,7 +2461,7 @@ void prefixed_command(void)
 
                         in the output when we use
 
-                            tail_append(new_dir(text_direction)
+                            tail_append(new_dir(text_direction_par)
 
                         but when we append the reverse of the current it goes better
 
@@ -2501,15 +2471,15 @@ void prefixed_command(void)
                         cur_chr = int_base + text_direction_code ;
                     }
                     if (abs(mode) == hmode) {
-                        if (no_local_dirs > 0) {
+                        if (no_local_dirs_par > 0) {
                             /* tail is non zero but we test anyway */
                             if (check_glue && (tail != null && type(tail) == glue_node))  {
                                 halfword prev = alink(tail);
-                                halfword dirn = new_dir(text_direction - dir_swap);
+                                halfword dirn = new_dir(text_direction_par - dir_swap);
                                 couple_nodes(prev,dirn);
                                 couple_nodes(dirn,tail);
                             } else {
-                                tail_append(new_dir(text_direction - dir_swap));
+                                tail_append(new_dir(text_direction_par - dir_swap));
                             }
                         } else {
                             /* what is the use of nolocaldirs .. maybe we should get rid of it */
@@ -2522,9 +2492,9 @@ void prefixed_command(void)
                     }
                     /*  original:
 
-                        // if ((no_local_dirs > 0) && (abs(mode) == hmode)) {
-                        //  // tail_append(new_dir(text_direction)              // kind of wrong
-                        //     tail_append(new_dir(text_direction - dir_swap)); // better
+                        // if ((no_local_dirs_par > 0) && (abs(mode) == hmode)) {
+                        //  // tail_append(new_dir(text_direction_par)              // kind of wrong
+                        //     tail_append(new_dir(text_direction_par - dir_swap)); // better
                         // }
 
                         update_text_dir_ptr(cur_val);
@@ -2534,7 +2504,7 @@ void prefixed_command(void)
                         }
                     */
                     eq_word_define(int_base + text_direction_code, cur_val);
-                    eq_word_define(int_base + no_local_dirs_code, no_local_dirs + 1);
+                    eq_word_define(int_base + no_local_dirs_code, no_local_dirs_par + 1);
                     break;
                 }
             break;
@@ -2651,11 +2621,11 @@ void prefixed_command(void)
                     scan_dimen(false, false, false);
             } else {
                 scan_glue(mu_val_level);
-                if (cur_val == glue_par(thin_mu_skip_code))
+                if (cur_val == thin_mu_skip_par)
                     cur_val = thin_mu_skip_code;
-                else if (cur_val == glue_par(med_mu_skip_code))
+                else if (cur_val == med_mu_skip_par)
                     cur_val = med_mu_skip_code;
-                else if (cur_val == glue_par(thick_mu_skip_code))
+                else if (cur_val == thick_mu_skip_par)
                     cur_val = thick_mu_skip_code;
             }
             define_math_param(p, cur_val1, cur_val);
@@ -2716,7 +2686,6 @@ void prefixed_command(void)
             } else {
                 int indentation = 0;
                 int width = 0;
-                boolean swap = (shape_mode == 2 || shape_mode == 3 || shape_mode == -2 || shape_mode == -3) ;
                 p = new_node(shape_node, 2 * (n + 1) + 1);
                 vinfo(p + 1) = n;
                 for (j = 1; j <= n; j++) {
@@ -2724,9 +2693,6 @@ void prefixed_command(void)
                     indentation = cur_val;
                     scan_normal_dimen();
                     width = cur_val;
-                    if (swap) {
-                        indentation =  dimen_par(hsize_code) - width - indentation;
-                    }
                     varmem[p + 2 * j].cint = indentation;
                     varmem[p + 2 * j + 1].cint = width;
                 }
@@ -2788,14 +2754,6 @@ void prefixed_command(void)
             break;
         case assign_font_dimen_cmd:
             set_font_dimen();
-            break;
-        case assign_hang_indent_cmd:
-            scan_optional_equals();
-            scan_normal_dimen();
-            if (shape_mode == 1 || shape_mode == 3 || shape_mode == -1 || shape_mode == -3) {
-                negate(cur_val);
-            }
-            assign_internal_value(a, dimen_base+hang_indent_code, cur_val);
             break;
         case assign_font_int_cmd:
             n = cur_chr;
@@ -2865,9 +2823,9 @@ void prefixed_command(void)
 @ @c
 void fixup_directions(void)
 {
-    int temp_no_whatsits = no_local_whatsits;
-    int temp_no_dirs = no_local_dirs;
-    int temporary_dir = text_direction;
+    int temp_no_whatsits = no_local_whatsits_par;
+    int temp_no_dirs = no_local_dirs_par;
+    int temporary_dir = text_direction_par;
     if (dir_level(text_dir_ptr) == cur_level) {
         /* DIR: Remove from |text_dir_ptr| */
         halfword text_dir_tmp = vlink(text_dir_ptr);
@@ -2878,7 +2836,7 @@ void fixup_directions(void)
     if (abs(mode) == hmode) {
         if (temp_no_dirs != 0) {
             /* DIR: Add local dir node */
-            tail_append(new_dir(text_direction));
+            tail_append(new_dir(text_direction_par));
             dir_dir(tail) = temporary_dir - dir_swap;
         }
         if (temp_no_whatsits != 0) {
@@ -2923,7 +2881,7 @@ void assign_internal_value(int a, halfword p, int val)
         switch ((p - int_base)) {
         case cat_code_table_code:
             if (valid_catcode_table(val)) {
-                if (val != int_par(cat_code_table_code))
+                if (val != cat_code_table_par)
                     word_define(p, val);
             } else {
                 print_err("Invalid \\catcode table");
@@ -2994,9 +2952,7 @@ void assign_internal_value(int a, halfword p, int val)
              (p == (int_base + local_broken_penalty_code)))) {
             /* LOCAL: Add local paragraph node */
             tail_append(make_local_par_node(penalty_par_code));
-
-            eq_word_define(int_base + no_local_whatsits_code,
-                           no_local_whatsits + 1);
+            eq_word_define(int_base + no_local_whatsits_code, no_local_whatsits_par + 1);
         }
     } else if ((p >= dimen_base) && (p <= eqtb_size)) {
         if (p == (dimen_base + page_left_offset_code)) {
@@ -3170,7 +3126,7 @@ void alter_aux(void)
         scan_optional_equals();
         if (c == vmode) {
             scan_normal_dimen();
-            prev_depth = cur_val;
+            prev_depth_par = cur_val;
         } else {
             scan_int();
             if ((cur_val <= 0) || (cur_val > 32767)) {
@@ -3178,7 +3134,7 @@ void alter_aux(void)
                 help1("I allow only values in the range 1..32767 here.");
                 int_error(cur_val);
             } else {
-                space_factor = cur_val;
+                space_factor_par = cur_val;
             }
         }
     }
@@ -3354,7 +3310,7 @@ void issue_message(void)
            give a verbose explanation only once. */
         print_err("");
         print(s);
-        if (err_help != null) {
+        if (err_help_par != null) {
             use_err_help = true;
         } else if (long_help_seen) {
             help1("(That was another \\errmessage.)");
@@ -3379,7 +3335,7 @@ the |err_help| parameter.
 @c
 void give_err_help(void)
 {
-    token_show(err_help);
+    token_show(err_help_par);
 }
 
 @ The \.{\\uppercase} and \.{\\lowercase} commands are implemented by
@@ -3522,7 +3478,7 @@ void show_whatever(void)
     end_diagnostic(true);
     print_err("OK");
     if (selector == term_and_log) {
-        if (tracing_online <= 0) {
+        if (tracing_online_par <= 0) {
             selector = term_only;
             tprint(" (see the transcript file)");
             selector = term_and_log;
@@ -3532,7 +3488,7 @@ void show_whatever(void)
     if (interaction < error_stop_mode) {
         help0();
         decr(error_count);
-    } else if (tracing_online > 0) {
+    } else if (tracing_online_par > 0) {
         help3("This isn't an error message; I'm just \\showing something.",
               "Type `I\\show...' to show more (e.g., \\show\\cs,",
               "\\showthe\\count10, \\showbox255, \\showlists).");
@@ -3613,7 +3569,7 @@ void initialize(void)
         for (k = glue_base + 1; k <= local_base - 1; k++) {
             eqtb[k] = eqtb[glue_base];
         }
-        par_shape_ptr = null;
+        par_shape_par_ptr = null;
         set_eq_type(par_shape_loc, shape_ref_cmd);
         set_eq_level(par_shape_loc, level_one);
         for (k = etex_pen_base; k <= (etex_pens - 1); k++)
@@ -3625,7 +3581,7 @@ void initialize(void)
         set_eq_level(box_base, level_one);
         for (k = box_base + 1; k <= (box_base + biggest_reg); k++)
             eqtb[k] = eqtb[box_base];
-        cur_font = null_font;
+        cur_font_par = null_font;
         set_eq_type(cur_font_loc, data_cmd);
         set_eq_level(cur_font_loc, level_one);
         set_equiv(cat_code_base, 0);
@@ -3636,7 +3592,7 @@ void initialize(void)
         eqtb[uc_code_base] = eqtb[cat_code_base];
         eqtb[sf_code_base] = eqtb[cat_code_base];
         eqtb[math_code_base] = eqtb[cat_code_base];
-        cat_code_table = 0;
+        cat_code_table_par = 0;
         initialize_math_codes();
         initialize_text_codes();
         initex_cat_codes(0);
@@ -3655,21 +3611,21 @@ void initialize(void)
             eqtb[k].cint = 0;
         for (k = attribute_base; k <= del_code_base - 1; k++)
             eqtb[k].cint = UNUSED_ATTRIBUTE;
-        mag = 1000;
-        tolerance = 10000;
-        hang_after = 1;
-        max_dead_cycles = 25;
-        escape_char = '\\';
-        end_line_char = carriage_return;
+        mag_par = 1000;
+        tolerance_par = 10000;
+        hang_after_par = 1;
+        max_dead_cycles_par = 25;
+        escape_char_par = '\\';
+        end_line_char_par = carriage_return;
         set_del_code('.', 0, 0, 0, 0, level_one); /* this null delimiter is used in error recovery */
-        ex_hyphen_char = '-';
-        output_box = 255;
+        ex_hyphen_char_par = '-';
+        output_box_par = 255;
         for (k = dimen_base; k <= eqtb_size; k++)
             eqtb[k].cint = 0;
-        page_left_offset = one_inch;
-        page_top_offset = one_inch;
-        page_right_offset = one_inch;
-        page_bottom_offset = one_inch;
+        page_left_offset_par = one_inch;
+        page_top_offset_par = one_inch;
+        page_right_offset_par = one_inch;
+        page_bottom_offset_par = one_inch;
         ini_init_primitives();
         hash_used = frozen_control_sequence;    /* nothing is used */
         hash_high = 0;
@@ -3682,8 +3638,8 @@ void initialize(void)
         cs_text(frozen_primitive) = maketexstring("primitive");
         create_null_font();
         font_bytes = 0;
-        px_dimen = one_bp;
-        math_eqno_gap_step = 1000 ;
+        px_dimen_par = one_bp;
+        math_eqno_gap_step_par = 1000 ;
         cs_text(frozen_protection) = maketexstring("inaccessible");
         format_ident = maketexstring(" (INITEX)");
         cs_text(end_write) = maketexstring("endwrite");

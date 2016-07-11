@@ -23,7 +23,6 @@
 #include "ptexlib.h"
 
 #define font_id_text(A) cs_text(font_id_base+(A))
-#define prev_depth cur_list.prev_depth_field
 
 /* we start with 907: the sum of the values of the bytes of "don knuth" */
 
@@ -91,11 +90,11 @@ void store_fmt_file(void)
     tprint(" (format=");
     print(job_name);
     print_char(' ');
-    print_int(int_par(year_code));
+    print_int(year_par);
     print_char('.');
-    print_int(int_par(month_code));
+    print_int(month_par);
     print_char('.');
-    print_int(int_par(day_code));
+    print_int(day_par);
     print_char(')');
     str_room(2);
     format_ident = make_string();
@@ -308,7 +307,7 @@ void store_fmt_file(void)
     dump_int(69069);
     /* We have already printed a lot of statistics, so we set |tracing_stats:=0|
        to prevent them from appearing again. */
-    int_par(tracing_stats_code) = 0;
+    tracing_stats_par = 0;
 
     /* Dump the lua bytecodes */
     dump_luac_registers();
@@ -520,7 +519,7 @@ boolean load_fmt_file(const char *fmtname)
     /* Undump the lua bytecodes */
     undump_luac_registers();
 
-    prev_depth = ignore_depth;
+    prev_depth_par = ignore_depth;
     return true;                /* it worked! */
   BAD_FMT:
     wake_up_terminal();

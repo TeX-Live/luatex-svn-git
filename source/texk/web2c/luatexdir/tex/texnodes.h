@@ -981,11 +981,6 @@ extern int lua_properties_enabled ;
 extern int lua_properties_level ;
 extern int lua_properties_use_metatable ;
 
-#define local_inter_line_penalty int_par(local_inter_line_penalty_code)
-#define local_broken_penalty int_par(local_broken_penalty_code)
-#define local_left_box equiv(local_left_box_base)
-#define local_right_box equiv(local_right_box_base)
-
 extern halfword make_local_par_node(int mode);
 
 #endif

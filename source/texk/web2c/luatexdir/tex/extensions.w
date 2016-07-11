@@ -27,14 +27,9 @@
 #define mode          cur_list.mode_field
 #define tail          cur_list.tail_field
 #define head          cur_list.head_field
-#define prev_graf     cur_list.pg_field
 #define dir_save      cur_list.dirs_field
 
-#define tracing_nesting int_par(tracing_nesting_code)
-#define tracing_online int_par(tracing_online_code)
 #define box(A) eqtb[box_base+(A)].hh.rh
-#define global_defs int_par(global_defs_code)
-#define cat_code_table int_par(cat_code_table_code)
 #define toks(A) equiv(toks_base+(A))
 
 @ The program above includes a bunch of ``hooks'' that allow further
@@ -741,7 +736,7 @@ void group_warning(void)
         /* Set variable |w| to indicate if this case should be reported */
         /* This code scans the input stack in order to determine the type of the
            current input file. */
-        if (tracing_nesting > 0) {
+        if (tracing_nesting_par > 0) {
             while ((input_stack[base_ptr].state_field == token_list) ||
                    (input_stack[base_ptr].index_field > i))
                 decr(base_ptr);
@@ -757,7 +752,7 @@ void group_warning(void)
         print_group(true);
         tprint(" of a different file");
         print_ln();
-        if (tracing_nesting > 1)
+        if (tracing_nesting_par > 1)
             show_context();
         if (history == spotless)
             history = warning_issued;
@@ -778,7 +773,7 @@ void if_warning(void)
     input_stack[base_ptr] = cur_input;  /* store current state */
     while (if_stack[i] == cond_ptr) {
         /* Set variable |w| to... */
-        if (tracing_nesting > 0) {
+        if (tracing_nesting_par > 0) {
             while ((input_stack[base_ptr].state_field == token_list) ||
                    (input_stack[base_ptr].index_field > i))
                 decr(base_ptr);
@@ -795,7 +790,7 @@ void if_warning(void)
         print_if_line(if_line);
         tprint(" of a different file");
         print_ln();
-        if (tracing_nesting > 1)
+        if (tracing_nesting_par > 1)
             show_context();
         if (history == spotless)
             history = warning_issued;
@@ -847,7 +842,7 @@ void file_warning(void)
     cur_if = c;
     if_line = i;                /* restore old values */
     print_ln();
-    if (tracing_nesting > 1)
+    if (tracing_nesting_par > 1)
         show_context();
     if (history == spotless)
         history = warning_issued;
@@ -902,7 +897,7 @@ int get_tex_extension_toks_register(int i)
 int set_tex_dimen_register(int j, scaled v)
 {
     int a;                      /* return non-nil for error */
-    if (global_defs > 0)
+    if (global_defs_par > 0)
         a = 4;
     else
         a = 0;
@@ -913,7 +908,7 @@ int set_tex_dimen_register(int j, scaled v)
 int set_tex_skip_register(int j, halfword v)
 {
     int a;                      /* return non-nil for error */
-    if (global_defs > 0)
+    if (global_defs_par > 0)
         a = 4;
     else
         a = 0;
@@ -926,7 +921,7 @@ int set_tex_skip_register(int j, halfword v)
 int set_tex_mu_skip_register(int j, halfword v)
 {
     int a;                      /* return non-nil for error */
-    if (global_defs > 0)
+    if (global_defs_par > 0)
         a = 4;
     else
         a = 0;
@@ -939,7 +934,7 @@ int set_tex_mu_skip_register(int j, halfword v)
 int set_tex_count_register(int j, scaled v)
 {
     int a;                      /* return non-nil for error */
-    if (global_defs > 0)
+    if (global_defs_par > 0)
         a = 4;
     else
         a = 0;
@@ -950,7 +945,7 @@ int set_tex_count_register(int j, scaled v)
 int set_tex_box_register(int j, scaled v)
 {
     int a;                      /* return non-nil for error */
-    if (global_defs > 0)
+    if (global_defs_par > 0)
         a = 4;
     else
         a = 0;
@@ -961,7 +956,7 @@ int set_tex_box_register(int j, scaled v)
 int set_tex_attribute_register(int j, scaled v)
 {
     int a;                      /* return non-nil for error */
-    if (global_defs > 0)
+    if (global_defs_par > 0)
         a = 4;
     else
         a = 0;
@@ -988,7 +983,7 @@ int set_tex_toks_register(int j, lstring s)
     (void) str_toks(s);
     set_token_ref_count(ref, 0);
     set_token_link(ref, token_link(temp_token_head));
-    if (global_defs > 0)
+    if (global_defs_par > 0)
         a = 4;
     else
         a = 0;
@@ -1003,7 +998,7 @@ int scan_tex_toks_register(int j, int c, lstring s)
     (void) str_scan_toks(c,s);
     set_token_ref_count(ref, 0);
     set_token_link(ref, token_link(temp_token_head));
-    if (global_defs > 0)
+    if (global_defs_par > 0)
         a = 4;
     else
         a = 0;

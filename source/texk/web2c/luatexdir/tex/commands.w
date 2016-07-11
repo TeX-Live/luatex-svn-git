@@ -105,6 +105,7 @@ void initialize_commands(void)
     primitive_tex("outputpenalty", assign_int_cmd, int_base + output_penalty_code, int_base);
     primitive_tex("maxdeadcycles", assign_int_cmd, int_base + max_dead_cycles_code, int_base);
     primitive_tex("hangafter", assign_int_cmd, int_base + hang_after_code, int_base);
+    primitive_tex("hangindent", assign_dimen_cmd, dimen_base + hang_indent_code, dimen_base);
     primitive_tex("floatingpenalty", assign_int_cmd, int_base + floating_penalty_code, int_base);
     primitive_tex("globaldefs", assign_int_cmd, int_base + global_defs_code, int_base);
     primitive_tex("fam", assign_int_cmd, int_base + cur_fam_code, int_base);
@@ -184,7 +185,6 @@ void initialize_commands(void)
     primitive_luatex("copyfont", copy_font_cmd, 0, 0);
     primitive_luatex("setfontid", set_font_id_cmd, 0, 0);
     primitive_tex("fontdimen", assign_font_dimen_cmd, 0, 0);
-    primitive_tex("hangindent", assign_hang_indent_cmd, 0, 0);
     primitive_tex("halign", halign_cmd, 0, 0);
     primitive_tex("hrule", hrule_cmd, 0, 0);
     primitive_luatex("nohrule", no_hrule_cmd, 0, 0);
@@ -769,6 +769,7 @@ void initialize_etex_commands(void)
     primitive_etex("parshapedimen", last_item_cmd, par_shape_dimen_code, 0);
 
     primitive_luatex("shapemode", assign_int_cmd, int_base + shape_mode_code, int_base);
+    primitive_luatex("hyphenationbounds", assign_int_cmd, int_base + hyphenation_bounds_code, int_base);
 
     primitive_etex("showgroups", xray_cmd, show_groups, 0);
 
