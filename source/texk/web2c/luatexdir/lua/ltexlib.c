@@ -562,9 +562,9 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
         s += 4;
         if (output_mode_used <= OMODE_DVI) {
             prepare_mag();
-            if (int_par(mag_code) != 1000) {
-                cur_val = xn_over_d(cur_val, 1000, int_par(mag_code));
-                f = (1000 * f + 0200000 * tex_remainder) / int_par(mag_code);
+            if (mag_par != 1000) {
+                cur_val = xn_over_d(cur_val, 1000, mag_par);
+                f = (1000 * f + 0200000 * tex_remainder) / mag_par;
                 cur_val = cur_val + (f / 0200000);
                 f = f % 0200000;
             }

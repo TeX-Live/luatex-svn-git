@@ -246,7 +246,7 @@ int pdf_get_mem(PDF pdf, int s)
 output_mode get_o_mode(void)
 {
     output_mode o_mode;
-    if (int_par(output_mode_code) > 0) {
+    if (output_mode_par > 0) {
         o_mode = OMODE_PDF;
     } else
         o_mode = OMODE_DVI;
@@ -286,7 +286,7 @@ void fix_pdf_minorversion(PDF pdf)
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != pdf_minor_version)
             normal_error("pdf backend", "minorversion cannot be changed after data is written to the PDF file");
-        if (pdf->draftmode != int_par(draft_mode_code))
+        if (pdf->draftmode != draft_mode_par)
             normal_error("pdf backend", "draftmode cannot be changed after data is written to the PDF file");
     }
     if (pdf->draftmode != 0) {
@@ -961,7 +961,7 @@ void pdf_rectangle(PDF pdf, halfword r)
 static void init_pdf_outputparameters(PDF pdf)
 {
     int pk_mode;
-    pdf->draftmode = fix_int(int_par(draft_mode_code), 0, 1);
+    pdf->draftmode = fix_int(draft_mode_par, 0, 1);
     pdf->compress_level = fix_int(pdf_compress_level, 0, 9);
     pdf->decimal_digits = fix_int(pdf_decimal_digits, 3, 5);
     pdf->gamma = fix_int(pdf_gamma, 0, 1000000);
@@ -998,7 +998,7 @@ static void init_pdf_outputparameters(PDF pdf)
         if (!kpse_var_value("MKTEXPK"))
             kpse_set_program_enabled(kpse_pk_format, 1, kpse_src_cmdline);
     }
-    set_job_id(pdf, int_par(year_code), int_par(month_code), int_par(day_code), int_par(time_code));
+    set_job_id(pdf, year_par, month_par, day_par, time_par);
     if ((pdf_unique_resname > 0) && (pdf->resname_prefix == NULL))
         pdf->resname_prefix = get_resname_prefix(pdf);
 }
@@ -1650,9 +1650,9 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
                normal_error("pdf backend","weird output state");
          }
         if (strict)
-            formatted_error("pdf backend", "%s not allowed in %s mode (outputmode = %d)",s, m, (int) int_par(output_mode_code));
+            formatted_error("pdf backend", "%s not allowed in %s mode (outputmode = %d)",s, m, (int) output_mode_par);
         else
-            formatted_warning("pdf backend", "%s not allowed in %s mode (outputmode = %d)",s, m, (int) int_par(output_mode_code));
+            formatted_warning("pdf backend", "%s not allowed in %s mode (outputmode = %d)",s, m, (int) output_mode_par);
     } else if (strict)
         ensure_output_state(pdf, ST_HEADER_WRITTEN);
 }
@@ -1696,8 +1696,6 @@ char *get_resname_prefix(PDF pdf)
 }
 
 @ @c
-#define mag int_par(mag_code)
-
 void pdf_begin_page(PDF pdf)
 {
     int xform_attributes;

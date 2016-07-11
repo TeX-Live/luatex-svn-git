@@ -151,7 +151,7 @@ is zero or~not.
 @c
 static void run_app_space (void) {
     halfword p; /* was a global temp_ptr */
-    int method = int_par(disable_space_code) ;
+    int method = disable_space_par ;
     if (method == 1) {
         /* don't inject anything, not even zero skip */
     } else if (method == 2) {
@@ -973,7 +973,7 @@ void insert_dollar_sign(void)
 @c
 void insert_dollar_sign_par_end(void)
 {
-    if (!int_par(suppress_mathpar_error_code)) {
+    if (!suppress_mathpar_error_par) {
         insert_dollar_sign() ;
     }
 }
@@ -1781,7 +1781,7 @@ void append_discretionary(void)
             alink(vlink(post_break(tail))) = post_break(tail);
             tlink(post_break(tail)) = vlink(post_break(tail));
         }
-        disc_penalty(tail) = int_par(ex_hyphen_penalty_code);
+        disc_penalty(tail) = ex_hyphen_penalty_par;
     } else {
         /* \discretionary */
         if (scan_keyword("penalty")) {
@@ -1795,7 +1795,7 @@ void append_discretionary(void)
         push_nest();
         mode = -hmode;
         space_factor_par = 1000;
-        /* already preset: disc_penalty(tail) = int_par(hyphen_penalty_code); */
+        /* already preset: disc_penalty(tail) = hyphen_penalty_par; */
     }
 }
 
@@ -2296,7 +2296,7 @@ void prefixed_command(void)
                 break;
             case math_char_def_code:
                 mval = scan_mathchar(tex_mathcode);
-                if (mathoption_int_par(c_mathoption_umathcode_meaning_code) == 1) {
+                if (math_umathcode_meaning_par == 1) {
                     cur_val = (mval.class_value + (8 * mval.family_value)) * (65536 * 32) + mval.character_value;
                     define(p, xmath_given_cmd, cur_val);
                 } else {
