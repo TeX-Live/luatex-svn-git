@@ -1739,7 +1739,7 @@ void pdf_begin_page(PDF pdf)
             luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_attr_str(pdf, pdf_cur_form));
             set_obj_xform_attr_str(pdf, pdf_cur_form, null);
         }
-        if (xform_type == 1 || xform_type == 3) {
+        if (xform_type == 0 || xform_type == 1 || xform_type == 3) {
             pdf_add_name(pdf, "BBox");
             pdf_begin_array(pdf);
             pdf_add_bp(pdf, -form_margin);
@@ -1748,7 +1748,7 @@ void pdf_begin_page(PDF pdf)
             pdf_add_bp(pdf, pdf->page_size.v + form_margin);
             pdf_end_array(pdf);
         }
-        if (xform_type == 2 || xform_type == 3) {
+        if (xform_type == 0 || xform_type == 2 || xform_type == 3) {
             pdf_add_name(pdf, "Matrix");
             pdf_begin_array(pdf);
             pdf_add_int(pdf, 1);
