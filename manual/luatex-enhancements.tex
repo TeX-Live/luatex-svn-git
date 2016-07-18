@@ -801,6 +801,12 @@ optional parameters are not implemented for \type {\saveboxresource}.
 \useboxresource   width 20mm height 10mm depth 5mm \lastsavedboxresourceindex
 \stoptyping
 
+The box resources are of course implemented in the backend and therefore we do
+support the \type {attr} and \type {resources} keys that accept a token list. New
+is the \type {type} key. When set to non|-|zero the \type {/Type} entry is
+omitted. A value of 1 or 3 still writes a \type {/BBox}, while 2 or 3 will write
+a \type {/Matrix}.
+
 \subsection{\type {\nohrule} and \type {\novrule}}
 
 Because introducing a new keyword can cause incompatibilities, two new primitives

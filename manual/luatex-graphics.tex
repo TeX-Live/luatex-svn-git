@@ -316,11 +316,15 @@ of different fields, as follows:
 \NC error_line  \NC number   \NC error line width         \NC 79                \NC \NR
 \NC print_line  \NC number   \NC line length in ps output \NC 100               \NC \NR
 \NC random_seed \NC number   \NC the initial random seed  \NC variable          \NC \NR
-\NC interaction \NC string   \NC the interaction mode,
-                                 one of
+\NC math_mode   \NC string   \NC the number system to use:
+                                 \type {double},
+                                 \type {scaled},
+                                 \type {binary} or
+                                 \type {decimal}          \NC \type {scaled}    \NC \NR
+\NC interaction \NC string   \NC the interaction mode:
                                  \type {batch},
                                  \type {nonstop},
-                                 \type {scroll},
+                                 \type {scroll} or
                                  \type {errorstop}        \NC \type {errorstop} \NC \NR
 \NC job_name    \NC string   \NC \type {--jobname}        \NC \type {mpout}     \NC \NR
 \NC find_file   \NC function \NC a function to find files \NC only local files  \NC \NR

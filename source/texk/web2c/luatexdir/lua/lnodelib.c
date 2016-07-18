@@ -170,7 +170,6 @@ while (vlink(t)!=current && t != null) { \
     t = vlink(t);                        \
 }
 
-#define box(A) eqtb[box_base+(A)].hh.rh
 #define direct_check_index_range(j,s)                                      \
     if (j<0 || j > 65535) {                                                \
         luaL_error(L, "incorrect index value %d for tex.%s()", (int)j, s); \
@@ -6568,12 +6567,12 @@ static int lua_nodelib_direct_setbox(lua_State * L)
         }
 
     }
-    save_global_defs = int_par(global_defs_code);
+    save_global_defs = global_defs_par;
     if (isglobal) {
-        int_par(global_defs_code) = 1;
+        global_defs_par = 1;
     }
     err = set_tex_box_register(k, j);
-    int_par(global_defs_code) = save_global_defs;
+    global_defs_par = save_global_defs;
     if (err) {
         luaL_error(L, "incorrect value");
     }

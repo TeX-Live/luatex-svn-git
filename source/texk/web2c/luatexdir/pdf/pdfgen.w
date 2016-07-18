@@ -26,8 +26,6 @@
 #include "lua/luatex-api.h"
 #include "md5.h"
 
-#define is_hex_char isxdigit
-
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
         formatted_error("pdf backend","snprintf() failed in file %s at line %d", __FILE__, __LINE__);
@@ -246,7 +244,7 @@ int pdf_get_mem(PDF pdf, int s)
 output_mode get_o_mode(void)
 {
     output_mode o_mode;
-    if (int_par(output_mode_code) > 0) {
+    if (output_mode_par > 0) {
         o_mode = OMODE_PDF;
     } else
         o_mode = OMODE_DVI;
@@ -286,7 +284,7 @@ void fix_pdf_minorversion(PDF pdf)
         /* Check that variables for \.{PDF} output are unchanged */
         if (pdf->minor_version != pdf_minor_version)
             normal_error("pdf backend", "minorversion cannot be changed after data is written to the PDF file");
-        if (pdf->draftmode != int_par(draft_mode_code))
+        if (pdf->draftmode != draft_mode_par)
             normal_error("pdf backend", "draftmode cannot be changed after data is written to the PDF file");
     }
     if (pdf->draftmode != 0) {
@@ -634,7 +632,7 @@ void pdf_print_str(PDF pdf, const char *s)
         return;
     }
     s++;
-    while (is_hex_char((unsigned char)*s))
+    while (isxdigit((unsigned char)*s))
         s++;
     if (s != orig + l) {
         pdf_out(pdf, '(');
@@ -961,7 +959,7 @@ void pdf_rectangle(PDF pdf, halfword r)
 static void init_pdf_outputparameters(PDF pdf)
 {
     int pk_mode;
-    pdf->draftmode = fix_int(int_par(draft_mode_code), 0, 1);
+    pdf->draftmode = fix_int(draft_mode_par, 0, 1);
     pdf->compress_level = fix_int(pdf_compress_level, 0, 9);
     pdf->decimal_digits = fix_int(pdf_decimal_digits, 3, 5);
     pdf->gamma = fix_int(pdf_gamma, 0, 1000000);
@@ -988,15 +986,17 @@ static void init_pdf_outputparameters(PDF pdf)
         pk_mode = pdf_pk_mode; /* lookup once */
         if (pk_mode != null) {
             char *s = tokenlist_to_cstring(pk_mode, true, NULL);
+            /* This will become LUATEX in 1.0. */
             kpse_init_prog("PDFTEX", (unsigned) pdf->pk_resolution, s, nil);
             xfree(s);
         } else {
+            /* This will become LUATEX in 1.0. */
             kpse_init_prog("PDFTEX", (unsigned) pdf->pk_resolution, nil, nil);
         }
         if (!kpse_var_value("MKTEXPK"))
             kpse_set_program_enabled(kpse_pk_format, 1, kpse_src_cmdline);
     }
-    set_job_id(pdf, int_par(year_code), int_par(month_code), int_par(day_code), int_par(time_code));
+    set_job_id(pdf, year_par, month_par, day_par, time_par);
     if ((pdf_unique_resname > 0) && (pdf->resname_prefix == NULL))
         pdf->resname_prefix = get_resname_prefix(pdf);
 }
@@ -1027,6 +1027,7 @@ static void ensure_pdf_header_written(PDF pdf)
     init_pdf_outputparameters(pdf);
     /* Write \.{PDF} header */
     pdf_printf(pdf, "%%PDF-1.%d\n", pdf->minor_version);
+    /* The next blob will be removed 1.0. */
     pdf_out(pdf, '%');
     pdf_out(pdf, 'P' + 128);
     pdf_out(pdf, 'T' + 128);
@@ -1647,9 +1648,9 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
                normal_error("pdf backend","weird output state");
          }
         if (strict)
-            formatted_error("pdf backend", "%s not allowed in %s mode (outputmode = %d)",s, m, (int) int_par(output_mode_code));
+            formatted_error("pdf backend", "%s not allowed in %s mode (outputmode = %d)",s, m, (int) output_mode_par);
         else
-            formatted_warning("pdf backend", "%s not allowed in %s mode (outputmode = %d)",s, m, (int) int_par(output_mode_code));
+            formatted_warning("pdf backend", "%s not allowed in %s mode (outputmode = %d)",s, m, (int) output_mode_par);
     } else if (strict)
         ensure_output_state(pdf, ST_HEADER_WRITTEN);
 }
@@ -1693,11 +1694,10 @@ char *get_resname_prefix(PDF pdf)
 }
 
 @ @c
-#define mag int_par(mag_code)
-
 void pdf_begin_page(PDF pdf)
 {
     int xform_attributes;
+    int xform_type = 0;
     scaled form_margin = pdf_xform_margin; /* was one_bp until SVN4066 */
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     init_pdf_pagecalculations(pdf);
@@ -1716,12 +1716,16 @@ void pdf_begin_page(PDF pdf)
         pdf->last_thread = null;
         pdf_begin_dict(pdf);
     } else {
+        xform_type = obj_xform_type(pdf, pdf_cur_form) ;
         pdf_begin_obj(pdf, pdf_cur_form, OBJSTM_NEVER);
         pdf->last_stream = pdf_cur_form;
         /* Write out Form stream header */
         pdf_begin_dict(pdf);
-        pdf_dict_add_name(pdf, "Type", "XObject");
-        pdf_dict_add_name(pdf, "Subtype", "Form");
+        if (xform_type == 0) {
+            pdf_dict_add_name(pdf, "Type", "XObject");
+            pdf_dict_add_name(pdf, "Subtype", "Form");
+            pdf_dict_add_int(pdf, "FormType", 1);
+        }
         xform_attributes = pdf_xform_attr; /* lookup once */
         if (xform_attributes != null)
             pdf_print_toks(pdf, xform_attributes);
@@ -1735,23 +1739,26 @@ void pdf_begin_page(PDF pdf)
             luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_attr_str(pdf, pdf_cur_form));
             set_obj_xform_attr_str(pdf, pdf_cur_form, null);
         }
-        pdf_add_name(pdf, "BBox");
-        pdf_begin_array(pdf);
-        pdf_add_bp(pdf, -form_margin);
-        pdf_add_bp(pdf, -form_margin);
-        pdf_add_bp(pdf, pdf->page_size.h + form_margin);
-        pdf_add_bp(pdf, pdf->page_size.v + form_margin);
-        pdf_end_array(pdf);
-        pdf_dict_add_int(pdf, "FormType", 1);
-        pdf_add_name(pdf, "Matrix");
-        pdf_begin_array(pdf);
-        pdf_add_int(pdf, 1);
-        pdf_add_int(pdf, 0);
-        pdf_add_int(pdf, 0);
-        pdf_add_int(pdf, 1);
-        pdf_add_int(pdf, 0);
-        pdf_add_int(pdf, 0);
-        pdf_end_array(pdf);
+        if (xform_type == 0 || xform_type == 1 || xform_type == 3) {
+            pdf_add_name(pdf, "BBox");
+            pdf_begin_array(pdf);
+            pdf_add_bp(pdf, -form_margin);
+            pdf_add_bp(pdf, -form_margin);
+            pdf_add_bp(pdf, pdf->page_size.h + form_margin);
+            pdf_add_bp(pdf, pdf->page_size.v + form_margin);
+            pdf_end_array(pdf);
+        }
+        if (xform_type == 0 || xform_type == 2 || xform_type == 3) {
+            pdf_add_name(pdf, "Matrix");
+            pdf_begin_array(pdf);
+            pdf_add_int(pdf, 1);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 1);
+            pdf_add_int(pdf, 0);
+            pdf_add_int(pdf, 0);
+            pdf_end_array(pdf);
+        }
         pdf_dict_add_ref(pdf, "Resources", pdf->page_resources->last_resources);
     }
     /* Start stream of page/form contents */

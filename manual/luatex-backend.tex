@@ -112,6 +112,11 @@ pdf.setorigin(tex.sp("1in"),tex.sp("1in"))
 
 The counterpart of this function returns two values.
 
+\subsection{\type {[set|get]imageresolution}}
+
+These two functions relate to the imageresolution that is used when the image
+itself doesn't provide a non|-|zero x or y resolution.
+
 \subsection {\type {[set|get][link|dest|thread|xform]margin}}
 
 These functions can be used to set and retrieve the margins that are added to the
@@ -295,6 +300,15 @@ are the same as for the similar backend extension primitive.
 
 \startfunctioncall
 pdf.newcolorstack("0 g","page",true) -- page|direct|origin
+\stopfunctioncall
+
+\subsection {\type {setfontattributes}}
+
+This function will force some additional code into the font resource. It can for
+instance be used to add a custom \type {ToUnicode} vector to a bitmap file.
+
+\startfunctioncall
+pdf.setfontattributes(<number> font id, <string> pdf code)
 \stopfunctioncall
 
 \section {The \type {pdfscanner} library}
