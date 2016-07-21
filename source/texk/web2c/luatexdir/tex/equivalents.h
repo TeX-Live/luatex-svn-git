@@ -582,7 +582,7 @@ extern halfword last_cs_name;
 #define left_skip_par                      glue_par(left_skip_code)
 #define right_skip_par                     glue_par(right_skip_code)
 
-#define emergency_stretch_par              glue_par(emergency_stretch_code)
+#define emergency_stretch_par              dimen_par(emergency_stretch_code)
 #define pretolerance_par                   int_par(pretolerance_code)
 #define tolerance_par                      int_par(tolerance_code)
 #define looseness_par                      int_par(looseness_code)
