@@ -52,6 +52,11 @@ The version is frozen in the binary but you can set the minor version. What mino
 version you set depends on what \PDF\ features you use. This is out of control
 of \LUATEX.
 
+\subsection{\type {getcreationdate}}
+
+This function returns a string with the date in the format that ends up in the
+\PDF\ file, in this case it's: {\tttf \cldcontext{pdf.getcreationdate()}}.
+
 \subsection{\type {[set|get]inclusionerrorlevel}, \type {[set|get]ignoreunknownimages}}
 
 These variable control how error in included image are treated. They are modeled
