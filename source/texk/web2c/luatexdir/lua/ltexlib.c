@@ -1217,7 +1217,7 @@ static int splitbox(lua_State * L)
         if ((m<0) || (m>1)) {
             luaL_error(L, "wrong mode in splitbox");
         }
-        nodelist_to_lua(L, vsplit(k,lua_tointeger(L,2),m));
+        nodelist_to_lua(L, vsplit(k,lua_roundnumber(L,2),m));
     } else {
         /* maybe a warning */
         lua_pushnil(L);
@@ -2834,7 +2834,7 @@ static int tex_init_rand(lua_State * L)
         luaL_error(L, "argument must be a number");
         return 0;
     }
-    sp = lua_tointeger(L, 1);
+    sp = lua_roundnumber(L, 1);
     init_randoms(sp);
     return 0;
 }
@@ -2846,7 +2846,7 @@ static int tex_unif_rand(lua_State * L)
         luaL_error(L, "argument must be a number");
         return 0;
     }
-    sp = lua_tointeger(L, 1);
+    sp = lua_roundnumber(L, 1);
     lua_pushinteger(L, unif_rand(sp));
     return 1;
 }
@@ -2859,7 +2859,7 @@ static int tex_norm_rand(lua_State * L)
 
 /* Same as lua but  with tex rng */
 
-  static int lua_math_random (lua_State *L)
+static int lua_math_random (lua_State *L)
 {
     lua_Number rand_max = 0x7fffffff ;
     lua_Number r =  unif_rand(rand_max) ;

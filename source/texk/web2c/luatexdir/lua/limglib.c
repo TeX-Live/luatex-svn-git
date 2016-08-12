@@ -618,7 +618,7 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
                 lua_gettable(L, -2);        /* int v k t ... */
                 t = lua_type(L, -1);
                 if (t == LUA_TNUMBER) {
-                    img_bbox(d)[i - 1] = (int) lua_tointeger(L, -1);
+                    img_bbox(d)[i - 1] = (int) lua_roundnumber(L, -1);
                 } else if (t == LUA_TSTRING) {
                     img_bbox(d)[i - 1] = dimen_to_number(L, lua_tostring(L, -1));
                 } else {

@@ -5283,7 +5283,7 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         } else if (lua_key_eq(s, index)) {
             rule_index(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, transform)) {
-            rule_transform(n) = (halfword) lua_tointeger(L, 3); /* maybe: lua_roundnumber */
+            rule_transform(n) = (halfword) lua_roundnumber(L, 3); /* can also be user value */
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -6171,7 +6171,7 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         } else if (lua_key_eq(s, index)) {
             rule_index(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, transform)) {
-            rule_transform(n) = (halfword) lua_tointeger(L, 3); /* maybe: lua_roundnumber */
+            rule_transform(n) = (halfword) lua_roundnumber(L, 3); /* can also be user value */
         } else {
             return nodelib_cantset(L, n, s);
         }
