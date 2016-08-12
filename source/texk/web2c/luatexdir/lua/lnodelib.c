@@ -6451,9 +6451,9 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         } else if (lua_key_eq(s, dir)) {
             box_dir(n) = nodelib_getdir(L, 3, 1);
         } else if (lua_key_eq(s, shrink)) {
-            glue_shrink(n) = (halfword) lua_tointeger(L, 3);
+            glue_shrink(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, glue_order)) {
-            glue_order(n) = (quarterword) lua_roundnumber(L, 3);
+            glue_order(n) = (quarterword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, glue_sign)) {
             glue_sign(n) = (quarterword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, stretch)) {
