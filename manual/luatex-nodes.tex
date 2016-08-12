@@ -532,6 +532,7 @@ into a single node type with separate subtypes for differentiation.
 \NC sup         \NC kernel node \NC superscript \NC \NR
 \NC accent      \NC kernel node \NC top accent \NC \NR
 \NC bot_accent  \NC kernel node \NC bottom accent \NC \NR
+\NC fraction    \NC number      \NC larger step criterium (divided by 1000) \NC \NR
 \stoptabulate
 
 \subsubsubsection{style nodes}
@@ -556,9 +557,9 @@ a trailing \type {'} to signify \quote {cramped} styles.
 \NC scriptscript \NC node     \NC list of scriptscriptsize alternatives \NC \NR
 \stoptabulate
 
-A warning: never assign a node list to the display, text, script, or
-scriptscript field unless you are sure its internal link structure is
-correct, otherwise an error may be result.
+Warning: never assign a node list to the \type {display}, \type {text}, \type
+{script}, or \type {scriptscript} field unless you are sure its internal link
+structure is correct, otherwise an error may be result.
 
 \subsubsubsection{radical nodes}
 
@@ -571,11 +572,13 @@ correct, otherwise an error may be result.
 \NC sup         \NC kernel node    \NC superscript \NC \NR
 \NC left        \NC delimiter node \NC \NC \NR
 \NC degree      \NC kernel node    \NC only set by \type {\Uroot} \NC \NR
+\NC width       \NC number         \NC required width \NC \NR
+\NC options     \NC number         \NC bitset of rendering options \NC \NR
 \stoptabulate
 
-A warning: never assign a node list to the nucleus, sub, sup, left, or degree
-field unless you are sure its internal link structure is correct, otherwise an
-error may be result.
+Warning: never assign a node list to the \type {nucleus}, \type {sub}, \type
+{sup}, \type {left}, or \type {degree} field unless you are sure its internal
+link structure is correct, otherwise an error may be result.
 
 \subsubsubsection{fraction nodes}
 
@@ -586,11 +589,14 @@ error may be result.
 \NC num         \NC kernel node     \NC numerator \NC \NR
 \NC denom       \NC kernel node     \NC denominator \NC \NR
 \NC left        \NC delimiter node  \NC left side symbol \NC \NR
-\NC right       \NC delimiter node  \NC right side symbol\NC \NR
+\NC right       \NC delimiter node  \NC right side symbol \NC \NR
+\NC middle      \NC delimiter node  \NC middle symbol \NC \NR
+\NC options     \NC number          \NC bitset of rendering options \NC \NR
 \stoptabulate
 
-A warning: never assign a node list to the num, or denom field unless you are
-sure its internal link structure is correct, otherwise an error may be result.
+Warning: never assign a node list to the \type {num}, or \type {denom} field
+unless you are sure its internal link structure is correct, otherwise an error
+may be result.
 
 \subsubsubsection{fence nodes}
 
@@ -599,7 +605,15 @@ sure its internal link structure is correct, otherwise an error may be result.
 \NC subtype     \NC number         \NC \showsubtypes{fence} \NC \NR
 \NC attr        \NC node           \NC list of attributes \NC \NR
 \NC delim       \NC delimiter node \NC delimiter specification \NC \NR
+\NC italic      \NC number         \NC italic correction \NC \NR
+\NC height      \NC number         \NC required height \NC \NR
+\NC depth       \NC number         \NC required depth \NC \NR
+\NC options     \NC number         \NC bitset of rendering options \NC \NR
+\NC class       \NC number         \NC spacing related class \NC \NR
 \stoptabulate
+
+Warning: some of these fields are used by the renderer and might get adapted in
+the process.
 
 \subsection{whatsit nodes}
 
