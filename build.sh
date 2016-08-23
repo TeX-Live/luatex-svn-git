@@ -271,7 +271,7 @@ $MAKE
 # (perhaps more files needed to be copied from TL?)
 
 (cd libs; $MAKE all )
-(cd libs/zzip; $MAKE all )
+(cd libs/zziplib; $MAKE all )
 (cd libs/zlib; $MAKE all )
 (cd libs/libpng; $MAKE all )
 (cd libs/poppler; $MAKE all )
