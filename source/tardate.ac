@@ -1,0 +1,12 @@
+dnl $Id: tardate.ac 41571 2016-06-29 23:09:13Z karl $
+dnl   Copyright 2016 Karl Berry <tex-live@tug.org>
+dnl   Copyright 2010-2015 Peter Breitenlohner <tex-live@tug.org>
+dnl
+dnl   This file is free software; the copyright holder
+dnl   gives unlimited permission to copy and/or distribute it,
+dnl   with or without modifications, as long as this notice is preserved.
+dnl
+dnl --------------------------------------------------------
+dnl
+dnl  m4-include this file to define the current TeX Live tarball version
+m4_define([tex_live_tardate], [2016-05-23])
