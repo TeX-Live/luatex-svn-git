@@ -980,6 +980,21 @@ primitive \type {\mathoption} has been introduced (so that we don't end up with
 many new commands). The approach of options also permits us to see what effect a
 specific solution has.
 
+\subsubsection {\type {\mathoption old}}
+
+This option was introduced for testing purposes when the math engine got split
+code paths and it forces the engine to treat new fonts as old ones with respect
+to italic correction etc. There are no guarantees given with respect to the final
+result and unexpected side effects are not seens as bugs as they relate to font
+properties.
+
+\startbuffer
+\mathoption old 1
+\stopbuffer
+
+The \type {oldmath} boolean flag in the \LUA\ font table is the official way to
+force old treatment as it's bound to fonts.
+
 \subsubsection {\type {\mathoption noitaliccompensation}}
 
 This option compensates placement for characters with a built|-|in italic
