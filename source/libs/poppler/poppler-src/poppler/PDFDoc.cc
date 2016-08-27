@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2005, 2007-2009, 2011-2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2007-2009, 2011-2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008, 2010 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008, 2010, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -34,6 +34,7 @@
 // Copyright (C) 2015 Li Junling <lijunling@sina.com>
 // Copyright (C) 2015 André Guerreiro <aguerreiro1985@gmail.com>
 // Copyright (C) 2015 André Esser <bepandre@hotmail.com>
+// Copyright (C) 2016 Jakub Kucharski <jakubkucharski97@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -600,6 +601,75 @@ GBool PDFDoc::isLinearized(GBool tryingToReconstruct) {
   }
 }
 
+void PDFDoc::setDocInfoModified(Object *infoObj)
+{
+  Object infoObjRef;
+  getDocInfoNF(&infoObjRef);
+  xref->setModifiedObject(infoObj, infoObjRef.getRef());
+  infoObjRef.free();
+}
+
+void PDFDoc::setDocInfoStringEntry(const char *key, GooString *value)
+{
+  GBool removeEntry = !value || value->getLength() == 0;
+  if (removeEntry) {
+    delete value;
+  }
+
+  Object infoObj;
+  getDocInfo(&infoObj);
+
+  if (infoObj.isNull() && removeEntry) {
+    // No info dictionary, so no entry to remove.
+    return;
+  }
+
+  createDocInfoIfNoneExists(&infoObj);
+
+  Object gooStrObj;
+  if (removeEntry) {
+    gooStrObj.initNull();
+  } else {
+    gooStrObj.initString(value);
+  }
+
+  // gooStrObj is set to value or null by now. The latter will cause a removal.
+  infoObj.dictSet(key, &gooStrObj);
+
+  if (infoObj.dictGetLength() == 0) {
+    // Info dictionary is empty. Remove it altogether.
+    removeDocInfo();
+  } else {
+    setDocInfoModified(&infoObj);
+  }
+
+  infoObj.free();
+}
+
+GooString *PDFDoc::getDocInfoStringEntry(const char *key) {
+  Object infoObj;
+  getDocInfo(&infoObj);
+  if (!infoObj.isDict()) {
+      return NULL;
+  }
+
+  Object entryObj;
+  infoObj.dictLookup(key, &entryObj);
+
+  GooString *result;
+
+  if (entryObj.isString()) {
+    result = entryObj.takeString();
+  } else {
+    result = NULL;
+  }
+
+  entryObj.free();
+  infoObj.free();
+
+  return result;
+}
+
 static GBool
 get_id (GooString *encodedidstring, GooString *id) {
   const char *encodedid = encodedidstring->getCString();
@@ -865,17 +935,7 @@ int PDFDoc::saveAs(GooString *name, PDFWriteMode mode) {
 }
 
 int PDFDoc::saveAs(OutStream *outStr, PDFWriteMode mode) {
-
-  // find if we have updated objects
-  GBool updated = gFalse;
-  for(int i=0; i<xref->getNumObjects(); i++) {
-    if (xref->getEntry(i)->getFlag(XRefEntry::Updated)) {
-      updated = gTrue;
-      break;
-    }
-  }
-
-  if (!updated && mode == writeStandard) {
+  if (!xref->isModified() && mode == writeStandard) {
     // simply copy the original file
     saveWithoutChangesAs (outStr);
   } else if (mode == writeForceRewrite) {

@@ -79,6 +79,7 @@ texmf_shell_scripts = \
 	pdfxup/pdfxup \
 	pst-pdf/ps4pdf \
 	simpdftex/simpdftex \
+	texosquery/texosquery \
 	typeoutfileinfo/typeoutfileinfo.sh
 texmf_other_scripts = \
 	a2ping/a2ping.pl \
@@ -151,6 +152,7 @@ texmf_other_scripts = \
 	oberdiek/pdfatfi.pl \
 	pax/pdfannotextractor.pl \
 	pdfcrop/pdfcrop.pl \
+	pdflatexpicscale/pdflatexpicscale.pl \
 	pedigree-perl/pedigree.pl \
 	perltex/perltex.pl \
 	petri-nets/pn2pdf \
