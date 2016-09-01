@@ -167,6 +167,10 @@ static void prepare_cmdline(lua_State * L, char **av, int ac, int zero_offset)
     return;
 }
 
+
+@ @c
+int kpse_init = -1;
+
 @ @c
 string input_name = NULL;
 
@@ -596,8 +600,10 @@ static void fix_dumpname(void)
             TEX_format_default = concat(dump_name, DUMP_EXT);
     } else {
         /* For |dump_name| to be NULL is a bug.  */
-        if (!ini_version)
-            normal_error("luatex","no format given");
+        if (!ini_version) {
+          fprintf(stdout, "no format given, quitting\n");
+          exit(1);
+        }
     }
 }
 
@@ -858,7 +864,7 @@ void lua_initialize(int ac, char **av)
 {
     char *given_file = NULL;
     char *banner;
-    int kpse_init;
+    /*int kpse_init;*/
     size_t len;
     int starttime;
     int utc;
