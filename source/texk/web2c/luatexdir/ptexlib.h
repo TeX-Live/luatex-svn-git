@@ -374,5 +374,6 @@ extern extinfo *copy_variants(extinfo * o);
 extern int program_name_set;    /* in lkpselib.c */
 
 extern int kpse_init; /* in luainit.w */
+extern int kpse_available(const char * m); /* in texfileio.w */
 
 #endif                          /* PTEXLIB_H */
