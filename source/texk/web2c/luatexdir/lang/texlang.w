@@ -968,20 +968,35 @@ void hnj_hyphenation(halfword head, halfword tail)
                 left = wordstart;
                 for (i = lhmin; i > 1; i--) {
                     left = vlink(left);
-                    while (!is_simple_character(left))
+                    while (!is_simple_character(left)) {
                         left = vlink(left);
+                    }
+                    /*
+                    if (!left)
+                        break ;
+                    */
+                    /* what is left overruns right .. a bit messy */
                 }
                 right = r;
                 for (i = rhmin; i > 0; i--) {
                     right = alink(right);
-                    while (!is_simple_character(right))
+                    while (!is_simple_character(right)) {
                         right = alink(right);
+                    }
+                    /*
+                    if (!right)
+                        break ;
+                    */
+                    /* what is right overruns left .. a bit messy */
                 }
+                /* maybe an extra check ... */
+                /* if (left && right) { */
 #ifdef VERBOSE
-                formatted_warning("hyphenation","hyphenate %s (c=%d,l=%d,r=%d) from %c to %c",
-                    utf8word, clang, lhmin, rhmin, character(left), character(right));
+                    formatted_warning("hyphenation","hyphenate %s (c=%d,l=%d,r=%d) from %c to %c",
+                        utf8word, clang, lhmin, rhmin, character(left), character(right));
 #endif
-                (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, end_word, wordlen, left, right, &langdata);
+                    (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, end_word, wordlen, left, right, &langdata);
+                /* } */
             }
         }
         explicit_hyphen = false;
