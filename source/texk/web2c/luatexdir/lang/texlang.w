@@ -906,11 +906,17 @@ void hnj_hyphenation(halfword head, halfword tail)
                 }
                 if (wordlen <= lhmin) {
                     lhmin = lhmin - lchar + 1 ;
+                    if (lhmin < 0)
+                        lhmin = 1;
                 }
                 if (wordlen >= rhmin) {
                     rhmin = rhmin - lchar + 1 ;
+                    if (rhmin < 0)
+                        rhmin = 1;
                 }
                 hmin = hmin - lchar + 1 ;
+                if (hmin < 0)
+                    rhmin = 1;
                 lchar = character(r) ;
             }
             hy = uni2string(hy, (unsigned) lchar);
