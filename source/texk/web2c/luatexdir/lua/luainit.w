@@ -475,7 +475,7 @@ static void parse_options(int ac, char **av)
             }
         }
 #ifdef WIN32
-    } else if (sargv[sargc-1] && sargv[sargc-1][0] != '-' &&
+    } else if (sargc > 1 && sargv[sargc-1] && sargv[sargc-1][0] != '-' &&
                sargv[sargc-1][0] != '\\') {
         if (sargv[sargc-1][0] == '&')
             dump_name = xstrdup(sargv[sargc-1] + 1);
