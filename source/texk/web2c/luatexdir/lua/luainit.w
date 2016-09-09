@@ -480,21 +480,11 @@ static void parse_options(int ac, char **av)
         if (sargv[sargc-1][0] == '&')
             dump_name = xstrdup(sargv[sargc-1] + 1);
         else  {
-            char *p;
             if (sargv[sargc-1][0] == '*')
                 input_name = xstrdup(sargv[sargc-1] + 1);
             else
                 input_name = xstrdup(sargv[sargc-1]);
             sargv[sargc-1] = normalize_quotes(input_name, "argument");
-            /* Same as
-                  input_name = (char *)xbasename(input_name);
-               but without cast const => non-const.  */
-            input_name += xbasename(input_name) - input_name;
-            p = strrchr(input_name, '.');
-            if (p != NULL && strcasecmp(p, ".tex") == 0)
-                *p = '\0';
-            if (!c_job_name)
-                c_job_name = normalize_quotes(input_name, "jobname");
         }
         if (safer_option)      /* --safer implies --nosocket */
             nosocket_option = 1;
