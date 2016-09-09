@@ -95,7 +95,7 @@ already apply that shift.
     }                                                        \
   } while (0)
 
-#define font_MATH_par(a,b)                                                  \
+#define font_MATH_par(a,b) \
   (font_math_params(a)>=b ? font_math_param(a,b) : undefined_math_parameter)
 
 @ here are the math parameters that are font-dependant
@@ -281,12 +281,22 @@ static scaled radical_rule(int var)
 
 @c
 #define get_math_param_or_error(a,b) do_get_math_param_or_error(a, math_param_##b, #b)
+#define get_math_param_or_zero(a,b) do_get_math_param_or_zero(a, math_param_##b, #b)
 
 static scaled do_get_math_param_or_error(int var, int param, const char *name)
 {
     scaled a = get_math_param(param, var);
     if (a == undefined_math_parameter) {
         math_param_error(name, var);
+        a = 0;
+    }
+    return a;
+}
+
+static scaled do_get_math_param_or_zero(int var, int param, const char *name)
+{
+    scaled a = get_math_param(param, var);
+    if (a == undefined_math_parameter) {
         a = 0;
     }
     return a;
@@ -365,6 +375,9 @@ static scaled get_delimiter_height(scaled max_d, scaled max_h, boolean axis) {
 #define limit_below_vgap(a)      get_math_param_or_error(a, limit_below_vgap)
 #define limit_below_bgap(a)      get_math_param_or_error(a, limit_below_bgap)
 #define limit_below_kern(a)      get_math_param_or_error(a, limit_below_kern)
+
+#define nolimit_sub_factor(a)    get_math_param_or_zero(a, nolimit_sub_factor)
+#define nolimit_sup_factor(a)    get_math_param_or_zero(a, nolimit_sup_factor)
 
 #define sub_shift_drop(a)        get_math_param_or_error(a, sub_shift_drop)
 #define sup_shift_drop(a)        get_math_param_or_error(a, sup_shift_drop)
@@ -564,6 +577,14 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
             0, lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_below_kern, size_id,
             0, lvl);
+        DEFINE_MATH_PARAMETERS(math_param_nolimit_sub_factor, size_id,
+            font_MATH_par(f, NoLimitSubFactor), lvl); /* bonus */
+        DEFINE_DMATH_PARAMETERS(math_param_nolimit_sub_factor, size_id,
+            font_MATH_par(f, NoLimitSubFactor), lvl); /* bonus */
+        DEFINE_MATH_PARAMETERS(math_param_nolimit_sup_factor, size_id,
+            font_MATH_par(f, NoLimitSupFactor), lvl); /* bonus */
+        DEFINE_DMATH_PARAMETERS(math_param_nolimit_sup_factor, size_id,
+            font_MATH_par(f, NoLimitSupFactor), lvl); /* bonus */
 
         DEFINE_MATH_PARAMETERS(math_param_fraction_rule, size_id,
             font_MATH_par(f, FractionRuleThickness), lvl);
@@ -820,6 +841,14 @@ void fixup_math_parameters(int fam_id, int size_id, int f, int lvl)
            big_op_spacing5(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_limit_below_kern, size_id,
             big_op_spacing5(size_id), lvl);
+        DEFINE_MATH_PARAMETERS(math_param_nolimit_sub_factor, size_id,
+            font_MATH_par(f, NoLimitSubFactor), lvl); /* bonus */
+        DEFINE_DMATH_PARAMETERS(math_param_nolimit_sub_factor, size_id,
+            font_MATH_par(f, NoLimitSubFactor), lvl); /* bonus */
+        DEFINE_MATH_PARAMETERS(math_param_nolimit_sup_factor, size_id,
+            font_MATH_par(f, NoLimitSupFactor), lvl); /* bonus */
+        DEFINE_DMATH_PARAMETERS(math_param_nolimit_sup_factor, size_id,
+            font_MATH_par(f, NoLimitSupFactor), lvl); /* bonus */
         DEFINE_MATH_PARAMETERS(math_param_subsup_vgap, size_id,
             4 * default_rule_thickness(size_id), lvl);
         DEFINE_DMATH_PARAMETERS(math_param_subsup_vgap, size_id,
@@ -1420,7 +1449,7 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
                 width(b) += char_italic(f, c);
             }
             if (delta != NULL) {
-                *delta = char_italic(f,x);
+                *delta = char_italic(f, c); /* was historically (f, x) */
             }
             if (stack != NULL)
                 *stack = false ;
@@ -2664,14 +2693,55 @@ static scaled make_op(pointer q, int cur_style)
 
     if (subtype(q) == op_noad_type_no_limits) {
         if (do_new_math(cur_f)) {
-            if (delta != 0) {
-                delta = half(delta) ;
-            }
+            /*
+                if (delta != 0) {
+                    delta = half(delta) ;
+                }
+            */
             p = check_nucleus_complexity(q, &dummy, cur_style);
             if ((subscr(q) == null) && (supscr(q) == null)) {
                 assign_new_hlist(q, p);
             } else {
-                make_scripts(q, p, 0, cur_style, delta, -delta);
+                /*
+                    make_scripts(q, p, 0, cur_style, delta, -delta);
+                */
+                int mode = nolimits_mode_par; /* wins */
+                /*
+                    for easy configuration ... fonts are somewhat inconsistent and the
+                    values for italic correction run from 30 to 60% of the width
+                */
+                switch (mode) {
+                    case 0 :
+                        /* as with limits */
+                        make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
+                        break;
+                    case 1 :
+                        /* MathConstants driven */
+                        make_scripts(q, p, 0, cur_style,
+                             round_xn_over_d(delta, nolimit_sup_factor(cur_style), 1000),
+                            -round_xn_over_d(delta, nolimit_sub_factor(cur_style), 1000));
+                    case 2 :
+                        /* no correction */
+                        make_scripts(q, p, 0, cur_style, 0, 0);
+                        break;
+                    case 3 :
+                        /* half bottom correction */
+                        make_scripts(q, p, 0, cur_style, 0, -half(delta));
+                        break;
+                    case 4 :
+                        /* full bottom correction */
+                        make_scripts(q, p, 0, cur_style, 0, -delta);
+                        break;
+                    default :
+                        /* half bottom and top correction */
+                        if (mode > 15) {
+                            /* for quickly testing values */
+                            make_scripts(q, p, 0, cur_style, 0, -round_xn_over_d(delta, mode, 1000));
+                        } else {
+                            make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
+                        }
+                        break;
+                }
             }
             delta = 0;
         } else {
