@@ -464,6 +464,56 @@ Note 9: \type {FractionDelimiterDisplayStyleSize} and \type
 {FractionDelimiterSize} do not actually exist in the \quote {standard} \OPENTYPE\
 math font Cambria, but were useful enough to be added.
 
+\section{Nolimit correction}
+
+There are two extra math parameters \type {\Umathnolimitsupfactor} and \type
+{\Umathnolimitsubfactor} that were added to provide some control over how limits
+are spaced (for example the position of super and subscripts after integral
+operators). They relate to an extra parameter \type {\mathnolimitsmode}.
+
+\starttabulate[|l|ck1|ck1|ck1|ck1|ck1|ck1|]
+    \NC
+        \NC \mathnolimitsmode0    $\displaystyle\int\nolimits^0_1$
+        \NC \mathnolimitsmode1    $\displaystyle\int\nolimits^0_1$
+        \NC \mathnolimitsmode2    $\displaystyle\int\nolimits^0_1$
+        \NC \mathnolimitsmode3    $\displaystyle\int\nolimits^0_1$
+        \NC \mathnolimitsmode4    $\displaystyle\int\nolimits^0_1$
+        \NC \mathnolimitsmode8000 $\displaystyle\int\nolimits^0_1$
+    \NC \NR
+    \TB
+    \NC \bf mode
+        \NC \tttf 0
+        \NC \tttf 1
+        \NC \tttf 2
+        \NC \tttf 3
+        \NC \tttf 4
+        \NC \tttf 8000
+    \NC \NR
+    \NC \bf superscript
+        \NC +ic/2
+        \NC font
+        \NC 0
+        \NC 0
+        \NC 0
+        \NC 0
+    \NC \NR
+    \NC \bf subscript
+        \NC -ic/2
+        \NC font
+        \NC 0
+        \NC -ic/2
+        \NC -ic
+        \NC 8000ic/1000
+    \NC \NR
+\stoptabulate
+
+When the mode is set to one, the math parameters are used. This way a macro
+package writer can decide what looks best. Given the current state of fonts in
+\CONTEXT\ we currently use 0 for the superscript and 750 for the subscripts.
+Positive values are used for both parameters but the subscript shifts to the
+left. A \type {\mathnolimitsmode} larger that 15 is considered to be a factor
+for the subscript correction. This feature can be handy when experimenting.
+
 \section{Math spacing setting}
 
 Besides the parameters mentioned in the previous sections, there are also 64 new
