@@ -1218,7 +1218,7 @@ The second return value is the badness of the generated box.
 
 See the description of \type {node.hpack()} for a few memory allocation caveats.
 
-\subsubsection{\type {node.dimensions}}
+\subsubsection{\type {node.dimensions}, \type {node.rangedimensions}}
 
 \startfunctioncall
 <number> w, <number> h, <number> d  =
@@ -1271,7 +1271,17 @@ example in code like this, which prints the width of the space in between the
 
 You need to keep in mind that this is one of the few places in \TEX\ where floats
 are used, which means that you can get small differences in rounding when you
-compare the width repported by \type {hpack} with \type {dimensions}.
+compare the width reported by \type {hpack} with \type {dimensions}.
+
+The second alternative saves a few lookups and can be more convenient in some
+cases:
+
+\startfunctioncall
+<number> w, <number> h, <number> d  =
+    node.rangedimensions(<node> parent, <node> first)
+<number> w, <number> h, <number> d  =
+    node.rangedimensions(<node> parent, <node> first, <node> last)
+\stopfunctioncall
 
 \subsubsection{\type {node.mlist_to_hlist}}
 
@@ -1828,6 +1838,7 @@ this:
 \NC \type {count}                \NC \yes \NC \yes  \NC \NR
 \NC \type {current_attr}         \NC \yes \NC \yes  \NC \NR
 \NC \type {dimensions}           \NC \yes \NC \yes  \NC \NR
+\NC \type {rangedimensions}      \NC \yes \NC \yes  \NC \NR
 %NC \type {do_ligature_n}        \NC \yes \NC \yes  \NC \NR % was never documented and experimental
 \NC \type {effective_glue}       \NC \yes \NC \yes  \NC \NR
 \NC \type {end_of_math}          \NC \yes \NC \yes  \NC \NR

@@ -1,4 +1,4 @@
-$Id: README 41629 2016-07-04 22:11:23Z kakuto $
+$Id: README 41706 2016-07-14 23:09:40Z karl $
 Copyright 2006-2016 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -96,7 +96,7 @@ texlive - scripts maintained here, by us
 
 ttf2pk2 - maintained here, by us
 
-ttfdump - ?
+ttfdump - maintained here, by us, since Taiwan upstream apparently gone.
 
 upmendex 0.51 - by Takuji Tanaka
   http://www.ctan.org/pkg/upmendex

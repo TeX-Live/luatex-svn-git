@@ -77,6 +77,8 @@ The top|-|level keys in the table are as follows:
 \NC nomath           \NC no  \NC no  \NC yes \NC boolean\NC This key allows a minor speedup for text fonts. If it
                                                             is present and true, then \LUATEX\ will not check the
                                                             character entries for math|-|specific keys. \NC \NR
+\NC oldmath          \NC no  \NC no  \NC yes \NC boolean\NC This key flags a font as representing an old school \TEX\
+                                                            math font and disables the \OPENTYPE\ code path. \NC \NR
 \NC slant            \NC no  \NC no  \NC yes \NC number \NC This has the same semantics as the \type {SlantFont}
                                                             operator in font map files. \NC \NR
 \NC extent           \NC no  \NC no  \NC yes \NC number \NC This has the same semantics as the \type {ExtendFont}
