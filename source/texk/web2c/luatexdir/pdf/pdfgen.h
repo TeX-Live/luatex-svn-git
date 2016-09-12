@@ -43,10 +43,10 @@ be the first written bytes.
 
 */
 
-#  define inf_pdfout_buf_size   16384  /* initial value of |pdf->buf| size */
-#  define sup_pdfout_buf_size   16384  /* arbitrary upper hard limit of |pdf->buf| size */
-#  define inf_objstm_buf_size       1  /* initial value of |os->buf[OBJSTM_BUF]| size */
-#  define sup_objstm_buf_size 5000000  /* arbitrary upper hard limit of |os->buf[OBJSTM_BUF]| size */
+#  define inf_pdfout_buf_size     16384 /* initial value of |pdf->buf| size */
+#  define sup_pdfout_buf_size   8*16384 /* arbitrary upper hard limit of |pdf->buf| size */
+#  define inf_objstm_buf_size         1 /* initial value of |os->buf[OBJSTM_BUF]| size */
+#  define sup_objstm_buf_size   5000000 /* arbitrary upper hard limit of |os->buf[OBJSTM_BUF]| size */
 
 #  define PDF_OS_MAX_OBJS         100  /* maximum number of objects in object stream */
 
