@@ -27,8 +27,8 @@
 #  define PROCSET_IMAGE_C (1 << 3)
 #  define PROCSET_IMAGE_I (1 << 4)
 
-#  define inf_pdf_mem_size    10000 /* min size of the |mem| array */
-#  define sup_pdf_mem_size 10000000 /* max size of the |mem| array */
+#  define inf_pdf_mem_size     10000 /* min size of the |mem| array */
+#  define sup_pdf_mem_size 100000000 /* max size of the |mem| array */
 
 extern PDF static_pdf;
 
