@@ -469,7 +469,12 @@ math font Cambria, but were useful enough to be added.
 There are two extra math parameters \type {\Umathnolimitsupfactor} and \type
 {\Umathnolimitsubfactor} that were added to provide some control over how limits
 are spaced (for example the position of super and subscripts after integral
-operators). They relate to an extra parameter \type {\mathnolimitsmode}.
+operators). They relate to an extra parameter \type {\mathnolimitsmode}. The half
+corrections are what happens when scripts are placed on above and below. The
+problem with italic corrections is that officially that correction italic is used
+for above|/|below placement while advanced kerns are used for placement at the
+right end. The question is: how often is this implemented, and if so, does the
+kerns assume correction too. Anyway, with this parameter one can control it.
 
 \starttabulate[|l|ck1|ck1|ck1|ck1|ck1|ck1|]
     \NC
@@ -490,29 +495,30 @@ operators). They relate to an extra parameter \type {\mathnolimitsmode}.
         \NC \tttf 8000
     \NC \NR
     \NC \bf superscript
-        \NC +ic/2
+        \NC 0
         \NC font
         \NC 0
         \NC 0
-        \NC 0
+        \NC +ic/2
         \NC 0
     \NC \NR
     \NC \bf subscript
-        \NC -ic/2
+        \NC -ic
         \NC font
         \NC 0
         \NC -ic/2
-        \NC -ic
+        \NC -ic/2
         \NC 8000ic/1000
     \NC \NR
 \stoptabulate
 
 When the mode is set to one, the math parameters are used. This way a macro
 package writer can decide what looks best. Given the current state of fonts in
-\CONTEXT\ we currently use 0 for the superscript and 750 for the subscripts.
-Positive values are used for both parameters but the subscript shifts to the
-left. A \type {\mathnolimitsmode} larger that 15 is considered to be a factor
-for the subscript correction. This feature can be handy when experimenting.
+\CONTEXT\ we currently use mode 1 with factor 0 for the superscript and 750 for
+the subscripts. Positive values are used for both parameters but the subscript
+shifts to the left. A \type {\mathnolimitsmode} larger that 15 is considered to
+be a factor for the subscript correction. This feature can be handy when
+experimenting.
 
 \section{Math spacing setting}
 

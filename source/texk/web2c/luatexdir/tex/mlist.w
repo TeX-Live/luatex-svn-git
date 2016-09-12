@@ -2656,8 +2656,9 @@ static scaled make_op(pointer q, int cur_style)
                     math_character(nucleus(q)) = c;
                 }
                 delta = char_italic(cur_f, cur_c);
+printf("delta %i\n",delta);
                 x = clean_box(nucleus(q), cur_style, cur_style);
-                if (delta != null) {
+                if (delta != 0) {
                     if (do_new_math(cur_f)) {
                         /* we never added italic correction */
                     } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
@@ -2712,8 +2713,8 @@ static scaled make_op(pointer q, int cur_style)
                 */
                 switch (mode) {
                     case 0 :
-                        /* as with limits */
-                        make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
+                        /* full bottom correction */
+                        make_scripts(q, p, 0, cur_style, 0, -delta);
                         break;
                     case 1 :
                         /* MathConstants driven */
@@ -2723,22 +2724,21 @@ static scaled make_op(pointer q, int cur_style)
                     case 2 :
                         /* no correction */
                         make_scripts(q, p, 0, cur_style, 0, 0);
-                        break;
+                        break ;
                     case 3 :
                         /* half bottom correction */
                         make_scripts(q, p, 0, cur_style, 0, -half(delta));
                         break;
                     case 4 :
-                        /* full bottom correction */
-                        make_scripts(q, p, 0, cur_style, 0, -delta);
+                        /* half bottom and top correction */
+                        make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
                         break;
                     default :
-                        /* half bottom and top correction */
                         if (mode > 15) {
                             /* for quickly testing values */
                             make_scripts(q, p, 0, cur_style, 0, -round_xn_over_d(delta, mode, 1000));
                         } else {
-                            make_scripts(q, p, 0, cur_style, half(delta), -half(delta));
+                            make_scripts(q, p, 0, cur_style, 0, 0);
                         }
                         break;
                 }
