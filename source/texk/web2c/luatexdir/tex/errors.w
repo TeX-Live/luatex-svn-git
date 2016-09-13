@@ -240,6 +240,14 @@ convention is quite different.
 @c
 static const_string edit_value = EDITOR;
 
+#if defined(WIN32)
+static int
+Isspace (char c)
+{
+  return (c == ' ' || c == '\t');
+}
+#endif /* WIN32 */
+
 __attribute__ ((noreturn))
 static void luatex_calledit (int baseptr, int linenumber)
 {
