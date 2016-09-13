@@ -852,6 +852,17 @@ end
 This callback replaces the code that prints \LUATEX's when a file is closed like
 the \type {)} for regular files.
 
+\subsection{\type {call_edit}}
+
+\startfunctioncall
+function(filename,linenumber)
+end
+\stopfunctioncall
+
+This callback replaces the call to an external editor when \quote{E} is pressed 
+in reply to an error message. Processing will end immediately after the callback
+returns control to the main program.
+
 \section{PDF-related callbacks}
 
 \subsection{\type {finish_pdffile}}

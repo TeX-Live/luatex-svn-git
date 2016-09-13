@@ -61,10 +61,6 @@ const char *engine_name = my_name;     /* the name of this engine */
 #include <signal.h>             /* Catch interrupts.  */
 
 
-/* {tex,mf}d.h defines TeX, MF, INI, and other such symbols.
-   Unfortunately there's no way to get the banner into this code, so
-   just repeat the text.  */
-#define edit_var "TEXEDIT"
 
 /* Shell escape.
 
