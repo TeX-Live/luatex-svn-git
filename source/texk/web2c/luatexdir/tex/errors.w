@@ -485,7 +485,12 @@ void error(void)
                         tprint(" at line ");
                         print_int(line);
                         interaction = scroll_mode;
-                        luatex_calledit(base_ptr, line);
+                        if (kpse_init) {
+                            luatex_calledit(base_ptr, line);
+                        } else {
+                            tprint_nl("There is no valid callback defined.");
+                            jump_out(); /* should not be reached */
+                        }
                     }
                 }
                 break;
