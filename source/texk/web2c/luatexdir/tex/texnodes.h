@@ -720,6 +720,7 @@ typedef enum {
     set_origin = 0,
     direct_page,
     direct_always,
+    direct_raw,
     scan_special,
 } ctm_transform_modes;
 
