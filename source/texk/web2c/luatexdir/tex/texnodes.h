@@ -261,6 +261,10 @@ typedef enum {
     image_rule,
     empty_rule,
     user_rule,
+    math_over_rule,
+    math_under_rule,
+    math_fraction_rule,
+    math_radical_rule,
 } rule_subtypes;
 
 #  define rule_node_size       8
