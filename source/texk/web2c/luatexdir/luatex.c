@@ -28,10 +28,10 @@
 
 #define TeX
 
-int luatex_version = 98;        /* \.{\\luatexversion}  */
-int luatex_revision = '4';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2016090500;     /* the compile date is now hardwired */
-const char *luatex_version_string = "0.98.4";
+int luatex_version = 99;        /* \.{\\luatexversion}  */
+int luatex_revision = '0';      /* \.{\\luatexrevision}  */
+int luatex_date_info = 2016092100;     /* the compile date is now hardwired */
+const char *luatex_version_string = "0.99.0";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
