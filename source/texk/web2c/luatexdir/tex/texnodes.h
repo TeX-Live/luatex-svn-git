@@ -274,6 +274,9 @@ typedef enum {
 #  define synctex_tag_rule(a)  vinfo((a)+7)
 #  define synctex_line_rule(a) vlink((a)+7)
 
+#  define rule_math_size       rule_index
+#  define rule_math_font       rule_transform
+
 #  define mark_node_size   3
 #  define mark_ptr(a)      vlink((a)+2)
 #  define mark_class(a)    vinfo((a)+2)

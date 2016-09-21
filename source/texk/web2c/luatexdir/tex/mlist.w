@@ -983,8 +983,8 @@ static pointer do_fraction_rule(scaled t, pointer att, halfword some_rule, halfw
     pointer p;                  /* the new node */
     if (math_rules_mode_par) {
         p = new_rule(some_rule);
-        rule_index(p) = cur_size;
-        rule_transform(p) = cur_fam;
+        rule_math_size(p) = cur_size;
+        rule_math_font(p) = fam_fnt(cur_fam, cur_size);
     } else {
         p = new_rule(normal_rule);
     }
