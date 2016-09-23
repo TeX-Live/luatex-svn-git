@@ -1,0 +1,40 @@
+% macros=mkvi
+
+% \tex vs \type vs \syntax vs. \luatex
+% \em \it \/
+
+% "context --nodates --nocompression luatex" can be used for comparison
+% runs, not that we do it
+
+\environment luatex-style
+\environment luatex-logos
+
+\dontcomplain
+
+\startdocument
+  [version=0.99,
+   status=pre-release]
+
+\component luatex-titlepage
+
+\startfrontmatter
+    \component luatex-contents
+    \component luatex-introduction
+\stopfrontmatter
+
+\startbodymatter
+    \component luatex-enhancements
+    \component luatex-modifications
+    \component luatex-lua
+    \component luatex-languages
+    \component luatex-fonts
+    \component luatex-math
+    \component luatex-nodes
+    \component luatex-callbacks
+    \component luatex-tex
+    \component luatex-graphics
+    \component luatex-fontloader
+    \component luatex-backend
+\stopbodymatter
+
+\stopdocument
