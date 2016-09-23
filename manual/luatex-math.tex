@@ -38,6 +38,99 @@ be used as numeric values, so you can write code like this:
 \fi \fi
 \stoptyping
 
+Sometimes you won't get what you expect so a bit of explanation might help to
+understand what happens. When math is parsed and expanded it gets turned into a
+linked list. In a second pass the formula will be build. This has to do with the
+fact that in order to determine the automatically chosen sizes (in for instance
+fractions) following content can influence preceding sizes. A side effect of this
+is for instance that one cannot change the definition of a font family (and
+thereby reusing numbers) because the number that got used is stored and used in
+the second pass (so changing \type {\fam 12} mid|-|formula spoils over to
+preceding use of that family).
+
+The style switching primitives like \type {\textstyle} are turned into nodes so
+the styles set there are frozen. The \type {\mathchoice} primitive results in
+four lists being constructed of which one is used in the second pass. The fact
+that some automatic styles are not yet known also means that the \type
+{\mathstyle} primitive expands to the current style which can of course be
+different from the one really used. It's a snapshot of the first pass state. As a
+consequence in the following example you get a style number (first pass) typeset
+that can actually differ from the used style (second pass). In the case of a math
+choice used ungrouped, the chosen style is used after the choice too, unless you
+group.
+
+\startbuffer[1]
+    [a:\mathstyle]\quad
+    \bgroup
+    \mathchoice
+        {\bf \scriptstyle       (x:d :\mathstyle)}
+        {\bf \scriptscriptstyle (x:t :\mathstyle)}
+        {\bf \scriptscriptstyle (x:s :\mathstyle)}
+        {\bf \scriptscriptstyle (x:ss:\mathstyle)}
+    \egroup
+    \quad[b:\mathstyle]\quad
+    \mathchoice
+        {\bf \scriptstyle       (y:d :\mathstyle)}
+        {\bf \scriptscriptstyle (y:t :\mathstyle)}
+        {\bf \scriptscriptstyle (y:s :\mathstyle)}
+        {\bf \scriptscriptstyle (y:ss:\mathstyle)}
+    \quad[c:\mathstyle]\quad
+    \bgroup
+    \mathchoice
+        {\bf \scriptstyle       (z:d :\mathstyle)}
+        {\bf \scriptscriptstyle (z:t :\mathstyle)}
+        {\bf \scriptscriptstyle (z:s :\mathstyle)}
+        {\bf \scriptscriptstyle (z:ss:\mathstyle)}
+    \egroup
+    \quad[d:\mathstyle]
+\stopbuffer
+
+\startbuffer[2]
+    [a:\mathstyle]\quad
+    \begingroup
+    \mathchoice
+        {\bf \scriptstyle       (x:d :\mathstyle)}
+        {\bf \scriptscriptstyle (x:t :\mathstyle)}
+        {\bf \scriptscriptstyle (x:s :\mathstyle)}
+        {\bf \scriptscriptstyle (x:ss:\mathstyle)}
+    \endgroup
+    \quad[b:\mathstyle]\quad
+    \mathchoice
+        {\bf \scriptstyle       (y:d :\mathstyle)}
+        {\bf \scriptscriptstyle (y:t :\mathstyle)}
+        {\bf \scriptscriptstyle (y:s :\mathstyle)}
+        {\bf \scriptscriptstyle (y:ss:\mathstyle)}
+    \quad[c:\mathstyle]\quad
+    \begingroup
+    \mathchoice
+        {\bf \scriptstyle       (z:d :\mathstyle)}
+        {\bf \scriptscriptstyle (z:t :\mathstyle)}
+        {\bf \scriptscriptstyle (z:s :\mathstyle)}
+        {\bf \scriptscriptstyle (z:ss:\mathstyle)}
+    \endgroup
+    \quad[d:\mathstyle]
+\stopbuffer
+
+\typebuffer[1]
+
+% \typebuffer[2]
+
+This gives:
+
+\blank $\displaystyle \getbuffer[1]$ \blank
+\blank $\textstyle    \getbuffer[1]$ \blank
+
+Using \type {\begingroup} \unknown\ \type {\endgroup} instead gives:
+
+\blank $\displaystyle \getbuffer[2]$ \blank
+\blank $\textstyle    \getbuffer[2]$ \blank
+
+This might look wrong but it's just a side effect of \type {\mathstyle} expanding
+to the current (first pass) style and the number being injected in the list that
+gets converted in the second pass. It all makes sense and it illustrates the
+importance of grouping. In fact, the math choice style being effective afterwards
+has advantages. It would be hard to get it otherwise.
+
 \subsection{\type {\Ustack}}
 
 There are a few math commands in \TEX\ where the style that will be used is not
@@ -469,7 +562,12 @@ math font Cambria, but were useful enough to be added.
 There are two extra math parameters \type {\Umathnolimitsupfactor} and \type
 {\Umathnolimitsubfactor} that were added to provide some control over how limits
 are spaced (for example the position of super and subscripts after integral
-operators). They relate to an extra parameter \type {\mathnolimitsmode}.
+operators). They relate to an extra parameter \type {\mathnolimitsmode}. The half
+corrections are what happens when scripts are placed on above and below. The
+problem with italic corrections is that officially that correction italic is used
+for above|/|below placement while advanced kerns are used for placement at the
+right end. The question is: how often is this implemented, and if so, does the
+kerns assume correction too. Anyway, with this parameter one can control it.
 
 \starttabulate[|l|ck1|ck1|ck1|ck1|ck1|ck1|]
     \NC
@@ -490,29 +588,30 @@ operators). They relate to an extra parameter \type {\mathnolimitsmode}.
         \NC \tttf 8000
     \NC \NR
     \NC \bf superscript
-        \NC +ic/2
+        \NC 0
         \NC font
         \NC 0
         \NC 0
-        \NC 0
+        \NC +ic/2
         \NC 0
     \NC \NR
     \NC \bf subscript
-        \NC -ic/2
+        \NC -ic
         \NC font
         \NC 0
         \NC -ic/2
-        \NC -ic
+        \NC -ic/2
         \NC 8000ic/1000
     \NC \NR
 \stoptabulate
 
 When the mode is set to one, the math parameters are used. This way a macro
 package writer can decide what looks best. Given the current state of fonts in
-\CONTEXT\ we currently use 0 for the superscript and 750 for the subscripts.
-Positive values are used for both parameters but the subscript shifts to the
-left. A \type {\mathnolimitsmode} larger that 15 is considered to be a factor
-for the subscript correction. This feature can be handy when experimenting.
+\CONTEXT\ we currently use mode 1 with factor 0 for the superscript and 750 for
+the subscripts. Positive values are used for both parameters but the subscript
+shifts to the left. A \type {\mathnolimitsmode} larger that 15 is considered to
+be a factor for the subscript correction. This feature can be handy when
+experimenting.
 
 \section{Math spacing setting}
 

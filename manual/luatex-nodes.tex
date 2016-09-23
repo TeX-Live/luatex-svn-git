@@ -739,7 +739,12 @@ Possible mode values are:
 \NC 0           \NC setorigin              \NC \NR
 \NC 1           \NC page                   \NC \NR
 \NC 2           \NC direct                 \NC \NR
+\NC 3           \NC raw                    \NC \NR
 \stoptabulate
+
+The higher the number, the less checking and the more you can run into troubles.
+Especially the \type {raw} variant can produce bad \PDF\ so you can best check
+what you generate.
 
 \subsubsubsection{pdf_refobj whatsits}
 
