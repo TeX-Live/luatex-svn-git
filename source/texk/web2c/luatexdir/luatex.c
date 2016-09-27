@@ -31,7 +31,7 @@
 int luatex_version = 100;        /* \.{\\luatexversion}  */
 int luatex_revision = '0';      /* \.{\\luatexrevision}  */
 int luatex_date_info = 2016092700;     /* the compile date is now hardwired */
-const char *luatex_version_string = "1.0";
+const char *luatex_version_string = "1.0.0";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
