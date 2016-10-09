@@ -2662,7 +2662,6 @@ static scaled make_op(pointer q, int cur_style)
                     math_character(nucleus(q)) = c;
                 }
                 delta = char_italic(cur_f, cur_c);
-printf("delta %i\n",delta);
                 x = clean_box(nucleus(q), cur_style, cur_style);
                 if (delta != 0) {
                     if (do_new_math(cur_f)) {
