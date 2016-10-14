@@ -2263,8 +2263,11 @@ in a row.
 
 
 @ @<Put help message on the transcript file@>=
-if (mp->interaction > mp_batch_mode)
-  decr (mp->selector);          /* avoid terminal output */
+if (! mp->noninteractive) {
+    if (mp->interaction > mp_batch_mode) {
+        decr (mp->selector);          /* avoid terminal output */
+    }
+}
 if (mp->use_err_help) {
   mp_print_nl (mp, "");
   @<Print the string |err_help|, possibly on several lines@>;
@@ -2274,8 +2277,10 @@ if (mp->use_err_help) {
     mp_print_nl (mp, help_line[help_ptr]);
   };
   mp_print_ln (mp);
-  if (mp->interaction > mp_batch_mode)
-    incr (mp->selector);        /* re-enable terminal output */
+  if (! mp->noninteractive) {
+   if (mp->interaction > mp_batch_mode)
+     incr (mp->selector);        /* re-enable terminal output */
+  }
   mp_print_ln (mp);
 }
 
