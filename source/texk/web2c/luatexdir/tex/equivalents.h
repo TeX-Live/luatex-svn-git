@@ -292,9 +292,9 @@ the |number_regs| \.{\\dimen} registers.
 #  define mathoption_int_last (int_base+106)
 
 #  define backend_int_base (int_base+107)
-#  define backend_int_last (int_base+131)
+#  define backend_int_last (int_base+132)
 
-#  define tex_int_pars (132)                                            /* total number of integer parameters */
+#  define tex_int_pars (133)                                            /* total number of integer parameters */
 
 #  define page_direction_code (tex_int_pars)
 #  define body_direction_code (tex_int_pars+1)

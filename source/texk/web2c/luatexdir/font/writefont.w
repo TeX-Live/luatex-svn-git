@@ -569,8 +569,9 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
                 assert(0);
         }
     }
-    if (cidset != 0)
+    if ((! pdf->omit_cidset) && (cidset != 0)) {
         pdf_dict_add_ref(pdf, "CIDSet", cidset);
+    }
     /* TODO: Other optional keys for CID fonts.
        The most interesting one is
        \.{/Style << /Panose <12-byte string>>>}
