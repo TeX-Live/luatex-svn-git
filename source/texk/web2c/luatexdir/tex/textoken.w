@@ -2703,7 +2703,6 @@ void conv_toks(void)
             pop_selector;
             break;
         case normal_deviate_code:
-            scan_int();
             push_selector;
             print_int(norm_rand());
             pop_selector;
