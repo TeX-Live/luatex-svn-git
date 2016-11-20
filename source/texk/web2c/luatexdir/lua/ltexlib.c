@@ -2805,6 +2805,12 @@ static int tex_run_boot(lua_State * L)
         }
         zwclose(fmt_file);
     }
+    pdf_init_map_file("pdftex.map");
+    /* */
+    if (end_line_char_inactive)
+        decr(ilimit);
+    else
+        buffer[ilimit] = (packed_ASCII_code) end_line_char_par;
     fix_date_and_time();
     random_seed = (microseconds * 1000) + (epochseconds % 1000000);
     init_randoms(random_seed);
