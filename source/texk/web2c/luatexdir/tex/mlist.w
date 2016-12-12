@@ -4045,14 +4045,18 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                 math_glue_to_glue(q, cur_mu);
             } else if ((cur_size != text_size) && (subtype(q) == cond_math_glue)) {
                 p = vlink(q);
-                if (p != null)
-                    if ((type(p) == glue_node) || (type(p) == kern_node)) {
-                        couple_nodes(q,vlink(p));
-                        vlink(p) = null;
+         	if (p != null)
+                     if ((type(p) == glue_node) || (type(p) == kern_node)) {
+                       if (vlink(p) != null) {
+                            couple_nodes(q,vlink(p));
+                            vlink(p) = null;
+                        } else {
+                            vlink(q) = null;
+                        }
                         flush_node_list(p);
-                    }
+                     }
             }
-            goto DONE_WITH_NODE;
+	    goto DONE_WITH_NODE;
             break;
         case kern_node:
             math_kern(q, cur_mu);
