@@ -1,4 +1,4 @@
-$Id: README 42659 2016-12-09 08:53:51Z kakuto $
+$Id: README 42729 2016-12-16 23:22:23Z kakuto $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -18,7 +18,7 @@ freetype2 2.7.0 - checked 13sep16
 gd 2.1.1 - checked 14jan15
   https://bitbucket.org/libgd/gd-libgd/downloads/
 
-gmp 6.1.1 - checked 19jun16
+gmp 6.1.2 - checked 16dec16
   http://ftp.gnu.org/gnu/gmp/
 
 graphite2 1.3.9 - checked 13nov16
@@ -49,7 +49,7 @@ mpfr 3.1.5 - checked 28sep16
 pixman 0.34.0 - checked 04feb16
   http://cairographics.org/releases/
 
-poppler 0.49.0 - checked 15nov16
+poppler 0.50.0 - checked 16dec16
   http://poppler.freedesktop.org/ - used by luatex and xetex
 
 potrace 1.13 - checked 28dec15
