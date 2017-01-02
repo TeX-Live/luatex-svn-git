@@ -1778,6 +1778,7 @@ void math_fraction(void)
     halfword c;                 /* the type of generalized fraction we are scanning */
     pointer q;
     halfword options = 0;
+    halfword temp_value;
     c = cur_chr;
     if (incompleat_noad_par != null) {
         const char *hlp[] = {
@@ -1795,7 +1796,8 @@ void math_fraction(void)
         tex_error("Ambiguous; you need another { and }", hlp);
     } else {
         incompleat_noad_par = new_node(fraction_noad, 0);
-        numerator(incompleat_noad_par) = new_node(sub_mlist_node, 0);
+        temp_value = new_node(sub_mlist_node, 0);
+        numerator(incompleat_noad_par) = temp_value;
         math_list(numerator(incompleat_noad_par)) = vlink(head);
         vlink(head) = null;
         tail = head;
