@@ -2368,6 +2368,7 @@ static int tex_definefont(lua_State * L)
     return 0;
 }
 
+/*
 static int tex_hashpairs(lua_State * L)
 {
     int cmd, chr;
@@ -2384,8 +2385,8 @@ static int tex_hashpairs(lua_State * L)
             chr = equiv(cs);
             make_token_table(L, cmd, chr, cs);
             lua_rawset(L, -3);
+            cs++;
         }
-        cs++;
     }
     return 1;
 }
@@ -2447,6 +2448,88 @@ static int tex_extraprimitives(lua_State * L)
                 lua_pushstring(L, ss);
                 free(ss);
                 lua_rawseti(L, -2, i++);
+            }
+        }
+        cs++;
+    }
+    return 1;
+}
+
+*/
+
+static int tex_hashpairs(lua_State * L)
+{
+    str_number s = 0;
+    int cs = 1;
+    int nt = 0;
+    lua_newtable(L);
+    while (cs < hash_size) {
+        s = hash_text(cs);
+        if (s > 0) {
+            char *ss = makecstring(s);
+            lua_pushstring(L, ss);
+            free(ss);
+            lua_rawseti(L, -2, ++nt);
+        }
+        cs++;
+    }
+    return 1;
+}
+
+static int tex_primitives(lua_State * L)
+{
+    str_number s = 0;
+    int cs = 0;
+    int nt = 0;
+    lua_newtable(L);
+    while (cs < prim_size) {
+        s = get_prim_text(cs);
+        if (s > 0) {
+            char *ss = makecstring(s);
+            lua_pushstring(L, ss);
+            free(ss);
+            lua_rawseti(L, -2, ++nt);
+        }
+        cs++;
+    }
+    return 1;
+}
+
+static int tex_extraprimitives(lua_State * L)
+{
+    int n, i;
+    int mask = 0;
+    int cs = 0;
+    int nt = 0;
+    n = lua_gettop(L);
+    if (n == 0) {
+        mask = etex_command + luatex_command;
+    } else {
+        for (i = 1; i <= n; i++) {
+            if (lua_type(L,i) == LUA_TSTRING) {
+                const char *s = lua_tostring(L, i);
+                if (lua_key_eq(s,etex)) {
+                    mask |= etex_command;
+                } else if (lua_key_eq(s,tex)) {
+                    mask |= tex_command;
+                } else if (lua_key_eq(s,core)) {
+                    mask |= core_command;
+                } else if (lua_key_eq(s,luatex)) {
+                    mask |= luatex_command;
+                }
+            }
+        }
+    }
+    lua_newtable(L);
+    while (cs < prim_size) {
+        str_number s = 0;
+        s = get_prim_text(cs);
+        if (s > 0) {
+            if (get_prim_origin(cs) & mask) {
+                char *ss = makecstring(s);
+                lua_pushstring(L, ss);
+                free(ss);
+                lua_rawseti(L, -2, ++nt);
             }
         }
         cs++;

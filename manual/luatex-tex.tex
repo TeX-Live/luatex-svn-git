@@ -474,10 +474,6 @@ tex.everymath
 tex.everypar
 tex.everyvbox
 tex.output
-tex.pdfpageattr
-tex.pdfpageresources
-tex.pdfpagesattr
-tex.pdfpkmode
 \stoptyping
 \stopthreecolumns
 
@@ -494,16 +490,10 @@ tex.formatname
 tex.jobname
 tex.luatexbanner
 tex.luatexrevision
-tex.pdfnormaldeviate
 tex.fontname(number)
-tex.pdffontname(number)
-tex.pdffontobjnum(number)
-tex.pdffontsize(number)
 tex.uniformdeviate(number)
 tex.number(number)
 tex.romannumeral(number)
-tex.pdfpageref(number)
-tex.pdfxformname(number)
 tex.fontidentifier(number)
 \stoptyping
 \stoptwocolumns
@@ -530,15 +520,9 @@ tex.lastkern
 tex.lastskip
 tex.lastnodetype
 tex.inputlineno
-tex.pdflastobj
-tex.pdflastxform
-tex.pdflastximage
-tex.pdflastximagepages
-tex.pdflastannot
-tex.pdflastxpos
-tex.pdflastypos
-tex.pdfrandomseed
-tex.pdflastlink
+tex.lastxpos
+tex.lastypos
+tex.randomseed
 tex.luatexversion
 tex.eTeXminorversion
 tex.eTeXversion
@@ -547,7 +531,6 @@ tex.currentgrouptype
 tex.currentiflevel
 tex.currentiftype
 tex.currentifbranch
-tex.pdflastximagecolordepth
 \stoptyping
 \stopthreecolumns
 
@@ -919,8 +902,7 @@ The known fields are:
 \NC head        \NC node     \NC all       \NC the head of the current list \NC \NR
 \NC tail        \NC node     \NC all       \NC the tail of the current list \NC \NR
 \NC prevgraf    \NC number   \NC vmode     \NC number of lines in the previous paragraph \NC \NR
-\NC prevdepth   \NC number   \NC vmode     \NC depth of the previous paragraph (equal to \type {\pdfignoreddimen}
-                                               when it is to be ignored) \NC \NR
+\NC prevdepth   \NC number   \NC vmode     \NC depth of the previous paragraph \NC \NR
 \NC spacefactor \NC number   \NC hmode     \NC the current space factor \NC \NR
 \NC dirs        \NC node     \NC hmode     \NC used for temporary storage by the line break algorithm\NC \NR
 \NC noad        \NC node     \NC mmode     \NC used for temporary storage of a pending fraction numerator,
@@ -1164,11 +1146,12 @@ line of error help.
 for i,v in pairs (tex.hashtokens()) do ... end
 \stopfunctioncall
 
-Returns a name and token table pair (see~\in {section} [luatokens] about token
-tables) iterator for every non-zero entry in the hash table. This can be useful
-for debugging, but note that this also reports control sequences that may be
-unreachable at this moment due to local redefinitions: it is strictly a dump of
-the hash table.
+Returns a list of names. This can be useful for debugging, but note that this
+also reports control sequences that may be unreachable at this moment due to
+local redefinitions: it is strictly a dump of the hash table. You can use \type
+{token.create} to inspect properties, for instance when the \type {command} key
+in a created table equals \type {123}, you have the \type {cmdname} value \type
+{undefined_cs}.
 
 \subsection[luaprimitives]{Functions for dealing with primitives }
 
@@ -1257,7 +1240,7 @@ end
 \NC luatex  \NC \ctxlua{document.showprimitives('luatex') } \NC \NR
 \stoptabulate
 
-Note that \type {'luatex'} does not contain \type {directlua}, as that is
+Note that \type {luatex} does not contain \type {directlua}, as that is
 considered to be a core primitive, along with all the \TEX82 primitives, so it is
 part of the list that is returned from \type {'core'}.
 
@@ -1267,7 +1250,7 @@ part of the list that is returned from \type {'core'}.
 
 Running \type {tex.extraprimitives()} will give you the complete list of
 primitives \type {-ini} startup. It is exactly equivalent to \type
-{tex.extraprimitives('etex' and 'luatex')}.
+{tex.extraprimitives("etex","luatex")}.
 
 \subsubsection{\type {tex.primitives}}
 
@@ -1275,16 +1258,7 @@ primitives \type {-ini} startup. It is exactly equivalent to \type
 <table> t = tex.primitives()
 \stopfunctioncall
 
-This function returns a hash table listing all primitives that \LUATEX\ knows
-about. The keys in the hash are primitives names, the values are tables
-representing tokens (see~\in{section }[luatokens]). The third value is always
-zero.
-
-{\em In the beginning we had \type {omega} and \type {pdftex} subsets but in the
-meantime relevant primitives ave been promoted (either or not adapted) to the
-\type {luatex} set when found useful, or removed when considered to be of no use.
-Originally we had two sets of math definition primitives but the \OMEGA\ ones
-have been removed, so we no longer have a subset for math either.}
+This function returns a list of all primitives that \LUATEX\ knows about.
 
 \subsection{Core functionality interfaces}
 
