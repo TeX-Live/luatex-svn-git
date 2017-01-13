@@ -29,9 +29,9 @@
 #define TeX
 
 int luatex_version = 100;        /* \.{\\luatexversion}  */
-int luatex_revision = '1';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2016100514;     /* the compile date is now hardwired :YEAR MONTH DAY HOUR*/
-const char *luatex_version_string = "1.0.1";
+int luatex_revision = '2';      /* \.{\\luatexrevision}  */
+int luatex_date_info = 2017011800;     /* the compile date is now hardwired :YEAR MONTH DAY HOUR*/
+const char *luatex_version_string = "1.0.2";
 const char *engine_name = my_name;     /* the name of this engine */
 
 #include <kpathsea/c-ctype.h>
