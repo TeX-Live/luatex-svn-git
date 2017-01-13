@@ -354,9 +354,10 @@ void read_jpg_info(image_dict * idict)
                     char app_sig[32];
                     length = (int) read2bytes(fp);
                     if (length > 6) {
-                        if (fread(app_sig, sizeof(char), 4, fp) != 4)
+                        if (fread(app_sig, sizeof(char), 5, fp) != 5)
                             return;
-                        if (!memcmp(app_sig, "JFIF", 4)) {
+                        if (!memcmp(app_sig, "JFIF\000", 5)) {
+                            units = (int) read2bytes(fp);    /*skip two bytes, compiler is also happy*/
                             units = xgetc(fp);
                             img_xres(idict) = (int) read2bytes(fp);
                             img_yres(idict) = (int) read2bytes(fp);
