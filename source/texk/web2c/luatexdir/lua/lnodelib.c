@@ -618,7 +618,7 @@ static int lua_nodelib_getdiscretionary(lua_State * L)
     return 1;
 }
 
-/* getwhd */
+/* getwhd: only core nodes */
 
 static int lua_nodelib_direct_getwhd(lua_State * L)
 {
@@ -629,6 +629,11 @@ static int lua_nodelib_direct_getwhd(lua_State * L)
             lua_pushinteger(L, width(n));
             lua_pushinteger(L, height(n));
             lua_pushinteger(L, depth(n));
+            return 3;
+        } else if (t == glyph_node) {
+            lua_pushinteger(L, char_width(font(n),character(n)));
+            lua_pushinteger(L, char_height(font(n),character(n)));
+            lua_pushinteger(L, char_depth(font(n),character(n)));
             return 3;
         }
     }
@@ -644,6 +649,11 @@ static int lua_nodelib_getwhd(lua_State * L)
             lua_pushinteger(L,width(*n));
             lua_pushinteger(L,height(*n));
             lua_pushinteger(L,depth(*n));
+            return 3;
+        } else if (t == glyph_node) {
+            lua_pushinteger(L, char_width(font(*n),character(*n)));
+            lua_pushinteger(L, char_height(font(*n),character(*n)));
+            lua_pushinteger(L, char_depth(font(*n),character(*n)));
             return 3;
         }
     }
