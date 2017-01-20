@@ -618,6 +618,67 @@ static int lua_nodelib_getdiscretionary(lua_State * L)
     return 1;
 }
 
+/* getwhd */
+
+static int lua_nodelib_direct_getwhd(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if (n != null) {
+        halfword t = type(n);
+        if ((t == hlist_node) || (t == vlist_node) || (t == rule_node)) {
+            lua_pushinteger(L, width(n));
+            lua_pushinteger(L, height(n));
+            lua_pushinteger(L, depth(n));
+            return 3;
+        }
+    }
+    return 0;
+}
+
+static int lua_nodelib_getwhd(lua_State * L)
+{
+    halfword *n = lua_touserdata(L, 1);
+    if (n != NULL) {
+        halfword t = type(*n);
+        if ((t == hlist_node) || (t == vlist_node) || (t == rule_node)) {
+            lua_pushinteger(L,width(*n));
+            lua_pushinteger(L,height(*n));
+            lua_pushinteger(L,depth(*n));
+            return 3;
+        }
+    }
+    return 0;
+}
+
+static int lua_nodelib_direct_setwhd(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if (n != null) {
+        halfword t = type(n);
+        if ((t == hlist_node) || (t == vlist_node) || (t == rule_node)) {
+            int t = lua_gettop(L) ;
+            if (t > 1) {
+                width(n) = (halfword) lua_roundnumber(L, 2);
+                if (t > 2) {
+                    height(n) = (halfword) lua_roundnumber(L, 3);
+                    if (t > 3) {
+                        depth(n) = (halfword) lua_roundnumber(L, 4);
+                    } else {
+                        depth(n) = 0;
+                    }
+                } else {
+                    height(n) = 0;
+                    depth(n) = 0;
+                }
+            } else {
+                width(n) = 0;
+                height(n) = 0;
+                depth(n) = 0;
+            }
+        }
+    }
+    return 0;
+}
 
 /* node.getlist */
 
@@ -6109,7 +6170,6 @@ static int lua_nodelib_direct_setdiscretionary(lua_State * L)
     return 0;
 }
 
-
 static int lua_nodelib_direct_setfield(lua_State * L)
 {
     const char *s;
@@ -7047,6 +7107,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"getbox", lua_nodelib_direct_getbox},
     {"getchar", lua_nodelib_direct_getcharacter},
     {"getdisc", lua_nodelib_direct_getdiscretionary},
+    {"getwhd", lua_nodelib_direct_getwhd},
     {"getfield", lua_nodelib_direct_getfield},
     {"getfont", lua_nodelib_direct_getfont},
     {"getid", lua_nodelib_direct_getid},
@@ -7085,6 +7146,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"setfield", lua_nodelib_direct_setfield},
     {"setchar", lua_nodelib_direct_setcharacter},
     {"setdisc", lua_nodelib_direct_setdiscretionary},
+    {"setwhd", lua_nodelib_direct_setwhd},
     {"setnext", lua_nodelib_direct_setnext},
     {"setprev", lua_nodelib_direct_setprev},
     {"setboth", lua_nodelib_direct_setboth},
@@ -7146,6 +7208,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"getprev", lua_nodelib_getprev},
     {"getboth", lua_nodelib_getboth},
     {"getdisc", lua_nodelib_getdiscretionary},
+    {"getwhd", lua_nodelib_getwhd},
     {"getlist", lua_nodelib_getlist},
     {"getleader", lua_nodelib_getleader},
     {"getid", lua_nodelib_getid},
