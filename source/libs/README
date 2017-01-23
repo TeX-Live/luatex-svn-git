@@ -1,4 +1,4 @@
-$Id: README 42879 2017-01-06 05:18:37Z kakuto $
+$Id: README 42987 2017-01-18 23:13:46Z kakuto $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -15,7 +15,7 @@ cairo 1.14.8 - checked 09dec16
 freetype2 2.7.1 - checked 30dec16
   http://savannah.nongnu.org/download/freetype/
 
-gd 2.2.3 - checked 23dec16
+gd 2.2.4 - checked 18jan17
   https://github.com/libgd/libgd/releases
 
 gmp 6.1.2 - checked 16dec16
@@ -49,7 +49,7 @@ mpfr 3.1.5 - checked 28sep16
 pixman 0.34.0 - checked 04feb16
   http://cairographics.org/releases/
 
-poppler 0.50.0 - checked 16dec16
+poppler 0.51.0 - checked 15jan17
   http://poppler.freedesktop.org/ - used by luatex and xetex
 
 potrace 1.13 - checked 28dec15
@@ -62,7 +62,7 @@ xpdf 3.04 - checked 28may14
   ftp://ftp.foolabs.com/pub/xpdf/
   with modifications for pdftex
 
-zlib 1.2.10 - checked 03jan17
+zlib 1.2.11 - checked 15jan17
   http://www.zlib.net/ - used by many
 
 zziplib 0.13.62 - checked 31mar16
