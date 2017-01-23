@@ -128,6 +128,16 @@ static unsigned int read_exif_bytes(unsigned char **p, int n, int b)
     return rval;
 }
 
+@ The Exif block can contain the data on the resolution in two forms:
+XResolution, YResolution and ResolutionUnit (tag 282, 283 and 296)
+as well as PixelPerUnitX, PixelPerUnitY and PixelUnit (tag 0x5111,
+0x5112 and 0x5110). Tags 282, 293 and 296 have the priority,
+with ResolutionUnit set to inch by default, then 
+tag 0x5110, 0x5111 and 0x5112, where the only valid value for PixelUnit is 0.0254,
+and finally the given value xx and yy, 
+choosen if the Exif x and y resolution are not strictly positive.
+
+
 @ @c
 static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy, int *or)
 {
@@ -139,10 +149,23 @@ static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy, i
     char bigendian;
     int i;
     int num_fields, tag, type;
-    int value = 0, num = 0, den = 0; /* silence uninitialized warnings */
-    double xres = 72.0;
-    double yres = 72.0;
+    int value = 0;/* silence uninitialized warnings */
+    unsigned int num = 0;
+    unsigned int den = 0;
+    boolean found_x = false;
+    boolean found_y = false;
+    int tempx = 0;
+    int tempy = 0;
+    double xres = 0;
+    double yres = 0;
     double res_unit = 1.0;
+    unsigned int xres_ms = 0;
+    unsigned int yres_ms = 0;
+    double res_unit_ms = 0;
+    boolean found_x_ms = false;
+    boolean found_y_ms = false;
+    boolean found_res= false;
+
     int orientation = 1;
     size_t ret_len;
     ret_len = fread(buffer, length, 1, fp);
@@ -204,12 +227,16 @@ static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy, i
                 orientation = value;
                 break;
             case 282: /* x res */
-                if (den != 0)
+                if (den != 0) {
                     xres = num / den;
+                    found_x = true;
+		}
                 break;
             case 283: /* y res */
-                if (den != 0)
+                if (den != 0) {
                     yres = num / den;
+                    found_y = true ;
+		}
                 break;
             case 296: /* res unit */
                 switch (value) {
@@ -219,13 +246,56 @@ static void read_APP1_Exif (FILE *fp, unsigned short length, int *xx, int *yy, i
                     case 3:
                         res_unit = 2.54;
                         break;
+                    default:
+                        res_unit = 0;
+                        break;
                 }
-        }
+	   case 0x5110: /* PixelUnit */
+	        switch (value) {
+                    case 1:
+		        res_unit_ms = 0.0254; /* Unit is meter */
+			break;
+		    default:
+  		        res_unit_ms = 0; 
+		}
+	   case 0x5111: /* PixelPerUnitX */
+                found_x_ms = true ;
+	   	xres_ms = value;
+		break;
+	   case 0x5112: /* PixelPerUnitY */
+                found_y_ms = true ;
+		yres_ms = value ;
+		break;
+           }
+
+
+    }    
+    if (found_x && found_y && res_unit>0) {
+     found_res = true; 
+     tempx = (int)(xres * res_unit+0.5);
+     tempy = (int)(yres * res_unit+0.5);
+    } else if (found_x_ms && found_y_ms && res_unit_ms==0.0254) {
+     found_res = true; 
+     tempx = (int)(xres_ms * res_unit_ms+0.5);
+     tempy = (int)(yres_ms * res_unit_ms+0.5);
+    }
+    if (found_res) {
+      if (tempx>0 && tempy>0) {
+       if (tempx!=(*xx) || tempy!=(*yy) && (*xx!=0 && (*yy!=0) )  ) {
+        formatted_warning("readjpg","Exif resolution  %ddpi x %ddpi differs from the input resolution %ddpi x %ddpi",tempx,tempy,*xx,*yy);
+       }
+       if (tempx==1 || tempy==1) {
+        formatted_warning("readjpg","Exif resolution %ddpi x %ddpi looks weird", tempx, tempy);
+       }
+       *xx = tempx;
+       *yy = tempy;
+     }else {
+       formatted_warning("readjpg","Bad Exif resolution  %ddpi x %ddpi (zero or negative value of a signed integer)",tempx,tempy);
+     }
     }
 
-    *xx = (int)(xres * res_unit);
-    *yy = (int)(yres * res_unit);
     *or = orientation;
+
 err:
     free(buffer);
     return;
