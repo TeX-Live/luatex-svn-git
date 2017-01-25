@@ -2432,9 +2432,34 @@ void after_math(void)
         }
         tail_append(new_math(math_surround_par, before));
         /* begin mathskip code */
-        if (! glue_is_zero(math_skip_par)) {
-            copy_glue_values(tail,math_skip_par);
-            surround(tail) = 0;
+        switch (math_skip_mode) {
+            case 0 :
+                /* obey mathsurround when zero glue */
+                if (! glue_is_zero(math_skip_par)) {
+                    copy_glue_values(tail,math_skip_par);
+                    surround(tail) = 0;
+                }
+                break ;
+            case 1 :
+                /* always left */
+            case 3 :
+                /* always both */
+            case 6 :
+                /* only when skip */
+                copy_glue_values(tail,math_skip_par);
+                surround(tail) = 0;
+                break ;
+            case 2 :
+                /* only right */
+                surround(tail) = 0;
+                break ;
+            case 4 :
+                /* ignore, obey marthsurround */
+                break ;
+            case 5:
+                /* all spacing disabled */
+                surround(tail) = 0;
+                break ;
         }
         /* end mathskip code */
         if (dir_math_save) {
@@ -2451,9 +2476,34 @@ void after_math(void)
         dir_math_save = false;
         tail_append(new_math(math_surround_par, after));
         /* begin mathskip code */
-        if (! glue_is_zero(math_skip_par)) {
-            copy_glue_values(tail,math_skip_par);
-            surround(tail) = 0;
+        switch (math_skip_mode) {
+            case 0 :
+                /* obey mathsurround when zero glue */
+                if (! glue_is_zero(math_skip_par)) {
+                    copy_glue_values(tail,math_skip_par);
+                    surround(tail) = 0;
+                }
+                break ;
+            case 2 :
+                /* always right */
+            case 3 :
+                /* always both */
+            case 6 :
+                /* only when skip */
+                copy_glue_values(tail,math_skip_par);
+                surround(tail) = 0;
+                break ;
+            case 1 :
+                /* only left */
+                surround(tail) = 0;
+                break ;
+            case 4 :
+                /* ignore, obey marthsurround */
+                break ;
+            case 5:
+                /* all spacing disabled */
+                surround(tail) = 0;
+                break ;
         }
         /* end mathskip code */
         space_factor_par = 1000;

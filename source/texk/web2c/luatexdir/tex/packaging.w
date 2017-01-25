@@ -605,6 +605,35 @@ expansion is being used.
 @c
 int font_expand_ratio = 0;  /* current expansion ratio, needed for recursive call */
 
+int ignore_math_skip(halfword p)
+{
+    if (math_skip_mode == 6) {
+        if (subtype(p) == after) {
+            if (math_skip_boundary(vlink(p))) {
+                return 0;
+            }
+        } else {
+            if (math_skip_boundary(alink(p))) {
+                return 0;
+            }
+        }
+    } else if (math_skip_mode == 7) {
+        if (subtype(p) == after) {
+            if (! math_skip_boundary(vlink(p))) {
+                return 0;
+            }
+        } else {
+            if (! math_skip_boundary(alink(p))) {
+                return 0;
+            }
+        }
+    } else {
+        return 0;
+    }
+    reset_glue_to_zero(p);
+    return 1;
+}
+
 halfword hpack(halfword p, scaled w, int m, int pack_direction)
 {
     halfword r;                 /* the box node that will be returned */
@@ -744,6 +773,15 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                         d = depth(p);
                     break;
                 /* */
+                case math_node:
+                    /* begin mathskip code */
+                    if (glue_is_zero(p) || ignore_math_skip(p)) {
+                        x += surround(p);
+                        break;
+                    } else {
+                        /* fall through */
+                    }
+                    /* end mathskip code */
                 case glue_node:
                     /* Incorporate glue into the horizontal totals */
                     x += width(p);
@@ -802,15 +840,6 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                             hpack_dir = dir_dir(dir_ptr1);
                     }
                     break;
-                case math_node:
-                    /* begin mathskip code */
-                    if (glue_is_zero(p)) {
-                        x += surround(p);
-                        break;
-                    } else {
-                        /* fall through: mathskip */
-                    }
-                    /* end mathskip code */
                 case margin_kern_node:
                     if (m == cal_expand_ratio) {
                         int f = font(margin_char(p));
@@ -1187,11 +1216,11 @@ scaled_whd natural_sizes(halfword p, halfword pp, glue_ratio g_mult,
                 /* */
                 case math_node:
                     /* begin mathskip code */
-                    if (glue_is_zero(p)) {
+                    if (glue_is_zero(p) || ignore_math_skip(p)) {
                         siz.wd += surround(p);
                         break;
                     } else {
-                        /* fall through: mathskip */
+                        /* fall through */
                     }
                     /* end mathskip code */
                 case glue_node:

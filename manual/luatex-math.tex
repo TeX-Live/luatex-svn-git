@@ -1018,7 +1018,57 @@ Inline math is surrounded by (optional) \type {\mathsurround} spacing but that i
 dimension. There is now an additional parameter \type {\mathsurroundskip}. When set to a
 non|-|zero value (or zero with some stretch or shrink) this parameter will replace
 \type {\mathsurround}. By using an additional parameter instead of changing the nature
-of \type {\mathsurround}, we can remain compatible.
+of \type {\mathsurround}, we can remain compatible. In the meantime a bit more
+control has been added via \type {\mathsurroundmode}. This directive can take 6 values
+with zero being the default behaviour.
+
+\start
+
+\def\OneLiner#1#2%
+  {\NC #1
+%    \NC \ruledhbox{\mathsurroundmode#1\relax\hsize 100pt   x$x$x}
+%    \NC \ruledhbox{\mathsurroundmode#1\relax\hsize 100pt x $x$ x}
+   \NC \dontleavehmode\inframed[align=normal,offset=0pt,frame=off]{\mathsurroundmode#1\relax\hsize 100pt   x$x$x}
+   \NC \dontleavehmode\inframed[align=normal,offset=0pt,frame=off]{\mathsurroundmode#1\relax\hsize 100pt x $x$ x}
+   \NC #2
+   \NC \NR}
+
+\startbuffer
+\mathsurround    10pt
+\mathsurroundskip20pt
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\starttabulate[|Tc|c|c|pl|]
+\HL
+\BC mode \BC \type {x$x$x} \BC \type {x $x$ x} \BC effect \NC \NR
+\HL
+\OneLiner{0}{obey \type {\mathsurround} when \type {\mathsurroundskip} is 0pt}
+\OneLiner{1}{only add skip to the left}
+\OneLiner{2}{only add skip to the right}
+\OneLiner{3}{add skip to the left and right}
+\OneLiner{4}{ignore the skip setting, obey \type {\mathsurround}}
+\OneLiner{5}{disable all spacing around math}
+\OneLiner{6}{only apply \type {\mathsurroundskip} when also spacing}
+\OneLiner{7}{only apply \type {\mathsurroundskip} when no spacing}
+\HL
+\stoptabulate
+
+\stop
+
+Method six omits the surround glue when there is (x)spacing glue present while
+method seven does the opposite, the glue is only applied when there is (x)space
+glue present too. Anything more fance, like checking the begining or end of a
+paragraph (or edges of a box) would not be robust anyway. If you want that you
+can write a callback that runs over a list and analyzes a paragraph. Actually, in
+that case you could also inject glue (or set the properties of a math node)
+explicitly. So, these modes are in practice mostly useful for special purposes
+and experiments (they originate in a tracker item). Keep in mind that this glue
+is part of the math node and not always treated as normal glue: it travels with
+the begin and end math nodes. Also, method 6 and 7 will zero the skip related
+fields in a node when applicable in the first occasion that checks them
+(linebreaking or packaging).
 
 % \section{Math todo}
 %
