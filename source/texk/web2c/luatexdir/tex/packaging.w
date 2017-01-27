@@ -191,12 +191,10 @@ others are \.{\\vcenter}, \.{\\valign}, and \.{\\halign}).
 
 void scan_full_spec(group_code c, int spec_direction, int just_pack)
 {
-    int s;
-    int i;
-    int v;
-    int spec_code;
+    int s, i, v, spec_code;
     boolean done = false ;
     halfword attr_list;
+    boolean attr_done = false ;
     if (attr_list_cache == cache_disabled)
         update_attribute_cache();
     attr_list = attr_list_cache;
@@ -227,9 +225,9 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         scan_optional_equals();
         scan_int();
         v = cur_val;
-        if ((attr_list != null) && (attr_list == attr_list_cache)) {
+        if (! attr_done) {
             attr_list = copy_attribute_list(attr_list_cache);
-            add_node_attr_ref(attr_list); /* will be used once */
+            attr_done = true;
         }
         attr_list = do_set_attribute(attr_list, i, v);
         goto CONTINUE;
@@ -238,9 +236,6 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         scan_direction();
         spec_direction = cur_val;
         goto CONTINUE;
-    }
-    if (attr_list == attr_list_cache) {
-        add_node_attr_ref(attr_list);
     }
     if (scan_keyword("to")) {
         spec_code = exactly;
@@ -256,9 +251,9 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
   QUICK:
     spec_code = additional;
     cur_val = 0;
-    add_node_attr_ref(attr_list);
     done = true;
   FOUND:
+    add_node_attr_ref(attr_list);
     set_saved_record(0, saved_boxcontext, 0, s);
     set_saved_record(1, saved_boxspec, spec_code, cur_val);
     /* DIR: Adjust |text_dir_ptr| for |scan_spec| */
@@ -280,6 +275,7 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
     eq_word_define(int_base + par_direction_code, spec_direction);
     eq_word_define(int_base + text_direction_code, spec_direction);
 }
+
 
 @ To figure out the glue setting, |hpack| and |vpack| determine how much
 stretchability and shrinkability are present, considering all four orders of

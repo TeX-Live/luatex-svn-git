@@ -1426,7 +1426,6 @@ static int lua_nodelib_copy_list(lua_State * L)
     m = do_copy_node_list(n, s);
     lua_nodelib_push_fast(L,m);
     return 1;
-
 }
 
 /* node.direct.copy_list */
@@ -6771,7 +6770,6 @@ static int lua_nodelib_direct_setbox(lua_State * L)
             luaL_error(L, "setbox: incompatible node type (%s)\n",get_node_name(type(j), subtype(j)));
             return 0;
         }
-
     }
     save_global_defs = global_defs_par;
     if (isglobal) {

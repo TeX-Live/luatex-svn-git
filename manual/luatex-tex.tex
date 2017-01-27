@@ -197,9 +197,7 @@ writable as well as readable (stuff like \type {\tracingcommands} and
 
 For all the parameters in this section, it is possible to access them directly
 using their names as index in the \type {tex} table, or by using one of the
-functions \type {tex.get} and \type {tex.set}. If you created aliasses,
-you can use accessors like \type {tex.getdimen} as these also understand
-names of built|-|in variables.
+functions \type {tex.get} and \type {tex.set}.
 
 The exact parameters and return values differ depending on the actual parameter,
 and so does whether \type {tex.set} has any effect. For the parameters that {\it
@@ -210,6 +208,16 @@ can\/} be set, it is possible to use \type {global} as the first argument to
 tex.set (["global",] <string> n, ...)
 ... = tex.get (<string> n)
 \stopfunctioncall
+
+Glue is kind of special because there are five values involved. The return value
+is a \type {glue_spec} node btu when you pass \type {false} as last argument to
+\type {tex.get} you get the width of the glue and when you pass \type {true} you
+get all five values. Otherwise you get a node which is a copy of the internal
+value so you are responsible for its freeing at the \LUA\ end. When you set a
+glue quantity you can either pass a \type {glue_spec} or upto five numbers.
+
+For the registers you can use \type {getskip} (node), \type {getglue} (numbers)
+\type {setskip} (node) and \type {setglue} (numbers).
 
 There are also dedicated setters, getters and checkers:
 
