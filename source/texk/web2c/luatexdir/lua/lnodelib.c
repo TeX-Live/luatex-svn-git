@@ -2548,7 +2548,13 @@ static int lua_nodelib_get_glue(lua_State * L)
 {
     halfword n = *check_isnode(L, 1);
     if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node || type(n) == math_node)) {
+        int b = -1; /* false: only width, true or unset: 5 values */
+        if (lua_gettop(L) == 2) {
+            b = lua_toboolean(L, 2);
+        }
         lua_pushinteger(L,width(n));
+        if (b == 0)
+            return 1;
         lua_pushinteger(L,stretch(n));
         lua_pushinteger(L,shrink(n));
         lua_pushinteger(L,stretch_order(n));
@@ -2563,12 +2569,20 @@ static int lua_nodelib_direct_get_glue(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
     if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node || type(n) == math_node)) {
+        int b = -1;
+        if (lua_gettop(L) == 2) {
+            b = lua_toboolean(L, 2);
+        }
         lua_pushinteger(L,width(n));
-        lua_pushinteger(L,stretch(n));
-        lua_pushinteger(L,shrink(n));
-        lua_pushinteger(L,stretch_order(n));
-        lua_pushinteger(L,shrink_order(n));
-        return 5;
+        if (b == 0) {
+            return 1;
+        } else {
+            lua_pushinteger(L,stretch(n));
+            lua_pushinteger(L,shrink(n));
+            lua_pushinteger(L,stretch_order(n));
+            lua_pushinteger(L,shrink_order(n));
+            return 5;
+        }
     } else {
         return luaL_error(L, "glue (spec) expected");
     }

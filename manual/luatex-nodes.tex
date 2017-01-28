@@ -1618,6 +1618,9 @@ The next call will return 5 values (or northing when no glue is passed).
     <integer> shrink_order = node.getglue(<node> n)
 \stopfunctioncall
 
+When the second argument is false, only the width is returned (this is consistent
+with \type {tex.get}).
+
 \subsubsection{\type {node.is_zero_glue}}
 
 This function returns \type {true} when the width, stretch and shrink properties

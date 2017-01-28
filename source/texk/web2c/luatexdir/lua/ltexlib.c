@@ -920,15 +920,25 @@ static int setglue(lua_State * L)
 static int getglue(lua_State * L)
 {
     int value = 0;
-    get_item_index_plus(L, lua_gettop(L), skip_base, "skip", value, is_glue_assign, get_tex_skip_register, true);
+    int top = lua_gettop(L);
+    int b = -1; /* false: only width, true or unset: 5 values */
+    if (lua_type(L, top) == LUA_TBOOLEAN) {
+        b = lua_toboolean(L, top);
+        top -= 1 ;
+    }
+    get_item_index_plus(L, top, skip_base, "skip", value, is_glue_assign, get_tex_skip_register, true);
     if (value == null) {
         lua_pushinteger(L,0);
+        if (b == 0)
+            return 1;
         lua_pushinteger(L,0);
         lua_pushinteger(L,0);
         lua_pushinteger(L,0);
         lua_pushinteger(L,0);
     } else {
         lua_pushinteger(L,width(value));
+        if (b == 0)
+            return 1;
         lua_pushinteger(L,stretch(value));
         lua_pushinteger(L,shrink(value));
         lua_pushinteger(L,stretch_order(value));
