@@ -620,21 +620,36 @@ static int lua_nodelib_getdiscretionary(lua_State * L)
 
 /* getwhd: only core nodes */
 
+#define push_list_whd(n) \
+    lua_pushinteger(L, width(n));  \
+    lua_pushinteger(L, height(n)); \
+    lua_pushinteger(L, depth(n));  \
+
+#define push_char_whd(n) \
+    lua_pushinteger(L, char_width(font(n),character(n)));  \
+    lua_pushinteger(L, char_height(font(n),character(n))); \
+    lua_pushinteger(L, char_depth(font(n),character(n)));  \
+
 static int lua_nodelib_direct_getwhd(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
     if (n != null) {
         halfword t = type(n);
-        if ((t == hlist_node) || (t == vlist_node) || (t == rule_node)) {
-            lua_pushinteger(L, width(n));
-            lua_pushinteger(L, height(n));
-            lua_pushinteger(L, depth(n));
+        if ((t == hlist_node) || (t == vlist_node) || (t == rule_node) || (t == unset_node)) {
+            push_list_whd(n);
             return 3;
         } else if (t == glyph_node) {
-            lua_pushinteger(L, char_width(font(n),character(n)));
-            lua_pushinteger(L, char_height(font(n),character(n)));
-            lua_pushinteger(L, char_depth(font(n),character(n)));
+            push_char_whd(n);
             return 3;
+        } else if (t == glue_node) {
+            halfword l = leader_ptr(n);
+            if (l != null) {
+                t = type(l) ;
+                if ((t == hlist_node) || (t == vlist_node) || (t == rule_node)) {
+                    push_list_whd(l);
+                    return 3;
+                }
+            }
         }
     }
     return 0;
@@ -645,16 +660,21 @@ static int lua_nodelib_getwhd(lua_State * L)
     halfword *n = lua_touserdata(L, 1);
     if (n != NULL) {
         halfword t = type(*n);
-        if ((t == hlist_node) || (t == vlist_node) || (t == rule_node)) {
-            lua_pushinteger(L,width(*n));
-            lua_pushinteger(L,height(*n));
-            lua_pushinteger(L,depth(*n));
+        if ((t == hlist_node) || (t == vlist_node) || (t == rule_node) || (t == unset_node)) {
+            push_list_whd(*n);
             return 3;
         } else if (t == glyph_node) {
-            lua_pushinteger(L, char_width(font(*n),character(*n)));
-            lua_pushinteger(L, char_height(font(*n),character(*n)));
-            lua_pushinteger(L, char_depth(font(*n),character(*n)));
+            push_char_whd(*n);
             return 3;
+        } else if (t == glue_node) {
+            halfword l = leader_ptr(*n);
+            if (l != null) {
+                t = type(l) ;
+                if ((t == hlist_node) || (t == vlist_node) || (t == rule_node)) {
+                    push_list_whd(l);
+                    return 3;
+                }
+            }
         }
     }
     return 0;
@@ -665,7 +685,15 @@ static int lua_nodelib_direct_setwhd(lua_State * L)
     halfword n = lua_tointeger(L, 1);
     if (n != null) {
         halfword t = type(n);
-        if ((t == hlist_node) || (t == vlist_node) || (t == rule_node)) {
+        if (t == glue_node) {
+            n = leader_ptr(n);
+            if (n == null) {
+                return 0;
+            } else {
+                t = type(n);
+            }
+        }
+        if ((t == hlist_node) || (t == vlist_node) || (t == rule_node) || (t == unset_node)) {
             int t = lua_gettop(L) ;
             if (t > 1) {
                 width(n) = (halfword) lua_roundnumber(L, 2);

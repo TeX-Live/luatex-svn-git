@@ -1810,7 +1810,7 @@ If performance matters you can use an function instead:
 \NC getfont    \NC used a lot in \OPENTYPE\ handling (glyph nodes are consulted a lot) \NC \NR
 \NC getchar    \NC idem and also in other places \NC \NR
 \NC getwhd     \NC returns the \type {width}, \type {height} and \type {depth} of a list, rule or
-                   (unexpanded) glyph \NC \NR
+                   (unexpanded) glyph as well as glue (its spec is looked at) and unset nodes\NC \NR
 \NC getdisc    \NC returns the \type {pre}, \type {post} and \type {replace} fields and
                    optionally when true is passed also the tail fields. \NC \NR
 \NC getlist    \NC we often parse nested lists so this is a convenient one too
