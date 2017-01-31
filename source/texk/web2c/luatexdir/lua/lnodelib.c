@@ -2366,7 +2366,7 @@ static int lua_nodelib_find_attribute(lua_State * L) /* returns attr value and n
                             break;
                         } else {
                             lua_pushinteger(L,ret);
-                            lua_nodelib_push_fast(L, p);
+                            lua_nodelib_push_fast(L, c  );
                             return 2;
                         }
                     } else if (attribute_id(p) > i) {
@@ -2435,7 +2435,7 @@ static int lua_nodelib_direct_find_attribute(lua_State * L) /* returns attr valu
                             break;
                         } else {
                             lua_pushinteger(L,ret);
-                            lua_pushinteger(L,p);
+                            lua_pushinteger(L,c);
                             return 2;
                         }
                     } else if (attribute_id(p) > i) {
