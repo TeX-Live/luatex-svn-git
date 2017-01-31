@@ -4065,7 +4065,8 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         if (! nodetype_has_attributes(t)) {
             lua_pushnil(L);
         } else {
-            nodelib_pushattr(L, node_attr(n));
+         /* nodelib_pushattr(L, node_attr(n)); */
+            lua_pushinteger(L, node_attr(n));
         }
     } else if (t == glyph_node) {
         if (lua_key_eq(s, font)) {
@@ -6262,7 +6263,8 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         alink(n) = x;
     } else if (lua_key_eq(s, attr)) {
         if (nodetype_has_attributes(type(n))) {
-            nodelib_setattr(L, 3, n);
+         /* nodelib_setattr(L, 3, n); */
+            reassign_attribute(n,lua_tointeger(L, 3));
         }
     } else if (t == glyph_node) {
         if (lua_key_eq(s, subtype)) {
