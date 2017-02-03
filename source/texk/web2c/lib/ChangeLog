@@ -1,3 +1,17 @@
+2017-02-01  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* texmfmp.c: Avoid a crash in xelatex for
+	http://tug.org/pipermail/xetex/2017-January/026975.html.
+	It is not a fix but a stopgap.
+
+2017-01-02  Akira Kakuto  <kakuto@fuk.kinidai.ac.jp>
+
+	* printversion.c: 2016 ---> 2017.
+
+2016-11-14  Hironori Kitagawa  <h_kitagawa2001@yahoo.co.jp>
+
+	* texmfmp.c: Change a condition to support new primitives in e(u)ptex.
+
 2016-06-12  Karl Berry  <karl@freefriends.org>
 
 	* texmfmp.c (get_date_and_time):

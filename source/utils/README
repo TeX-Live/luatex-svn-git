@@ -1,4 +1,4 @@
-$Id: README 41077 2016-05-12 23:14:19Z karl $
+$Id: README 42657 2016-12-09 07:19:10Z kakuto $
 Public domain.  Originally written 2005 by Karl Berry.
 
 Extra utilities we (optionally) compile for TeX Live.
@@ -21,7 +21,7 @@ lacheck - maintained here, by us
 m-tx 0.62 - checked 10feb16
   http://ctan.org/pkg/m-tx/
 
-pmx 2.7.4 - checked 13may16
+pmx 2.7.6 - checked 09dec16
   http://ctan.org/pkg/pmx/
 
 ps2eps 1.68 - checked 10may12

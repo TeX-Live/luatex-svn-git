@@ -28,6 +28,7 @@
 // Copyright (C) 2013 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2013 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2015 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2016 Marek Kasik <mkasik@redhat.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -2013,6 +2014,12 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr, OutputDev *out, GfxState
     }
   }
   obj2.free();
+  if (altA->getNComps() != nCompsA) {
+      error(errSyntaxWarning, -1, "Bad ICCBased color space - N doesn't match alt color space");
+      delete altA;
+      obj1.free();
+      return NULL;
+  }
   cs = new GfxICCBasedColorSpace(nCompsA, altA, &iccProfileStreamA);
   if (dict->lookup("Range", &obj2)->isArray() &&
       obj2.arrayGetLength() == 2 * nCompsA) {
@@ -2044,7 +2051,12 @@ GfxColorSpace *GfxICCBasedColorSpace::parse(Array *arr, OutputDev *out, GfxState
     error(errSyntaxWarning, -1, "read ICCBased color space profile error");
   } else {
     cmsHPROFILE dhp = (state != NULL && state->getDisplayProfile() != NULL) ? state->getDisplayProfile() : displayProfile;
-    if (dhp == NULL) dhp = RGBProfile;
+    if (dhp == NULL) {
+      if (unlikely(RGBProfile == NULL)) {
+        GfxColorSpace::setupColorProfiles();
+      }
+      dhp = RGBProfile;
+    }
     unsigned int cst = getCMSColorSpaceType(cmsGetColorSpace(hp));
     unsigned int dNChannels = getCMSNChannels(cmsGetColorSpace(dhp));
     unsigned int dcst = getCMSColorSpaceType(cmsGetColorSpace(dhp));

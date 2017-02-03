@@ -231,6 +231,40 @@ indicate a start or end. You can omit the last set from the test by setting
 \NC 3 \NC strict start and strict end \NC \NR
 \stoptabulate
 
+The word start is determined as follows:
+
+\starttabulate[|Bl|l|]
+\NC boundary  \NC yes when wordboundary \NC \NR
+\NC hlist     \NC when hyphenationbounds 1 or 3 \NC \NR
+\NC vlist     \NC when hyphenationbounds 1 or 3 \NC \NR
+\NC rule      \NC when hyphenationbounds 1 or 3 \NC \NR
+\NC dir       \NC when hyphenationbounds 1 or 3 \NC \NR
+\NC whatsit   \NC when hyphenationbounds 1 or 3 \NC \NR
+\NC glue      \NC yes \NC \NR
+\NC math      \NC skipped \NC \NR
+\NC glyph     \NC exhyphenchar (one only) : yes (so no -- ---) \NC \NR
+\NC otherwise \NC yes \NC \NR
+\stoptabulate
+
+The word end is determined as follows:
+
+\starttabulate[|Bl|l|]
+\NC boundary  \NC yes \NC \NR
+\NC glyph     \NC yes when different language \NC \NR
+\NC glue      \NC yes \NC \NR
+\NC penalty   \NC yes \NC \NR
+\NC kern      \NC yes when not italic (for some historic reason) \NC \NR
+\NC hlist     \NC when hyphenationbounds 2 or 3 \NC \NR
+\NC vlist     \NC when hyphenationbounds 2 or 3 \NC \NR
+\NC rule      \NC when hyphenationbounds 2 or 3 \NC \NR
+\NC dir       \NC when hyphenationbounds 2 or 3 \NC \NR
+\NC whatsit   \NC when hyphenationbounds 2 or 3 \NC \NR
+\NC ins       \NC when hyphenationbounds 2 or 3 \NC \NR
+\NC adjust    \NC when hyphenationbounds 2 or 3 \NC \NR
+\stoptabulate
+
+(Future versions of \LUATEX\ might provide more granularity.)
+
 \section{The main control loop}
 
 In \LUATEX's main loop, almost all input characters that are to be typeset are

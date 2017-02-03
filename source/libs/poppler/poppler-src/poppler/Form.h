@@ -98,6 +98,7 @@ public:
   double getFontSize() const;
 
   GooString *getPartialName() const;
+  void setPartialName(const GooString &name);
   GooString *getAlternateUiName() const;
   GooString *getMappingName() const;
   GooString *getFullyQualifiedName();
@@ -167,8 +168,8 @@ public:
   void updateWidgetAppearance();
 
 protected:
+  FormFieldButton *parent() const;
   GooString *onStr;
-  FormFieldButton *parent;
 };
 
 //------------------------------------------------------------------------
@@ -197,7 +198,7 @@ public:
   bool isRichText () const;
   int getMaxLen () const;
 protected:
-  FormFieldText *parent;
+  FormFieldText *parent() const;
 };
 
 //------------------------------------------------------------------------
@@ -238,7 +239,7 @@ public:
   bool isListBox () const;
 protected:
   bool _checkRange (int i);
-  FormFieldChoice *parent;
+  FormFieldChoice *parent() const;
 };
 
 //------------------------------------------------------------------------
@@ -251,9 +252,6 @@ public:
   void updateWidgetAppearance();
 
   SignatureInfo *validateSignature(bool doVerifyCert, bool forceRevalidation);
-
-protected:
-  FormFieldSignature *parent;
 };
 
 //------------------------------------------------------------------------
@@ -282,6 +280,7 @@ public:
   VariableTextQuadding getTextQuadding() const { return quadding; }
 
   GooString *getPartialName() const { return partialName; }
+  void setPartialName(const GooString &name);
   GooString *getAlternateUiName() const { return alternateUiName; }
   GooString *getMappingName() const { return mappingName; }
   GooString *getFullyQualifiedName();

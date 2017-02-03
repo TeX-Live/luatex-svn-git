@@ -78,6 +78,8 @@ most still comes from the original. But we divert a bit.
     page is shipped out) or when \PDF\ output is enabled, the \type {true}
     specification is ignored. When you preload a plain format adapted to
     \LUATEX\ it can be that the \type {\mag} parameter already has been set.
+\stopitem
+
 \stopitemize
 
 \stopsubsection
@@ -615,6 +617,7 @@ The configuration related registers have become:
 \edef\pdfinclusionerrorlevel      {\pdfvariable inclusionerrorlevel}
 \edef\pdfignoreunknownimages      {\pdfvariable ignoreunknownimages}
 \edef\pdfgentounicode             {\pdfvariable gentounicode}
+\edef\pdfomitcidset               {\pdfvariable omitcidset}
 \edef\pdfpagebox                  {\pdfvariable pagebox}
 \edef\pdfminorversion             {\pdfvariable minorversion}
 \edef\pdfuniqueresname            {\pdfvariable uniqueresname}
@@ -674,6 +677,7 @@ the defaults; these are:
 \pdfinclusionerrorlevel   0
 \pdfignoreunknownimages   0
 \pdfgentounicode          0
+\pdfomitcidset            0
 \pdfpagebox               0
 \pdfminorversion          4
 \pdfuniqueresname         0
@@ -783,7 +787,7 @@ that can be passed to the extensions.
 
 \starttexsyntax
 \pdfextension literal
-    [ direct | page ] { tokens }
+    [ direct | page | raw ] { tokens }
 \stoptexsyntax
 
 \starttexsyntax

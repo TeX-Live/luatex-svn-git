@@ -449,6 +449,25 @@ we have four cases (three are only called when there is a need for it).
 Just before the \type {box} related call we have a callout to the \type
 {append_to_vlist_filter}. These callbacks do not replace any internal code.
 
+\subsection{\type {build_page_insert}}
+
+This callback is called when the pagebuilder adds an insert. There is not much
+control over this mechanism but this callback permits some last minute
+manipulations of the spacing before an insert, something that might be handy when
+for instance multiple inserts (types) are appended in a row.
+
+\starttabulate[|lT|p|]
+\NC \rmbf value     \NC \bf explanation \NC \NR
+\NC n \NC the insert class              \NC \NR
+\NC i \NC the order of the insert       \NC \NR
+\stoptabulate
+
+The return value is a number indicating the skip register to use for the
+prepended spacing. This permits for instance a different top space (when \type
+{i} equals one) and intermediate space (when \type {i} is larger than one). Of course
+you can mess with the insert box but you need to make sure that \LUATEX\ is happy
+afterwards.
+
 \subsection{\type {pre_linebreak_filter}}
 
 This callback is called just before \LUATEX\ starts converting a list of nodes
@@ -859,7 +878,7 @@ function(filename,linenumber)
 end
 \stopfunctioncall
 
-This callback replaces the call to an external editor when \quote{E} is pressed 
+This callback replaces the call to an external editor when \quote{E} is pressed
 in reply to an error message. Processing will end immediately after the callback
 returns control to the main program.
 

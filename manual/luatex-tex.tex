@@ -197,9 +197,7 @@ writable as well as readable (stuff like \type {\tracingcommands} and
 
 For all the parameters in this section, it is possible to access them directly
 using their names as index in the \type {tex} table, or by using one of the
-functions \type {tex.get} and \type {tex.set}. If you created aliasses,
-you can use accessors like \type {tex.getdimen} as these also understand
-names of built|-|in variables.
+functions \type {tex.get} and \type {tex.set}.
 
 The exact parameters and return values differ depending on the actual parameter,
 and so does whether \type {tex.set} has any effect. For the parameters that {\it
@@ -210,6 +208,16 @@ can\/} be set, it is possible to use \type {global} as the first argument to
 tex.set (["global",] <string> n, ...)
 ... = tex.get (<string> n)
 \stopfunctioncall
+
+Glue is kind of special because there are five values involved. The return value
+is a \type {glue_spec} node btu when you pass \type {false} as last argument to
+\type {tex.get} you get the width of the glue and when you pass \type {true} you
+get all five values. Otherwise you get a node which is a copy of the internal
+value so you are responsible for its freeing at the \LUA\ end. When you set a
+glue quantity you can either pass a \type {glue_spec} or upto five numbers.
+
+For the registers you can use \type {getskip} (node), \type {getglue} (numbers)
+\type {setskip} (node) and \type {setglue} (numbers).
 
 There are also dedicated setters, getters and checkers:
 
@@ -474,10 +482,6 @@ tex.everymath
 tex.everypar
 tex.everyvbox
 tex.output
-tex.pdfpageattr
-tex.pdfpageresources
-tex.pdfpagesattr
-tex.pdfpkmode
 \stoptyping
 \stopthreecolumns
 
@@ -494,16 +498,10 @@ tex.formatname
 tex.jobname
 tex.luatexbanner
 tex.luatexrevision
-tex.pdfnormaldeviate
 tex.fontname(number)
-tex.pdffontname(number)
-tex.pdffontobjnum(number)
-tex.pdffontsize(number)
 tex.uniformdeviate(number)
 tex.number(number)
 tex.romannumeral(number)
-tex.pdfpageref(number)
-tex.pdfxformname(number)
 tex.fontidentifier(number)
 \stoptyping
 \stoptwocolumns
@@ -530,15 +528,9 @@ tex.lastkern
 tex.lastskip
 tex.lastnodetype
 tex.inputlineno
-tex.pdflastobj
-tex.pdflastxform
-tex.pdflastximage
-tex.pdflastximagepages
-tex.pdflastannot
-tex.pdflastxpos
-tex.pdflastypos
-tex.pdfrandomseed
-tex.pdflastlink
+tex.lastxpos
+tex.lastypos
+tex.randomseed
 tex.luatexversion
 tex.eTeXminorversion
 tex.eTeXversion
@@ -547,7 +539,6 @@ tex.currentgrouptype
 tex.currentiflevel
 tex.currentiftype
 tex.currentifbranch
-tex.pdflastximagecolordepth
 \stoptyping
 \stopthreecolumns
 
@@ -919,8 +910,7 @@ The known fields are:
 \NC head        \NC node     \NC all       \NC the head of the current list \NC \NR
 \NC tail        \NC node     \NC all       \NC the tail of the current list \NC \NR
 \NC prevgraf    \NC number   \NC vmode     \NC number of lines in the previous paragraph \NC \NR
-\NC prevdepth   \NC number   \NC vmode     \NC depth of the previous paragraph (equal to \type {\pdfignoreddimen}
-                                               when it is to be ignored) \NC \NR
+\NC prevdepth   \NC number   \NC vmode     \NC depth of the previous paragraph \NC \NR
 \NC spacefactor \NC number   \NC hmode     \NC the current space factor \NC \NR
 \NC dirs        \NC node     \NC hmode     \NC used for temporary storage by the line break algorithm\NC \NR
 \NC noad        \NC node     \NC mmode     \NC used for temporary storage of a pending fraction numerator,
@@ -1164,11 +1154,12 @@ line of error help.
 for i,v in pairs (tex.hashtokens()) do ... end
 \stopfunctioncall
 
-Returns a name and token table pair (see~\in {section} [luatokens] about token
-tables) iterator for every non-zero entry in the hash table. This can be useful
-for debugging, but note that this also reports control sequences that may be
-unreachable at this moment due to local redefinitions: it is strictly a dump of
-the hash table.
+Returns a list of names. This can be useful for debugging, but note that this
+also reports control sequences that may be unreachable at this moment due to
+local redefinitions: it is strictly a dump of the hash table. You can use \type
+{token.create} to inspect properties, for instance when the \type {command} key
+in a created table equals \type {123}, you have the \type {cmdname} value \type
+{undefined_cs}.
 
 \subsection[luaprimitives]{Functions for dealing with primitives }
 
@@ -1257,7 +1248,7 @@ end
 \NC luatex  \NC \ctxlua{document.showprimitives('luatex') } \NC \NR
 \stoptabulate
 
-Note that \type {'luatex'} does not contain \type {directlua}, as that is
+Note that \type {luatex} does not contain \type {directlua}, as that is
 considered to be a core primitive, along with all the \TEX82 primitives, so it is
 part of the list that is returned from \type {'core'}.
 
@@ -1267,7 +1258,7 @@ part of the list that is returned from \type {'core'}.
 
 Running \type {tex.extraprimitives()} will give you the complete list of
 primitives \type {-ini} startup. It is exactly equivalent to \type
-{tex.extraprimitives('etex' and 'luatex')}.
+{tex.extraprimitives("etex","luatex")}.
 
 \subsubsection{\type {tex.primitives}}
 
@@ -1275,16 +1266,7 @@ primitives \type {-ini} startup. It is exactly equivalent to \type
 <table> t = tex.primitives()
 \stopfunctioncall
 
-This function returns a hash table listing all primitives that \LUATEX\ knows
-about. The keys in the hash are primitives names, the values are tables
-representing tokens (see~\in{section }[luatokens]). The third value is always
-zero.
-
-{\em In the beginning we had \type {omega} and \type {pdftex} subsets but in the
-meantime relevant primitives ave been promoted (either or not adapted) to the
-\type {luatex} set when found useful, or removed when considered to be of no use.
-Originally we had two sets of math definition primitives but the \OMEGA\ ones
-have been removed, so we no longer have a subset for math either.}
+This function returns a list of all primitives that \LUATEX\ knows about.
 
 \subsection{Core functionality interfaces}
 
@@ -1475,11 +1457,10 @@ values from \type {texmf.cnf} are used.
 
 \section{The \type {texio} library}
 
-This library takes care of the low|-|level I/O interface.
+This library takes care of the low|-|level I/O interface: writing to the log file
+and|/|or console.
 
-\subsection{Printing functions}
-
-\subsubsection{\type {texio.write}}
+\subsection{\type {texio.write}}
 
 \startfunctioncall
 texio.write(<string> target, <string> s, ...)
@@ -1496,7 +1477,7 @@ Note: If several strings are given, and if the first of these strings is or migh
 be one of the targets above, the \type {target} must be specified explicitly to
 prevent \LUA\ from interpreting the first string as the target.
 
-\subsubsection{\type {texio.write_nl}}
+\subsection{\type {texio.write_nl}}
 
 \startfunctioncall
 texio.write_nl(<string> target, <string> s, ...)
@@ -1507,12 +1488,14 @@ This function behaves like \type {texio.write}, but make sure that the given
 strings will appear at the beginning of a new line. You can pass a single empty
 string if you only want to move to the next line.
 
-\subsubsection{\type {texio.setescape}}
+\subsection{\type {texio.setescape}}
 
 You can disable \type {^^} escaping of control characters by passing a value of
 zero.
 
 \section{The \type {token} library}
+
+\subsection{The scanner}
 
 The token library provides means to intercept the input and deal with it at the
 \LUA\ level. The library provides a basic scanner infrastructure that can be used
@@ -1669,11 +1652,7 @@ do) this effect should not be overestimated. For numbers and dimensions it saves
 bit but for passing strings conversion to and from tokens has to be done anyway
 (although we can probably speed up the process in later versions if needed).
 
-When the interface is stable and has replaced the old one completely we will add
-some more information here. By that time the internals have been cleaned up a bit
-more so we know then what will stay and go. A positive side effect of this
-transition is that we can simplify the input part because we no longer need to
-intercept using callbacks.
+\subsection{Macros}
 
 The \type {set_macro} function can get upto 4 arguments:
 
@@ -1699,6 +1678,8 @@ The results are like:
  \def\csname{}
 \stoptyping
 
+\subsection{Pushing back}
+
 There is a (for now) experimental putter:
 
 \starttyping
@@ -1714,6 +1695,94 @@ token.put_next ( t3, t4 )
 
 When we scan \type {wxyz!} we get \type {yzwx!} back. The argument is either a table
 with tokens or a list of tokens.
+
+\subsection{Nota bene}
+
+When scanning for the next token you need to keep in mind that we're not scanning
+like \TEX\ does: expanding, changing modes and doing things as it goes. When we
+scan with \LUA\ we just pick up tokens. Say that we have:
+
+\starttyping
+\bar
+\stoptyping
+
+but \type {\bar} is undefined. Normally \TEX\ will then issue an error message.
+However, when we have:
+
+\starttyping
+\def\foo{\bar}
+\stoptyping
+
+We get no error, unless we expand \type {\foo} while \type {\bar} is still
+undefined. What happens is that as soon as \TEX\ sees an undefined macro it will
+create a hash entry and when later it gets defined that entry will be reused. So,
+\type {\bar} really exists but can be in an undefined state.
+
+\startbuffer[demo]
+bar        : \directlua{tex.print(token.scan_csname())}\bar
+foo        : \directlua{tex.print(token.scan_csname())}\foo
+myfirstbar : \directlua{tex.print(token.scan_csname())}\myfirstbar
+\stopbuffer
+
+\startlines
+\getbuffer[demo]
+\stoplines
+
+This was entered as:
+
+\typebuffer[demo]
+
+The reason that you see \type {bar} reported and not \type {myfirstbar} is that
+\type {\bar} was already used in a previous paragraph.
+
+If we now say:
+
+\startbuffer
+\def\foo{}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+we get:
+
+\startlines
+\getbuffer[demo]
+\stoplines
+
+And if we say
+
+\startbuffer
+\def\foo{\bar}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+we get:
+
+\startlines
+\getbuffer[demo]
+\stoplines
+
+When scanning from \LUA\ we are not in a mode that defines (undefined) macros at
+all. There we just get the real primitive undefined macro token.
+
+\startbuffer
+\directlua{local t = token.get_next() tex.print(t.id.." "..t.tok)}\myfirstbar
+\directlua{local t = token.get_next() tex.print(t.id.." "..t.tok)}\mysecondbar
+\directlua{local t = token.get_next() tex.print(t.id.." "..t.tok)}\mythirdbar
+\stopbuffer
+
+\startlines
+\getbuffer
+\stoplines
+
+This was generated with:
+
+\typebuffer
+
+So, we do get a unique token because after all we need some kind of \LUA\ object
+that can be used and garbage collected, but it is basically the same one,
+representing an undefined control sequence.
 
 \section{The \type {kpse} library}
 

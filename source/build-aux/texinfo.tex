@@ -3,7 +3,7 @@
 % Load plain if necessary, i.e., if running under initex.
 \expandafter\ifx\csname fmtname\endcsname\relax\input plain\fi
 %
-\def\texinfoversion{2016-08-16.20}
+\def\texinfoversion{2017-01-14.15}
 %
 % Copyright 1985, 1986, 1988, 1990, 1991, 1992, 1993, 1994, 1995,
 % 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
@@ -164,6 +164,9 @@
 
 % Give the space character the catcode for a space.
 \def\spaceisspace{\catcode`\ =10\relax}
+
+% Likewise for ^^M, the end of line character.
+\def\endlineisspace{\catcode13=10\relax}
 
 \chardef\dashChar  = `\-
 \chardef\slashChar = `\/
@@ -862,36 +865,6 @@ where each line of input produces a line of output.}
   \temp
 }
 
-% @| inserts a changebar to the left of the current line.  It should
-% surround any changed text.  This approach does *not* work if the
-% change spans more than two lines of output.  To handle that, we would
-% have adopt a much more difficult approach (putting marks into the main
-% vertical list for the beginning and end of each change).  This command
-% is not documented, not supported, and doesn't work.
-%
-\def\|{%
-  % \vadjust can only be used in horizontal mode.
-  \leavevmode
-  %
-  % Append this vertical mode material after the current line in the output.
-  \vadjust{%
-    % We want to insert a rule with the height and depth of the current
-    % leading; that is exactly what \strutbox is supposed to record.
-    \vskip-\baselineskip
-    %
-    % \vadjust-items are inserted at the left edge of the type.  So
-    % the \llap here moves out into the left-hand margin.
-    \llap{%
-      %
-      % For a thicker or thinner bar, change the `1pt'.
-      \vrule height\baselineskip width1pt
-      %
-      % This is the space between the bar and the text.
-      \hskip 12pt
-    }%
-  }%
-}
-
 % @include FILE -- \input text of FILE.
 %
 \def\include{\parseargusing\filenamecatcodes\includezzz}
@@ -980,21 +953,14 @@ where each line of input produces a line of output.}
 % @comment ...line which is ignored...
 % @c is the same as @comment
 % @ignore ... @end ignore  is another way to write a comment
-%
-\def\comment{\begingroup \catcode`\^^M=\active%
-\catcode`\@=\other \catcode`\{=\other \catcode`\}=\other\commentxxx}%
 
-{\catcode`\^^M=\active%
-\gdef\commentxxx#1^^M{\endgroup%
-\futurelet\nexttoken\commentxxxx}%
-\gdef\commentxxxx{\ifx\nexttoken\aftermacro\expandafter\comment\fi}%
-}
 
 \def\c{\begingroup \catcode`\^^M=\active%
 \catcode`\@=\other \catcode`\{=\other \catcode`\}=\other%
 \cxxx}
 {\catcode`\^^M=\active \gdef\cxxx#1^^M{\endgroup}}
-% See comment in \scanmacro about why the definitions of @c and @comment differ
+%
+\let\comment\c
 
 % @paragraphindent NCHARS
 % We'll use ems for NCHARS, close enough.
@@ -1885,40 +1851,9 @@ output) for that.)}
   }
 \fi
 
+
+%
 \message{fonts,}
-
-% Change the current font style to #1, remembering it in \curfontstyle.
-% For now, we do not accumulate font styles: @b{@i{foo}} prints foo in
-% italics, not bold italics.
-%
-\def\setfontstyle#1{%
-  \def\curfontstyle{#1}% not as a control sequence, because we are \edef'd.
-  \csname ten#1\endcsname  % change the current font
-}
-
-% Select #1 fonts with the current style.
-%
-\def\selectfonts#1{\csname #1fonts\endcsname \csname\curfontstyle\endcsname}
-
-\def\rm{\fam=0 \setfontstyle{rm}}
-\def\it{\fam=\itfam \setfontstyle{it}}
-\def\sl{\fam=\slfam \setfontstyle{sl}}
-\def\bf{\fam=\bffam \setfontstyle{bf}}\def\bfstylename{bf}
-\def\tt{\fam=\ttfam \setfontstyle{tt}}
-
-% Unfortunately, we have to override this for titles and the like, since
-% in those cases "rm" is bold.  Sigh.
-\def\rmisbold{\rm\def\curfontstyle{bf}}
-
-% Texinfo sort of supports the sans serif font style, which plain TeX does not.
-% So we set up a \sf.
-\newfam\sffam
-\def\sf{\fam=\sffam \setfontstyle{sf}}
-\let\li = \sf % Sometimes we call it \li, not \sf.
-
-% We don't need math for this font style.
-\def\ttsl{\setfontstyle{ttsl}}
-
 
 % Set the baselineskip to #1, and the lineskip and strut size
 % correspondingly.  There is no deep meaning behind these magic numbers
@@ -2269,8 +2204,8 @@ end
 \setfont\deftt\ttshape{10}{\magstep1}{OT1TT}
 \setfont\defsl\slshape{10}{\magstep1}{OT1TT}
 \setfont\defttsl\ttslshape{10}{\magstep1}{OT1TT}
-\def\df{\let\tentt=\deftt \let\tenbf = \defbf
-\let\tenttsl=\defttsl \let\tensl=\defsl \bf}
+\def\df{\let\ttfont=\deftt \let\bffont = \defbf
+\let\ttslfont=\defttsl \let\slfont=\defsl \bf}
 
 % Fonts for indices, footnotes, small examples (9pt).
 \def\smallnominalsize{9pt}
@@ -2357,7 +2292,7 @@ end
 \font\ssecsy=cmsy10 scaled 1315
 \def\ssececsize{1200}
 
-% Reduced fonts for @acro in text (10pt).
+% Reduced fonts for @acronym in text (10pt).
 \def\reducednominalsize{10pt}
 \setfont\reducedrm\rmshape{10}{1000}{OT1}
 \setfont\reducedtt\ttshape{10}{1000}{OT1TT}
@@ -2403,8 +2338,8 @@ end
 \setfont\deftt\ttshape{10}{\magstephalf}{OT1TT}
 \setfont\defsl\slshape{10}{\magstephalf}{OT1TT}
 \setfont\defttsl\ttslshape{10}{\magstephalf}{OT1TT}
-\def\df{\let\tentt=\deftt \let\tenbf = \defbf
-\let\tensl=\defsl \let\tenttsl=\defttsl \bf}
+\def\df{\let\ttfont=\deftt \let\bffont = \defbf
+\let\slfont=\defsl \let\ttslfont=\defttsl \bf}
 
 % Fonts for indices, footnotes, small examples (9pt).
 \def\smallnominalsize{9pt}
@@ -2490,7 +2425,7 @@ end
 \font\ssecsy=cmsy10
 \def\ssececsize{1000}
 
-% Reduced fonts for @acro in text (9pt).
+% Reduced fonts for @acronym in text (9pt).
 \def\reducednominalsize{9pt}
 \setfont\reducedrm\rmshape{9}{1000}{OT1}
 \setfont\reducedtt\ttshape{9}{1000}{OT1TT}
@@ -2509,6 +2444,12 @@ end
 \textfonts            % reset the current fonts
 \rm
 } % end of 10pt text font size definitions, \definetextfontsizex
+
+% Fonts for short table of contents.
+\setfont\shortcontrm\rmshape{12}{1000}{OT1}
+\setfont\shortcontbf\bfshape{10}{\magstep1}{OT1}  % no cmb12
+\setfont\shortcontsl\slshape{12}{1000}{OT1}
+\setfont\shortconttt\ttshape{12}{1000}{OT1TT}
 
 
 % We provide the user-level command
@@ -2536,20 +2477,47 @@ end
  \endgroup
 }
 
+%
+% Change the current font style to #1, remembering it in \curfontstyle.
+% For now, we do not accumulate font styles: @b{@i{foo}} prints foo in
+% italics, not bold italics.
+%
+\def\setfontstyle#1{%
+  \def\curfontstyle{#1}% not as a control sequence, because we are \edef'd.
+  \csname #1font\endcsname  % change the current font
+}
+
+\def\rm{\fam=0 \setfontstyle{rm}}
+\def\it{\fam=\itfam \setfontstyle{it}}
+\def\sl{\fam=\slfam \setfontstyle{sl}}
+\def\bf{\fam=\bffam \setfontstyle{bf}}\def\bfstylename{bf}
+\def\tt{\fam=\ttfam \setfontstyle{tt}}
+
+% Texinfo sort of supports the sans serif font style, which plain TeX does not.
+% So we set up a \sf.
+\newfam\sffam
+\def\sf{\fam=\sffam \setfontstyle{sf}}
+
+% We don't need math for this font style.
+\def\ttsl{\setfontstyle{ttsl}}
+
+
 % In order for the font changes to affect most math symbols and letters,
 % we have to define the \textfont of the standard families.  We don't
 % bother to reset \scriptfont and \scriptscriptfont; awaiting user need.
 %
 \def\resetmathfonts{%
-  \textfont0=\tenrm \textfont1=\teni \textfont2=\tensy
-  \textfont\itfam=\tenit \textfont\slfam=\tensl \textfont\bffam=\tenbf
-  \textfont\ttfam=\tentt \textfont\sffam=\tensf
+  \textfont0=\rmfont \textfont1=\ifont \textfont2=\syfont
+  \textfont\itfam=\itfont \textfont\slfam=\slfont \textfont\bffam=\bffont
+  \textfont\ttfam=\ttfont \textfont\sffam=\sffont
 }
 
-% The font-changing commands redefine the meanings of \tenSTYLE, instead
-% of just \STYLE.  We do this because \STYLE needs to also set the
-% current \fam for math mode.  Our \STYLE (e.g., \rm) commands hardwire
-% \tenSTYLE to set the current font.
+%
+
+% The font-changing commands (all called \...fonts) redefine the meanings
+% of \STYLEfont, instead of just \STYLE.  We do this because \STYLE needs
+% to also set the current \fam for math mode.  Our \STYLE (e.g., \rm)
+% commands hardwire \STYLEfont to set the current font.
 %
 % Each font-changing command also sets the names \lsize (one size lower)
 % and \lllsize (three sizes lower).  These relative commands are used
@@ -2557,78 +2525,63 @@ end
 %
 % This all needs generalizing, badly.
 %
-\def\textfonts{%
-  \let\tenrm=\textrm \let\tenit=\textit \let\tensl=\textsl
-  \let\tenbf=\textbf \let\tentt=\texttt \let\smallcaps=\textsc
-  \let\tensf=\textsf \let\teni=\texti \let\tensy=\textsy
-  \let\tenttsl=\textttsl
-  \def\curfontsize{text}%
-  \def\lsize{reduced}\def\lllsize{smaller}%
-  \resetmathfonts \setleading{\textleading}}
-\def\titlefonts{%
-  \let\tenrm=\titlerm \let\tenit=\titleit \let\tensl=\titlesl
-  \let\tenbf=\titlebf \let\tentt=\titlett \let\smallcaps=\titlesc
-  \let\tensf=\titlesf \let\teni=\titlei \let\tensy=\titlesy
-  \let\tenttsl=\titlettsl
-  \def\curfontsize{title}%
-  \def\lsize{chap}\def\lllsize{subsec}%
-  \resetmathfonts \setleading{27pt}}
-\def\titlefont#1{{\titlefonts\rmisbold #1}}
-\def\chapfonts{%
-  \let\tenrm=\chaprm \let\tenit=\chapit \let\tensl=\chapsl
-  \let\tenbf=\chapbf \let\tentt=\chaptt \let\smallcaps=\chapsc
-  \let\tensf=\chapsf \let\teni=\chapi \let\tensy=\chapsy
-  \let\tenttsl=\chapttsl
-  \def\curfontsize{chap}%
-  \def\lsize{sec}\def\lllsize{text}%
-  \resetmathfonts \setleading{19pt}}
-\def\secfonts{%
-  \let\tenrm=\secrm \let\tenit=\secit \let\tensl=\secsl
-  \let\tenbf=\secbf \let\tentt=\sectt \let\smallcaps=\secsc
-  \let\tensf=\secsf \let\teni=\seci \let\tensy=\secsy
-  \let\tenttsl=\secttsl
-  \def\curfontsize{sec}%
-  \def\lsize{subsec}\def\lllsize{reduced}%
-  \resetmathfonts \setleading{17pt}}
-\def\subsecfonts{%
-  \let\tenrm=\ssecrm \let\tenit=\ssecit \let\tensl=\ssecsl
-  \let\tenbf=\ssecbf \let\tentt=\ssectt \let\smallcaps=\ssecsc
-  \let\tensf=\ssecsf \let\teni=\sseci \let\tensy=\ssecsy
-  \let\tenttsl=\ssecttsl
-  \def\curfontsize{ssec}%
-  \def\lsize{text}\def\lllsize{small}%
-  \resetmathfonts \setleading{15pt}}
-\let\subsubsecfonts = \subsecfonts
-\def\reducedfonts{%
-  \let\tenrm=\reducedrm \let\tenit=\reducedit \let\tensl=\reducedsl
-  \let\tenbf=\reducedbf \let\tentt=\reducedtt \let\reducedcaps=\reducedsc
-  \let\tensf=\reducedsf \let\teni=\reducedi \let\tensy=\reducedsy
-  \let\tenttsl=\reducedttsl
-  \def\curfontsize{reduced}%
-  \def\lsize{small}\def\lllsize{smaller}%
-  \resetmathfonts \setleading{10.5pt}}
-\def\smallfonts{%
-  \let\tenrm=\smallrm \let\tenit=\smallit \let\tensl=\smallsl
-  \let\tenbf=\smallbf \let\tentt=\smalltt \let\smallcaps=\smallsc
-  \let\tensf=\smallsf \let\teni=\smalli \let\tensy=\smallsy
-  \let\tenttsl=\smallttsl
-  \def\curfontsize{small}%
-  \def\lsize{smaller}\def\lllsize{smaller}%
-  \resetmathfonts \setleading{10.5pt}}
-\def\smallerfonts{%
-  \let\tenrm=\smallerrm \let\tenit=\smallerit \let\tensl=\smallersl
-  \let\tenbf=\smallerbf \let\tentt=\smallertt \let\smallcaps=\smallersc
-  \let\tensf=\smallersf \let\teni=\smalleri \let\tensy=\smallersy
-  \let\tenttsl=\smallerttsl
-  \def\curfontsize{smaller}%
-  \def\lsize{smaller}\def\lllsize{smaller}%
-  \resetmathfonts \setleading{9.5pt}}
 
-% Fonts for short table of contents.
-\setfont\shortcontrm\rmshape{12}{1000}{OT1}
-\setfont\shortcontbf\bfshape{10}{\magstep1}{OT1}  % no cmb12
-\setfont\shortcontsl\slshape{12}{1000}{OT1}
-\setfont\shortconttt\ttshape{12}{1000}{OT1TT}
+\def\assignfonts#1{%
+  \expandafter\let\expandafter\rmfont\csname #1rm\endcsname
+  \expandafter\let\expandafter\itfont\csname #1it\endcsname
+  \expandafter\let\expandafter\slfont\csname #1sl\endcsname
+  \expandafter\let\expandafter\bffont\csname #1bf\endcsname
+  \expandafter\let\expandafter\ttfont\csname #1tt\endcsname
+  \expandafter\let\expandafter\smallcaps\csname #1sc\endcsname
+  \expandafter\let\expandafter\sffont  \csname #1sf\endcsname
+  \expandafter\let\expandafter\ifont   \csname #1i\endcsname
+  \expandafter\let\expandafter\syfont  \csname #1sy\endcsname
+  \expandafter\let\expandafter\ttslfont\csname #1ttsl\endcsname
+}
+
+\newif\ifrmisbold
+
+% Select smaller font size with the current style.  Used to change font size
+% in, e.g., the LaTeX logo and acronyms.  If we are using bold fonts for
+% normal roman text, also use bold fonts for roman text in the smaller size.
+\def\switchtolllsize{%
+   \expandafter\assignfonts\expandafter{\lllsize}%
+   \ifrmisbold
+     \let\rmfont\bffont
+   \fi
+   \csname\curfontstyle\endcsname
+}%
+
+\def\switchtolsize{%
+   \expandafter\assignfonts\expandafter{\lsize}%
+   \ifrmisbold
+     \let\rmfont\bffont
+   \fi
+   \csname\curfontstyle\endcsname
+}%
+
+\def\definefontsetatsize#1#2#3#4#5{%
+\expandafter\def\csname #1fonts\endcsname{%
+  \def\curfontsize{#1}%
+  \def\lsize{#2}\def\lllsize{#3}%
+  \csname rmisbold#5\endcsname
+  \assignfonts{#1}%
+  \resetmathfonts
+  \setleading{#4}%
+}}
+
+\definefontsetatsize{text}   {reduced}{smaller}{\textleading}{false}
+\definefontsetatsize{title}  {chap}   {subsec} {27pt}  {true}
+\definefontsetatsize{chap}   {sec}    {text}   {19pt}  {true}
+\definefontsetatsize{sec}    {subsec} {reduced}{17pt}  {true}
+\definefontsetatsize{ssec}   {text}   {small}  {15pt}  {true}
+\definefontsetatsize{reduced}{small}  {smaller}{10.5pt}{false}
+\definefontsetatsize{small}  {smaller}{smaller}{10.5pt}{false}
+\definefontsetatsize{smaller}{smaller}{smaller}{9.5pt} {false}
+
+\def\titlefont#1{{\titlefonts\rm #1}}
+\let\subsecfonts = \ssecfonts
+\let\subsubsecfonts = \ssecfonts
 
 % Define these just so they can be easily changed for other fonts.
 \def\angleleft{$\langle$}
@@ -3253,7 +3206,7 @@ end
 %
 \def\acronym#1{\doacronym #1,,\finish}
 \def\doacronym#1,#2,#3\finish{%
-  {\selectfonts\lsize #1}%
+  {\switchtolsize #1}%
   \def\temp{#2}%
   \ifx\temp\empty \else
     \space ({\unsepspaces \ignorespaces \temp \unskip})%
@@ -3346,10 +3299,10 @@ end
 % fix it (significant additions to font machinery) until someone notices.
 %
 \def\sub{\ifmmode \expandafter\sb \else \expandafter\finishsub\fi}
-\def\finishsub#1{$\sb{\hbox{\selectfonts\lllsize #1}}$}%
+\def\finishsub#1{$\sb{\hbox{\switchtolllsize #1}}$}%
 %
 \def\sup{\ifmmode \expandafter\ptexsp \else \expandafter\finishsup\fi}
-\def\finishsup#1{$\ptexsp{\hbox{\selectfonts\lllsize #1}}$}%
+\def\finishsup#1{$\ptexsp{\hbox{\switchtolllsize #1}}$}%
 
 % @inlinefmt{FMTNAME,PROCESSED-TEXT} and @inlineraw{FMTNAME,RAW-TEXT}.
 % Ignore unless FMTNAME == tex; then it is like @iftex and @tex,
@@ -3434,8 +3387,8 @@ end
 % Plain TeX defines: @AA @AE @O @OE @L (plus lowercase versions) @ss.
 \def\questiondown{?`}
 \def\exclamdown{!`}
-\def\ordf{\leavevmode\raise1ex\hbox{\selectfonts\lllsize \underbar{a}}}
-\def\ordm{\leavevmode\raise1ex\hbox{\selectfonts\lllsize \underbar{o}}}
+\def\ordf{\leavevmode\raise1ex\hbox{\switchtolllsize \underbar{a}}}
+\def\ordm{\leavevmode\raise1ex\hbox{\switchtolllsize \underbar{o}}}
 
 % Dotless i and dotless j, used for accents.
 \def\imacro{i}
@@ -3464,12 +3417,12 @@ end
   {\setbox0=\hbox{T}%
    \vbox to \ht0{\hbox{%
      \ifx\textnominalsize\xwordpt
-       % for 10pt running text, \lllsize (8pt) is too small for the A in LaTeX.
+       % for 10pt running text, lllsize (8pt) is too small for the A in LaTeX.
        % Revert to plain's \scriptsize, which is 7pt.
        \count255=\the\fam $\fam\count255 \scriptstyle A$%
      \else
        % For 11pt, we can use our lllsize.
-       \selectfonts\lllsize A%
+       \switchtolllsize A%
      \fi
      }%
      \vss
@@ -3535,7 +3488,7 @@ end
 %
 \newbox\errorbox
 %
-{\tentt \global\dimen0 = 3em}% Width of the box.
+{\ttfont \global\dimen0 = 3em}% Width of the box.
 \dimen2 = .55pt % Thickness of rules
 % The text. (`r' is open on the right, `e' somewhat less so on the left.)
 \setbox0 = \hbox{\kern-.75pt \reducedsf \putworderror\kern-1.5pt}
@@ -3686,7 +3639,7 @@ end
 % Adapted from the plain.tex definition of \copyright.
 %
 \def\registeredsymbol{%
-  $^{{\ooalign{\hfil\raise.07ex\hbox{\selectfonts\lllsize R}%
+  $^{{\ooalign{\hfil\raise.07ex\hbox{\switchtolllsize R}%
                \hfil\crcr\Orb}}%
     }$%
 }
@@ -3780,12 +3733,11 @@ end
 
 % Settings used for typesetting titles: no hyphenation, no indentation,
 % don't worry much about spacing, ragged right.  This should be used
-% inside a \vbox, and fonts need to be set appropriately first.  Because
-% it is always used for titles, nothing else, we call \rmisbold.  \par
-% should be specified before the end of the \vbox, since a vbox is a group.
+% inside a \vbox, and fonts need to be set appropriately first. \par should
+% be specified before the end of the \vbox, since a vbox is a group.
 % 
 \def\raggedtitlesettings{%
-  \rmisbold
+  \rm
   \hyphenpenalty=10000
   \parindent=0pt
   \tolerance=5000
@@ -3794,7 +3746,7 @@ end
 
 % Macros to be used within @titlepage:
 
-\let\subtitlerm=\tenrm
+\let\subtitlerm=\rmfont
 \def\subtitlefont{\subtitlerm \normalbaselineskip = 13pt \normalbaselines}
 
 \parseargdef\title{%
@@ -3820,7 +3772,7 @@ end
   \else
     \checkenv\titlepage
     \ifseenauthor\else \vskip 0pt plus 1filll \seenauthortrue \fi
-    {\secfonts\rmisbold \leftline{#1}}%
+    {\secfonts\rm \leftline{#1}}%
   \fi
 }
 
@@ -6095,7 +6047,7 @@ end
   \null
   \vskip.3\vsize  % move it down on the page a bit
   \begingroup
-    \noindent \titlefonts\rmisbold #1\par % the text
+    \noindent \titlefonts\rm #1\par % the text
     \let\lastnode=\empty      % no node to associate with
     \writetocentry{part}{#1}{}% but put it in the toc
     \headingsoff              % no headline or footline on the part page
@@ -6581,7 +6533,7 @@ end
   \domark
   %
   {%
-    \chapfonts \rmisbold
+    \chapfonts \rm
     \let\footnote=\errfootnoteheading % give better error message
     %
     % Have to define \lastsection before calling \donoderef, because the
@@ -6673,7 +6625,7 @@ end
     \let\footnote=\errfootnoteheading
     %
     % Switch to the right set of fonts.
-    \csname #2fonts\endcsname \rmisbold
+    \csname #2fonts\endcsname \rm
     %
     % Insert first mark before the heading break (see notes for \domark).
     \let\prevsectiondefs=\lastsectiondefs
@@ -7946,7 +7898,7 @@ end
     \fi           % no return type
     #3% output function name
   }%
-  {\rm\enskip}% hskip 0.5 em of \tenrm
+  {\rm\enskip}% hskip 0.5 em of \rmfont
   %
   \boldbrax
   % arguments will be output next, if any.
@@ -8075,9 +8027,6 @@ end
   }
 \fi
 
-\let\aftermacroxxx\relax
-\def\aftermacro{\aftermacroxxx}
-
 % alias because \c means cedilla in @tex or @math
 \let\texinfoc=\c
 
@@ -8099,18 +8048,13 @@ end
   \catcode`\\=\active
   %
   % Process the macro body under the current catcode regime.
-  \scantokens{#1@texinfoc}\aftermacro%
+  \scantokens{#1@texinfoc}%
   %
   \catcode`\@=\savedcatcodeone
   \catcode`\\=\savedcatcodetwo
   %
   % The \texinfoc is to remove the \newlinechar added by \scantokens, and
   % can be noticed by \parsearg.
-  %   The \aftermacro allows a \comment at the end of the macro definition
-  % to duplicate itself past the final \newlinechar added by \scantokens:
-  % this is used in the definition of \group to comment out a newline.  We
-  % don't do the same for \c to support Texinfo files with macros that ended
-  % with a @c, which should no longer be necessary.
   %   We avoid surrounding the call to \scantokens with \bgroup and \egroup
   % to allow macros to open or close groups themselves.
 }
@@ -8582,6 +8526,13 @@ end
   \ifcase\paramno
   % 0
     \expandafter\xdef\csname\the\macname\endcsname{%
+      \bgroup
+        \noexpand\spaceisspace
+        \noexpand\endlineisspace
+        \noexpand\expandafter % skip any whitespace after the macro name.
+        \expandafter\noexpand\csname\the\macname @@@\endcsname}%
+    \expandafter\xdef\csname\the\macname @@@\endcsname{%
+      \egroup
       \noexpand\scanmacro{\macrobody}}%
   \or % 1
     \expandafter\xdef\csname\the\macname\endcsname{%
@@ -10063,18 +10014,18 @@ directory should work if nowhere else does.}
   \gdefchar^^a0{\tie}
   \gdefchar^^a1{\exclamdown}
   \gdefchar^^a2{{\tcfont \char162}} % cent
-  \gdefchar^^a3{\pounds}
+  \gdefchar^^a3{\pounds{}}
   \gdefchar^^a4{{\tcfont \char164}} % currency
   \gdefchar^^a5{{\tcfont \char165}} % yen
   \gdefchar^^a6{{\tcfont \char166}} % broken bar
   \gdefchar^^a7{\S}
   \gdefchar^^a8{\"{}}
-  \gdefchar^^a9{\copyright}
+  \gdefchar^^a9{\copyright{}}
   \gdefchar^^aa{\ordf}
-  \gdefchar^^ab{\guillemetleft}
+  \gdefchar^^ab{\guillemetleft{}}
   \gdefchar^^ac{\ensuremath\lnot}
   \gdefchar^^ad{\-}
-  \gdefchar^^ae{\registeredsymbol}
+  \gdefchar^^ae{\registeredsymbol{}}
   \gdefchar^^af{\={}}
   %
   \gdefchar^^b0{\textdegree}
@@ -10088,7 +10039,7 @@ directory should work if nowhere else does.}
   \gdefchar^^b8{\cedilla\ }
   \gdefchar^^b9{$^1$}
   \gdefchar^^ba{\ordm}
-  \gdefchar^^bb{\guillemetright}
+  \gdefchar^^bb{\guillemetright{}}
   \gdefchar^^bc{$1\over4$}
   \gdefchar^^bd{$1\over2$}
   \gdefchar^^be{$3\over4$}
@@ -10168,7 +10119,7 @@ directory should work if nowhere else does.}
   % Encoding is almost identical to Latin1.
   \latonechardefs
   %
-  \gdefchar^^a4{\euro}
+  \gdefchar^^a4{\euro{}}
   \gdefchar^^a6{\v S}
   \gdefchar^^a8{\v s}
   \gdefchar^^b4{\v Z}
@@ -10197,7 +10148,7 @@ directory should work if nowhere else does.}
   \gdefchar^^ae{\v Z}
   \gdefchar^^af{\dotaccent Z}
   %
-  \gdefchar^^b0{\textdegree}
+  \gdefchar^^b0{\textdegree{}}
   \gdefchar^^b1{\ogonek{a}}
   \gdefchar^^b2{\ogonek{ }}
   \gdefchar^^b3{\l}
@@ -10509,18 +10460,18 @@ directory should work if nowhere else does.}
   \DeclareUnicodeCharacter{00A0}{\tie}%
   \DeclareUnicodeCharacter{00A1}{\exclamdown}%
   \DeclareUnicodeCharacter{00A2}{{\tcfont \char162}}% 0242=cent
-  \DeclareUnicodeCharacter{00A3}{\pounds}%
+  \DeclareUnicodeCharacter{00A3}{\pounds{}}%
   \DeclareUnicodeCharacter{00A4}{{\tcfont \char164}}% 0244=currency
   \DeclareUnicodeCharacter{00A5}{{\tcfont \char165}}% 0245=yen
   \DeclareUnicodeCharacter{00A6}{{\tcfont \char166}}% 0246=brokenbar
   \DeclareUnicodeCharacter{00A7}{\S}%
   \DeclareUnicodeCharacter{00A8}{\"{ }}%
-  \DeclareUnicodeCharacter{00A9}{\copyright}%
+  \DeclareUnicodeCharacter{00A9}{\copyright{}}%
   \DeclareUnicodeCharacter{00AA}{\ordf}%
-  \DeclareUnicodeCharacter{00AB}{\guillemetleft}%
+  \DeclareUnicodeCharacter{00AB}{\guillemetleft{}}%
   \DeclareUnicodeCharacter{00AC}{\ensuremath\lnot}%
   \DeclareUnicodeCharacter{00AD}{\-}%
-  \DeclareUnicodeCharacter{00AE}{\registeredsymbol}%
+  \DeclareUnicodeCharacter{00AE}{\registeredsymbol{}}%
   \DeclareUnicodeCharacter{00AF}{\={ }}%
   %
   \DeclareUnicodeCharacter{00B0}{\ringaccent{ }}%
@@ -10534,7 +10485,7 @@ directory should work if nowhere else does.}
   \DeclareUnicodeCharacter{00B8}{\cedilla{ }}%
   \DeclareUnicodeCharacter{00B9}{$^1$}%
   \DeclareUnicodeCharacter{00BA}{\ordm}%
-  \DeclareUnicodeCharacter{00BB}{\guillemetright}%
+  \DeclareUnicodeCharacter{00BB}{\guillemetright{}}%
   \DeclareUnicodeCharacter{00BC}{$1\over4$}%
   \DeclareUnicodeCharacter{00BD}{$1\over2$}%
   \DeclareUnicodeCharacter{00BE}{$3\over4$}%
@@ -11006,36 +10957,36 @@ directory should work if nowhere else does.}
   % Punctuation
   \DeclareUnicodeCharacter{2013}{--}%
   \DeclareUnicodeCharacter{2014}{---}%
-  \DeclareUnicodeCharacter{2018}{\quoteleft}%
-  \DeclareUnicodeCharacter{2019}{\quoteright}%
-  \DeclareUnicodeCharacter{201A}{\quotesinglbase}%
-  \DeclareUnicodeCharacter{201C}{\quotedblleft}%
-  \DeclareUnicodeCharacter{201D}{\quotedblright}%
-  \DeclareUnicodeCharacter{201E}{\quotedblbase}%
+  \DeclareUnicodeCharacter{2018}{\quoteleft{}}%
+  \DeclareUnicodeCharacter{2019}{\quoteright{}}%
+  \DeclareUnicodeCharacter{201A}{\quotesinglbase{}}%
+  \DeclareUnicodeCharacter{201C}{\quotedblleft{}}%
+  \DeclareUnicodeCharacter{201D}{\quotedblright{}}%
+  \DeclareUnicodeCharacter{201E}{\quotedblbase{}}%
   \DeclareUnicodeCharacter{2020}{\ensuremath\dagger}%
   \DeclareUnicodeCharacter{2021}{\ensuremath\ddagger}%
-  \DeclareUnicodeCharacter{2022}{\bullet}%
+  \DeclareUnicodeCharacter{2022}{\bullet{}}%
   \DeclareUnicodeCharacter{202F}{\thinspace}%
-  \DeclareUnicodeCharacter{2026}{\dots}%
-  \DeclareUnicodeCharacter{2039}{\guilsinglleft}%
-  \DeclareUnicodeCharacter{203A}{\guilsinglright}%
+  \DeclareUnicodeCharacter{2026}{\dots{}}%
+  \DeclareUnicodeCharacter{2039}{\guilsinglleft{}}%
+  \DeclareUnicodeCharacter{203A}{\guilsinglright{}}%
   %
-  \DeclareUnicodeCharacter{20AC}{\euro}%
+  \DeclareUnicodeCharacter{20AC}{\euro{}}%
   %
-  \DeclareUnicodeCharacter{2192}{\expansion}%
-  \DeclareUnicodeCharacter{21D2}{\result}%
+  \DeclareUnicodeCharacter{2192}{\expansion{}}%
+  \DeclareUnicodeCharacter{21D2}{\result{}}%
   %
   % Mathematical symbols
   \DeclareUnicodeCharacter{2200}{\ensuremath\forall}%
   \DeclareUnicodeCharacter{2203}{\ensuremath\exists}%
   \DeclareUnicodeCharacter{2208}{\ensuremath\in}%
-  \DeclareUnicodeCharacter{2212}{\minus}%
+  \DeclareUnicodeCharacter{2212}{\minus{}}%
   \DeclareUnicodeCharacter{2217}{\ast}%
   \DeclareUnicodeCharacter{221E}{\ensuremath\infty}%
   \DeclareUnicodeCharacter{2225}{\ensuremath\parallel}%
   \DeclareUnicodeCharacter{2227}{\ensuremath\wedge}%
   \DeclareUnicodeCharacter{2229}{\ensuremath\cap}%
-  \DeclareUnicodeCharacter{2261}{\equiv}%
+  \DeclareUnicodeCharacter{2261}{\equiv{}}%
   \DeclareUnicodeCharacter{2264}{\ensuremath\leq}%
   \DeclareUnicodeCharacter{2265}{\ensuremath\geq}%
   \DeclareUnicodeCharacter{2282}{\ensuremath\subset}%
@@ -11717,7 +11668,4 @@ directory should work if nowhere else does.}
 
 @c vim:sw=2:
 
-@ignore
-   arch-tag: e1b36e32-c96e-4135-a41a-0b2efa2ea115
-@end ignore
 @enablebackslashhack

@@ -1618,6 +1618,9 @@ The next call will return 5 values (or northing when no glue is passed).
     <integer> shrink_order = node.getglue(<node> n)
 \stopfunctioncall
 
+When the second argument is false, only the width is returned (this is consistent
+with \type {tex.get}).
+
 \subsubsection{\type {node.is_zero_glue}}
 
 This function returns \type {true} when the width, stretch and shrink properties
@@ -1806,6 +1809,8 @@ If performance matters you can use an function instead:
 \NC getsubtype \NC consulted less but also a topper \NC \NR
 \NC getfont    \NC used a lot in \OPENTYPE\ handling (glyph nodes are consulted a lot) \NC \NR
 \NC getchar    \NC idem and also in other places \NC \NR
+\NC getwhd     \NC returns the \type {width}, \type {height} and \type {depth} of a list, rule or
+                   (unexpanded) glyph as well as glue (its spec is looked at) and unset nodes\NC \NR
 \NC getdisc    \NC returns the \type {pre}, \type {post} and \type {replace} fields and
                    optionally when true is passed also the tail fields. \NC \NR
 \NC getlist    \NC we often parse nested lists so this is a convenient one too
@@ -1896,7 +1901,8 @@ this:
 \NC \type {setboth}              \NC \yes \NC \yes  \NC \NR
 \NC \type {setbox}               \NC \nop \NC \yes  \NC \NR
 \NC \type {setchar}              \NC \yes \NC \yes  \NC \NR
-\NC \type {setdisc}              \NC \yes \NC \yes  \NC \NR
+\NC \type {setdisc}              \NC \nop \NC \yes  \NC \NR
+\NC \type {setwhd}               \NC \nop \NC \yes  \NC \NR
 \NC \type {setfield}             \NC \yes \NC \yes  \NC \NR
 \NC \type {setglue}              \NC \yes \NC \yes  \NC \NR
 \NC \type {setlink}              \NC \yes \NC \yes  \NC \NR
