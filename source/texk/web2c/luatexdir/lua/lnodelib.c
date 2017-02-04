@@ -6136,6 +6136,7 @@ static int lua_nodelib_direct_setboth(lua_State * L)
     return 0;
 }
 
+/*
 static int lua_nodelib_direct_setlink(lua_State * L)
 {
     if (lua_type(L, 1) == LUA_TNUMBER) {
@@ -6152,6 +6153,49 @@ static int lua_nodelib_direct_setlink(lua_State * L)
         alink(b) = null;
     }
     return 0;
+}
+*/
+
+static int lua_nodelib_direct_setlink(lua_State * L)
+{
+    int n = lua_gettop(L);
+    int i;
+    halfword h = null; /* head node */
+    halfword t = null; /* tail node */
+    halfword c = null; /* current node */
+    for (i=1;i<=n;i++) {
+        /*
+            we don't go for the tail of the current node because we can inject
+            between existing nodes and the nodes themselves can have old values
+            for prev and next, so ... only single nodes are looked at!
+        */
+        if (lua_type(L, i) == LUA_TNUMBER) {
+            c = lua_tointeger(L, i);
+            if (t != null) {
+                vlink(t) = c;
+                alink(c) = t;
+            } else if (i > 1) {
+                alink(c) = null;
+            }
+            t = c;
+            if (h == null) {
+                h = t;
+            }
+        } else if (t == null) {
+            /* we just ignore nil nodes */
+        } else {
+            /* safeguard */
+            vlink(t) = null;
+        }
+    }
+    if (h == null) {
+        /* no head */
+        lua_pushnil(L);
+    } else {
+        /* first valid head */
+        lua_pushinteger(L,h);
+    }
+    return 1;
 }
 
 static int lua_nodelib_direct_is_char(lua_State * L)
