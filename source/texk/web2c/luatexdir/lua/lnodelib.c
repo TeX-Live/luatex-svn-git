@@ -4678,7 +4678,11 @@ static int font_tex_direct_kerning(lua_State * L)
     }
     alink(vlink(tmp_head)) = p ;
     lua_pushinteger(L, vlink(tmp_head));
-    lua_pushinteger(L, t);
+    if (t == null) {
+        lua_pushnil(L);
+    } else {
+        lua_pushinteger(L, t);
+    }
     lua_pushboolean(L, 1);
     flush_node(tmp_head);
     return 3;
