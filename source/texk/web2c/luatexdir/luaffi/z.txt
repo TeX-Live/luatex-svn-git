@@ -1,0 +1,59 @@
+local info = [[
+The ffi module is available for:
+
+    archictures       : ARCH_X86 and ARCH_X64,
+    operating systems : OS_CE, OS_WIN, OS_LINUX, OS BD and OS_POSIX
+
+The ARM processor is currentlu not supported. There are subtle
+differences between this module and the one in luajitTeX and as
+a result the file 'test.lua' can fail. We hope to be in sync
+around TeXLive 2018. Different OS can have different interfaces,
+for instance OS_WIN has not 'complex.h'. If you want portable
+code, stick to the most comon concepts.
+
+Quitting now!
+]]
+
+local function stub()
+    texio.write_nl(info)
+    os.exit()
+end
+
+ffi = {
+    fill      = stub,
+    cast      = stub,
+    offsetof  = stub,
+    copy      = stub,
+    string    = stub,
+    abi       = stub,
+    cdef      = stub,
+    typeof    = stub,
+    sizeof    = stub,
+    type      = stub,
+    number    = stub,
+    gc        = stub,
+    metatype  = stub,
+    errno     = stub,
+    debug     = stub,
+    os        = info,
+    arch      = info,
+    NULL      = info,
+    alignof   = stub,
+    new       = stub,
+    u64       = stub,
+    i64       = stub,
+    istype    = stub,
+    load      = stub,
+    C         = info,
+    info      = info,
+    supported = false,
+}
+
+if ffi.supported == false then
+    -- don't use it
+else
+    -- we're ok
+end
+
+-- ffi.cdef [[foo]]
+

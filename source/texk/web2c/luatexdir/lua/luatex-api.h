@@ -87,6 +87,8 @@ extern int luaopen_lpeg(lua_State * L);
 extern int luaopen_md5(lua_State * L);
 extern int luatex_md5_lua_open(lua_State * L);
 
+extern int luaopen_ffi(lua_State * L);
+
 extern int luaopen_zlib(lua_State * L);
 extern int luaopen_gzip(lua_State * L);
 extern int luaopen_ff(lua_State * L);
