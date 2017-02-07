@@ -6175,21 +6175,18 @@ static int lua_nodelib_direct_setlink(lua_State * L)
         */
         if (lua_type(L, i) == LUA_TNUMBER) {
             c = lua_tointeger(L, i);
-            if (t != null) {
-                vlink(t) = c;
-                alink(c) = t;
-            } else if (i > 1) {
-                alink(c) = null;
+            if (c != t) {
+                if (t != null) {
+                    vlink(t) = c;
+                    alink(c) = t;
+                } else if (i > 1) {
+                    alink(c) = null;
+                }
+                t = c;
+                if (h == null) {
+                    h = t;
+                }
             }
-            t = c;
-            if (h == null) {
-                h = t;
-            }
-        } else if (t == null) {
-            /* we just ignore nil nodes */
-        } else {
-            /* safeguard */
-            vlink(t) = null;
         }
     }
     if (h == null) {
