@@ -102,11 +102,12 @@ static int type_error(lua_State* L, int idx, const char* to_type, int to_usr, co
 static void* userdata_toptr(lua_State* L, int idx)
 {
     void* ptr = lua_touserdata(L, idx);
+    int isfile;
 
     // check for FILE*
     lua_getmetatable(L, idx);
     luaL_getmetatable(L, LUA_FILEHANDLE);
-    int isfile = lua_rawequal(L, -1, -2);
+    isfile = lua_rawequal(L, -1, -2);
     lua_pop(L, 2);
 
     if (isfile) {
@@ -666,12 +667,14 @@ err:
  * and returns 1 if it exists; otherwise returns 0 and nothing is pushed */
 static int get_cfunction_address(lua_State* L, int idx, cfunction* addr)
 {
+    int top, n;
+    cfunction* f;
     if (!lua_isfunction(L, idx)) return 0;
 
-    int top = lua_gettop(L);
+    top = lua_gettop(L);
 
     // Get the last upvalue
-    int n = 2;
+    n = 2;
     while (lua_getupvalue(L, idx, n)) {
         lua_pop(L, 1);
         n++;
@@ -697,7 +700,7 @@ static int get_cfunction_address(lua_State* L, int idx, cfunction* addr)
      * callback_mt
      */
 
-    cfunction* f = lua_touserdata(L, -3);
+    f = lua_touserdata(L, -3);
     *addr = f[1];
     lua_pop(L, 3);
     return 1;
@@ -1184,6 +1187,7 @@ static int is_scalar(struct ctype* ct)
 static int should_pack(lua_State *L, int ct_usr, struct ctype* ct, int idx)
 {
     struct ctype argt;
+    int same;
     ct_usr = lua_absindex(L, ct_usr);
 
     if (IS_COMPLEX(ct->type)) {
@@ -1198,7 +1202,7 @@ static int should_pack(lua_State *L, int ct_usr, struct ctype* ct, int idx)
     case LUA_TUSERDATA:
         // don't pack if the argument is a cdata with the same type
         to_cdata(L, idx, &argt);
-        int same = is_same_type(L, ct_usr, -1, ct, &argt);
+        same = is_same_type(L, ct_usr, -1, ct, &argt);
         lua_pop(L, 1);
         return !same;
     default:
@@ -1208,7 +1212,7 @@ static int should_pack(lua_State *L, int ct_usr, struct ctype* ct, int idx)
 
 static int do_new(lua_State* L, int is_cast)
 {
-    int cargs, i;
+    int cargs, i, scalar;
     void* p;
     struct ctype ct;
     int check_ptrs = !is_cast;
@@ -1270,7 +1274,7 @@ static int do_new(lua_State* L, int is_cast)
         return 1;
     }
 
-    int scalar = is_scalar(&ct);
+    scalar = is_scalar(&ct);
     if (scalar && cargs > 1) {
         return luaL_error(L, "too many initializers");
     }
@@ -1608,9 +1612,10 @@ static ptrdiff_t lookup_cdata_index(lua_State* L, int idx, int ct_usr, struct ct
 {
     struct ctype mt;
     ptrdiff_t off;
+    int type;
 
     ct_usr = lua_absindex(L, ct_usr);
-    int type = lua_type(L, idx);
+    type = lua_type(L, idx);
 
     switch (type) {
     case LUA_TNUMBER:

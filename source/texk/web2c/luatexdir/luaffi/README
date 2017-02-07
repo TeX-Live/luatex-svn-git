@@ -1,5 +1,5 @@
 This is luaffifb from https://github.com/facebook/luaffifb
-almost unchanged.
+patched to compile for TeXLive..
 
 It should compile even where the ffi is not defined,
 because there is a ffi stub that does nothing:
