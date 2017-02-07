@@ -6160,6 +6160,11 @@ static int lua_nodelib_direct_setlink(lua_State * L)
 }
 */
 
+/*
+    a b b nil c d         : prev-a-b-c-next
+    nil a b b nil c d nil : nil-a-b-c-nil
+*/
+
 static int lua_nodelib_direct_setlink(lua_State * L)
 {
     int n = lua_gettop(L);
@@ -6180,13 +6185,21 @@ static int lua_nodelib_direct_setlink(lua_State * L)
                     vlink(t) = c;
                     alink(c) = t;
                 } else if (i > 1) {
+                    /* we assume that the first node is a kind of head */
                     alink(c) = null;
                 }
                 t = c;
                 if (h == null) {
                     h = t;
                 }
+            } else {
+                /* we ignore duplicate nodes which can be tails or the previous */
             }
+        } else if (t == null) {
+            /* we just ignore nil nodes and have no tail yet */
+        } else {
+            /* safeguard: a nil in the list can be meant as end so we nil the next of tail */
+            vlink(t) = null;
         }
     }
     if (h == null) {
