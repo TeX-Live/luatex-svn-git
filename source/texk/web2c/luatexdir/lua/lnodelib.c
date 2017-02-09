@@ -6314,9 +6314,17 @@ static int lua_nodelib_direct_setpenalty(lua_State * L)
     halfword n = lua_tointeger(L, 1);
     if (n == null) {
         if (type(n) == penalty_node) {
-            penalty(n) = (halfword) lua_tointeger(L, 2);
+            if (lua_type(L, 2) == LUA_TNUMBER) {
+                penalty(n) = (halfword) lua_tointeger(L, 2);
+            } else {
+                penalty(n) = 0;
+            }
         } else if (type(n) == disc_node) {
-            disc_penalty(n) = (halfword) lua_tointeger(L, 2);
+            if (lua_type(L, 2) == LUA_TNUMBER) {
+                disc_penalty(n) = (halfword) lua_tointeger(L, 2);
+            } else {
+                penalty(n) = 0;
+            }
         }
     }
     return 0;
@@ -6327,12 +6335,20 @@ static int lua_nodelib_direct_setkern(lua_State * L)
     halfword n = lua_tointeger(L, 1);
     if (n != null) {
         if (type(n) == kern_node || type(n) == margin_kern_node) {
-            width(n) = (halfword) lua_tointeger(L, 2);
+            if (lua_type(L, 2) == LUA_TNUMBER) {
+                width(n) = (halfword) lua_tointeger(L, 2);
+            } else {
+                width(n) = 0;
+            }
             if (lua_type(L, 3) == LUA_TNUMBER) {
                 subtype(n) = (halfword) lua_tointeger(L, 3);
             }
         } else if (type(n) == math_node) {
-            surround(n) = (halfword) lua_tointeger(L, 2);
+            if (lua_type(L, 2) == LUA_TNUMBER) {
+                surround(n) = (halfword) lua_tointeger(L, 2);
+            } else {
+                surround(n) = 0;
+            }
         }
     }
     return 0;
