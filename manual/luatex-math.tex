@@ -980,12 +980,34 @@ For Latin Modern The result looks as follows:
     \stoptabulate
 \stop
 
+\section {Last lines}
+
+There is a new primitive to control the overshoot in the calculation of the
+previous line in mid|-|paragraph display math. The default value is 2 times
+the em width of the current font:
+
+\starttyping
+\predisplaygapfactor=2000
+\stoptyping
+
+If you want to have the length of the last line independent of math i.e.\ you don't
+want to revert to a hack where you insert a fake display math formula in order to
+get the length of the last line, the following will often work too:
+
+\starttyping
+\def\lastlinelength{\dimexpr
+    \directlua {tex.sprint (
+        (nodes.dimensions(node.tail(tex.lists.page_head).list))
+    )}sp
+\relax}
+\stoptyping
+
 \section {Other Math changes}
 
 \subsection {Verbose versions of single-character math commands}
 
 \LUATEX\ defines six new primitives that have the same function as
-\type {^}, \type {_}, \type {$}, and \type {$$}: %$
+\type {^}, \type {_}, \type {$}, and \type {$$}:
 
 \starttabulate[|l|l|l|l|]
 \NC \bf primitive           \NC \bf explanation \NC \NR

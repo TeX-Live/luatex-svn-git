@@ -1824,7 +1824,8 @@ If performance matters you can use an function instead:
 
 The direct variants also have setters, where the discretionary setter takes three
 (optional) arguments plus an optional fourth indicating the subtype. An additional
-setter is \type {setlink} which will link two nodes.
+setter is \type {setlink} which will link two or more nodes. It ignores nil nodes,
+doesn't slide (for good reason), and returns the head of the first valid node.
 
 It doesn't make sense to add getters for all fields, also because some are not
 unique to one node type. Profiling demonstrated that these fields can get
