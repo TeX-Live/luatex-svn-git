@@ -582,6 +582,30 @@ static int lua_nodelib_direct_getcomponents(lua_State * L)
     return 1;
 }
 
+static int lua_nodelib_direct_getlang(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if (n == null) {
+        lua_pushnil(L);
+    } else if (type(n) == glyph_node) {
+        lua_pushinteger(L, char_lang(n));
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int lua_nodelib_direct_getattributelist(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if ((n) && nodetype_has_attributes(type(n))) {
+        lua_pushinteger(L, node_attr(n));
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
 static int lua_nodelib_direct_getpenalty(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
@@ -6253,6 +6277,38 @@ static int lua_nodelib_direct_setcomponents(lua_State * L)
     return 0;
 }
 
+static int lua_nodelib_direct_setattributelist(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if ((n) && nodetype_has_attributes(type(n))) {
+        if (lua_type(L, 2) == LUA_TNUMBER) {
+            halfword a =lua_tointeger(L, 2);
+            if (type(a) == attribute_list_node) {
+                reassign_attribute(n,a);
+            } else if (nodetype_has_attributes(type(a))) {
+                reassign_attribute(n,node_attr(a));
+            } else {
+                reassign_attribute(n,null);
+            }
+        } else {
+            reassign_attribute(n,null);
+        }
+        return 0;
+    }
+    return 0;
+}
+
+static int lua_nodelib_direct_setlang(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if ((n) && (lua_type(L, 2) == LUA_TNUMBER)) {
+        if (type(n) == glyph_node) {
+            set_char_lang(n,lua_tointeger(L, 2));
+        }
+    }
+    return 0;
+}
+
 static int lua_nodelib_direct_setpenalty(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
@@ -7434,6 +7490,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"getbox", lua_nodelib_direct_getbox},
     {"getchar", lua_nodelib_direct_getcharacter},
     {"getcomponents", lua_nodelib_direct_getcomponents},
+    {"getlang", lua_nodelib_direct_getlang},
     {"getkern", lua_nodelib_direct_getkern},
     {"getpenalty", lua_nodelib_direct_getpenalty},
     {"getdir", lua_nodelib_direct_getdir},
@@ -7449,6 +7506,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"getlist", lua_nodelib_direct_getlist},
     {"getleader", lua_nodelib_direct_getleader},
     {"getsubtype", lua_nodelib_direct_getsubtype},
+    {"getattributelist", lua_nodelib_direct_getattributelist},
     {"has_glyph", lua_nodelib_direct_has_glyph},
     {"has_attribute", lua_nodelib_direct_has_attribute},
     {"get_attribute", lua_nodelib_direct_get_attribute},
@@ -7479,6 +7537,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"setchar", lua_nodelib_direct_setcharacter},
     {"setfont", lua_nodelib_direct_setfont},
     {"setcomponents", lua_nodelib_direct_setcomponents},
+    {"setlang", lua_nodelib_direct_setlang},
     {"setkern", lua_nodelib_direct_setkern},
     {"setpenalty", lua_nodelib_direct_setpenalty},
     {"setdir", lua_nodelib_direct_setdir},
@@ -7492,6 +7551,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"setlist", lua_nodelib_direct_setlist},
     {"setleader", lua_nodelib_direct_setleader},
     {"setsubtype", lua_nodelib_direct_setsubtype},
+    {"setattributelist", lua_nodelib_direct_setattributelist},
     {"slide", lua_nodelib_direct_slide},
  /* {"subtype", lua_nodelib_subtype}, */ /* no node argument */
     {"tail", lua_nodelib_direct_tail},
