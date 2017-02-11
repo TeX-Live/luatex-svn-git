@@ -1799,7 +1799,7 @@ if next then
 end
 \stoptyping
 
-If performance matters you can use an function instead:
+Some accessors are used frequently and for these we provide more efficient helpers:
 
 \starttabulate[|T|p|]
 \NC getnext    \NC parsing nodelist always involves this one \NC \NR
@@ -1813,8 +1813,7 @@ If performance matters you can use an function instead:
                    (unexpanded) glyph as well as glue (its spec is looked at) and unset nodes\NC \NR
 \NC getdisc    \NC returns the \type {pre}, \type {post} and \type {replace} fields and
                    optionally when true is passed also the tail fields. \NC \NR
-\NC getlist    \NC we often parse nested lists so this is a convenient one too
-                   (only works for hlist and vlist!) \NC \NR
+\NC getlist    \NC we often parse nested lists so this is a convenient one too \NC \NR
 \NC getleader  \NC comparable to list, seldom used in \TEX\ (but needs frequent consulting
                    like lists; leaders could have been made a dedicated node type) \NC \NR
 \NC getfield   \NC generic getter, sufficient for the rest (other field names are
@@ -1822,18 +1821,26 @@ If performance matters you can use an function instead:
 \NC getbox     \NC gets the given box (a list node) \NC \NR
 \stoptabulate
 
-The direct variants also have setters, where the discretionary setter takes three
-(optional) arguments plus an optional fourth indicating the subtype. An additional
-setter is \type {setlink} which will link two or more nodes. It ignores nil nodes,
-doesn't slide (for good reason), and returns the head of the first valid node.
+In the direct namespace there are more such helpers and most of them are
+accompanied by setters. The getters and setters are clever enough to see what
+node is meant. We don't deal with whatsit nodes: their fields are always accessed
+by name. It doesn't make sense to add getters for all fields, we just identifier
+the most likely candidates. In complex documents, many node and fields types
+never get seen, or seen only a few times, but for instance glyphs are candidates
+for such optimization. The \type {node.direct} interface has some more helpers.
+\footnote {We can define the helpers in the node namespace with \type {getfield}
+which is about as efficient, so at some point we might provide that as module.}
 
-It doesn't make sense to add getters for all fields, also because some are not
-unique to one node type. Profiling demonstrated that these fields can get
-accesses way more times than other fields. Even in complex documents, many node
-and fields types never get seen, or seen only a few times. Most functions in the
-\type {node} namespace have a companion in \type {node.direct}, but of course not
-the ones that don't deal with nodes themselves. The following table summarized
-this:
+The \type {setdisc} helper takes three (optional) arguments plus an optional
+fourth indicating the subtype. Its \type {getdisc} takes an optional boolean;
+when its value is \type {true} the tail nodes will also be returned. The \type
+{setfont} helper takes an optional second argument, it being the character. The
+directmode setter \type {setlink} takes a list of nodes and will link them,
+thereby ignoring \type {nil} entries. The first valid node is returned (beware:
+for good reason it assumes single nodes). For rarely used fields no helpers are
+provided and there are a few that probably are used seldom too but were added for
+consistency. You can of course always define additional accessor using \type
+{getfield} and \type {setfield} with little overhead.
 
 % \startcolumns[balance=yes]
 
@@ -1843,14 +1850,13 @@ this:
 \HL
 \NC \bf function                 \NC \bf node \NC \bf direct \NC \NR
 \HL
+%NC \type {do_ligature_n}        \NC \yes \NC \yes  \NC \NR % was never documented and experimental
 \NC \type {check_discretionaries}\NC \yes \NC \yes  \NC \NR
 \NC \type {copy_list}            \NC \yes \NC \yes  \NC \NR
 \NC \type {copy}                 \NC \yes \NC \yes  \NC \NR
 \NC \type {count}                \NC \yes \NC \yes  \NC \NR
 \NC \type {current_attr}         \NC \yes \NC \yes  \NC \NR
 \NC \type {dimensions}           \NC \yes \NC \yes  \NC \NR
-\NC \type {rangedimensions}      \NC \yes \NC \yes  \NC \NR
-%NC \type {do_ligature_n}        \NC \yes \NC \yes  \NC \NR % was never documented and experimental
 \NC \type {effective_glue}       \NC \yes \NC \yes  \NC \NR
 \NC \type {end_of_math}          \NC \yes \NC \yes  \NC \NR
 \NC \type {family_font}          \NC \yes \NC \nop  \NC \NR
@@ -1861,19 +1867,35 @@ this:
 \NC \type {flush_node}           \NC \yes \NC \yes  \NC \NR
 \NC \type {free}                 \NC \yes \NC \yes  \NC \NR
 \NC \type {get_attribute}        \NC \yes \NC \yes  \NC \NR
+\NC \type {getattributelist}     \NC \nop \NC \yes  \NC \NR
 \NC \type {getboth}              \NC \yes \NC \yes  \NC \NR
 \NC \type {getbox}               \NC \nop \NC \yes  \NC \NR
 \NC \type {getchar}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getcomponents}        \NC \nop \NC \yes  \NC \NR
+\NC \type {getdepth}             \NC \nop \NC \yes  \NC \NR
+\NC \type {getdir}               \NC \nop \NC \yes  \NC \NR
 \NC \type {getdisc}              \NC \yes \NC \yes  \NC \NR
 \NC \type {getfield}             \NC \yes \NC \yes  \NC \NR
 \NC \type {getfont}              \NC \yes \NC \yes  \NC \NR
 \NC \type {getglue}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getheight}            \NC \yes \NC \yes  \NC \NR
 \NC \type {getid}                \NC \yes \NC \yes  \NC \NR
+\NC \type {getkern}              \NC \nop \NC \yes  \NC \NR
+\NC \type {getlang}              \NC \nop \NC \yes  \NC \NR
 \NC \type {getleader}            \NC \yes \NC \yes  \NC \NR
 \NC \type {getlist}              \NC \yes \NC \yes  \NC \NR
 \NC \type {getnext}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getnucleus}           \NC \nop \NC \yes  \NC \NR
+\NC \type {getoffsets}           \NC \nop \NC \yes  \NC \NR
+\NC \type {getpenalty}           \NC \nop \NC \yes  \NC \NR
 \NC \type {getprev}              \NC \yes \NC \yes  \NC \NR
+\NC \type {getproperty}          \NC \yes \NC \yes  \NC \NR
+\NC \type {getshift}             \NC \yes \NC \nop  \NC \NR
+\NC \type {getwidth}             \NC \yes \NC \nop  \NC \NR
+\NC \type {getwhd}               \NC \yes \NC \yes  \NC \NR
+\NC \type {getsub}               \NC \yes \NC \nop  \NC \NR
 \NC \type {getsubtype}           \NC \yes \NC \yes  \NC \NR
+\NC \type {getsup}               \NC \yes \NC \nop  \NC \NR
 \NC \type {has_attribute}        \NC \yes \NC \yes  \NC \NR
 \NC \type {has_field}            \NC \yes \NC \yes  \NC \NR
 \NC \type {has_glyph}            \NC \yes \NC \yes  \NC \NR
@@ -1897,18 +1919,19 @@ this:
 \NC \type {protect_glyphs}       \NC \yes \NC \yes  \NC \NR
 \NC \type {protect_glyph}        \NC \yes \NC \yes  \NC \NR
 \NC \type {protrusion_skippable} \NC \yes \NC \yes  \NC \NR
+\NC \type {rangedimensions}      \NC \yes \NC \yes  \NC \NR
 \NC \type {remove}               \NC \yes \NC \yes  \NC \NR
 \NC \type {set_attribute}        \NC \yes \NC \yes  \NC \NR
 \NC \type {setboth}              \NC \yes \NC \yes  \NC \NR
 \NC \type {setbox}               \NC \nop \NC \yes  \NC \NR
 \NC \type {setchar}              \NC \yes \NC \yes  \NC \NR
 \NC \type {setdisc}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setwhd}               \NC \nop \NC \yes  \NC \NR
 \NC \type {setfield}             \NC \yes \NC \yes  \NC \NR
 \NC \type {setglue}              \NC \yes \NC \yes  \NC \NR
 \NC \type {setlink}              \NC \yes \NC \yes  \NC \NR
 \NC \type {setnext}              \NC \yes \NC \yes  \NC \NR
 \NC \type {setprev}              \NC \yes \NC \yes  \NC \NR
+\NC \type {setwhd}               \NC \nop \NC \yes  \NC \NR
 \NC \type {slide}                \NC \yes \NC \yes  \NC \NR
 \NC \type {subtypes}             \NC \yes \NC \nop  \NC \NR
 \NC \type {subtype}              \NC \yes \NC \nop  \NC \NR

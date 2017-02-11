@@ -21,7 +21,7 @@
 # Options:
 #      --jit       : also build luajittex
 #      --make      : only make, no make distclean; configure
-#      --parallel  : make -j 2 -l 3.0
+#      --parallel  : make -j 8 -l 8.0
 #      --nostrip   : do not strip binary
 #      --warnings= : enable compiler warnings
 #      --mingw     : crosscompile for mingw32 from x86_64linux
@@ -172,9 +172,15 @@ then
     * ) echo "ERROR: architecture $ARCH is not supported"; exit 1;;
   esac
   B=build-$ARCH
+  if [ "x$CONFHOST" != "x" ]
+    then
+    B="build-$CONFHOST"
+    B=`printf "$B"| sed 's/--host=//'`
+  fi
   CFLAGS="-arch $ARCH -g -O2 $CFLAGS"
   CXXFLAGS="-arch $ARCH -g -O2 $CXXFLAGS"
   LDFLAGS="-arch $ARCH $LDFLAGS" 
+  STRIP="${CONFHOST#--host=}-strip -u -r -A -n"
   export CFLAGS CXXFLAGS LDFLAGS
 fi
 
