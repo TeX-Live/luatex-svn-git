@@ -1321,7 +1321,7 @@ static int lua_nodelib_direct_setboth(lua_State * L)
     }
 
 /* node.direct.setlink */
-/* node.direct.unlink  */
+/* node.direct.setsplit  */
 
 /*
     a b b nil c d         : prev-a-b-c-next
@@ -1375,7 +1375,7 @@ static int lua_nodelib_direct_setlink(lua_State * L)
     return 1;
 }
 
-static int lua_nodelib_direct_unlink(lua_State * L)
+static int lua_nodelib_direct_setsplit(lua_State * L)
 {
     if (lua_type(L, 1) == LUA_TNUMBER && (lua_type(L, 2) == LUA_TNUMBER)) {
         halfword l = lua_tointeger(L, 1);
@@ -7697,7 +7697,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"setprev", lua_nodelib_direct_setprev},
     {"setboth", lua_nodelib_direct_setboth},
     {"setlink", lua_nodelib_direct_setlink},
-    {"unlink", lua_nodelib_direct_unlink},
+    {"setsplit", lua_nodelib_direct_setsplit},
     {"setlist", lua_nodelib_direct_setlist},
     {"setleader", lua_nodelib_direct_setleader},
     {"setsubtype", lua_nodelib_direct_setsubtype},
