@@ -397,16 +397,15 @@ end
 The string reports the group code. From this you can deduce from
 what list you can give a treat.
 
-\starttabulate
-\NC \bf group codes        \NC \bf pointer \NC \NR
-\HL
-\NC\type {pre_box}         \NC \type {contrib_head}    \NC \NR
-\NC\type {pre_adjust_tail} \NC \type {pre_adjust_head} \NC \NR
-\NC\type {just}            \NC \type {just_box}        \NC \NR
-\NC\type {adjust_tail}     \NC \type {adjust_head}     \NC \NR
+\starttabulate[|lT|p|]
+\NC \rmbf value     \NC \bf explanation                              \NC \NR
+\NC pre_box         \NC interline material is being added            \NC \NR
+\NC pre_adjust      \NC \type {\vadjust} material is being added     \NC \NR
+\NC box             \NC a typeset box is being added (always called) \NC \NR
+\NC adjust          \NC \type {\vadjust} material is being added     \NC \NR
 \stoptabulate
 
-\subsection{\type {buildpage_filter} and \type {contribute_filter}}
+\subsection{\type {buildpage_filter}}
 
 This callback is called whenever \LUATEX\ is ready to move stuff to the main
 vertical list. You can use this callback to do specialized manipulation of the
@@ -435,26 +434,20 @@ state is with respect to the \quote {current page}. The possible values for the
 \NC end             \NC \LUATEX\ is terminating (it's all over)   \NC \NR
 \stoptabulate
 
-And for the \type {contribute_filter} called in the post line break handler
-we have four cases (three are only called when there is a need for it).
-
-\starttabulate[|lT|p|]
-\NC \rmbf value     \NC \bf explanation                              \NC \NR
-\NC pre_box         \NC interline material is being added            \NC \NR
-\NC pre_adjust      \NC \type {\vadjust} material is being added     \NC \NR
-\NC box             \NC a typeset box is being added (always called) \NC \NR
-\NC adjust          \NC \type {\vadjust} material is being added     \NC \NR
-\stoptabulate
-
-Just before the \type {box} related call we have a callout to the \type
-{append_to_vlist_filter}. These callbacks do not replace any internal code.
-
 \subsection{\type {build_page_insert}}
 
 This callback is called when the pagebuilder adds an insert. There is not much
 control over this mechanism but this callback permits some last minute
 manipulations of the spacing before an insert, something that might be handy when
 for instance multiple inserts (types) are appended in a row.
+
+\startfunctioncall
+function(<number> n, <number> i)
+    return <number> register
+end
+\stopfunctioncall
+
+with
 
 \starttabulate[|lT|p|]
 \NC \rmbf value     \NC \bf explanation \NC \NR
