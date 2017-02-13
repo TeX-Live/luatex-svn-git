@@ -42,7 +42,7 @@ extern "C" {
 #include <sys/mman.h>
 #endif
 
-#ifdef _WIN32 || __FreeBSD__ || __NetBSD__ || __bsdi__ || __DragonFly__
+#if ( defined( _WIN32) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__bsdi__) || defined(__DragonFly__))
 /* We should include something equivalent to */
 /* complex.h                                 */
 #else
