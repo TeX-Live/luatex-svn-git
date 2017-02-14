@@ -99,70 +99,74 @@ The current list is:
 
 \starttabulate[|lT|p|]
 \NC \rmbf key          \NC \bf explanation \NC \NR
-\NC pdf_gone           \NC written \PDF\ bytes \NC \NR
-\NC pdf_ptr            \NC not yet written \PDF\ bytes \NC \NR
+\NC banner             \NC terminal display banner \NC \NR
+\NC best_page_break    \NC the current best break (a node) \NR \NR
+\NC buf_size           \NC current allocated size of the line buffer \NC \NR
+\NC callbacks          \NC total number of executed callbacks so far \NC \NR
+\NC cs_count           \NC number of control sequences \NC \NR
+\NC dest_names_size    \NC \PDF\ destination table size \NC \NR
 \NC dvi_gone           \NC written \DVI\ bytes \NC \NR
 \NC dvi_ptr            \NC not yet written \DVI\ bytes \NC \NR
-\NC total_pages        \NC number of written pages \NC \NR
-\NC output_file_name   \NC name of the \PDF\ or \DVI\ file \NC \NR
-\NC log_name           \NC name of the log file \NC \NR
-\NC banner             \NC terminal display banner \NC \NR
-\NC var_used           \NC variable (one|-|word) memory in use \NC \NR
 \NC dyn_used           \NC token (multi|-|word) memory in use  \NC \NR
-\NC str_ptr            \NC number of strings \NC \NR
-\NC init_str_ptr       \NC number of \INITEX\ strings \NC \NR
-\NC max_strings        \NC maximum allowed strings \NC \NR
-\NC pool_ptr           \NC string pool index \NC \NR
-\NC init_pool_ptr      \NC \INITEX\ string pool index \NC \NR
-\NC pool_size          \NC current size allocated for string characters \NC \NR
-\NC node_mem_usage     \NC a string giving insight into currently used nodes \NC \NR
-\NC var_mem_max        \NC number of allocated words for nodes \NC \NR
-\NC fix_mem_max        \NC number of allocated words for tokens \NC \NR
+\NC filename           \NC name of the current input file \NC \NR
 \NC fix_mem_end        \NC maximum number of used tokens \NC \NR
-\NC cs_count           \NC number of control sequences \NC \NR
-\NC hash_size          \NC size of hash \NC \NR
-\NC hash_extra         \NC extra allowed hash \NC \NR
+\NC fix_mem_min        \NC minimum number of allocated words for tokens \NC \NR
+\NC fix_mem_max        \NC maximum number of allocated words for tokens \NC \NR
 \NC font_ptr           \NC number of active fonts \NC \NR
+\NC hash_extra         \NC extra allowed hash \NC \NR
+\NC hash_size          \NC size of hash \NC \NR
+\NC indirect_callbacks \NC number of those that were themselves a result of other callbacks (e.g. file readers) \NC \NR
+\NC ini_version        \NC \type {true} if this is an \INITEX\ run \NC \NR
+\NC init_pool_ptr      \NC \INITEX\ string pool index \NC \NR
+\NC init_str_ptr       \NC number of \INITEX\ strings \NC \NR
 \NC input_ptr          \NC th elevel of input we're at \NC \NR
+\NC inputid            \NC numeric id of the current input \NC \NR
+\NC largest_used_mark  \NC max referenced marks class \NC \NR
+\NC lasterrorcontext   \NC last error context string (with newlines) \NC \NR
+\NC lasterrorstring    \NC last \TEX\ error string \NC \NR
+\NC lastluaerrorstring \NC last \LUA\ error string \NC \NR
+\NC lastwarningstring  \NC last warning tag, normally an indication of in what part\NC \NR
+\NC lastwarningtag     \NC last warning string\NC \NR
+\NC linenumber         \NC location in the current input file \NC \NR
+\NC log_name           \NC name of the log file \NC \NR
+\NC luabytecode_bytes  \NC number of bytes in \LUA\ bytecode registers \NC \NR
+\NC luabytecodes       \NC number of active \LUA\ bytecode registers \NC \NR
+\NC luastate_bytes     \NC number of bytes in use by \LUA\ interpreters \NC \NR
+\NC luatex_engine      \NC the \LUATEX\ engine identifier \NC \NR
+\NC luatex_hashchars   \NC length to which \LUA\ hashes strings ($2^n$) \NC \NR
+\NC luatex_hashtype    \NC the hash method used (in \LUAJITTEX) \NC \NR
+\NC luatex_revision    \NC the \LUATEX\ revision string \NC \NR
+\NC luatex_revision    \NC the \LUATEX\ revision string \NC \NR
+\NC luatex_version     \NC the \LUATEX\ version number \NC \NR
+\NC max_buf_stack      \NC max used buffer position \NC \NR
 \NC max_in_stack       \NC max used input stack entries \NC \NR
 \NC max_nest_stack     \NC max used nesting stack entries \NC \NR
 \NC max_param_stack    \NC max used parameter stack entries \NC \NR
-\NC max_buf_stack      \NC max used buffer position \NC \NR
 \NC max_save_stack     \NC max used save stack entries \NC \NR
-\NC stack_size         \NC input stack size \NC \NR
+\NC max_strings        \NC maximum allowed strings \NC \NR
 \NC nest_size          \NC nesting stack size \NC \NR
-\NC param_size         \NC parameter stack size \NC \NR
-\NC buf_size           \NC current allocated size of the line buffer \NC \NR
-\NC save_size          \NC save stack size \NC \NR
+\NC node_mem_usage     \NC a string giving insight into currently used nodes \NC \NR
 \NC obj_ptr            \NC max \PDF\ object pointer \NC \NR
 \NC obj_tab_size       \NC \PDF\ object table size \NC \NR
-\NC pdf_os_cntr        \NC max \PDF\ object stream pointer \NC \NR
-\NC pdf_os_objidx      \NC \PDF\ object stream index \NC \NR
+\NC output_active      \NC \type {true} if the \type {\output} routine is active \NC \NR
+\NC output_file_name   \NC name of the \PDF\ or \DVI\ file \NC \NR
+\NC param_size         \NC parameter stack size \NC \NR
 \NC pdf_dest_names_ptr \NC max \PDF\ destination pointer \NC \NR
-\NC dest_names_size    \NC \PDF\ destination table size \NC \NR
+\NC pdf_gone           \NC written \PDF\ bytes \NC \NR
 \NC pdf_mem_ptr        \NC max \PDF\ memory used \NC \NR
 \NC pdf_mem_size       \NC \PDF\ memory size \NC \NR
-\NC largest_used_mark  \NC max referenced marks class \NC \NR
-\NC filename           \NC name of the current input file \NC \NR
-\NC inputid            \NC numeric id of the current input \NC \NR
-\NC linenumber         \NC location in the current input file \NC \NR
-\NC lasterrorstring    \NC last \TEX\ error string \NC \NR
-\NC lastluaerrorstring \NC last \LUA\ error string \NC \NR
-\NC lastwarningtag     \NC last warning string\NC \NR
-\NC lastwarningstring  \NC last warning tag, normally an indication of in what part\NC \NR
-\NC lasterrorcontext   \NC last error context string (with newlines) \NC \NR
-\NC luabytecodes       \NC number of active \LUA\ bytecode registers \NC \NR
-\NC luabytecode_bytes  \NC number of bytes in \LUA\ bytecode registers \NC \NR
-\NC luastate_bytes     \NC number of bytes in use by \LUA\ interpreters \NC \NR
-\NC output_active      \NC \type {true} if the \type {\output} routine is active \NC \NR
-\NC callbacks          \NC total number of executed callbacks so far \NC \NR
-\NC indirect_callbacks \NC number of those that were themselves
-                           a result of other callbacks (e.g. file readers) \NC \NR
-\NC luatex_version     \NC the \LUATEX\ version number \NC \NR
-\NC luatex_revision    \NC the \LUATEX\ revision string \NC \NR
-\NC ini_version        \NC \type {true} if this is an \INITEX\ run \NC \NR
-\NC shell_escape       \NC \type {0} means disabled, \type {1} is restricted and
-                           \type {2} means anything is permitted \NC \NR
+\NC pdf_os_cntr        \NC max \PDF\ object stream pointer \NC \NR
+\NC pdf_os_objidx      \NC \PDF\ object stream index \NC \NR
+\NC pdf_ptr            \NC not yet written \PDF\ bytes \NC \NR
+\NC pool_ptr           \NC string pool index \NC \NR
+\NC pool_size          \NC current size allocated for string characters \NC \NR
+\NC save_size          \NC save stack size \NC \NR
+\NC shell_escape       \NC \type {0} means disabled, \type {1} is restricted and \type {2} means anything is permitted \NC \NR
+\NC stack_size         \NC input stack size \NC \NR
+\NC str_ptr            \NC number of strings \NC \NR
+\NC total_pages        \NC number of written pages \NC \NR
+\NC var_mem_max        \NC number of allocated words for nodes \NC \NR
+\NC var_used           \NC variable (one|-|word) memory in use \NC \NR
 \stoptabulate
 
 The error and warning messages can be wiped with the \type {resetmessages}
