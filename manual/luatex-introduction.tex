@@ -120,8 +120,10 @@ Taco Hoekwater \& Luigi Scarso
 
 \starttabulate
 \NC Version  \EQ \currentdate \NC \NR
-\NC \LUATEX  \EQ Snapshot \number\luatexversion.\luatexrevision \NC \NR
-\NC \CONTEXT \EQ \contextversion \NC \NR
+\NC \LUATEX  \EQ version  \cldcontext{status.luatex_version/100},
+                 revision \cldcontext{status.luatex_revision},
+                 number   \cldcontext{environment.luatexversion} \NC \NR
+\NC \CONTEXT \EQ MkIV \contextversion \NC \NR
 \stoptabulate
 
 \stopchapter
