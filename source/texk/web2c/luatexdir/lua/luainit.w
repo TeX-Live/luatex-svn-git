@@ -96,6 +96,7 @@ const_string LUATEX_IHELP[] = {
     "  --luaonly                      run a lua file, then exit",
     "  --luaconly                     byte-compile a lua file, then exit",
     "  --luahashchars                 the bits used by current Lua interpreter for strings hashing",
+    "  --keeplocale                   when used with --luaonly don't set C locale values",
 #ifdef LuajitTeX
     "  --jiton                        turns the JIT compiler on (default off)",
     "  --jithash=STRING               choose the hash function for the lua strings (lua51|luajit20: default lua51)",
@@ -179,6 +180,7 @@ static string user_progname = NULL;
 char *startup_filename = NULL;
 int lua_only = 0;
 int lua_offset = 0;
+int keep_locale = 0;
 unsigned char show_luahashchars = 0;
 
 #ifdef LuajitTeX
@@ -213,6 +215,7 @@ static struct option long_options[] = {
     {"lua", 1, 0, 0},
     {"luaonly", 0, 0, 0},
     {"luahashchars", 0, 0, 0},
+    {"keeplocale", 0, 0, 0},
 #ifdef LuajitTeX
     {"jiton", 0, 0, 0},
     {"jithash", 1, 0, 0},
@@ -314,7 +317,6 @@ static void parse_options(int ac, char **av)
     }
     for (;;) {
         g = getopt_long_only(ac, av, "+", long_options, &option_index);
-
         if (g == -1)            /* End of arguments, exit the loop.  */
             break;
         if (g == '?')  {         /* Unknown option.  */
@@ -329,6 +331,8 @@ static void parse_options(int ac, char **av)
             lua_only = 1;
             lua_offset = optind;
             luainit = 1;
+        } else if (ARGUMENT_IS("keeplocale")) {
+          keep_locale = 1;
         } else if (ARGUMENT_IS("lua")) {
             startup_filename = optarg;
             lua_offset = (optind - 1);
@@ -914,10 +918,14 @@ void lua_initialize(int ac, char **av)
         shellenabledp = true;
 
     /* make sure that the locale is 'sane' (for lua) */
-
-    putenv(LC_CTYPE_C);
-    putenv(LC_COLLATE_C);
-    putenv(LC_NUMERIC_C);
+    /* but the user can choose to keep the locale,   */
+    /* as in the standard Lua.                       */
+    if (!(lua_only && keep_locale)) {
+      putenv(LC_CTYPE_C);
+      putenv(LC_COLLATE_C);
+      putenv(LC_NUMERIC_C);
+    }
+       
 
     /* this is sometimes needed */
     putenv(engine_luatex);

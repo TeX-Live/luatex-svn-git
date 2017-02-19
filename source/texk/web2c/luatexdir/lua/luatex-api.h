@@ -154,6 +154,7 @@ extern void dump_luac_registers(void);
 extern void undump_luac_registers(void);
 
 extern int lua_only;
+extern int keep_locale;
 #ifdef LuajitTeX
 extern int luajiton;
 extern char *jithash_hashname ;
