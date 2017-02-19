@@ -613,6 +613,30 @@ shifts to the left. A \type {\mathnolimitsmode} larger that 15 is considered to
 be a factor for the subscript correction. This feature can be handy when
 experimenting.
 
+\section{Math italic mess}
+
+The \type {\mathitalicsmode} parameter can be set to~1 to force italic correction
+before noads that represent some more complex structure (read: everything
+that is not an ord, bin, rel, open, close, punct or inner).
+
+\starttexdefinition Whatever #1
+    \NC \type{\mathitalicsmode=#1}
+    \NC \mathitalicsmode#1\ruledhbox{$\left|T^1\right|$}
+    \NC \mathitalicsmode#1\ruledhbox{$\left|T\right|$}
+    \NC \mathitalicsmode#1\ruledhbox{$T+1$}
+    \NC \mathitalicsmode#1\ruledhbox{$T{1\over2}$}
+    \NC \mathitalicsmode#1\ruledhbox{$T\sqrt{1}$}
+    \NR \NR
+\stoptexdefinition
+
+\starttabulate[|c|c|c|c|c|c|]
+    \Whatever0
+    \Whatever1
+\stoptabulate
+
+This kind of parameters relate to the fact that italic correction in \OPENTYPE\
+math is bound to fuzzy rules. So, control is the solution.
+
 \section{Math spacing setting}
 
 Besides the parameters mentioned in the previous sections, there are also 64 new

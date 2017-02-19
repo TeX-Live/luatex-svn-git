@@ -281,12 +281,13 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_nolimits_mode_code 90
 #  define math_rules_mode_code 91
 #  define math_rules_fam_code 92
-#  define synctex_code 93                                               /* is synctex file generation enabled ?  */
-#  define shape_mode_code 94
-#  define first_valid_language_code 95
-#  define hyphenation_bounds_code 96
-#  define math_skip_mode_code 97
-#  define math_pre_display_gap_factor_code 98
+#  define math_italics_mode_code 93
+#  define synctex_code 94                                               /* is synctex file generation enabled ?  */
+#  define shape_mode_code 95
+#  define first_valid_language_code 96
+#  define hyphenation_bounds_code 97
+#  define math_skip_mode_code 98
+#  define math_pre_display_gap_factor_code 99
 
 #  define math_option_code (math_skip_mode_code+1)
 
@@ -648,8 +649,9 @@ extern halfword last_cs_name;
 #define disable_lig_par                    int_par(disable_lig_code)
 #define disable_kern_par                   int_par(disable_kern_code)
 #define disable_space_par                  int_par(disable_space_code)
-#define scripts_mode_par                   int_par(math_scripts_mode_code)
-#define nolimits_mode_par                  int_par(math_nolimits_mode_code)
+#define math_scripts_mode_par              int_par(math_scripts_mode_code)
+#define math_nolimits_mode_par             int_par(math_nolimits_mode_code)
+#define math_italics_mode_par              int_par(math_italics_mode_code)
 #define math_rules_mode_par                int_par(math_rules_mode_code)
 #define math_rules_fam_par                 int_par(math_rules_fam_code)
 
