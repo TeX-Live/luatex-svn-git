@@ -45,8 +45,16 @@ nodist_libluajittex_a_SOURCES = \
 	$(dist_libluatex_sources) \
 	$(nodist_libluatex_sources)
 
-$(libluatex_a_OBJECTS): libff.a libmplib.a libluamisc.a $(POPPLER_DEPEND)
-$(libluajittex_a_OBJECTS): libff.a libmplib.a libluajitmisc.a $(POPPLER_DEPEND)
+#$(libluatex_a_OBJECTS): libff.a libmplib.a libluamisc.a $(POPPLER_DEPEND)
+#$(libluajittex_a_OBJECTS): libff.a libmplib.a libluajitmisc.a $(POPPLER_DEPEND)
+
+#$(libluatex_a_OBJECTS): libff.a libmplibcore.a libmplibbackends.a libluamisc.a $(POPPLER_DEPEND)
+#$(libluajittex_a_OBJECTS): libff.a libmplibcore.a libmplibbackends.a libluajitmisc.a $(POPPLER_DEPEND)
+
+## mplib stub backends are in mplibstuff.c
+$(libluatex_a_OBJECTS): libff.a libmplibcore.a libluamisc.a $(POPPLER_DEPEND)
+$(libluajittex_a_OBJECTS): libff.a libmplibcore.a libluajitmisc.a $(POPPLER_DEPEND)
+
 
 ## from luatexdir
 ##
@@ -224,6 +232,8 @@ luastuff.c: ctangle$(EXEEXT) luatexdir/lua/luastuff.w
 	$(luatex_lua_ctangle) luastuff.w
 luatoken.c: ctangle$(EXEEXT) luatexdir/lua/luatoken.w
 	$(luatex_lua_ctangle) luatoken.w
+mplibstuff.c: ctangle$(EXEEXT) luatexdir/lua/mplibstuff.w
+	$(luatex_lua_ctangle) mplibstuff.w
 texluac.c: ctangle$(EXEEXT) luatexdir/lua/texluac.w
 	$(luatex_lua_ctangle) texluac.w
 texluajitc.c: ctangle$(EXEEXT) luatexdir/lua/texluajitc.w
@@ -231,10 +241,11 @@ texluajitc.c: ctangle$(EXEEXT) luatexdir/lua/texluajitc.w
 
 libluatex_web += luatexdir/lua/luainit.w luatexdir/lua/luajitstuff.w
 libluatex_web += luatexdir/lua/luanode.w luatexdir/lua/luastuff.w luatexdir/lua/luatoken.w
+libluatex_web += luatexdir/lua/mplibstuff.w
 libluatex_web += luatexdir/lua/texluac.w luatexdir/lua/texluajitc.w
 
 nodist_libluatex_sources +=  luainit.c luanode.c luatoken.c
-
+nodist_libluatex_sources +=  mplibstuff.c
 
 
 dist_libluatex_sources += \
