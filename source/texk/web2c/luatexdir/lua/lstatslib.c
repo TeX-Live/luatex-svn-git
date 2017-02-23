@@ -328,9 +328,9 @@ static struct statistic stats[] = {
 
     {"indirect_callbacks", 'g', &saved_callback_count},
 
-    {"lc_ctype", 'S', &get_lc_ctype},
-    {"lc_collate", 'S', &get_lc_collate},
-    {"lc_numeric",'S', &get_lc_numeric},
+    {"lc_ctype", 'S', (void *) &get_lc_ctype},
+    {"lc_collate", 'S', (void *) &get_lc_collate},
+    {"lc_numeric",'S', (void *) &get_lc_numeric},
     
     {NULL, 0, 0}
 };
