@@ -121,6 +121,21 @@ static const char *getenginename(void)
     return engine_name;
 }
 
+static const char * get_lc_ctype(void)
+{
+    return lc_ctype;
+}
+
+static const char * get_lc_collate(void)
+{
+    return lc_collate;
+}
+
+static const char * get_lc_numeric(void)
+{
+    return lc_numeric;
+}
+
 
 
 static lua_Number get_luatexhashchars(void)
@@ -310,8 +325,13 @@ static struct statistic stats[] = {
     {"luabytecode_bytes", 'g', &luabytecode_bytes},
     {"luastate_bytes", 'g', &luastate_bytes},
     {"callbacks", 'g', &callback_count},
+
     {"indirect_callbacks", 'g', &saved_callback_count},
 
+    {"lc_ctype", 'S', &get_lc_ctype},
+    {"lc_collate", 'S', &get_lc_collate},
+    {"lc_numeric",'S', &get_lc_numeric},
+    
     {NULL, 0, 0}
 };
 
