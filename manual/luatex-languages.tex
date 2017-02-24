@@ -345,6 +345,25 @@ character|-|handling code have been moved back inline. When \type
 {\tracingcommands} is on, this is visible because the full word is reported,
 instead of just the initial character.
 
+Because we tend to make hard codes behaviour configurable two new primitives have
+been added:
+
+\starttyping
+\automatichyphenmode
+\automatichyphenpenalty
+\stoptyping
+
+The first parameter has the following consequences for automatic discs (the ones
+resulting from an \type {\exhyphenchar}:
+
+\starttabulate[|T||]
+\NC 0 \NC assign \type {\exhyphenpenalty} \NC \NR
+\NC 1 \NC assign \type {\hyphenpenalty} \NC \NR
+\NC 2 \NC assign \type {\automatichyphenpenalty} \NC \NR
+\stoptabulate
+
+other values do what we always did in \LUATEX: insert \type {\exhyphenpenalty}.
+
 \section[patternsexceptions]{Loading patterns and exceptions}
 
 The hyphenation algorithm in \LUATEX\ is quite different from the one in \TEX82,

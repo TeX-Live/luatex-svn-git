@@ -721,6 +721,25 @@ there was not the best idea ever.
 
 */
 
+#define check_automatic_disc(t) \
+switch (automatic_hyphen_mode_par) { \
+    case 0: \
+        /* we take ex_hyphen_penalty */ \
+        disc_penalty(t) = ex_hyphen_penalty_par; \
+        break ; \
+    case 1: \
+        /* we take hyphen_penalty */ \
+        disc_penalty(t) = hyphen_penalty_par; \
+        break ; \
+    case 2: \
+        /* we take automatic_hyphen_penalty */ \
+        disc_penalty(t) = automatic_hyphen_penalty_par; \
+        break ; \
+    default: \
+        disc_penalty(t) = ex_hyphen_penalty_par; \
+        break ; \
+} \
+
 static halfword find_next_wordstart(halfword r, halfword first_language, halfword strict_bound)
 {
     register int l;
@@ -776,6 +795,7 @@ static halfword find_next_wordstart(halfword r, halfword first_language, halfwor
                     t = vlink(r) ;
                     if ((start_ok == 0) && (t!=null) && (type(t) == glyph_node) && (character(t) != ex_hyphen_char_par)) {
                         t = compound_word_break(r, char_lang(r));
+                        check_automatic_disc(t);
                         subtype(t) = automatic_disc;
                         start_ok = 1 ;
                     } else {
@@ -955,6 +975,7 @@ void hnj_hyphenation(halfword head, halfword tail)
                 if (is_simple_character(rr)) {
                         if (character(rr) == ex_hyphen_char_par) {
                             t = compound_word_break(rr, clang);
+                            check_automatic_disc(t);
                             subtype(t) = automatic_disc;
                             while (character(alink(rr)) == ex_hyphen_char_par)
                                 rr = alink(rr);
