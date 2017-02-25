@@ -769,9 +769,9 @@ am__objects_9 = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-textoken.$(OBJEXT) libluatex_a-avlstuff.$(OBJEXT) \
 	libluatex_a-managed-sa.$(OBJEXT) libluatex_a-utils.$(OBJEXT) \
 	libluatex_a-unistring.$(OBJEXT)
-nodist_libluatex_a_OBJECTS = libluatex_a-luastuff.$(OBJEXT) \
-	libluatex_a-texluac.$(OBJEXT) $(am__objects_8) \
-	$(am__objects_9)
+nodist_libluatex_a_OBJECTS = libluatex_a-helpers.$(OBJEXT) \
+	libluatex_a-luastuff.$(OBJEXT) libluatex_a-texluac.$(OBJEXT) \
+	$(am__objects_8) $(am__objects_9)
 libluatex_a_OBJECTS = $(dist_libluatex_a_OBJECTS) \
 	$(nodist_libluatex_a_OBJECTS)
 libmd5_a_AR = $(AR) $(ARFLAGS)
@@ -3353,7 +3353,7 @@ dist_libluatex_a_SOURCES = \
 	luatexdir/lua/lstrlibext.c
 
 nodist_libluatex_a_SOURCES = \
-	luastuff.c texluac.c \
+	helpers.c luastuff.c texluac.c \
 	$(dist_libluatex_sources) \
 	$(nodist_libluatex_sources)
 
@@ -3381,40 +3381,40 @@ libluatex_web = luatexdir/dvi/dvigen.w luatexdir/font/dofont.w \
 	luatexdir/image/writejpg.w luatexdir/image/writejp2.w \
 	luatexdir/image/writepng.w luatexdir/image/pdftoepdf.w \
 	luatexdir/lang/texlang.w luatexdir/lang/hyphen.w \
-	luatexdir/lang/hnjalloc.w luatexdir/lua/luainit.w \
-	luatexdir/lua/luajitstuff.w luatexdir/lua/luanode.w \
-	luatexdir/lua/luastuff.w luatexdir/lua/luatoken.w \
-	luatexdir/lua/mplibstuff.w luatexdir/lua/texluac.w \
-	luatexdir/lua/texluajitc.w luatexdir/pdf/pdfpagetree.w \
-	luatexdir/pdf/pdfaction.w luatexdir/pdf/pdfannot.w \
-	luatexdir/pdf/pdfcolorstack.w luatexdir/pdf/pdfdest.w \
-	luatexdir/pdf/pdffont.w luatexdir/pdf/pdfgen.w \
-	luatexdir/pdf/pdfglyph.w luatexdir/pdf/pdfimage.w \
-	luatexdir/pdf/pdflink.w luatexdir/pdf/pdflistout.w \
-	luatexdir/pdf/pdfliteral.w luatexdir/pdf/pdfobj.w \
-	luatexdir/pdf/pdfoutline.w luatexdir/pdf/pdfpage.w \
-	luatexdir/pdf/pdfrule.w luatexdir/pdf/pdfsaverestore.w \
-	luatexdir/pdf/pdfsetmatrix.w luatexdir/pdf/pdfshipout.w \
-	luatexdir/pdf/pdftables.w luatexdir/pdf/pdfthread.w \
-	luatexdir/pdf/pdfxform.w luatexdir/tex/align.w \
-	luatexdir/tex/arithmetic.w luatexdir/tex/buildpage.w \
-	luatexdir/tex/commands.w luatexdir/tex/conditional.w \
-	luatexdir/tex/directions.w luatexdir/tex/dumpdata.w \
-	luatexdir/tex/equivalents.w luatexdir/tex/errors.w \
-	luatexdir/tex/expand.w luatexdir/tex/extensions.w \
-	luatexdir/tex/filename.w luatexdir/tex/inputstack.w \
-	luatexdir/tex/linebreak.w luatexdir/tex/mainbody.w \
-	luatexdir/tex/maincontrol.w luatexdir/tex/mathcodes.w \
-	luatexdir/tex/memoryword.w luatexdir/tex/mlist.w \
-	luatexdir/tex/nesting.w luatexdir/tex/packaging.w \
-	luatexdir/tex/postlinebreak.w luatexdir/tex/primitive.w \
-	luatexdir/tex/printing.w luatexdir/tex/scanning.w \
-	luatexdir/tex/stringpool.w luatexdir/tex/texdeffont.w \
-	luatexdir/tex/texfileio.w luatexdir/tex/texmath.w \
-	luatexdir/tex/texnodes.w luatexdir/tex/textcodes.w \
-	luatexdir/tex/textoken.w luatexdir/utils/avlstuff.w \
-	luatexdir/utils/managed-sa.w luatexdir/utils/utils.w \
-	luatexdir/utils/unistring.w
+	luatexdir/lang/hnjalloc.w luatexdir/lua/helpers.w \
+	luatexdir/lua/luainit.w luatexdir/lua/luajitstuff.w \
+	luatexdir/lua/luanode.w luatexdir/lua/luastuff.w \
+	luatexdir/lua/luatoken.w luatexdir/lua/mplibstuff.w \
+	luatexdir/lua/texluac.w luatexdir/lua/texluajitc.w \
+	luatexdir/pdf/pdfpagetree.w luatexdir/pdf/pdfaction.w \
+	luatexdir/pdf/pdfannot.w luatexdir/pdf/pdfcolorstack.w \
+	luatexdir/pdf/pdfdest.w luatexdir/pdf/pdffont.w \
+	luatexdir/pdf/pdfgen.w luatexdir/pdf/pdfglyph.w \
+	luatexdir/pdf/pdfimage.w luatexdir/pdf/pdflink.w \
+	luatexdir/pdf/pdflistout.w luatexdir/pdf/pdfliteral.w \
+	luatexdir/pdf/pdfobj.w luatexdir/pdf/pdfoutline.w \
+	luatexdir/pdf/pdfpage.w luatexdir/pdf/pdfrule.w \
+	luatexdir/pdf/pdfsaverestore.w luatexdir/pdf/pdfsetmatrix.w \
+	luatexdir/pdf/pdfshipout.w luatexdir/pdf/pdftables.w \
+	luatexdir/pdf/pdfthread.w luatexdir/pdf/pdfxform.w \
+	luatexdir/tex/align.w luatexdir/tex/arithmetic.w \
+	luatexdir/tex/buildpage.w luatexdir/tex/commands.w \
+	luatexdir/tex/conditional.w luatexdir/tex/directions.w \
+	luatexdir/tex/dumpdata.w luatexdir/tex/equivalents.w \
+	luatexdir/tex/errors.w luatexdir/tex/expand.w \
+	luatexdir/tex/extensions.w luatexdir/tex/filename.w \
+	luatexdir/tex/inputstack.w luatexdir/tex/linebreak.w \
+	luatexdir/tex/mainbody.w luatexdir/tex/maincontrol.w \
+	luatexdir/tex/mathcodes.w luatexdir/tex/memoryword.w \
+	luatexdir/tex/mlist.w luatexdir/tex/nesting.w \
+	luatexdir/tex/packaging.w luatexdir/tex/postlinebreak.w \
+	luatexdir/tex/primitive.w luatexdir/tex/printing.w \
+	luatexdir/tex/scanning.w luatexdir/tex/stringpool.w \
+	luatexdir/tex/texdeffont.w luatexdir/tex/texfileio.w \
+	luatexdir/tex/texmath.w luatexdir/tex/texnodes.w \
+	luatexdir/tex/textcodes.w luatexdir/tex/textoken.w \
+	luatexdir/utils/avlstuff.w luatexdir/utils/managed-sa.w \
+	luatexdir/utils/utils.w luatexdir/utils/unistring.w
 nodist_libluatex_sources = dvigen.c dofont.c luafont.c mapfile.c \
 	pkin.c sfnt.c subfont.c texfont.c tfmofm.c tounicode.c \
 	tt_glyf.c tt_table.c vfovf.c vfpacket.c writecff.c writeenc.c \
@@ -5499,6 +5499,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-expand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-extensions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-filename.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-helpers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-hnjalloc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-hyphen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-inputstack.Po@am__quote@
@@ -9026,6 +9027,20 @@ luatexdir/lua/libluatex_a-lstrlibext.obj: luatexdir/lua/lstrlibext.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lstrlibext.c' object='luatexdir/lua/libluatex_a-lstrlibext.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/libluatex_a-lstrlibext.obj `if test -f 'luatexdir/lua/lstrlibext.c'; then $(CYGPATH_W) 'luatexdir/lua/lstrlibext.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lstrlibext.c'; fi`
+
+libluatex_a-helpers.o: helpers.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-helpers.o -MD -MP -MF $(DEPDIR)/libluatex_a-helpers.Tpo -c -o libluatex_a-helpers.o `test -f 'helpers.c' || echo '$(srcdir)/'`helpers.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-helpers.Tpo $(DEPDIR)/libluatex_a-helpers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='helpers.c' object='libluatex_a-helpers.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-helpers.o `test -f 'helpers.c' || echo '$(srcdir)/'`helpers.c
+
+libluatex_a-helpers.obj: helpers.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-helpers.obj -MD -MP -MF $(DEPDIR)/libluatex_a-helpers.Tpo -c -o libluatex_a-helpers.obj `if test -f 'helpers.c'; then $(CYGPATH_W) 'helpers.c'; else $(CYGPATH_W) '$(srcdir)/helpers.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-helpers.Tpo $(DEPDIR)/libluatex_a-helpers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='helpers.c' object='libluatex_a-helpers.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-helpers.obj `if test -f 'helpers.c'; then $(CYGPATH_W) 'helpers.c'; else $(CYGPATH_W) '$(srcdir)/helpers.c'; fi`
 
 libluatex_a-luastuff.o: luastuff.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-luastuff.o -MD -MP -MF $(DEPDIR)/libluatex_a-luastuff.Tpo -c -o libluatex_a-luastuff.o `test -f 'luastuff.c' || echo '$(srcdir)/'`luastuff.c
@@ -15203,6 +15218,8 @@ hyphen.c: ctangle$(EXEEXT) luatexdir/lang/hyphen.w
 texlang.c: ctangle$(EXEEXT) luatexdir/lang/texlang.w
 	$(luatex_lang_ctangle) texlang.w
 
+helpers.c: ctangle$(EXEEXT) luatexdir/lua/helpers.w
+	$(luatex_lua_ctangle) helpers.w
 luainit.c: ctangle$(EXEEXT) luatexdir/lua/luainit.w
 	$(luatex_lua_ctangle) luainit.w
 luajitstuff.c: ctangle$(EXEEXT) luatexdir/lua/luajitstuff.w
