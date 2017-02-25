@@ -154,7 +154,6 @@ extern void dump_luac_registers(void);
 extern void undump_luac_registers(void);
 
 extern int lua_only;
-extern int keep_locale;
 extern const char *lc_ctype;
 extern const char *lc_collate;
 extern const char *lc_numeric;
