@@ -1770,7 +1770,7 @@ void append_discretionary(void)
             alink(vlink(post_break(tail))) = post_break(tail);
             tlink(post_break(tail)) = vlink(post_break(tail));
         }
-        disc_penalty(tail) = ex_hyphen_penalty_par;
+        set_explicit_disc_penalty(tail);
     } else {
         /* \discretionary */
         if (scan_keyword("penalty")) {

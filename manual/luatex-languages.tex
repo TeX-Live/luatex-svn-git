@@ -345,21 +345,30 @@ character|-|handling code have been moved back inline. When \type
 {\tracingcommands} is on, this is visible because the full word is reported,
 instead of just the initial character.
 
-Because we tend to make hard codes behaviour configurable two new primitives have
-been added:
+Because we tend to make hard codes behaviour configurable a few new primitives
+have been added:
 
 \starttyping
-\automatichyphenmode
+\hyphenpenaltymode
 \automatichyphenpenalty
+\explicithyphenpenalty
 \stoptyping
 
 The first parameter has the following consequences for automatic discs (the ones
 resulting from an \type {\exhyphenchar}:
 
-\starttabulate[|T||]
-\NC 0 \NC assign \type {\exhyphenpenalty} \NC \NR
-\NC 1 \NC assign \type {\hyphenpenalty} \NC \NR
-\NC 2 \NC assign \type {\automatichyphenpenalty} \NC \NR
+\starttabulate[|Tc|l|l|]
+\BC mode \BC automatic disc \type{-}         \BC explicit disc \type{\-}         \NC \NR
+\HL
+\NC 0    \NC \type {\exhyphenpenalty}        \NC \type {\exhyphenpenalty}        \NC \NR
+\NC 1    \NC \type {\hyphenpenalty}          \NC \type {\hyphenpenalty}          \NC \NR
+\NC 2    \NC \type {\exhyphenpenalty}        \NC \type {\hyphenpenalty}          \NC \NR
+\NC 3    \NC \type {\hyphenpenalty}          \NC \type {\exhyphenpenalty}        \NC \NR
+\NC 4    \NC \type {\automatichyphenpenalty} \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC 5    \NC \type {\exhyphenpenalty}        \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC 6    \NC \type {\hyphenpenalty}          \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC 7    \NC \type {\automatichyphenpenalty} \NC \type {\exhyphenpenalty}        \NC \NR
+\NC 8    \NC \type {\automatichyphenpenalty} \NC \type {\hyphenpenalty}          \NC \NR
 \stoptabulate
 
 other values do what we always did in \LUATEX: insert \type {\exhyphenpenalty}.

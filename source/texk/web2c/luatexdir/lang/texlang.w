@@ -321,13 +321,8 @@ void load_tex_hyphenation(int curlang, halfword head)
     load_hyphenation(get_language(curlang), (unsigned char *) s);
 }
 
-@ TODO: clean this up. The |delete_attribute_ref()| statements are not very nice,
-but needed. Also, in the post-break, it would be nicer to get the attribute list
-from |vlink(n)|. No rush, as it is currently not used much.
-
-@c
-halfword insert_discretionary(halfword t, halfword pre, halfword post,
-                              halfword replace, int penalty)
+@ @c
+halfword insert_discretionary(halfword t, halfword pre, halfword post, halfword replace, int penalty)
 {
     halfword g, n;
     int f;
@@ -417,24 +412,21 @@ halfword insert_syllable_discretionary(halfword t, lang_variables * lan)
     return n;
 }
 
-halfword insert_word_discretionary(halfword t, lang_variables * lan)
-{
-    halfword pre = null, pos = null;
-    if (lan->pre_exhyphen_char > 0)
-        pre = insert_character(null, lan->pre_exhyphen_char);
-    if (lan->post_exhyphen_char > 0)
-        pos = insert_character(null, lan->post_exhyphen_char);
-    return insert_discretionary(t, pre, pos, null,ex_hyphen_penalty_par);
-}
-
 @ @c
 halfword compound_word_break(halfword t, int clang)
 {
-    int disc;
-    lang_variables langdata;
-    langdata.pre_exhyphen_char = get_pre_exhyphen_char(clang);
-    langdata.post_exhyphen_char = get_post_exhyphen_char(clang);
-    disc = insert_word_discretionary(t, &langdata);
+    halfword disc = null;
+    halfword pre = null;
+    halfword pos = null;
+    halfword pre_exhyphen_char = get_pre_exhyphen_char(clang);
+    halfword post_exhyphen_char = get_post_exhyphen_char(clang);
+    if (pre_exhyphen_char > 0)
+        pre = insert_character(null,pre_exhyphen_char);
+    if (post_exhyphen_char > 0)
+        pos = insert_character(null,post_exhyphen_char);
+    disc = insert_discretionary(t,pre,pos,null,ex_hyphen_penalty_par);
+    subtype(disc) = automatic_disc;
+    set_automatic_disc_penalty(disc);
     return disc;
 }
 
@@ -443,7 +435,7 @@ halfword insert_complex_discretionary(halfword t, lang_variables * lan,
                                       halfword replace)
 {
     (void) lan;
-    return insert_discretionary(t, pre, pos, replace,hyphen_penalty_par);
+    return insert_discretionary(t,pre,pos,replace,hyphen_penalty_par);
 }
 
 halfword insert_character(halfword t, int c)
@@ -721,25 +713,6 @@ there was not the best idea ever.
 
 */
 
-#define check_automatic_disc(t) \
-switch (automatic_hyphen_mode_par) { \
-    case 0: \
-        /* we take ex_hyphen_penalty */ \
-        disc_penalty(t) = ex_hyphen_penalty_par; \
-        break ; \
-    case 1: \
-        /* we take hyphen_penalty */ \
-        disc_penalty(t) = hyphen_penalty_par; \
-        break ; \
-    case 2: \
-        /* we take automatic_hyphen_penalty */ \
-        disc_penalty(t) = automatic_hyphen_penalty_par; \
-        break ; \
-    default: \
-        disc_penalty(t) = ex_hyphen_penalty_par; \
-        break ; \
-} \
-
 static halfword find_next_wordstart(halfword r, halfword first_language, halfword strict_bound)
 {
     register int l;
@@ -794,9 +767,7 @@ static halfword find_next_wordstart(halfword r, halfword first_language, halfwor
                     */
                     t = vlink(r) ;
                     if ((start_ok == 0) && (t!=null) && (type(t) == glyph_node) && (character(t) != ex_hyphen_char_par)) {
-                        t = compound_word_break(r, char_lang(r));
-                        check_automatic_disc(t);
-                        subtype(t) = automatic_disc;
+                        compound_word_break(r, char_lang(r));
                         start_ok = 1 ;
                     } else {
                         start_ok = 0;
@@ -967,16 +938,13 @@ void hnj_hyphenation(halfword head, halfword tail)
                     set of explicit hyphens
                 */
                 halfword rr = r;
-                halfword t = null;
 #ifdef VERBOSE
                 formatted_warning("hyphenation","explicit hyphen(s) found in %s (c=%d)", utf8word, clang);
 #endif
                 while (rr != wordstart) {
                 if (is_simple_character(rr)) {
                         if (character(rr) == ex_hyphen_char_par) {
-                            t = compound_word_break(rr, clang);
-                            check_automatic_disc(t);
-                            subtype(t) = automatic_disc;
+                            compound_word_break(rr, clang);
                             while (character(alink(rr)) == ex_hyphen_char_par)
                                 rr = alink(rr);
                             if (rr == wordstart)
@@ -1011,13 +979,13 @@ void hnj_hyphenation(halfword head, halfword tail)
                     /* what is right overruns left .. a bit messy */
                 }
                 /* maybe an extra check ... */
-                /* if (left && right) { */
+                /* |if (left && right) {| */
 #ifdef VERBOSE
                     formatted_warning("hyphenation","hyphenate %s (c=%d,l=%d,r=%d) from %c to %c",
                         utf8word, clang, lhmin, rhmin, character(left), character(right));
 #endif
                     (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, end_word, wordlen, left, right, &langdata);
-                /* } */
+                /* |}| */
             }
         }
         explicit_hyphen = false;
