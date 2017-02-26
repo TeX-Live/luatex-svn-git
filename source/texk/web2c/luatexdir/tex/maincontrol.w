@@ -1035,7 +1035,7 @@ boolean its_all_over(void)
         tail_append(new_null_box());
         width(tail) = hsize_par;
         tail_append(new_glue(fill_glue));
-        tail_append(new_penalty(-010000000000));
+        tail_append(new_penalty(-010000000000,final_penalty));
         normal_page_filter(end);
         build_page();           /* append \.{\\hbox to \\hsize\{\}\\vfill\\penalty-'10000000000} */
     }
@@ -1599,7 +1599,7 @@ void handle_mark(void)
 void append_penalty(void)
 {
     scan_int();
-    tail_append(new_penalty(cur_val));
+    tail_append(new_penalty(cur_val,user_penalty));
     if (mode == vmode) {
         checked_page_filter(penalty);
         build_page();

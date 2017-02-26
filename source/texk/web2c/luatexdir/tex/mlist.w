@@ -4257,7 +4257,7 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
             r_type = type(vlink(q));
             r_subtype = subtype(vlink(q));
             if (r_type != penalty_node && (r_type != simple_noad || r_subtype != rel_noad_type)) {
-                z = new_penalty(pen);
+                z = new_penalty(pen,noad_penalty);
                 reset_attributes(z, node_attr(q));
                 couple_nodes(p,z);
                 p = z;

@@ -857,7 +857,7 @@ void hnj_hyphenation(halfword head, halfword tail)
 
     assert(tail != null);
     save_tail1 = vlink(tail);
-    s = new_penalty(0);
+    s = new_penalty(0,word_penalty);
     couple_nodes(tail, s);
 
     while (r != null) {         /* could be while(1), but let's be paranoid */
