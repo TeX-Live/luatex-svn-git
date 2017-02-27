@@ -634,10 +634,201 @@ static int f_flush (lua_State *L) {
   return luaL_fileresult(L, fflush(tofile(L)) == 0, NULL);
 }
 
+/* a few helpers to avoid reading numbers as strings */
 
-/*
-** functions for 'io' library
-*/
+static int readcardinal1(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    if (a == EOF)
+        lua_pushnil(L);
+    else
+        lua_pushinteger(L, a);
+    return 1;
+}
+
+static int readcardinal2(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    int b = getc(f);
+    if (b == EOF)
+        lua_pushnil(L);
+    else
+        lua_pushinteger(L, 0x100 * a + b);
+    return 1;
+}
+
+static int readcardinal3(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    int b = getc(f);
+    int c = getc(f);
+    if (c == EOF)
+        lua_pushnil(L);
+    else
+        lua_pushinteger(L, 0x10000 * a + 0x100 * b + c);
+    return 1;
+}
+
+static int readcardinal4(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    int b = getc(f);
+    int c = getc(f);
+    int d = getc(f);
+    if (d == EOF)
+        lua_pushnil(L);
+    else
+        lua_pushinteger(L,0x1000000 * a + 0x10000 * b + 0x100 * c + d);
+    return 1;
+}
+
+static int readinteger1(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    if (a == EOF)
+        lua_pushnil(L);
+    else if (a >= 0x80)
+        lua_pushinteger(L, a - 0xFF - 1);
+    else
+        lua_pushinteger(L, a);
+    return 1;
+}
+
+static int readinteger2(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    int b = getc(f);
+    if (b == EOF)
+        lua_pushnil(L);
+    else if (a >= 0x80)
+        lua_pushinteger(L, 0x100 * a + b - 0x10000);
+    else
+        lua_pushinteger(L, 0x100 * a + b);
+    return 1;
+}
+
+static int readinteger3(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    int b = getc(f);
+    int c = getc(f);
+    if (c == EOF)
+        lua_pushnil(L);
+    else if (a >= 0x80)
+        lua_pushinteger(L, 0x10000 * a + 0x100 * b + c - 0x1000000);
+    else
+        lua_pushinteger(L, 0x10000 * a + 0x100 * b + c);
+    return 1;
+}
+
+static int readinteger4(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    int b = getc(f);
+    int c = getc(f);
+    int d = getc(f);
+    if (d == EOF)
+        lua_pushnil(L);
+    else if (a >= 0x80)
+        lua_pushinteger(L, 0x1000000 * a + 0x10000 * b + 0x100 * c + d - 0x100000000);
+    else
+        lua_pushinteger(L, 0x1000000 * a + 0x10000 * b + 0x100 * c + d);
+    return 1;
+}
+
+static int readfixed2(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    int b = getc(f);
+    if (b == EOF)
+        lua_pushnil(L);
+    else if (a >= 0x80)
+        lua_pushinteger(L, a + b/0xFFFF - 0x100);
+    else
+        lua_pushinteger(L, a + b/0xFFFF);
+    return 1;
+}
+
+static int readfixed4(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    int b = getc(f);
+    int c = getc(f);
+    int d = getc(f);
+    if (d == EOF)
+        lua_pushnil(L);
+    else if (a >= 0x80)
+        lua_pushnumber(L, (0x1000000 * a + 0x10000 * b + 0x100 * c + d - 0x100000000)/65536.0);
+    else
+        lua_pushnumber(L, (0x1000000 * a + 0x10000 * b + 0x100 * c + d)/65536.0);
+    return 1;
+}
+
+static int read2dot14(lua_State *L) {
+    FILE *f = tofile(L);
+    int a = getc(f);
+    int b = getc(f);
+    int c = getc(f);
+    int d = getc(f);
+    int n = (0x1000000 * a + 0x10000 * b + 0x100 * c + d);
+    lua_pushnumber(L, (n >> 14) + ((n & 0x3fff) / 16384.0));
+    return 1;
+}
+
+static int getposition(lua_State *L) {
+    FILE *f = tofile(L);
+    long p = ftell(f);
+    if (p<0)
+        lua_pushnil(L);
+    else
+        lua_pushinteger(L, p);
+    return 1;
+}
+
+static int setposition(lua_State *L) {
+    FILE *f = tofile(L);
+    long p = lua_tointeger(L,2);
+    p = fseek(f,p,SEEK_SET);
+    if (p<0)
+        lua_pushnil(L);
+    else
+        lua_pushinteger(L, p);
+    return 1;
+}
+
+static int skipposition(lua_State *L) {
+    FILE *f = tofile(L);
+    long p = lua_tointeger(L,2);
+    p = fseek(f,ftell(f)+p,SEEK_SET);
+    if (p<0)
+        lua_pushnil(L);
+    else
+        lua_pushinteger(L, p);
+    return 1;
+}
+
+static const luaL_Reg fiolib[] = {
+  /* helpers */
+  {"readcardinal1",readcardinal1},
+  {"readcardinal2",readcardinal2},
+  {"readcardinal3",readcardinal3},
+  {"readcardinal4",readcardinal4},
+  {"readinteger1",readinteger1},
+  {"readinteger2",readinteger2},
+  {"readinteger3",readinteger3},
+  {"readinteger4",readinteger4},
+  {"readfixed2",readfixed2},
+  {"readfixed4",readfixed4},
+  {"read2dot14",read2dot14},
+  {"setposition",setposition},
+  {"getposition",getposition},
+  {"skipposition",skipposition},
+  /* done */
+  {NULL, NULL}
+};
+
+/* functions for 'io' library */
+
 static const luaL_Reg iolib[] = {
   {"close", io_close},
   {"flush", io_flush},
@@ -650,13 +841,15 @@ static const luaL_Reg iolib[] = {
   {"tmpfile", io_tmpfile},
   {"type", io_type},
   {"write", io_write},
+  /* done */
   {NULL, NULL}
 };
 
 
 /*
-** methods for file handles
+    Methods for file handles.
 */
+
 static const luaL_Reg flib[] = {
   {"close", io_close},
   {"flush", f_flush},
@@ -680,10 +873,10 @@ static void createmeta (lua_State *L) {
   lua_pop(L, 1);  /* pop new metatable */
 }
 
-
 /*
-** function to (not) close the standard files stdin, stdout, and stderr
+    a function to (not) close the standard files stdin, stdout, and stderr
 */
+
 static int io_noclose (lua_State *L) {
   LStream *p = tolstream(L);
   p->closef = &io_noclose;  /* keep file opened */
@@ -691,7 +884,6 @@ static int io_noclose (lua_State *L) {
   lua_pushliteral(L, "cannot close standard file");
   return 2;
 }
-
 
 static void createstdfile (lua_State *L, FILE *f, const char *k,
                            const char *fname) {
@@ -707,6 +899,7 @@ static void createstdfile (lua_State *L, FILE *f, const char *k,
 #endif
 
 int open_iolibext (lua_State *L) {
+    luaL_register(L, "fio", fiolib);
 #ifdef LuajitTeX
   return luaopen_io(L);
 #else
