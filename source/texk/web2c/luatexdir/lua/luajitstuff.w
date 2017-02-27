@@ -329,8 +329,11 @@ void luainterpreter(void)
 
     lua_createtable(L, 0, 0);
     lua_setglobal(L, "texconfig");
-
-    if (safer_option) {
+ 
+    /* LuaJITTeX is stricter with restrictedshell: if enabled it's like safer.   */
+    /* The rationale is that popen requires an important amount of internal code */
+    /* rewrite, which is not what we want now.                                   */
+    if (safer_option||(shellenabledp == 1 && restrictedshell == 1)) {
         /* disable some stuff if --safer */
         (void) hide_lua_value(L, "os", "execute");
         (void) hide_lua_value(L, "os", "rename");
