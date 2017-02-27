@@ -1252,10 +1252,10 @@ init_lua_key_alias(term_and_log,"term and log")
     } \
 } while(0)
 
-#ifdef __MINGW32__
-extern FILE *_cairo_win32_tmpfile( void );
-#define tmpfile() _cairo_win32_tmpfile()
-#endif /* __MINGW32__ */
+#ifdef _WIN32
+extern FILE *_cairo_win_tmpfile( void );
+#define tmpfile() _cairo_win_tmpfile()
+#endif /* _WIN32 */
 
 #endif                          /* LUATEX_API_H */
 

@@ -42,6 +42,11 @@ ptexlib.h must be included first!!!
 extern double rint(double x);
 #  endif
 
+#  ifdef _WIN32
+extern FILE *_cairo_win_tmpfile(void);
+#define tmpfile _cairo_win_tmpfile
+#  endif
+
 #  if defined(WIN32) || defined(__MINGW32__) || defined(__CYGWIN__)
 extern char **suffixlist;       /* in luainit.w */
 #  endif
