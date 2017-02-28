@@ -125,14 +125,20 @@ static int f_tostring (lua_State *L) {
 }
 
 static FILE *tofile (lua_State *L) {
+#ifdef LuajitTeX
+  /* see host/minilua.c */
+  FILE**f=luaL_checkudata(L,1,LUA_FILEHANDLE);
+  if(*f==NULL)
+    luaL_error(L,"attempt to use a closed file");
+  return*f;
+#else
   LStream *p = tolstream(L);
   if (isclosed(p))
     luaL_error(L, "attempt to use a closed file");
   lua_assert(p->f);
   return p->f;
+#endif
 }
-
-
 /*
 ** When creating file handles, always creates a `closed' file handle
 ** before opening the actual file; so, if there is a memory error, the
@@ -770,8 +776,12 @@ static int read2dot14(lua_State *L) {
     int b = getc(f);
     int c = getc(f);
     int d = getc(f);
-    int n = (0x1000000 * a + 0x10000 * b + 0x100 * c + d);
-    lua_pushnumber(L, (n >> 14) + ((n & 0x3fff) / 16384.0));
+    if (d == EOF) {
+        lua_pushnil(L);
+    } else {
+        int n = (0x1000000 * a + 0x10000 * b + 0x100 * c + d);
+        lua_pushnumber(L, (n >> 14) + ((n & 0x3fff) / 16384.0));
+    }
     return 1;
 }
 
@@ -807,6 +817,43 @@ static int skipposition(lua_State *L) {
     return 1;
 }
 
+static int readbytetable(lua_State *L) {
+    FILE *f = tofile(L);
+    int n = lua_tointeger(L,2);
+    int i ;
+    lua_createtable(L, n, 0);
+    for (i=1;i<=n;i++) {
+        int a = getc(f);
+        if (a == EOF) {
+            break;
+        } else {
+            /*
+                lua_pushinteger(L, i);
+                lua_pushinteger(L, a);
+                lua_rawset(L, -3);
+            */
+            lua_pushinteger(L, a);
+            lua_rawseti(L,-2,i);
+        }
+    }
+    return 1;
+}
+
+static int readbytes(lua_State *L) {
+    FILE *f = tofile(L);
+    int n = lua_tointeger(L,2);
+    int i = 0;
+    for (i=1;i<=n;i++) {
+        int a = getc(f);
+        if (a == EOF) {
+            return i-1;
+        } else {
+            lua_pushinteger(L, a);
+        }
+    }
+    return n;
+}
+
 static const luaL_Reg fiolib[] = {
   /* helpers */
   {"readcardinal1",readcardinal1},
@@ -823,6 +870,8 @@ static const luaL_Reg fiolib[] = {
   {"setposition",setposition},
   {"getposition",getposition},
   {"skipposition",skipposition},
+  {"readbytes",readbytes},
+  {"readbytetable",readbytetable},
   /* done */
   {NULL, NULL}
 };
