@@ -239,6 +239,25 @@ static lua_Number shell_escape_state(void)
     }
 }
 
+static lua_Number safer_option_state(void)
+{
+    if (safer_option == 0) {
+        return (lua_Number) 0;
+    } else {
+        return (lua_Number) 1;
+    }
+}
+
+static lua_Number kpse_used_state(void)
+{
+    if (kpse_init == 1) {
+        return (lua_Number) 1;
+    } else {
+        return (lua_Number) 0;
+    }
+}
+
+
 /* temp, for backward compat */
 static int init_pool_ptr = 0;
 
@@ -270,14 +289,16 @@ static struct statistic stats[] = {
     {"log_name", 'S', (void *) &getlogname},
     {"banner", 'S', (void *) &getbanner},
     {"luatex_version", 'G', &get_luatexversion},
-    {"luatex_revision", 'S', (void *) &luatexrevision}, 
+    {"luatex_revision", 'S', (void *) &luatexrevision},
     {"luatex_hashtype", 'S', (void *) &get_luatexhashtype},
     {"luatex_hashchars", 'N',  &get_luatexhashchars},
     {"luatex_engine", 'S', (void *) &getenginename},
 
     {"ini_version", 'b', &ini_version},
 
-    {"shell_escape", 'N', &shell_escape_state}, /* be easy on old time usage */
+    {"shell_escape", 'N', &shell_escape_state},
+    {"safer_option", 'N', &safer_option_state},
+    {"kpse_used", 'N', &kpse_used_state},
     /*
      * mem stat
      */
@@ -331,7 +352,7 @@ static struct statistic stats[] = {
     {"lc_ctype", 'S', (void *) &get_lc_ctype},
     {"lc_collate", 'S', (void *) &get_lc_collate},
     {"lc_numeric",'S', (void *) &get_lc_numeric},
-    
+
     {NULL, 0, 0}
 };
 

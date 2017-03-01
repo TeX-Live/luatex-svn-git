@@ -116,7 +116,8 @@ static const luaL_Reg lualibs[] = {
     {"package", luaopen_package},
     {"coroutine", luaopen_coroutine},
     {"table", luaopen_table},
-    {"io", open_iolibext},
+    {"io", luaopen_io},
+    {"fio",open_iolibext},
     {"os", luaopen_os},
     {"string", luaopen_string},
     {"math", luaopen_math},
@@ -214,21 +215,21 @@ void luainterpreter(void)
 
     luatex_md5_lua_open(L);
 
-    open_oslibext(L, safer_option);
-/*
-    open_iolibext(L);
-*/
+    open_oslibext(L);
+ /* open_iolibext(L); */
     open_strlibext(L);
     open_lfslibext(L);
 
+    /*
+        The socket and mime libraries are a bit tricky to open because they use a load-time
+        dependency that has to be worked around for luatex, where the C module is loaded
+        way before the lua module.
+    */
 
-    /* luasockets */
-    /* socket and mime are a bit tricky to open because
-     they use a load-time  dependency that has to be
-     worked around for luatex, where the C module is
-     loaded way before the lua module.
-     */
     if (!nosocket_option) {
+
+        /* todo: move this to common */
+
         lua_getglobal(L, "package");
         lua_getfield(L, -1, "loaded");
         if (!lua_istable(L, -1)) {
@@ -245,7 +246,7 @@ void luainterpreter(void)
         lua_setfield(L, -2, "mime.core");
         lua_pushnil(L);
         lua_setfield(L, -2, "mime");    /* package.loaded.mime = nil */
-        lua_pop(L, 2);          /* pop the tables */
+        lua_pop(L, 2);                  /* pop the tables */
 
         luatex_socketlua_open(L);       /* preload the pure lua modules */
     }
@@ -291,25 +292,6 @@ void luainterpreter(void)
     lua_createtable(L, 0, 0);
     lua_setglobal(L, "texconfig");
 
-    if (safer_option) {
-        /* disable some stuff if --safer */
-        (void) hide_lua_value(L, "os", "execute");
-        (void) hide_lua_value(L, "os", "rename");
-        (void) hide_lua_value(L, "os", "remove");
-        (void) hide_lua_value(L, "io", "popen");
-        /* make io.open only read files */
-        luaL_checkstack(L, 2, "out of stack space");
-        lua_getglobal(L, "io");
-        lua_getfield(L, -1, "open_ro");
-        lua_setfield(L, -2, "open");
-        (void) hide_lua_value(L, "io", "tmpfile");
-        (void) hide_lua_value(L, "io", "output");
-        (void) hide_lua_value(L, "lfs", "chdir");
-        (void) hide_lua_value(L, "lfs", "lock");
-        (void) hide_lua_value(L, "lfs", "touch");
-        (void) hide_lua_value(L, "lfs", "rmdir");
-        (void) hide_lua_value(L, "lfs", "mkdir");
-    }
     Luas = L;
 }
 
