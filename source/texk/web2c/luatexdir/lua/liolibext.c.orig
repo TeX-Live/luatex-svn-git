@@ -209,6 +209,7 @@ static void opencheck (lua_State *L, const char *fname, const char *mode) {
   }
 }
 
+
 static int io_open (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   const char *mode = luaL_optstring(L, 2, "r");
@@ -437,33 +438,18 @@ static int read_line(lua_State * L, FILE * f, int chop)
 
 #define MAX_SIZE_T	(~(size_t)0)
 
- /* static void read_all (lua_State *L, FILE *f) { */
- /*   size_t rlen = LUAL_BUFFERSIZE;  /\* how much to read in each cycle *\/ */
- /*   l_seeknum old, nrlen = 0;  /\* for testing file size *\/ */
- /*   luaL_Buffer b; */
- /*   luaL_buffinit(L, &b); */
- /*   /\* speed up loading of not too large files: *\/ */
- /*   old = l_ftell(f); */
- /*   if ((l_fseek(f, 0, SEEK_END) >= 0) && */
- /*       ((nrlen = l_ftell(f)) > 0) && nrlen < 1000 * 1000 * 100) { */
- /*       rlen = nrlen; */
- /*   } */
- /*   l_fseek(f, old, SEEK_SET); */
- /*   for (;;) { */
- /*     char *p = luaL_prepbuffsize(&b, rlen); */
- /*     size_t nr = fread(p, sizeof(char), rlen, f); */
- /*     luaL_addsize(&b, nr); */
- /*     if (nr < rlen) break;  /\* eof? *\/ */
- /*     else if (rlen <= (MAX_SIZE_T / 4))  /\* avoid buffers too large *\/ */
- /*       rlen *= 2;  /\* double buffer size at each iteration *\/ */
- /*   } */
- /*   luaL_pushresult(&b);  /\* close buffer *\/ */
- /* } */
-
 static void read_all (lua_State *L, FILE *f) {
   size_t rlen = LUAL_BUFFERSIZE;  /* how much to read in each cycle */
+  l_seeknum old, nrlen = 0;  /* for testing file size */
   luaL_Buffer b;
   luaL_buffinit(L, &b);
+  /* speed up loading of not too large files: */
+  old = l_ftell(f);
+  if ((l_fseek(f, 0, SEEK_END) >= 0) &&
+      ((nrlen = l_ftell(f)) > 0) && nrlen < 1000 * 1000 * 100) {
+      rlen = nrlen;
+  }
+  l_fseek(f, old, SEEK_SET);
   for (;;) {
     char *p = luaL_prepbuffsize(&b, rlen);
     size_t nr = fread(p, sizeof(char), rlen, f);
@@ -474,6 +460,7 @@ static void read_all (lua_State *L, FILE *f) {
   }
   luaL_pushresult(&b);  /* close buffer */
 }
+
 
 static int read_chars (lua_State *L, FILE *f, size_t n) {
   size_t nr;  /* number of chars actually read */
@@ -867,119 +854,25 @@ static int readbytes(lua_State *L) {
     return n;
 }
 
-static int recordfilename(lua_State *L)
-{
-    const char *fname = luaL_checkstring(L, 1);
-    const char *ftype = lua_tostring(L, 2);
-    if (fname != NULL && ftype != NULL) {
-        switch (ftype[1]) {
-            case 'r':
-                recorder_record_input(fname);
-                break;
-            case 'w':
-                recorder_record_output(fname);
-                break;
-            default:
-                /* silently ignore */
-                break;
-        }
-    } else {
-        /* silently ignore */
-    }
-    return 0;
-}
-
-static int checkpermission(lua_State *L)
-{
-    const char *filename = luaL_checkstring(L, 1);
-    if (filename == NULL) {
-        lua_pushboolean(L,0);
-        lua_pushliteral(L,"no command name given");
-    } else if (shellenabledp <= 0) {
-        lua_pushboolean(L,0);
-        lua_pushliteral(L,"all command execution is disabled");
-    } else if (restrictedshell == 0) {
-        lua_pushboolean(L,1);
-        lua_pushliteral(L,"all commands are permitted");
-    } else {
-        char *safecmd = NULL;
-        char *cmdname = NULL;
-        switch (shell_cmd_is_allowed(filename, &safecmd, &cmdname)) {
-            case 0:
-                lua_pushboolean(L,0);
-                lua_pushliteral(L, "specific command execution disabled");
-                break;
-            case 1:
-                lua_pushboolean(L,1);
-                lua_pushstring(L,filename);
-                break;
-            case 2:
-                lua_pushboolean(L,1);
-                lua_pushstring(L,safecmd);
-                break;
-            default:
-                lua_pushboolean(L,0);
-                lua_pushliteral(L, "bad command line quoting");
-                break;
-        }
-    }
-    return 2;
-}
-
-static int readline(lua_State *L)
-{
-    luaL_Buffer buf;
-    int c, d;
-    FILE *f = tofile(L);
-    luaL_buffinit(L, &buf);
-    while (1) {
-        c = fgetc(f);
-        if (c == EOF) {
-            luaL_pushresult(&buf);
-            if (lua_rawlen(L, -1) == 0) {
-                lua_pop(L, 1);
-                lua_pushnil(L);
-            }
-            return 1;
-        } else if (c == '\n') {
-            luaL_pushresult(&buf);
-            return 1;
-        } else if (c == '\r') {
-            d = fgetc(f);
-            if (d != EOF && d != '\n') {
-                ungetc(d, f);
-            }
-            luaL_pushresult(&buf);
-            return 1;
-        } else {
-            luaL_addchar(&buf, c);
-        }
-    }
-}
-
 static const luaL_Reg fiolib[] = {
-    /* helpers */
-    { "readcardinal1",   readcardinal1 },
-    { "readcardinal2",   readcardinal2 },
-    { "readcardinal3",   readcardinal3 },
-    { "readcardinal4",   readcardinal4 },
-    { "readinteger1",    readinteger1 },
-    { "readinteger2",    readinteger2 },
-    { "readinteger3",    readinteger3 },
-    { "readinteger4",    readinteger4 },
-    { "readfixed2",      readfixed2 },
-    { "readfixed4",      readfixed4 },
-    { "read2dot14",      read2dot14 },
-    { "setposition",     setposition },
-    { "getposition",     getposition },
-    { "skipposition",    skipposition },
-    { "readbytes",       readbytes },
-    { "readbytetable",   readbytetable },
-    { "readline",        readline },
-    /* extras */
-    { "recordfilename",  recordfilename },
-    { "checkpermission", checkpermission },
-    /* done */
+  /* helpers */
+  {"readcardinal1",readcardinal1},
+  {"readcardinal2",readcardinal2},
+  {"readcardinal3",readcardinal3},
+  {"readcardinal4",readcardinal4},
+  {"readinteger1",readinteger1},
+  {"readinteger2",readinteger2},
+  {"readinteger3",readinteger3},
+  {"readinteger4",readinteger4},
+  {"readfixed2",readfixed2},
+  {"readfixed4",readfixed4},
+  {"read2dot14",read2dot14},
+  {"setposition",setposition},
+  {"getposition",getposition},
+  {"skipposition",skipposition},
+  {"readbytes",readbytes},
+  {"readbytetable",readbytetable},
+  /* done */
   {NULL, NULL}
 };
 
@@ -1000,6 +893,7 @@ static const luaL_Reg iolib[] = {
   /* done */
   {NULL, NULL}
 };
+
 
 /*
     Methods for file handles.

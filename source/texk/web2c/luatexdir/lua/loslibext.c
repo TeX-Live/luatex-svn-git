@@ -894,11 +894,11 @@ static int os_gettimeofday(lua_State * L)
 }
 #endif
 
-static const char repl[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 #define MAXTRIES 36*36*36
 
 #ifndef HAVE_MKDTEMP
+static const char repl[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 static int dirs_made = 0;
 
 static char *do_mkdtemp(char *tmpl)
