@@ -112,7 +112,7 @@ void luafunctioncall(int slot)
 
 @ @c
 static const luaL_Reg lualibs[] = {
-    {"", luaopen_base},
+    {"_G", luaopen_base},
     {"package", luaopen_package},
     {"coroutine", luaopen_coroutine},
     {"table", luaopen_table},

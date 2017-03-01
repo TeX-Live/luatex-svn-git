@@ -965,7 +965,6 @@ void lua_initialize(int ac, char **av)
     }
     
     /* make sure that the locale is 'sane' (for lua) */
-
     putenv(LC_CTYPE_C);
     putenv(LC_COLLATE_C);
     putenv(LC_NUMERIC_C);
