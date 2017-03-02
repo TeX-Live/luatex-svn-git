@@ -181,12 +181,10 @@ static int read2dot14(lua_State *L) {
     FILE *f = tofile(L);
     int a = getc(f);
     int b = getc(f);
-    int c = getc(f);
-    int d = getc(f);
-    if (d == EOF) {
+    if (b == EOF) {
         lua_pushnil(L);
     } else {
-        int n = (0x1000000 * a + 0x10000 * b + 0x100 * c + d);
+        int n = 0x100 * a + b ;
         lua_pushnumber(L, (n >> 14) + ((n & 0x3fff) / 16384.0));
     }
     return 1;
