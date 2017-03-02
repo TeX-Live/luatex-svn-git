@@ -83,7 +83,11 @@ static const char *getS(lua_State * L, void *ud, size_t * size)
 
 @ @c
 #ifdef LuajitTeX
-    /* not used */
+    /* Luatex has its own memory allocator, LuajitTeX uses the */
+    /* standard one from the stock. We left this space as      */
+    /* reference, but be careful: memory allocator is a key    */
+    /* component in luajit, it's easy to get sub-optimal       */
+    /* performances.                                           */
 #else
 static void *my_luaalloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
@@ -145,8 +149,9 @@ static const luaL_Reg lualibs[] = {
     { "lpeg",      luaopen_lpeg },
     { "bit32",     luaopen_bit32 },
 #ifdef LuajitTeX
-    { "bit",	   luaopen_bit },
+    /* bit is only in luajit,               */
     /* coroutine is loaded in a special way */
+    { "bit",	   luaopen_bit },
 #else
     { "coroutine", luaopen_coroutine },
 #endif
@@ -158,8 +163,6 @@ static const luaL_Reg lualibs[] = {
     /* extra standard lua libraries */
 #ifdef LuajitTeX
     { "jit",       luaopen_jit },
-#else
-    { "coroutine", luaopen_coroutine },
 #endif
     { "ffi",       luaopen_ffi },
     /* obsolete, undocumented and for oru own testing only */
@@ -179,7 +182,7 @@ static void do_openlibs(lua_State * L)
 
 @ @c
 #ifdef LuajitTeX
-    /* not used */
+    /* in luajit load_aux is not used.*/
 #else
 static int load_aux (lua_State *L, int status) {
     if (status == 0)  /* OK? */
@@ -303,9 +306,7 @@ void luainterpreter(void)
     */
 
     if (!nosocket_option) {
-
         /* todo: move this to common */
-
         lua_getglobal(L, "package");
         lua_getfield(L, -1, "loaded");
         if (!lua_istable(L, -1)) {
@@ -328,7 +329,6 @@ void luainterpreter(void)
     }
 
     /* zlib. slightly odd calling convention */
-
     luaopen_zlib(L);
     lua_setglobal(L, "zlib");
 
