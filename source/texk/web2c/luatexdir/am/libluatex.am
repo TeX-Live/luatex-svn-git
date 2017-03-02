@@ -41,9 +41,13 @@ dist_libluajittex_a_SOURCES = \
 	luatexdir/lua/lauxlib_bridge.h \
 	luatexdir/lua/lstrlibextjit.c
 nodist_libluajittex_a_SOURCES = \
-	luajitstuff.c texluajitc.c \
+	luastuff.c texluajitc.c \
 	$(dist_libluatex_sources) \
 	$(nodist_libluatex_sources)
+#nodist_libluajittex_a_SOURCES = \
+#	luajitstuff.c texluajitc.c \
+#	$(dist_libluatex_sources) \
+#	$(nodist_libluatex_sources)
 
 #$(libluatex_a_OBJECTS): libff.a libmplib.a libluamisc.a $(POPPLER_DEPEND)
 #$(libluajittex_a_OBJECTS): libff.a libmplib.a libluajitmisc.a $(POPPLER_DEPEND)
@@ -226,8 +230,8 @@ helpers.c: ctangle$(EXEEXT) luatexdir/lua/helpers.w
 	$(luatex_lua_ctangle) helpers.w
 luainit.c: ctangle$(EXEEXT) luatexdir/lua/luainit.w
 	$(luatex_lua_ctangle) luainit.w
-luajitstuff.c: ctangle$(EXEEXT) luatexdir/lua/luajitstuff.w
-	$(luatex_lua_ctangle) luajitstuff.w
+#luajitstuff.c: ctangle$(EXEEXT) luatexdir/lua/luajitstuff.w
+#	$(luatex_lua_ctangle) luajitstuff.w
 luanode.c: ctangle$(EXEEXT) luatexdir/lua/luanode.w
 	$(luatex_lua_ctangle) luanode.w
 luastuff.c: ctangle$(EXEEXT) luatexdir/lua/luastuff.w
@@ -242,7 +246,8 @@ texluajitc.c: ctangle$(EXEEXT) luatexdir/lua/texluajitc.w
 	$(luatex_lua_ctangle) texluajitc.w
 
 libluatex_web += luatexdir/lua/helpers.w
-libluatex_web += luatexdir/lua/luainit.w luatexdir/lua/luajitstuff.w
+#libluatex_web += luatexdir/lua/luainit.w luatexdir/lua/luajitstuff.w
+libluatex_web += luatexdir/lua/luainit.w 
 libluatex_web += luatexdir/lua/luanode.w luatexdir/lua/luastuff.w luatexdir/lua/luatoken.w
 libluatex_web += luatexdir/lua/mplibstuff.w
 libluatex_web += luatexdir/lua/texluac.w luatexdir/lua/texluajitc.w
@@ -269,7 +274,8 @@ dist_libluatex_sources += \
 	luatexdir/lua/ltexiolib.c \
 	luatexdir/lua/ltexlib.c \
 	luatexdir/lua/lnewtokenlib.c \
-	luatexdir/lua/luatex-api.h
+	luatexdir/lua/luatex-api.h \
+	luatexdir/lua/luatex-core.c
 
 ## from luatexdir/pdf
 ##
