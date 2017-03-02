@@ -27,6 +27,8 @@
 
 #include <locale.h>
 
+extern int load_luatex_core_lua (lua_State * L);
+
 /* internalized strings: see luatex-api.h */
 set_make_keys;
 
