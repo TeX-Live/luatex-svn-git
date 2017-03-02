@@ -1,6 +1,8 @@
 #include "lua.h"
 #include "lauxlib.h"
 
+int load_luatex_core_lua (lua_State * L);
+
 int load_luatex_core_lua (lua_State * L)
 {
   /* generated from and by luatex-core.lua */
