@@ -31,18 +31,19 @@
 
 static FILE *tofile (lua_State *L) {
 #ifdef LuajitTeX
-  FILE **f = luaL_checkudata(L,1,LUA_FILEHANDLE);
-  if (*f == NULL)
-    luaL_error(L,"attempt to use a closed file");
-  return *f;
+    FILE **f = luaL_checkudata(L,1,LUA_FILEHANDLE);
+    if (*f == NULL)
+        luaL_error(L,"attempt to use a closed file");
+    return *f;
 #else
-  luaL_Stream *p = ((luaL_Stream *)luaL_checkudata(L, 1, LUA_FILEHANDLE));
-  if ((p)->closef == NULL)
-    luaL_error(L, "attempt to use a closed file");
-  lua_assert(p->f);
-  return p->f;
+    luaL_Stream *p = ((luaL_Stream *)luaL_checkudata(L, 1, LUA_FILEHANDLE));
+    if ((p)->closef == NULL)
+        luaL_error(L, "attempt to use a closed file");
+    lua_assert(p->f);
+    return p->f;
 #endif
 }
+
 /*
     HH: A few helpers to avoid reading numbers as strings. For now we put them in their
     own namespace. We also have a few helpers that can make io functions tex friendly.
@@ -376,7 +377,7 @@ static const luaL_Reg fiolib[] = {
     {NULL, NULL}
 };
 
-int open_iolibext (lua_State *L) {
+int luaopen_fio(lua_State *L) {
     luaL_register(L, "fio", fiolib);
     return 1;
 }

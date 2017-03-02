@@ -31,9 +31,18 @@ int luastate_bytes = 0;
 int lua_active = 0;
 
 #ifdef LuajitTeX
-#define Luas_load(Luas,getS,ls,lua_id) lua_load(Luas,getS,ls,lua_id);
+#define Luas_load(Luas,getS,ls,lua_id) \
+    lua_load(Luas,getS,ls,lua_id);
+#define Luas_open(name,luaopen_lib) \
+    lua_pushcfunction(L, luaopen_lib); \
+    lua_pushstring(L, name); \
+    lua_call(L, 1, 0); 
 #else
-#define Luas_load(Luas,getS,ls,lua_id) lua_load(Luas,getS,ls,lua_id,NULL);
+#define Luas_load(Luas,getS,ls,lua_id) \
+    lua_load(Luas,getS,ls,lua_id,NULL);
+#define Luas_open(name,luaopen_lib) \
+    luaL_requiref(L, name, luaopen_lib, 1); \
+    lua_pop(L, 1); 
 #endif
 
 @ @c
@@ -124,73 +133,48 @@ void luafunctioncall(int slot)
 
 @ @c
 static const luaL_Reg lualibs[] = {
-    {"_G", luaopen_base},
-    {"package", luaopen_package},
+    /* standard lua libraries */
+    { "_G",        luaopen_base },
+    { "package",   luaopen_package },
+    { "table",     luaopen_table },
+    { "io",        luaopen_io },
+    { "os",        luaopen_os },
+    { "string",    luaopen_string },
+    { "math",      luaopen_math },
+    { "debug",     luaopen_debug },
+    { "lpeg",      luaopen_lpeg },
+    { "bit32",     luaopen_bit32 },
 #ifdef LuajitTeX
-    /* not in luajit? */
+    { "bit",	   luaopen_bit },
+    /* coroutine is loaded in a special way */
 #else
-    {"coroutine", luaopen_coroutine},
+    { "coroutine", luaopen_coroutine },
 #endif
-    {"table", luaopen_table},
-    {"io", luaopen_io},
-    {"fio", open_iolibext},
-    {"os", luaopen_os},
-    {"string", luaopen_string},
-    {"math", luaopen_math},
-    {"debug", luaopen_debug},
-    {"unicode", luaopen_unicode},
-    {"zip", luaopen_zip},
-    {"bit32", luaopen_bit32},
-    {"md5", luaopen_md5},
-    {"lfs", luaopen_lfs},
-    {"profiler", luaopen_profiler},
+    /* additional (public) libraries */
+    { "unicode",   luaopen_unicode },
+    { "zip",       luaopen_zip },
+    { "md5",       luaopen_md5 },
+    { "lfs",       luaopen_lfs },
+    /* extra standard lua libraries */
 #ifdef LuajitTeX
-    {"jit", luaopen_jit},
-#endif
-    {"ffi", luaopen_ffi},
-#ifdef LuajitTeX
-    {"bit",	luaopen_bit },
-#endif
-#ifdef LuajitTeX
-    /* see below */
+    { "jit",       luaopen_jit },
 #else
-    {"lpeg", luaopen_lpeg},
+    { "coroutine", luaopen_coroutine },
 #endif
-    {NULL, NULL}
+    { "ffi",       luaopen_ffi },
+    /* obsolete, undocumented and for oru own testing only */
+    /*{ "profiler",  luaopen_profiler }, */
+    /* more libraries will be loaded later */
+    { NULL,        NULL }
 };
-
-#ifdef LuajitTeX
-static const luaL_Reg lualibs_nofenv[] = {
-    {"lpeg", luaopen_lpeg},
-    {NULL, NULL}
-};
-#endif
 
 @ @c
 static void do_openlibs(lua_State * L)
 {
-#ifdef LuajitTeX
     const luaL_Reg *lib = lualibs;
     for (; lib->func; lib++) {
-        lua_pushcfunction(L, lib->func);
-        lua_pushstring(L, lib->name);
-        lua_call(L, 1, 0);
+        Luas_open(lib->name,lib->func);
     }
-    lib = lualibs_nofenv;
-    for (; lib->func; lib++) {
-        lua_pushcfunction(L, lib->func);
-        lua_newtable(L);
-        lua_setfenv(L,-2);
-        lua_pushstring(L, lib->name);
-        lua_call(L, 1, 0);
-    }
-#else
-    const luaL_Reg *lib;
-    for (lib = lualibs; lib->func; lib++) {
-        luaL_requiref(L, lib->name, lib->func, 1);
-        lua_pop(L, 1);  /* remove lib */
-    }
-#endif
 }
 
 @ @c
@@ -266,7 +250,6 @@ static int luatex_dofile (lua_State *L) {
 void luainterpreter(void)
 {
     lua_State *L;
-
 #ifdef LuajitTeX
     if (jithash_hashname == NULL) {
         /* default lua51 */
@@ -286,7 +269,6 @@ void luainterpreter(void)
 #else
     L = lua_newstate(my_luaalloc, NULL);
 #endif
-
     if (L == NULL) {
         fprintf(stderr, "Can't create the Lua state.\n");
         return;
@@ -294,7 +276,6 @@ void luainterpreter(void)
     lua_atpanic(L, &my_luapanic);
 
     do_openlibs(L);             /* does all the 'simple' libraries */
-
 #ifdef LuajitTeX
     if (luajiton){
        luaJIT_setmode(L, 0, LUAJIT_MODE_ENGINE|LUAJIT_MODE_ON);
@@ -309,10 +290,9 @@ void luainterpreter(void)
     lua_pushcfunction(L,luatex_loadfile);
     lua_setglobal(L, "loadfile");
 
-    luatex_md5_lua_open(L);
+    luatex_md5_lua_open(L); /* this also loads some lua code */
 
     open_oslibext(L);
- /* open_iolibext(L); */
     open_strlibext(L);
     open_lfslibext(L);
 
@@ -346,12 +326,17 @@ void luainterpreter(void)
 
         luatex_socketlua_open(L);       /* preload the pure lua modules */
     }
+
     /* zlib. slightly odd calling convention */
+
     luaopen_zlib(L);
     lua_setglobal(L, "zlib");
+
     luaopen_gzip(L);
 
-    /* our own libraries */
+    /* our own libraries register themselves */
+
+    luaopen_fio(L);
     luaopen_ff(L);
     luaopen_tex(L);
     luaopen_token(L);
@@ -359,43 +344,21 @@ void luainterpreter(void)
     luaopen_texio(L);
     luaopen_kpse(L);
     luaopen_callback(L);
+
     luaopen_lua(L, startup_filename);
+
     luaopen_stats(L);
     luaopen_font(L);
     luaopen_lang(L);
     luaopen_mplib(L);
     luaopen_vf(L);
-
-    /* |luaopen_pdf(L);| */
-    /* environment table at |LUA_ENVIRONINDEX| needs to load this way: */
-    lua_pushcfunction(L, luaopen_pdf);
-    lua_pushstring(L, "pdf");
-    lua_call(L, 1, 0);
+    luaopen_pdf(L);
+    luaopen_epdf(L);
+    luaopen_pdfscanner(L);
 
     if (!lua_only) {
-#ifdef LuajitTeX
-        /* |luaopen_img(L);| */
-        lua_pushcfunction(L, luaopen_img);
-        lua_pushstring(L, "img");
-        lua_call(L, 1, 0);
-#else
-        luaL_requiref(L, "img", luaopen_img, 1);
-        lua_pop(L, 1);
-#endif
+        luaopen_img(L);
     }
-#ifdef LuajitTeX
-    /* |luaopen_epdf(L);| */
-    lua_pushcfunction(L, luaopen_epdf);
-    lua_pushstring(L, "epdf");
-    lua_call(L, 1, 0);
-#else
-    luaL_requiref(L, "epdf", luaopen_epdf, 1);
-    lua_pop(L, 1);
-#endif
-    /* |luaopen_pdfscanner(L);| */
-    lua_pushcfunction(L, luaopen_pdfscanner);
-    lua_pushstring(L, "pdfscanner");
-    lua_call(L, 1, 0);
 
     lua_createtable(L, 0, 0);
     lua_setglobal(L, "texconfig");
@@ -652,11 +615,11 @@ void preset_environment(lua_State * L, const parm_struct * p, const char *s)
     lua_settable(L, LUA_REGISTRYINDEX); /* - */
 }
 
-/*
-    Compatibility layer for luatex lua5.2
-*/
 
 @ @c
+/*
+    luajit compatibility layer for luatex lua5.2
+*/
 #ifdef LuajitTeX
 LUALIB_API void *luaL_testudata (lua_State *L, int ud, const char *tname) {
     void *p = lua_touserdata(L, ud);
@@ -671,11 +634,9 @@ LUALIB_API void *luaL_testudata (lua_State *L, int ud, const char *tname) {
     }
     return NULL;  /* value is not a userdata with a metatable */
 }
-#endif
 
 @ @c
 /* It's not ok. See lua-users.org/wiki/CompatibilityWithLuaFive for another solution */
-#ifdef LuajitTeX
 LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
     /*luaL_checkversion(L);*/
     luaL_checkstack(L, nup, "too many upvalues");
@@ -688,20 +649,16 @@ LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
     }
     lua_pop(L, nup);  /* remove upvalues */
 }
-#endif
 
 @ @c
-#ifdef LuajitTeX
 LUALIB_API char *luaL_prepbuffsize (luaL_Buffer *B, size_t sz) {
     lua_State *L = B->L;
     if (sz > LUAL_BUFFERSIZE )
         luaL_error(L, "buffer too large");
     return luaL_prepbuffer(B) ;
 }
-#endif
 
 @ @c
-#ifdef LuajitTeX
 LUA_API int lua_compare (lua_State *L, int o1, int o2, int op) {
     /*StkId o1, o2;*/
     int i = 0;
@@ -719,4 +676,6 @@ LUA_API int lua_compare (lua_State *L, int o1, int o2, int op) {
     lua_unlock(L);
     return i;
 }
+
+@ @c 
 #endif

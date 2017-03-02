@@ -105,9 +105,9 @@ extern int l_new_image(lua_State * L);
 extern int luaopen_epdf(lua_State * L);
 extern int luaopen_pdfscanner(lua_State * L);
 extern int luaopen_mplib(lua_State * L);
+extern int luaopen_fio(lua_State * L);
 
 extern void open_oslibext(lua_State * L);
-extern int open_iolibext(lua_State * L);
 extern void open_strlibext(lua_State * L);
 extern void open_lfslibext(lua_State * L);
 
