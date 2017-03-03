@@ -1,5 +1,5 @@
 /* lstrlibext.c
-
+   
    Copyright 2012 Taco Hoekwater <taco@luatex.org>
 
    This file is part of LuaTeX.
@@ -92,7 +92,7 @@ static int str_split (lua_State *L) {
   }
   free(orig);
   return 1;
-}
+} 
 
 static int characters_aux (lua_State *L) {
   size_t ls;
@@ -152,7 +152,7 @@ static int utfcharacters_aux (lua_State *L) {
     }
   }
   return utf_failed(L,ind+1); /* we found a follow byte! */
-}
+} 
 
 
 static int str_utfcharacters (lua_State *L) {
@@ -180,7 +180,7 @@ static int utfvalues_aux (lua_State *L) {
 	if (i<0x80) {
 	  v = i;
 	} else if (i>=0xF0) {
-	  if ((ind+3)<(int)ls && ((unsigned)*(s+ind+1))>=0x80
+	  if ((ind+3)<(int)ls && ((unsigned)*(s+ind+1))>=0x80 
 		  && ((unsigned)*(s+ind+2))>=0x80 && ((unsigned)*(s+ind+3))>=0x80) {
 		numbytes  = 4;
 		j = ((unsigned)*(s+ind+1))-128;
@@ -237,7 +237,7 @@ static int characterpairs_aux (lua_State *L) {
 	b[0] = *(s+ind); b[1] = 0;
 	lua_pushlstring(L, b, 1);
 	if (ind+1<(int)ls) {
-	  b[0] = *(s+ind+1);
+	  b[0] = *(s+ind+1); 
 	  lua_pushlstring(L, b, 1);
 	} else {
 	  lua_pushlstring(L, b+1, 0);
@@ -350,17 +350,7 @@ static int str_dump (lua_State *L) {
   return 1;
 }
 
-static int str_bytetable (lua_State *L) {
-    size_t l;
-    int i;
-    const char *s = luaL_checklstring(L, 1, &l);
-    lua_createtable(L,l,0);
-    for (i=0;i<l;i++) {
-        lua_pushinteger(L,(unsigned char)*(s+i));
-        lua_rawseti(L,-2,i+1);
-    }
-    return 1;
-}
+
 
 static const luaL_Reg strlibext[] = {
   {"utfvalues", str_utfvalues},
@@ -369,7 +359,6 @@ static const luaL_Reg strlibext[] = {
   {"characterpairs", str_characterpairs},
   {"bytes", str_bytes},
   {"bytepairs", str_bytepairs},
-  {"bytetable", str_bytetable},
   {"explode", str_split},
   {"dump", str_dump},
   {NULL, NULL}
@@ -385,3 +374,4 @@ void open_strlibext(lua_State * L)
     }
     lua_pop(L,1);
 }
+

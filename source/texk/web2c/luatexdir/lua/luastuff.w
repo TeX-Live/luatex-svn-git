@@ -337,6 +337,7 @@ void luainterpreter(void)
     /* our own libraries register themselves */
 
     luaopen_fio(L);
+lua_setglobal(L, "fio");
     luaopen_ff(L);
     luaopen_tex(L);
     luaopen_token(L);
@@ -353,12 +354,36 @@ void luainterpreter(void)
     luaopen_mplib(L);
     luaopen_vf(L);
     luaopen_pdf(L);
-    luaopen_epdf(L);
-    luaopen_pdfscanner(L);
+    /*luaopen_epdf(L);*/
+    /*luaopen_pdfscanner(L);*/
 
     if (!lua_only) {
-        luaopen_img(L);
+#ifdef LuajitTeX
+      lua_pushcfunction(L, luaopen_img);
+      lua_pushstring(L, "img");
+      lua_call(L, 1, 0);
+#else
+      luaL_requiref(L, "img", luaopen_img, 1);
+      lua_pop(L, 1);
+#endif
     }
+
+#ifdef LuajitTeX
+    /* |luaopen_epdf(L);| */
+    lua_pushcfunction(L, luaopen_epdf);
+    lua_pushstring(L, "epdf");
+    lua_call(L, 1, 0);
+#else
+    luaL_requiref(L, "epdf", luaopen_epdf, 1);
+    lua_pop(L, 1);
+#endif
+    /* |luaopen_pdfscanner(L);| */
+    lua_pushcfunction(L, luaopen_pdfscanner);
+    lua_pushstring(L, "pdfscanner");
+    lua_call(L, 1, 0);
+
+
+
 
     lua_createtable(L, 0, 0);
     lua_setglobal(L, "texconfig");
