@@ -36,13 +36,13 @@ int lua_active = 0;
 #define Luas_open(name,luaopen_lib) \
     lua_pushcfunction(L, luaopen_lib); \
     lua_pushstring(L, name); \
-    lua_call(L, 1, 0); 
+    lua_call(L, 1, 0);
 #else
 #define Luas_load(Luas,getS,ls,lua_id) \
     lua_load(Luas,getS,ls,lua_id,NULL);
 #define Luas_open(name,luaopen_lib) \
     luaL_requiref(L, name, luaopen_lib, 1); \
-    lua_pop(L, 1); 
+    lua_pop(L, 1);
 #endif
 
 @ @c
@@ -292,8 +292,6 @@ void luainterpreter(void)
     lua_setglobal(L, "dofile");
     lua_pushcfunction(L,luatex_loadfile);
     lua_setglobal(L, "loadfile");
-
-    luatex_md5_lua_open(L); /* this also loads some lua code */
 
     open_oslibext(L);
     open_strlibext(L);
@@ -677,5 +675,5 @@ LUA_API int lua_compare (lua_State *L, int o1, int o2, int op) {
     return i;
 }
 
-@ @c 
+@ @c
 #endif
