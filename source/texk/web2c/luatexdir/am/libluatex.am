@@ -39,7 +39,7 @@ nodist_libluatex_a_SOURCES = \
 	$(nodist_libluatex_sources)
 dist_libluajittex_a_SOURCES = \
 	luatexdir/lua/lauxlib_bridge.h \
-	luatexdir/lua/lstrlibextjit.c
+	luatexdir/lua/lstrlibext.c
 nodist_libluajittex_a_SOURCES = \
 	luastuff.c texluajitc.c \
 	$(dist_libluatex_sources) \
