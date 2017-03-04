@@ -66,6 +66,7 @@ static int readcardinal2(lua_State *L) {
     if (b == EOF)
         lua_pushnil(L);
     else
+        /* (a<<8) | b */
         lua_pushinteger(L, 0x100 * a + b);
     return 1;
 }
@@ -78,6 +79,7 @@ static int readcardinal3(lua_State *L) {
     if (c == EOF)
         lua_pushnil(L);
     else
+        /* (a<<16) | (b<<8) | c */
         lua_pushinteger(L, 0x10000 * a + 0x100 * b + c);
     return 1;
 }
@@ -91,6 +93,7 @@ static int readcardinal4(lua_State *L) {
     if (d == EOF)
         lua_pushnil(L);
     else
+        /* (a<<24) | (b<<16) | (c<<8) | d */
         lua_pushinteger(L,0x1000000 * a + 0x10000 * b + 0x100 * c + d);
     return 1;
 }
@@ -101,7 +104,7 @@ static int readinteger1(lua_State *L) {
     if (a == EOF)
         lua_pushnil(L);
     else if (a >= 0x80)
-        lua_pushinteger(L, a - 0xFF - 1);
+        lua_pushinteger(L, a - 0x100);
     else
         lua_pushinteger(L, a);
     return 1;
@@ -174,6 +177,9 @@ static int readfixed4(lua_State *L) {
         lua_pushnumber(L, (0x1000000 * a + 0x10000 * b + 0x100 * c + d - 0x100000000)/65536.0);
     else
         lua_pushnumber(L, (0x1000000 * a + 0x10000 * b + 0x100 * c + d)/65536.0);
+    /* from ff */
+    /* int n = 0x1000000 * a + 0x10000 * b + 0x100 * c + d; */
+    /* lua_pushnumber(L,(real) (n>>16) + ((n&0xffff)/65536.0)); */
     return 1;
 }
 
@@ -184,8 +190,9 @@ static int read2dot14(lua_State *L) {
     if (b == EOF) {
         lua_pushnil(L);
     } else {
-        int n = 0x100 * a + b ;
-        lua_pushnumber(L, (n >> 14) + ((n & 0x3fff) / 16384.0));
+        int n = 0x100 * a + b;
+        /* from ff */
+        lua_pushnumber(L,(real) ((n<<16)>>(16+14)) + ((n&0x3fff)/16384.0));
     }
     return 1;
 }
