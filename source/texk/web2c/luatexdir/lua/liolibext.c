@@ -29,6 +29,72 @@
 #endif
 #include "lualib.h"
 
+
+
+#ifdef LuajitTeX
+/* luajit has its own way for io, which is a mix of    */
+/* lua 5.1 and lua 5.2 . We use the stock luajit.      */    
+#else
+/*
+** {======================================================
+** lua_popen spawns a new process connected to the current
+** one through the file streams.
+** =======================================================
+*/
+
+#if defined(_WIN32)
+
+#ifdef _MSC_VER
+#define lua_popen(L,c,m)                ((void)L, win32_popen(c,m))
+#define lua_pclose(L,file)              ((void)L, win32_pclose(file))
+#else
+#define lua_popen(L,c,m)                ((void)L, _popen(c,m))
+#define lua_pclose(L,file)              ((void)L, _pclose(file))
+#endif
+
+#else
+
+#define lua_popen(L,c,m)        ((void)L, fflush(NULL), popen(c,m))
+#define lua_pclose(L,file)      ((void)L, pclose(file))
+
+#endif
+
+/* }====================================================== */
+
+
+#if defined(LUA_USE_POSIX)
+
+#define l_fseek(f,o,w)          fseeko(f,o,w)
+#define l_ftell(f)              ftello(f)
+#define l_seeknum               off_t
+
+#elif defined(LUA_WIN) && !defined(_CRTIMP_TYPEINFO) \
+   && defined(_MSC_VER) && (_MSC_VER >= 1400)
+/* Windows (but not DDK) and Visual C++ 2005 or higher */
+
+#define l_fseek(f,o,w)          _fseeki64(f,o,w)
+#define l_ftell(f)              _ftelli64(f)
+#define l_seeknum               __int64
+
+#elif defined(__MINGW32__)
+
+#define l_fseek(f,o,w)          fseeko64(f,o,w)
+#define l_ftell(f)              ftello64(f)
+#define l_seeknum               int64_t
+
+#else
+
+#define l_fseek(f,o,w)          fseek(f,o,w)
+#define l_ftell(f)              ftell(f)
+#define l_seeknum               long
+
+#endif
+
+#endif/* #ifdef LuajitTeX */
+
+
+
+
 static FILE *tofile (lua_State *L) {
 #ifdef LuajitTeX
     FILE **f = luaL_checkudata(L,1,LUA_FILEHANDLE);
