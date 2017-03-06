@@ -253,10 +253,10 @@ static lua_Number safer_option_state(void)
 
 static lua_Number kpse_used_state(void)
 {
-    if (kpse_init == 1) {
-        return (lua_Number) 1;
-    } else {
+    if (kpse_init == 0) {
         return (lua_Number) 0;
+    } else {
+        return (lua_Number) 1;
     }
 }
 
