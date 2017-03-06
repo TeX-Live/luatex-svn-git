@@ -924,9 +924,12 @@ void lua_initialize(int ac, char **av)
 
     /* parse commandline */
     parse_options(ac, av);
-    if (lua_only)
+    if (lua_only) {
+        /* Shell has no restrictions. */
         shellenabledp = true;
-
+        restrictedshell = false;
+        safer_option = 0;
+    }
     /* Get the current locale (it should be C )          */
     /* and save LC_CTYPE, LC_COLLATE and LC_NUMERIC.     */
     /* Later luainterpreter() will consciously use them. */
@@ -1051,6 +1054,7 @@ void lua_initialize(int ac, char **av)
         if (kpse_init != 0) {
             luainit = 0;        /* re-enable loading of texmf.cnf values, see luatex.ch */
             init_kpse();
+            kpse_init = 1;
         }
         /* |prohibit_file_trace| (boolean) */
         tracefilenames = 1;
@@ -1118,6 +1122,7 @@ void lua_initialize(int ac, char **av)
         } else {
             /* init */
             init_kpse();
+            kpse_init = 1;
             fix_dumpname();
         }
     }
