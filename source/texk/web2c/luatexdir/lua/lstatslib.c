@@ -231,11 +231,14 @@ static int get_hash_size(void)
 static lua_Number shell_escape_state(void)
 {
     if (shellenabledp <= 0) {
+        /* No shell at all. */
         return (lua_Number) 0;
     } else if (restrictedshell == 0) {
-        return (lua_Number) 1;
-    } else {
+        /* Shell has no restriction. */
         return (lua_Number) 2;
+    } else {
+        /* Shell has restrictions, see cnf file. */
+        return (lua_Number) 1;
     }
 }
 
