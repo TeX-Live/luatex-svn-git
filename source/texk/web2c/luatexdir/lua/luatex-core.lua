@@ -132,8 +132,8 @@ if kpseused == 1 then
             if k ~= 'gc' then
                 ffi[k] = nil
             end
-            ffi = nil
         end
+        ffi = nil
     end
 
     -- os.[execute|os.spawn|os.exec] already are shellescape aware)
