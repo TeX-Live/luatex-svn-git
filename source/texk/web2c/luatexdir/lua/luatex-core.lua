@@ -98,7 +98,7 @@ if kpseused == 1 then
     io.open  = luatex_io_open
     io.popen = luatex_io_popen
 
-    if saferoption then
+    if saferoption == 1 then
 
         os.execute = nil
         os.spawn   = nil
@@ -126,7 +126,7 @@ if kpseused == 1 then
 
     end
 
-    if saferoption or shellescape ~= 2 then
+    if saferoption == 1 or shellescape ~= 2 then
         local ffi = require('ffi')
         for k, v in next, ffi do
             if k ~= 'gc' then
