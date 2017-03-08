@@ -62,3 +62,32 @@ void mp_svg_backend_free (void *mp)                               {return;}   /*
 int mp_svg_ship_out (void *hh, int prologues)                     {mplibstuff_message(svg);return 1;}
 int mp_svg_gr_ship_out (void *hh, int qprologues, int standalone) {mplibstuff_message(svg);return 1;}
 
+@ @c
+const char*
+cairo_version_string (void);
+const char*
+pixman_version_string (void);
+#define CAIRO_VERSION_STRING "CAIRO NOT AVAILABLE"
+const char *COMPILED_CAIRO_VERSION_STRING = CAIRO_VERSION_STRING;
+#define PIXMAN_VERSION_STRING "PIXMAN NOT AVAILABLE"
+const char *COMPILED_PIXMAN_VERSION_STRING = PIXMAN_VERSION_STRING;
+
+const char*
+cairo_version_string (void)
+{
+ return CAIRO_VERSION_STRING;
+}
+
+const char*
+pixman_version_string (void)
+{
+ return PIXMAN_VERSION_STRING;
+}
+
+
+
+
+
+@ @c
+char png_libpng_ver[] =      "PNG NOT AVAILABLE";
+
