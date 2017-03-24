@@ -44,18 +44,8 @@ nodist_libluajittex_a_SOURCES = \
 	luastuff.c texluajitc.c \
 	$(dist_libluatex_sources) \
 	$(nodist_libluatex_sources)
-#nodist_libluajittex_a_SOURCES = \
-#	luajitstuff.c texluajitc.c \
-#	$(dist_libluatex_sources) \
-#	$(nodist_libluatex_sources)
 
-#$(libluatex_a_OBJECTS): libff.a libmplib.a libluamisc.a $(POPPLER_DEPEND)
-#$(libluajittex_a_OBJECTS): libff.a libmplib.a libluajitmisc.a $(POPPLER_DEPEND)
-
-#$(libluatex_a_OBJECTS): libff.a libmplibcore.a libmplibbackends.a libluamisc.a $(POPPLER_DEPEND)
-#$(libluajittex_a_OBJECTS): libff.a libmplibcore.a libmplibbackends.a libluajitmisc.a $(POPPLER_DEPEND)
-
-## mplib stub backends are in mplibstuff.c
+## mplib "stub" backends are in mplibstuff.c
 $(libluatex_a_OBJECTS): libff.a libmplibcore.a libluamisc.a $(POPPLER_DEPEND)
 $(libluajittex_a_OBJECTS): libff.a libmplibcore.a libluajitmisc.a $(POPPLER_DEPEND)
 

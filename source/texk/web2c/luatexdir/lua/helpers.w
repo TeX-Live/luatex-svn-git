@@ -17,7 +17,7 @@
 % You should have received a copy of the GNU General Public License along
 % with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
-@ We will move her some helpers common to code that are now in weird places,
+@ We will move here some helpers common to code that are now in weird places,
 probably organized in texhelpers, luahelpers, pdfhelpers.
 
 

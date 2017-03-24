@@ -7,9 +7,6 @@
 ##
 EXTRA_LIBRARIES += libmplibcore.a libmplibbackends.a 
 
-libmplib_a_CPPFLAGS = $(MPFR_INCLUDES) $(GMP_INCLUDES) $(CAIRO_INCLUDES) $(PIXMAN_INCLUDES) \
-	$(LIBPNG_INCLUDES) $(ZLIB_INCLUDES) $(AM_CPPFLAGS) -I$(srcdir)/mplibdir
-
 libmplibcore_a_CPPFLAGS = $(MPFR_INCLUDES) $(GMP_INCLUDES) $(LIBPNG_INCLUDES) $(ZLIB_INCLUDES) $(AM_CPPFLAGS) -I$(srcdir)/mplibdir
 libmplibbackends_a_CPPFLAGS = $(MPFR_INCLUDES) $(GMP_INCLUDES) $(CAIRO_INCLUDES) $(PIXMAN_INCLUDES) \
 	$(LIBPNG_INCLUDES) $(ZLIB_INCLUDES) $(AM_CPPFLAGS) -I$(srcdir)/mplibdir

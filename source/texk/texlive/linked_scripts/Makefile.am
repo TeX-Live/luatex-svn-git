@@ -136,6 +136,7 @@ texmf_other_scripts = \
 	lilyglyphs/lily-rebuild-pdfs.py \
 	ltximg/ltximg.pl \
 	luaotfload/luaotfload-tool.lua \
+	lwarp/lwarpmk.lua \
 	m-tx/m-tx.lua \
 	makedtx/makedtx.pl \
 	make4ht/make4ht \
@@ -162,6 +163,9 @@ texmf_other_scripts = \
 	pmx/pmx2pdf.lua \
 	pmxchords/pmxchords.lua \
 	pst2pdf/pst2pdf.pl \
+	ptex-fontmaps/kanji-config-updmap-sys.sh \
+	ptex-fontmaps/kanji-config-updmap.pl \
+	ptex-fontmaps/kanji-fontmap-creator.pl \
 	ptex2pdf/ptex2pdf.lua \
 	purifyeps/purifyeps \
 	pygmentex/pygmentex.py \

@@ -589,8 +589,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-CONF_SUBDIRS
 MAKE_SUBDIRS
+CONF_SUBDIRS
 WARNING_CFLAGS
 MAINT
 MAINTAINER_MODE_FALSE
@@ -749,8 +749,6 @@ with_mpfr_libdir
 with_system_gmp
 with_gmp_includes
 with_gmp_libdir
-with_system_cairo
-with_system_pixman
 with_system_libpng
 with_system_zlib
 with_zlib_includes
@@ -1488,10 +1486,6 @@ Optional Packages:
   --with-system-gmp       use installed gmp headers and library
   --with-gmp-includes=DIR gmp headers installed in DIR
   --with-gmp-libdir=DIR   gmp library installed in DIR
-  --with-system-cairo     use installed cairo headers and library (requires
-                          pkg-config)
-  --with-system-pixman    use installed pixman headers and library (requires
-                          pkg-config)
   --with-system-libpng    use installed libpng headers and library (requires
                           pkg-config)
   --with-system-zlib      use installed zlib headers and library
@@ -3381,7 +3375,6 @@ esac
 test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_poppler=yes
   need_mpfr=yes
-  need_cairo=yes
   need_libpng=yes
   need_zziplib=yes
   need_lua52=yes
@@ -3400,7 +3393,6 @@ esac
 test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
   need_poppler=yes
   need_mpfr=yes
-  need_cairo=yes
   need_libpng=yes
   need_zziplib=yes
   need_luajit=yes
@@ -3765,60 +3757,6 @@ $as_echo "$as_me: Assuming installed \`gmp' headers and library" >&6;}
     with_system_gmp=yes
   fi
   ac_configure_args="$ac_configure_args '--with-system-gmp=$with_system_gmp'"
-fi
-
-## libs/cairo/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/cairo/
-## configure options and TL libraries required for cairo
-
-# Check whether --with-system-cairo was given.
-if test "${with_system_cairo+set}" = set; then :
-  withval=$with_system_cairo;
-fi
-if test "x$with_system_cairo" = x; then
-  if test -f $srcdir/../libs/cairo/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`cairo' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`cairo' headers and library from TL tree" >&6;}
-    with_system_cairo=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`cairo' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`cairo' headers and library" >&6;}
-    with_system_cairo=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-cairo=$with_system_cairo'"
-fi
-if test "x$with_system_cairo" = xyes; then
-  if test "x$with_system_pixman" = x; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`pixman' headers and library" >&5
-$as_echo "$as_me:   ->  installed \`pixman' headers and library" >&6;}
-    with_system_pixman=yes
-    ac_configure_args="$ac_configure_args '--with-system-pixman'"
-  elif test "x$with_system_pixman" != xyes; then
-    as_fn_error $? "Sorry, \`--with-system-cairo' requires \`--with-system-pixman'" "$LINENO" 5
-  fi
-fi
-
-test "x$need_cairo" = xyes && {
-  need_pixman=yes
-}
-
-## libs/pixman/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/pixman/
-## configure options and TL libraries required for pixman
-
-# Check whether --with-system-pixman was given.
-if test "${with_system_pixman+set}" = set; then :
-  withval=$with_system_pixman;
-fi
-if test "x$with_system_pixman" = x; then
-  if test -f $srcdir/../libs/pixman/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`pixman' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`pixman' headers and library from TL tree" >&6;}
-    with_system_pixman=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`pixman' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`pixman' headers and library" >&6;}
-    with_system_pixman=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-pixman=$with_system_pixman'"
 fi
 
 ## libs/libpng/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/libpng/
@@ -4842,8 +4780,8 @@ WARNING_CFLAGS=$kpse_cv_warning_cflags
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Utils programs to build" >&5
 $as_echo_n "checking for Utils programs to build... " >&6; }
-MAKE_SUBDIRS=
 CONF_SUBDIRS=
+MAKE_SUBDIRS=
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MAKE_SUBDIRS" >&5
 $as_echo "$MAKE_SUBDIRS" >&6; }

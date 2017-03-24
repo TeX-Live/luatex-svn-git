@@ -523,11 +523,12 @@ am__DIST_COMMON = $(srcdir)/../../am/rebuild.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/../../build-aux/ltmain.sh \
 	$(top_srcdir)/../../build-aux/missing \
 	$(top_srcdir)/../../build-aux/test-driver \
-	../../build-aux/compile ../../build-aux/config.guess \
-	../../build-aux/config.sub ../../build-aux/depcomp \
-	../../build-aux/install-sh ../../build-aux/ltmain.sh \
-	../../build-aux/missing ../../build-aux/texinfo.tex \
-	../../build-aux/ylwrap AUTHORS ChangeLog NEWS README putenv.c
+	../../build-aux/ar-lib ../../build-aux/compile \
+	../../build-aux/config.guess ../../build-aux/config.sub \
+	../../build-aux/depcomp ../../build-aux/install-sh \
+	../../build-aux/ltmain.sh ../../build-aux/missing \
+	../../build-aux/texinfo.tex ../../build-aux/ylwrap AUTHORS \
+	ChangeLog NEWS README putenv.c
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -2329,9 +2330,13 @@ uninstall-local:
 	    rm -f "$(DESTDIR)$(web2cdir)/$$f"; \
 	  else :; fi; \
 	done
+
+# $Id: bin_links.am 43248 2017-02-16 21:38:29Z karl $
+# am/bin_links.am: Makefile fragment for bindir links.
 .PHONY: install-bin-links uninstall-bin-links
 
 install-bin-links:
+@WIN32_FALSE@	$(MKDIR_P) $(DESTDIR)$(bindir)
 @WIN32_FALSE@	@cd $(DESTDIR)$(bindir) && \
 @WIN32_FALSE@	  for s in $(bin_links); do \
 @WIN32_FALSE@	    link=`echo $$s | sed 's,.*:,,'`; \
