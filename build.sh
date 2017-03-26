@@ -155,7 +155,7 @@ then
   PATH=`pwd`/extrabin/mingw:$PATH
   CFLAGS="-mtune=nocona -g -O3 $CFLAGS"
   CXXFLAGS="-mtune=nocona -g -O3 $CXXFLAGS"
-  : ${CONFHOST:=--host=i586-mingw32msvc}
+  : ${CONFHOST:=--host=i686-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
   STRIP="${CONFHOST#--host=}-strip"
@@ -249,8 +249,11 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-largefile \
     --disable-ipc \
     --enable-dump-share  \
-    --enable-mp  \
+    --enable-coremp  \
+    --enable-web2c  \
     --enable-luatex $JITENABLE \
+    --without-system-cairo  \
+    --without-system-pixman \
     --without-system-ptexenc \
     --without-system-kpathsea \
     --without-system-poppler \
