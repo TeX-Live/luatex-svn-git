@@ -145,9 +145,9 @@ then
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-mtune=nocona -g -O3 $CFLAGS"
-  CXXFLAGS="-mtune=nocona -g -O3 $CXXFLAGS"
-  : ${CONFHOST:=--host=i586-mingw32msvc}
+  CFLAGS="-m32 -mtune=nocona -g -O3 $CFLAGS"
+  CXXFLAGS="-m32 -mtune=nocona -g -O3 $CXXFLAGS"
+  : ${CONFHOST:=--host=i686-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
   STRIP="${CONFHOST#--host=}-strip"
@@ -194,6 +194,19 @@ fi
 
 # ----------
 # clean up, if needed
+
+SHAREDENABLE="--disable-shared "
+if [ "$ENABLESHARED" = "TRUE" ]
+then
+  SHAREDENABLE="--enable-shared -disable-native-texlive-build "
+  if [ ! -r "$B-shared" ]
+  then
+   mkdir "$B-shared"
+  fi
+  B="$B-shared"
+fi
+
+
 if [ -r "$B"/Makefile -a $ONLY_MAKE = "FALSE" ]
 then
   rm -rf "$B"
@@ -220,21 +233,7 @@ then
   JITENABLE="--enable-luajittex --without-system-luajit "
 fi
 
-
-SHAREDENABLE="--disable-shared "
-if [ "$ENABLESHARED" = "TRUE" ]
-then
-  SHAREDENABLE="--enable-shared -disable-native-texlive-build "
-  if [ ! -r "$B-shared" ]
-  then
-   mkdir "$B-shared"
-  fi
-  B="$B-shared"
-fi
-
 cd "$B"
-
-
 
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
@@ -247,7 +246,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-ptex \
     --disable-ipc \
     --enable-dump-share  \
-    --enable-mp  \
+    --enable-web2c  \
     --enable-luatex $JITENABLE \
     --without-system-ptexenc \
     --without-system-kpathsea \
@@ -312,15 +311,28 @@ then
     K=$(find "$B/texk/kpathsea" -name "libkpathsea*dll")
     L1=$(find "$B/libs" -name "texlua52.dll")
     L2=$(find "$B/libs" -name "texluajit.dll")
+    #cp "$B/texk/web2c/.libs/$LUATEXEXE" "$B"
+    #cp "$B/texk/web2c/.libs/$LUATEXEXEJIT" "$B"
+    #cp "$K" "$B"
+    #cp "$L1" "$B" 
+    #cp "$L2" "$B" 
+    #K=$(basename "$K")
+    #L1=$(basename "$L1") 
+    #L2=$(basename "$L2") 
+    #$STRIP "$B/$LUATEXEXE" "$B/$LUATEXEXEJIT" "$B/$K" "$B/$L1" "$B/$L2"
+    if [ "$STRIP_LUATEX" = "TRUE" ] 
+    then 
+      $STRIP "$B/texk/web2c/.libs/$LUATEXEXE" "$K" "$L1" 
+      if [ "$BUILDJIT" = "TRUE" ]
+      then
+        $STRIP "$B/texk/web2c/.libs/$LUATEXEXEJIT"  "$L2"
+      fi
+    fi 
     cp "$B/texk/web2c/.libs/$LUATEXEXE" "$B"
     cp "$B/texk/web2c/.libs/$LUATEXEXEJIT" "$B"
     cp "$K" "$B"
     cp "$L1" "$B" 
     cp "$L2" "$B" 
-    K=$(basename "$K")
-    L1=$(basename "$L1") 
-    L2=$(basename "$L2") 
-    $STRIP "$B/$LUATEXEXE" "$B/$LUATEXEXEJIT" "$B/$K" "$B/$L1" "$B/$L2"
   fi
 fi
 
