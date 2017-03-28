@@ -419,11 +419,12 @@ am__DIST_COMMON = $(srcdir)/../../am/dist_hook.am \
 	$(top_srcdir)/../../build-aux/install-sh \
 	$(top_srcdir)/../../build-aux/missing \
 	$(top_srcdir)/../../build-aux/test-driver \
-	../../build-aux/compile ../../build-aux/config.guess \
-	../../build-aux/config.sub ../../build-aux/depcomp \
-	../../build-aux/install-sh ../../build-aux/ltmain.sh \
-	../../build-aux/missing ../../build-aux/texinfo.tex \
-	../../build-aux/ylwrap ChangeLog README
+	../../build-aux/ar-lib ../../build-aux/compile \
+	../../build-aux/config.guess ../../build-aux/config.sub \
+	../../build-aux/depcomp ../../build-aux/install-sh \
+	../../build-aux/ltmain.sh ../../build-aux/missing \
+	../../build-aux/texinfo.tex ../../build-aux/ylwrap ChangeLog \
+	README
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -571,7 +572,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-EXTRA_DIST = $(ZZIPLIB_TREE) zziplib-PATCHES
+EXTRA_DIST = $(ZZIPLIB_TREE) Tlpatches
 NEVER_DIST = `find . $(NEVER_NAMES)`
 
 # Files not to be distributed

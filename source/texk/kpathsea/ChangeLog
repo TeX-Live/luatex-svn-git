@@ -1,3 +1,26 @@
+2017-03-18  Karl Berry  <karl@tug.org>
+
+	* version.ac,
+	* NEWS,
+	* kpsewhich.c,
+	* texmf.cnf,
+	* doc/kpathsea.texi: version 6.2.3 for TL17.
+
+	* Makefile.am (nodist_kpseinclude_HEADERS): include c-auto.h here.
+	(kpseinclude_HEADERS): not here.
+	(nodist_kpselib_HEADERS): and not here; variable no longer needed.
+	Ken Brown on tldistro, 18 Mar 2017 16:50:41.
+
+2017-03-14  Karl Berry  <karl@tug.org>
+
+	* Makefile.am (kpseinclude_HEADERS): add c-auto.h. Report from
+	Ken Brown on tldistro, 14 Mar 2017 12:16:56.
+
+2017-03-02  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXINPUTS.luajitlatex): add, same as lualatex.
+	Report from Ulrike Fischer, 2 Mar 2017 17:46:50.
+
 2016-12-28  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	* xgetcwd.c: Typo. Thanks Luigi.

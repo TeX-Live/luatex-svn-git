@@ -637,14 +637,14 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+subdirs
 cross_FALSE
 cross_TRUE
 ICU_CONFIG
 FT2_CONFIG
 PKG_CONFIG
-CONF_SUBDIRS
 MAKE_SUBDIRS
-subdirs
+CONF_SUBDIRS
 CXXCPP
 WARNING_CXXFLAGS
 am__fastdepCXX_FALSE
@@ -840,8 +840,6 @@ with_mpfr_libdir
 with_system_gmp
 with_gmp_includes
 with_gmp_libdir
-with_system_cairo
-with_system_pixman
 with_system_libpng
 with_system_zlib
 with_zlib_includes
@@ -885,8 +883,7 @@ CXX
 CXXFLAGS
 CCC
 CXXCPP'
-ac_subdirs_all='texk/kpathsea
-auxdir/auxsub libs utils texk'
+ac_subdirs_all='auxdir/auxsub libs utils texk'
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -1608,10 +1605,6 @@ Optional Packages:
   --with-system-gmp       use installed gmp headers and library
   --with-gmp-includes=DIR gmp headers installed in DIR
   --with-gmp-libdir=DIR   gmp library installed in DIR
-  --with-system-cairo     use installed cairo headers and library (requires
-                          pkg-config)
-  --with-system-pixman    use installed pixman headers and library (requires
-                          pkg-config)
   --with-system-libpng    use installed libpng headers and library (requires
                           pkg-config)
   --with-system-zlib      use installed zlib headers and library
@@ -4202,7 +4195,6 @@ esac
 test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_poppler=yes
   need_mpfr=yes
-  need_cairo=yes
   need_libpng=yes
   need_zziplib=yes
   need_lua52=yes
@@ -4221,7 +4213,6 @@ esac
 test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
   need_poppler=yes
   need_mpfr=yes
-  need_cairo=yes
   need_libpng=yes
   need_zziplib=yes
   need_luajit=yes
@@ -4625,80 +4616,6 @@ $as_echo "$as_me: Using \`gmp' headers and library from TL tree" >&6;}
   if test "x$with_system_gmp" != xno; then
     with_system_gmp=no
     ac_configure_args="$ac_configure_args '--without-system-gmp'"
-  fi
-fi
-
-## libs/cairo/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/cairo/
-## configure options and TL libraries required for cairo
-
-# Check whether --with-system-cairo was given.
-if test "${with_system_cairo+set}" = set; then :
-  withval=$with_system_cairo;
-fi
-if test "x$with_system_cairo" = x; then
-  if test -f $srcdir/libs/cairo/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`cairo' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`cairo' headers and library from TL tree" >&6;}
-    with_system_cairo=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`cairo' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`cairo' headers and library" >&6;}
-    with_system_cairo=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-cairo=$with_system_cairo'"
-elif test "x$with_system_cairo" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`cairo' headers and library" >&5
-$as_echo "$as_me: Using installed \`cairo' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`cairo' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`cairo' headers and library from TL tree" >&6;}
-  if test "x$with_system_cairo" != xno; then
-    with_system_cairo=no
-    ac_configure_args="$ac_configure_args '--without-system-cairo'"
-  fi
-fi
-if test "x$with_system_cairo" = xyes; then
-  if test "x$with_system_pixman" = x; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`pixman' headers and library" >&5
-$as_echo "$as_me:   ->  installed \`pixman' headers and library" >&6;}
-    with_system_pixman=yes
-    ac_configure_args="$ac_configure_args '--with-system-pixman'"
-  elif test "x$with_system_pixman" != xyes; then
-    as_fn_error $? "Sorry, \`--with-system-cairo' requires \`--with-system-pixman'" "$LINENO" 5
-  fi
-fi
-
-test "x$need_cairo" = xyes && {
-  need_pixman=yes
-}
-
-## libs/pixman/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/pixman/
-## configure options and TL libraries required for pixman
-
-# Check whether --with-system-pixman was given.
-if test "${with_system_pixman+set}" = set; then :
-  withval=$with_system_pixman;
-fi
-if test "x$with_system_pixman" = x; then
-  if test -f $srcdir/libs/pixman/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`pixman' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`pixman' headers and library from TL tree" >&6;}
-    with_system_pixman=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`pixman' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`pixman' headers and library" >&6;}
-    with_system_pixman=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-pixman=$with_system_pixman'"
-elif test "x$with_system_pixman" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`pixman' headers and library" >&5
-$as_echo "$as_me: Using installed \`pixman' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`pixman' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`pixman' headers and library from TL tree" >&6;}
-  if test "x$with_system_pixman" != xno; then
-    with_system_pixman=no
-    ac_configure_args="$ac_configure_args '--without-system-pixman'"
   fi
 fi
 
@@ -19423,19 +19340,13 @@ $as_echo "$as_me:     which requires to locate the <kpathsea/paths.h> header fil
   fi
 fi
 
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for TeX specific libraries to build" >&5
 $as_echo_n "checking for TeX specific libraries to build... " >&6; }
-MAKE_SUBDIRS=
 CONF_SUBDIRS=
-if test -x $srcdir/texk/kpathsea/configure; then
-  test "x$with_system_kpathsea" != xyes && test "x$need_kpathsea" = xyes && MAKE_SUBDIRS="texk/kpathsea $MAKE_SUBDIRS"
+MAKE_SUBDIRS=
+if test -x $srcdir/texk/kpathsea/configure && test "x$with_system_kpathsea" != xyes && test "x$need_kpathsea" = xyes; then
   CONF_SUBDIRS="texk/kpathsea $CONF_SUBDIRS"
-  if false; then
-    subdirs="$subdirs texk/kpathsea"
-
-  fi
+  MAKE_SUBDIRS="texk/kpathsea $MAKE_SUBDIRS"
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MAKE_SUBDIRS" >&5
@@ -19962,64 +19873,6 @@ rm -f core conftest.err conftest.$ac_objext \
 $as_echo "$kpse_res" >&6; }
 fi
 
-## libs/pixman/ac/pixman.ac: configure.ac fragment for the TeX Live subdirectory libs/pixman/
-## basic check of system pixman
-if test "x$need_pixman:$with_system_pixman" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`pixman' library" >&5
-$as_echo_n "checking requested system \`pixman' library... " >&6; }
-  CPPFLAGS="$PIXMAN_INCLUDES $CPPFLAGS"
-  LIBS="$PIXMAN_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <pixman.h>
-int
-main ()
-{
-const char *s = pixman_version_string();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-
-## libs/cairo/ac/cairo.ac: configure.ac fragment for the TeX Live subdirectory libs/cairo/
-## basic check of system cairo
-if test "x$need_cairo:$with_system_cairo" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`cairo' library" >&5
-$as_echo_n "checking requested system \`cairo' library... " >&6; }
-  CPPFLAGS="$CAIRO_INCLUDES $CPPFLAGS"
-  LIBS="$CAIRO_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <cairo.h>
-int
-main ()
-{
-const char *s = cairo_version_string();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-
 ## libs/gmp/ac/gmp.ac: configure.ac fragment for the TeX Live subdirectory libs/gmp/
 ## basic check of system gmp
 if test "x$need_gmp:$with_system_gmp" = xyes:yes; then
@@ -20163,6 +20016,8 @@ else
   cross_TRUE='#'
   cross_FALSE=
 fi
+
+
 
 
 subdirs="$subdirs auxdir/auxsub libs utils texk"
@@ -22765,11 +22620,11 @@ msg_compiling="$msg_compiling
 test "x$srcdir" = x. || msg_compiling="$msg_compiling
       from sources in $kpse_src"
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:
-** Configuration summary for $PACKAGE_STRING (2017/dev$with_banner_add):
+** Configuration summary for $PACKAGE_STRING (2017$with_banner_add):
 
    $msg_compiling" >&5
 $as_echo "
-** Configuration summary for $PACKAGE_STRING (2017/dev$with_banner_add):
+** Configuration summary for $PACKAGE_STRING (2017$with_banner_add):
 
    $msg_compiling" >&6; }
 case $kpse_src$kpse_bld in

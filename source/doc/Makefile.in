@@ -129,8 +129,6 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/libs/poppler/ac/withenable.ac \
 	$(top_srcdir)/libs/mpfr/ac/withenable.ac \
 	$(top_srcdir)/libs/gmp/ac/withenable.ac \
-	$(top_srcdir)/libs/cairo/ac/withenable.ac \
-	$(top_srcdir)/libs/pixman/ac/withenable.ac \
 	$(top_srcdir)/libs/libpng/ac/withenable.ac \
 	$(top_srcdir)/libs/luajit/ac/withenable.ac \
 	$(top_srcdir)/libs/lua52/ac/withenable.ac \
@@ -140,8 +138,6 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/texk/kpathsea/ac/kpathsea.ac \
 	$(top_srcdir)/libs/zlib/ac/zlib.ac \
 	$(top_srcdir)/libs/libpng/ac/libpng.ac \
-	$(top_srcdir)/libs/pixman/ac/pixman.ac \
-	$(top_srcdir)/libs/cairo/ac/cairo.ac \
 	$(top_srcdir)/libs/gmp/ac/gmp.ac \
 	$(top_srcdir)/libs/mpfr/ac/mpfr.ac \
 	$(top_srcdir)/libs/poppler/ac/poppler.ac \

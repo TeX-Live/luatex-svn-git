@@ -345,6 +345,34 @@ character|-|handling code have been moved back inline. When \type
 {\tracingcommands} is on, this is visible because the full word is reported,
 instead of just the initial character.
 
+Because we tend to make hard codes behaviour configurable a few new primitives
+have been added:
+
+\starttyping
+\hyphenpenaltymode
+\automatichyphenpenalty
+\explicithyphenpenalty
+\stoptyping
+
+The first parameter has the following consequences for automatic discs (the ones
+resulting from an \type {\exhyphenchar}:
+
+\starttabulate[|Tc|l|l|]
+\BC mode \BC automatic disc \type{-}         \BC explicit disc \type{\-}         \NC \NR
+\HL
+\NC 0    \NC \type {\exhyphenpenalty}        \NC \type {\exhyphenpenalty}        \NC \NR
+\NC 1    \NC \type {\hyphenpenalty}          \NC \type {\hyphenpenalty}          \NC \NR
+\NC 2    \NC \type {\exhyphenpenalty}        \NC \type {\hyphenpenalty}          \NC \NR
+\NC 3    \NC \type {\hyphenpenalty}          \NC \type {\exhyphenpenalty}        \NC \NR
+\NC 4    \NC \type {\automatichyphenpenalty} \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC 5    \NC \type {\exhyphenpenalty}        \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC 6    \NC \type {\hyphenpenalty}          \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC 7    \NC \type {\automatichyphenpenalty} \NC \type {\exhyphenpenalty}        \NC \NR
+\NC 8    \NC \type {\automatichyphenpenalty} \NC \type {\hyphenpenalty}          \NC \NR
+\stoptabulate
+
+other values do what we always did in \LUATEX: insert \type {\exhyphenpenalty}.
+
 \section[patternsexceptions]{Loading patterns and exceptions}
 
 The hyphenation algorithm in \LUATEX\ is quite different from the one in \TEX82,

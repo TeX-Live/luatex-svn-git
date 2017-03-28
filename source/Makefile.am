@@ -1,4 +1,4 @@
-## $Id$
+## $Id: Makefile.am 43493 2017-03-14 00:03:01Z karl $
 ## Makefile.am for the TeX Live top-level
 ##
 ## Copyright 2016      Karl Berry <tex-live@tug.org>
@@ -76,7 +76,7 @@ endif !cross
 skip:
 .PHONY: skip
 
-# Directly run texlinks.
+# Convenience targets to run texlinks and reautoconf.
 .PHONY: texlinks
 texlinks:
 	cd $(texlinks_dir) && $(MAKE) $(AM_MAKEFLAGS) run-texlinks

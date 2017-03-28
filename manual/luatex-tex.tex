@@ -162,11 +162,18 @@ The current list is:
 \NC pool_size          \NC current size allocated for string characters \NC \NR
 \NC save_size          \NC save stack size \NC \NR
 \NC shell_escape       \NC \type {0} means disabled, \type {1} is restricted and \type {2} means anything is permitted \NC \NR
+\NC safer_option       \NC \type {1} means safer is enforced \NC \NR
+\NC kpse_used          \NC \type {1} means that kpse is used \NC \NR
 \NC stack_size         \NC input stack size \NC \NR
 \NC str_ptr            \NC number of strings \NC \NR
 \NC total_pages        \NC number of written pages \NC \NR
 \NC var_mem_max        \NC number of allocated words for nodes \NC \NR
 \NC var_used           \NC variable (one|-|word) memory in use \NC \NR
+\NC lc_collate         \NC the value of \type {LC_COLLATE}  at startup time (becomes \type {C} at startup) \NC \NR
+\NC lc_ctype           \NC the value of \type {LC_CTYPE}    at startup time (becomes \type {C} at startup) \NC \NR
+%NC lc_monetary        \NC the value of \type {LC_MONETARY} at startup time \NC \NR
+\NC lc_numeric         \NC the value of \type {LC_NUMERIC}  at startup time \NC \NR
+%NC lc_time            \NC the value of \type {LC_TIME}     at startup time (becomes \type {C} at startup) \NC \NR
 \stoptabulate
 
 The error and warning messages can be wiped with the \type {resetmessages}

@@ -1,6 +1,8 @@
+## $Id: Makefile.am 43543 2017-03-18 22:54:57Z karl $
 ## Makefile.am for the TeX Live subdirectory texk/kpathsea/
 ##
-## Copyright (C) 2009-2015 Peter Breitenlohner <tex-live@tug.org>
+## Copyright 2017 Karl Berry <tex-live@tug.org>
+## Copyright 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 SUBDIRS = . doc man
@@ -111,15 +113,11 @@ EXTRA_DIST += \
 kpseincludedir = ${includedir}/kpathsea
 
 nodist_kpseinclude_HEADERS = \
+	c-auto.h \
 	kpathsea.h \
 	paths.h
 
 kpseinclude_HEADERS = config.h $(direct_headers) $(indirect_headers)
-
-kpselibdir = ${libdir}/kpathsea
-
-nodist_kpselib_HEADERS = \
-	c-auto.h
 
 # Headers included directly into kpathsea.h
 #
@@ -326,4 +324,3 @@ include $(srcdir)/../../am/rebuild.am
 ## Not used
 ##
 EXTRA_DIST += mktex.cnf
-

@@ -89,8 +89,7 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-cairo-flags.m4 \
-	$(top_srcdir)/../m4/kpse-common.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-common.m4 \
 	$(top_srcdir)/../m4/kpse-cxx-hack.m4 \
 	$(top_srcdir)/../m4/kpse-gmp-flags.m4 \
 	$(top_srcdir)/../m4/kpse-kpathsea-flags.m4 \
@@ -99,7 +98,6 @@ am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/../m4/kpse-mktex.m4 \
 	$(top_srcdir)/../m4/kpse-mpfr-flags.m4 \
 	$(top_srcdir)/../m4/kpse-options.m4 \
-	$(top_srcdir)/../m4/kpse-pixman-flags.m4 \
 	$(top_srcdir)/../m4/kpse-pkgs.m4 \
 	$(top_srcdir)/../m4/kpse-poppler-flags.m4 \
 	$(top_srcdir)/../m4/kpse-setup.m4 \
@@ -117,8 +115,6 @@ am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/../libs/poppler/ac/withenable.ac \
 	$(top_srcdir)/../libs/mpfr/ac/withenable.ac \
 	$(top_srcdir)/../libs/gmp/ac/withenable.ac \
-	$(top_srcdir)/../libs/cairo/ac/withenable.ac \
-	$(top_srcdir)/../libs/pixman/ac/withenable.ac \
 	$(top_srcdir)/../libs/libpng/ac/withenable.ac \
 	$(top_srcdir)/../libs/luajit/ac/withenable.ac \
 	$(top_srcdir)/../libs/lua52/ac/withenable.ac \
@@ -196,11 +192,12 @@ am__DIST_COMMON = $(srcdir)/../am/dist_hook.am \
 	$(top_srcdir)/../build-aux/config.guess \
 	$(top_srcdir)/../build-aux/config.sub \
 	$(top_srcdir)/../build-aux/install-sh \
-	$(top_srcdir)/../build-aux/missing ../build-aux/compile \
-	../build-aux/config.guess ../build-aux/config.sub \
-	../build-aux/depcomp ../build-aux/install-sh \
-	../build-aux/ltmain.sh ../build-aux/missing \
-	../build-aux/texinfo.tex ../build-aux/ylwrap ChangeLog README
+	$(top_srcdir)/../build-aux/missing ../build-aux/ar-lib \
+	../build-aux/compile ../build-aux/config.guess \
+	../build-aux/config.sub ../build-aux/depcomp \
+	../build-aux/install-sh ../build-aux/ltmain.sh \
+	../build-aux/missing ../build-aux/texinfo.tex \
+	../build-aux/ylwrap ChangeLog README
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -350,11 +347,18 @@ NEVER_NAMES_LT = -o -name .libs -o -name '*.lo'
 recurse_this = utils/
 recurse_top = ../
 
-# We must configure all subdirs since 'make dist' needs the Makefile.
-# For those not required for the current set of configure options
+# $Id: recurse.am 43261 2017-02-17 22:37:44Z karl $
+#
+# Requires $(recurse_this) and $(recurse_top).
+# Uses CONF_SUBDIRS and MAKE_SUBDIRS (set by kpse-setup.m4).
+#
+# For subdirs not required for the current set of configure options
 # we append '--disable-build' so they can skip tests that would
 # fail because, e.g., some required libraries were not built.
+# (By manually testing $enable_build in configure, e.g., dvisvgm/configure.)
+#
 # Code inspired by automake's way to handle recursive targets.
+#
 cf_silent = $(cf_silent_@AM_V@)
 cf_silent_ = $(cf_silent_@AM_DEFAULT_V@)
 cf_silent_0 = --silent

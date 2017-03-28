@@ -105,9 +105,9 @@ extern int l_new_image(lua_State * L);
 extern int luaopen_epdf(lua_State * L);
 extern int luaopen_pdfscanner(lua_State * L);
 extern int luaopen_mplib(lua_State * L);
+extern int luaopen_fio(lua_State * L);
 
-extern void open_oslibext(lua_State * L, int safer_option);
-extern int open_iolibext(lua_State * L);
+extern void open_oslibext(lua_State * L);
 extern void open_strlibext(lua_State * L);
 extern void open_lfslibext(lua_State * L);
 
@@ -154,6 +154,12 @@ extern void dump_luac_registers(void);
 extern void undump_luac_registers(void);
 
 extern int lua_only;
+extern const char *lc_ctype;
+extern const char *lc_collate;
+extern const char *lc_numeric;
+
+
+
 #ifdef LuajitTeX
 extern int luajiton;
 extern char *jithash_hashname ;
@@ -776,6 +782,7 @@ make_lua_key(start);\
 make_lua_key(step);\
 make_lua_key(stream);\
 make_lua_key(streamfile);\
+make_lua_key(streamprovider);\
 make_lua_key(stretch);\
 make_lua_key(stretch_order);\
 make_lua_key(string);\
@@ -1137,6 +1144,7 @@ init_lua_key(start);\
 init_lua_key(step);\
 init_lua_key(stream);\
 init_lua_key(streamfile);\
+init_lua_key(streamprovider);\
 init_lua_key(stretch);\
 init_lua_key(stretch_order);\
 init_lua_key(string);\
@@ -1246,10 +1254,10 @@ init_lua_key_alias(term_and_log,"term and log")
     } \
 } while(0)
 
-#ifdef __MINGW32__
-extern FILE *_cairo_win32_tmpfile( void );
-#define tmpfile() _cairo_win32_tmpfile()
-#endif /* __MINGW32__ */
+#ifdef _WIN32
+extern FILE *_cairo_win_tmpfile( void );
+#define tmpfile() _cairo_win_tmpfile()
+#endif /* _WIN32 */
 
 #endif                          /* LUATEX_API_H */
 
@@ -1565,6 +1573,7 @@ use_lua_key(start);
 use_lua_key(step);
 use_lua_key(stream);
 use_lua_key(streamfile);
+use_lua_key(streamprovider);
 use_lua_key(stretch);
 use_lua_key(stretch_order);
 use_lua_key(string);

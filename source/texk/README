@@ -1,4 +1,4 @@
-$Id: README 43102 2017-01-31 18:37:40Z karl $
+$Id: README 43576 2017-03-22 22:18:48Z karl $
 Copyright 2006-2017 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -58,7 +58,7 @@ dvipos - ?
 
 dvipsk - maintained here, by us
 
-dvisvgm 2.1 - checked 31jan17
+dvisvgm 2.1.3 - checked 21feb17
   http://dvisvgm.bplaced.net/Downloads
 
 gregorio 4.2.0 - checked 25sep16
@@ -117,7 +117,7 @@ web2c - maintained here, by us - core web2c, plain tex, etc.
       pdftex - http://pdftex.org
       pmpost - none
         ptex - nothing current, old info: http://ascii.asciimw.jp/pb/ptex/
-     synctex - maintained here
+     synctex - maintained here, but also https://github.com/jlaurens/synctex
      upmpost - ? (Kitagawa-san)
        uptex - https://texwiki.texjp.org/?upTeX%2CupLaTeX
        xetex - http://tug.org/xetex/

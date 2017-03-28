@@ -1,3 +1,11 @@
+2017-03-21  Karl Berry  <karl@freefriends.org>
+
+	* everywhere: use EXTRA_DIST=TLpatches instead of <pkgname>-PATCHES.
+
+2017-03-18  Karl Berry  <karl@tug.org>
+
+	* version.ac (tex_live_version): 2017/dev => 2017 for TL17.
+
 2016-11-16  Karl Berry  <karl@tug.org>
 
 	* Makefile.am (install-exec-hook): warn that the
@@ -40,18 +48,9 @@
 
 	* tardate.ac: Switch to 2015-03-07.
 
-2015-02-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* am/dist_hook.am (new): Makefile fragment for dist-hook target.
-	* Makefile.am: Use the fragment am/dist_hook.am.
-
 2014-11-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
 	* tardate.ac: Switch to 2014-11-24.
-
-2014-11-17  Karl Berry  <karl@tug.org>
-
-	* am/script_links.am: Use w32_wrapper or w64_wrapper.
 
 2014-10-21  Karl Berry  <karl@tug.org>
 
@@ -122,21 +121,9 @@
 
 	* Makefile.am: Add the make target 'texlinks'.
 
-2013-07-16  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* am/rebuild.am: Avoid still more 'parallel make' problems.
-
-2013-07-15  Peter Breitenlohner  <peb@mppmu.mpg.de>
-
-	* am/rebuild.am: Avoid more 'parallel make' problems.
-
 2013-07-06  Peter Breitenlohner  <peb@mppmu.mpg.de>
 
-	* am/*.am: Moved Makefile fragments from libs/am/ and tekk/am/.
-	* am/rebuild.am: New Makefile fragment to rebuild a library.
-	* am/reconfig.am: New Makefile fragment to reconfigure.
-	* am/recurse.am: New Makefile fragment to recurse into subdirs.
-
+	* am: new subdirectory.
 	* Makefile.am, configure.ac: Use am/recurse.am.
 
 2013-06-24  Peter Breitenlohner  <peb@mppmu.mpg.de>
@@ -591,4 +578,4 @@
 	(sup_main_memory, sup_save_size): increase per tex.ch.
 	From Akira.
 
-(This ChangeLog file public domain.)
+(This file public domain.)

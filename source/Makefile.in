@@ -129,8 +129,6 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/libs/poppler/ac/withenable.ac \
 	$(top_srcdir)/libs/mpfr/ac/withenable.ac \
 	$(top_srcdir)/libs/gmp/ac/withenable.ac \
-	$(top_srcdir)/libs/cairo/ac/withenable.ac \
-	$(top_srcdir)/libs/pixman/ac/withenable.ac \
 	$(top_srcdir)/libs/libpng/ac/withenable.ac \
 	$(top_srcdir)/libs/luajit/ac/withenable.ac \
 	$(top_srcdir)/libs/lua52/ac/withenable.ac \
@@ -140,8 +138,6 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/texk/kpathsea/ac/kpathsea.ac \
 	$(top_srcdir)/libs/zlib/ac/zlib.ac \
 	$(top_srcdir)/libs/libpng/ac/libpng.ac \
-	$(top_srcdir)/libs/pixman/ac/pixman.ac \
-	$(top_srcdir)/libs/cairo/ac/cairo.ac \
 	$(top_srcdir)/libs/gmp/ac/gmp.ac \
 	$(top_srcdir)/libs/mpfr/ac/mpfr.ac \
 	$(top_srcdir)/libs/poppler/ac/poppler.ac \
@@ -218,9 +214,10 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/am/dist_hook.am \
 	$(top_srcdir)/build-aux/install-sh \
 	$(top_srcdir)/build-aux/ltmain.sh \
 	$(top_srcdir)/build-aux/missing ChangeLog README \
-	build-aux/compile build-aux/config.guess build-aux/config.sub \
-	build-aux/depcomp build-aux/install-sh build-aux/ltmain.sh \
-	build-aux/missing build-aux/texinfo.tex build-aux/ylwrap
+	build-aux/ar-lib build-aux/compile build-aux/config.guess \
+	build-aux/config.sub build-aux/depcomp build-aux/install-sh \
+	build-aux/ltmain.sh build-aux/missing build-aux/texinfo.tex \
+	build-aux/ylwrap
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -425,11 +422,18 @@ DIST_SUBDIRS = auxdir/auxsub doc $(CONF_SUBDIRS) libs utils texk
 recurse_this = 
 recurse_top = 
 
-# We must configure all subdirs since 'make dist' needs the Makefile.
-# For those not required for the current set of configure options
+# $Id: recurse.am 43261 2017-02-17 22:37:44Z karl $
+#
+# Requires $(recurse_this) and $(recurse_top).
+# Uses CONF_SUBDIRS and MAKE_SUBDIRS (set by kpse-setup.m4).
+#
+# For subdirs not required for the current set of configure options
 # we append '--disable-build' so they can skip tests that would
 # fail because, e.g., some required libraries were not built.
+# (By manually testing $enable_build in configure, e.g., dvisvgm/configure.)
+#
 # Code inspired by automake's way to handle recursive targets.
+#
 cf_silent = $(cf_silent_@AM_V@)
 cf_silent_ = $(cf_silent_@AM_DEFAULT_V@)
 cf_silent_0 = --silent
@@ -971,7 +975,7 @@ install-exec-hook:
 skip:
 .PHONY: skip
 
-# Directly run texlinks.
+# Convenience targets to run texlinks and reautoconf.
 .PHONY: texlinks
 texlinks:
 	cd $(texlinks_dir) && $(MAKE) $(AM_MAKEFLAGS) run-texlinks
