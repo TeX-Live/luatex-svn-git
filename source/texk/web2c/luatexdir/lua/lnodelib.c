@@ -268,6 +268,19 @@ static int get_valid_node_subtype_id(lua_State * L, int n)
     return i;
 }
 
+/* enable fixer ... more fixers can be added in the future */
+
+static int lua_nodelib_fix_node_lists(lua_State * L)
+{
+    if (lua_type(L, -1) == LUA_TBOOLEAN) {
+        fix_node_lists = lua_toboolean(L,-1);
+    } else if (lua_type(L, -1) == LUA_TNUMBER) {
+        fix_node_lists = lua_tointeger(L,-1);
+    }
+    return 0;
+}
+
+
 /* two simple helpers to speed up and simplify lua code (replaced by getnext and getprev) */
 
 static int lua_nodelib_next(lua_State * L)
@@ -7824,6 +7837,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"check_discretionary", lua_nodelib_check_discretionary},
     {"check_discretionaries", lua_nodelib_check_discretionaries},
     /* done */
+    {"fix_node_lists", lua_nodelib_fix_node_lists},
     {NULL, NULL} /* sentinel */
 };
 

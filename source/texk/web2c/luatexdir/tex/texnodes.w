@@ -1718,18 +1718,19 @@ void check_node(halfword p)
 }
 
 @ @c
-void fix_node_list(halfword head)
+halfword fix_node_list(halfword head)
 {
-    halfword p, q;
+    halfword next, tail;
     if (head == null)
-        return;
-    p = head;
-    q = vlink(p);
-    while (q != null) {
-        alink(q) = p;
-        p = q;
-        q = vlink(p);
+        return null;
+    tail = head;
+    next = vlink(head);
+    while (next != null) {
+        alink(next) = tail;
+        tail = next;
+        next = vlink(tail);
     }
+    return tail;
 }
 
 @ @c

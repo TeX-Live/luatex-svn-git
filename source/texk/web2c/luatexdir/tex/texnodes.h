@@ -928,7 +928,7 @@ extern halfword do_copy_node_list(halfword, halfword);
 extern halfword copy_node_list(halfword);
 extern halfword copy_node(const halfword);
 extern void check_node(halfword);
-extern void fix_node_list(halfword);
+extern halfword fix_node_list(halfword);
 extern int fix_node_lists;
 extern char *sprint_node_mem_usage(void);
 extern halfword raw_glyph_node(void);
