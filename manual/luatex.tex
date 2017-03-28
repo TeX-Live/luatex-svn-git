@@ -1,0 +1,57 @@
+% macros=mkvi
+
+% author    : Hans Hagen
+% copyright : PRAGMA ADE & ConTeXt Development Team
+% license   : Creative Commons Attribution ShareAlike 4.0 International
+% reference : pragma-ade.nl | contextgarden.net | texlive (related) distributions
+% origin    : the ConTeXt distribution
+%
+% comment   : Because this manual is distributed with TeX distributions it comes with a rather
+%             liberal license. We try to adapt these documents to upgrades in the (sub)systems
+%             that they describe. Using parts of the content otherwise can therefore conflict
+%             with existing functionality and we cannot be held responsible for that. Many of
+%             the manuals contain characteristic graphics and personal notes or examples that
+%             make no sense when used out-of-context.
+%
+% comment   : Some chapters might have been published in TugBoat, the NTG Maps, the ConTeXt
+%             Group journal or otherwise. Thanks to the editors for corrections. Also thanks
+%             to users for testing, feedback and corrections.
+
+% \tex vs \type vs \syntax vs. \luatex
+% \em \it \/
+
+% "context --nodates --nocompression luatex" can be used for comparison
+% runs, not that we do it
+
+\environment luatex-style
+\environment luatex-logos
+
+\dontcomplain
+
+\startdocument
+  [status=intermediate release,
+   version=1.0.4]
+
+\component luatex-titlepage
+
+\startfrontmatter
+    \component luatex-contents
+    \component luatex-introduction
+\stopfrontmatter
+
+\startbodymatter
+    \component luatex-enhancements
+    \component luatex-modifications
+    \component luatex-lua
+    \component luatex-languages
+    \component luatex-fonts
+    \component luatex-math
+    \component luatex-nodes
+    \component luatex-callbacks
+    \component luatex-tex
+    \component luatex-graphics
+    \component luatex-fontloader
+    \component luatex-backend
+\stopbodymatter
+
+\stopdocument
