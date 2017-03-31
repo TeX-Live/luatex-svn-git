@@ -446,8 +446,10 @@ void initialize_commands(void)
     primitive_tex("unhcopy", un_hbox_cmd, copy_code, 0);
     primitive_tex("unvbox", un_vbox_cmd, box_code, 0);
     primitive_tex("unvcopy", un_vbox_cmd, copy_code, 0);
-    primitive_tex("-", discretionary_cmd, explicit_disc, 0);
+    primitive_tex("-", discretionary_cmd, explicit_disc, 0); /* good old tex */
     primitive_tex("discretionary", discretionary_cmd, discretionary_disc, 0);
+    primitive_luatex("explicitdiscretionary", discretionary_cmd, explicit_disc, 0);
+    primitive_luatex("automaticdiscretionary", discretionary_cmd, automatic_disc, 0);
     primitive_luatex("localleftbox", assign_local_box_cmd, 0, 0);
     primitive_luatex("localrightbox", assign_local_box_cmd, 1, 0);
 
