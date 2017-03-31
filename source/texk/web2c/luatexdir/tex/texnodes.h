@@ -23,19 +23,6 @@
 #ifndef __NODES_H__
 #  define __NODES_H__
 
-/* these are in texlang.c */
-
-#  define set_vlink(a,b)  vlink(a)=b
-#  define get_vlink(a)  vlink(a)
-#  define get_character(a)  character(a)
-
-extern halfword insert_discretionary(halfword t, halfword pre, halfword post, halfword replace, int penalty);
-extern halfword insert_syllable_discretionary(halfword t, lang_variables * lan);
-extern halfword insert_word_discretionary(halfword t, lang_variables * lan);
-extern halfword insert_complex_discretionary(halfword t, lang_variables * lan, halfword pre, halfword post, halfword replace);
-extern halfword insert_character(halfword t, int n);
-extern void set_disc_field(halfword f, halfword t);
-
 #  define varmemcast(a) (memory_word *)(a)
 
 extern memory_word *volatile varmem;

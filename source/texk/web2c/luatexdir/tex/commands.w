@@ -160,6 +160,7 @@ void initialize_commands(void)
     primitive_luatex("hyphenpenaltymode", assign_int_cmd, int_base + hyphen_penalty_mode_code, int_base);
     primitive_luatex("automatichyphenpenalty", assign_int_cmd, int_base + automatic_hyphen_penalty_code, int_base);
     primitive_luatex("explicithyphenpenalty", assign_int_cmd, int_base + explicit_hyphen_penalty_code, int_base);
+    primitive_luatex("automatichyphenmode", assign_int_cmd, int_base + automatic_hyphen_mode_code, int_base);
 
     /* Many of \TeX's primitives need no |equiv|, since they are identifiable
        by their |eq_type| alone. These primitives are loaded into the hash table
