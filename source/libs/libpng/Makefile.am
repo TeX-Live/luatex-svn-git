@@ -1,4 +1,4 @@
-## $Id: Makefile.am 43567 2017-03-21 17:43:10Z karl $
+## $Id: Makefile.am 43617 2017-03-27 18:00:45Z karl $
 ## Proxy Makefile.am to build libpng for TeX Live.
 ##
 ##   Copyright 2016-2017 Karl Berry <tex-live@tug.org>
@@ -7,14 +7,12 @@
 ##   This file is free software; the copyright holder
 ##   gives unlimited permission to copy and/or distribute it,
 ##   with or without modifications, as long as this notice is preserved.
-##
+
 ## We want to re-distribute the whole libpng source tree.
-##
 EXTRA_DIST = $(LIBPNG_TREE)
 
 ## Changes applied to the original source tree
-##
-EXTRA_DIST += Tlpatches
+EXTRA_DIST += TLpatches
 
 # Files not to be distributed
 include $(srcdir)/../../am/dist_hook.am
@@ -48,8 +46,7 @@ nodist_libpng_a_SOURCES = \
 $(libpng_a_OBJECTS): config.force
 
 ## Tests
-##
-TESTS_ENVIRONMENT = LIBPNG_TREE=$(LIBPNG_TREE)
+AM_TESTS_ENVIRONMENT = LIBPNG_TREE=$(LIBPNG_TREE); export LIBPNG_TREE;
 if build
 TESTS = libpng.test
 check_PROGRAMS = pngtest
@@ -76,4 +73,3 @@ rebuild_prereq =
 rebuild_target = all
 
 include $(srcdir)/../../am/rebuild.am
-
