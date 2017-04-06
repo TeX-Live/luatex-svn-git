@@ -960,7 +960,7 @@ void lua_initialize(int ac, char **av)
 	/* Back to the previous locale if possible,   */
 	/* otherwise it's a serious error and we exit:*/
 	/* we can't ensure a 'sane' locale for lua.   */
-	env_locale = setlocale (LC_ALL, old_locale);
+	env_locale = setlocale (LC_ALL, NULL);
 	if (!env_locale) {
 	  fprintf(stderr,"Unable to restore original locale:exit now.\n");
 	  exit(1);
