@@ -1995,8 +1995,9 @@ halfword handle_ligaturing(halfword head, halfword tail)
         vlink(tail) = null;
     }
 
-    /* |if (fix_node_lists)| */
-    fix_node_list(head);
+    if (fix_node_lists) {
+        fix_node_list(head);
+    }
 
     prev = head;
     cur = vlink(prev);
@@ -2184,7 +2185,9 @@ static halfword run_lua_ligkern_callback(halfword head, halfword tail, int callb
         luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
         return tail;
     }
-    fix_node_list(head);
+    if (fix_node_lists) {
+        fix_node_list(head);
+    }
     lua_settop(Luas, top);
     return tail;
 }

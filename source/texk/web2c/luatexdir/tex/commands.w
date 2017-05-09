@@ -160,6 +160,7 @@ void initialize_commands(void)
     primitive_luatex("hyphenpenaltymode", assign_int_cmd, int_base + hyphen_penalty_mode_code, int_base);
     primitive_luatex("automatichyphenpenalty", assign_int_cmd, int_base + automatic_hyphen_penalty_code, int_base);
     primitive_luatex("explicithyphenpenalty", assign_int_cmd, int_base + explicit_hyphen_penalty_code, int_base);
+    primitive_luatex("automatichyphenmode", assign_int_cmd, int_base + automatic_hyphen_mode_code, int_base);
 
     /* Many of \TeX's primitives need no |equiv|, since they are identifiable
        by their |eq_type| alone. These primitives are loaded into the hash table
@@ -445,8 +446,10 @@ void initialize_commands(void)
     primitive_tex("unhcopy", un_hbox_cmd, copy_code, 0);
     primitive_tex("unvbox", un_vbox_cmd, box_code, 0);
     primitive_tex("unvcopy", un_vbox_cmd, copy_code, 0);
-    primitive_tex("-", discretionary_cmd, explicit_disc, 0);
+    primitive_tex("-", discretionary_cmd, explicit_disc, 0); /* good old tex */
     primitive_tex("discretionary", discretionary_cmd, discretionary_disc, 0);
+    primitive_luatex("explicitdiscretionary", discretionary_cmd, explicit_disc, 0);
+    primitive_luatex("automaticdiscretionary", discretionary_cmd, automatic_disc, 0);
     primitive_luatex("localleftbox", assign_local_box_cmd, 0, 0);
     primitive_luatex("localrightbox", assign_local_box_cmd, 1, 0);
 

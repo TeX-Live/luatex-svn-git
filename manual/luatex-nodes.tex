@@ -301,10 +301,14 @@ a \type {userskip} with subtype zero).
 
 \starttabulate[|lT|l|p|]
 \NC \rmbf field  \NC \bf type \NC \bf explanation \NC \NR
-\NC subtype      \NC number   \NC not used \NC \NR
+\NC subtype      \NC number   \NC \showsubtypes{penalty} \NC \NR
 \NC attr         \NC node     \NC list of attributes \NC \NR
 \NC penalty      \NC number   \NC the penalty value \NC \NR
 \stoptabulate
+
+The subtypes are just informative and \TEX\ itself doesn't use them. When you
+run into an \type {linebreakpenalty} you need to keep in mind that it's a
+accumulation of \type {club}, \type{widow} and other relevant penalties.
 
 \subsubsection[glyphnodes]{glyph nodes}
 
@@ -1704,6 +1708,13 @@ tail node.
 <node> tail =
     node.slide(<node> n)
 \stopfunctioncall
+
+After some callbacks automatic sliding takes place. This feature can be turned
+off with \type {node.fix_node_lists(false)} but you better make sure then that
+you don't mess up lists. In most cases \TEX\ itself only uses \type {next}
+pointers but your other callbacks might expect proper \type {prev} pointers too.
+Future versions of \LUATEX\ can add more checking but this will not influence
+usage.
 
 \subsubsection{\type {node.check_discretionary} and \type {node.check_discretionaries}}
 

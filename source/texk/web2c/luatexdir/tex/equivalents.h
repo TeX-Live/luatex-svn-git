@@ -291,6 +291,7 @@ the |number_regs| \.{\\dimen} registers.
 #  define hyphen_penalty_mode_code 100
 #  define automatic_hyphen_penalty_code 101
 #  define explicit_hyphen_penalty_code 102
+#  define automatic_hyphen_mode_code 103
 
 #  define math_option_code (explicit_hyphen_penalty_code+1)
 
@@ -773,6 +774,7 @@ extern halfword last_cs_name;
 #define hyphen_penalty_mode_par            int_par(hyphen_penalty_mode_code)
 #define automatic_hyphen_penalty_par       int_par(automatic_hyphen_penalty_code)
 #define explicit_hyphen_penalty_par        int_par(explicit_hyphen_penalty_code)
+#define automatic_hyphen_mode_par          int_par(automatic_hyphen_mode_code)
 
 #define cur_lang_par                       int_par(cur_lang_code)
 #define cur_font_par                       equiv(cur_font_loc)

@@ -23,19 +23,6 @@
 #ifndef __NODES_H__
 #  define __NODES_H__
 
-/* these are in texlang.c */
-
-#  define set_vlink(a,b)  vlink(a)=b
-#  define get_vlink(a)  vlink(a)
-#  define get_character(a)  character(a)
-
-extern halfword insert_discretionary(halfword t, halfword pre, halfword post, halfword replace, int penalty);
-extern halfword insert_syllable_discretionary(halfword t, lang_variables * lan);
-extern halfword insert_word_discretionary(halfword t, lang_variables * lan);
-extern halfword insert_complex_discretionary(halfword t, lang_variables * lan, halfword pre, halfword post, halfword replace);
-extern halfword insert_character(halfword t, int n);
-extern void set_disc_field(halfword f, halfword t);
-
 #  define varmemcast(a) (memory_word *)(a)
 
 extern memory_word *volatile varmem;
@@ -928,7 +915,7 @@ extern halfword do_copy_node_list(halfword, halfword);
 extern halfword copy_node_list(halfword);
 extern halfword copy_node(const halfword);
 extern void check_node(halfword);
-extern void fix_node_list(halfword);
+extern halfword fix_node_list(halfword);
 extern int fix_node_lists;
 extern char *sprint_node_mem_usage(void);
 extern halfword raw_glyph_node(void);
@@ -1012,6 +999,10 @@ extern int lua_properties_level ;
 extern int lua_properties_use_metatable ;
 
 extern halfword make_local_par_node(int mode);
+
+extern void synctex_set_mode(int mode);
+extern void synctex_set_tag(int tag);
+extern void synctex_set_line(int line);
 
 #endif
 

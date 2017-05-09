@@ -263,7 +263,82 @@ The word end is determined as follows:
 \NC adjust    \NC when hyphenationbounds 2 or 3 \NC \NR
 \stoptabulate
 
-(Future versions of \LUATEX\ might provide more granularity.)
+% (Future versions of \LUATEX\ might provide more granularity.)
+
+In traditional \TEX\ ligature building and hyphenation are interwoven with the
+line break mechanism. In \LUATEX\ these phases are isolated. As a consequence we
+deal differently with (a sequence of) explicit hyphens. We already have added
+some control over aspects of the hyphenation and yet another one concerns
+automatic hyphens (e.g.\ \type {-} characters in the input).
+
+When \type {\automatichyphenmode} has a value of 0, a hyphen will be turned into
+an automatic discretionary. The snippets before and after it will not be
+hyphenated. A side effect is that a leading hyphen can lead to a split but one
+will seldom run into that situation. Setting a pre and post character makes this
+more prominent. A value of 1 will prevent this side effect and a value of 2 will
+not turn the hyphen into a discretionary. Experiments with other options, like
+permitting hyphenation, of the words on both sides were discarded.
+
+\startbuffer[a]
+before-after \par
+before--after \par
+before---after \par
+\stopbuffer
+
+\startbuffer[b]
+-before \par
+after- \par
+--before \par
+after-- \par
+---before \par
+after--- \par
+\stopbuffer
+
+\startbuffer[c]
+before-after \par
+before--after \par
+before---after \par
+\stopbuffer
+
+We show three samples:
+
+Input A: \typebuffer[a]
+Input B: \typebuffer[b]
+Input C: \typebuffer[c]
+
+\startbuffer[demo]
+\startcombination[nx=4,ny=3,location=top]
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\zerocount \hsize6em \getbuffer[a]}} {A~0~6em}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\zerocount \hsize2pt \getbuffer[a]}} {A~0~2pt}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\plusone   \hsize2pt \getbuffer[a]}} {A~1~2pt}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\plustwo   \hsize2pt \getbuffer[a]}} {A~2~2pt}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\zerocount \hsize6em \getbuffer[b]}} {B~0~6em}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\zerocount \hsize2pt \getbuffer[b]}} {B~0~2pt}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\plusone   \hsize2pt \getbuffer[b]}} {B~1~2pt}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\plustwo   \hsize2pt \getbuffer[b]}} {B~2~2pt}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\zerocount \hsize6em \getbuffer[c]}} {C~0~6em}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\zerocount \hsize2pt \getbuffer[c]}} {C~0~2pt}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\plusone   \hsize2pt \getbuffer[c]}} {C~1~2pt}
+    {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\plustwo   \hsize2pt \getbuffer[c]}} {C~2~2pt}
+\stopcombination
+\stopbuffer
+
+\startplacefigure[reference=automatic:1,title={The automatic modes \type {0} (default), \type {1} and \type {2}, with a \type {\hsize}
+of 6em and 2pt (which triggers a linebreak).}]
+    \dontcomplain \tt \getbuffer[demo]
+\stopplacefigure
+
+\startplacefigure[reference=automatic:2,title={The automatic modes \type {0} (default), \type {1} and \type {2}, with \type
+{\preexhyphenchar} and \type {\postexhyphenchar} set to characters \type {A} and \type {B}.}]
+    \postexhyphenchar`A\relax
+    \preexhyphenchar `B\relax
+    \dontcomplain \tt \getbuffer[demo]
+\stopplacefigure
+
+As with primitive companions of other single character commands, the \type {\-}
+command has a more verbose primitive version in \type {\explicitdiscretionary}
+and the normally intercepted in the hyphenator character \type {-} (or whatever
+is configured) is available as \type {\automaticdiscretionary}.
 
 \section{The main control loop}
 

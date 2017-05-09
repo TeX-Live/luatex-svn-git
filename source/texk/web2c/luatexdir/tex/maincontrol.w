@@ -1759,18 +1759,42 @@ void append_discretionary(void)
     if (cur_chr == explicit_disc) {
         /* \- */
         c = get_pre_hyphen_char(cur_lang_par);
-        if (c != 0) {
+        if (c > 0) {
             vlink(pre_break(tail)) = new_char(equiv(cur_font_loc), c);
             alink(vlink(pre_break(tail))) = pre_break(tail);
             tlink(pre_break(tail)) = vlink(pre_break(tail));
         }
         c = get_post_hyphen_char(cur_lang_par);
-        if (c != 0) {
+        if (c > 0) {
             vlink(post_break(tail)) = new_char(equiv(cur_font_loc), c);
             alink(vlink(post_break(tail))) = post_break(tail);
             tlink(post_break(tail)) = vlink(post_break(tail));
         }
         set_explicit_disc_penalty(tail);
+    } else if (cur_chr == automatic_disc) {
+        /* - as done in hyphenator */
+        c = get_pre_exhyphen_char(cur_lang_par);
+        if (c <= 0) {
+            c = ex_hyphen_char_par;
+        }
+        if (c > 0) {
+            vlink(pre_break(tail)) = new_char(equiv(cur_font_loc), c);
+            alink(vlink(pre_break(tail))) = pre_break(tail);
+            tlink(pre_break(tail)) = vlink(pre_break(tail));
+        }
+        c = get_post_exhyphen_char(cur_lang_par);
+        if (c > 0) {
+            vlink(post_break(tail)) = new_char(equiv(cur_font_loc), c);
+            alink(vlink(post_break(tail))) = post_break(tail);
+            tlink(post_break(tail)) = vlink(post_break(tail));
+        }
+        c = ex_hyphen_char_par;
+        if (c > 0) {
+            vlink(no_break(tail)) = new_char(equiv(cur_font_loc), c);
+            alink(vlink(no_break(tail))) = no_break(tail);
+            tlink(no_break(tail)) = vlink(no_break(tail));
+        }
+        set_automatic_disc_penalty(tail);
     } else {
         /* \discretionary */
         if (scan_keyword("penalty")) {

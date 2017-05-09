@@ -828,6 +828,25 @@ static int copy_error(halfword p)
 }
 
 @ @c
+static halfword synctex_anyway_mode = 0;
+static halfword synctex_line_field = 0;
+
+void synctex_set_mode(int m)
+{
+    synctex_anyway_mode = m;
+};
+
+void synctex_set_tag(int t)
+{
+    cur_input.synctex_tag_field = t;
+};
+
+void synctex_set_line(int l)
+{
+    synctex_line_field = l;
+};
+
+@ @c
 halfword new_node(int i, int j)
 {
     int s = get_node_size(i, j);
@@ -892,7 +911,32 @@ halfword new_node(int i, int j)
         default:
             break;
     }
-    if (synctex_par) {
+    if (synctex_anyway_mode) {
+        switch (i) {
+            case math_node:
+                synctex_tag_math(n) = cur_input.synctex_tag_field;
+                synctex_line_math(n) = (synctex_line_field) ? synctex_line_field : line;
+                break;
+            case glue_node:
+                synctex_tag_glue(n) = cur_input.synctex_tag_field;
+                synctex_line_glue(n) = (synctex_line_field) ? synctex_line_field : line;
+                break;
+            case kern_node:
+                synctex_tag_kern(n) = cur_input.synctex_tag_field;
+                synctex_line_kern(n) = (synctex_line_field) ? synctex_line_field : line;
+                break;
+            case hlist_node:
+            case vlist_node:
+            case unset_node:
+                synctex_tag_box(n) = cur_input.synctex_tag_field;
+                synctex_line_box(n) = (synctex_line_field) ? synctex_line_field : line;
+                break;
+            case rule_node:
+                synctex_tag_rule(n) = cur_input.synctex_tag_field;
+                synctex_line_rule(n) = (synctex_line_field) ? synctex_line_field : line;
+                break;
+        }
+    } else if (synctex_par) {
         /* handle synctex extension */
         switch (i) {
             case math_node:
@@ -1718,18 +1762,19 @@ void check_node(halfword p)
 }
 
 @ @c
-void fix_node_list(halfword head)
+halfword fix_node_list(halfword head)
 {
-    halfword p, q;
+    halfword next, tail;
     if (head == null)
-        return;
-    p = head;
-    q = vlink(p);
-    while (q != null) {
-        alink(q) = p;
-        p = q;
-        q = vlink(p);
+        return null;
+    tail = head;
+    next = vlink(head);
+    while (next != null) {
+        alink(next) = tail;
+        tail = next;
+        next = vlink(tail);
     }
+    return tail;
 }
 
 @ @c
