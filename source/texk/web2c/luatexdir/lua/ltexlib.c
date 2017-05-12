@@ -2937,11 +2937,12 @@ static int tex_run_boot(lua_State * L)
     /* Initialize synctex primitive */
     synctexinitcommand();
     /* tex is ready to go, now */
+    /*
     unhide_lua_table(Luas, "tex", tex_table_id);
     unhide_lua_table(Luas, "pdf", pdf_table_id);
     unhide_lua_table(Luas, "token", token_table_id);
     unhide_lua_table(Luas, "node", node_table_id);
-
+    */
     lua_pushboolean(L, 1);      /* true */
     return 1;
 }
