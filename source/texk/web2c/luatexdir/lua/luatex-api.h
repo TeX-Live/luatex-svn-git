@@ -85,7 +85,6 @@ extern int luaopen_zip(lua_State * L);
 extern int luaopen_lfs(lua_State * L);
 extern int luaopen_lpeg(lua_State * L);
 extern int luaopen_md5(lua_State * L);
-extern int luatex_md5_lua_open(lua_State * L);
 
 #ifndef LuajitTeX
  extern int luaopen_ffi(lua_State * L);
@@ -225,10 +224,13 @@ extern int loader_Call_luatex(lua_State * L, const char *name, const char *filen
 
 extern void init_tex_table(lua_State * L);
 
+/*
 extern int tex_table_id;
 extern int pdf_table_id;
 extern int token_table_id;
 extern int node_table_id;
+*/
+
 extern int main_initialize(void);
 
 extern int do_run_callback(int special, const char *values, va_list vl);

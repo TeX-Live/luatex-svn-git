@@ -767,10 +767,12 @@ static void setup_lua_path(lua_State * L)
 @ helper variables for the safe keeping of table ids
 
 @c
+/*
 int tex_table_id;
 int pdf_table_id;
 int token_table_id;
 int node_table_id;
+*/
 
 @ @c
 int l_pack_type_index       [PACK_TYPE_SIZE] ;
@@ -1011,43 +1013,53 @@ void lua_initialize(int ac, char **av)
     /* now run the file */
     if (startup_filename != NULL) {
         char *v1;
-        /* hide the 'tex' and 'pdf' table */
-        tex_table_id = hide_lua_table(Luas, "tex");
-        token_table_id = hide_lua_table(Luas, "token");
-        node_table_id = hide_lua_table(Luas, "node");
-        pdf_table_id = hide_lua_table(Luas, "pdf");
-
+        int tex_table_id = hide_lua_table(Luas, "tex");
+        int token_table_id = hide_lua_table(Luas, "token");
+        int node_table_id = hide_lua_table(Luas, "node");
+        int pdf_table_id = hide_lua_table(Luas, "pdf");
+        if (lua_only) {
+            /* hide the 'tex' and 'pdf' table */
+            if (load_luatex_core_lua(Luas)) {
+                fprintf(stderr, "Error in execution of luatex-core.lua .\n");
+            }
+            if (luaL_loadfile(Luas, startup_filename)) {
+                fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
+                exit(1);
+            }
+            init_tex_table(Luas); /* needed ? */
+            if (lua_pcall(Luas, 0, 0, 0)) {
+                fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
+                lua_traceback(Luas);
+             /* lua_close(Luas); */
+                exit(1);
+            } else {
+                if (given_file)
+                    free(given_file);
+             /* lua_close(Luas); */
+                exit(0);
+            }
+        }
+        /* a normal tex run */
+        init_tex_table(Luas);
+        unhide_lua_table(Luas, "tex", tex_table_id);
+        unhide_lua_table(Luas, "pdf", pdf_table_id);
+        unhide_lua_table(Luas, "token", token_table_id);
+        unhide_lua_table(Luas, "node", node_table_id);
         if (luaL_loadfile(Luas, startup_filename)) {
             fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
             exit(1);
         }
-        /* */
-        init_tex_table(Luas);
         if (lua_pcall(Luas, 0, 0, 0)) {
             fprintf(stdout, "%s\n", lua_tostring(Luas, -1));
-        lua_traceback(Luas);
+            lua_traceback(Luas);
             exit(1);
         }
-        /* no filename? quit now! */
         if (!input_name) {
             get_lua_string("texconfig", "jobname", &input_name);
         }
         if (!dump_name) {
             get_lua_string("texconfig", "formatname", &dump_name);
         }
-        if (lua_only) {
-            if (given_file)
-                free(given_file);
-            /* this is not strictly needed but it pleases valgrind */
-            lua_close(Luas);
-            exit(0);
-        }
-        /* unhide the 'tex' and 'pdf' table */
-        unhide_lua_table(Luas, "tex", tex_table_id);
-        unhide_lua_table(Luas, "pdf", pdf_table_id);
-        unhide_lua_table(Luas, "token", token_table_id);
-        unhide_lua_table(Luas, "node", node_table_id);
-
         /* |kpse_init| */
         kpse_init = -1;
         get_lua_boolean("texconfig", "kpse_init", &kpse_init);
