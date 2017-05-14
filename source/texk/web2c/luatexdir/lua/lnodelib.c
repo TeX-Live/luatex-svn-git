@@ -686,7 +686,7 @@ static int lua_nodelib_direct_getnucleus(lua_State * L)
     if (n) {
         halfword t = type(n);
         if (t == simple_noad || t == accent_noad || t == radical_noad) {
-            lua_pushinteger(L, nucleus(n));
+            nodelib_pushdirect_or_nil(nucleus(n));
             return 1;
         }
     }
@@ -716,7 +716,7 @@ static int lua_nodelib_direct_getsub(lua_State * L)
     if (n) {
         halfword t = type(n);
         if (t == simple_noad || t == accent_noad || t == radical_noad) {
-            lua_pushinteger(L, subscr(n));
+            nodelib_pushdirect_or_nil(subscr(n));
             return 1;
         }
     }
@@ -746,7 +746,7 @@ static int lua_nodelib_direct_getsup(lua_State * L)
     if (n) {
         halfword t = type(n);
         if (t == simple_noad || t == accent_noad || t == radical_noad) {
-            lua_pushinteger(L, supscr(n));
+            nodelib_pushdirect_or_nil(supscr(n));
             return 1;
         }
     }
