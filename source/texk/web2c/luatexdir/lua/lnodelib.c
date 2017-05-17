@@ -6703,6 +6703,55 @@ static int lua_nodelib_direct_is_glyph(lua_State * L)
     return 2;
 }
 
+/* uses_font */
+/* direct.uses_font */
+
+#define uses_font_disc(what,p,n) \
+p = vlink(what(n)); \
+while (p) { \
+    if ((type(p) == glyph_node) && (font(p) == f)) { \
+        lua_pushboolean(L,1); \
+        return 1; \
+    } \
+    p = vlink(p); \
+}
+
+
+static int lua_nodelib_direct_uses_font(lua_State * L)
+{
+    halfword n = lua_tointeger(L,1);
+    halfword f = lua_tointeger(L,2);
+    halfword p;
+    if (type(n) == glyph_node) {
+        lua_pushboolean(L,font(n) == f);
+    } else if (type(n) == disc_node) {
+        uses_font_disc(pre_break,p,n);
+        uses_font_disc(post_break,p,n);
+        uses_font_disc(no_break,p,n);
+    }
+    /* todo: other node types */
+    lua_pushboolean(L,0);
+    return 1;
+}
+
+static int lua_nodelib_uses_font(lua_State * L)
+{
+    halfword n = *check_isnode(L, 1);
+    halfword f = lua_tointeger(L,2);
+    halfword p;
+    if (type(n) == glyph_node) {
+        lua_pushboolean(L,font(n) == f);
+    } else if (type(n) == disc_node) {
+        uses_font_disc(pre_break,p,n);
+        uses_font_disc(post_break,p,n);
+        uses_font_disc(no_break,p,n);
+    }
+    /* todo: other node types */
+    lua_pushboolean(L,0);
+    return 1;
+}
+
+
 /* direct.setfield */
 
 static int lua_nodelib_direct_setfield(lua_State * L)
@@ -7765,6 +7814,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"has_field", lua_nodelib_direct_has_field},
     {"is_char", lua_nodelib_direct_is_char},
     {"is_glyph", lua_nodelib_direct_is_glyph},
+    {"uses_font", lua_nodelib_direct_uses_font},
     {"hpack", lua_nodelib_direct_hpack},
  /* {"id", lua_nodelib_id}, */ /* no node argument */
     {"insert_after", lua_nodelib_direct_insert_after},
@@ -7884,6 +7934,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"has_field", lua_nodelib_has_field},
     {"is_char", lua_nodelib_is_char},
     {"is_glyph", lua_nodelib_is_glyph},
+    {"uses_font", lua_nodelib_uses_font},
     {"hpack", lua_nodelib_hpack},
     {"id", lua_nodelib_id},
     {"insert_after", lua_nodelib_insert_after},

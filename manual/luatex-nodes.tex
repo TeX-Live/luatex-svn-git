@@ -368,7 +368,8 @@ and \type {false} gets returned otherwise. When nil is returned, the id is also
 returned. The \type {is_glyph} variant doesn't check for a subtype being less
 than 256, so it returns either the character value or nil plus the id. These
 helpers are not always faster than separate calls but they sometimes permit
-making more readable tests.
+making more readable tests. The \type {uses_font} helpers takes a node
+and font id and returns true when a glyph or disc node references that font.
 
 \subsubsection{boundary nodes}
 
@@ -1977,6 +1978,7 @@ consistency. You can of course always define additional accessor using \type
 \NC \type {unprotect_glyphs}     \NC \yes \NC \yes  \NC \NR
 \NC \type {unset_attribute}      \NC \yes \NC \yes  \NC \NR
 \NC \type {usedlist}             \NC \yes \NC \yes  \NC \NR
+\NC \type {uses_font}            \NC \yes \NC \yes  \NC \NR
 \NC \type {vpack}                \NC \yes \NC \yes  \NC \NR
 \NC \type {whatsitsubtypes}      \NC \yes \NC \nop  \NC \NR
 \NC \type {whatsits}             \NC \yes \NC \nop  \NC \NR
