@@ -284,15 +284,17 @@ typedef enum {
 #  define adjust_pre       subtype
 #  define adjust_ptr(a)    vlink(a+2)
 
-#  define glyph_node_size 6
-#  define character(a)    vinfo((a)+2)
-#  define font(a)         vlink((a)+2)
-#  define lang_data(a)    vinfo((a)+3)
-#  define lig_ptr(a)      vlink((a)+3)
-#  define x_displace(a)   vinfo((a)+4)
-#  define y_displace(a)   vlink((a)+4)
-#  define ex_glyph(a)     vinfo((a)+5)  /* expansion factor (hz) */
-#  define x_advance(a)    vlink((a)+5)
+#  define glyph_node_size       7
+#  define character(a)          vinfo((a)+2)
+#  define font(a)               vlink((a)+2)
+#  define lang_data(a)          vinfo((a)+3)
+#  define lig_ptr(a)            vlink((a)+3)
+#  define x_displace(a)         vinfo((a)+4)
+#  define y_displace(a)         vlink((a)+4)
+#  define ex_glyph(a)           vinfo((a)+5)  /* expansion factor (hz) */
+#  define x_advance(a)          vlink((a)+5)  /* obsolete, can become user field */
+#  define synctex_tag_glyph(a)  vinfo((a)+6)
+#  define synctex_line_glyph(a) vlink((a)+6)
 
 #  define is_char_node(a)  (a!=null && type(a)==glyph_node)
 
@@ -1003,6 +1005,10 @@ extern halfword make_local_par_node(int mode);
 extern void synctex_set_mode(int mode);
 extern void synctex_set_tag(int tag);
 extern void synctex_set_line(int line);
+extern void synctex_force_tag(int tag);
+extern void synctex_force_line(int tag);
+extern int synctex_get_tag(void);
+extern int synctex_get_line(void);
 
 #endif
 

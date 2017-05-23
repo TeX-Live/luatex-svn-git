@@ -7652,27 +7652,6 @@ static int lua_nodelib_check_discretionary(lua_State * L) {
 
 /* synctex but not */
 
-static int lua_nodelib_set_synctex_mode(lua_State * L)
-{
-    halfword mode = lua_tointeger(L, 1);
-    synctex_set_mode(mode);
-    return 0;
-}
-
-static int lua_nodelib_set_synctex_tag(lua_State * L)
-{
-    halfword tag = lua_tointeger(L, 1);
-    synctex_set_tag(tag);
-    return 0;
-}
-
-static int lua_nodelib_set_synctex_line(lua_State * L)
-{
-    halfword line = lua_tointeger(L, 1);
-    synctex_set_line(line);
-    return 0;
-}
-
 static int lua_nodelib_direct_set_synctex_fields(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
@@ -7680,9 +7659,9 @@ static int lua_nodelib_direct_set_synctex_fields(lua_State * L)
     halfword line = lua_tointeger(L, 3);
     if (n != null) {
         switch (type(n)) {
-            case math_node:
-                if (tag)  synctex_tag_math(n)  = tag;
-                if (line) synctex_line_math(n) = line;
+            case glyph_node:
+                if (tag)  synctex_tag_glyph(n)  = tag;
+                if (line) synctex_line_glyph(n) = line;
                 break;
             case glue_node:
                 if (tag)  synctex_tag_glue(n)  = tag;
@@ -7702,6 +7681,10 @@ static int lua_nodelib_direct_set_synctex_fields(lua_State * L)
                 if (tag)  synctex_tag_rule(n)  = tag;
                 if (line) synctex_line_rule(n) = line;
                 break;
+            case math_node:
+                if (tag)  synctex_tag_math(n)  = tag;
+                if (line) synctex_line_math(n) = line;
+                break;
         }
     }
     return 0;
@@ -7712,9 +7695,9 @@ static int lua_nodelib_direct_get_synctex_fields(lua_State * L)
     halfword n = lua_tointeger(L, 1);
     if (n != null) {
         switch (type(n)) {
-            case math_node:
-                lua_pushinteger(L,synctex_tag_math(n));
-                lua_pushinteger(L,synctex_line_math(n));
+            case glyph_node:
+                lua_pushinteger(L,synctex_tag_glyph(n));
+                lua_pushinteger(L,synctex_line_glyph(n));
                 break;
             case glue_node:
                 lua_pushinteger(L,synctex_tag_glue(n));
@@ -7734,11 +7717,17 @@ static int lua_nodelib_direct_get_synctex_fields(lua_State * L)
                 lua_pushinteger(L,synctex_tag_rule(n));
                 lua_pushinteger(L,synctex_line_rule(n));
                 break;
+            case math_node:
+                lua_pushinteger(L,synctex_tag_math(n));
+                lua_pushinteger(L,synctex_line_math(n));
+                break;
+            default:
+                return 0;
+                break;
         }
         return 2;
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 /* done */
@@ -7984,9 +7973,6 @@ static const struct luaL_Reg nodelib_f[] = {
     {"check_discretionary", lua_nodelib_check_discretionary},
     {"check_discretionaries", lua_nodelib_check_discretionaries},
     /* done */
-    {"set_synctex_mode", lua_nodelib_set_synctex_mode},
-    {"set_synctex_tag", lua_nodelib_set_synctex_tag},
-    {"set_synctex_line", lua_nodelib_set_synctex_line},
  /* {"set_synctex_fields", lua_nodelib_set_synctex_fields}, */
  /* {"get_synctex_fields", lua_nodelib_get_synctex_fields}, */
     /* done */
