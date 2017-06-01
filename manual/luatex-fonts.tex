@@ -662,7 +662,15 @@ You can define your own font into \type {font.fonts} by calling this function:
 
 The return value is the internal id number of the defined font (the index into
 \type {font.fonts}). If the font creation fails, an error is raised. The table
-is a font structure, as explained in \in {chapter} [fonts].
+is a font structure, as explained in \in {chapter} [fonts]. An alternative call
+is:
+
+\startfunctioncall
+<number> i =
+    font.define(<number> n, <table> f)
+\stopfunctioncall
+
+Where the first argument is a reserved font id (see below).
 
 \subsection{Projected next font id}
 
@@ -673,7 +681,14 @@ is a font structure, as explained in \in {chapter} [fonts].
 
 This returns the font id number that would be returned by a \type {font.define}
 call if it was executed at this spot in the code flow. This is useful for virtual
-fonts that need to reference themselves.
+fonts that need to reference themselves. If you pass \type {true} as argument,
+the id gets reserved and you can pass to \type {font.define} as first argument.
+This can be handy when you create complex virtual fonts.
+
+\startfunctioncall
+<number> i =
+    font.nextid(true)
+\stopfunctioncall
 
 \subsection{Font id}
 
