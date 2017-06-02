@@ -720,6 +720,7 @@ make_lua_key(pagesattributes);\
 make_lua_key(parameters);\
 make_lua_key(pardir);\
 make_lua_key(parshape);\
+make_lua_key(pdf);\
 make_lua_key(pdf_data);\
 make_lua_key(pdf_destination);\
 make_lua_key(pdf_literal);\
@@ -1225,6 +1226,7 @@ init_lua_key_alias(pLTL,"+LTL");\
 init_lua_key_alias(pRTT,"+RTT");\
 init_lua_key_alias(pTLT,"+TLT");\
 init_lua_key_alias(pTRT,"+TRT");\
+init_lua_key_alias(pdf,"pdf");\
 init_lua_key_alias(pdf_data,"pdf.data");\
 init_lua_key_alias(term_and_log,"term and log")
 
@@ -1511,6 +1513,7 @@ use_lua_key(pagesattributes);
 use_lua_key(parameters);
 use_lua_key(pardir);
 use_lua_key(parshape);
+use_lua_key(pdf);
 use_lua_key(pdf_data);
 use_lua_key(pdf_destination);
 use_lua_key(pdf_literal);

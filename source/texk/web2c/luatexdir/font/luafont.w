@@ -654,6 +654,20 @@ static int count_char_packet_bytes(lua_State * L)
                     l += 5;
                 } else if (lua_key_eq(s, scale)) {
                     l += sizeof(float) + 1;
+                } else if (lua_key_eq(s, pdf)) {
+                    size_t len;
+                    l += 5; /* no check for first string, will become number */
+                    lua_rawgeti(L, -2, 3);
+                    if (lua_type(L,-1) == LUA_TSTRING) {
+                        (void) lua_tolstring(L, -1, &len);
+                        lua_pop(L, 1);
+                        if (len > 0) {
+                            l = (int) (l + 5 + (int) len);
+                        }
+                    } else {
+                        lua_pop(L, 1);
+                        normal_error("vf command","invalid packet pdf special");
+                    }
                 } else if (lua_key_eq(s, special) || lua_key_eq(s, lua)) {
                     size_t len;
                     lua_rawgeti(L, -2, 2);
@@ -666,15 +680,12 @@ static int count_char_packet_bytes(lua_State * L)
                     } else {
                         lua_pop(L, 1);
                         normal_error("vf command","invalid packet special");
-                        /* fprintf(stdout, "invalid packet special!\n"); */
                     }
                 } else {
                     normal_error("vf command","unknown packet command");
-                    /* fprintf(stdout, "unknown packet command %s!\n", s); */
                 }
             } else {
                 normal_error("vf command","no packet command");
-             /* fprintf(stdout, "no packet command!\n"); */
             }
             lua_pop(L, 1);      /* command name */
         }
@@ -754,6 +765,8 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                     cmd = packet_right_code;
                 } else if (lua_key_eq(s, down)) {
                     cmd = packet_down_code;
+                } else if (lua_key_eq(s, pdf)) {
+                    cmd = packet_pdf_code;
                 } else if (lua_key_eq(s, special)) {
                     cmd = packet_special_code;
                 } else if (lua_key_eq(s, image)) {
@@ -810,6 +823,43 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                         lua_rawgeti(L, -3, 3);
                         n = (int) luaL_checkinteger(L, -1);
                         do_store_four(sp_to_dvi(n, atsize));
+                        lua_pop(L, 2);
+                        break;
+                    case packet_pdf_code:
+                        append_packet(cmd);
+                        lua_rawgeti(L, -2, 2);
+                        if (lua_type(L, -1) == LUA_TSTRING) {
+                            s = lua_tostring(L, -1);
+                            if (lua_key_eq(s, direct)) {
+                                n = direct_always;
+                            } else if (lua_key_eq(s, page)) {
+                                n = direct_page;
+                            } else if (lua_key_eq(s, raw)) {
+                                n = direct_raw;
+                            } else if (lua_key_eq(s, origin)) {
+                                n = set_origin;
+                            } else {
+                             /* normal_warning("vf command","invalid pdf literal type"); */
+                                n = set_origin ;
+                            }
+                        } else {
+                            n = (int) luaL_checkinteger(L, -1);
+                            if (n < set_origin || n > direct_raw) {
+                                n = set_origin ;
+                            }
+                        }
+                        do_store_four(n);
+                        lua_rawgeti(L, -3, 3);
+                        s = luaL_checklstring(L, -1, &l);
+                        if (l > 0) {
+                            do_store_four(l);
+                            m = (int) l;
+                            while (m > 0) {
+                                n = *s++;
+                                m--;
+                                append_packet(n);
+                            }
+                        }
                         lua_pop(L, 2);
                         break;
                     case packet_special_code:
