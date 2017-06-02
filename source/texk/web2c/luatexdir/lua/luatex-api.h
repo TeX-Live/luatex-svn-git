@@ -85,6 +85,7 @@ extern int luaopen_zip(lua_State * L);
 extern int luaopen_lfs(lua_State * L);
 extern int luaopen_lpeg(lua_State * L);
 extern int luaopen_md5(lua_State * L);
+extern int luatex_md5_lua_open(lua_State * L);
 
 #ifndef LuajitTeX
  extern int luaopen_ffi(lua_State * L);
@@ -130,6 +131,7 @@ extern int luaopen_font(lua_State * L);
 extern int luaopen_vf(lua_State * L);
 extern int font_to_lua(lua_State * L, int f);
 extern int font_from_lua(lua_State * L, int f); /* return is boolean */
+extern int characters_from_lua(lua_State * L, int f); /* return is boolean */
 
 extern int luaopen_token(lua_State * L);
 extern void tokenlist_to_lua(lua_State * L, int p);

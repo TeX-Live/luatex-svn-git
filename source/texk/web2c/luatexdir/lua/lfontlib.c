@@ -155,15 +155,31 @@ static int frozenfont(lua_State * L)
 
 static int setfont(lua_State * L)
 {
-    int i = luaL_checkinteger(L, -2);
+    int t = lua_gettop(L);
+    int i = luaL_checkinteger(L,1);
     if (i) {
-        luaL_checktype(L, -1, LUA_TTABLE);
+        luaL_checktype(L, t, LUA_TTABLE);
         if (is_valid_font(i)) {
-            if (!(font_touched(i) || font_used(i))) {
+            if (! (font_touched(i) || font_used(i))) {
                 font_from_lua(L, i);
             } else {
                 luaL_error(L, "that font has been accessed already, changing it is forbidden");
             }
+        } else {
+            luaL_error(L, "that integer id is not a valid font");
+        }
+    }
+    return 0;
+}
+
+static int addcharacters(lua_State * L)
+{
+    int t = lua_gettop(L);
+    int i = luaL_checkinteger(L,1);
+    if (i) {
+        luaL_checktype(L, t, LUA_TTABLE);
+        if (is_valid_font(i)) {
+            characters_from_lua(L, i);
         } else {
             luaL_error(L, "that integer id is not a valid font");
         }
@@ -176,14 +192,15 @@ static int setfont(lua_State * L)
 
 static int deffont(lua_State * L)
 {
-    int i;
-    if (lua_gettop(L) == 2) {
+    int i = 0;
+    int t = lua_gettop(L);
+    if (t == 2) {
         i = lua_tointeger(L,1);
         if ((i <= 0) || ! is_valid_font(i)) {
             lua_pop(L, 1);          /* pop the broken table */
             luaL_error(L, "font creation failed, invalid id passed");
         }
-    } else if (lua_gettop(L) == 1) {
+    } else if (t == 1) {
         i = get_fontid();
     } else {
         luaL_error(L, "font creation failed, no table passed");
@@ -224,7 +241,6 @@ static int getfont(lua_State * L)
     return 1;
 }
 
-
 static int getfontid(lua_State * L)
 {
     if (lua_type(L, 1) == LUA_TSTRING) {
@@ -245,7 +261,6 @@ static int getfontid(lua_State * L)
     return 1;
 }
 
-
 static const struct luaL_Reg fontlib[] = {
     {"read_tfm", font_read_tfm},
     {"read_vf", font_read_vf},
@@ -254,6 +269,7 @@ static const struct luaL_Reg fontlib[] = {
     {"each", tex_each_font},
     {"getfont", getfont},
     {"setfont", setfont},
+    {"addcharacters", addcharacters},
     {"define", deffont},
     {"nextid", nextfontid},
     {"id", getfontid},

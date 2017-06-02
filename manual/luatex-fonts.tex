@@ -672,6 +672,23 @@ is:
 
 Where the first argument is a reserved font id (see below).
 
+\subsection{Extending a font}
+
+Within reasonable bounds you can extend a font after it has been defined. Because
+some properties are best left unchanged this is limited to adding characters.
+
+\startfunctioncall
+font.addcharacters(<number n>, <table> f)
+\stopfunctioncall
+
+The table passed can have the fields \type {characters} which is a (sub)table
+like the one used in define, and for virtual fonts a \type {fonts} table can be
+added. The characters defined in the \type {characters} table are added (when not
+yet present) or replace an existing entry. Keep in mind that replacing can have
+side effects because a character already can have been used. Instead of posing
+restrictions we expect the user to be careful. (The \type {setfont} helper is
+a more drastic replacer.)
+
 \subsection{Projected next font id}
 
 \startfunctioncall
