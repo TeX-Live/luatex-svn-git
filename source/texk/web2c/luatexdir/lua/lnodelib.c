@@ -7652,82 +7652,98 @@ static int lua_nodelib_check_discretionary(lua_State * L) {
 
 /* synctex but not */
 
+#define set_synctex_fields(_n_) \
+    halfword n = _n_; \
+    halfword tag = lua_tointeger(L, 2); \
+    halfword line = lua_tointeger(L, 3); \
+    if (n != null) { \
+        switch (type(n)) { \
+            case glyph_node: \
+                if (tag)  synctex_tag_glyph(n)  = tag; \
+                if (line) synctex_line_glyph(n) = line; \
+                break; \
+            case glue_node: \
+                if (tag)  synctex_tag_glue(n)  = tag; \
+                if (line) synctex_line_glue(n) = line; \
+                break; \
+            case kern_node: \
+                if (tag)  synctex_tag_kern(n)  = tag; \
+                if (line) synctex_line_kern(n) = line; \
+                break; \
+            case hlist_node: \
+            case vlist_node: \
+            case unset_node: \
+                if (tag)  synctex_tag_box(n)  = tag; \
+                if (line) synctex_line_box(n) = line; \
+                break; \
+            case rule_node: \
+                if (tag)  synctex_tag_rule(n)  = tag; \
+                if (line) synctex_line_rule(n) = line; \
+                break; \
+            case math_node: \
+                if (tag)  synctex_tag_math(n)  = tag; \
+                if (line) synctex_line_math(n) = line; \
+                break; \
+        } \
+    } \
+    return 0;
+
 static int lua_nodelib_direct_set_synctex_fields(lua_State * L)
 {
-    halfword n = lua_tointeger(L, 1);
-    halfword tag = lua_tointeger(L, 2);
-    halfword line = lua_tointeger(L, 3);
-    if (n != null) {
-        switch (type(n)) {
-            case glyph_node:
-                if (tag)  synctex_tag_glyph(n)  = tag;
-                if (line) synctex_line_glyph(n) = line;
-                break;
-            case glue_node:
-                if (tag)  synctex_tag_glue(n)  = tag;
-                if (line) synctex_line_glue(n) = line;
-                break;
-            case kern_node:
-                if (tag)  synctex_tag_kern(n)  = tag;
-                if (line) synctex_line_kern(n) = line;
-                break;
-            case hlist_node:
-            case vlist_node:
-            case unset_node:
-                if (tag)  synctex_tag_box(n)  = tag;
-                if (line) synctex_line_box(n) = line;
-                break;
-            case rule_node:
-                if (tag)  synctex_tag_rule(n)  = tag;
-                if (line) synctex_line_rule(n) = line;
-                break;
-            case math_node:
-                if (tag)  synctex_tag_math(n)  = tag;
-                if (line) synctex_line_math(n) = line;
-                break;
-        }
-    }
-    return 0;
+    set_synctex_fields(lua_tointeger(L, 1));
 }
+
+static int lua_nodelib_set_synctex_fields(lua_State * L)
+{
+    set_synctex_fields(*check_isnode(L, 1));
+}
+
+#define get_synctex_fields(_n_) \
+    halfword n = _n_; \
+    if (n != null) { \
+        switch (type(n)) { \
+            case glyph_node: \
+                lua_pushinteger(L,synctex_tag_glyph(n)); \
+                lua_pushinteger(L,synctex_line_glyph(n)); \
+                break; \
+            case glue_node: \
+                lua_pushinteger(L,synctex_tag_glue(n)); \
+                lua_pushinteger(L,synctex_line_glue(n)); \
+                break; \
+            case kern_node: \
+                lua_pushinteger(L,synctex_tag_kern(n)); \
+                lua_pushinteger(L,synctex_line_kern(n)); \
+                break; \
+            case hlist_node: \
+            case vlist_node: \
+            case unset_node: \
+                lua_pushinteger(L,synctex_tag_box(n)); \
+                lua_pushinteger(L,synctex_line_box(n)); \
+                break; \
+            case rule_node: \
+                lua_pushinteger(L,synctex_tag_rule(n)); \
+                lua_pushinteger(L,synctex_line_rule(n)); \
+                break; \
+            case math_node: \
+                lua_pushinteger(L,synctex_tag_math(n)); \
+                lua_pushinteger(L,synctex_line_math(n)); \
+                break; \
+            default: \
+                return 0; \
+                break; \
+        } \
+        return 2; \
+    } \
+    return 0;
 
 static int lua_nodelib_direct_get_synctex_fields(lua_State * L)
 {
-    halfword n = lua_tointeger(L, 1);
-    if (n != null) {
-        switch (type(n)) {
-            case glyph_node:
-                lua_pushinteger(L,synctex_tag_glyph(n));
-                lua_pushinteger(L,synctex_line_glyph(n));
-                break;
-            case glue_node:
-                lua_pushinteger(L,synctex_tag_glue(n));
-                lua_pushinteger(L,synctex_line_glue(n));
-                break;
-            case kern_node:
-                lua_pushinteger(L,synctex_tag_kern(n));
-                lua_pushinteger(L,synctex_line_kern(n));
-                break;
-            case hlist_node:
-            case vlist_node:
-            case unset_node:
-                lua_pushinteger(L,synctex_tag_box(n));
-                lua_pushinteger(L,synctex_line_box(n));
-                break;
-            case rule_node:
-                lua_pushinteger(L,synctex_tag_rule(n));
-                lua_pushinteger(L,synctex_line_rule(n));
-                break;
-            case math_node:
-                lua_pushinteger(L,synctex_tag_math(n));
-                lua_pushinteger(L,synctex_line_math(n));
-                break;
-            default:
-                return 0;
-                break;
-        }
-        return 2;
-    }
-    return 0;
+    get_synctex_fields(lua_tointeger(L, 1))
+}
+
+static int lua_nodelib_get_synctex_fields(lua_State * L)
+{
+    get_synctex_fields(*check_isnode(L, 1);)
 }
 
 /* done */
@@ -7973,8 +7989,8 @@ static const struct luaL_Reg nodelib_f[] = {
     {"check_discretionary", lua_nodelib_check_discretionary},
     {"check_discretionaries", lua_nodelib_check_discretionaries},
     /* done */
- /* {"set_synctex_fields", lua_nodelib_set_synctex_fields}, */
- /* {"get_synctex_fields", lua_nodelib_get_synctex_fields}, */
+    {"set_synctex_fields", lua_nodelib_set_synctex_fields},
+    {"get_synctex_fields", lua_nodelib_get_synctex_fields},
     /* done */
     {"fix_node_lists", lua_nodelib_fix_node_lists},
     {NULL, NULL} /* sentinel */
