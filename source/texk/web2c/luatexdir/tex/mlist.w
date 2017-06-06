@@ -3237,6 +3237,9 @@ the new fonts so eventualy there will be an option to ignore such corrections.
     }                                                                            \
   } while (0)
 
+#define x_su_style(n,cur_style,su_style) \
+    (noadoptionnosubscript(n) ? cur_style : su_style(cur_style))
+
 static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled supshift, scaled subshift)
 {
     pointer x, y, z;                  /* temporary registers for box construction */
@@ -3296,7 +3299,8 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             when there is a subscript without a superscript, the top of the subscript
             should not exceed the baseline plus four-fifths of the x-height.
         */
-        x = clean_box(subscr(q), sub_style(cur_style), cur_style);
+    /*  x = clean_box(subscr(q), sub_style(cur_style), cur_style); */
+        x = clean_box(subscr(q), (noadoptionnosubscript(q) ? cur_style : sub_style(cur_style)), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
         switch (math_scripts_mode_par) {
             case 1:
@@ -3346,7 +3350,8 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             the bottom of a superscript should never descend below the baseline plus
             one-fourth of the x-height.
         */
-        x = clean_box(supscr(q), sup_style(cur_style), cur_style);
+    /*  x = clean_box(supscr(q), sup_style(cur_style), cur_style); */
+        x = clean_box(supscr(q), (noadoptionnosupscript(q) ? cur_style : sup_style(cur_style)), cur_style);
         width(x) = width(x) + space_after_script(cur_style);
         switch (math_scripts_mode_par) {
             case 1:
@@ -3401,7 +3406,8 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
                 both subscript and superscript move up so that the bottom of the superscript
                 is at least as high as the baseline plus four-fifths of the x-height
             */
-            y = clean_box(subscr(q), sub_style(cur_style), cur_style);
+        /*  y = clean_box(subscr(q) sub_style(cur_style), cur_style); */
+            y = clean_box(subscr(q), (noadoptionnosubscript(q) ? cur_style : sub_style(cur_style)), cur_style);
             width(y) = width(y) + space_after_script(cur_style);
             switch (math_scripts_mode_par) {
                 case 1:

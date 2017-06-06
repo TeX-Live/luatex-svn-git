@@ -642,15 +642,13 @@ static int count_char_packet_bytes(lua_State * L)
                     ff = 1;
                 } else if (lua_key_eq(s, slot)) {
                     l += 10;
-                    ff = 1;
                 } else if (lua_key_eq(s, comment) || lua_key_eq(s, nop)) {
                     ;
                 } else if (lua_key_eq(s, push) || lua_key_eq(s, pop)) {
                     l++;
                 } else if (lua_key_eq(s, rule)) {
                     l += 9;
-                } else if (lua_key_eq(s, right) || lua_key_eq(s, node)
-                           || lua_key_eq(s, down) || lua_key_eq(s, image)) {
+                } else if (lua_key_eq(s, right) || lua_key_eq(s, node) || lua_key_eq(s, down) || lua_key_eq(s, image)) {
                     l += 5;
                 } else if (lua_key_eq(s, scale)) {
                     l += sizeof(float) + 1;
@@ -711,6 +709,7 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
     const char *s;
     eight_bits *cpackets, *cp;
     int ff = 0;
+    int sf = 0;
     int max_f = 0;
     int pc = count_char_packet_bytes(L);
     if (pc <= 0)
@@ -736,19 +735,20 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                         do_store_four(ff);
                     }
                 } else if (lua_key_eq(s, slot)) {
+                    /* we could be sparse but no real reason */
                     cmd = packet_nop_code;
                     lua_rawgeti(L, -2, 2);
                     n = (int) luaL_checkinteger(L, -1);
-                    if (n ==0) {
-                        ff = f;
+                    if (n == 0) {
+                        sf = f;
                     } else {
-                        ff = (n > max_f ? l_fonts[1] : l_fonts[n]);
+                        sf = (n > max_f ? l_fonts[1] : l_fonts[n]);
                     }
                     lua_rawgeti(L, -3, 3);
                     n = (int) luaL_checkinteger(L, -1);
                     lua_pop(L, 2);
                     append_packet(packet_font_code);
-                    do_store_four(ff);
+                    do_store_four(sf);
                     append_packet(packet_char_code);
                     do_store_four(n);
                 } else if (lua_key_eq(s, comment) || lua_key_eq(s, nop)) {
@@ -1194,8 +1194,7 @@ static void font_char_from_lua(lua_State * L, internal_font_number f, int i, int
                     set_charinfo_tag(co, ext_tag);
                     set_charinfo_extensible(co, top, bot, mid, rep);
                 } else {
-                    formatted_warning("font", "lua-loaded font %s char U+%X has an invalid extensible field",
-                        font_name(f), (int) i);
+                    formatted_warning("font", "lua-loaded font %s char U+%X has an invalid extensible field", font_name(f), (int) i);
                 }
             }
             lua_pop(L, 1);
@@ -1298,8 +1297,7 @@ static void font_char_from_lua(lua_State * L, internal_font_number f, int i, int
                     set_kern_item(ckerns[ctr], k, j);
                     ctr++;
                 } else {
-                    formatted_warning("font", "lua-loaded font %s char U+%X has an invalid kern field",
-                        font_name(f), (int) i);
+                    formatted_warning("font", "lua-loaded font %s char U+%X has an invalid kern field", font_name(f), (int) i);
                 }
                 lua_pop(L, 1);
             }
@@ -1308,13 +1306,13 @@ static void font_char_from_lua(lua_State * L, internal_font_number f, int i, int
                 set_kern_item(ckerns[ctr], end_kern, 0);
                 set_charinfo_kerns(co, ckerns);
             } else {
-                formatted_warning("font", "lua-loaded font %s char U+%X has an invalid kerns field",
-                    font_name(f), (int) i);
+                formatted_warning("font", "lua-loaded font %s char U+%X has an invalid kerns field", font_name(f), (int) i);
             }
             lua_pop(L, 1);
         }
 
         /* packet commands */
+
         lua_key_rawgeti(commands);
         if (lua_istable(L, -1)) {
             lua_pushnil(L);     /* first key */
@@ -1357,8 +1355,7 @@ static void font_char_from_lua(lua_State * L, internal_font_number f, int i, int
                     set_ligature_item(cligs[ctr], (char) ((t * 2) + 1), k, r);
                     ctr++;
                 } else {
-                    formatted_warning("font", "lua-loaded font %s char U+%X has an invalid ligature field",
-                        font_name(f), (int) i);
+                    formatted_warning("font", "lua-loaded font %s char U+%X has an invalid ligature field", font_name(f), (int) i);
                 }
                 lua_pop(L, 1);      /* iterator value */
             }
@@ -1367,8 +1364,7 @@ static void font_char_from_lua(lua_State * L, internal_font_number f, int i, int
                 set_ligature_item(cligs[ctr], 0, end_ligature, 0);
                 set_charinfo_ligatures(co, cligs);
             } else {
-                formatted_warning("font", "lua-loaded font %s char U+%X has an invalid ligatures field",
-                    font_name(f), (int) i);
+                formatted_warning("font", "lua-loaded font %s char U+%X has an invalid ligatures field", font_name(f), (int) i);
             }
             lua_pop(L, 1);      /* ligatures table */
         }
@@ -1403,7 +1399,6 @@ int font_from_lua(lua_State * L, int f)
     lua_pop(L,1);
 
     /* the table is at stack index -1 */
-
     s = n_string_field_copy(L,lua_key_index(area), "");
     set_font_area(f, s);
     s = n_string_field_copy(L, lua_key_index(filename), NULL);
@@ -1518,20 +1513,19 @@ int font_from_lua(lua_State * L, int f)
                     l_fonts[i] = find_font_id(ss, t);
                 lua_settop(L, s_top);
             } else {
-                formatted_error("font","invalid local font in lua-loaded font '%s'", font_name(f));
+                formatted_error("font","invalid local font at index %i in lua-loaded font '%s' (1)",i,font_name(f));
             }
             lua_pop(L, 1); /* pop list entry */
         }
         lua_pop(L, 1); /* pop font table */
     } else if (font_type(f) == virtual_font_type) {
-        formatted_error("font","invalid local fonts in lua-loaded font '%s'", font_name(f));
+        formatted_error("font","invalid local fonts in lua-loaded font '%s' (2)", font_name(f));
     } else {
         l_fonts = xmalloc(3 * sizeof(int));
         l_fonts[0] = 0;
         l_fonts[1] = f;
         l_fonts[2] = 0;
     }
-
     /* parameters */
     no_math = n_boolean_field(L, lua_key_index(nomath), 0);
     read_lua_parameters(L, f);
@@ -1697,13 +1691,13 @@ int characters_from_lua(lua_State * L, int f)
                     l_fonts[i] = find_font_id(ss, t);
                 lua_settop(L, s_top);
             } else {
-                formatted_error("font","invalid local font in lua-loaded font '%s'", font_name(f));
+                formatted_error("font","invalid local font in lua-loaded font '%s' (3)", font_name(f));
             }
             lua_pop(L, 1); /* pop list entry */
         }
         lua_pop(L, 1); /* pop font table */
     } else if (font_type(f) == virtual_font_type) {
-        formatted_error("font","invalid local fonts in lua-loaded font '%s'", font_name(f));
+        formatted_error("font","invalid local fonts in lua-loaded font '%s' (4)", font_name(f));
     } else {
         l_fonts = xmalloc(3 * sizeof(int));
         l_fonts[0] = 0;

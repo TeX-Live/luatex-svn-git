@@ -481,7 +481,7 @@ typedef enum {
 #  define noadheight(a)  vlink((a)+5)
 #  define noaddepth(a)   vinfo((a)+5)
 #  define noadextra1(a)  vlink((a)+6) /* we need to match delimiter (saves copy) */
-#  define noadextra2(a)  vinfo((a)+6)
+#  define noadoptions(a) vinfo((a)+6)
 #  define noadextra3(a)  vlink((a)+7) /* see (!) below */
 #  define noadextra4(a)  vinfo((a)+7)
 
@@ -508,21 +508,31 @@ typedef enum {
 /* when dimensions then axis else noaxis */
 
 typedef enum {
-    noad_option_set      =        0x08,
-    noad_option_unused_1 = 0x00 + 0x08,
-    noad_option_unused_2 = 0x01 + 0x08,
-    noad_option_axis     = 0x02 + 0x08,
-    noad_option_no_axis  = 0x04 + 0x08,
-    noad_option_exact    = 0x10 + 0x08,
-    noad_option_left     = 0x11 + 0x08,
-    noad_option_middle   = 0x12 + 0x08,
-    noad_option_right    = 0x14 + 0x08,
+    noad_option_set             =        0x08,
+    noad_option_unused_1        = 0x00 + 0x08,
+    noad_option_unused_2        = 0x01 + 0x08,
+    noad_option_axis            = 0x02 + 0x08,
+    noad_option_no_axis         = 0x04 + 0x08,
+    noad_option_exact           = 0x10 + 0x08,
+    noad_option_left            = 0x11 + 0x08,
+    noad_option_middle          = 0x12 + 0x08,
+    noad_option_right           = 0x14 + 0x08,
+    noad_option_no_sub_script   = 0x21 + 0x08,
+    noad_option_no_super_script = 0x22 + 0x08,
+    noad_option_no_script       = 0x23 + 0x08,
 } delimiter_options ;
 
 #  define delimiteroptionset(a) ((delimiteroptions(a) & noad_option_set    ) == noad_option_set    )
 #  define delimiteraxis(a)      ((delimiteroptions(a) & noad_option_axis   ) == noad_option_axis   )
 #  define delimiternoaxis(a)    ((delimiteroptions(a) & noad_option_no_axis) == noad_option_no_axis)
 #  define delimiterexact(a)     ((delimiteroptions(a) & noad_option_exact  ) == noad_option_exact  )
+
+#  define noadoptionnosubscript(a) ( (type(a) == simple_noad) && ( \
+                                     ((delimiteroptions(a) & noad_option_no_sub_script  ) == noad_option_no_sub_script) || \
+                                     ((delimiteroptions(a) & noad_option_no_script      ) == noad_option_no_script    ) ))
+#  define noadoptionnosupscript(a) ( (type(a) == simple_noad) && ( \
+                                     ((delimiteroptions(a) & noad_option_no_super_script) == noad_option_no_super_script) || \
+                                     ((delimiteroptions(a) & noad_option_no_script      ) == noad_option_no_script      ) ))
 
 /* subtype of fence noads */
 
