@@ -318,7 +318,6 @@ void initialize_commands(void)
     primitive_tex("fontname", convert_cmd, font_name_code, 0);
     primitive_luatex("fontid", convert_cmd, font_id_code, 0);
     primitive_luatex("luatexrevision", convert_cmd, luatex_revision_code, 0);
-    primitive_luatex("luatexdatestamp", convert_cmd, luatex_date_code, 0);
     primitive_luatex("luatexbanner", convert_cmd, luatex_banner_code, 0);
     primitive_luatex("leftmarginkern", convert_cmd, left_margin_kern_code, 0);
     primitive_luatex("rightmarginkern", convert_cmd, right_margin_kern_code, 0);

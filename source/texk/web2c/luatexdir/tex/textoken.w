@@ -2775,11 +2775,6 @@ void conv_toks(void)
             print(get_luatexrevision());
             pop_selector;
             break;
-        case luatex_date_code:
-            push_selector;
-            print_int(get_luatex_date_info());
-            pop_selector;
-            break;
         case etex_code:
             push_selector;
             tprint(eTeX_version_string);
@@ -3007,9 +3002,6 @@ str_number the_convert_string(halfword c, int i)
             break;
         case luatex_revision_code:
             print(get_luatexrevision());
-            break;
-        case luatex_date_code:
-            print_int(get_luatex_date_info());
             break;
         case etex_code:
             tprint(eTeX_version_string);

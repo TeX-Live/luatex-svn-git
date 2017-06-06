@@ -260,7 +260,6 @@ typedef enum {
     format_name_code,           /* command code for \.{\\AlephVersion} */
     luatex_banner_code,         /* command code for \.{\\luatexbanner}: */
     luatex_revision_code,       /* command code for \.{\\luatexrevision} */
-    luatex_date_code,           /* command code for \.{\\luatexdate} */
     etex_code,                  /* command code for \.{\\eTeXVersion} */
     eTeX_revision_code,         /* command code for \.{\\eTeXrevision} */
     font_identifier_code,       /* command code for \.{tex.fontidentifier} (virtual) */

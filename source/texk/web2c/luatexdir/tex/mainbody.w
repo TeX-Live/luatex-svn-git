@@ -230,12 +230,6 @@ str_number get_luatexrevision(void)
     return luatex_revision;
 }
 
-int get_luatex_date_info(void)
-{
-    return luatex_date_info;    /* todo, silly value */
-}
-
-
 @ This is it: the part of \TeX\ that executes all those procedures we have
 written.
 
