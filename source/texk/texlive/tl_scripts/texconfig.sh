@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: texconfig.sh 34586 2014-07-13 00:06:11Z karl $
+# $Id: texconfig.sh 44000 2017-04-23 23:47:26Z karl $
 # texconfig version 3.0
 # Originally written by Thomas Esser. Public domain.
 # Now maintained as part of TeX Live; correspondence to tex-live@tug.org.
@@ -28,7 +28,7 @@ PATH="$mydir:$PATH"; export PATH
 progname=texconfig
 
 # the version string
-version='$Id: texconfig.sh 34586 2014-07-13 00:06:11Z karl $'
+version='$Id: texconfig.sh 44000 2017-04-23 23:47:26Z karl $'
 
 envVars="
   AFMFONTS BIBINPUTS BSTINPUTS CMAPFONTS CWEBINPUTS ENCFONTS GFFONTS
@@ -559,7 +559,6 @@ the TeX installation.
 
 Usage: $progname conf                  (show configuration information)
        $progname dvipdfmx paper PAPER  (dvipdfmx paper size)
-       $progname dvipdfm paper PAPER   (dvipdfm paper size)
        $progname dvips [OPTION...]     (dvips options)
        $progname faq                   (show teTeX faq)
        $progname findprog PROG...      (show locations of PROGs, a la which)
@@ -580,7 +579,6 @@ Usage: $progname conf                  (show configuration information)
 
 Get more help with:
        $progname dvipdfmx
-       $progname dvipdfm
        $progname dvips
        $progname font
        $progname hyphen
@@ -603,13 +601,13 @@ TeX Live home page: <http://tug.org/texlive/>
       echo
       echo '==================== binaries found by searching $PATH ==================='
       echo "PATH=$PATH"
-      echoLocateBinary kpsewhich updmap fmtutil texconfig tex pdftex mktexpk dvips dvipdfm
+      echoLocateBinary kpsewhich updmap fmtutil texconfig tex pdftex mktexpk dvips dvipdfmx
       echo
       echo '=========================== active config files =========================='
-      echoLocateCfgfile texmf.cnf updmap.cfg fmtutil.cnf config.ps mktex.cnf XDvi pdftexconfig.tex config | sort -k 2
+      echoLocateCfgfile texmf.cnf updmap.cfg fmtutil.cnf config.ps mktex.cnf XDvi pdftexconfig.tex | sort -k 2
       echo
       echo '============================= font map files ============================='
-      for m in psfonts.map pdftex.map ps2pk.map dvipdfm.map; do
+      for m in psfonts.map pdftex.map ps2pk.map; do
         echo "$m: `kpsewhich $m`"
       done
       echo
@@ -619,39 +617,6 @@ TeX Live home page: <http://tug.org/texlive/>
       echo
       echo '==== kpathsea variables from environment only (ok if no output here) ===='
       echoShowVariable $envVars
-      ;;
-
-    # texconfig dvipdfm
-    dvipdfm)
-      help="Usage: $progname dvipdfm paper PAPER
-
-Valid PAPER settings:
-  letter legal ledger tabloid a4 a3"
-      case $2 in
-        # texconfig dvipdfm paper
-        paper-list)
-          for p in letter legal ledger tabloid a4 a3; do echo $p; done
-          ;;
-        paper)
-          case $3 in
-            letter|legal|ledger|tabloid|a4|a3)
-              fmgrConfigReplace config '^p' "p $3";;
-            "") echo "$help" >&2; rc=1;;
-            *)
-             echo "$progname: unknown PAPER \`$3' given as argument for \`$progname dvipdfm paper'" >&2
-             echo "$progname: try \`$progname dvipdfm paper' for help" >&2
-             rc=1 ;;
-          esac ;;
-        # texconfig dvipdfm ""
-        "")
-          echo "$help" >&2; rc=1 ;;
-        # texconfig dvipdfm <unknown>
-        *)
-          echo "$progname: unknown option \`$2' given as argument for \`$progname dvipdfm'" >&2
-          echo "$progname: try \`$progname dvipdfm' for help" >&2
-          rc=1
-          ;;
-      esac
       ;;
 
     # texconfig dvipdfmx
@@ -1218,12 +1183,9 @@ Valid MODE settings:"
 Valid PAPER settings:
   letter a4"
 
-      p=$2; pXdvi=$2; pDvips=$2
+      p=$2; pDvips=$2
       case $2 in
-        letter)
-          pXdvi=us;;
-        a4)
-          pXdvi=a4;;
+        letter|a4) ;;
         "") echo "$help" >&2; rc=1; return;;
         *)
           echo "$progname: unknown PAPER \`$2' given as argument for \`$progname paper'" >&2
@@ -1234,14 +1196,11 @@ Valid PAPER settings:
       if checkForBinary dvips >/dev/null && tcfmgr --cmd find --file config.ps >/dev/null 2>&1; then
         tcBatch dvips paper $pDvips
       fi
-      if checkForBinary dvipdfm >/dev/null && tcfmgr --cmd find --file config >/dev/null 2>&1; then
-        tcBatch dvipdfm paper $p
-      fi
       if checkForBinary dvipdfmx >/dev/null && tcfmgr --cmd find --file dvipdfmx.cfg >/dev/null 2>&1; then
         tcBatch dvipdfmx paper $p
       fi
       if checkForBinary xdvi >/dev/null && tcfmgr --cmd find --file XDvi >/dev/null 2>&1; then
-        tcBatch xdvi paper $pXdvi
+        tcBatch xdvi paper $p
       fi
       if checkForBinary pdftex >/dev/null && tcfmgr --cmd find --file pdftexconfig.tex >/dev/null 2>&1; then
         tcBatch pdftex paper $p
@@ -1331,65 +1290,94 @@ Valid PAPER settings:
     # handle "xdvi paper PAPER"
     xdvi)
       tcBatchXdviPapers='us           "8.5x11"
+letter       "8.5x11"
+ledger       "17x11"
+tabloid      "11x17"
 usr          "11x8.5"
 legal        "8.5x14"
+legalr       "14x8.5"
 foolscap     "13.5x17.0"
-a1           "59.4x84.0cm"
+foolscapr    "17.0x13.5"
+a0           "84.1x118.9cm"
+a1           "59.4x84.1cm"
 a2           "42.0x59.4cm"
 a3           "29.7x42.0cm"
 a4           "21.0x29.7cm"
-a5           "14.85x21.0cm"
-a6           "10.5x14.85cm"
-a7           "7.42x10.5cm"
-a1r          "84.0x59.4cm"
+a5           "14.8x21.0cm"
+a6           "10.5x14.8cm"
+a7           "7.4x10.5cm"
+a8           "5.2x7.4cm"
+a9           "3.7x5.2cm"
+a10          "2.6x3.7cm"
+a0r          "118.9x84.1cm"
+a1r          "84.1x59.4cm"
 a2r          "59.4x42.0cm"
 a3r          "42.0x29.7cm"
 a4r          "29.7x21.0cm"
-a5r          "21.0x14.85cm"
-a6r          "14.85x10.5cm"
-a7r          "10.5x7.42cm"
-b1           "70.6x100.0cm"
-b2           "50.0x70.6cm"
+a5r          "21.0x14.8cm"
+a6r          "14.8x10.5cm"
+a7r          "10.5x7.4cm"
+a8r          "7.4x5.2cm"
+a9r          "5.2x3.7cm"
+a10r         "3.7x2.6cm"
+b0           "100.0x141.4cm"
+b1           "70.7x100.0cm"
+b2           "50.0x70.7cm"
 b3           "35.3x50.0cm"
 b4           "25.0x35.3cm"
 b5           "17.6x25.0cm"
-b6           "13.5x17.6cm"
-b7           "8.8x13.5cm"
-b1r          "100.0x70.6cm"
-b2r          "70.6x50.0cm"
+b6           "12.5x17.6cm"
+b7           "8.8x12.5cm"
+b8           "6.2x8.8cm"
+b9           "4.4x6.2cm"
+b10          "3.1x4.4cm"
+b0r          "141.4x100.0cm"
+b1r          "100.0x70.7cm"
+b2r          "70.7x50.0cm"
 b3r          "50.0x35.3cm"
 b4r          "35.3x25.0cm"
 b5r          "25.0x17.6cm"
-b6r          "17.6x13.5cm"
-b7r          "13.5x8.8cm"
-c1           "64.8x91.6cm"
+b6r          "17.6x12.5cm"
+b7r          "12.5x8.8cm"
+b8r          "8.8x6.2cm"
+b9r          "6.2x4.4cm"
+b10r         "4.4x3.1cm"
+c0           "91.7x129.7cm"
+c1           "64.8x91.7cm"
 c2           "45.8x64.8cm"
 c3           "32.4x45.8cm"
 c4           "22.9x32.4cm"
 c5           "16.2x22.9cm"
-c6           "11.46x16.2cm"
-c7           "8.1x11.46cm"
-c1r          "91.6x64.8cm"
+c6           "11.4x16.2cm"
+c7           "8.1x11.4cm"
+c8           "5.7x8.1cm"
+c9           "4.0x5.7cm"
+c10          "2.8x4.0cm"
+c0r          "129.7x91.7cm"
+c1r          "91.7x64.8cm"
 c2r          "64.8x45.8cm"
 c3r          "45.8x32.4cm"
 c4r          "32.4x22.9cm"
 c5r          "22.9x16.2cm"
-c6r          "16.2x11.46cm"
-c7r          "11.46x8.1cm"'
+c6r          "16.2x11.4cm"
+c7r          "11.4x8.1cm"
+c8r          "8.1x5.7cm"
+c9r          "5.7x4.0cm"
+c10r         "4.0x2.8cm"'
       help="Usage: $progname xdvi paper PAPER
 
 Valid PAPER settings:
-  a1 a1r a2 a2r a3 a3r a4 a4r a5 a5r a6 a6r a7 a7r
-  b1 b1r b2 b2r b3 b3r b4 b4r b5 b5r b6 b6r b7 b7r
-  c1 c1r c2 c2r c3 c3r c4 c4r c5 c5r c6 c6r c7 c7r
-  foolscap legal us usr"
+  a0 a0r a1 a1r a2 a2r a3 a3r a4 a4r a5 a5r a6 a6r a7 a7r a8 a8r a9 a9r a10 a10r
+  b0 b0r b1 b1r b2 b2r b3 b3r b4 b4r b5 b5r b6 b6r b7 b7r b8 b8r b9 b9r b10 b10r
+  c0 c0r c1 c1r c2 c2r c3 c3r c4 c4r c5 c5r c6 c6r c7 c7r c8 c8r c9 c9r c10 c10r
+  us letter ledger tabloid usr legal legalr foolscap foolscapr"
       case $2 in
         paper-list)
           echo "$tcBatchXdviPapers"
           ;;
         paper)
           case $3 in
-            a1|a1r|a2|a2r|a3|a3r|a4|a4r|a5|a5r|a6|a6r|a7|a7r|b1|b1r|b2|b2r|b3|b3r|b4|b4r|b5|b5r|b6|b6r|b7|b7r|c1|c1r|c2|c2r|c3|c3r|c4|c4r|c5|c5r|c6|c6r|c7|c7r|foolscap|legal|us|usr)
+            [abc][0-9]|[abc]10|[abc][0-9]r|[abc]10r|us|letter|ledger|tabloid|usr|legal|legalr|foolscap|foolscapr)
               fmgrConfigReplace XDvi paper: "*paper: $3"
               ;;
             "") echo "$help" >&2; rc=1;;

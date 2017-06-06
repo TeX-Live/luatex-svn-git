@@ -1,3 +1,32 @@
+2017-05-03  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXMFAUXTREES): new variable (default value empty
+	string via empty braces), for tlmgr conf auxtrees.
+	(TEXMF): include $TEXMFAUXTREES, but don't assume it is nonempty.
+
+2017-04-22  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* win32lib.c, mingw32.c: Update texlive_gs_init() (w32 only). 
+
+2017-04-21  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* win32lib.c, mingw32.c: Update texlive_gs_init() (w32 only). 
+
+2017-04-14  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (shell_escape_commands): add texosquery-jre8.
+
+2017-04-13  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXMF, TEXMFDBS): move TEXMFLOCAL to before TEXMFSYS*,
+	so, e.g., config.ps in TEXMFLOCAL overrides TEXMFSYSCONFIG.
+	Report from Michael Shell:
+	http://tug.org/pipermail/tex-live/2016-July/039062.html
+
+2017-04-05  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmf.cnf: mendex requires the variable INDEXDICTIONARY.
+
 2017-03-27  Karl Berry  <karl@freefriends.org>
 
 	* Makefile.am (AM_TESTS_ENVIRONMENT): use instead of TESTS_ENVIRONMENT.

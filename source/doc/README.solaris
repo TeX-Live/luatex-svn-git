@@ -167,14 +167,6 @@ The resulting binary depends on:
     libuutil.so.1 => /lib/libuutil.so.1
     libgen.so.1 =>   /lib/libgen.so.1
 
-Additional notes:
-
-* gc-7.4.2 doesn't support sparc properly, so the sources for sparc were fetched from
-  https://github.com/ivmai/bdwgc/tree/release-7_4
-  and put into gc-7.4.2
-  Running ./autogen.sh was needed before proceeding
-
-
 Building texlive
 ================
 
@@ -187,12 +179,4 @@ which is not available on SunOS by default.
 luajittex seems to be broken on Solaris 10 x86_64 (even if it works
 with Solaris 11) and doesn't support Sparc, so it was only compiled
 for i386.
-
-upmendex is broken on x86_64 by default. A workaround is to use
-    export CFLAGS='-DU_IS_BIG_ENDIAN=0'
-    export CXXFLAGS='-DU_IS_BIG_ENDIAN=0'
-which seems to result in slower binaries for mysterious reasons.
-For that reason binaries were compiled twice, once without those flags
-and --disable-upmendex and the second time with those two flags,
-but taking just 'upmendex'.
 
