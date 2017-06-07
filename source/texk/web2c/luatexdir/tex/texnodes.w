@@ -836,6 +836,11 @@ void synctex_set_mode(int m)
     synctex_anyway_mode = m;
 };
 
+int synctex_get_mode(void)
+{
+    return synctex_anyway_mode;
+};
+
 void synctex_set_tag(int t)
 {
     cur_input.synctex_tag_field = t;

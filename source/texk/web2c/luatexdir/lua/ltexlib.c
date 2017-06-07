@@ -3162,6 +3162,11 @@ static int lua_set_synctex_mode(lua_State * L)
     synctex_set_mode(mode);
     return 0;
 }
+static int lua_get_synctex_mode(lua_State * L)
+{
+    lua_pushinteger(L,synctex_get_mode());
+    return 1;
+}
 
 static int lua_set_synctex_tag(lua_State * L)
 {
@@ -3306,6 +3311,7 @@ static const struct luaL_Reg texlib[] = {
     { "triggerbuildpage", tex_build_page },
     /* not the best place but better than in node */
     { "set_synctex_mode", lua_set_synctex_mode },
+    { "get_synctex_mode", lua_get_synctex_mode },
     { "set_synctex_tag", lua_set_synctex_tag },
     { "get_synctex_tag", lua_get_synctex_tag },
     { "force_synctex_tag", lua_force_synctex_tag },

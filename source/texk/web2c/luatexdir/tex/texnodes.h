@@ -1013,6 +1013,7 @@ extern int lua_properties_use_metatable ;
 extern halfword make_local_par_node(int mode);
 
 extern void synctex_set_mode(int mode);
+extern int synctex_get_mode(void);
 extern void synctex_set_tag(int tag);
 extern void synctex_set_line(int line);
 extern void synctex_force_tag(int tag);
