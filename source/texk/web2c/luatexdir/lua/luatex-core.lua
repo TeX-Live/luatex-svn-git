@@ -5,7 +5,7 @@
 --     copyright = 'LuaTeX Development Team',
 -- }
 
-LUATEXCOREVERSION = 1.002
+LUATEXCOREVERSION = 1.003
 
 -- This file overloads some Lua functions. The readline variants provide the same
 -- functionality as LuaTeX <= 1.04 and doing it this way permits us to keep the
@@ -29,9 +29,6 @@ local shellescape         = status.shell_escape -- 0 (disabled) 1 (anything) 2 (
 local kpseused            = status.kpse_used    -- 0 1
 
 local write_nl            = texio.write_nl
-
-local saved_open          = io_open  -- can be protected
-local saved_popen         = io_popen -- can be protected
 
 io.saved_lines            = io_lines -- always readonly
 mt.saved_lines            = mt_lines -- always readonly
