@@ -67,7 +67,7 @@ end
 local function luatex_io_popen(name,...)
     local okay, found = fio_checkpermission(name)
     if okay and found then
-        return io_popen(found,...)
+        return io_popen(name,...)
     end
 end
 
