@@ -21,16 +21,12 @@
 #include "ptexlib.h"
 #include "luatex.h"
 #include "lua/luatex-api.h"
-/*
-#include "luatex_svnversion.h"
-*/
 
 
 #define TeX
 
 int luatex_version = 100;        /* \.{\\luatexversion}  */
 int luatex_revision = '5';      /* \.{\\luatexrevision}  */
-int luatex_date_info = 2017033110;     /* the compile date is now hardwired :YEAR MONTH DAY HOUR*/
 const char *luatex_version_string = "1.0.5";
 const char *engine_name = my_name;     /* the name of this engine */
 

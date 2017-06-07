@@ -69,6 +69,7 @@ typedef enum {
     call_edit_callback,
     build_page_insert_callback,
     glyph_stream_provider_callback,
+    finish_synctex_callback,
     total_callbacks
 } callback_callback_types;
 

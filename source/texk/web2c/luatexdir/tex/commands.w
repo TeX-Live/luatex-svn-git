@@ -318,7 +318,6 @@ void initialize_commands(void)
     primitive_tex("fontname", convert_cmd, font_name_code, 0);
     primitive_luatex("fontid", convert_cmd, font_id_code, 0);
     primitive_luatex("luatexrevision", convert_cmd, luatex_revision_code, 0);
-    primitive_luatex("luatexdatestamp", convert_cmd, luatex_date_code, 0);
     primitive_luatex("luatexbanner", convert_cmd, luatex_banner_code, 0);
     primitive_luatex("leftmarginkern", convert_cmd, left_margin_kern_code, 0);
     primitive_luatex("rightmarginkern", convert_cmd, right_margin_kern_code, 0);
@@ -482,6 +481,8 @@ void initialize_commands(void)
     primitive_luatex("crampedscriptscriptstyle", math_style_cmd, cramped_script_script_style, 0);
     primitive_luatex("Usuperscript", super_sub_script_cmd, sup_mark_cmd, sup_mark_cmd);
     primitive_luatex("Usubscript", super_sub_script_cmd, sub_mark_cmd, sup_mark_cmd);
+    primitive_luatex("Unosuperscript", no_super_sub_script_cmd, sup_mark_cmd, sup_mark_cmd);
+    primitive_luatex("Unosubscript", no_super_sub_script_cmd, sub_mark_cmd, sup_mark_cmd);
     primitive_tex("above", above_cmd, above_code, 0);
     primitive_tex("over", above_cmd, over_code, 0);
     primitive_tex("atop", above_cmd, atop_code, 0);

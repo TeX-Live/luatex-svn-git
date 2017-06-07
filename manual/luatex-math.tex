@@ -1051,6 +1051,25 @@ The \type {\Ustopmath} and \type {\Ustopdisplaymath} primitives check if the cur
 math mode is the correct one (inline vs.\ displayed), but you can freely intermix
 the four mathon|/|mathoff commands with explicit dollar sign(s).
 
+\subsection{Script commands \type {\Unosuperscript} and \type {\Unosubscript}}
+
+These two commands result in super- and subscripts but with the current style (at the
+time of rendering). So,
+
+\startbuffer[script]
+$
+    x\Usuperscript  {1}\Usubscript  {2} =
+    x\Unosuperscript{1}\Unosubscript{2} =
+    x\Usuperscript  {1}\Unosubscript{2} =
+    x\Unosuperscript{1}\Usubscript  {2}
+$
+\stopbuffer
+
+\typebuffer
+
+results in \inlinebuffer[script].
+
+
 \subsection{Allowed math commands in non-math modes}
 
 The commands \type {\mathchar}, and \type {\Umathchar} and control sequences that

@@ -705,6 +705,7 @@ static void init_main_control (void) {
     non_math(sup_mark_cmd, insert_dollar_sign);
     non_math(sub_mark_cmd, insert_dollar_sign);
     non_math(super_sub_script_cmd, insert_dollar_sign);
+    non_math(no_super_sub_script_cmd, insert_dollar_sign);
     non_math(math_comp_cmd, insert_dollar_sign);
     non_math(delim_num_cmd, insert_dollar_sign);
     non_math(left_right_cmd, insert_dollar_sign);
@@ -825,6 +826,7 @@ static void init_main_control (void) {
     jump_table[mmode + sub_mark_cmd] = sub_sup;
     jump_table[mmode + sup_mark_cmd] = sub_sup;
     jump_table[mmode + super_sub_script_cmd] = sub_sup;
+    jump_table[mmode + no_super_sub_script_cmd] = no_sub_sup;
     jump_table[mmode + left_right_cmd] = math_left_right;
     jump_table[mmode + math_shift_cmd] = run_math_shift;
     jump_table[mmode + math_shift_cs_cmd] = run_math_shift;

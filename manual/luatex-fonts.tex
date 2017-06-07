@@ -460,7 +460,7 @@ parameters to that command. The allowed commands and their arguments are:
                                       and move right by the character's width\NC\NR
 \NC node    \NC 1   \NC node      \NC output this node (list), and move right
                                       by the width of this list\NC\NR
-\NC slot    \NC 2   \NC number    \NC a shortcut for the combination of a font and char command\NC\NR
+\NC slot    \NC 2   \NC 2 numbers \NC a shortcut for the combination of a font and char command\NC\NR
 \NC push    \NC 0   \NC           \NC save current position\NC\NR
 \NC nop     \NC 0   \NC           \NC do nothing \NC\NR
 \NC pop     \NC 0   \NC           \NC pop position \NC\NR
@@ -468,6 +468,8 @@ parameters to that command. The allowed commands and their arguments are:
 \NC down    \NC 1   \NC number    \NC move down on the page\NC\NR
 \NC right   \NC 1   \NC number    \NC move right on the page\NC\NR
 \NC special \NC 1   \NC string    \NC output a \type {\special} command\NC\NR
+\NC pdf     \NC 2   \NC 2 strings \NC output a \PDF\ literal, the first string is one of \type {origin},
+                                      \type {page}, \type {direct} or \type {raw}\NC\NR
 \NC lua     \NC 1   \NC string    \NC execute a \LUA\ script (at \type {\latelua} time)\NC\NR
 \NC image   \NC 1   \NC image     \NC output an image (the argument can be either an \type
                                       {<image>} variable or an \type {image_spec} table)\NC\NR
@@ -484,15 +486,17 @@ Here is a rather elaborate glyph commands example:
 \starttyping
 ...
 commands = {
-    { 'push' },                    -- remember where we are
-    { 'right', 5000 },             -- move right about 0.08pt
-    { 'font', 3 },                 -- select the fonts[3] entry
-    { 'char', 97 },                -- place character 97 (ASCII 'a')
-    { 'pop' },                     -- go all the way back
-    { 'down', -200000 },           -- move upwards by about 3pt
-    { 'special', 'pdf: 1 0 0 rg' } -- switch to red color
-    { 'rule', 500000, 20000 }      -- draw a bar
-    { 'special','pdf: 0 g' }       -- back to black
+    { "push" },                     -- remember where we are
+    { "right", 5000 },              -- move right about 0.08pt
+    { "font", 3 },                  -- select the fonts[3] entry
+    { "char", 97 },                 -- place character 97 (ASCII 'a')
+    { "pop" },                      -- go all the way back
+    { "down", -200000 },            -- move upwards by about 3pt
+    { "special", "pdf: 1 0 0 rg" }  -- switch to red color
+ -- { "pdf", "origin", "1 0 0 rg" } -- switch to red color (alternative)
+    { "rule", 500000, 20000 }       -- draw a bar
+    { "special", "pdf: 0 g" }       -- back to black
+ -- { "pdf", "origin", "0 g" }      -- back to black (alternative)
 }
 ...
 \stoptyping
@@ -510,6 +514,10 @@ Regardless of the amount of movement you create within the \type {commands}, the
 output pointer will always move by exactly the width that was given in the \type
 {width} key of the character hash. Any movements that take place inside the \type
 {commands} array are ignored on the upper level.
+
+The special can have a \type {pdf:}, \type {pdf:origin:},  \type {pdf:page:},
+\type {pdf:direct:} or  \type {pdf:raw:} prefix. When you have to concatenate
+strings using the \type {pdf} command might be more efficient.
 
 \subsection{Artificial fonts}
 
@@ -662,7 +670,32 @@ You can define your own font into \type {font.fonts} by calling this function:
 
 The return value is the internal id number of the defined font (the index into
 \type {font.fonts}). If the font creation fails, an error is raised. The table
-is a font structure, as explained in \in {chapter} [fonts].
+is a font structure, as explained in \in {chapter} [fonts]. An alternative call
+is:
+
+\startfunctioncall
+<number> i =
+    font.define(<number> n, <table> f)
+\stopfunctioncall
+
+Where the first argument is a reserved font id (see below).
+
+\subsection{Extending a font}
+
+Within reasonable bounds you can extend a font after it has been defined. Because
+some properties are best left unchanged this is limited to adding characters.
+
+\startfunctioncall
+font.addcharacters(<number n>, <table> f)
+\stopfunctioncall
+
+The table passed can have the fields \type {characters} which is a (sub)table
+like the one used in define, and for virtual fonts a \type {fonts} table can be
+added. The characters defined in the \type {characters} table are added (when not
+yet present) or replace an existing entry. Keep in mind that replacing can have
+side effects because a character already can have been used. Instead of posing
+restrictions we expect the user to be careful. (The \type {setfont} helper is
+a more drastic replacer.)
 
 \subsection{Projected next font id}
 
@@ -673,7 +706,14 @@ is a font structure, as explained in \in {chapter} [fonts].
 
 This returns the font id number that would be returned by a \type {font.define}
 call if it was executed at this spot in the code flow. This is useful for virtual
-fonts that need to reference themselves.
+fonts that need to reference themselves. If you pass \type {true} as argument,
+the id gets reserved and you can pass to \type {font.define} as first argument.
+This can be handy when you create complex virtual fonts.
+
+\startfunctioncall
+<number> i =
+    font.nextid(true)
+\stopfunctioncall
 
 \subsection{Font id}
 

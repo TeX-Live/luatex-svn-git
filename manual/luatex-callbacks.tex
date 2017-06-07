@@ -875,6 +875,12 @@ This callback replaces the call to an external editor when \quote{E} is pressed
 in reply to an error message. Processing will end immediately after the callback
 returns control to the main program.
 
+\subsection{\type {finish_synctex_callback}}
+
+This callback can be used to wrap up alternative synctex methods. It kicks in
+after the normal synctex finalizer (that happens to remove the synctex files
+after a run when native synctex is not enabled).
+
 \section{PDF-related callbacks}
 
 \subsection{\type {finish_pdffile}}

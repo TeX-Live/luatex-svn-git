@@ -368,7 +368,8 @@ and \type {false} gets returned otherwise. When nil is returned, the id is also
 returned. The \type {is_glyph} variant doesn't check for a subtype being less
 than 256, so it returns either the character value or nil plus the id. These
 helpers are not always faster than separate calls but they sometimes permit
-making more readable tests.
+making more readable tests. The \type {uses_font} helpers takes a node
+and font id and returns true when a glyph or disc node references that font.
 
 \subsubsection{boundary nodes}
 
@@ -515,6 +516,23 @@ associated with the simple math objects: ord, op, bin, rel, open, close, punct,
 inner, over, under, vcent. These all have the same fields, and they are combined
 into a single node type with separate subtypes for differentiation.
 
+Some noads have an option field. The values in this bitset are common:
+
+\starttabulate[|lT|lT|]
+\NC set             \NC        0x08 \NC \NR
+\NC internal        \NC 0x00 + 0x08 \NC \NR
+\NC internal        \NC 0x01 + 0x08 \NC \NR
+\NC axis            \NC 0x02 + 0x08 \NC \NR
+\NC no axis         \NC 0x04 + 0x08 \NC \NR
+\NC exact           \NC 0x10 + 0x08 \NC \NR
+\NC left            \NC 0x11 + 0x08 \NC \NR
+\NC middle          \NC 0x12 + 0x08 \NC \NR
+\NC right           \NC 0x14 + 0x08 \NC \NR
+\NC no sub script   \NC 0x21 + 0x08 \NC \NR
+\NC no super script \NC 0x22 + 0x08 \NC \NR
+\NC no script       \NC 0x23 + 0x08 \NC \NR
+\stoptabulate
+
 \subsubsubsection{simple nodes}
 
 \starttabulate[|lT|l|p|]
@@ -524,6 +542,7 @@ into a single node type with separate subtypes for differentiation.
 \NC nucleus     \NC kernel node \NC base \NC \NR
 \NC sub         \NC kernel node \NC subscript \NC \NR
 \NC sup         \NC kernel node \NC superscript \NC \NR
+\NC options     \NC number      \NC bitset of rendering options \NC \NR
 \stoptabulate
 
 \subsubsubsection{accent nodes}
@@ -546,9 +565,9 @@ into a single node type with separate subtypes for differentiation.
 \NC style       \NC string   \NC contains the style \NC \NR
 \stoptabulate
 
-There are eight possibilities for the string value: one of \quote {display},
-\quote {text}, \quote {script}, or \quote {scriptscript}. Each of these can have
-a trailing \type {'} to signify \quote {cramped} styles.
+There are eight possibilities for the string value: one of \type {display},
+\type {text}, \type {script}, or \type {scriptscript}. Each of these can have
+be prefixed by \type {cramped}.
 
 \subsubsubsection{choice nodes}
 
@@ -1744,6 +1763,22 @@ font field or getter because it will resolve the family automatically for noads.
     node.family_font(<integer> fam)
 \stopfunctioncall
 
+\subsubsection{\type {node.set_synctex_fields} and \type {node.get_synctex_fields}}
+
+You can set and query the synctex fields, a file number aka tag and a line
+number, for a glue, kern, hlist, vlist, rule and math nodes as well as glyph
+nodes (although this last one are not used in native synctex).
+
+\startfunctioncall
+node.set_synctex_fields(<integer> f, <integer> l)
+<integer> f, <integer> l =
+    node.get_synctex_fields(<node> n)
+\stopfunctioncall
+
+Of course you need to know what you're doing as no checking on sane values takes
+place. Also, the synctex interpreter used in editors is rather peculiar and has
+some assumptions (heuristics).
+
 \section{Two access models}
 
 Deep down in \TEX\ a node has a number which is an numeric entry in a memory
@@ -1977,10 +2012,13 @@ consistency. You can of course always define additional accessor using \type
 \NC \type {unprotect_glyphs}     \NC \yes \NC \yes  \NC \NR
 \NC \type {unset_attribute}      \NC \yes \NC \yes  \NC \NR
 \NC \type {usedlist}             \NC \yes \NC \yes  \NC \NR
+\NC \type {uses_font}            \NC \yes \NC \yes  \NC \NR
 \NC \type {vpack}                \NC \yes \NC \yes  \NC \NR
 \NC \type {whatsitsubtypes}      \NC \yes \NC \nop  \NC \NR
 \NC \type {whatsits}             \NC \yes \NC \nop  \NC \NR
 \NC \type {write}                \NC \yes \NC \yes  \NC \NR
+\NC \type {set_synctex_fields}   \NC \yes \NC \yes  \NC \NR
+\NC \type {get_synctex_fields}   \NC \yes \NC \yes  \NC \NR
 \stoptabulate
 
 % \stopcolumns

@@ -2167,42 +2167,18 @@ EXTRA_DIST = PROJECTS cftests cpascal.h help.h w2c/config.h \
 	triptrap/tripman.tex triptrap/tripos.tex triptrap/writeo \
 	triptrap/writeo.2 $(mflua_web_srcs) $(mflua_ch_src) \
 	mfluadir/mflua.defines mfluadir/ChangeLog $(mflua_tests) \
-	mfluadir/mfluatrap/begin_program.lua \
-	mfluadir/mfluatrap/do_add_to.lua \
-	mfluadir/mfluatrap/end_program.lua \
-	mfluadir/mfluatrap/fill_envelope.lua \
-	mfluadir/mfluatrap/fill_spec.lua \
-	mfluadir/mfluatrap/final_cleanup.lua \
-	mfluadir/mfluatrap/main_control.lua \
-	mfluadir/mfluatrap/make_ellipse.lua \
-	mfluadir/mfluatrap/mfluaini.lua \
-	mfluadir/mfluatrap/offset_prep.lua \
-	mfluadir/mfluatrap/print_edges.lua \
-	mfluadir/mfluatrap/print_path.lua \
-	mfluadir/mfluatrap/scan_direction.lua \
-	mfluadir/mfluatrap/skew_line_edges.lua \
-	mfluadir/mfluatrap/start_of_mf.lua \
+	mfluadir/mfluatrap/mflua.lua \
+	mfluadir/mfluatrap/mflua_svg_backend.lua \
+	mfluadir/mfluatrap/mflua_ttx_backend.lua \
 	mfluadir/mfluatrap/texmf.cnf \
 	mfluadir/mfluatrap/mfluatrap.diffs $(mfluajit_web_srcs) \
 	$(mfluajit_ch_src) mfluajitdir/mfluajit.defines \
 	mfluajitdir/ChangeLog $(mfluajit_tests) \
-	mfluadir/mfluatrap/begin_program.lua \
-	mfluadir/mfluatrap/do_add_to.lua \
-	mfluadir/mfluatrap/end_program.lua \
-	mfluadir/mfluatrap/fill_envelope.lua \
-	mfluadir/mfluatrap/fill_spec.lua \
-	mfluadir/mfluatrap/final_cleanup.lua \
-	mfluadir/mfluatrap/main_control.lua \
-	mfluadir/mfluatrap/make_ellipse.lua \
-	mfluadir/mfluatrap/mfluaini.lua \
-	mfluadir/mfluatrap/offset_prep.lua \
-	mfluadir/mfluatrap/print_edges.lua \
-	mfluadir/mfluatrap/print_path.lua \
-	mfluadir/mfluatrap/scan_direction.lua \
-	mfluadir/mfluatrap/skew_line_edges.lua \
-	mfluadir/mfluatrap/start_of_MF.lua \
+	mfluadir/mfluatrap/mflua.lua \
+	mfluadir/mfluatrap/mflua_svg_backend.lua \
+	mfluadir/mfluatrap/mflua_ttx_backend.lua \
 	mfluadir/mfluatrap/texmf.cnf \
-	mfluajitdir/mfluajittrap/mfluajittrap.diffs mplibdir/ChangeLog \
+	mfluadir/mfluatrap/mfluatrap.diffs mplibdir/ChangeLog \
 	$(mpost_web) $(mp_tests) pmpostdir/ChangeLog $(pmpost_web) \
 	$(pmpost_tests) $(upmpost_tests) pmpostdir/tests/psample.mp \
 	$(libmplib_web) $(etex_web_srcs) $(etex_ch_srcs) \
@@ -2351,13 +2327,13 @@ EXTRA_DIST = PROJECTS cftests cpascal.h help.h w2c/config.h \
 	luatexdir/luafontloader/fontforge/VERSION \
 	$(dist_libluatex_sources) $(libluatex_web) luatexdir/ChangeLog \
 	luatexdir/NEWS luatexdir/font/subfont.txt $(luatex_sources) \
-	luatexdir/getluatexsvnversion.sh $(luatex_tests) \
-	$(luajittex_tests) luatexdir/tests/luaimage.tex tests/1-4.jpg \
-	tests/B.pdf tests/basic.tex tests/lily-ledger-broken.png \
-	$(xetex_web_srcs) $(xetex_ch_srcs) xetexdir/xetex.defines \
-	xetexdir/ChangeLog xetexdir/COPYING xetexdir/NEWS \
-	xetexdir/image/README xetexdir/unicode-char-prep.pl \
-	xetexdir/xewebmac.tex $(xetex_tests) xetexdir/tests/bug73.log \
+	$(luatex_tests) $(luajittex_tests) \
+	luatexdir/tests/luaimage.tex tests/1-4.jpg tests/B.pdf \
+	tests/basic.tex tests/lily-ledger-broken.png $(xetex_web_srcs) \
+	$(xetex_ch_srcs) xetexdir/xetex.defines xetexdir/ChangeLog \
+	xetexdir/COPYING xetexdir/NEWS xetexdir/image/README \
+	xetexdir/unicode-char-prep.pl xetexdir/xewebmac.tex \
+	$(xetex_tests) xetexdir/tests/bug73.log \
 	xetexdir/tests/bug73.tex omegaware/README omegaware/ChangeLog \
 	$(odvicopy_sources) $(odvitype_sources) omegaware/ofm2opl.web \
 	omegaware/ofm2opl.up omegaware/ofm2opl.ch \
@@ -3584,8 +3560,9 @@ xetex_cppflags = $(AM_CPPFLAGS) -I$(srcdir)/xetexdir $(ICU_INCLUDES) \
 	$(ZLIB_INCLUDES) -I$(srcdir)/libmd5 $(am__append_97) \
 	$(am__append_98)
 xetex_ldadd = $(libxetex) $(HARFBUZZ_LIBS) $(GRAPHITE2_LIBS) \
-	$(ICU_LIBS) $(TECKIT_LIBS) $(POPPLER_LIBS) $(LIBPNG_LIBS) \
-	$(FREETYPE2_LIBS) $(ZLIB_LIBS) libmd5.a $(am__append_99)
+	$(ICU_LIBS) $(ICU_LIBS_EXTRA) $(TECKIT_LIBS) $(POPPLER_LIBS) \
+	$(LIBPNG_LIBS) $(FREETYPE2_LIBS) $(ZLIB_LIBS) libmd5.a \
+	$(am__append_99)
 xetex_dependencies = $(proglib) $(KPATHSEA_DEPEND) $(ICU_DEPEND) \
 	$(TECKIT_DEPEND) $(HARFBUZZ_DEPEND) $(GRAPHITE2_DEPEND) \
 	$(POPPLER_DEPEND) $(LIBPNG_DEPEND) $(FREETYPE2_DEPEND) \

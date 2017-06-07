@@ -1727,7 +1727,7 @@ void build_choices(void)
 action procedure called |sub_sup|.
 
 @c
-void sub_sup(void)
+static void do_sub_sup(int no)
 {
     pointer q;
     if (tail == head || (!scripts_allowed(tail))) {
@@ -1745,6 +1745,9 @@ void sub_sup(void)
             nucleus(tail) = q;
             tex_error("Double superscript", hlp);
         }
+        if (no) {
+            noadoptions(tail) = noadoptions(tail) | noad_option_no_super_script ;
+        }
         q = new_node(math_char_node, 0);
         supscr(tail) = q;
         (void) scan_math(supscr(tail), sup_style(m_style));
@@ -1758,11 +1761,25 @@ void sub_sup(void)
             nucleus(tail) = q;
             tex_error("Double subscript", hlp);
         }
+        if (no) {
+            noadoptions(tail) = noadoptions(tail) | noad_option_no_sub_script ;
+        }
         q = new_node(math_char_node, 0);
         subscr(tail) = q;
         (void) scan_math(subscr(tail), sub_style(m_style));
     }
 }
+
+void sub_sup(void)
+{
+    do_sub_sup(0);
+}
+
+void no_sub_sup(void)
+{
+    do_sub_sup(1);
+}
+
 
 @ An operation like `\.{\\over}' causes the current mlist to go into a
 state of suspended animation: |incompleat_noad| points to a |fraction_noad|
