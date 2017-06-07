@@ -21,9 +21,6 @@
 #include "ptexlib.h"
 #include "luatex.h"
 #include "lua/luatex-api.h"
-/*
-#include "luatex_svnversion.h"
-*/
 
 
 #define TeX
