@@ -583,7 +583,7 @@ static int checkpermission(lua_State *L)
         lua_pushliteral(L,"all command execution is disabled");
     } else if (restrictedshell == 0) {
         lua_pushboolean(L,1);
-        lua_pushliteral(L,"all commands are permitted");
+        lua_pushstring(L,filename);
     } else {
         char *safecmd = NULL;
         char *cmdname = NULL;
@@ -593,6 +593,7 @@ static int checkpermission(lua_State *L)
                 lua_pushliteral(L, "specific command execution disabled");
                 break;
             case 1:
+                /* doesn't happen */
                 lua_pushboolean(L,1);
                 lua_pushstring(L,filename);
                 break;
@@ -601,6 +602,7 @@ static int checkpermission(lua_State *L)
                 lua_pushstring(L,safecmd);
                 break;
             default:
+                /* -1 */
                 lua_pushboolean(L,0);
                 lua_pushliteral(L, "bad command line quoting");
                 break;
