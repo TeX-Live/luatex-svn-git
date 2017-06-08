@@ -221,11 +221,11 @@ then
 fi
 #
 # get a new svn version header
-if [ "$WARNINGS" = "max" ]
-then
-    rm -f source/texk/web2c/luatexdir/luatex_svnversion.h
-fi
-( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
+#if [ "$WARNINGS" = "max" ]
+#then
+#    rm -f source/texk/web2c/luatexdir/luatex_svnversion.h
+#fi
+#( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
 
 cd "$B"
 
