@@ -179,8 +179,7 @@ deal with typesetting, like \type {tex}, \type {token}, \type {node} and
 are \type {nil}'d). Special care is taken that \type {texio.write} and \type
 {texio.write_nl} function properly, so that you can at least report your actions
 to the log file when (and if) it eventually becomes opened (note that \TEX\ does
-not even know its \type {\jobname} yet at this point). See \in {chapter} [libraries]
-for more information about the \LUATEX-specific \LUA\ extension tables.
+not even know its \type {\jobname} yet at this point).
 
 Everything you do in the \LUA\ initialization script will remain visible during
 the rest of the run, with the exception of the \TEX\ specific libraries like
