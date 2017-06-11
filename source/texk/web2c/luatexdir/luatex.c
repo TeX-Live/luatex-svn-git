@@ -12,6 +12,7 @@
 
 /* We |#define DLLPROC| in order to build LuaTeX and LuajitTeX as DLL
    for W32TeX.  */
+
 #if defined LuajitTeX
 #define DLLPROC dllluajittexmain
 #else
@@ -22,13 +23,19 @@
 #include "luatex.h"
 #include "lua/luatex-api.h"
 
-
 #define TeX
 
-int luatex_version = 100;        /* \.{\\luatexversion}  */
-int luatex_revision = '5';      /* \.{\\luatexrevision}  */
-const char *luatex_version_string = "1.0.5";
-const char *engine_name = my_name;     /* the name of this engine */
+/*
+    The version number can be queried with \.{\\luatexversion} and the revision with
+    with \.{\\luatexrevision}. Traditionally the revision can be any character and
+    pdf\TeX\ occasionally used no digits. Here we still use a character but we will
+    stick to "0" upto "9" so users can expect a number represented as string.
+*/
+
+int luatex_version = 105;
+int luatex_revision = '0';
+const char *luatex_version_string = "1.05.0";
+const char *engine_name = my_name;
 
 #include <kpathsea/c-ctype.h>
 #include <kpathsea/line.h>
