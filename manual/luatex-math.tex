@@ -1091,8 +1091,6 @@ with zero being the default behaviour.
 
 \def\OneLiner#1#2%
   {\NC #1
-%    \NC \ruledhbox{\mathsurroundmode#1\relax\hsize 100pt   x$x$x}
-%    \NC \ruledhbox{\mathsurroundmode#1\relax\hsize 100pt x $x$ x}
    \NC \dontleavehmode\inframed[align=normal,offset=0pt,frame=off]{\mathsurroundmode#1\relax\hsize 100pt   x$x$x}
    \NC \dontleavehmode\inframed[align=normal,offset=0pt,frame=off]{\mathsurroundmode#1\relax\hsize 100pt x $x$ x}
    \NC #2
@@ -1124,7 +1122,7 @@ with zero being the default behaviour.
 
 Method six omits the surround glue when there is (x)spacing glue present while
 method seven does the opposite, the glue is only applied when there is (x)space
-glue present too. Anything more fance, like checking the begining or end of a
+glue present too. Anything more fancy, like checking the begining or end of a
 paragraph (or edges of a box) would not be robust anyway. If you want that you
 can write a callback that runs over a list and analyzes a paragraph. Actually, in
 that case you could also inject glue (or set the properties of a math node)
