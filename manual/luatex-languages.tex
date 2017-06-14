@@ -263,6 +263,65 @@ The word end is determined as follows:
 \NC adjust    \NC when hyphenationbounds 2 or 3 \NC \NR
 \stoptabulate
 
+\in{Figures}[hb:1] upto \in[hb:5] show some examples. In all cases we set the min
+values to 1 and make sure that the words hyphenate at each character.
+
+\hyphenation{o-n-e t-w-o}
+
+\def\SomeTest#1#2%
+  {\lefthyphenmin  \plusone
+   \righthyphenmin \plusone
+   \parindent      \zeropoint
+   \everypar       \emptytoks
+   \dontcomplain
+   \hbox to 2cm {%
+     \vtop {%
+       \hsize 1pt
+       \hyphenationbounds#1
+       #2
+       \par}}}
+
+\startplacefigure[reference=hb:1,title={\type{one}}]
+    \startcombination[4*1]
+        {\SomeTest{0}{one}}          {\type{0}}
+        {\SomeTest{1}{one}}          {\type{1}}
+        {\SomeTest{2}{one}}          {\type{2}}
+        {\SomeTest{3}{one}}          {\type{3}}
+    \stopcombination
+\stopplacefigure
+\startplacefigure[reference=hb:2,title={\type{one\null two}}]
+    \startcombination[4*1]
+        {\SomeTest{0}{one\null two}} {\type{0}}
+        {\SomeTest{1}{one\null two}} {\type{1}}
+        {\SomeTest{2}{one\null two}} {\type{2}}
+        {\SomeTest{3}{one\null two}} {\type{3}}
+    \stopcombination
+\stopplacefigure
+\startplacefigure[reference=hb:3,title={\type{\null one\null two}}]
+    \startcombination[4*1]
+        {\SomeTest{0}{\null one\null two}} {\type{0}}
+        {\SomeTest{1}{\null one\null two}} {\type{1}}
+        {\SomeTest{2}{\null one\null two}} {\type{2}}
+        {\SomeTest{3}{\null one\null two}} {\type{3}}
+    \stopcombination
+\stopplacefigure
+\startplacefigure[reference=hb:4,title={\type{one\null two\null}}]
+    \startcombination[4*1]
+        {\SomeTest{0}{one\null two\null}} {\type{0}}
+        {\SomeTest{1}{one\null two\null}} {\type{1}}
+        {\SomeTest{2}{one\null two\null}} {\type{2}}
+        {\SomeTest{3}{one\null two\null}} {\type{3}}
+    \stopcombination
+\stopplacefigure
+\startplacefigure[reference=hb:5,title={\type{\null one\null two\null}}]
+    \startcombination[4*1]
+        {\SomeTest{0}{\null one\null two\null}} {\type{0}}
+        {\SomeTest{1}{\null one\null two\null}} {\type{1}}
+        {\SomeTest{2}{\null one\null two\null}} {\type{2}}
+        {\SomeTest{3}{\null one\null two\null}} {\type{3}}
+    \stopcombination
+\stopplacefigure
+
 % (Future versions of \LUATEX\ might provide more granularity.)
 
 In traditional \TEX\ ligature building and hyphenation are interwoven with the
