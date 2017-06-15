@@ -366,9 +366,9 @@ int do_zround(double r)
 }
 
 
-@ MSVC doesn't have |rint|.
+@ Old MSVC doesn't have |rint|.
 @c
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER <= 1600
 
 #  include <math.h>
 double rint(double x)
