@@ -1,3 +1,51 @@
+Release 0.55.0
+        core:
+         * Fix abort in files with broken Decode arrays. KDE bug #379835
+         * Fix memory leak (and probably logic bug) parsing broken XRef entries. Bug #100775
+         * Fix memory leak when reconstructing broken files. Bug #100776
+         * Minor optimization
+         * Fix regression in GfxIndexedColorSpace::mapColorToBase. Bug #100931
+         * Fix memory leak in error condition
+
+        cpp:
+         * Return nullptr if the page at index can't be fetched. Bug #100981
+
+        build system:
+         * Fail by default if libjpeg is not available
+         * Fail by default if libopenjpeg2/1 is not available
+
+Release 0.54.0
+        core:
+         * Make XRef reconstruction a bit better. Bug #100509
+
+        glib:
+         * Expose movie play mode. Bug #99625
+         * demo: Show play mode in movie properties view
+
+        qt5:
+         * Compile with -DQT_NO_CAST_FROM_BYTEARRAY. Bug #100311
+
+        utils:
+         * pdfimages: don't fail listing if inline image data contains 'EI'. Bug #100737
+
+Release 0.53.0
+        core:
+         * Form support improvements
+         * SplashOutputDev: Fix memory leak when rendering images with colormap and matte color
+         * Minor fix in GlobalParams documentation
+
+        qt5:
+         * Expose form calculate order
+         * Expose Form additional actions
+
+        utils:
+         * pdfimages: support 16bpc png and tiff images. Bug #99988
+         * pdftohtml: fix small memory leak when constructing some filenames
+         * pdfinfo: fix leak when printing JS
+
+        build sytem:
+         * Compile in C++11 mode
+
 Release 0.52.0
         core:
          * Fix assert on reading some OCGs. Bug #99768

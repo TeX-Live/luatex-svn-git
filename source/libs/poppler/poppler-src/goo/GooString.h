@@ -40,15 +40,15 @@
 /* <limits.h> and/or the compiler may or may not define these.  */
 /* Minimum and maximum values a `signed long long int' can hold.  */
 #ifndef LLONG_MAX
-# define LLONG_MAX	9223372036854775807LL
+# define LLONG_MAX     9223372036854775807LL
 #endif
 #ifndef LLONG_MIN
-# define LLONG_MIN	(-LLONG_MAX - 1LL)
+# define LLONG_MIN     (-LLONG_MAX - 1LL)
 #endif
 
 /* Maximum value an `unsigned long long int' can hold.  (Minimum is 0.)  */
 #ifndef ULLONG_MAX
-# define ULLONG_MAX	18446744073709551615ULL
+# define ULLONG_MAX    18446744073709551615ULL
 #endif
 
 #include <stdarg.h>

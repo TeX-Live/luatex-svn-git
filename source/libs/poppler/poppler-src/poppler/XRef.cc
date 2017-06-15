@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Dan Sheridan <dan.sheridan@postman.org.uk>
 // Copyright (C) 2005 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2006, 2008, 2010, 2012-2014, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2008, 2010, 2012-2014, 2016, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007-2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2007 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009, 2010 Ilya Gorenbein <igorenbein@finjan.com>
@@ -117,7 +117,7 @@ class ObjectStreamKey : public PopplerCacheKey
     {
     }
 
-    bool operator==(const PopplerCacheKey &key) const
+    bool operator==(const PopplerCacheKey &key) const override
     {
       const ObjectStreamKey *k = static_cast<const ObjectStreamKey*>(&key);
       return objStrNum == k->objStrNum;
@@ -1023,17 +1023,25 @@ GBool XRef::constructXRef(GBool *wasReconstructed, GBool needCatalogDict) {
 	  }
         }
 
-      } else if (!strncmp(p, "endstream", 9)) {
-        if (streamEndsLen == streamEndsSize) {
-	  streamEndsSize += 64;
-          if (streamEndsSize >= INT_MAX / (int)sizeof(int)) {
-            error(errSyntaxError, -1, "Invalid 'endstream' parameter.");
-            return gFalse;
-          }
-	  streamEnds = (Goffset *)greallocn(streamEnds,
-					streamEndsSize, sizeof(Goffset));
-        }
-        streamEnds[streamEndsLen++] = pos;
+      } else {
+	char *endstream = strstr( p, "endstream" );
+	if (endstream) {
+	  int endstreamPos = endstream - p;
+	  if ((endstreamPos == 0 || Lexer::isSpace(p[endstreamPos-1] & 0xff)) // endstream is either at beginning or preceeded by space
+	    && (endstreamPos + 9 >= 256 || Lexer::isSpace(p[endstreamPos+9] & 0xff))) // endstream is either at end or followed by space
+	  {
+	    if (streamEndsLen == streamEndsSize) {
+	      streamEndsSize += 64;
+	      if (streamEndsSize >= INT_MAX / (int)sizeof(int)) {
+		error(errSyntaxError, -1, "Invalid 'endstream' parameter.");
+		return gFalse;
+	      }
+	      streamEnds = (Goffset *)greallocn(streamEnds,
+					    streamEndsSize, sizeof(Goffset));
+	    }
+	    streamEnds[streamEndsLen++] = pos + endstreamPos;
+	  }
+	}
       }
       if( token ) {
         p = token + 6;// strlen( "endobj" ) = 6
@@ -1136,13 +1144,16 @@ GBool XRef::okToAssemble(GBool ignoreOwnerPW) {
 }
 
 Object *XRef::getCatalog(Object *catalog) {
-  Object *obj = fetch(rootNum, rootGen, catalog);
-  if (obj->isDict()) {
-    return obj;
+  fetch(rootNum, rootGen, catalog);
+  if (catalog->isDict()) {
+    return catalog;
   }
   GBool wasReconstructed = false;
-  GBool ok = constructXRef(&wasReconstructed, gTrue);
-  return (ok) ? fetch(rootNum, rootGen, catalog) : obj;
+  if (constructXRef(&wasReconstructed, gTrue)) {
+    catalog->free();
+    fetch(rootNum, rootGen, catalog);
+  }
+  return catalog;
 }
 
 Object *XRef::fetch(int num, int gen, Object *obj, int recursion) {
@@ -1598,8 +1609,7 @@ GBool XRef::parseEntry(Goffset offset, XRefEntry *entry)
      str->makeSubStream(offset, gFalse, 20, &obj)), gTrue);
 
   Object obj1, obj2, obj3;
-  if (((parser.getObj(&obj1)->isInt()) ||
-       parser.getObj(&obj1)->isInt64()) &&
+  if (((parser.getObj(&obj1)->isInt()) || obj1.isInt64()) &&
       (parser.getObj(&obj2)->isInt()) &&
       (parser.getObj(&obj3)->isCmd("n") || obj3.isCmd("f"))) {
     if (obj1.isInt64())

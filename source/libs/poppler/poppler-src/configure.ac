@@ -1,5 +1,5 @@
 m4_define([poppler_version_major],[0])
-m4_define([poppler_version_minor],[52])
+m4_define([poppler_version_minor],[55])
 m4_define([poppler_version_micro],[0])
 m4_define([poppler_version],[poppler_version_major.poppler_version_minor.poppler_version_micro])
 
@@ -26,6 +26,7 @@ AC_PROG_CC_STDC
 #fi
 AC_PROG_CXX
 AC_PROG_INSTALL
+CXXFLAGS="$CXXFLAGS -std=c++11"
 
 dnl ##### Check for pkgconfig
 PKG_PROG_PKG_CONFIG
@@ -200,8 +201,8 @@ dnl ##### Test for libopenjpeg. Versions prior to 1.4 do not provide a pkgconfig
 openjpeg1="no"
 openjpeg2="no"
 AC_ARG_ENABLE(libopenjpeg,
-	      AC_HELP_STRING([--enable-libopenjpeg=@<:@auto/openjpeg1/openjpeg2/none@:>@],
-                             [Use openjpeg for JPEG2000 images. 'auto' prefers openjpeg1 over openjpeg2 if both are available due to regressions in openjpeg2 [[default=auto]]]),
+	      AC_HELP_STRING([--enable-libopenjpeg=@<:@auto/openjpeg1/openjpeg2/unmaintained/none@:>@],
+                             [Use openjpeg for JPEG2000 images. 'auto' prefers openjpeg2 over openjpeg1 if both are available. 'unmaintained' gives you the internal unmaintained decoder. Use at your own risk. 'none' compiles no JPX decoder at all. [[default=auto]]]),
               [enable_libopenjpeg=$enableval],
               [enable_libopenjpeg="auto"])
 
@@ -257,9 +258,26 @@ if test x$openjpeg1 = xyes || test x$openjpeg2 = xyes; then
        [AC_DEFINE(WITH_OPENJPEG_IGNORE_PCLR_CMAP_CDEF_FLAG, 1, [OpenJPEG with the OPJ_DPARAMETERS_IGNORE_PCLR_CMAP_CDEF_FLAG flag.])],
        [])
       ])
+  have_jpx_decoder=yes
+  AC_DEFINE(HAVE_JPX_DECODER)
 else
-  enable_libopenjpeg=no
+  if test x$enable_libopenjpeg = xunmaintained; then
+    enable_libopenjpeg=no
+    have_jpx_decoder=yes
+    AC_DEFINE(HAVE_JPX_DECODER)
+  elif test x$enable_libopenjpeg = xnone; then
+    enable_libopenjpeg=no
+    have_jpx_decoder=no
+  else
+    if test x$enable_libopenjpeg = xopenjpeg2 || test x$enable_libopenjpeg = xopenjpeg1 || test x$enable_libopenjpeg = xauto; then
+      AC_MSG_ERROR([Install libopenjpeg2 or libopenjpeg1 before trying to build poppler. You can also decide to use the internal unmaintained JPX decoder or none at all. See --help.])
+    else
+      AC_MSG_ERROR([Invalid --enable-libopenjpeg value. See --help.])
+    fi
+  fi
 fi
+
+AH_TEMPLATE([HAVE_JPX_DECODER], [Do we have any JPX decoder?.])
 
 dnl Test for NSS
 AC_ARG_ENABLE(libnss,
@@ -424,14 +442,15 @@ fi
 
 AM_CONDITIONAL(BUILD_LIBCURL, test x$enable_libcurl = xyes)
 
-dnl Test for libjpeg
-AC_ARG_ENABLE(libjpeg,
-	      AC_HELP_STRING([--disable-libjpeg],
-	                     [Don't build against libjpeg.]),
-              enable_libjpeg=$enableval,
-              enable_libjpeg="try")
+dnl Test for dct decoder
+AC_ARG_ENABLE(dctdecoder,
+	      AC_HELP_STRING([--enable-dctdecoder=@<:@libjpeg/unmaintained/none@:>@],
+                             [Decides which DCT decoder to use. 'libjpeg' will use libjpeg if available or fail if not. 'unmaintained' gives you the internal unmaintained decoder. Use at your own risk. 'none' compiles no DCT decoder at all. [[default=libjpeg]]]),
+              [dctdecoder=$enableval],
+              [dctdecoder="libjpeg"])
+
 AC_ARG_VAR([LIBJPEG_CFLAGS], [C compiler flags for LIBJPEG])
-if test x$enable_libjpeg != xno; then
+if test x$dctdecoder = x"libjpeg"; then
 
   dnl
   dnl POPPLER_FIND_JPEG uses "USER_INCLUDES" and "USER_LIBS"
@@ -487,11 +506,28 @@ if test x$enable_libjpeg != xno; then
   AC_SUBST(LIBJPEG_CFLAGS)
   USER_INCLUDES="$ac_save_USER_INCLUDES"
   USER_LDFLAGS="$ac_save_USER_LDFLAGS"
+
+  if test x$enable_libjpeg != x"yes"; then
+    AC_MSG_ERROR([Install libjpeg before trying to build poppler. You can also decide to use the internal unmaintained DCT decoder or none at all. See --help.])
+  fi
+  have_dct_decoder="yes"
+  AC_DEFINE(HAVE_DCT_DECODER)
+elif test x$dctdecoder = x"unmaintained"; then
+  enable_libjpeg="no"
+  have_dct_decoder="yes"
+  AC_DEFINE(HAVE_DCT_DECODER)
+elif test x$dctdecoder = x"none"; then
+  enable_libjpeg="no"
+  have_dct_decoder="no"
+else
+    AC_MSG_ERROR([Invalid --enable-dctdecoder value. See --help.])
 fi
+
+AH_TEMPLATE([HAVE_DCT_DECODER], [Do we have any DCT decoder?.])
 
 AM_CONDITIONAL(BUILD_LIBJPEG, test x$enable_libjpeg = xyes)
 AH_TEMPLATE([ENABLE_LIBJPEG],
-            [Use libjpeg instead of builtin jpeg decoder.])
+            [Use libjpeg instead of builtin unmaintained jpeg decoder.])
 
 dnl Test for libpng
 AC_ARG_ENABLE(libpng,
@@ -1077,14 +1113,22 @@ if test x$enable_single_precision = xyes -a x$enable_fixedpoint = xyes; then
 	echo "  Warning: Single precision and fixed point options should not be enabled at the same time"
 fi
 
-if test x$enable_libjpeg != xyes; then
+if test x$enable_libjpeg != xyes -a x$have_dct_decoder = xyes; then
 	echo "  Warning: Using libjpeg is recommended. The internal DCT decoder is unmaintained."
+fi
+
+if test x$have_dct_decoder = xno; then
+	echo "  Warning: You're not compiling any DCT decoder. Some files will fail to display properly."
 fi
 
 if test x$enable_zlib_uncompress != xno; then
 	echo "  Warning: Using zlib for decompression is not totally safe"
 fi
 
-if test x$enable_libopenjpeg != xyes; then
+if test x$enable_libopenjpeg != xyes -a x$have_jpx_decoder = xyes; then
 	echo "  Warning: Using libopenjpeg2 is recommended. The internal JPX decoder is unmaintained."
+fi
+
+if test x$have_jpx_decoder = xno; then
+	echo "  Warning: You're not compiling any JPX decoder. Some files will fail to display properly."
 fi

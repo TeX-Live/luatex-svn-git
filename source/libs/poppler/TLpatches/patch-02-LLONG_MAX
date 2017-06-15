@@ -1,6 +1,6 @@
-diff -ur poppler-0.52.0.orig/goo/GooString.h poppler-0.52.0/goo/GooString.h
---- poppler-0.52.0.orig/goo/GooString.h	Tue Jan 17 06:36:57 2017
-+++ poppler-0.52.0/goo/GooString.h	Tue Mar 21 12:18:41 2017
+diff -ur poppler-0.55.0.orig/goo/GooString.h poppler-0.55.0/goo/GooString.h
+--- poppler-0.55.0.orig/goo/GooString.h	2017-06-15 15:07:42.616196461 +0200
++++ poppler-0.55.0/goo/GooString.h	2017-06-15 15:08:18.379452796 +0200
 @@ -36,6 +36,21 @@
  #endif
  
@@ -9,15 +9,15 @@ diff -ur poppler-0.52.0.orig/goo/GooString.h poppler-0.52.0/goo/GooString.h
 +/* <limits.h> and/or the compiler may or may not define these.  */
 +/* Minimum and maximum values a `signed long long int' can hold.  */
 +#ifndef LLONG_MAX
-+# define LLONG_MAX	9223372036854775807LL
++# define LLONG_MAX     9223372036854775807LL
 +#endif
 +#ifndef LLONG_MIN
-+# define LLONG_MIN	(-LLONG_MAX - 1LL)
++# define LLONG_MIN     (-LLONG_MAX - 1LL)
 +#endif
 +
 +/* Maximum value an `unsigned long long int' can hold.  (Minimum is 0.)  */
 +#ifndef ULLONG_MAX
-+# define ULLONG_MAX	18446744073709551615ULL
++# define ULLONG_MAX    18446744073709551615ULL
 +#endif
 +
  #include <stdarg.h>

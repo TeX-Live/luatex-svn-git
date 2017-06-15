@@ -1,3 +1,549 @@
+commit 680b3f6b80e6d342a6b6e3fe8f1953857784f737
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun May 21 23:20:56 2017 +0200
+
+    Update (C)
+
+ poppler/Object.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 0bf38541443cb8dee4d9a5197fdfcf91f6043a2d
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun May 21 23:20:38 2017 +0200
+
+    Don't forget to ship this file ^_^
+
+ Makefile.am | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit aa03a71c3a1127cffd19bb0f596c4b361a7f2269
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun May 21 22:37:23 2017 +0200
+
+    Fix abort in files with broken Decode arrays
+
+    Fixes KDE bug #379835
+
+ poppler/GfxState.cc | 18 ++++++++++++------
+ poppler/Object.h    |  7 +++++++
+ 2 files changed, 19 insertions(+), 6 deletions(-)
+
+commit 65c5a5266462244130f110599ac5d1011a04216e
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun May 21 18:42:15 2017 +0200
+
+    Fail by default if libopenjpeg2/1 is not available
+
+    You can "force" to use the unmaintained JPX decoder or none at all
+
+ CMakeLists.txt    | 30 +++++++++++++++++++++++++++---
+ config.h.cmake    |  3 +++
+ configure.ac      | 29 +++++++++++++++++++++++++----
+ poppler/Stream.cc |  5 +++++
+ 4 files changed, 60 insertions(+), 7 deletions(-)
+
+commit ea6d3200ae26775dcc26ed80fad18ca51e7f7f07
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun May 21 18:08:41 2017 +0200
+
+    Fix openjpeg text
+
+    We've prefered openjpeg2 over 1 for a while
+
+ CMakeLists.txt | 2 +-
+ configure.ac   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+commit b286a6b5b1a63563263072305da04604cb022488
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun May 21 17:45:00 2017 +0200
+
+    Fail by default if libjpeg is not available
+
+    You can "force" to use the unmaintained DCT decoder or none at all
+
+ CMakeLists.txt    | 29 +++++++++++++++++++++++------
+ config.h.cmake    |  3 +++
+ configure.ac      | 40 +++++++++++++++++++++++++++++++---------
+ poppler/Stream.cc |  7 ++++++-
+ 4 files changed, 63 insertions(+), 16 deletions(-)
+
+commit 96ff78d63d2173671d07f62910b1d85c5fc509ff
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed May 10 11:20:56 2017 +0200
+
+    cpp: Return nullptr if the page at index can't be fethed
+
+    That is the same of what the glib/qt frontends do.
+
+    Bug #100981
+
+ cpp/poppler-document.cpp   | 13 ++++++++++++-
+ cpp/tests/poppler-dump.cpp | 18 +++++++++++++-----
+ 2 files changed, 25 insertions(+), 6 deletions(-)
+
+commit d73bcd3721f3b53bb97241cc53a6abf807aff782
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri May 5 15:12:42 2017 +0200
+
+    auto_ptr -> unique_ptr
+
+ cpp/poppler-document.cpp     | 25 +++++++++++++------------
+ cpp/poppler-image.cpp        |  9 +++++----
+ cpp/poppler-page.cpp         |  3 ++-
+ cpp/tests/poppler-dump.cpp   |  9 +++++----
+ cpp/tests/poppler-render.cpp |  5 +++--
+ qt4/tests/check_fonts.cpp    |  4 ++--
+ qt4/tests/check_links.cpp    |  4 ++--
+ qt5/tests/check_fonts.cpp    |  4 ++--
+ qt5/tests/check_links.cpp    |  4 ++--
+ 9 files changed, 36 insertions(+), 31 deletions(-)
+
+commit 9ad9d92591a6389f84919ff2de3668c2b6158dc9
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri May 5 00:57:35 2017 +0200
+
+    Fix memory leak in error condition
+
+    Coverity was complaining we missed one delete in one of the error
+    conditions, so just made colorMap not be newer, no need to care about
+    deletes ;)
+
+ poppler/Gfx.cc | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
+
+commit cdab9a2dc27a10c84550db28fac8dbdcdcd4d29d
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri May 5 00:47:45 2017 +0200
+
+    Move the bits sanity checking a bit higher in the function
+
+    Saves some time and makes the code simpler as we have to delete one
+    thing less
+
+ poppler/Gfx.cc | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+commit b2545e9368a58a6987614f75d39da4568a076881
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu May 4 21:24:23 2017 +0200
+
+    Fix regression in GfxIndexedColorSpace::mapColorToBase
+
+    The bounds check was off by one, making file from bug 100931 render
+    incorrectly. Bug #100931
+
+ poppler/GfxState.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 09000ce81397eba1eed383f730e48b92b932e0b4
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu May 4 18:35:16 2017 +0200
+
+    Minor optimization
+
+    Do not create a timer for every single operation since we hardly
+    run the
+    profileCommands if branch
+
+ poppler/Gfx.cc | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+commit b21b041f7948680c03109f0c404400a9dbc4544c
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Tue Apr 25 19:48:24 2017 +0200
+
+    Fix memory leak when reconstructing broken files
+
+    Need to free the catalog variable if we're going to fetch over
+    it again
+
+    Bug #100776
+
+ poppler/XRef.cc | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+commit 278439531b13b0b047dbe3a75aa3f1b3407c8bd4
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Tue Apr 25 19:42:15 2017 +0200
+
+    Fix memory leak (and probably logic bug) parsing broken XRef entries
+
+    Don't need to get obj1 again to ask if it's an int64 instead of an int
+
+    Bug #100775
+
+ poppler/XRef.cc | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+commit 478be219772a6c298baad568da3643895cd50d35
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Apr 21 16:29:44 2017 +0200
+
+    Poppler 0.54
+
+ CMakeLists.txt      |  2 +-
+ NEWS                | 14 ++++++++++++++
+ configure.ac        |  2 +-
+ cpp/Doxyfile        |  2 +-
+ glib/CMakeLists.txt |  2 +-
+ glib/Makefile.am    |  2 +-
+ gtk-doc.make        |  1 +
+ qt4/src/Doxyfile    |  2 +-
+ qt5/src/Doxyfile    |  2 +-
+ 9 files changed, 22 insertions(+), 7 deletions(-)
+
+commit d627a38b3a25906b356413a1de29aaad9f7a0f28
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Apr 21 16:03:49 2017 +0200
+
+    Update (C)
+
+ poppler/XRef.cc           | 2 +-
+ qt5/src/poppler-private.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+commit 3a13817da1fff5244267bbc7dee178ac665de4e0
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Fri Apr 21 19:23:07 2017 +0930
+
+    pdfimages: don't fail listing if inline image data contains 'EI'
+
+    Normally when listing images we don't read the image data. But for
+    inline images we should read the image data to advance the stream
+    position to the end of the image data. If we don't advance the stream
+    position and the image data happens to contain 'EI', Gfx will resume
+    reading the content stream from the middle of the image data.
+
+    Bug 100737
+
+ utils/ImageOutputDev.cc | 61
+ ++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 45 insertions(+), 16 deletions(-)
+
+commit e3779c849c86685c9bc294af407b364daf4b2202
+Author: Carlos Garcia Campos <carlosgc@gnome.org>
+Date:   Sat Apr 8 09:56:59 2017 +0200
+
+    glib: Fix return value in API doc comment of
+    poppler_movie_get_play_mode
+
+ glib/poppler-movie.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit cc7809e73c71e0e6b7db29dc8a12cfb573448b77
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Apr 5 23:18:52 2017 +0200
+
+    Make XRef reconstruction a bit better
+
+    Also detect streams whose endstream is on the middle of a line and
+    not only at the beginning
+
+    Bug #100509
+
+ poppler/XRef.cc | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
+
+commit 2bbd110113f789c56609b3288258f667e0f3851a
+Author: Carlos Garcia Campos <carlosgc@gnome.org>
+Date:   Sun Apr 2 15:49:48 2017 +0200
+
+    glib-demo: Show play mode in movie properties view
+
+ glib/demo/utils.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit dad9b36e0e91524e8e342cf924026c37fcb1730e
+Author: Francesco Poli (wintermute) <invernomuto@paranoici.org>
+Date:   Sun Apr 2 15:28:20 2017 +0200
+
+    glib: Expose movie play mode
+
+    With this patch the movie play mode can be queried via the glib
+    interface. An enum value is obtained that reports whether the movie
+    should be played once, in loop, and so forth...
+
+    https://bugs.freedesktop.org/show_bug.cgi?id=99625
+
+ glib/poppler-movie.cc               | 35
+ +++++++++++++++++++++++++++++++++++
+ glib/poppler-movie.h                | 31 ++++++++++++++++++++++++++-----
+ glib/reference/poppler-sections.txt |  4 ++++
+ 3 files changed, 65 insertions(+), 5 deletions(-)
+
+commit 0dbec24428d96ae78be8ca06b230d68cde445614
+Author: Christoph Cullmann <cullmann@kde.org>
+Date:   Wed Mar 22 23:45:41 2017 +0100
+
+    qt5: Compile with -DQT_NO_CAST_FROM_BYTEARRAY
+
+    Bug #100311
+
+ qt5/src/poppler-private.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 7ba4eb3ac3f23236e3df1ef992160d702dc5e4e9
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Mar 22 23:42:57 2017 +0100
+
+    Poppler 0.53
+
+ CMakeLists.txt         |  4 ++--
+ NEWS                   | 18 ++++++++++++++++++
+ configure.ac           |  2 +-
+ cpp/Doxyfile           |  2 +-
+ poppler/Makefile.am    |  2 +-
+ qt4/src/Doxyfile       |  2 +-
+ qt5/src/CMakeLists.txt |  2 +-
+ qt5/src/Doxyfile       |  2 +-
+ qt5/src/Makefile.am    |  2 +-
+ 9 files changed, 27 insertions(+), 9 deletions(-)
+
+commit 411c963a9fe7d0d51bc96f046792688a020bfc66
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Mar 19 12:40:37 2017 +0100
+
+    Update (C)
+
+ goo/PNGWriter.cc        | 2 +-
+ goo/PNGWriter.h         | 2 +-
+ goo/TiffWriter.cc       | 2 +-
+ goo/TiffWriter.h        | 2 +-
+ poppler/GfxState.h      | 2 +-
+ utils/ImageOutputDev.cc | 2 +-
+ utils/ImageOutputDev.h  | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
+
+commit 96333f6dcd93afadea35f9301c7a919545037ed4
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Mar 8 23:33:00 2017 +0100
+
+    Add override markers
+
+ cmake/modules/PopplerMacros.cmake            |   4 +
+ fofi/FoFiIdentifier.cc                       |  42 +--
+ fofi/FoFiTrueType.h                          |   2 +-
+ fofi/FoFiType1.h                             |   2 +-
+ glib/poppler-cached-file-loader.h            |   4 +-
+ glib/poppler-input-stream.h                  |  34 +--
+ goo/JpegWriter.h                             |  10 +-
+ goo/NetPBMWriter.h                           |   8 +-
+ goo/PNGWriter.h                              |   8 +-
+ goo/TiffWriter.h                             |  10 +-
+ poppler/Annot.h                              |  50 ++--
+ poppler/CairoFontEngine.h                    |   6 +-
+ poppler/CairoOutputDev.cc                    |   2 +-
+ poppler/CairoOutputDev.h                     | 344 +++++++++++-----------
+ poppler/DCTStream.h                          |  18 +-
+ poppler/Decrypt.h                            |  24 +-
+ poppler/FlateEncoder.h                       |  16 +-
+ poppler/Form.h                               |  18 +-
+ poppler/Function.h                           |  52 ++--
+ poppler/GfxFont.h                            |  20 +-
+ poppler/GfxState.cc                          |   2 +-
+ poppler/GfxState.h                           | 366
+ +++++++++++------------
+ poppler/JBIG2Stream.cc                       |  16 +-
+ poppler/JBIG2Stream.h                        |  22 +-
+ poppler/JPEG2000Stream.h                     |  24 +-
+ poppler/Link.h                               |  66 ++---
+ poppler/LocalPDFDocBuilder.h                 |   5 +-
+ poppler/MarkedContentOutputDev.h             |  22 +-
+ poppler/PSOutputDev.cc                       |  16 +-
+ poppler/PSOutputDev.h                        | 142 ++++-----
+ poppler/PopplerCache.cc                      |   2 +-
+ poppler/PreScanOutputDev.h                   | 110 +++----
+ poppler/SecurityHandler.h                    |  30 +-
+ poppler/SplashOutputDev.cc                   |   2 +-
+ poppler/SplashOutputDev.h                    | 210 ++++++-------
+ poppler/StdinCachedFile.h                    |   5 +-
+ poppler/StdinPDFDocBuilder.h                 |   5 +-
+ poppler/Stream.h                             | 422
+ +++++++++++++--------------
+ poppler/TextOutputDev.cc                     |  38 +--
+ poppler/TextOutputDev.h                      |  46 +--
+ poppler/XRef.cc                              |   2 +-
+ poppler/XRef.h                               |  12 +-
+ qt4/CMakeLists.txt                           |   3 +
+ qt4/src/poppler-annotation.h                 |   8 +-
+ qt4/src/poppler-link.h                       |   2 +-
+ qt5/demos/abstractinfodock.h                 |   6 +-
+ qt5/demos/embeddedfiles.h                    |   6 +-
+ qt5/demos/fonts.h                            |   4 +-
+ qt5/demos/info.h                             |   4 +-
+ qt5/demos/metadata.h                         |   4 +-
+ qt5/demos/navigationtoolbar.h                |   6 +-
+ qt5/demos/optcontent.h                       |   6 +-
+ qt5/demos/pageview.h                         |   6 +-
+ qt5/demos/permissions.h                      |   4 +-
+ qt5/demos/thumbnails.h                       |   4 +-
+ qt5/demos/toc.h                              |   4 +-
+ qt5/demos/viewer.h                           |   2 +-
+ qt5/src/ArthurOutputDev.cc                   |   2 +-
+ qt5/src/ArthurOutputDev.h                    |  90 +++---
+ qt5/src/poppler-annotation.cc                |  56 ++--
+ qt5/src/poppler-annotation.h                 |  84 +++---
+ qt5/src/poppler-form.h                       |  16 +-
+ qt5/src/poppler-link-extractor-private.h     |  10 +-
+ qt5/src/poppler-link.h                       |  24 +-
+ qt5/src/poppler-optcontent.h                 |  18 +-
+ qt5/src/poppler-qiodeviceoutstream-private.h |  10 +-
+ qt5/src/poppler-qt5.h                        |   6 +-
+ qt5/tests/stress-threads-qt5.cpp             |   4 +-
+ qt5/tests/test-password-qt5.cpp              |   4 +-
+ qt5/tests/test-poppler-qt5.cpp               |   6 +-
+ splash/SplashFTFont.h                        |  12 +-
+ splash/SplashFTFontFile.h                    |   6 +-
+ splash/SplashPattern.h                       |  12 +-
+ test/gtk-test.cc                             |   6 +-
+ utils/HtmlOutputDev.h                        |  56 ++--
+ utils/ImageOutputDev.h                       |  62 ++--
+ utils/pdftohtml.cc                           |  12 +-
+ 77 files changed, 1404 insertions(+), 1400 deletions(-)
+
+commit da490581b1b4d50efdba1e25115697e17bb0ef51
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Mar 8 22:07:34 2017 +0100
+
+    Compile in C++11 mode
+
+    I tried using AX_CXX_COMPILE_STDCXX_11 for the autotools side but
+    could not get it to fill CXXFLAGS or any other variable i could find,
+    help welcome
+
+ CMakeLists.txt | 4 +++-
+ configure.ac   | 1 +
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+commit aa8633267d1d0e2079bb4a2b82bc7b36a4d306f5
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Mar 6 22:45:52 2017 +0100
+
+    pdfinfo: Fix memory leak when printing JS
+
+ utils/JSInfo.cc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit d30e66cf39ef69a81bdd91e21203c876f38d9a09
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Mar 6 22:43:27 2017 +0100
+
+    pdfinfo: fix leak when printing JS
+
+ utils/JSInfo.cc | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit a7632c5db6875828500dce7c984ec933d5349f26
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Mar 6 22:34:20 2017 +0100
+
+    pdftohtml: fix small memory leak when constructing some filenames
+
+ utils/HtmlOutputDev.cc | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit 8ebec831c2abea9f13761474990c0d94346c1a35
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Mar 6 22:24:06 2017 +0100
+
+    SplashOutputDev: Fix memory leak when rendering images with colormap
+    and matte color
+
+ poppler/SplashOutputDev.cc | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit cfaeeadbc642a297486481d9efd6068fd9ef7ea3
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sat Mar 4 10:54:29 2017 +1030
+
+    pdfimages: support 16bpc png and tiff images
+
+    bug 99988
+
+ goo/PNGWriter.cc        |  4 ++++
+ goo/PNGWriter.h         |  3 ++-
+ goo/TiffWriter.cc       |  6 ++++++
+ goo/TiffWriter.h        |  3 ++-
+ poppler/GfxState.h      |  4 ++++
+ utils/ImageOutputDev.cc | 38 +++++++++++++++++++++++++++++++++++++-
+ utils/ImageOutputDev.h  |  1 +
+ 7 files changed, 56 insertions(+), 3 deletions(-)
+
+commit 1b0653ce395242547b2b34b99034a19cd2d3ea6b
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Mar 2 01:00:12 2017 +0100
+
+    Qt5: Expose Form additional actions
+
+ qt5/src/poppler-form.cc | 20 ++++++++++++++++++++
+ qt5/src/poppler-form.h  | 19 +++++++++++++++++++
+ 2 files changed, 39 insertions(+)
+
+commit a4c6433c423bd0dcc5056d9ee0375188fea9a0bc
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Mar 2 00:56:43 2017 +0100
+
+    Update (C) of previous commit
+
+ poppler/Form.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 0151e6e3824a6db907d871a2e56f5c20c001b588
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Mar 2 00:56:27 2017 +0100
+
+    Qt5: expose form calculate order
+
+ qt5/src/poppler-document.cc | 18 +++++++++++++++++-
+ qt5/src/poppler-qt5.h       |  9 ++++++++-
+ 2 files changed, 25 insertions(+), 2 deletions(-)
+
+commit 0ae3d40a79c25feb5cb9bce6fc8cc48c30bfd1b6
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Mar 2 00:52:21 2017 +0100
+
+    Parse AcroForm CO (calculateOrder)
+
+ poppler/Form.cc | 19 +++++++++++++++++++
+ poppler/Form.h  |  4 ++++
+ 2 files changed, 23 insertions(+)
+
+commit bbfc56b3c9a1e613e6db008a56c9c3333ae1427a
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Mar 2 00:45:44 2017 +0100
+
+    Make FormWidget* setters ignore isReadOnly
+
+    isReadOnly is for the user but poppler needs to be able to set the
+    value for example for fields whose value is autocalculated
+
+ poppler/Form.cc | 23 +----------------------
+ 1 file changed, 1 insertion(+), 22 deletions(-)
+
+commit f853145556a61a3d1104d6fd62261924d9fc9e50
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Feb 19 23:25:47 2017 +0100
+
+    There's no config file
+
+ poppler/GlobalParams.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+commit c7a7c34fcb875414eb3092df84f8e8e8e523648d
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Feb 15 23:26:10 2017 +0100
+
+    Poppler 0.52.0
+
+ CMakeLists.txt   |  2 +-
+ NEWS             | 16 ++++++++++++++++
+ configure.ac     |  2 +-
+ cpp/Doxyfile     |  2 +-
+ qt4/src/Doxyfile |  2 +-
+ qt5/src/Doxyfile |  2 +-
+ 6 files changed, 21 insertions(+), 5 deletions(-)
+
 commit baad9bd0406f63cffa8054c5831ccc3cb5d207e3
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Feb 15 23:05:55 2017 +0100
@@ -2301,7 +2847,7 @@ Date:   Wed Mar 2 00:49:00 2016 +0100
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 commit 9d33825e6f6167f07b2739645b93249b2bc043da
-Merge: a8853b1 f3e3ebe
+Merge: a8853b1d f3e3ebe5
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Mar 2 00:37:11 2016 +0100
 
@@ -6231,7 +6777,7 @@ Date:   Sun Sep 14 11:45:12 2014 +0200
  1 file changed, 1 insertion(+)
 
 commit 8ce31485faa26994c52f4d032cc5a8355aba23d1
-Merge: 4589ce1 303287e
+Merge: 4589ce17 303287eb
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Sep 26 00:40:43 2014 +0200
 
@@ -6271,7 +6817,7 @@ Date:   Fri Sep 12 19:22:20 2014 +0200
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 commit fe67324d450c356b7c876cf50da705156112513a
-Merge: e62e18e f74a596
+Merge: e62e18e1 f74a5964
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Aug 21 21:39:52 2014 +0200
 
@@ -6378,7 +6924,7 @@ Date:   Fri Aug 1 07:51:10 2014 +0200
  1 file changed, 1 insertion(+), 4 deletions(-)
 
 commit b72a534d6c7d8bc026812b68f9d9ac6bf9a2200a
-Merge: f2e4154 ef3f758
+Merge: f2e4154e ef3f7585
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Aug 3 01:06:57 2014 +0200
 
@@ -6532,7 +7078,7 @@ Date:   Mon Jul 21 00:29:28 2014 +0200
  4 files changed, 38 insertions(+), 6 deletions(-)
 
 commit ce782112746f629a8e7be6f2daf6ece6ab19917d
-Merge: 2c0cb68 26372cf
+Merge: 2c0cb689 26372cfa
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Jul 20 20:35:13 2014 +0200
 
@@ -6591,7 +7137,7 @@ Date:   Thu Jul 17 07:33:10 2014 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 2c0cb689910e8579bf428b3999bcac0cb27b0e51
-Merge: 0b639cd 1161e72
+Merge: 0b639cd2 1161e728
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Jul 12 17:21:07 2014 +0200
 
@@ -6619,7 +7165,7 @@ Date:   Sat Jul 12 08:35:45 2014 +0200
  1 file changed, 5 insertions(+), 2 deletions(-)
 
 commit 0b639cd2ac1071f5b741031a78d8e2bc18d2b7d7
-Merge: bb16c71 a5ad55b
+Merge: bb16c716 a5ad55b7
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Jul 11 00:32:46 2014 +0200
 
@@ -6684,7 +7230,7 @@ Date:   Sat Jun 7 12:00:52 2014 +0200
  2 files changed, 1 insertion(+), 19 deletions(-)
 
 commit 74c72223cf609e7c24594f95cab6f9865ad562ac
-Merge: f8f7b3a 47a947f
+Merge: f8f7b3a6 47a947f1
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Jul 11 00:23:04 2014 +0200
 
@@ -6702,7 +7248,7 @@ Date:   Thu Jun 19 10:11:21 2014 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit f8f7b3a61bc7eb1e569c25a630b5e127b5dcae62
-Merge: 805ff76 aa6205d
+Merge: 805ff761 aa6205d1
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Jul 9 00:23:22 2014 +0200
 
@@ -6835,7 +7381,7 @@ Date:   Thu Jun 19 19:57:31 2014 +0200
  2 files changed, 2 insertions(+), 1 deletion(-)
 
 commit 8a5e59c6ea7ccd0ecbdb4b37bf3fe4e74e1c0e8e
-Merge: 1b70533 310fbee
+Merge: 1b705331 310fbeec
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Jun 18 00:37:03 2014 +0200
 
@@ -7026,7 +7572,7 @@ Date:   Sun Jun 8 12:57:25 2014 +0200
  3 files changed, 22 insertions(+), 6 deletions(-)
 
 commit 2dd9b95fd910023a7d9d23f2c2e41dcab91d3c31
-Merge: fed71eb b36d27b
+Merge: fed71ebd b36d27b4
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Jun 6 21:43:49 2014 +0200
 
@@ -7113,7 +7659,7 @@ Date:   Sun May 11 18:31:10 2014 +0200
  8 files changed, 137 insertions(+), 10 deletions(-)
 
 commit d2892cd893e4379914a08e66682ed5c423743a41
-Merge: 0844220 7e9fc61
+Merge: 08442203 7e9fc61e
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed May 7 22:27:41 2014 +0200
 
@@ -7134,7 +7680,7 @@ Date:   Wed May 7 22:25:59 2014 +0200
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 commit 0844220347f984c3d9b04fe53e690ee0e8c74afe
-Merge: 84278d8 0a6c1ff
+Merge: 84278d8a 0a6c1ff7
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed May 7 21:56:07 2014 +0200
 
@@ -7155,7 +7701,7 @@ Date:   Wed May 7 21:54:46 2014 +0200
  3 files changed, 162 insertions(+), 4 deletions(-)
 
 commit 84278d8adbb1f6e9a28588fcb4db30c9ef70adde
-Merge: 7b94b11 5b2cdef
+Merge: 7b94b119 5b2cdef4
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun May 4 22:21:25 2014 +0200
 
@@ -7173,7 +7719,7 @@ Date:   Sun May 4 22:20:30 2014 +0200
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 commit 7b94b119f07713af7b8b9f1ac3ea3f1d35c1e240
-Merge: c859d2b bae836c
+Merge: c859d2b8 bae836cd
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun May 4 16:21:24 2014 +0200
 
@@ -7413,7 +7959,7 @@ Date:   Sun Apr 6 15:14:50 2014 +0200
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 commit 07621ebbda8ab85cf4cd76a6092efc67aa14454d
-Merge: 8d3a2c9 9fcd46a
+Merge: 8d3a2c9d 9fcd46ac
 Author: Pino Toscano <pino@kde.org>
 Date:   Sat Apr 5 15:49:31 2014 +0200
 
@@ -9001,7 +9547,7 @@ Date:   Fri Jan 3 00:29:28 2014 +0100
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 commit 381ae2877acace4e8908b07ee5fb442bc19bf814
-Merge: 64100e7 a2f0e4b
+Merge: 64100e7f a2f0e4b1
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Jan 3 00:04:29 2014 +0100
 
@@ -9093,7 +9639,7 @@ Date:   Fri Dec 20 20:25:26 2013 +0100
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 commit 8e24fcc0d296e07327e9cbe297f627bfc6471ee3
-Merge: 85efba3 b02f873
+Merge: 85efba38 b02f8731
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Dec 18 21:51:57 2013 +0100
 
@@ -9270,7 +9816,7 @@ Date:   Tue Dec 10 20:14:39 2013 +0100
  5 files changed, 82 insertions(+), 20 deletions(-)
 
 commit f77bc21813ae7234ec4ce94ce4e92230fe5c174a
-Merge: 06e9dc9 58e04a0
+Merge: 06e9dc91 58e04a08
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Dec 7 16:56:11 2013 +0000
 
@@ -9721,7 +10267,7 @@ Date:   Mon Oct 28 22:41:41 2013 -0700
  1 file changed, 15 insertions(+), 55 deletions(-)
 
 commit 770a7ac9833a3c4f4f0399093272d4d0bdc7923b
-Merge: e7a0f2b 9ae29c7
+Merge: e7a0f2b9 9ae29c7a
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Nov 21 23:58:29 2013 +0100
 
@@ -9805,7 +10351,7 @@ Date:   Sun Nov 17 23:30:14 2013 -0800
  4 files changed, 80 insertions(+)
 
 commit c01cee165392ba8297e4168111a66d2acb272a99
-Merge: 07c2554 47605a8
+Merge: 07c25548 47605a8a
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Nov 18 22:58:28 2013 +0100
 
@@ -9871,7 +10417,7 @@ Date:   Fri Nov 15 20:35:12 2013 +0100
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 commit 4da94680d4d2d6b1bd3351d476a20f9c7ae565bc
-Merge: 3ea3d7c 78c407a
+Merge: 3ea3d7c6 78c407ac
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Nov 15 20:27:00 2013 +0100
 
@@ -9959,7 +10505,7 @@ Date:   Fri Nov 15 19:55:19 2013 +0100
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 commit 33e703ac9bb6cf69664d6c6fddd3bebd56336074
-Merge: 8294d18 7c74bcc
+Merge: 8294d18e 7c74bccd
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Nov 15 19:50:10 2013 +0100
 
@@ -10095,7 +10641,7 @@ Date:   Sat Oct 26 18:48:50 2013 +0200
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 commit 9f09b9596f1fc52481914019d68c8f9b85b5c438
-Merge: bd893d4 61f79b8
+Merge: bd893d4a 61f79b84
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Oct 24 01:03:02 2013 +0200
 
@@ -10117,7 +10663,7 @@ Date:   Thu Oct 24 00:54:56 2013 +0200
  1 file changed, 30 insertions(+), 1 deletion(-)
 
 commit bd893d4a543a6cc3a525655f37def38440944f28
-Merge: 93e8b05 daa0990
+Merge: 93e8b05f daa0990a
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Oct 10 02:19:34 2013 +0200
 
@@ -10314,7 +10860,7 @@ Date:   Tue Oct 1 22:57:55 2013 +0200
  2 files changed, 113 insertions(+)
 
 commit 9bc8f3240698d5a8ae4c0129e768840664d28c22
-Merge: a2742c8 e2fe851
+Merge: a2742c8f e2fe8513
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Oct 1 19:19:32 2013 +0200
 
@@ -10333,7 +10879,7 @@ Date:   Tue Oct 1 19:15:08 2013 +0200
  1 file changed, 46 insertions(+), 6 deletions(-)
 
 commit a2742c8fce0594ccbdb036dd0c29c6e15d2229f3
-Merge: 6b30a52 06dabe1
+Merge: 6b30a521 06dabe1e
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Sep 30 19:32:41 2013 +0200
 
@@ -10363,7 +10909,7 @@ Date:   Fri Sep 27 12:39:00 2013 +0200
  1 file changed, 1 insertion(+)
 
 commit 6b30a5214e39993025cf2fb9f221e1360de7fa9c
-Merge: 4966b6f dc344b4
+Merge: 4966b6f4 dc344b41
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Sep 21 10:38:45 2013 +0200
 
@@ -10379,7 +10925,7 @@ Date:   Sat Sep 21 10:37:30 2013 +0200
  1 file changed, 7 insertions(+)
 
 commit 4966b6f4193cc9d13f63e92bdc2aac0c8b78298d
-Merge: 0f074b1 1e612d3
+Merge: 0f074b16 1e612d33
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Sep 21 10:15:28 2013 +0200
 
@@ -10397,7 +10943,7 @@ Date:   Sat Sep 21 10:10:16 2013 +0200
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 commit 0f074b16317d874fe58d7042f8434282786ca757
-Merge: d277432 b8682d8
+Merge: d2774325 b8682d86
 Author: Pino Toscano <pino@kde.org>
 Date:   Mon Sep 16 19:53:10 2013 +0200
 
@@ -10666,7 +11212,7 @@ Date:   Sun Aug 25 20:13:12 2013 +0200
  4 files changed, 355 insertions(+), 17 deletions(-)
 
 commit d006ac567e59e82c4c6cb42c5e429a4aa516ac0b
-Merge: d391af7 ed3585e
+Merge: d391af7e ed3585ef
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Aug 25 19:36:33 2013 +0200
 
@@ -10745,7 +11291,7 @@ Date:   Sat Aug 3 09:05:21 2013 +0930
  14 files changed, 322 insertions(+), 1 deletion(-)
 
 commit c2453fc1307ebb222747f976e1311ecc5e99abfa
-Merge: 3bb8c2e 70298a0
+Merge: 3bb8c2e3 70298a02
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Aug 20 19:53:17 2013 +0200
 
@@ -10764,7 +11310,7 @@ Date:   Tue Aug 20 19:46:01 2013 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 3bb8c2e34039cf473bf72ed9dab55664deab3ab7
-Merge: 71c1d16 fc78330
+Merge: 71c1d162 fc783300
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Aug 20 00:41:13 2013 +0200
 
@@ -10784,14 +11330,14 @@ Date:   Tue Aug 20 00:37:56 2013 +0200
  1 file changed, 19 insertions(+), 11 deletions(-)
 
 commit 71c1d162477a243db07b62ef3c056a2946f8986e
-Merge: 7d1de78 678c767
+Merge: 7d1de78a 678c7675
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Aug 18 16:41:20 2013 +0200
 
     Merge remote-tracking branch 'origin/poppler-0.24'
 
 commit 7d1de78ad79162217ee0ca6c2e99ce51017a327d
-Merge: 7e0d969 fbea224
+Merge: 7e0d969d fbea2241
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Aug 18 16:40:34 2013 +0200
 
@@ -10842,7 +11388,7 @@ Date:   Sat Aug 17 01:32:38 2013 +0200
  1 file changed, 2 insertions(+), 6 deletions(-)
 
 commit 7e0d969dc2439637ab16e609df8223504316f87d
-Merge: 6efc0c7 ef64206
+Merge: 6efc0c7a ef642065
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Aug 17 01:13:30 2013 +0200
 
@@ -10940,7 +11486,7 @@ Date:   Tue Aug 13 19:39:30 2013 +0200
  2 files changed, 27 insertions(+), 2 deletions(-)
 
 commit 8a1740b0b6ee4b217ecbe9d0046e4afa491e9f17
-Merge: b27588c c3f953d
+Merge: b27588c4 c3f953dc
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Aug 12 22:47:44 2013 +0200
 
@@ -10965,7 +11511,7 @@ Date:   Mon Aug 12 22:42:13 2013 +0200
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 commit b8b5773386ee4f57e72c2b867421cdff8a2eab5a
-Merge: 5f9d385 62d079b
+Merge: 5f9d385d 62d079b4
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Aug 8 20:47:05 2013 +0200
 
@@ -10985,7 +11531,7 @@ Date:   Thu Aug 8 20:45:08 2013 +0200
  1 file changed, 6 insertions(+), 9 deletions(-)
 
 commit 5f9d385dbec3148614b84ae24cae47177e18dbfc
-Merge: af450a8 86dbc5f
+Merge: af450a88 86dbc5f6
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Aug 8 20:41:25 2013 +0200
 
@@ -11590,7 +12136,7 @@ Date:   Wed Jun 26 11:33:55 2013 +0200
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 commit e27c1057caf4d878a0dc43c92c9e0b565db8fe40
-Merge: c55b577 ee8cfbc
+Merge: c55b577c ee8cfbc7
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Jun 25 19:17:13 2013 +0200
 
@@ -12044,7 +12590,7 @@ Date:   Thu May 16 16:16:32 2013 +0200
  1 file changed, 18 insertions(+)
 
 commit 07992075a6d1d29db57f997f67d5a4a6deacbbb4
-Merge: 4a0bd6f 25f453e
+Merge: 4a0bd6fd 25f453ef
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Jun 9 12:17:53 2013 +0200
 
@@ -12090,7 +12636,7 @@ Date:   Sun Jun 9 12:08:06 2013 +0200
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 commit 4a0bd6fdb2e9e3c589e1bdb282e7c2bfca8567b1
-Merge: bbd27c9 17a16a2
+Merge: bbd27c92 17a16a27
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Jun 9 12:06:10 2013 +0200
 
@@ -12309,7 +12855,7 @@ Date:   Fri May 31 12:24:55 2013 +0200
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 01a825f3f9f5dcf686fc123d2cf80b9c525d0d89
-Merge: a57f937 b4b1310
+Merge: a57f9378 b4b13102
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Jun 1 13:47:29 2013 +0200
 
@@ -12370,7 +12916,7 @@ Date:   Mon May 27 23:40:07 2013 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 30282d3fdbbb3029d9a0f838b2cd979bb962235c
-Merge: 61f6658 56044ef
+Merge: 61f66588 56044ef4
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon May 27 00:20:12 2013 +0200
 
@@ -12431,7 +12977,7 @@ Date:   Mon May 20 00:09:45 2013 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 71d327194293cb3d1a0e274eaf4451c7afe81e8a
-Merge: 7b2df1f 6a98b56
+Merge: 7b2df1f9 6a98b56f
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri May 17 23:04:12 2013 +0200
 
@@ -12461,7 +13007,7 @@ Date:   Fri May 17 20:56:51 2013 +0200
  2 files changed, 167 insertions(+)
 
 commit 54f539b4436a1a3e0eab2ef0904c302865082982
-Merge: b3d8f51 3a6e2de
+Merge: b3d8f510 3a6e2de1
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu May 16 21:27:47 2013 +0200
 
@@ -12565,7 +13111,7 @@ Date:   Mon May 13 23:00:40 2013 +0200
  1 file changed, 1 insertion(+)
 
 commit 30a519f21dd5df8d41a43a58b2cbd95fe657df73
-Merge: 998a9e7 0c0aef2
+Merge: 998a9e7c 0c0aef20
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon May 13 20:40:04 2013 +0200
 
@@ -12605,7 +13151,7 @@ Date:   Mon May 13 19:51:52 2013 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 998a9e7c982a72b0e931304b719de40f30094d12
-Merge: 5e73cb0 73d09cd
+Merge: 5e73cb05 73d09cd5
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon May 13 19:30:26 2013 +0200
 
@@ -12626,7 +13172,7 @@ Date:   Mon May 13 19:28:40 2013 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 5e73cb059e27f68b329513de609d52e84d73f8af
-Merge: 5e9654a b3e44fc
+Merge: 5e9654a3 b3e44fc5
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue May 7 22:00:02 2013 +0200
 
@@ -12644,7 +13190,7 @@ Date:   Tue May 7 21:53:31 2013 +0200
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 5e9654a3eb28b2c8b0985545778dd0e45829f8e1
-Merge: eeecd97 a107428
+Merge: eeecd971 a107428e
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Apr 25 20:45:34 2013 +0200
 
@@ -12753,7 +13299,7 @@ Date:   Sat Apr 20 16:41:56 2013 +0200
  1 file changed, 19 insertions(+), 18 deletions(-)
 
 commit fd648e83e60db7157b7273ffddc02308b0c5813b
-Merge: 970e9f6 53b9cec
+Merge: 970e9f63 53b9cec6
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Apr 21 23:30:16 2013 +0200
 
@@ -12782,7 +13328,7 @@ Date:   Fri Apr 12 13:26:55 2013 +0200
  1 file changed, 3 insertions(+), 5 deletions(-)
 
 commit f8bf602620b3c7570f483ac66fc4d6a76a81a882
-Merge: bbd27dc 62a5b4d
+Merge: bbd27dc4 62a5b4d5
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Apr 14 16:40:51 2013 +0200
 
@@ -12808,7 +13354,7 @@ Date:   Sun Apr 14 16:37:14 2013 +0200
  3 files changed, 7 insertions(+), 2 deletions(-)
 
 commit bbd27dc4ce7b24af890d80f597f74e5d7ee0215a
-Merge: ea3698c 5bc0080
+Merge: ea3698cf 5bc00809
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Apr 12 00:10:27 2013 +0200
 
@@ -12861,7 +13407,7 @@ Date:   Thu Apr 11 23:22:20 2013 +0200
  4 files changed, 4 insertions(+), 4 deletions(-)
 
 commit ea3698cfffc9c132081f5691287ef1fd17911b2a
-Merge: fcc1468 aaaea5d
+Merge: fcc14682 aaaea5d0
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Apr 10 20:42:01 2013 +0200
 
@@ -12880,7 +13426,7 @@ Date:   Wed Apr 10 16:41:48 2013 +0200
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 commit fcc14682899ff4981bfece74dbc8c290a625b05c
-Merge: f11e216 e6559a0
+Merge: f11e2162 e6559a0d
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Apr 7 17:44:12 2013 +0200
 
@@ -12904,7 +13450,7 @@ Date:   Sun Apr 7 17:42:23 2013 +0200
  4 files changed, 15 insertions(+), 6 deletions(-)
 
 commit f11e21627121c3ff81c0ec7f4d71936a2dd590c3
-Merge: e1ffa91 b9fdb0c
+Merge: e1ffa910 b9fdb0cb
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Apr 6 23:26:54 2013 +0200
 
@@ -12953,7 +13499,7 @@ Date:   Sat Apr 6 23:20:48 2013 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 94bee4601cbbda0e7c6205a04650e0510f198aee
-Merge: 42368fb b312210
+Merge: 42368fb9 b312210b
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Apr 6 23:19:25 2013 +0200
 
@@ -13154,7 +13700,7 @@ Date:   Sat Mar 9 08:44:36 2013 -0600
  2 files changed, 25 insertions(+), 8 deletions(-)
 
 commit 8cbdbc64897a34beb226d4dc4c58095f10013f29
-Merge: 2bce2cf a01e2d4
+Merge: 2bce2cf2 a01e2d41
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Mar 20 22:37:06 2013 +0100
 
@@ -13184,7 +13730,7 @@ Date:   Tue Mar 19 22:53:47 2013 +0100
  2 files changed, 36 insertions(+)
 
 commit b2d07cbf0c2f94bd25e1422e366ff78031815867
-Merge: 80cf78f 3206950
+Merge: 80cf78f2 32069506
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Mar 18 21:06:59 2013 +0100
 
@@ -13220,7 +13766,7 @@ Date:   Mon Mar 18 18:15:14 2013 +0100
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 commit 80cf78f2020e2f4cf33ed49fe522c6861d710588
-Merge: b21780e 72c8312
+Merge: b21780e6 72c8312d
 Author: Adrian Johnson <ajohnson@redneon.com>
 Date:   Mon Mar 18 20:02:08 2013 +1030
 
@@ -13247,7 +13793,7 @@ Date:   Sat Mar 16 23:20:35 2013 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 75849a0d7c205c048714b90883695b6bebd2298c
-Merge: ec7140b 5a51812
+Merge: ec7140b3 5a51812b
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Mar 12 20:27:59 2013 +0100
 
@@ -13280,7 +13826,7 @@ Date:   Mon Mar 11 19:20:06 2013 +0100
  6 files changed, 22 insertions(+), 6 deletions(-)
 
 commit ec7140b3f56b034fbbc53cb8066ba01fe9f60f47
-Merge: c86062f 5db6585
+Merge: c86062f9 5db6585c
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Mar 8 16:41:21 2013 +0100
 
@@ -13314,7 +13860,7 @@ Date:   Fri Mar 8 16:37:11 2013 +0100
  4 files changed, 30 insertions(+), 10 deletions(-)
 
 commit c86062f982d6eb08cb27b654b6317c71ab77c692
-Merge: 677e5b2 4e142b6
+Merge: 677e5b26 4e142b60
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Mar 4 20:13:36 2013 +0100
 
@@ -13390,7 +13936,7 @@ Date:   Sun Mar 3 18:00:11 2013 +0100
  14 files changed, 145 insertions(+), 237 deletions(-)
 
 commit 1f4a012f7570ffd2120e3e8c2236de5408f3dda3
-Merge: 15d4039 a766740
+Merge: 15d40392 a766740c
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Mar 1 19:16:52 2013 +0100
 
@@ -13408,7 +13954,7 @@ Date:   Fri Mar 1 19:12:22 2013 +0100
  1 file changed, 10 insertions(+), 4 deletions(-)
 
 commit 15d40392a29dded8a29c2dc9d7c15b402515e033
-Merge: be5d9af 39882df
+Merge: be5d9af3 39882dfe
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Feb 28 19:46:59 2013 +0100
 
@@ -13467,7 +14013,7 @@ Date:   Wed Feb 20 23:12:17 2013 +0100
  11 files changed, 139 insertions(+), 45 deletions(-)
 
 commit 60c5e072d4b930507469e6e8c234971725a4aa26
-Merge: 0d42a6d 8d62625
+Merge: 0d42a6da 8d626256
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Feb 20 21:08:53 2013 +0100
 
@@ -13485,7 +14031,7 @@ Date:   Wed Feb 20 21:07:10 2013 +0100
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 commit 0d42a6dab479d27de1ecb2b47ad3f7568b1ee638
-Merge: 7eb7880 8fb243b
+Merge: 7eb78809 8fb243bf
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Feb 20 00:00:09 2013 +0100
 
@@ -13512,7 +14058,7 @@ Date:   Tue Feb 19 23:11:46 2013 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 7eb7880907cb7b6bd1032013d6ce4c49aa3525c4
-Merge: 2c84acb 1389aa4
+Merge: 2c84acbf 1389aa41
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Feb 19 22:26:37 2013 +0100
 
@@ -13528,7 +14074,7 @@ Date:   Tue Feb 19 22:25:56 2013 +0100
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 2c84acbfd02eeeaf0d20542798e907cb011c1e57
-Merge: 401c35b ffd33e7
+Merge: 401c35b7 ffd33e7b
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Feb 19 11:32:11 2013 +0100
 
@@ -13562,7 +14108,7 @@ Date:   Mon Feb 18 22:33:07 2013 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 94364adade4dc27e5d80bc14511d4f2b7ea4ab0d
-Merge: 164805b 47f30fa
+Merge: 164805b4 47f30fa9
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Feb 18 20:34:34 2013 +0100
 
@@ -13594,7 +14140,7 @@ Date:   Mon Feb 18 20:05:12 2013 +0100
  6 files changed, 198 insertions(+), 160 deletions(-)
 
 commit 527b91a0ef97906041ffe57e88f0d26e1c407af0
-Merge: df35562 95609be
+Merge: df355624 95609be5
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Feb 18 19:49:14 2013 +0100
 
@@ -13613,7 +14159,7 @@ Date:   Mon Feb 18 19:47:19 2013 +0100
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 commit df3556240d5e4b4546b3c42b29be6d2be83a2802
-Merge: 4dacd7c 5c7057c
+Merge: 4dacd7cd 5c7057c6
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Feb 12 23:55:24 2013 +0100
 
@@ -13630,7 +14176,7 @@ Date:   Tue Feb 12 23:54:47 2013 +0100
  2 files changed, 10 insertions(+), 10 deletions(-)
 
 commit 4dacd7cdeb19d16fe7737c71e34904c7363c6b63
-Merge: 7f2c255 9fc4b9f
+Merge: 7f2c255f 9fc4b9f7
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Feb 12 22:59:56 2013 +0100
 
@@ -13669,7 +14215,7 @@ Date:   Tue Feb 12 22:48:40 2013 +0100
  11 files changed, 110 insertions(+), 24 deletions(-)
 
 commit c2ebcbea2267f861c491c0cd6c1fbf2dc2aff7d2
-Merge: 48ed05d dca21f8
+Merge: 48ed05d9 dca21f86
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Feb 10 12:01:13 2013 +0100
 
@@ -14703,7 +15249,7 @@ Date:   Sat Dec 1 22:34:00 2012 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit c7ae96b162e8a05269a54c31f8e7c411edc84553
-Merge: 1f279c3 b1dacd1
+Merge: 1f279c32 b1dacd1e
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Dec 1 21:26:24 2012 +0100
 
@@ -15439,7 +15985,7 @@ Date:   Fri Nov 9 20:02:25 2012 +0100
  8 files changed, 22 insertions(+), 8 deletions(-)
 
 commit 98b7cfd289abb53a745a88d6ec99e95df477fc8f
-Merge: 40efa72 d254174
+Merge: 40efa729 d254174e
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Nov 9 00:38:19 2012 +0100
 
@@ -15679,7 +16225,7 @@ Date:   Wed Oct 24 18:37:06 2012 +0200
  1 file changed, 438 insertions(+), 438 deletions(-)
 
 commit 77a980472e76b568346a49057b0217111a14a4cd
-Merge: 74d6217 46fb365
+Merge: 74d6217b 46fb3653
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Oct 23 00:23:53 2012 +0200
 
@@ -15737,7 +16283,7 @@ Date:   Fri Oct 19 17:22:13 2012 +0200
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 commit f38194cfae8f8690bc3767cbdcf140519564366c
-Merge: 80cf434 5312984
+Merge: 80cf4347 5312984b
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Fri Oct 19 00:02:02 2012 +0200
 
@@ -15764,7 +16310,7 @@ Date:   Wed Oct 17 08:27:13 2012 +0200
  2 files changed, 38 insertions(+)
 
 commit 0b3ff2dc4e1ba37dd66f5913b10a9d69e31c40ce
-Merge: fb5cb0f 528b64b
+Merge: fb5cb0fb 528b64bb
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Oct 17 00:28:40 2012 +0200
 
@@ -16040,7 +16586,7 @@ Date:   Sat Oct 6 10:26:55 2012 +0200
  2 files changed, 8 insertions(+)
 
 commit 042d332c1c9f628e3bfaabf3da9e04436a8677b5
-Merge: 7b9a9f8 e044814
+Merge: 7b9a9f80 e044814c
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Oct 4 00:53:01 2012 +0200
 
@@ -16058,7 +16604,7 @@ Date:   Thu Oct 4 00:51:04 2012 +0200
  1 file changed, 4 insertions(+)
 
 commit 7b9a9f809d07303fe5adff9210731613df8b2adf
-Merge: 3b0962c 9451b7a
+Merge: 3b0962cd 9451b7a6
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Oct 3 01:24:04 2012 +0200
 
@@ -16076,7 +16622,7 @@ Date:   Wed Oct 3 01:21:45 2012 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 3b0962cd14b15ce92c0916f58ed5ba00aebe80b0
-Merge: a9d7ea2 42908e6
+Merge: a9d7ea2e 42908e6e
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Oct 2 19:51:48 2012 +0200
 
@@ -16094,7 +16640,7 @@ Date:   Tue Oct 2 19:31:04 2012 +0200
  1 file changed, 8 insertions(+), 7 deletions(-)
 
 commit a9d7ea2eb549acbf6ca7e2a299ffed46ff3d8758
-Merge: 397d7b4 9bb6845
+Merge: 397d7b45 9bb68456
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Sep 26 15:31:29 2012 +0200
 
@@ -16115,7 +16661,7 @@ Date:   Wed Sep 26 15:13:47 2012 +0200
  1 file changed, 1 insertion(+)
 
 commit 397d7b4597ad4bc8ab41fd7a99078473a3c93eb0
-Merge: 6013d49 2c0f70a
+Merge: 6013d49d 2c0f70af
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Sep 26 15:00:04 2012 +0200
 
@@ -16198,7 +16744,7 @@ Date:   Wed Sep 26 11:48:14 2012 +0200
  1 file changed, 8 insertions(+)
 
 commit 6013d49d852c58c4c23f787fd7dd64731c0918f1
-Merge: b97c28c 671df5d
+Merge: b97c28c4 671df5da
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Sep 26 00:53:28 2012 +0200
 
@@ -16214,7 +16760,7 @@ Date:   Wed Sep 26 00:52:32 2012 +0200
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 commit b97c28c42a18d1c2a8fabea52c092d948811d582
-Merge: 32bb874 f8c116f
+Merge: 32bb8741 f8c116f1
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Sep 25 23:22:23 2012 +0200
 
@@ -16383,7 +16929,7 @@ Date:   Sun Sep 16 17:53:47 2012 +0200
  3 files changed, 48 insertions(+), 34 deletions(-)
 
 commit e8b6d2ac3a874dd5de166b52625fa628004ea5fe
-Merge: 7cb4072 9f51baa
+Merge: 7cb40726 9f51baaf
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Sep 16 14:08:34 2012 +0200
 
@@ -16408,7 +16954,7 @@ Date:   Sun Sep 16 14:05:01 2012 +0200
  1 file changed, 6 insertions(+), 1 deletion(-)
 
 commit 7cb40726f9e80ee2b2f27ca6ce151b46c6ec091d
-Merge: e980d11 c6d7084
+Merge: e980d110 c6d7084d
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Sep 16 13:50:19 2012 +0200
 
@@ -16430,7 +16976,7 @@ Date:   Sun Sep 16 13:48:51 2012 +0200
  3 files changed, 131 insertions(+), 2 deletions(-)
 
 commit e980d11061c19f13c75f93506e07903b4d1c7f97
-Merge: b72c02d 3658088
+Merge: b72c02d1 36580883
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Sep 15 20:41:50 2012 +0200
 
@@ -16603,7 +17149,7 @@ Date:   Tue Sep 11 23:33:25 2012 +0200
  14 files changed, 1415 insertions(+), 487 deletions(-)
 
 commit cb2ed646c4ef4161e443ee0a377d1111b3be28ff
-Merge: f3a1b76 3ce4d21
+Merge: f3a1b765 3ce4d213
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Sep 11 19:29:19 2012 +0200
 
@@ -16679,7 +17225,7 @@ Date:   Mon Sep 10 19:29:01 2012 +0200
  6 files changed, 19 insertions(+), 6 deletions(-)
 
 commit 1b40cdd9f863cd3868db85b5ccfa77a8350c56d6
-Merge: 6c40a55 b3e86db
+Merge: 6c40a553 b3e86dbd
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Sep 10 18:49:52 2012 +0200
 
@@ -16698,7 +17244,7 @@ Date:   Sun Sep 9 23:35:45 2012 +0200
  2 files changed, 14 insertions(+), 4 deletions(-)
 
 commit 6c40a553a3c8825931c59797059392fd110531cc
-Merge: 17fc1bf 558a7d9
+Merge: 17fc1bfa 558a7d9b
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Sep 9 23:27:40 2012 +0200
 
@@ -16807,7 +17353,7 @@ Date:   Sun Sep 9 21:15:06 2012 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 17fc1bfa8013cafe3b348f0cc07ef08bf9c7dd9a
-Merge: e0118be a4f5911
+Merge: e0118be3 a4f59113
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Sep 9 12:52:49 2012 +0200
 
@@ -16832,7 +17378,7 @@ Date:   Sun Sep 9 12:48:26 2012 +0200
  1 file changed, 8 insertions(+)
 
 commit e0118be3ba38bd00fa2a9c20c5b4cd82e820ba0b
-Merge: 2c41430 ccd3db5
+Merge: 2c414307 ccd3db5a
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Sep 8 18:15:43 2012 +0200
 
@@ -21346,7 +21892,7 @@ Date:   Tue Feb 14 19:37:21 2012 +0100
  9 files changed, 308 insertions(+), 167 deletions(-)
 
 commit b505920db6d3dac58c7e9f4f8917f4c4449b08a0
-Merge: 9250449 a631281
+Merge: 9250449a a6312817
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Feb 14 19:18:54 2012 +0100
 
@@ -21490,7 +22036,7 @@ Date:   Mon Feb 6 19:55:07 2012 +0100
  12 files changed, 26 insertions(+), 49 deletions(-)
 
 commit ea6bc19564865e04431d9154802ae7fba975a716
-Merge: e17f095 92ce79f
+Merge: e17f0956 92ce79f4
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Feb 6 01:18:25 2012 +0100
 
@@ -23215,7 +23761,7 @@ Date:   Sat Sep 24 09:43:05 2011 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 718c735aed540aa49b8dde250ca886c6ad93f5b6
-Merge: 6721916 69707f0
+Merge: 6721916c 69707f0a
 Author: Carlos Garcia Campos <carlosgc@gnome.org>
 Date:   Sat Sep 24 09:38:52 2011 +0200
 
@@ -23313,7 +23859,7 @@ Date:   Sun Sep 18 18:16:14 2011 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 6721916c92d720947b3285c85fdbe6610c6bf013
-Merge: 8456a6e e23f6b9
+Merge: 8456a6e1 e23f6b9c
 Author: Carlos Garcia Campos <carlosgc@gnome.org>
 Date:   Sun Sep 18 16:31:10 2011 +0200
 
@@ -23435,7 +23981,7 @@ Date:   Sun Sep 18 11:36:11 2011 +0200
  2 files changed, 91 insertions(+), 25 deletions(-)
 
 commit 258d56ba85902a8ab50eec3fe66dd6425226fa59
-Merge: 72a7736 12c6239
+Merge: 72a77363 12c6239c
 Author: Carlos Garcia Campos <carlosgc@gnome.org>
 Date:   Sun Sep 18 11:12:38 2011 +0200
 
@@ -25122,7 +25668,7 @@ Date:   Tue Aug 30 16:21:40 2011 +0200
  4 files changed, 69 insertions(+), 66 deletions(-)
 
 commit f298e7f844105f2d9a36144e59be86c341e37507
-Merge: 2a6bd7a 0ca5453
+Merge: 2a6bd7aa 0ca5453f
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Aug 30 16:21:58 2011 +0200
 
@@ -33711,7 +34257,7 @@ Date:   Mon Mar 22 21:49:22 2010 +0100
  1 file changed, 7 insertions(+), 2 deletions(-)
 
 commit 0819acd52a2ce74f0e176626d7b2233e10232d53
-Merge: c4ddbe8 92738eb
+Merge: c4ddbe89 92738ebb
 Author: Pino Toscano <pino@kde.org>
 Date:   Mon Mar 22 21:43:01 2010 +0100
 
@@ -35115,7 +35661,7 @@ Date:   Sun Feb 21 21:06:31 2010 +0100
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit a18dab9e53a20a76eb46fa3a868fffdd3c754ce2
-Merge: fa09892 f3862f7
+Merge: fa098929 f3862f7d
 Author: Pino Toscano <pino@kde.org>
 Date:   Sun Feb 21 19:56:38 2010 +0100
 
@@ -41537,7 +42083,7 @@ Date:   Mon Dec 22 00:46:49 2008 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit bfb975466f0ff78e9e292b6af7cac66e4c331456
-Merge: 3e27892 ea3546f
+Merge: 3e278925 ea3546f8
 Author: Pino Toscano <pino@kde.org>
 Date:   Mon Dec 22 00:29:38 2008 +0100
 
@@ -42649,7 +43195,7 @@ Date:   Mon Sep 29 21:14:40 2008 +0200
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 commit a29984ab777c64a1cb286b667a6a91ad9b191f40
-Merge: f399afe 6865872
+Merge: f399afe6 68658721
 Author: Pino Toscano <pino@kde.org>
 Date:   Sun Sep 28 23:39:08 2008 +0200
 
@@ -43271,7 +43817,7 @@ Date:   Tue Sep 2 19:16:55 2008 +0200
  1 file changed, 3 insertions(+)
 
 commit 630aa133017d15ddc7bf96c79f43c5b60fa9749a
-Merge: b2bc9b3 de82255
+Merge: b2bc9b3f de822554
 Author: Pino Toscano <pino@kde.org>
 Date:   Tue Sep 2 01:25:55 2008 +0200
 
@@ -43576,7 +44122,7 @@ Date:   Sun Aug 24 19:25:27 2008 +0200
  4 files changed, 5 insertions(+), 5 deletions(-)
 
 commit 22f6af73961686895f207fe13022a21333455862
-Merge: 12a9e42 6d6913a
+Merge: 12a9e427 6d6913a7
 Author: Pino Toscano <pino@kde.org>
 Date:   Sun Aug 24 19:03:24 2008 +0200
 
@@ -45064,7 +45610,7 @@ Date:   Sat Apr 26 18:12:51 2008 +0200
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit f9c7e8037b7165b6271ce7aea0d315053c4d66a5
-Merge: 59d33d8 f5fec4f
+Merge: 59d33d8e f5fec4fd
 Author: Pino Toscano <pino@kde.org>
 Date:   Sat Apr 26 18:09:59 2008 +0200
 
@@ -45366,7 +45912,7 @@ Date:   Sat Apr 12 21:08:54 2008 +0200
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit bc2b2ffd2144f951c311e968fba4bc50b7c43ff3
-Merge: cd5afe6 bacc1dd
+Merge: cd5afe6d bacc1dd9
 Author: Iñigo Martínez <inigomartinez@gmail.com>
 Date:   Sat Apr 12 17:40:49 2008 +0200
 
@@ -46270,7 +46816,7 @@ Date:   Wed Mar 12 21:43:12 2008 +1030
  1 file changed, 4 insertions(+), 3 deletions(-)
 
 commit 0b2c3bb25c908b07e760d824dbfe93c6051812aa
-Merge: 362fe01 9c472f7
+Merge: 362fe013 9c472f76
 Author: Iñigo Martínez <inigomartinez@gmail.com>
 Date:   Wed Mar 12 00:23:58 2008 +0100
 
@@ -46311,7 +46857,7 @@ Date:   Tue Mar 11 23:58:05 2008 +0100
  4 files changed, 11 insertions(+), 10 deletions(-)
 
 commit d7e642732ced592362d9787bddadb7a110dcc5a5
-Merge: 3642f0c 2d6c605
+Merge: 3642f0c4 2d6c6053
 Author: Iñigo Martínez <inigomartinez@gmail.com>
 Date:   Tue Mar 11 23:41:59 2008 +0100
 
@@ -46358,7 +46904,7 @@ Date:   Tue Mar 11 22:49:00 2008 +0100
  2 files changed, 620 insertions(+)
 
 commit 43e5dd941d4bc35c4eebbad66c13235639e0c1a0
-Merge: aab1768 4fdd254
+Merge: aab17684 4fdd2543
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Tue Mar 11 22:31:22 2008 +0100
 
@@ -46445,7 +46991,7 @@ Date:   Mon Mar 10 22:08:43 2008 +0100
  1 file changed, 40 insertions(+), 5 deletions(-)
 
 commit 94ceb3cae79dc7786fa59fd889a87160780ed5df
-Merge: 0f9e843 35f34bd
+Merge: 0f9e8430 35f34bd4
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Mar 9 23:34:11 2008 +0100
 
@@ -46589,7 +47135,7 @@ Date:   Wed Feb 27 22:56:33 2008 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 5b2f8f21fca63508570a0c77c6f7221a322e6e57
-Merge: 7e65118 4254f12
+Merge: 7e651186 4254f123
 Author: Pino Toscano <pino@kde.org>
 Date:   Wed Feb 27 22:10:12 2008 +0100
 
@@ -46614,7 +47160,7 @@ Date:   Wed Feb 27 22:03:17 2008 +0100
  2 files changed, 39 insertions(+), 6 deletions(-)
 
 commit 4254f1237ebed09b8e1c85f935a20bde3d8f36ff
-Merge: ed6c0c2 0569ae7
+Merge: ed6c0c26 0569ae76
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Feb 27 20:44:27 2008 +0100
 
@@ -46664,7 +47210,7 @@ Date:   Wed Feb 27 20:42:55 2008 +0100
  4 files changed, 6 insertions(+), 6 deletions(-)
 
 commit 0569ae76b6af1723b4606af189242a23199f387d
-Merge: f395531 d8eba8c
+Merge: f395531a d8eba8c1
 Author: Brad Hards <bradh@kde.org>
 Date:   Thu Feb 28 06:26:09 2008 +1100
 
@@ -47304,7 +47850,7 @@ Date:   Mon Feb 18 23:34:06 2008 +0100
  5 files changed, 102 insertions(+), 6 deletions(-)
 
 commit 3c407efe9f1f0cc3f6366d3a2b6e9b687656cc95
-Merge: 51f0cea 7f4acb8
+Merge: 51f0cea0 7f4acb87
 Author: Pino Toscano <pino@kde.org>
 Date:   Mon Feb 18 21:30:42 2008 +0100
 
@@ -47630,7 +48176,7 @@ Date:   Wed Feb 13 20:55:18 2008 +0100
  1 file changed, 1 insertion(+)
 
 commit 9cfe10ab7f51d329647e102e446baaef043d8cc6
-Merge: e918729 7d65b4d
+Merge: e9187292 7d65b4da
 Author: Pino Toscano <pino@kde.org>
 Date:   Wed Feb 13 20:53:43 2008 +0100
 
@@ -47719,7 +48265,7 @@ Date:   Wed Feb 13 18:42:49 2008 +0100
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 commit 7574cb71f24ce5b32427f243c39b6029fb58ec81
-Merge: e798802 4e45e5c
+Merge: e798802f 4e45e5ca
 Author: Pino Toscano <pino@kde.org>
 Date:   Wed Feb 13 01:07:31 2008 +0100
 
@@ -47867,7 +48413,7 @@ Date:   Mon Feb 11 02:27:19 2008 +0100
  3 files changed, 115 insertions(+)
 
 commit 278b33f25df418ef12798100002845a3e2ceebd3
-Merge: c730b33 fdb0a4a
+Merge: c730b33f fdb0a4a2
 Author: Pino Toscano <pino@kde.org>
 Date:   Mon Feb 11 00:57:24 2008 +0100
 
@@ -47938,7 +48484,7 @@ Date:   Sun Feb 10 01:09:57 2008 +0100
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 commit d3275e4263372b534c276f81d0c997ecb6675487
-Merge: c2186c1 5347a97
+Merge: c2186c18 5347a97e
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sat Feb 9 23:57:03 2008 +0100
 
@@ -47978,7 +48524,7 @@ Date:   Sat Feb 9 18:23:59 2008 +0100
  2 files changed, 37 insertions(+), 2 deletions(-)
 
 commit afb255366d56551bdc307766199bef9c5021d3ac
-Merge: 8c44b17 8cb0e75
+Merge: 8c44b175 8cb0e752
 Author: Pino Toscano <pino@kde.org>
 Date:   Sat Feb 9 17:58:49 2008 +0100
 
@@ -48015,7 +48561,7 @@ Date:   Sat Feb 9 13:37:04 2008 +0100
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 5fb0c9d31c1abf2e6ad306c112fbd2a7c33d8772
-Merge: 2655663 2255c85
+Merge: 26556636 2255c85e
 Author: Carlos Garcia Campos <carlosgc@gnome.org>
 Date:   Sat Feb 9 13:15:15 2008 +0100
 
@@ -48036,7 +48582,7 @@ Date:   Sat Feb 9 13:14:41 2008 +0100
  4 files changed, 79 insertions(+), 7 deletions(-)
 
 commit 2255c85e4939a0752083dca21984ff4398baf8d2
-Merge: 5ba9287 56c9246
+Merge: 5ba92876 56c92460
 Author: Pino Toscano <pino@kde.org>
 Date:   Sat Feb 9 12:49:45 2008 +0100
 
@@ -48165,7 +48711,7 @@ Date:   Fri Feb 8 02:21:32 2008 +0100
  3 files changed, 11 insertions(+), 11 deletions(-)
 
 commit 1aeba15b5eb9b30943259824678ebc9e4f56e870
-Merge: a489063 22d10c1
+Merge: a4890637 22d10c19
 Author: Pino Toscano <pino@kde.org>
 Date:   Fri Feb 8 01:39:16 2008 +0100
 
@@ -48278,7 +48824,7 @@ Date:   Thu Feb 7 01:07:28 2008 +0100
  1 file changed, 13 insertions(+), 13 deletions(-)
 
 commit c31990dfe50c7a0e3999e6d967699fce5ccb3339
-Merge: 7701e2a 6d58cda
+Merge: 7701e2a5 6d58cda8
 Author: Pino Toscano <pino@kde.org>
 Date:   Tue Feb 5 00:38:00 2008 +0100
 
@@ -48305,7 +48851,7 @@ Date:   Mon Feb 4 23:33:51 2008 +0100
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 commit aa0435f1544fe1adcf10173e34eaeaf2a7a703c7
-Merge: b43f4e9 37600b5
+Merge: b43f4e9a 37600b5e
 Author: Pino Toscano <pino@kde.org>
 Date:   Mon Feb 4 20:56:53 2008 +0100
 
@@ -48491,7 +49037,7 @@ Date:   Tue Jan 29 20:23:08 2008 +0100
  4 files changed, 13 insertions(+), 8 deletions(-)
 
 commit 77b91c852ad3d5554afc03aee92a1d928f233401
-Merge: 0babb0e 0533696
+Merge: 0babb0eb 05336967
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Jan 28 20:44:34 2008 +0100
 
@@ -48927,7 +49473,7 @@ Date:   Thu Jan 10 23:51:54 2008 +0100
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 commit 348f4f9d9d5b0f91da6f46e0fcefec80255d4179
-Merge: 8a8a4f0 4eca2e0
+Merge: 8a8a4f01 4eca2e04
 Author: Albert Astals Cid <tsdgeos@bluebox.localdomain>
 Date:   Sat Jan 5 23:03:06 2008 +0100
 
@@ -49223,7 +49769,7 @@ Date:   Mon Dec 10 22:00:30 2007 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit e807f9c72c7f0c5cc0655918f676f4af54739442
-Merge: bf57117 e2ea743
+Merge: bf57117d e2ea7430
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Dec 9 18:07:30 2007 +0100
 
@@ -49271,7 +49817,7 @@ Date:   Thu Dec 6 23:58:26 2007 +0100
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit bb0ec68f21d355081ff75aad641bc3809141e398
-Merge: 5a34cdd b925ea2
+Merge: 5a34cddf b925ea23
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Thu Dec 6 18:38:54 2007 +0100
 
@@ -49448,7 +49994,7 @@ Date:   Thu Nov 8 23:34:07 2007 +0100
  1 file changed, 15 insertions(+), 6 deletions(-)
 
 commit 944d327fd7036332a33b4ad6476ceca7a650ef6e
-Merge: fb1d1f4 c340255
+Merge: fb1d1f45 c340255f
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Wed Nov 7 23:52:47 2007 +0100
 
@@ -49496,7 +50042,7 @@ Date:   Mon Nov 5 20:31:18 2007 +1100
  2 files changed, 46 insertions(+), 1 deletion(-)
 
 commit 570fe464a2aae4f22d0b47cce73b8bc36b116e9f
-Merge: 1c7b7a0 7875067
+Merge: 1c7b7a0c 78750679
 Author: Brad Hards <bradh@kde.org>
 Date:   Mon Nov 5 15:55:39 2007 +1100
 
@@ -49616,7 +50162,7 @@ Date:   Sun Nov 4 14:03:35 2007 +0100
  1 file changed, 8 deletions(-)
 
 commit d694e1dd042fb97fbc62046b69cafe30d6f9ea58
-Merge: ba5b31c 432e657
+Merge: ba5b31c6 432e657a
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Nov 4 13:26:47 2007 +0100
 
@@ -49745,7 +50291,7 @@ Date:   Thu Oct 25 20:56:58 2007 +0200
  3 files changed, 522 insertions(+), 1 deletion(-)
 
 commit 6bd637dc135045b20abf024d394538d7a3160795
-Merge: c01ab71 25b273d
+Merge: c01ab714 25b273db
 Author: Albert Astals Cid <tsdgeos@bluebox.localdomain>
 Date:   Tue Oct 23 23:27:01 2007 +0200
 
@@ -50006,7 +50552,7 @@ Date:   Fri Sep 28 21:01:50 2007 +0200
  5 files changed, 527 insertions(+), 4 deletions(-)
 
 commit d0c0f26d2c95232c216e3daa15e98a3aff14ac27
-Merge: 59d55f7 38d5bb1
+Merge: 59d55f73 38d5bb15
 Author: Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 Date:   Tue Sep 25 03:33:52 2007 -0700
 
