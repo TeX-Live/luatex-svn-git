@@ -250,24 +250,32 @@ char *stripzeros(char *a)
 @ @c
 void initversionstring(char **versions)
 {
+#ifdef LuajitTeX
+#define LUA_VER_STRING  LUAJIT_VERSION
+#else
+#define LUA_VER_STRING  "lua version " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR "." LUA_VERSION_RELEASE
+#endif
     const_string fmt =
                     "Compiled with libpng %s; using %s\n"
-                    "Compiled with zlib %s; using %s\n"
+                    "Compiled with %s\n" /* Lua or LuaJIT */
+                    "Compiled with mplib version %s\n"
                     "Compiled with poppler version %s\n"
-                    "Compiled with mplib version %s\n";
+                    "Compiled with zlib %s; using %s\n";
     size_t len = strlen(fmt)
                     + strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver)
-                    + strlen(ZLIB_VERSION) + strlen(zlib_version)
-                    + strlen(POPPLER_VERSION)
+                    + strlen(LUA_VER_STRING) 
                     + strlen(mp_metapost_version())
+                    + strlen(POPPLER_VERSION)
+                    + strlen(ZLIB_VERSION) + strlen(zlib_version)
                     + 1;
 
     /* len will be more than enough, because of the placeholder chars in fmt
        that get replaced by the arguments.  */
     *versions = xmalloc(len);
     sprintf(*versions, fmt,
-                    PNG_LIBPNG_VER_STRING, png_libpng_ver,
-                    ZLIB_VERSION, zlib_version, POPPLER_VERSION, mp_metapost_version());
+                    PNG_LIBPNG_VER_STRING, png_libpng_ver, LUA_VER_STRING,
+                    mp_metapost_version(),POPPLER_VERSION,
+                    ZLIB_VERSION, zlib_version);
 }
 
 @ @c
