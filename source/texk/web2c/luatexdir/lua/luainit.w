@@ -943,7 +943,7 @@ void lua_initialize(int ac, char **av)
         /* If setlocale fails here, then the state   */
         /* could be compromised, and we exit.        */
         env_locale = setlocale (LC_ALL, "");
-	if (!env_locale) {
+	if (!env_locale && !lua_only) {
 	  fprintf(stderr,"Unable to read environment locale: exit now.\n");
 	  exit(1);
 	}
