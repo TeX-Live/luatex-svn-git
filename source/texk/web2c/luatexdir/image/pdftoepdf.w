@@ -71,7 +71,7 @@ static char *get_file_checksum(const char *a, file_error_mode fe)
         ck = (char *) malloc(PDF_CHECKSUM_SIZE);
         if (ck == NULL)
             formatted_error("pdf inclusion","out of memory while processing '%s'", a);
-        snprintf(ck, PDF_CHECKSUM_SIZE, "%" PRIu64 "_%" PRIu64, (uint64_t) size,(uint64_t) mtime);
+        snprintf(ck, PDF_CHECKSUM_SIZE, "%"@= @>PRIu64@= @>"_%"@=  @>PRIu64, (uint64_t) size,(uint64_t) mtime);
    } else {
         switch (fe) {
             case FE_FAIL:
