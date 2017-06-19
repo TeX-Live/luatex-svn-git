@@ -3873,9 +3873,11 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     int t;                                /* the effective |type| of noad |q| during the second pass */
     int t_subtype;                        /* the effective |subtype| of noad |q| during the second pass */
     pointer p = null;
+    pointer pp = null;
     pointer z = null;
     halfword nxt ;
     int pen;                              /* a penalty to be inserted */
+    int prepen;                           /* a penalty to be inserted */
     scaled max_hl = 0;                    /* maximum height of the list translated so far */
     scaled max_d = 0;                     /* maximum depth of the list translated so far */
     scaled delta;                         /* italic correction offset for subscript and superscript */
@@ -3883,6 +3885,10 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
     r_subtype = op_noad_type_normal;
     setup_cur_size(cur_style);
     cur_mu = x_over_n(get_math_quad_size(cur_size), 18);
+    if (math_penalties_mode_par) {
+        /* we couild do this via the callback but it's nice to have it as primitive too */
+        penalties = 1;
+    }
     while (q != null) {
         /*
             we use the fact that no character nodes appear in an mlist, hence
@@ -4051,18 +4057,18 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
                 math_glue_to_glue(q, cur_mu);
             } else if ((cur_size != text_size) && (subtype(q) == cond_math_glue)) {
                 p = vlink(q);
-         	if (p != null)
-                     if ((type(p) == glue_node) || (type(p) == kern_node)) {
-                       if (vlink(p) != null) {
+                if (p != null)
+                    if ((type(p) == glue_node) || (type(p) == kern_node)) {
+                        if (vlink(p) != null) {
                             couple_nodes(q,vlink(p));
                             vlink(p) = null;
                         } else {
                             vlink(q) = null;
                         }
                         flush_node_list(p);
-                     }
+                    }
             }
-	    goto DONE_WITH_NODE;
+        goto DONE_WITH_NODE;
             break;
         case kern_node:
             math_kern(q, cur_mu);
@@ -4184,15 +4190,18 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         t = simple_noad;
         t_subtype = ord_noad_type;
         pen = inf_penalty;
+        prepen = inf_penalty;
         switch (type(q)) {
         case simple_noad:
             t_subtype = subtype(q);
             switch (t_subtype) {
             case bin_noad_type:
                 pen = bin_op_penalty_par;
+                prepen = pre_bin_op_penalty_par;
                 break;
             case rel_noad_type:
                 pen = rel_penalty_par;
+                prepen = pre_rel_penalty_par;
                 break;
             case vcenter_noad_type:
             case over_noad_type:
@@ -4239,12 +4248,20 @@ void mlist_to_hlist(pointer mlist, boolean penalties, int cur_style)
         /* Append inter-element spacing based on |r_type| and |t| */
         if (r_type > 0) {
             /* not the first noad */
+            pp = p;
             z = math_spacing_glue(r_subtype, t_subtype, cur_style, cur_mu);
             if (z != null) {
                 reset_attributes(z, node_attr(p));
                 couple_nodes(p,z);
                 p = z;
             }
+if (penalties && prepen < inf_penalty && type(pp) != penalty_node) {
+    /* no checking of prev node type */
+    z = new_penalty(prepen,noad_penalty);
+    reset_attributes(z, node_attr(p));
+    couple_nodes(p,z);
+    p = z;
+}
         }
         /*
             Append any |new_hlist| entries for |q|, and any appropriate penalties

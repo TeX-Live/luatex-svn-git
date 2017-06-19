@@ -1227,6 +1227,28 @@ formula.
 
 % if needed we can put the value in stylenodes but maybe more should go there
 
+\subsection{Penalties: \type {\mathpenaltiesmode}}
+
+Only in inline math penalties will be added in a math list. You can force
+penalties (also in display math) by setting:
+
+\starttyping
+\mathpenaltiesmode = 1
+\stoptyping
+
+This primnitive is not really needed in \LUATEX\ because you can use the callback
+\type {mlist_to_hlist} to force penalties by just calling the regular routine
+with forced penalties. However, as part of opening up and control this primitive
+makes sense. As a bonus we also provide two extra penalties:
+
+\starttyping
+\prebinoppenalty = -100 % example value
+\prerelpenalty   =  900 % example value
+\stoptyping
+
+They default to inifinite which signals that they don't need to be inserted. When
+set they are injected before a binop or rel noad. This is an experimental feature.
+
 \subsection {Tracing}
 
 Because there are quite some math related parameters and values, it is possible

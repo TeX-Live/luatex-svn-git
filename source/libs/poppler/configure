@@ -750,6 +750,7 @@ enable_opi
 enable_multithreaded
 enable_exceptions
 enable_fixedpoint
+enable_dctdecoder
 enable_largefile
 with_system_zlib
 with_zlib_includes
@@ -1410,6 +1411,7 @@ Optional Features:
   --enable-exceptions     use C++ exceptions
   --enable-fixedpoint     use fixed point (instead of floating point)
                           arithmetic
+  --enable-dctdecode      use dctdecoder
   --disable-largefile     omit support for large files
 
 Optional Packages:
@@ -6040,6 +6042,21 @@ $as_echo "#define USE_FIXEDPOINT 1" >>confdefs.h
 fi
 
 fi
+
+
+
+# Check whether --enable-dctdecoder was given.
+if test "${enable_dctdecoder+set}" = set; then :
+  enableval=$enable_dctdecoder; if test "x$enableval" = xlibjpeg; then
+
+$as_echo "#define HAVE_DCT_DECODER 1" >>confdefs.h
+
+fi
+
+fi
+
+
+
 
 
 

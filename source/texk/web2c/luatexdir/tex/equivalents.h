@@ -293,7 +293,11 @@ the |number_regs| \.{\\dimen} registers.
 #  define explicit_hyphen_penalty_code 102
 #  define automatic_hyphen_mode_code 103
 
-#  define math_option_code (explicit_hyphen_penalty_code+1)
+#  define pre_bin_op_penalty_code 104
+#  define pre_rel_penalty_code 105
+#  define math_penalties_mode_code 106
+
+#  define math_option_code (math_penalties_mode_code+1)
 
 #  define mathoption_int_base_code (math_option_code+1)                 /* one reserve */
 #  define mathoption_int_last_code (mathoption_int_base_code+8)
@@ -649,6 +653,9 @@ extern halfword last_cs_name;
 #define delimiter_factor_par               int_par(delimiter_factor_code)
 #define bin_op_penalty_par                 int_par(bin_op_penalty_code)
 #define rel_penalty_par                    int_par(rel_penalty_code)
+#define pre_bin_op_penalty_par             int_par(pre_bin_op_penalty_code)
+#define pre_rel_penalty_par                int_par(pre_rel_penalty_code)
+#define math_penalties_mode_par            int_par(math_penalties_mode_code)
 #define null_delimiter_space_par           dimen_par(null_delimiter_space_code)
 #define disable_lig_par                    int_par(disable_lig_code)
 #define disable_kern_par                   int_par(disable_kern_code)

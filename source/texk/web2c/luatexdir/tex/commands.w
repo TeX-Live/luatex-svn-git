@@ -1,4 +1,4 @@
-% commands.w
+f% commands.w
 %
 % Copyright 2009-2010 Taco Hoekwater <taco@@luatex.org>
 %
@@ -74,9 +74,12 @@ void initialize_commands(void)
     primitive_tex("displaywidowpenalty", assign_int_cmd, int_base + display_widow_penalty_code, int_base);
     primitive_tex("brokenpenalty", assign_int_cmd, int_base + broken_penalty_code, int_base);
     primitive_tex("binoppenalty", assign_int_cmd, int_base + bin_op_penalty_code, int_base);
+    primitive_luatex("prerelpenalty", assign_int_cmd, int_base + pre_rel_penalty_code, int_base);
+    primitive_luatex("prebinoppenalty", assign_int_cmd, int_base + pre_bin_op_penalty_code, int_base);
     primitive_tex("relpenalty", assign_int_cmd, int_base + rel_penalty_code, int_base);
     primitive_tex("predisplaypenalty", assign_int_cmd, int_base + pre_display_penalty_code, int_base);
     primitive_tex("postdisplaypenalty", assign_int_cmd, int_base + post_display_penalty_code, int_base);
+    primitive_luatex("mathpenaltiesmode", assign_int_cmd, int_base + math_penalties_mode_code, int_base);
     primitive_tex("interlinepenalty", assign_int_cmd, int_base + inter_line_penalty_code, int_base);
     primitive_tex("doublehyphendemerits", assign_int_cmd, int_base + double_hyphen_demerits_code, int_base);
     primitive_tex("finalhyphendemerits", assign_int_cmd, int_base + final_hyphen_demerits_code, int_base);
