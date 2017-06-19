@@ -256,6 +256,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-dump-share  \
     --enable-coremp  \
     --enable-web2c  \
+    --enable-dctdecoder=libjpeg \
     --enable-luatex $JITENABLE \
     --without-system-cairo  \
     --without-system-pixman \

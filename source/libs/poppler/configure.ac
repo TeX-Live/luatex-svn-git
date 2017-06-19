@@ -63,6 +63,18 @@ AC_ARG_ENABLE([fixedpoint],
 fi
 ])
 
+
+AC_ARG_ENABLE([dctdecoder],
+              AS_HELP_STRING([--enable-dctdecoder],
+                             [use dctdecoder]),
+              [if test "x$enableval" = xlibjpeg; then
+  AC_DEFINE([HAVE_DCT_DECODER], 1, [Do we have any DCT decoder?.])
+fi
+])
+
+
+
+
 dnl **** Checks for header files ****
 
 AC_CHECK_HEADERS([strings.h])
