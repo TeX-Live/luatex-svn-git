@@ -1411,7 +1411,7 @@ Optional Features:
   --enable-exceptions     use C++ exceptions
   --enable-fixedpoint     use fixed point (instead of floating point)
                           arithmetic
-  --enable-dctdecode      use dctdecoder
+  --enable-dctdecoder     use dctdecoder
   --disable-largefile     omit support for large files
 
 Optional Packages:

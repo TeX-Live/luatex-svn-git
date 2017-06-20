@@ -1,4 +1,4 @@
-## $Id: Makefile.am 43617 2017-03-27 18:00:45Z karl $
+## $Id: Makefile.am 44647 2017-06-20 00:49:02Z kakuto $
 ## Proxy Makefile.am to build zziplib for TeX Live.
 ##
 ##   Copyright 2017 Karl Berry <tex-live@tug.org>
@@ -52,7 +52,8 @@ zziplib.log: unzzip$(EXEEXT)
 distclean-local:
 	rm -rf test
 
-nodist_unzzip_SOURCES = @ZZIPLIB_TREE@/bins/unzzip.c
+nodist_unzzip_SOURCES = @ZZIPLIB_TREE@/bins/unzzip.c \
+@ZZIPLIB_TREE@/bins/unzzipcat-zip.c @ZZIPLIB_TREE@/bins/unzzipdir-zip.c
 unzzip_LDADD = libzzip.a $(ZLIB_LIBS)
 
 ## Rebuild zlib
