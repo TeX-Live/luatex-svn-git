@@ -229,7 +229,8 @@ if [ "$WARNINGS" = "max" ]
 then
     rm -f source/texk/web2c/luatexdir/luatex_svnversion.h
 fi
-( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
+## not needed anymore
+##( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
 
 
 JITENABLE=
