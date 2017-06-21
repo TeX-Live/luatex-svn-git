@@ -751,6 +751,7 @@ enable_multithreaded
 enable_exceptions
 enable_fixedpoint
 enable_dctdecoder
+enable_libopenjpeg
 enable_largefile
 with_system_zlib
 with_zlib_includes
@@ -1412,6 +1413,7 @@ Optional Features:
   --enable-fixedpoint     use fixed point (instead of floating point)
                           arithmetic
   --enable-dctdecoder     use dctdecoder
+  --enable-libopenjpeg    use openjpeg decoder
   --disable-largefile     omit support for large files
 
 Optional Packages:
@@ -6056,6 +6058,21 @@ fi
 fi
 
 
+# Check whether --enable-libopenjpeg was given.
+if test "${enable_libopenjpeg+set}" = set; then :
+  enableval=$enable_libopenjpeg; if test "x$enableval" = xopenjpeg2; then
+
+$as_echo "#define HAVE_JPX_DECODER 1" >>confdefs.h
+
+fi
+
+fi
+
+
+
+
+
+--enable-libopenjpeg=[auto/openjpeg1/openjpeg2
 
 
 

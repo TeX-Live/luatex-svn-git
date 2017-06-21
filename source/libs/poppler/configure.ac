@@ -72,6 +72,18 @@ AC_ARG_ENABLE([dctdecoder],
 fi
 ])
 
+AC_ARG_ENABLE([libopenjpeg],
+              AS_HELP_STRING([--enable-libopenjpeg],
+                             [use openjpeg decoder]),
+              [if test "x$enableval" = xopenjpeg2; then
+  AC_DEFINE([HAVE_JPX_DECODER], 1, [Do we have any JPX decoder?.])
+fi
+])
+
+
+
+
+--enable-libopenjpeg=@<:@auto/openjpeg1/openjpeg2
 
 
 

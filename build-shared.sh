@@ -229,7 +229,7 @@ if [ "$WARNINGS" = "max" ]
 then
     rm -f source/texk/web2c/luatexdir/luatex_svnversion.h
 fi
-## not needed anymore
+## Not used anymore
 ##( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
 
 
@@ -253,7 +253,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-ipc \
     --enable-dump-share  \
     --enable-web2c  \
-    --enable-dctdecoder=libjpeg \
+    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
     --enable-luatex $JITENABLE \
     --without-system-ptexenc \
     --without-system-kpathsea \
