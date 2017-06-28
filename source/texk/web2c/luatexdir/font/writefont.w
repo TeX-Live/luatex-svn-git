@@ -913,7 +913,8 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
                 if (quick_char_exists(k, i) && char_used(k, i)) {
                     j = xtalloc(1, glw_entry);
                     j->id = (unsigned) char_index(k, i);
-                    j->wd = divide_scaled_n(char_width(k, i), l, 10000.0);
+               /*   j->wd = divide_scaled_n(char_width(k, i), l, 10000.0); */
+                    j->wd = divide_scaled_n(char_width(k, i), l, 10000.0 * 1000.0 / font_extend(k));
                     if ((glw_entry *) avl_find(fo->fd->gl_tree, j) == NULL) {
                         aa = avl_probe(fo->fd->gl_tree, j);
                         assert(aa != NULL);
