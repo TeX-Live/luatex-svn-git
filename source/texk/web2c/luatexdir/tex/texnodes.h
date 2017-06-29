@@ -421,6 +421,8 @@ typedef enum {
 */
 
 #  define precedes_break(a)  (type(a)<=last_preceding_break_node)
+#  define precedes_kern(a)   ((type(a) == kern_node) && (subtype(a) == font_kern || subtype(a) == accent_kern))
+#  define precedes_dir(a)    ((type(a) == dir_node) && (break_after_dir_mode_par == 1))
 #  define non_discardable(a) (type(a)<=last_non_discardable_node)
 
 #  define known_node_type(i) ( i >= 0 && i <= MAX_NODE_TYPE)

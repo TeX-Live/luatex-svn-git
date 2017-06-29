@@ -1063,6 +1063,44 @@ kerns, should be handled in the input or macro package because there is no way w
 can predict the expected behaviour. In fact, the \type {\linedir} is just a
 convenience extra which could also have been implemented using node list parsing.
 
+Glue after a dir node is ignored in the linebreak decision but you can bypass that
+by setting \type {\breakafterdirmode} to~\type {1}. The following table shows the
+difference. Watch your spaces.
+
+\def\ShowSome#1{%
+    \NC
+        \type{#1}
+    \NC
+        \breakafterdirmode = 0
+        \hsize 0pt
+        #1
+    \NC
+    \NC
+        \breakafterdirmode = 1
+        \hsize 0pt
+        #1
+    \NC
+    \NC \NR \HL
+}
+
+\starttabulate[|B|pT(0pt)|w(5em)|pT(0pt)|p|]
+    \HL
+    \BC \type{\breakafterdirmode}
+    \BC \type{0}
+    \NC
+    \BC \type{1}
+    \NC
+    \NC \NR
+    \HL
+    \ShowSome{pre {\textdir TLT xxx} post}
+    \ShowSome{pre {\textdir TLT xxx }post}
+    \ShowSome{pre{ \textdir TLT xxx} post}
+    \ShowSome{pre{ \textdir TLT xxx }post}
+    \ShowSome{pre { \textdir TLT xxx } post}
+    \ShowSome{pre {\textdir TLT\relax\space xxx} post}
+\stoptabulate
+
+
 Another adaptation to the \ALEPH\ directional model is control over shapes driven
 by \type {\hangindent} and \type {\parshape}. This is controlled by a new parameter
 \type {\shapemode}:
