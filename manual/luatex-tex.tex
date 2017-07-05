@@ -1402,8 +1402,9 @@ plain and \LATEX, so after a decade users expect a certain behaviour.
 
 \starttabulate[|l|p|]
 \NC set_synctex_mode   \NC \type {0} is the default and used normal synctex logic,
-a value of \type {1} uses the values set by the next helpers while \type {2}
-also sets these for glyph nodes \NC \NR
+\type {1} uses the values set by the next helpers while \type {2}
+also sets these for glyph nodes; \type{3} sets glyphs and glue and \type {4} sets only
+glyphs \NC \NR
 \NC set_synctex_tag    \NC set the current tag (file) value (obeys save stack) \NC \NR
 \NC set_synctex_line   \NC set the current line value (obeys save stack) \NC \NR
 \NC force_synctex_tag  \NC overload the tag (file) value (\type {0} resets) \NC \NR
