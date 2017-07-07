@@ -5275,111 +5275,133 @@ static int font_tex_direct_kerning(lua_State * L)
 }
 
 /* node.protect_glyphs (returns also boolean because that signals callback) */
+/* node.unprotect_glyphs (returns also boolean because that signals callback) */
 
-static int lua_nodelib_protect_glyphs(lua_State * L)
-{
-    int t = 0;
-    halfword head = *check_isnode(L, 1);
-    while (head != null) {
-        if (type(head) == glyph_node) {
-            int s = subtype(head);
-            if (s <= 256) {
-                t = 1;
-                subtype(head) = (quarterword) (s == 1 ? 256 : 256 + s);
-            }
-        }
-        head = vlink(head);
+#define protect_one_indeed(n) \
+    if (n != null) { \
+        int s = subtype(n); \
+        if (s <= 256) { \
+            subtype(n) = (quarterword) (s == 1 ? 256 : 256 + s); \
+        } \
     }
-    lua_pushboolean(L, t);
-    lua_pushvalue(L, 1);
-    return 2;
-}
+
+#define protect_node_indeed(n) \
+    if (type(n) == glyph_node) { \
+        protect_one_indeed(n); \
+    } else if (type(n) == disc_node) { \
+        protect_one_indeed(vlink(no_break(n))); \
+        protect_one_indeed(vlink(pre_break(n))); \
+        protect_one_indeed(vlink(post_break(n))); \
+    }
+
+#define unprotect_one_indeed(n) \
+    if (n != null) { \
+        int s = subtype(n); \
+        if (s > 256) { \
+            subtype(n) = (quarterword) (s - 256); \
+        } \
+    }
+
+#define unprotect_node_indeed(n) \
+    if (type(n) == glyph_node) { \
+        unprotect_one_indeed(n); \
+    } else if (type(n) == disc_node) { \
+        unprotect_one_indeed(vlink(no_break(n))); \
+        unprotect_one_indeed(vlink(pre_break(n))); \
+        unprotect_one_indeed(vlink(post_break(n))); \
+    }
 
 static int lua_nodelib_protect_glyph(lua_State * L)
 {
     halfword n = *check_isnode(L, 1);
-    if (type(n) == glyph_node) {
-        int s = subtype(n);
-        if (s <= 256) {
-            subtype(n) = (quarterword) (s == 1 ? 256 : 256 + s);
+    protect_node_indeed(n);
+    return 0;
+}
+
+static int lua_nodelib_unprotect_glyph(lua_State * L)
+{
+    halfword n = *check_isnode(L, 1);
+    unprotect_node_indeed(n);
+    return 0;
+}
+
+static int lua_nodelib_protect_glyphs(lua_State * L)
+{
+    halfword head = *check_isnode(L, 1);
+    halfword tail = null;
+    if (lua_gettop(L) > 1) {
+        tail = *check_isnode(L, 2);
+    }
+    while (head != null) {
+        protect_node_indeed(head);
+        if (head == tail) {
+            break;
         }
+        head = vlink(head);
+    }
+    return 0;
+}
+
+static int lua_nodelib_unprotect_glyphs(lua_State * L)
+{
+    halfword head = *check_isnode(L, 1);
+    halfword tail = null;
+    if (lua_gettop(L) > 1) {
+        tail = *check_isnode(L, 2);
+    }
+    while (head != null) {
+        unprotect_node_indeed(head);
+        if (head == tail) {
+            break;
+        }
+        head = vlink(head);
     }
     return 0;
 }
 
 /* node.direct.protect_glyphs */
-
-static int lua_nodelib_direct_protect_glyphs(lua_State * L)
-{
-    int t = 0;
-    halfword head = (halfword) lua_tointeger(L,1);
-    while (head != null) {
-        if (type(head) == glyph_node) {
-            int s = subtype(head);
-            if (s <= 256) {
-                t = 1;
-                subtype(head) = (quarterword) (s == 1 ? 256 : 256 + s);
-            }
-        }
-        head = vlink(head);
-    }
-    lua_pushboolean(L, t);
-    lua_pushvalue(L, 1);
-    return 2;
-}
+/* node.direct.unprotect_glyphs */
 
 static int lua_nodelib_direct_protect_glyph(lua_State * L)
 {
     halfword n = (halfword) lua_tointeger(L,1);
-    if ((n != null) && (type(n) == glyph_node)) {
-        int s = subtype(n);
-        if (s <= 256) {
-            subtype(n) = (quarterword) (s == 1 ? 256 : 256 + s);
+    protect_node_indeed(n);
+    return 0;
+}
+
+static int lua_nodelib_direct_unprotect_glyph(lua_State * L)
+{
+    halfword n = (halfword) lua_tointeger(L,1);
+    unprotect_node_indeed(n);
+    return 0;
+}
+
+static int lua_nodelib_direct_protect_glyphs(lua_State * L)
+{
+    halfword head = (halfword) lua_tointeger(L,1);
+    halfword tail = (halfword) lua_tointeger(L,2);
+    while (head != null) {
+        protect_node_indeed(head);
+        if (head == tail) {
+            break;
         }
+        head = vlink(head);
     }
     return 0;
 }
 
-/* node.unprotect_glyphs (returns also boolean because that signals callback) */
-
-static int lua_nodelib_unprotect_glyphs(lua_State * L)
-{
-    int t = 0;
-    halfword head = *(check_isnode(L, 1));
-    while (head != null) {
-        if (type(head) == glyph_node) {
-            int s = subtype(head);
-            if (s > 256) {
-                t = 1;
-                subtype(head) = (quarterword) (s - 256);
-            }
-        }
-        head = vlink(head);
-    }
-    lua_pushboolean(L, t);
-    lua_pushvalue(L, 1);
-    return 2;
-}
-
-/* node.direct.unprotect_glyphs */
-
 static int lua_nodelib_direct_unprotect_glyphs(lua_State * L)
 {
-    int t = 0;
     halfword head = (halfword) lua_tointeger(L,1);
+    halfword tail = (halfword) lua_tointeger(L,2);
     while (head != null) {
-        if (type(head) == glyph_node) {
-            int s = subtype(head);
-            if (s > 256) {
-                t = 1;
-                subtype(head) = (quarterword) (s - 256);
-            }
+        unprotect_node_indeed(head);
+        if (head == tail) {
+            break;
         }
         head = vlink(head);
     }
-    lua_pushboolean(L, t);
-    lua_pushvalue(L, 1);
-    return 2;
+    return 0;
 }
 
 /* node.first_glyph */
@@ -7633,6 +7655,46 @@ static int lua_nodelib_direct_check_discretionary(lua_State * L) {
     return 0;
 }
 
+static int lua_nodelib_direct_flatten_discretionaries(lua_State * L)
+{
+    halfword head = lua_tointeger(L, 1);
+    halfword current = head;
+    halfword next;
+    halfword d, n, h, t;
+    int c = 0;
+    while (current != null) {
+        next = vlink(current);
+        if (type(current) == disc_node) {
+            ++c;
+            d = current;
+            n = no_break(d);
+            h = vlink(n);
+            t = tlink(n);
+            if (h != null) {
+                try_couple_nodes(t,next);
+                if (current == head) {
+                    head = h;
+                } else {
+                    try_couple_nodes(alink(current),h);
+                }
+                vlink(n) = null ;
+              //tlink(n) = null;
+            } else {
+                if (current == head) {
+                    head = next;
+                } else {
+                    try_couple_nodes(alink(current),next);
+                }
+            }
+            flush_node(d);
+        }
+        current = next;
+    }
+    nodelib_pushdirect_or_nil(head);
+    lua_pushinteger(L,c);
+    return 2;
+}
+
 static int lua_nodelib_check_discretionaries(lua_State * L) {
     halfword c = *check_isnode(L, 1);
     halfword p ;
@@ -7656,6 +7718,47 @@ static int lua_nodelib_check_discretionary(lua_State * L) {
         check_disc(post_break(c)) ;
     }
     return 0;
+}
+
+static int lua_nodelib_flatten_discretionaries(lua_State * L)
+{
+    halfword head = *check_isnode(L, 1);
+    halfword current = head;
+    halfword next;
+    halfword d, n, h, t;
+    halfword *a;
+    int c = 0;
+    while (current != null) {
+        next = vlink(current);
+        if (type(current) == disc_node) {
+            ++c;
+            d = current;
+            n = no_break(d);
+            h = vlink(n);
+            t = tlink(n);
+            if (h != null) {
+                try_couple_nodes(t,next);
+                if (current == head) {
+                    head = h;
+                } else {
+                    try_couple_nodes(alink(current),h);
+                }
+                vlink(n) = null ;
+              //tlink(n) = null;
+            } else {
+                if (current == head) {
+                    head = next;
+                } else {
+                    try_couple_nodes(alink(current),next);
+                }
+            }
+            flush_node(d);
+        }
+        current = next;
+    }
+    fast_metatable_or_nil(head);
+    lua_pushinteger(L,c);
+    return 2;
 }
 
 /* synctex but not */
@@ -7869,6 +7972,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
  /* {"type", lua_nodelib_type}, */ /* no node argument */
  /* {"types", lua_nodelib_types}, */ /* no node argument */
     {"unprotect_glyphs", lua_nodelib_direct_unprotect_glyphs},
+    {"unprotect_glyph", lua_nodelib_direct_unprotect_glyph},
     {"unset_attribute", lua_nodelib_direct_unset_attribute},
     {"setglue",lua_nodelib_direct_set_glue},
     {"getglue",lua_nodelib_direct_get_glue},
@@ -7885,6 +7989,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"effective_glue", lua_nodelib_direct_effective_glue},
     {"check_discretionary", lua_nodelib_direct_check_discretionary},
     {"check_discretionaries", lua_nodelib_direct_check_discretionaries},
+    {"flatten_discretionaries",lua_nodelib_direct_flatten_discretionaries},
     /* done */
     {"set_synctex_fields", lua_nodelib_direct_set_synctex_fields},
     {"get_synctex_fields", lua_nodelib_direct_get_synctex_fields},
@@ -7961,6 +8066,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"type", lua_nodelib_type},
     {"types", lua_nodelib_types},
     {"unprotect_glyphs", lua_nodelib_unprotect_glyphs},
+    {"unprotect_glyph", lua_nodelib_unprotect_glyph},
     {"unset_attribute", lua_nodelib_unset_attribute},
     {"setglue",lua_nodelib_set_glue},
     {"getglue",lua_nodelib_get_glue},
@@ -7980,6 +8086,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"effective_glue", lua_nodelib_effective_glue},
     {"check_discretionary", lua_nodelib_check_discretionary},
     {"check_discretionaries", lua_nodelib_check_discretionaries},
+    {"flatten_discretionaries",lua_nodelib_flatten_discretionaries},
     /* done */
  /* {"set_synctex_fields", lua_nodelib_set_synctex_fields}, */
  /* {"get_synctex_fields", lua_nodelib_get_synctex_fields}, */

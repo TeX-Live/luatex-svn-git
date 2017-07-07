@@ -16,6 +16,10 @@
 % comment   : Some chapters might have been published in TugBoat, the NTG Maps, the ConTeXt
 %             Group journal or otherwise. Thanks to the editors for corrections. Also thanks
 %             to users for testing, feedback and corrections.
+%
+% 238 pages : 2017-07-06
+%             luatex 9.5 sec / luajittex 7.0 sec
+%             Dell 7600 / i7 3840QM / passmark 1.922 / Windows 10 64 bit
 
 % \tex vs \type vs \syntax vs. \luatex
 % \em \it \/
@@ -23,13 +27,17 @@
 % "context --nodates --nocompression luatex" can be used for comparison
 % runs, not that we do it
 
+% \enabledirectives[hyphenator.flatten]
+
+% \setupsynctex[state=start,method=max] % adds 5 pct overhead
+
 \environment luatex-style
 \environment luatex-logos
 
 \dontcomplain
 
 \startdocument
-  [status=release,
+  [status=beta,
    version=1.06.0]
 
 \component luatex-titlepage

@@ -1560,26 +1560,29 @@ optional. The two returned nodes \type {h} and \type {t} are the head and tail
 (either one of these can be an inserted kern node, because special kernings with
 word boundaries are possible).
 
-\subsubsection{\type {node.unprotect_glyphs}}
+\subsubsection{\type {node.unprotect_glyphs} and \type {node.unprotect_glyph}}
 
 \startfunctioncall
-node.unprotect_glyphs(<node> n)
+node.unprotect_glyph(<node> n)
+node.unprotect_glyphs(<node> n,[<node> n])
 \stopfunctioncall
 
 Subtracts 256 from all glyph node subtypes. This and the next function are
 helpers to convert from \type {characters} to \type {glyphs} during node
-processing.
+processing. The second argument is option and indicates the end of a range.
 
 \subsubsection{\type {node.protect_glyphs} and \type {node.protect_glyph}}
 
 \startfunctioncall
-node.protect_glyphs(<node> n)
+node.protect_glyph(<node> n)
+node.protect_glyphs(<node> n,[<node> n])
 \stopfunctioncall
 
 Adds 256 to all glyph node subtypes in the node list starting at \type {n},
 except that if the value is 1, it adds only 255. The special handling of 1 means
 that \type {characters} will become \type {glyphs} after subtraction of 256. A
-single character can be marked by the singular call.
+single character can be marked by the singular call. The second argument is
+option and indicates the end of a range.
 
 \subsubsection{\type {node.last_node}}
 
@@ -1751,6 +1754,15 @@ node.check_discretionaries(<node> head)
 
 The plural variant runs over all disc nodes in a list, the singular variant
 checks one node only (it also checks if the node is a disc node).
+
+\subsubsection{\type {node.flatten_discretionaries}}
+
+This function will remove the discretionaries in the list and inject the replace
+field when set.
+
+\startfunctioncall
+<node> head, count = node.flatten_discretionaries(<node> n)
+\stopfunctioncall
 
 \subsubsection{\type {node.family_font}}
 
