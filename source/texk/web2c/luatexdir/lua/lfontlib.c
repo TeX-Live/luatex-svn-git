@@ -187,6 +187,22 @@ static int addcharacters(lua_State * L)
     return 0;
 }
 
+static int setexpansion(lua_State * L)
+{
+    int f = luaL_checkinteger(L,1);
+    if (f) {
+        if (is_valid_font(f)) {
+            int fstretch = luaL_checkinteger(L,2);
+            int fshrink = luaL_checkinteger(L,3);
+            int fstep = luaL_checkinteger(L,4);
+            set_expand_params(f, fstretch, fshrink, fstep);
+        } else {
+            luaL_error(L, "that integer id is not a valid font");
+        }
+    }
+    return 0;
+}
+
 /* font.define(id,table) */
 /* font.define(table) */
 
@@ -270,6 +286,7 @@ static const struct luaL_Reg fontlib[] = {
     {"getfont", getfont},
     {"setfont", setfont},
     {"addcharacters", addcharacters},
+    {"setexpansion", setexpansion},
     {"define", deffont},
     {"nextid", nextfontid},
     {"id", getfontid},

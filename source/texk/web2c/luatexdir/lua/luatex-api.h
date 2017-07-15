@@ -507,7 +507,6 @@ make_lua_key(area);\
 make_lua_key(art);\
 make_lua_key(attr);\
 make_lua_key(attributes);\
-make_lua_key(auto_expand);\
 make_lua_key(bbox);\
 make_lua_key(before_display);\
 make_lua_key(best_ins_ptr);\
@@ -880,7 +879,6 @@ init_lua_key(area);\
 init_lua_key(art);\
 init_lua_key(attr);\
 init_lua_key(attributes);\
-init_lua_key(auto_expand);\
 init_lua_key(bbox);\
 init_lua_key(before_display);\
 init_lua_key(best_ins_ptr);\
@@ -1300,7 +1298,6 @@ use_lua_key(area);
 use_lua_key(art);
 use_lua_key(attr);
 use_lua_key(attributes);
-use_lua_key(auto_expand);
 use_lua_key(bbox);
 use_lua_key(before_display);
 use_lua_key(best_ins_ptr);

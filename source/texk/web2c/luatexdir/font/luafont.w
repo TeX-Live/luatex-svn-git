@@ -461,9 +461,6 @@ int font_to_lua(lua_State * L, int f)
     if (font_step(f) != 0) {
         dump_intfield(L,step,font_step(f));
     }
-    if (font_auto_expand(f) != 0) {
-        dump_booleanfield(L,auto_expand,font_auto_expand(f));
-    }
     if (pdf_font_attr(f) != 0) {
         char *s = makecstring(pdf_font_attr(f));
         dump_stringfield(L,attributes,s);
@@ -654,31 +651,38 @@ static int count_char_packet_bytes(lua_State * L)
                     l += sizeof(float) + 1;
                 } else if (lua_key_eq(s, pdf)) {
                     size_t len;
-                    l += 5; /* no check for first string, will become number */
-                    lua_rawgeti(L, -2, 3);
+                    l += 5;
+                    lua_rawgeti(L, -2, 2); /* how */
+                    if (lua_type(L,-1) == LUA_TSTRING) {
+                        /* no need to do something */
+                    } else if (lua_type(L,-1) == LUA_TNUMBER) {
+                        /* no need to do something */
+                    } else {
+                        normal_error("vf command","invalid packet pdf literal category");
+                    }
+                    lua_rawgeti(L, -3, 3); /* what */
                     if (lua_type(L,-1) == LUA_TSTRING) {
                         (void) lua_tolstring(L, -1, &len);
-                        lua_pop(L, 1);
                         if (len > 0) {
-                            l = (int) (l + 5 + (int) len);
+                            l = l + 5 + len;
+                         /* l = (int) (l + (int) len);*/
                         }
                     } else {
-                        lua_pop(L, 1);
-                        normal_error("vf command","invalid packet pdf special");
+                        normal_error("vf command","invalid packet pdf literal");
                     }
+                    lua_pop(L, 2);
                 } else if (lua_key_eq(s, special) || lua_key_eq(s, lua)) {
                     size_t len;
                     lua_rawgeti(L, -2, 2);
                     if (lua_type(L,-1) == LUA_TSTRING) {
                         (void) lua_tolstring(L, -1, &len);
-                        lua_pop(L, 1);
                         if (len > 0) {
                             l = (int) (l + 5 + (int) len);
                         }
                     } else {
-                        lua_pop(L, 1);
                         normal_error("vf command","invalid packet special");
                     }
+                    lua_pop(L, 1);
                 } else {
                     normal_error("vf command","unknown packet command");
                 }
@@ -1603,7 +1607,6 @@ int font_from_lua(lua_State * L, int f)
                 if (fstep != 0) {
                     int fshrink = lua_numeric_field_by_index(L, lua_key_index(shrink), 0);
                     int fstretch =lua_numeric_field_by_index(L, lua_key_index(stretch), 0);
-                    int fexpand = n_boolean_field(L, lua_key_index(auto_expand), 0);
                     if (fshrink < 0)
                         fshrink = 0;
                     if (fshrink > 500)
@@ -1618,7 +1621,7 @@ int font_from_lua(lua_State * L, int f)
                     fstretch -= (fstretch % fstep);
                     if (fstretch < 0)
                         fstretch = 0;
-                    set_expand_params(f, fexpand, fstretch, fshrink, fstep);
+                    set_expand_params(f, fstretch, fshrink, fstep);
                 }
             }
 
