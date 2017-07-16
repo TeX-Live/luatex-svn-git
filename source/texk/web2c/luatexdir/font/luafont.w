@@ -620,6 +620,7 @@ static int n_some_field(lua_State * L, int name_index)
 static int count_char_packet_bytes(lua_State * L)
 {
     register int i;
+    register int ts;
     register int l = 0;
     int ff = 0;
     for (i = 1; i <= (int) lua_rawlen(L, -1); i++) {
@@ -652,25 +653,27 @@ static int count_char_packet_bytes(lua_State * L)
                 } else if (lua_key_eq(s, pdf)) {
                     size_t len;
                     l += 5;
-                    lua_rawgeti(L, -2, 2); /* how */
-                    if (lua_type(L,-1) == LUA_TSTRING) {
-                        /* no need to do something */
-                    } else if (lua_type(L,-1) == LUA_TNUMBER) {
-                        /* no need to do something */
-                    } else {
-                        normal_error("vf command","invalid packet pdf literal category");
+                    ts = lua_rawlen(L, -2);
+                    lua_rawgeti(L, -2, 2);
+                    if (ts == 3) {
+                        if (lua_type(L,-1) == LUA_TSTRING) {
+                            /* no need to do something */
+                        } else if (lua_type(L,-1) == LUA_TNUMBER) {
+                            /* no need to do something */
+                        } else {
+                            normal_error("vf command","invalid packet pdf literal category");
+                        }
+                        lua_rawgeti(L, -3, 3);
                     }
-                    lua_rawgeti(L, -3, 3); /* what */
                     if (lua_type(L,-1) == LUA_TSTRING) {
                         (void) lua_tolstring(L, -1, &len);
                         if (len > 0) {
-                            l = l + 5 + len;
-                         /* l = (int) (l + (int) len);*/
+                            l = (int) (l + 5 + (int) len);
                         }
                     } else {
                         normal_error("vf command","invalid packet pdf literal");
                     }
-                    lua_pop(L, 2);
+                    lua_pop(L, ts == 3 ? 2 : 1);
                 } else if (lua_key_eq(s, special) || lua_key_eq(s, lua)) {
                     size_t len;
                     lua_rawgeti(L, -2, 2);
@@ -714,6 +717,7 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
     eight_bits *cpackets, *cp;
     int ff = 0;
     int sf = 0;
+    int ts = 0;
     int max_f = 0;
     int pc = count_char_packet_bytes(L);
     if (pc <= 0)
@@ -831,29 +835,34 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                         break;
                     case packet_pdf_code:
                         append_packet(cmd);
+                        ts = (int) lua_rawlen(L, -2);
                         lua_rawgeti(L, -2, 2);
-                        if (lua_type(L, -1) == LUA_TSTRING) {
-                            s = lua_tostring(L, -1);
-                            if (lua_key_eq(s, direct)) {
-                                n = direct_always;
-                            } else if (lua_key_eq(s, page)) {
-                                n = direct_page;
-                            } else if (lua_key_eq(s, raw)) {
-                                n = direct_raw;
-                            } else if (lua_key_eq(s, origin)) {
-                                n = set_origin;
+                        if (ts == 3) {
+                            if (lua_type(L, -1) == LUA_TSTRING) {
+                                s = lua_tostring(L, -1);
+                                if (lua_key_eq(s, direct)) {
+                                    n = direct_always;
+                                } else if (lua_key_eq(s, page)) {
+                                    n = direct_page;
+                                } else if (lua_key_eq(s, raw)) {
+                                    n = direct_raw;
+                                } else if (lua_key_eq(s, origin)) {
+                                    n = set_origin;
+                                } else {
+                                 /* normal_warning("vf command","invalid pdf literal type"); */
+                                    n = set_origin ;
+                                }
                             } else {
-                             /* normal_warning("vf command","invalid pdf literal type"); */
-                                n = set_origin ;
+                                n = (int) luaL_checkinteger(L, -1);
+                                if (n < set_origin || n > direct_raw) {
+                                    n = set_origin ;
+                                }
                             }
+                            lua_rawgeti(L, -3, 3);
                         } else {
-                            n = (int) luaL_checkinteger(L, -1);
-                            if (n < set_origin || n > direct_raw) {
-                                n = set_origin ;
-                            }
+                            n = set_origin;
                         }
                         do_store_four(n);
-                        lua_rawgeti(L, -3, 3);
                         s = luaL_checklstring(L, -1, &l);
                         if (l > 0) {
                             do_store_four(l);
@@ -864,7 +873,7 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                                 append_packet(n);
                             }
                         }
-                        lua_pop(L, 2);
+                        lua_pop(L,ts == 3 ? 2 : 1);
                         break;
                     case packet_special_code:
                     case packet_lua_code:
