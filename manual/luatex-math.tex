@@ -238,13 +238,13 @@ details.
 New primitives that exist in \LUATEX\ only (all of these will be explained
 in following sections):
 
-\starttabulate[|l|l|l|l|]
-\NC \bf primitive         \NC \bf value range (in hex) \NC \NR
-\NC \type {\Uroot}           \NC 0+0--FF+10FFFF$^2$       \NC \NR
-\NC \type {\Uoverdelimiter}  \NC 0+0--FF+10FFFF$^2$       \NC \NR
-\NC \type {\Uunderdelimiter} \NC 0+0--FF+10FFFF$^2$       \NC \NR
-\NC \type {\Udelimiterover}  \NC 0+0--FF+10FFFF$^2$       \NC \NR
-\NC \type {\Udelimiterunder} \NC 0+0--FF+10FFFF$^2$       \NC \NR
+\starttabulate[|l|l|]
+\BC primitive                \BC value range (in hex) \NC \NR
+\NC \type {\Uroot}           \NC 0+0--FF+10FFFF$^2$   \NC \NR
+\NC \type {\Uoverdelimiter}  \NC 0+0--FF+10FFFF$^2$   \NC \NR
+\NC \type {\Uunderdelimiter} \NC 0+0--FF+10FFFF$^2$   \NC \NR
+\NC \type {\Udelimiterover}  \NC 0+0--FF+10FFFF$^2$   \NC \NR
+\NC \type {\Udelimiterunder} \NC 0+0--FF+10FFFF$^2$   \NC \NR
 \stoptabulate
 
 \section{Cramped math styles}
@@ -1033,8 +1033,8 @@ get the length of the last line, the following will often work too:
 \LUATEX\ defines six new primitives that have the same function as
 \type {^}, \type {_}, \type {$}, and \type {$$}:
 
-\starttabulate[|l|l|l|l|]
-\NC \bf primitive           \NC \bf explanation \NC \NR
+\starttabulate[|l|l|]
+\BC primitive                  \BC explanation \NC \NR
 \NC \type {\Usuperscript}      \NC Duplicates the functionality of \type {^} \NC \NR
 \NC \type {\Usubscript}        \NC Duplicates the functionality of \type {_} \NC \NR
 \NC \type {\Ustartmath}        \NC Duplicates the functionality of \type {$}, % $
