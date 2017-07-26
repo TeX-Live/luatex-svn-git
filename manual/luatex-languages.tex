@@ -224,43 +224,43 @@ node. But by default also a hlist, vlist, rule, dir, whatsit, ins, and adjust no
 indicate a start or end. You can omit the last set from the test by setting
 \type {\hyphenationbounds} to a non|-|zero value:
 
-\starttabulate[|Tl|l|]
-\NC 0 \NC not strict \NC \NR
-\NC 1 \NC strict start \NC \NR
-\NC 2 \NC strict end \NC \NR
-\NC 3 \NC strict start and strict end \NC \NR
+\starttabulate[|l|l|]
+\NC \type{0} \NC not strict \NC \NR
+\NC \type{1} \NC strict start \NC \NR
+\NC \type{2} \NC strict end \NC \NR
+\NC \type{3} \NC strict start and strict end \NC \NR
 \stoptabulate
 
 The word start is determined as follows:
 
-\starttabulate[|Bl|l|]
-\NC boundary  \NC yes when wordboundary \NC \NR
-\NC hlist     \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC vlist     \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC rule      \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC dir       \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC whatsit   \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC glue      \NC yes \NC \NR
-\NC math      \NC skipped \NC \NR
-\NC glyph     \NC exhyphenchar (one only) : yes (so no -- ---) \NC \NR
-\NC otherwise \NC yes \NC \NR
+\starttabulate[|l|l|]
+\BC boundary  \NC yes when wordboundary \NC \NR
+\BC hlist     \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC vlist     \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC rule      \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC dir       \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC whatsit   \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC glue      \NC yes \NC \NR
+\BC math      \NC skipped \NC \NR
+\BC glyph     \NC exhyphenchar (one only) : yes (so no -- ---) \NC \NR
+\BC otherwise \NC yes \NC \NR
 \stoptabulate
 
 The word end is determined as follows:
 
-\starttabulate[|Bl|l|]
-\NC boundary  \NC yes \NC \NR
-\NC glyph     \NC yes when different language \NC \NR
-\NC glue      \NC yes \NC \NR
-\NC penalty   \NC yes \NC \NR
-\NC kern      \NC yes when not italic (for some historic reason) \NC \NR
-\NC hlist     \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC vlist     \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC rule      \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC dir       \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC whatsit   \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC ins       \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC adjust    \NC when hyphenationbounds 2 or 3 \NC \NR
+\starttabulate[|l|l|]
+\BC boundary  \NC yes \NC \NR
+\BC glyph     \NC yes when different language \NC \NR
+\BC glue      \NC yes \NC \NR
+\BC penalty   \NC yes \NC \NR
+\BC kern      \NC yes when not italic (for some historic reason) \NC \NR
+\BC hlist     \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC vlist     \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC rule      \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC dir       \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC whatsit   \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC ins       \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC adjust    \NC when hyphenationbounds 2 or 3 \NC \NR
 \stoptabulate
 
 \in{Figures}[hb:1] upto \in[hb:5] show some examples. In all cases we set the min
@@ -491,18 +491,18 @@ have been added:
 The first parameter has the following consequences for automatic discs (the ones
 resulting from an \type {\exhyphenchar}:
 
-\starttabulate[|Tc|l|l|]
-\BC mode \BC automatic disc \type{-}         \BC explicit disc \type{\-}         \NC \NR
+\starttabulate[|c|l|l|]
+\BC mode     \BC automatic disc \type{-}         \BC explicit disc \type{\-}         \NC \NR
 \HL
-\NC 0    \NC \type {\exhyphenpenalty}        \NC \type {\exhyphenpenalty}        \NC \NR
-\NC 1    \NC \type {\hyphenpenalty}          \NC \type {\hyphenpenalty}          \NC \NR
-\NC 2    \NC \type {\exhyphenpenalty}        \NC \type {\hyphenpenalty}          \NC \NR
-\NC 3    \NC \type {\hyphenpenalty}          \NC \type {\exhyphenpenalty}        \NC \NR
-\NC 4    \NC \type {\automatichyphenpenalty} \NC \type {\explicithyphenpenalty}  \NC \NR
-\NC 5    \NC \type {\exhyphenpenalty}        \NC \type {\explicithyphenpenalty}  \NC \NR
-\NC 6    \NC \type {\hyphenpenalty}          \NC \type {\explicithyphenpenalty}  \NC \NR
-\NC 7    \NC \type {\automatichyphenpenalty} \NC \type {\exhyphenpenalty}        \NC \NR
-\NC 8    \NC \type {\automatichyphenpenalty} \NC \type {\hyphenpenalty}          \NC \NR
+\NC \type{0} \NC \type {\exhyphenpenalty}        \NC \type {\exhyphenpenalty}        \NC \NR
+\NC \type{1} \NC \type {\hyphenpenalty}          \NC \type {\hyphenpenalty}          \NC \NR
+\NC \type{2} \NC \type {\exhyphenpenalty}        \NC \type {\hyphenpenalty}          \NC \NR
+\NC \type{3} \NC \type {\hyphenpenalty}          \NC \type {\exhyphenpenalty}        \NC \NR
+\NC \type{4} \NC \type {\automatichyphenpenalty} \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC \type{5} \NC \type {\exhyphenpenalty}        \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC \type{6} \NC \type {\hyphenpenalty}          \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC \type{7} \NC \type {\automatichyphenpenalty} \NC \type {\exhyphenpenalty}        \NC \NR
+\NC \type{8} \NC \type {\automatichyphenpenalty} \NC \type {\hyphenpenalty}          \NC \NR
 \stoptabulate
 
 other values do what we always did in \LUATEX: insert \type {\exhyphenpenalty}.
@@ -547,9 +547,9 @@ listed items. It is important to note that the keys in an exception dictionary
 can always be generated from the values. Here are a few examples:
 
 \starttabulate[|l|l|l|]
-\NC \bf value \NC \bf implied key (input) \NC \bf effect \NC\NR
-\NC \type {ta-ble} \NC table \NC \type {ta\-ble} ($=$ \type {ta\discretionary{-}{}{}ble}) \NC\NR
-\NC \type {ba{k-}{}{c}ken} \NC backen \NC \type {ba\discretionary{k-}{}{c}ken} \NC\NR
+\BC value                  \BC implied key (input) \NC effect \NC\NR
+\NC \type {ta-ble}         \NC table               \NC \type {ta\-ble} ($=$ \type {ta\discretionary{-}{}{}ble}) \NC\NR
+\NC \type {ba{k-}{}{c}ken} \NC backen              \NC \type {ba\discretionary{k-}{}{c}ken} \NC\NR
 \stoptabulate
 
 The resultant patterns and exception dictionary will be stored under the language
@@ -771,9 +771,9 @@ The mapping of the seven list fields to the six fields in this discretionary nod
 pair is as follows:
 
 \starttabulate[|l|p|]
-\NC \bf field            \NC \bf description \NC \NR
-\NC \type {disc1.pre}     \NC \type {f-}$^1$  \NC \NR
-\NC \type {disc1.post}    \NC \type {<fi>}$^4$  \NC \NR
+\BC field                 \BC description \NC \NR
+\NC \type {disc1.pre}     \NC \type {f-}$^1$ \NC \NR
+\NC \type {disc1.post}    \NC \type {<fi>}$^4$ \NC \NR
 \NC \type {disc1.replace} \NC \type {<ffi>}$^7$ \NC \NR
 \NC \type {disc2.pre}     \NC \type {f-}$^2$  \NC \NR
 \NC \type {disc2.post}    \NC \type {i}$^{3{,}6}$\NC \NR

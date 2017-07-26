@@ -437,15 +437,15 @@ value.
 
 The list of possible operand types and associated \LUA\ value types is:
 
-\starttabulate[|lT|p|]
-\NC integer  \NC <number>  \NC \NR
-\NC real     \NC <number>  \NC \NR
-\NC boolean  \NC <boolean> \NC \NR
-\NC name     \NC <string>  \NC \NR
-\NC operator \NC <string>  \NC \NR
-\NC string   \NC <string>  \NC \NR
-\NC array    \NC <table>   \NC \NR
-\NC dict     \NC <table>   \NC \NR
+\starttabulate[|l|c|]
+\NC \type{integer}  \NC <number>  \NC \NR
+\NC \type{real}     \NC <number>  \NC \NR
+\NC \type{boolean}  \NC <boolean> \NC \NR
+\NC \type{name}     \NC <string>  \NC \NR
+\NC \type{operator} \NC <string>  \NC \NR
+\NC \type{string}   \NC <string>  \NC \NR
+\NC \type{array}    \NC <table>   \NC \NR
+\NC \type{dict}     \NC <table>   \NC \NR
 \stoptabulate
 
 In case of \type {integer} or \type {real}, the value is always a \LUA\ (floating
@@ -469,15 +469,15 @@ values are \type {pop} return values.
 
 There are few more methods defined that you can ask \type {scanner}:
 
-\starttabulate[|lT|p|]
-\NC pop       \NC as explained above \NC \NR
-\NC popNumber \NC return only the value of a \type {real} or \type {integer} \NC \NR
-\NC popName   \NC return only the value of a \type {name} \NC \NR
-\NC popString \NC return only the value of a \type {string} \NC \NR
-\NC popArray  \NC return only the value of a \type {array} \NC \NR
-\NC popDict   \NC return only the value of a \type {dict} \NC \NR
-\NC popBool   \NC return only the value of a \type {boolean} \NC \NR
-\NC done      \NC abort further processing of this \type {scan()} call \NC \NR
+\starttabulate[|l|p|]
+\NC \type{pop}       \NC as explained above \NC \NR
+\NC \type{popNumber} \NC return only the value of a \type {real} or \type {integer} \NC \NR
+\NC \type{popName}   \NC return only the value of a \type {name} \NC \NR
+\NC \type{popString} \NC return only the value of a \type {string} \NC \NR
+\NC \type{popArray}  \NC return only the value of a \type {array} \NC \NR
+\NC \type{popDict}   \NC return only the value of a \type {dict} \NC \NR
+\NC \type{popBool}   \NC return only the value of a \type {boolean} \NC \NR
+\NC \type{done}      \NC abort further processing of this \type {scan()} call \NC \NR
 \stoptabulate
 
 The \type {popXXX} are convenience functions, and come in handy when you know the

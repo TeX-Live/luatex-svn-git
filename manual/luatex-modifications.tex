@@ -326,7 +326,7 @@ provide the ability to use content that has been rendered in several places,
 and images are also common. For that reason we also changed the names:
 
 \starttabulate[|l|l|]
-\NC \bf new name                         \NC \bf old name \NC \NR
+\BC new name                             \BC old name                    \NC \NR
 \NC \type {\saveboxresource}             \NC \type {\pdfxform}           \NC \NR
 \NC \type {\saveimageresource}           \NC \type {\pdfximage}          \NC \NR
 \NC \type {\useboxresource}              \NC \type {\pdfrefxform}        \NC \NR
@@ -1068,7 +1068,7 @@ by setting \type {\breakafterdirmode} to~\type {1}. The following table shows th
 difference. Watch your spaces.
 
 \def\ShowSome#1{%
-    \NC
+    \BC
         \type{#1}
     \NC
         \breakafterdirmode = 0
@@ -1083,7 +1083,7 @@ difference. Watch your spaces.
     \NC \NR \HL
 }
 
-\starttabulate[|B|pT(0pt)|w(5em)|pT(0pt)|p|]
+\starttabulate[|l|pT(0pt)|w(5em)|pT(0pt)|p|]
     \HL
     \BC \type{\breakafterdirmode}
     \BC \type{0}
@@ -1105,12 +1105,12 @@ Another adaptation to the \ALEPH\ directional model is control over shapes drive
 by \type {\hangindent} and \type {\parshape}. This is controlled by a new parameter
 \type {\shapemode}:
 
-\starttabulate[|cTB|c|c|]
-\NC   \NC \bf \type {\hangindent} \NC \bf \type {\parshape} \NC \NR
-\NC 0 \NC  normal                 \NC normal                \NC \NR
-\NC 1 \NC  mirrored               \NC normal                \NC \NR
-\NC 2 \NC  normal                 \NC mirrored              \NC \NR
-\NC 3 \NC  mirrored               \NC mirrored              \NC \NR
+\starttabulate[|c|c|c|]
+\BC          \BC \type {\hangindent} \BC \type {\parshape} \NC \NR
+\BC \type{0} \NC  normal             \NC normal            \NC \NR
+\BC \type{1} \NC  mirrored           \NC normal            \NC \NR
+\BC \type{2} \NC  normal             \NC mirrored          \NC \NR
+\BC \type{3} \NC  mirrored           \NC mirrored          \NC \NR
 \stoptabulate
 
 The value is reset to zero (like \type {\hangindent} and \type {\parshape})

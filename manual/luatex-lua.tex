@@ -55,33 +55,33 @@ option. If there is no \type {--lua} option, the command line is interpreted in 
 similar fashion as the other \TEX\ engines. Some options are accepted but have no
 consequence. The following command|-|line options are understood:
 
-\starttabulate[|lT|p|]
-\NC --credits                    \NC display credits and exit \NC \NR
-\NC --debug-format               \NC enable format debugging \NC \NR
-\NC --draftmode                  \NC switch on draft mode i.e.\ generate no output in \PDF\ mode \NC \NR
-\NC --[no-]file-line-error       \NC disable/enable \type {file:line:error} style messages \NC \NR
-\NC --[no-]file-line-error-style \NC aliases of \type {--[no-]file-line-error} \NC \NR
-\NC --fmt=FORMAT                 \NC load the format file \type {FORMAT} \NC\NR
-\NC --halt-on-error              \NC stop processing at the first error\NC \NR
-\NC --help                       \NC display help and exit \NC\NR
-\NC --ini                        \NC be \type {iniluatex}, for dumping formats \NC\NR
-\NC --interaction=STRING         \NC set interaction mode: \type {batchmode}, \type {nonstopmode}, \type {scrollmode} or \type {errorstopmode} \NC \NR
-\NC --jobname=STRING             \NC set the job name to \type {STRING} \NC \NR
-\NC --kpathsea-debug=NUMBER      \NC set path searching debugging flags according to the bits of \type {NUMBER} \NC \NR
-\NC --lua=FILE                   \NC load and execute a \LUA\ initialization script \NC\NR
-\NC --[no-]mktex=FMT             \NC disable/enable \type {mktexFMT} generation with \type {FMT} is \type {tex} or \type {tfm} \NC \NR
-\NC --nosocket                   \NC disable the \LUA\ socket library \NC\NR
-\NC --output-comment=STRING      \NC use \type {STRING} for \DVI\ file comment instead of date (no effect for \PDF) \NC \NR
-\NC --output-directory=DIR       \NC use \type {DIR} as the directory to write files to \NC \NR
-\NC --output-format=FORMAT       \NC use \type {FORMAT} for job output; \type {FORMAT} is \type {dvi} or \type {pdf} \NC \NR
-\NC --progname=STRING            \NC set the program name to \type {STRING} \NC \NR
-\NC --recorder                   \NC enable filename recorder \NC \NR
-\NC --safer                      \NC disable easily exploitable \LUA\ commands \NC\NR
-\NC --[no-]shell-escape          \NC disable/enable system calls \NC \NR
-\NC --shell-restricted           \NC restrict system calls to a list of commands given in \type {texmf.cnf} \NC \NR
-\NC --synctex=NUMBER             \NC enable \type {synctex} \NC \NR
-\NC --utc                        \NC use utc times when applicable \NC \NR
-\NC --version                    \NC display version and exit \NC \NR
+\starttabulate[|l|p|]
+\NC \type{--credits}                    \NC display credits and exit \NC \NR
+\NC \type{--debug-format}               \NC enable format debugging \NC \NR
+\NC \type{--draftmode}                  \NC switch on draft mode i.e.\ generate no output in \PDF\ mode \NC \NR
+\NC \type{--[no-]file-line-error}       \NC disable/enable \type {file:line:error} style messages \NC \NR
+\NC \type{--[no-]file-line-error-style} \NC aliases of \type {--[no-]file-line-error} \NC \NR
+\NC \type{--fmt=FORMAT}                 \NC load the format file \type {FORMAT} \NC\NR
+\NC \type{--halt-on-error}              \NC stop processing at the first error\NC \NR
+\NC \type{--help}                       \NC display help and exit \NC\NR
+\NC \type{--ini}                        \NC be \type {iniluatex}, for dumping formats \NC\NR
+\NC \type{--interaction=STRING}         \NC set interaction mode: \type {batchmode}, \type {nonstopmode}, \type {scrollmode} or \type {errorstopmode} \NC \NR
+\NC \type{--jobname=STRING}             \NC set the job name to \type {STRING} \NC \NR
+\NC \type{--kpathsea-debug=NUMBER}      \NC set path searching debugging flags according to the bits of \type {NUMBER} \NC \NR
+\NC \type{--lua=FILE}                   \NC load and execute a \LUA\ initialization script \NC\NR
+\NC \type{--[no-]mktex=FMT}             \NC disable/enable \type {mktexFMT} generation with \type {FMT} is \type {tex} or \type {tfm} \NC \NR
+\NC \type{--nosocket}                   \NC disable the \LUA\ socket library \NC\NR
+\NC \type{--output-comment=STRING}      \NC use \type {STRING} for \DVI\ file comment instead of date (no effect for \PDF) \NC \NR
+\NC \type{--output-directory=DIR}       \NC use \type {DIR} as the directory to write files to \NC \NR
+\NC \type{--output-format=FORMAT}       \NC use \type {FORMAT} for job output; \type {FORMAT} is \type {dvi} or \type {pdf} \NC \NR
+\NC \type{--progname=STRING}            \NC set the program name to \type {STRING} \NC \NR
+\NC \type{--recorder}                   \NC enable filename recorder \NC \NR
+\NC \type{--safer}                      \NC disable easily exploitable \LUA\ commands \NC\NR
+\NC \type{--[no-]shell-escape}          \NC disable/enable system calls \NC \NR
+\NC \type{--shell-restricted}           \NC restrict system calls to a list of commands given in \type {texmf.cnf} \NC \NR
+\NC \type{--synctex=NUMBER}             \NC enable \type {synctex} \NC \NR
+\NC \type{--utc}                        \NC use utc times when applicable \NC \NR
+\NC \type{--version}                    \NC display version and exit \NC \NR
 \stoptabulate
 
 Some of the traditional flags are just ignored: \type {--etex}, \type
@@ -141,7 +141,7 @@ Then it checks the various safety switches. You can use those to disable some
 \type {--safer} \type {nil}s the following functions:
 
 \starttabulate[|l|l|]
-\NC \bf library \NC \bf functions \NC \NR
+\BC library      \BC functions \NC \NR
 \NC \type {os}   \NC \type {execute} \type {exec} \type {spawn} \type {setenv} \type {rename} \type {remove} \type {tmpdir} \NC \NR
 \NC \type {io}   \NC \type {popen} \type {output} \type {tmpfile} \NC \NR
 \NC \type {lfs}  \NC \type {rmdir} \type {mkdir} \type {chdir} \type {lock} \type {touch} \NC \NR

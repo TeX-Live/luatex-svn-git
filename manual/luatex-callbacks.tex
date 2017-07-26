@@ -317,17 +317,17 @@ reading problem.
 
 The list of functions is as follows:
 
-\starttabulate[|lT|p|]
-\NC read_font_file     \NC ofm or tfm files \NC \NR
-\NC read_vf_file       \NC virtual fonts \NC \NR
-\NC read_map_file      \NC map files \NC \NR
-\NC read_enc_file      \NC encoding files \NC \NR
-\NC read_sfd_file      \NC subfont definition files \NC \NR
-\NC read_pk_file       \NC pk bitmap files \NC \NR
-\NC read_data_file     \NC embedded files (as is possible with \PDF\ objects) \NC \NR
-\NC read_truetype_file \NC \TRUETYPE\ font files \NC \NR
-\NC read_type1_file    \NC \TYPEONE\ font files \NC \NR
-\NC read_opentype_file \NC \OPENTYPE\ font files \NC \NR
+\starttabulate[|l|p|]
+\NC \type{read_font_file}     \NC ofm or tfm files \NC \NR
+\NC \type{read_vf_file}       \NC virtual fonts \NC \NR
+\NC \type{read_map_file}      \NC map files \NC \NR
+\NC \type{read_enc_file}      \NC encoding files \NC \NR
+\NC \type{read_sfd_file}      \NC subfont definition files \NC \NR
+\NC \type{read_pk_file}       \NC pk bitmap files \NC \NR
+\NC \type{read_data_file}     \NC embedded files (as is possible with \PDF\ objects) \NC \NR
+\NC \type{read_truetype_file} \NC \TRUETYPE\ font files \NC \NR
+\NC \type{read_type1_file}    \NC \TYPEONE\ font files \NC \NR
+\NC \type{read_opentype_file} \NC \OPENTYPE\ font files \NC \NR
 \stoptabulate
 
 \section{Data processing callbacks}
@@ -397,12 +397,12 @@ end
 The string reports the group code. From this you can deduce from
 what list you can give a treat.
 
-\starttabulate[|lT|p|]
-\NC \rmbf value     \NC \bf explanation                              \NC \NR
-\NC pre_box         \NC interline material is being added            \NC \NR
-\NC pre_adjust      \NC \type {\vadjust} material is being added     \NC \NR
-\NC box             \NC a typeset box is being added (always called) \NC \NR
-\NC adjust          \NC \type {\vadjust} material is being added     \NC \NR
+\starttabulate[|l|p|]
+\BC value             \BC explanation                                  \NC \NR
+\NC \type{pre_box}    \NC interline material is being added            \NC \NR
+\NC \type{pre_adjust} \NC \type {\vadjust} material is being added     \NC \NR
+\NC \type{box}        \NC a typeset box is being added (always called) \NC \NR
+\NC \type{adjust}     \NC \type {\vadjust} material is being added     \NC \NR
 \stoptabulate
 
 \subsection{\type {buildpage_filter}}
@@ -420,18 +420,18 @@ The string \type {extrainfo} gives some additional information about what \TEX's
 state is with respect to the \quote {current page}. The possible values for the
 \type {buildpage_filter} callback are:
 
-\starttabulate[|lT|p|]
-\NC \rmbf value     \NC \bf explanation                           \NC \NR
-\NC alignment       \NC a (partial) alignment is being added      \NC \NR
-\NC after_output    \NC an output routine has just finished       \NC \NR
-\NC new_graf        \NC the beginning of a new paragraph          \NC \NR
-\NC vmode_par       \NC \type {\par} was found in vertical mode   \NC \NR
-\NC hmode_par       \NC \type {\par} was found in horizontal mode \NC \NR
-\NC insert          \NC an insert is added                        \NC \NR
-\NC penalty         \NC a penalty (in vertical mode)              \NC \NR
-\NC before_display  \NC immediately before a display starts       \NC \NR
-\NC after_display   \NC a display is finished                     \NC \NR
-\NC end             \NC \LUATEX\ is terminating (it's all over)   \NC \NR
+\starttabulate[|l|p|]
+\BC value                  \BC explanation                               \NC \NR
+\NC \type{alignment}       \NC a (partial) alignment is being added      \NC \NR
+\NC \type{after_output}    \NC an output routine has just finished       \NC \NR
+\NC \type{new_graf}        \NC the beginning of a new paragraph          \NC \NR
+\NC \type{vmode_par}       \NC \type {\par} was found in vertical mode   \NC \NR
+\NC \type{hmode_par}       \NC \type {\par} was found in horizontal mode \NC \NR
+\NC \type{insert}          \NC an insert is added                        \NC \NR
+\NC \type{penalty}         \NC a penalty (in vertical mode)              \NC \NR
+\NC \type{before_display}  \NC immediately before a display starts       \NC \NR
+\NC \type{after_display}   \NC a display is finished                     \NC \NR
+\NC \type{end}             \NC \LUATEX\ is terminating (it's all over)   \NC \NR
 \stoptabulate
 
 \subsection{\type {build_page_insert}}
@@ -449,10 +449,10 @@ end
 
 with
 
-\starttabulate[|lT|p|]
-\NC \rmbf value     \NC \bf explanation \NC \NR
-\NC n \NC the insert class              \NC \NR
-\NC i \NC the order of the insert       \NC \NR
+\starttabulate[|l|p|]
+\BC value    \BC explanation             \NC \NR
+\NC \type{n} \NC the insert class        \NC \NR
+\NC \type{i} \NC the order of the insert \NC \NR
 \stoptabulate
 
 The return value is a number indicating the skip register to use for the
@@ -478,22 +478,22 @@ not all of those can actually appear in \type {pre_linebreak_filter}, some are
 for the \type {hpack_filter} and \type {vpack_filter} callbacks that will be
 explained in the next two paragraphs.
 
-\starttabulate[|lT|p|]
-\NC \rmbf value   \NC \bf explanation                                 \NC \NR
-\NC <empty>       \NC main vertical list                              \NC \NR
-\NC hbox          \NC \type {\hbox} in horizontal mode                \NC \NR
-\NC adjusted_hbox \NC \type {\hbox} in vertical mode                  \NC \NR
-\NC vbox          \NC \type {\vbox}                                   \NC \NR
-\NC vtop          \NC \type {\vtop}                                   \NC \NR
-\NC align         \NC \type {\halign} or \type {\valign}              \NC \NR
-\NC disc          \NC discretionaries                                 \NC \NR
-\NC insert        \NC packaging an insert                             \NC \NR
-\NC vcenter       \NC \type {\vcenter}                                \NC \NR
-\NC local_box     \NC \type {\localleftbox} or \type {\localrightbox} \NC \NR
-\NC split_off     \NC top of a \type {\vsplit}                        \NC \NR
-\NC split_keep    \NC remainder of a \type {\vsplit}                  \NC \NR
-\NC align_set     \NC alignment cell                                  \NC \NR
-\NC fin_row       \NC alignment row                                   \NC \NR
+\starttabulate[|l|p|]
+\BC value                \BC explanation                                     \NC \NR
+\NC \type{<empty>}       \NC main vertical list                              \NC \NR
+\NC \type{hbox}          \NC \type {\hbox} in horizontal mode                \NC \NR
+\NC \type{adjusted_hbox} \NC \type {\hbox} in vertical mode                  \NC \NR
+\NC \type{vbox}          \NC \type {\vbox}                                   \NC \NR
+\NC \type{vtop}          \NC \type {\vtop}                                   \NC \NR
+\NC \type{align}         \NC \type {\halign} or \type {\valign}              \NC \NR
+\NC \type{disc}          \NC discretionaries                                 \NC \NR
+\NC \type{insert}        \NC packaging an insert                             \NC \NR
+\NC \type{vcenter}       \NC \type {\vcenter}                                \NC \NR
+\NC \type{local_box}     \NC \type {\localleftbox} or \type {\localrightbox} \NC \NR
+\NC \type{split_off}     \NC top of a \type {\vsplit}                        \NC \NR
+\NC \type{split_keep}    \NC remainder of a \type {\vsplit}                  \NC \NR
+\NC \type{align_set}     \NC alignment cell                                  \NC \NR
+\NC \type{fin_row}       \NC alignment row                                   \NC \NR
 \stoptabulate
 
 As for all the callbacks that deal with nodes, the return value can be one of

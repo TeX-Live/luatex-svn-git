@@ -168,20 +168,20 @@ The input for such primitives would look like this:
 The altered \TEX82 primitives are:
 
 \starttabulate[|l|l|r|c|l|r|]
-\NC \bf primitive     \NC \bf min \NC \bf max \NC \kern 2em  \NC \bf min \NC \bf max \NC \NR
-\NC \type {\mathcode} \NC 0       \NC 10FFFF  \NC =          \NC 0       \NC 8000    \NC \NR
-\NC \type {\delcode}  \NC 0       \NC 10FFFF  \NC =          \NC 0       \NC FFFFFF  \NC \NR
+\BC primitive         \BC min \BC max    \BC \kern 2em \BC min \BC max    \NC \NR
+\NC \type {\mathcode} \NC 0   \NC 10FFFF \NC =         \NC 0   \NC 8000   \NC \NR
+\NC \type {\delcode}  \NC 0   \NC 10FFFF \NC =         \NC 0   \NC FFFFFF \NC \NR
 \stoptabulate
 
 The unaltered ones are:
 
 \starttabulate[|l|l|r|]
-\NC \bf primitive        \NC \bf min \NC \bf max \NC \NR
-\NC \type {\mathchardef} \NC 0       \NC    8000 \NC \NR
-\NC \type {\mathchar}    \NC 0       \NC    7FFF \NC \NR
-\NC \type {\mathaccent}  \NC 0       \NC    7FFF \NC \NR
-\NC \type {\delimiter}   \NC 0       \NC 7FFFFFF \NC \NR
-\NC \type {\radical}     \NC 0       \NC 7FFFFFF \NC \NR
+\BC primitive            \BC min \BC max     \NC \NR
+\NC \type {\mathchardef} \NC 0   \NC    8000 \NC \NR
+\NC \type {\mathchar}    \NC 0   \NC    7FFF \NC \NR
+\NC \type {\mathaccent}  \NC 0   \NC    7FFF \NC \NR
+\NC \type {\delimiter}   \NC 0   \NC 7FFFFFF \NC \NR
+\NC \type {\radical}     \NC 0   \NC 7FFFFFF \NC \NR
 \stoptabulate
 
 For practical reasons \type {\mathchardef} will silently accept values larger
@@ -193,18 +193,18 @@ The following new primitives are compatible with \XETEX:
 % somewhat fuzzy:
 
 \starttabulate[|l|l|r|c|l|r|]
-\NC \bf primitive                           \NC \bf min   \NC \bf max             \NC \kern 2em  \NC \bf min   \NC \bf max                    \NC \NR
-\NC \type {\Umathchardef}                   \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{1}}   \NC   \NC           \NC                            \NC \NR
-\NC \type {\Umathcharnumdef}\rlap{\high{5}} \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}}   \NC   \NC           \NC                            \NC \NR
-\NC \type {\Umathcode}                      \NC 0         \NC      10FFFF                  \NC = \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{1}} \NC \NR
-\NC \type {\Udelcode}                       \NC 0         \NC      10FFFF                  \NC = \NC 0+0       \NC   FF+10FFFF\rlap{\high{2}} \NC \NR
-\NC \type {\Umathchar}                      \NC 0+0+0     \NC 7+FF+10FFFF                  \NC   \NC           \NC                            \NC \NR
-\NC \type {\Umathaccent}                    \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{2,4}} \NC   \NC           \NC                            \NC \NR
-\NC \type {\Udelimiter}                     \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{2}}   \NC   \NC           \NC                            \NC \NR
-\NC \type {\Uradical}                       \NC 0+0       \NC   FF+10FFFF\rlap{\high{2}}   \NC   \NC           \NC                            \NC \NR
-\NC \type {\Umathcharnum}                   \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}}   \NC   \NC           \NC                            \NC \NR
-\NC \type {\Umathcodenum}                   \NC 0         \NC      10FFFF                  \NC = \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}} \NC \NR
-\NC \type {\Udelcodenum}                    \NC 0         \NC      10FFFF                  \NC = \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}} \NC \NR
+\BC primitive                               \BC min       \BC max                          \BC \kern 2em \BC min       \BC max                        \NC \NR
+\NC \type {\Umathchardef}                   \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{1}}   \NC           \NC           \NC                            \NC \NR
+\NC \type {\Umathcharnumdef}\rlap{\high{5}} \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}}   \NC           \NC           \NC                            \NC \NR
+\NC \type {\Umathcode}                      \NC 0         \NC      10FFFF                  \NC =         \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{1}} \NC \NR
+\NC \type {\Udelcode}                       \NC 0         \NC      10FFFF                  \NC =         \NC 0+0       \NC   FF+10FFFF\rlap{\high{2}} \NC \NR
+\NC \type {\Umathchar}                      \NC 0+0+0     \NC 7+FF+10FFFF                  \NC           \NC           \NC                            \NC \NR
+\NC \type {\Umathaccent}                    \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{2,4}} \NC           \NC           \NC                            \NC \NR
+\NC \type {\Udelimiter}                     \NC 0+0+0     \NC 7+FF+10FFFF\rlap{\high{2}}   \NC           \NC           \NC                            \NC \NR
+\NC \type {\Uradical}                       \NC 0+0       \NC   FF+10FFFF\rlap{\high{2}}   \NC           \NC           \NC                            \NC \NR
+\NC \type {\Umathcharnum}                   \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}}   \NC           \NC           \NC                            \NC \NR
+\NC \type {\Umathcodenum}                   \NC 0         \NC      10FFFF                  \NC =         \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}} \NC \NR
+\NC \type {\Udelcodenum}                    \NC 0         \NC      10FFFF                  \NC =         \NC -80000000 \NC    7FFFFFFF\rlap{\high{3}} \NC \NR
 \stoptabulate
 
 Specifications typically look like:
@@ -336,7 +336,7 @@ now accessible via primitive commands. In fact, refactoring of the math engine
 has resulted in many more parameters than were accessible before.
 
 \starttabulate
-\NC \bf primitive name               \NC \bf description \NC \NR
+\BC primitive name                   \BC description \NC \NR
 \NC \type {\Umathquad}               \NC the width of 18 mu's \NC \NR
 \NC \type {\Umathaxis}               \NC height of the vertical center axis of
                                          the math formula above the baseline \NC \NR
@@ -447,7 +447,7 @@ dimension parameter. For math fonts, this should be set to zero.
 \switchtobodyfont[8pt]
 
 \starttabulate[|l|l|l|p|]
-\NC \bf variable                      \NC \bf style             \NC \bf default value opentype               \NC \bf default value tfm \NC \NR
+\BC variable                          \BC style                 \BC default value opentype                   \BC default value tfm \NC \NR
 \NC \type {\Umathaxis}                \NC --                    \NC AxisHeight                               \NC axis_height \NC \NR
 \NC \type {\Umathoperatorsize}        \NC D, D'                 \NC DisplayOperatorMinHeight                 \NC $^6$ \NC \NR
 \NC \type {\Umathfractiondelsize}     \NC D, D'                 \NC FractionDelimiterDisplayStyleSize$^9$    \NC delim1 \NC \NR
@@ -579,7 +579,7 @@ kerns assume correction too. Anyway, with this parameter one can control it.
         \NC \mathnolimitsmode8000 $\displaystyle\int\nolimits^0_1$
     \NC \NR
     \TB
-    \NC \bf mode
+    \BC mode
         \NC \tttf 0
         \NC \tttf 1
         \NC \tttf 2
@@ -587,7 +587,7 @@ kerns assume correction too. Anyway, with this parameter one can control it.
         \NC \tttf 4
         \NC \tttf 8000
     \NC \NR
-    \NC \bf superscript
+    \BC superscript
         \NC 0
         \NC font
         \NC 0
@@ -595,7 +595,7 @@ kerns assume correction too. Anyway, with this parameter one can control it.
         \NC +ic/2
         \NC 0
     \NC \NR
-    \NC \bf subscript
+    \BC subscript
         \NC -ic
         \NC font
         \NC 0
@@ -1090,7 +1090,7 @@ with zero being the default behaviour.
 \start
 
 \def\OneLiner#1#2%
-  {\NC #1
+  {\NC \type{#1}
    \NC \dontleavehmode\inframed[align=normal,offset=0pt,frame=off]{\mathsurroundmode#1\relax\hsize 100pt   x$x$x}
    \NC \dontleavehmode\inframed[align=normal,offset=0pt,frame=off]{\mathsurroundmode#1\relax\hsize 100pt x $x$ x}
    \NC #2
@@ -1103,7 +1103,7 @@ with zero being the default behaviour.
 
 \typebuffer \getbuffer
 
-\starttabulate[|Tc|c|c|pl|]
+\starttabulate[|c|c|c|pl|]
 \HL
 \BC mode \BC \type {x$x$x} \BC \type {x $x$ x} \BC effect \NC \NR
 \HL
@@ -1213,13 +1213,13 @@ effects.
   {$\mathscriptsmode#1\mathupright CH_2 + CH^+_2 + CH^2_2$}
 
 \starttabulate[|c|c|c|l|]
-\NC \bf mode \NC \bf down      \NC \bf up        \NC                \NC \NR
-\NC 0        \NC dynamic       \NC dynamic       \NC \SampleMath{0} \NC \NR
-\NC 1        \NC $d$           \NC $u$           \NC \SampleMath{1} \NC \NR
-\NC 2        \NC $s$           \NC $u$           \NC \SampleMath{2} \NC \NR
-\NC 3        \NC $s$           \NC $u + s - d$   \NC \SampleMath{3} \NC \NR
-\NC 4        \NC $d + (s-d)/2$ \NC $u + (s-d)/2$ \NC \SampleMath{4} \NC \NR
-\NC 5        \NC $d$           \NC $u + s - d$   \NC \SampleMath{5} \NC \NR
+\BC mode \BC down          \BC up            \BC                \NC \NR
+\NC 0    \NC dynamic       \NC dynamic       \NC \SampleMath{0} \NC \NR
+\NC 1    \NC $d$           \NC $u$           \NC \SampleMath{1} \NC \NR
+\NC 2    \NC $s$           \NC $u$           \NC \SampleMath{2} \NC \NR
+\NC 3    \NC $s$           \NC $u + s - d$   \NC \SampleMath{3} \NC \NR
+\NC 4    \NC $d + (s-d)/2$ \NC $u + (s-d)/2$ \NC \SampleMath{4} \NC \NR
+\NC 5    \NC $d$           \NC $u + s - d$   \NC \SampleMath{5} \NC \NR
 \stoptabulate
 
 The value of this parameter obeys grouping but applies to the whole current

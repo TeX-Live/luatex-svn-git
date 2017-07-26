@@ -97,83 +97,83 @@ index into \type {status}.
 
 The current list is:
 
-\starttabulate[|lT|p|]
-\NC \rmbf key          \NC \bf explanation \NC \NR
-\NC banner             \NC terminal display banner \NC \NR
-\NC best_page_break    \NC the current best break (a node) \NR \NR
-\NC buf_size           \NC current allocated size of the line buffer \NC \NR
-\NC callbacks          \NC total number of executed callbacks so far \NC \NR
-\NC cs_count           \NC number of control sequences \NC \NR
-\NC dest_names_size    \NC \PDF\ destination table size \NC \NR
-\NC dvi_gone           \NC written \DVI\ bytes \NC \NR
-\NC dvi_ptr            \NC not yet written \DVI\ bytes \NC \NR
-\NC dyn_used           \NC token (multi|-|word) memory in use  \NC \NR
-\NC filename           \NC name of the current input file \NC \NR
-\NC fix_mem_end        \NC maximum number of used tokens \NC \NR
-\NC fix_mem_min        \NC minimum number of allocated words for tokens \NC \NR
-\NC fix_mem_max        \NC maximum number of allocated words for tokens \NC \NR
-\NC font_ptr           \NC number of active fonts \NC \NR
-\NC hash_extra         \NC extra allowed hash \NC \NR
-\NC hash_size          \NC size of hash \NC \NR
-\NC indirect_callbacks \NC number of those that were themselves a result of other callbacks (e.g. file readers) \NC \NR
-\NC ini_version        \NC \type {true} if this is an \INITEX\ run \NC \NR
-\NC init_pool_ptr      \NC \INITEX\ string pool index \NC \NR
-\NC init_str_ptr       \NC number of \INITEX\ strings \NC \NR
-\NC input_ptr          \NC th elevel of input we're at \NC \NR
-\NC inputid            \NC numeric id of the current input \NC \NR
-\NC largest_used_mark  \NC max referenced marks class \NC \NR
-\NC lasterrorcontext   \NC last error context string (with newlines) \NC \NR
-\NC lasterrorstring    \NC last \TEX\ error string \NC \NR
-\NC lastluaerrorstring \NC last \LUA\ error string \NC \NR
-\NC lastwarningstring  \NC last warning tag, normally an indication of in what part\NC \NR
-\NC lastwarningtag     \NC last warning string\NC \NR
-\NC linenumber         \NC location in the current input file \NC \NR
-\NC log_name           \NC name of the log file \NC \NR
-\NC luabytecode_bytes  \NC number of bytes in \LUA\ bytecode registers \NC \NR
-\NC luabytecodes       \NC number of active \LUA\ bytecode registers \NC \NR
-\NC luastate_bytes     \NC number of bytes in use by \LUA\ interpreters \NC \NR
-\NC luatex_engine      \NC the \LUATEX\ engine identifier \NC \NR
-\NC luatex_hashchars   \NC length to which \LUA\ hashes strings ($2^n$) \NC \NR
-\NC luatex_hashtype    \NC the hash method used (in \LUAJITTEX) \NC \NR
-\NC luatex_revision    \NC the \LUATEX\ revision string \NC \NR
-\NC luatex_revision    \NC the \LUATEX\ revision string \NC \NR
-\NC luatex_version     \NC the \LUATEX\ version number \NC \NR
-\NC max_buf_stack      \NC max used buffer position \NC \NR
-\NC max_in_stack       \NC max used input stack entries \NC \NR
-\NC max_nest_stack     \NC max used nesting stack entries \NC \NR
-\NC max_param_stack    \NC max used parameter stack entries \NC \NR
-\NC max_save_stack     \NC max used save stack entries \NC \NR
-\NC max_strings        \NC maximum allowed strings \NC \NR
-\NC nest_size          \NC nesting stack size \NC \NR
-\NC node_mem_usage     \NC a string giving insight into currently used nodes \NC \NR
-\NC obj_ptr            \NC max \PDF\ object pointer \NC \NR
-\NC obj_tab_size       \NC \PDF\ object table size \NC \NR
-\NC output_active      \NC \type {true} if the \type {\output} routine is active \NC \NR
-\NC output_file_name   \NC name of the \PDF\ or \DVI\ file \NC \NR
-\NC param_size         \NC parameter stack size \NC \NR
-\NC pdf_dest_names_ptr \NC max \PDF\ destination pointer \NC \NR
-\NC pdf_gone           \NC written \PDF\ bytes \NC \NR
-\NC pdf_mem_ptr        \NC max \PDF\ memory used \NC \NR
-\NC pdf_mem_size       \NC \PDF\ memory size \NC \NR
-\NC pdf_os_cntr        \NC max \PDF\ object stream pointer \NC \NR
-\NC pdf_os_objidx      \NC \PDF\ object stream index \NC \NR
-\NC pdf_ptr            \NC not yet written \PDF\ bytes \NC \NR
-\NC pool_ptr           \NC string pool index \NC \NR
-\NC pool_size          \NC current size allocated for string characters \NC \NR
-\NC save_size          \NC save stack size \NC \NR
-\NC shell_escape       \NC \type {0} means disabled, \type {1} means anything is permitted, and \type {2} is restricted \NC \NR
-\NC safer_option       \NC \type {1} means safer is enforced \NC \NR
-\NC kpse_used          \NC \type {1} means that kpse is used \NC \NR
-\NC stack_size         \NC input stack size \NC \NR
-\NC str_ptr            \NC number of strings \NC \NR
-\NC total_pages        \NC number of written pages \NC \NR
-\NC var_mem_max        \NC number of allocated words for nodes \NC \NR
-\NC var_used           \NC variable (one|-|word) memory in use \NC \NR
-\NC lc_collate         \NC the value of \type {LC_COLLATE}  at startup time (becomes \type {C} at startup) \NC \NR
-\NC lc_ctype           \NC the value of \type {LC_CTYPE}    at startup time (becomes \type {C} at startup) \NC \NR
-%NC lc_monetary        \NC the value of \type {LC_MONETARY} at startup time \NC \NR
-\NC lc_numeric         \NC the value of \type {LC_NUMERIC}  at startup time \NC \NR
-%NC lc_time            \NC the value of \type {LC_TIME}     at startup time (becomes \type {C} at startup) \NC \NR
+\starttabulate[|l|p|]
+\BC key                       \BC explanation \NC \NR
+\NC \type{banner}             \NC terminal display banner \NC \NR
+\NC \type{best_page_break}    \NC the current best break (a node) \NR \NR
+\NC \type{buf_size}           \NC current allocated size of the line buffer \NC \NR
+\NC \type{callbacks}          \NC total number of executed callbacks so far \NC \NR
+\NC \type{cs_count}           \NC number of control sequences \NC \NR
+\NC \type{dest_names_size}    \NC \PDF\ destination table size \NC \NR
+\NC \type{dvi_gone}           \NC written \DVI\ bytes \NC \NR
+\NC \type{dvi_ptr}            \NC not yet written \DVI\ bytes \NC \NR
+\NC \type{dyn_used}           \NC token (multi|-|word) memory in use  \NC \NR
+\NC \type{filename}           \NC name of the current input file \NC \NR
+\NC \type{fix_mem_end}        \NC maximum number of used tokens \NC \NR
+\NC \type{fix_mem_min}        \NC minimum number of allocated words for tokens \NC \NR
+\NC \type{fix_mem_max}        \NC maximum number of allocated words for tokens \NC \NR
+\NC \type{font_ptr}           \NC number of active fonts \NC \NR
+\NC \type{hash_extra}         \NC extra allowed hash \NC \NR
+\NC \type{hash_size}          \NC size of hash \NC \NR
+\NC \type{indirect_callbacks} \NC number of those that were themselves a result of other callbacks (e.g. file readers) \NC \NR
+\NC \type{ini_version}        \NC \type {true} if this is an \INITEX\ run \NC \NR
+\NC \type{init_pool_ptr}      \NC \INITEX\ string pool index \NC \NR
+\NC \type{init_str_ptr}       \NC number of \INITEX\ strings \NC \NR
+\NC \type{input_ptr}          \NC th elevel of input we're at \NC \NR
+\NC \type{inputid}            \NC numeric id of the current input \NC \NR
+\NC \type{largest_used_mark}  \NC max referenced marks class \NC \NR
+\NC \type{lasterrorcontext}   \NC last error context string (with newlines) \NC \NR
+\NC \type{lasterrorstring}    \NC last \TEX\ error string \NC \NR
+\NC \type{lastluaerrorstring} \NC last \LUA\ error string \NC \NR
+\NC \type{lastwarningstring}  \NC last warning tag, normally an indication of in what part\NC \NR
+\NC \type{lastwarningtag}     \NC last warning string\NC \NR
+\NC \type{linenumber}         \NC location in the current input file \NC \NR
+\NC \type{log_name}           \NC name of the log file \NC \NR
+\NC \type{luabytecode_bytes}  \NC number of bytes in \LUA\ bytecode registers \NC \NR
+\NC \type{luabytecodes}       \NC number of active \LUA\ bytecode registers \NC \NR
+\NC \type{luastate_bytes}     \NC number of bytes in use by \LUA\ interpreters \NC \NR
+\NC \type{luatex_engine}      \NC the \LUATEX\ engine identifier \NC \NR
+\NC \type{luatex_hashchars}   \NC length to which \LUA\ hashes strings ($2^n$) \NC \NR
+\NC \type{luatex_hashtype}    \NC the hash method used (in \LUAJITTEX) \NC \NR
+\NC \type{luatex_revision}    \NC the \LUATEX\ revision string \NC \NR
+\NC \type{luatex_revision}    \NC the \LUATEX\ revision string \NC \NR
+\NC \type{luatex_version}     \NC the \LUATEX\ version number \NC \NR
+\NC \type{max_buf_stack}      \NC max used buffer position \NC \NR
+\NC \type{max_in_stack}       \NC max used input stack entries \NC \NR
+\NC \type{max_nest_stack}     \NC max used nesting stack entries \NC \NR
+\NC \type{max_param_stack}    \NC max used parameter stack entries \NC \NR
+\NC \type{max_save_stack}     \NC max used save stack entries \NC \NR
+\NC \type{max_strings}        \NC maximum allowed strings \NC \NR
+\NC \type{nest_size}          \NC nesting stack size \NC \NR
+\NC \type{node_mem_usage}     \NC a string giving insight into currently used nodes \NC \NR
+\NC \type{obj_ptr}            \NC max \PDF\ object pointer \NC \NR
+\NC \type{obj_tab_size}       \NC \PDF\ object table size \NC \NR
+\NC \type{output_active}      \NC \type {true} if the \type {\output} routine is active \NC \NR
+\NC \type{output_file_name}   \NC name of the \PDF\ or \DVI\ file \NC \NR
+\NC \type{param_size}         \NC parameter stack size \NC \NR
+\NC \type{pdf_dest_names_ptr} \NC max \PDF\ destination pointer \NC \NR
+\NC \type{pdf_gone}           \NC written \PDF\ bytes \NC \NR
+\NC \type{pdf_mem_ptr}        \NC max \PDF\ memory used \NC \NR
+\NC \type{pdf_mem_size}       \NC \PDF\ memory size \NC \NR
+\NC \type{pdf_os_cntr}        \NC max \PDF\ object stream pointer \NC \NR
+\NC \type{pdf_os_objidx}      \NC \PDF\ object stream index \NC \NR
+\NC \type{pdf_ptr}            \NC not yet written \PDF\ bytes \NC \NR
+\NC \type{pool_ptr}           \NC string pool index \NC \NR
+\NC \type{pool_size}          \NC current size allocated for string characters \NC \NR
+\NC \type{save_size}          \NC save stack size \NC \NR
+\NC \type{shell_escape}       \NC \type {0} means disabled, \type {1} means anything is permitted, and \type {2} is restricted \NC \NR
+\NC \type{safer_option}       \NC \type {1} means safer is enforced \NC \NR
+\NC \type{kpse_used}          \NC \type {1} means that kpse is used \NC \NR
+\NC \type{stack_size}         \NC input stack size \NC \NR
+\NC \type{str_ptr}            \NC number of strings \NC \NR
+\NC \type{total_pages}        \NC number of written pages \NC \NR
+\NC \type{var_mem_max}        \NC number of allocated words for nodes \NC \NR
+\NC \type{var_used}           \NC variable (one|-|word) memory in use \NC \NR
+\NC \type{lc_collate}         \NC the value of \type {LC_COLLATE}  at startup time (becomes \type {C} at startup) \NC \NR
+\NC \type{lc_ctype}           \NC the value of \type {LC_CTYPE}    at startup time (becomes \type {C} at startup) \NC \NR
+%NC \type{lc_monetary}        \NC the value of \type {LC_MONETARY} at startup time \NC \NR
+\NC \type{lc_numeric}         \NC the value of \type {LC_NUMERIC}  at startup time \NC \NR
+%NC \type{lc_time}            \NC the value of \type {LC_TIME}     at startup time (becomes \type {C} at startup) \NC \NR
 \stoptabulate
 
 The error and warning messages can be wiped with the \type {resetmessages}
@@ -877,18 +877,18 @@ parameters.
 The virtual table \type {tex.lists} contains the set of internal registers that
 keep track of building page lists.
 
-\starttabulate[|lT|p|]
-\NC \bf field           \NC \bf description \NC \NR
-\NC page_ins_head       \NC circular list of pending insertions \NC \NR
-\NC contrib_head        \NC the recent contributions \NC \NR
-\NC page_head           \NC the current page content \NC \NR
-%NC temp_head           \NC \NC \NR
-\NC hold_head           \NC used for held-over items for next page \NC \NR
-\NC adjust_head         \NC head of the current \type {\vadjust} list \NC \NR
-\NC pre_adjust_head     \NC head of the current \type {\vadjust pre} list \NC \NR
-%NC align_head          \NC \NC \NR
-\NC page_discards_head  \NC head of the discarded items of a page break \NC \NR
-\NC split_discards_head \NC head of the discarded items in a vsplit \NC \NR
+\starttabulate[|l|p|]
+\BC field                      \BC description \NC \NR
+\NC \type{page_ins_head}       \NC circular list of pending insertions \NC \NR
+\NC \type{contrib_head}        \NC the recent contributions \NC \NR
+\NC \type{page_head}           \NC the current page content \NC \NR
+%NC \type{temp_head}           \NC \NC \NR
+\NC \type{hold_head}           \NC used for held-over items for next page \NC \NR
+\NC \type{adjust_head}         \NC head of the current \type {\vadjust} list \NC \NR
+\NC \type{pre_adjust_head}     \NC head of the current \type {\vadjust pre} list \NC \NR
+%NC \type{align_head}          \NC \NC \NR
+\NC \type{page_discards_head}  \NC head of the discarded items of a page break \NC \NR
+\NC \type{split_discards_head} \NC head of the discarded items in a vsplit \NC \NR
 \stoptabulate
 
 \subsection{Semantic nest levels}
@@ -906,31 +906,31 @@ outermost (main vertical list) level.
 
 The known fields are:
 
-\starttabulate[|lT|l|l|p|]
-\NC \rmbf key   \NC \bf type \NC \bf modes \NC \bf explanation \NC \NR
-\NC mode        \NC number   \NC all       \NC a number representing the main mode at this level:
-                                               \type {0}    = no mode (this happens during \type {\write}),
-                                               \type {1}    = vertical,
-                                               \type {127}  = horizontal,
-                                               \type {253}  = display math,
-                                               \type {-1}   = internal vertical,
-                                               \type {-127} = restricted horizontal,
-                                               \type {-253} = inline math \NC \NR
-\NC modeline    \NC number   \NC all       \NC source input line where this mode was entered in,
-                                               negative inside the output routine \NC \NR
-\NC head        \NC node     \NC all       \NC the head of the current list \NC \NR
-\NC tail        \NC node     \NC all       \NC the tail of the current list \NC \NR
-\NC prevgraf    \NC number   \NC vmode     \NC number of lines in the previous paragraph \NC \NR
-\NC prevdepth   \NC number   \NC vmode     \NC depth of the previous paragraph \NC \NR
-\NC spacefactor \NC number   \NC hmode     \NC the current space factor \NC \NR
-\NC dirs        \NC node     \NC hmode     \NC used for temporary storage by the line break algorithm\NC \NR
-\NC noad        \NC node     \NC mmode     \NC used for temporary storage of a pending fraction numerator,
-                                               for \type {\over} etc. \NC \NR
-\NC delimptr    \NC node     \NC mmode     \NC used for temporary storage of the previous math delimiter,
-                                               for \type {\middle} \NC \NR
-\NC mathdir     \NC boolean  \NC mmode     \NC true when during math processing the \type {\mathdir} is not
-                                               the same as the surrounding \type {\textdir} \NC \NR
-\NC mathstyle   \NC number   \NC mmode     \NC the current \type {\mathstyle} \NC \NR
+\starttabulate[|l|l|l|p|]
+\BC key                \BC type    \BC modes \BC explanation \NC \NR
+\NC \type{mode}        \NC number  \NC all   \NC a number representing the main mode at this level:
+                                                 \type {0}    = no mode (this happens during \type {\write}),
+                                                 \type {1}    = vertical,
+                                                 \type {127}  = horizontal,
+                                                 \type {253}  = display math,
+                                                 \type {-1}   = internal vertical,
+                                                 \type {-127} = restricted horizontal,
+                                                 \type {-253} = inline math \NC \NR
+\NC \type{modeline}    \NC number  \NC all   \NC source input line where this mode was entered in,
+                                                 negative inside the output routine \NC \NR
+\NC \type{head}        \NC node    \NC all   \NC the head of the current list \NC \NR
+\NC \type{tail}        \NC node    \NC all   \NC the tail of the current list \NC \NR
+\NC \type{prevgraf}    \NC number  \NC vmode \NC number of lines in the previous paragraph \NC \NR
+\NC \type{prevdepth}   \NC number  \NC vmode \NC depth of the previous paragraph \NC \NR
+\NC \type{spacefactor} \NC number  \NC hmode \NC the current space factor \NC \NR
+\NC \type{dirs}        \NC node    \NC hmode \NC used for temporary storage by the line break algorithm\NC \NR
+\NC \type{noad}        \NC node    \NC mmode \NC used for temporary storage of a pending fraction numerator,
+                                                 for \type {\over} etc. \NC \NR
+\NC \type{delimptr}    \NC node    \NC mmode \NC used for temporary storage of the previous math delimiter,
+                                                 for \type {\middle} \NC \NR
+\NC \type{mathdir}     \NC boolean \NC mmode \NC true when during math processing the \type {\mathdir} is not
+                                                 the same as the surrounding \type {\textdir} \NC \NR
+\NC \type{mathstyle}   \NC number  \NC mmode \NC the current \type {\mathstyle} \NC \NR
 \stoptabulate
 
 \subsection[sec:luaprint]{Print functions}
@@ -1252,7 +1252,7 @@ end
 \stopluacode
 
 \starttabulate[|l|pl|]
-\NC \bf name\NC \bf values \NC \NR
+\BC name    \BC values \NC \NR
 \NC tex     \NC \ctxlua{document.showprimitives('tex')    } \NC \NR
 \NC core    \NC \ctxlua{document.showprimitives('core')   } \NC \NR
 \NC etex    \NC \ctxlua{document.showprimitives('etex')   } \NC \NR
@@ -1307,42 +1307,36 @@ local <node> nodelist, <table> info =
 The understood parameters are as follows:
 
 \starttabulate[|l|l|p|]
-\NC \bf name                 \NC \bf type        \NC \bf description \NC \NR
-\NC pardir                   \NC string          \NC \NC \NR
-\NC pretolerance             \NC number          \NC \NC \NR
-\NC tracingparagraphs        \NC number          \NC \NC \NR
-\NC tolerance                \NC number          \NC \NC \NR
-\NC looseness                \NC number          \NC \NC \NR
-\NC hyphenpenalty            \NC number          \NC \NC \NR
-\NC exhyphenpenalty          \NC number          \NC \NC \NR
-\NC pdfadjustspacing         \NC number          \NC \NC \NR
-\NC adjdemerits              \NC number          \NC \NC \NR
-\NC pdfprotrudechars         \NC number          \NC \NC \NR
-\NC linepenalty              \NC number          \NC \NC \NR
-\NC lastlinefit              \NC number          \NC \NC \NR
-\NC doublehyphendemerits     \NC number          \NC \NC \NR
-\NC finalhyphendemerits      \NC number          \NC \NC \NR
-\NC hangafter                \NC number          \NC \NC \NR
-\NC interlinepenalty         \NC number or table \NC if a table, then it is an array like \type {\interlinepenalties} \NC \NR
-\NC clubpenalty              \NC number or table \NC if a table, then it is an array like \type {\clubpenalties} \NC \NR
-\NC widowpenalty             \NC number or table \NC if a table, then it is an array like \type {\widowpenalties} \NC \NR
-\NC brokenpenalty            \NC number          \NC \NC \NR
-\NC emergencystretch         \NC number          \NC in scaled points \NC \NR
-\NC hangindent               \NC number          \NC in scaled points \NC \NR
-\NC hsize                    \NC number          \NC in scaled points \NC \NR
-\NC leftskip                 \NC glue_spec node  \NC \NC \NR
-\NC rightskip                \NC glue_spec node  \NC \NC \NR
-\NC pdfignoreddimen          \NC number          \NC in scaled points \NC \NR
-\NC parshape                 \NC table           \NC \NC \NR
+\BC name                        \BC type            \BC description \NC \NR
+\NC \type{pardir}               \NC string          \NC \NC \NR
+\NC \type{pretolerance}         \NC number          \NC \NC \NR
+\NC \type{tracingparagraphs}    \NC number          \NC \NC \NR
+\NC \type{tolerance}            \NC number          \NC \NC \NR
+\NC \type{looseness}            \NC number          \NC \NC \NR
+\NC \type{hyphenpenalty}        \NC number          \NC \NC \NR
+\NC \type{exhyphenpenalty}      \NC number          \NC \NC \NR
+\NC \type{pdfadjustspacing}     \NC number          \NC \NC \NR
+\NC \type{adjdemerits}          \NC number          \NC \NC \NR
+\NC \type{pdfprotrudechars}     \NC number          \NC \NC \NR
+\NC \type{linepenalty}          \NC number          \NC \NC \NR
+\NC \type{lastlinefit}          \NC number          \NC \NC \NR
+\NC \type{doublehyphendemerits} \NC number          \NC \NC \NR
+\NC \type{finalhyphendemerits}  \NC number          \NC \NC \NR
+\NC \type{hangafter}            \NC number          \NC \NC \NR
+\NC \type{interlinepenalty}     \NC number or table \NC if a table, then it is an array like \type {\interlinepenalties} \NC \NR
+\NC \type{clubpenalty}          \NC number or table \NC if a table, then it is an array like \type {\clubpenalties} \NC \NR
+\NC \type{widowpenalty}         \NC number or table \NC if a table, then it is an array like \type {\widowpenalties} \NC \NR
+\NC \type{brokenpenalty}        \NC number          \NC \NC \NR
+\NC \type{emergencystretch}     \NC number          \NC in scaled points \NC \NR
+\NC \type{hangindent}           \NC number          \NC in scaled points \NC \NR
+\NC \type{hsize}                \NC number          \NC in scaled points \NC \NR
+\NC \type{leftskip}             \NC glue_spec node  \NC \NC \NR
+\NC \type{rightskip}            \NC glue_spec node  \NC \NC \NR
+\NC \type{parshape}             \NC table           \NC \NC \NR
 \stoptabulate
 
 Note that there is no interface for \type {\displaywidowpenalties}, you have to
 pass the right choice for \type {widowpenalties} yourself.
-
-The meaning of the various keys should be fairly obvious from the table (the
-names match the \TEX\ and \PDFTEX\ primitives) except for the last 5 entries. The
-four \type {pdf...line...} keys are ignored if their value equals \type
-{pdfignoreddimen}.
 
 It is your own job to make sure that \type {listhead} is a proper paragraph list:
 this function does not add any nodes to it. To be exact, if you want to replace
@@ -1401,16 +1395,17 @@ mind that the library used in editors assumes a certain logic and is geared for
 plain and \LATEX, so after a decade users expect a certain behaviour.
 
 \starttabulate[|l|p|]
-\NC set_synctex_mode   \NC \type {0} is the default and used normal synctex logic,
-\type {1} uses the values set by the next helpers while \type {2}
-also sets these for glyph nodes; \type{3} sets glyphs and glue and \type {4} sets only
-glyphs \NC \NR
-\NC set_synctex_tag    \NC set the current tag (file) value (obeys save stack) \NC \NR
-\NC set_synctex_line   \NC set the current line value (obeys save stack) \NC \NR
-\NC force_synctex_tag  \NC overload the tag (file) value (\type {0} resets) \NC \NR
-\NC force_synctex_line \NC overload the line value  (\type {0} resets) \NC \NR
-\NC get_synctex_tag    \NC get the currently set value of tag (file) \NC \NR
-\NC get_synctex_line   \NC get the currently set value of line \NC \NR
+\NC \type{set_synctex_mode}   \NC \type {0} is the default and used normal synctex
+                                  logic, \type {1} uses the values set by the next
+                                  helpers while \type {2} also sets these for glyph
+                                  nodes; \type{3} sets glyphs and glue and \type {4}
+                                  sets only glyphs \NC \NR
+\NC \type{set_synctex_tag}    \NC set the current tag (file) value (obeys save stack) \NC \NR
+\NC \type{set_synctex_line}   \NC set the current line value (obeys save stack) \NC \NR
+\NC \type{force_synctex_tag}  \NC overload the tag (file) value (\type {0} resets) \NC \NR
+\NC \type{force_synctex_line} \NC overload the line value  (\type {0} resets) \NC \NR
+\NC \type{get_synctex_tag}    \NC get the currently set value of tag (file) \NC \NR
+\NC \type{get_synctex_line}   \NC get the currently set value of line \NC \NR
 \stoptabulate
 
 This mechanism is somewhat experimental.
@@ -1421,16 +1416,16 @@ This is a table that is created empty. A startup \LUA\ script could
 fill this table with a number of settings that are read out by
 the executable after loading and executing the startup file.
 
-\starttabulate[|lT|l|l|p|]
-\NC \rmbf key             \NC \bf type \NC \bf default \NC \bf explanation \NC \NR
-\NC kpse_init             \NC boolean  \NC true
+\starttabulate[|l|l|l|p|]
+\BC key                   \BC type     \BC default \BC explanation \NC \NR
+\NC \type{kpse_init}      \NC boolean  \NC true
 \NC
     \type {false} totally disables \KPATHSEA\ initialisation, and enables
     interpretation of the following numeric key--value pairs. (only ever unset
     this if you implement {\it all\/} file find callbacks!)
 \NC \NR
 \NC
-    shell_escape          \NC string   \NC \type {'f'} \NC
+    \type{shell_escape}   \NC string   \NC \type {'f'} \NC
     Use \type {'y'} or \type {'t'} or \type {'1'} to enable \type {\write18}
     unconditionally, \type {'p'} to enable the commands that are listed in \type
     {shell_escape_commands}
@@ -1442,41 +1437,40 @@ the executable after loading and executing the startup file.
     required command arguments by using a space, and use the \ASCII\ double quote
     (\type {"}) for any needed argument or path quoting
 \NC \NR
-
-\NC string_vacancies      \NC number   \NC  75000  \NC cf.\ web2c docs \NC \NR
-\NC pool_free             \NC number   \NC   5000  \NC cf.\ web2c docs \NC \NR
-\NC max_strings           \NC number   \NC  15000  \NC cf.\ web2c docs \NC \NR
-\NC strings_free          \NC number   \NC    100  \NC cf.\ web2c docs \NC \NR
-\NC nest_size             \NC number   \NC     50  \NC cf.\ web2c docs \NC \NR
-\NC max_in_open           \NC number   \NC     15  \NC cf.\ web2c docs \NC \NR
-\NC param_size            \NC number   \NC     60  \NC cf.\ web2c docs \NC \NR
-\NC save_size             \NC number   \NC   4000  \NC cf.\ web2c docs \NC \NR
-\NC stack_size            \NC number   \NC    300  \NC cf.\ web2c docs \NC \NR
-\NC dvi_buf_size          \NC number   \NC  16384  \NC cf.\ web2c docs \NC \NR
-\NC error_line            \NC number   \NC     79  \NC cf.\ web2c docs \NC \NR
-\NC half_error_line       \NC number   \NC     50  \NC cf.\ web2c docs \NC \NR
-\NC max_print_line        \NC number   \NC     79  \NC cf.\ web2c docs \NC \NR
-\NC hash_extra            \NC number   \NC      0  \NC cf.\ web2c docs \NC \NR
-\NC pk_dpi                \NC number   \NC     72  \NC cf.\ web2c docs \NC \NR
-\NC trace_file_names      \NC boolean  \NC true
+\NC \type{string_vacancies} \NC number   \NC  75000  \NC cf.\ web2c docs \NC \NR
+\NC \type{pool_free}        \NC number   \NC   5000  \NC cf.\ web2c docs \NC \NR
+\NC \type{max_strings}      \NC number   \NC  15000  \NC cf.\ web2c docs \NC \NR
+\NC \type{strings_free}     \NC number   \NC    100  \NC cf.\ web2c docs \NC \NR
+\NC \type{nest_size}        \NC number   \NC     50  \NC cf.\ web2c docs \NC \NR
+\NC \type{max_in_open}      \NC number   \NC     15  \NC cf.\ web2c docs \NC \NR
+\NC \type{param_size}       \NC number   \NC     60  \NC cf.\ web2c docs \NC \NR
+\NC \type{save_size}        \NC number   \NC   4000  \NC cf.\ web2c docs \NC \NR
+\NC \type{stack_size}       \NC number   \NC    300  \NC cf.\ web2c docs \NC \NR
+\NC \type{dvi_buf_size}     \NC number   \NC  16384  \NC cf.\ web2c docs \NC \NR
+\NC \type{error_line}       \NC number   \NC     79  \NC cf.\ web2c docs \NC \NR
+\NC \type{half_error_line}  \NC number   \NC     50  \NC cf.\ web2c docs \NC \NR
+\NC \type{max_print_line}   \NC number   \NC     79  \NC cf.\ web2c docs \NC \NR
+\NC \type{hash_extra}       \NC number   \NC      0  \NC cf.\ web2c docs \NC \NR
+\NC \type{pk_dpi}           \NC number   \NC     72  \NC cf.\ web2c docs \NC \NR
+\NC \type{trace_file_names} \NC boolean  \NC true
 \NC
     \type {false} disables \TEX's normal file open|-|close feedback (the
     assumption is that callbacks will take care of that)
 \NC \NR
-\NC file_line_error       \NC boolean  \NC false
+\NC \type{file_line_error}  \NC boolean  \NC false
 \NC
     do \type {file:line} style error messages
 \NC \NR
-\NC halt_on_error         \NC boolean  \NC false
+\NC \type{halt_on_error}    \NC boolean  \NC false
 \NC
     abort run on the first encountered error
 \NC \NR
-\NC formatname            \NC string   \NC
+\NC \type{formatname}       \NC string   \NC
 \NC
     if no format name was given on the command line, this key will be tested first
     instead of simply quitting
 \NC \NR
-\NC jobname               \NC string   \NC
+\NC \type{jobname}        \NC string   \NC
 \NC
     if no input file name was given on the command line, this key will be tested
     first instead of simply giving up
@@ -1538,22 +1532,22 @@ they can benefit from this as the main principle behind \LUATEX\ is to provide a
 minimal set of tools and no solutions. The functions provided in the \type
 {token} namespace are given in the next table:
 
-\starttabulate[|lT|lT|p|]
-\NC \bf function \NC \bf argument       \NC \bf result \NC \NR
+\starttabulate[|l|l|p|]
+\BC function            \BC argument           \BC result \NC \NR
 \HL
-\NC is_token     \NC token              \NC checks if the given argument is a token userdatum \NC \NR
-\NC get_next     \NC                    \NC returns the next token in the input \NC \NR
-\NC scan_keyword \NC string             \NC returns true if the given keyword is gobbled \NC \NR
-\NC scan_int     \NC                    \NC returns a number \NC \NR
-\NC scan_dimen   \NC infinity, mu-units \NC returns a number representing a dimension and or two numbers being the filler and order \NC \NR
-\NC scan_glue    \NC mu-units           \NC returns a glue spec node \NC \NR
-\NC scan_toks    \NC definer, expand    \NC returns a table of tokens token list (this can become a linked list in later releases) \NC \NR
-\NC scan_code    \NC bitset             \NC returns a character if its category is in the given bitset (representing catcodes) \NC \NR
-\NC scan_string  \NC                    \NC returns a string given between \type {{}}, as \type {\macro} or as sequence of characters with catcode 11 or 12 \NC \NR
-\NC scan_word    \NC                    \NC returns a sequence of characters with catcode 11 or 12 as string \NC \NR
-\NC scan_csname  \NC                    \NC returns \type {foo} after scanning \type {\foo} \NC \NR
-\NC set_macro    \NC see below          \NC assign a macro \NC \NR
-\NC create       \NC                    \NC returns a userdata token object of the given control sequence name (or character); this interface can change  \NC \NR
+\NC \type{is_token}     \NC token              \NC checks if the given argument is a token userdatum \NC \NR
+\NC \type{get_next}     \NC                    \NC returns the next token in the input \NC \NR
+\NC \type{scan_keyword} \NC string             \NC returns true if the given keyword is gobbled \NC \NR
+\NC \type{scan_int}     \NC                    \NC returns a number \NC \NR
+\NC \type{scan_dimen}   \NC infinity, mu-units \NC returns a number representing a dimension and or two numbers being the filler and order \NC \NR
+\NC \type{scan_glue}    \NC mu-units           \NC returns a glue spec node \NC \NR
+\NC \type{scan_toks}    \NC definer, expand    \NC returns a table of tokens token list (this can become a linked list in later releases) \NC \NR
+\NC \type{scan_code}    \NC bitset             \NC returns a character if its category is in the given bitset (representing catcodes) \NC \NR
+\NC \type{scan_string}  \NC                    \NC returns a string given between \type {{}}, as \type {\macro} or as sequence of characters with catcode 11 or 12 \NC \NR
+\NC \type{scan_word}    \NC                    \NC returns a sequence of characters with catcode 11 or 12 as string \NC \NR
+\NC \type{scan_csname}  \NC                    \NC returns \type {foo} after scanning \type {\foo} \NC \NR
+\NC \type{set_macro}    \NC see below          \NC assign a macro \NC \NR
+\NC \type{create}       \NC                    \NC returns a userdata token object of the given control sequence name (or character); this interface can change  \NC \NR
 \stoptabulate
 
 The scanners can be considered stable apart from the one scanning for a token.
@@ -1612,17 +1606,17 @@ local t = token.create("relax")
 This gives back a token object that has the properties of the \type {\relax}
 primitive. The possible properties of tokens are:
 
-\starttabulate[|lT|p|]
-\NC command    \NC a number representing the internal command number \NC \NR
-\NC cmdname    \NC the type of the command (for instance the catcode in case of a
-                   character or the classifier that determines the internal
-                   treatment \NC \NR
-\NC csname     \NC the associated control sequence (if applicable) \NC \NR
-\NC id         \NC the unique id of the token \NC \NR
-%NC tok        \NC \NC \NR % might change
-\NC active     \NC a boolean indicating the active state of the token \NC \NR
-\NC expandable \NC a boolean indicating if the token (macro) is expandable \NC \NR
-\NC protected  \NC a boolean indicating if the token (macro) is protected \NC \NR
+\starttabulate[|l|p|]
+\NC \type {command}   \NC a number representing the internal command number \NC \NR
+\NC \type {cmdname}   \NC the type of the command (for instance the catcode in case of a
+                          character or the classifier that determines the internal
+                          treatment \NC \NR
+\NC \type{csname}     \NC the associated control sequence (if applicable) \NC \NR
+\NC \type{id}         \NC the unique id of the token \NC \NR
+%NC \type{tok}        \NC \NC \NR % might change
+\NC \type{active}     \NC a boolean indicating the active state of the token \NC \NR
+\NC \type{expandable} \NC a boolean indicating if the token (macro) is expandable \NC \NR
+\NC \type{protected}  \NC a boolean indicating if the token (macro) is protected \NC \NR
 \stoptabulate
 
 The numbers that represent a catcode are the same as in \TEX\ itself, so using
@@ -1973,20 +1967,20 @@ It returns a string for each found file.
 The options match commandline arguments from \type {kpsewhich}:
 
 \starttabulate[|l|l|p|]
-\NC \rmbf key \NC \rmbf type \NC \rmbf description \NC \NR
-\NC debug     \NC number     \NC set debugging flags for this lookup\NC     \NR
-\NC format    \NC string     \NC use specific file type (see list above)\NC \NR
-\NC dpi       \NC number     \NC use this resolution for this lookup; default 600\NC \NR
-\NC path      \NC string     \NC search in the given path\NC \NR
-\NC all       \NC boolean    \NC output all matches, not just the first\NC \NR
-\NC mustexist \NC boolean    \NC search the disk as well as ls-R if necessary\NC \NR
-\NC mktexpk   \NC boolean    \NC disable/enable mktexpk generation for this lookup\NC \NR
-\NC mktextex  \NC boolean    \NC disable/enable mktextex generation for this lookup\NC \NR
-\NC mktexmf   \NC boolean    \NC disable/enable mktexmf generation for this lookup\NC \NR
-\NC mktextfm  \NC boolean    \NC disable/enable mktextfm generation for this lookup\NC \NR
-\NC subdir    \NC string
-                  or table   \NC only output matches whose directory part
-                                 ends with the given string(s) \NC \NR
+\BC key              \BC type     \BC description \NC \NR
+\NC \type{debug}     \NC number   \NC set debugging flags for this lookup\NC     \NR
+\NC \type{format}    \NC string   \NC use specific file type (see list above)\NC \NR
+\NC \type{dpi}       \NC number   \NC use this resolution for this lookup; default 600\NC \NR
+\NC \type{path}      \NC string   \NC search in the given path\NC \NR
+\NC \type{all}       \NC boolean  \NC output all matches, not just the first\NC \NR
+\NC \type{mustexist} \NC boolean  \NC search the disk as well as ls-R if necessary\NC \NR
+\NC \type{mktexpk}   \NC boolean  \NC disable/enable mktexpk generation for this lookup\NC \NR
+\NC \type{mktextex}  \NC boolean  \NC disable/enable mktextex generation for this lookup\NC \NR
+\NC \type{mktexmf}   \NC boolean  \NC disable/enable mktexmf generation for this lookup\NC \NR
+\NC \type{mktextfm}  \NC boolean  \NC disable/enable mktextfm generation for this lookup\NC \NR
+\NC \type{subdir}    \NC string
+                         or table \NC only output matches whose directory part
+                                      ends with the given string(s) \NC \NR
 \stoptabulate
 
 \subsection{\type {init_prog}}
