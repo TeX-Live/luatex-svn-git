@@ -47,7 +47,13 @@
   [status=beta,
    version=1.06.0]
 
-\component luatex-titlepage
+\startnotmode[*export]
+    \component luatex-titlepage
+\stopnotmode
+
+\startmode[*export]
+    \component luatex-export-titlepage
+\stopmode
 
 \startfrontmatter
     \component luatex-contents

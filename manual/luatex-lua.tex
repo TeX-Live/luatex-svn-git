@@ -404,7 +404,7 @@ The \type {os} library has a few extra functions and variables:
 \startitem
     \type {os.env} is a hash table containing a dump of the variables and
     values in the process environment at the start of the run. It is writeable,
-    but the actual environment is {\em not\/} updated automatically.
+    but the actual environment is \notabene {not} updated automatically.
 \stopitem
 
 \startitem
@@ -559,12 +559,17 @@ When Universal Time is needed, you can pass the flag \type {utc} to the engine. 
 property also works when the date and time are set by \LUATEX\ itself. It has a
 complementary entry \type {use_utc_time} in the \type {texconfig} table.
 
-{\em To some extend a cleaner solution would be to have a flag that disables all
-variable data in one go (like filenames and so) but we just follow the method
-implemented in \PDFTEX\ where primitives are used to influence other properties.}
+\startnotabene
+    To some extend a cleaner solution would be to have a flag that disables all
+    variable data in one go (like filenames and so) but we just follow the method
+    implemented in \PDFTEX\ where primitives are used to influence other
+    properties.
+\stopnotabene
 
-{\em In \CONTEXT\ we provide the command line argument \type {--nodates} that
-does bit more disabling of dates.}
+\startnotabene
+    In \CONTEXT\ we provide the command line argument \type {--nodates} that does
+    bit more disabling of dates.
+\stopnotabene
 
 \stopchapter
 

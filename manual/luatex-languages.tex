@@ -709,10 +709,10 @@ For example, take the word \type {office}, hyphenated \type {of-fice}, using a
 type ligatures:
 
 \starttabulate[|l|l|]
-\NC Initial:               \NC \type {{o}{f}{f}{i}{c}{e}}             \NC\NR
-\NC After hyphenation:     \NC \type {{o}{f}{{-},{},{}}{f}{i}{c}{e}}  \NC\NR
-\NC First ligature stage:  \NC \type {{o}{{f-},{f},{<ff>}}{i}{c}{e}}  \NC\NR
-\NC Final result:          \NC \type {{o}{{f-},{<fi>},{<ffi>}}{c}{e}} \NC\NR
+\NC initial              \NC \type {{o}{f}{f}{i}{c}{e}}             \NC\NR
+\NC after hyphenation    \NC \type {{o}{f}{{-},{},{}}{f}{i}{c}{e}}  \NC\NR
+\NC first ligature stage \NC \type {{o}{{f-},{f},{<ff>}}{i}{c}{e}}  \NC\NR
+\NC final result         \NC \type {{o}{{f-},{<fi>},{<ffi>}}{c}{e}} \NC\NR
 \stoptabulate
 
 That's bad enough, but let us assume that there is also a hyphenation point
@@ -734,25 +734,25 @@ the top-level discretionary that resulted from the first hyphenation point.
 
 Here is that nested solution again, in a different representation:
 
-\starttabulate[|l|l|l|l|]
-\NC         \NC pre              \NC post          \NC replace           \NC \NR
-\NC topdisc \NC \type {f-}$^1$   \NC sub1          \NC sub2              \NC \NR
-\NC sub1    \NC \type {f-}$^2$   \NC \type {i}$^3$ \NC \type {<fi>}$^4$  \NC \NR
-\NC sub2    \NC \type {<ff>-}$^5$\NC \type {i}$^6$ \NC \type {<ffi>}$^7$ \NC \NR
+\starttabulate[|l|c|c|c|c|c|c|]
+\NC         \BC pre           \BC     \BC post      \BC       \BC replace       \BC       \NC \NR
+\NC topdisc \NC \type {f-}    \NC (1) \NC           \NC sub 1 \NC               \NC sub 2 \NC \NR
+\NC sub 1   \NC \type {f-}    \NC (2) \NC \type {i} \NC (3)   \NC \type {<fi>}  \NC (4)   \NC \NR
+\NC sub 2   \NC \type {<ff>-} \NC (5) \NC \type {i} \NC (6)   \NC \type {<ffi>} \NC (7)   \NC \NR
 \stoptabulate
 
 When line breaking is choosing its breakpoints, the following fields will
 eventually be selected:
 
-\starttabulate[|l|l|]
-\NC \type {of-f-ice} \NC \type {f-}$^1$    \NC \NR
-\NC                  \NC \type {f-}$^2$    \NC \NR
-\NC                  \NC \type {i}$^3$     \NC \NR
-\NC \type {of-fice}  \NC \type {f-}$^1$    \NC \NR
-\NC                  \NC \type {<fi>}$^4$  \NC \NR
-\NC \type {off-ice}  \NC \type {<ff>-}$^5$ \NC \NR
-\NC                  \NC \type {i}$^6$     \NC \NR
-\NC \type {office}   \NC \type {<ffi>}$^7$ \NC \NR
+\starttabulate[|l|c|c|]
+\NC \type {of-f-ice} \NC \type {f-}    \NC (1) \NC \NR
+\NC                  \NC \type {f-}    \NC (2) \NC \NR
+\NC                  \NC \type {i}     \NC (3) \NC \NR
+\NC \type {of-fice}  \NC \type {f-}    \NC (1) \NC \NR
+\NC                  \NC \type {<fi>}  \NC (4) \NC \NR
+\NC \type {off-ice}  \NC \type {<ff>-} \NC (5) \NC \NR
+\NC                  \NC \type {i}     \NC (6) \NC \NR
+\NC \type {office}   \NC \type {<ffi>} \NC (7) \NC \NR
 \stoptabulate
 
 The current solution in \LUATEX\ is not able to handle nested discretionaries,
@@ -770,14 +770,14 @@ make the whole stuff fit into just two discretionary nodes.
 The mapping of the seven list fields to the six fields in this discretionary node
 pair is as follows:
 
-\starttabulate[|l|p|]
-\BC field                 \BC description \NC \NR
-\NC \type {disc1.pre}     \NC \type {f-}$^1$ \NC \NR
-\NC \type {disc1.post}    \NC \type {<fi>}$^4$ \NC \NR
-\NC \type {disc1.replace} \NC \type {<ffi>}$^7$ \NC \NR
-\NC \type {disc2.pre}     \NC \type {f-}$^2$  \NC \NR
-\NC \type {disc2.post}    \NC \type {i}$^{3{,}6}$\NC \NR
-\NC \type {disc2.replace} \NC \type {<ff>-}$^5$\NC \NR
+\starttabulate[|l|c|c|]
+\BC field                 \BC description   \NC       \NC \NR
+\NC \type {disc1.pre}     \NC \type {f-}    \NC (1)   \NC \NR
+\NC \type {disc1.post}    \NC \type {<fi>}  \NC (4)   \NC \NR
+\NC \type {disc1.replace} \NC \type {<ffi>} \NC (7)   \NC \NR
+\NC \type {disc2.pre}     \NC \type {f-}    \NC (2)   \NC \NR
+\NC \type {disc2.post}    \NC \type {i}     \NC (3,6) \NC \NR
+\NC \type {disc2.replace} \NC \type {<ff>-} \NC (5)   \NC \NR
 \stoptabulate
 
 What is actually generated after ligaturing has been applied is therefore:
