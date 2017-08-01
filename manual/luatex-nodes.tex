@@ -1627,14 +1627,15 @@ node.setglue(<node> n)
 node.setglue(<node> n,width,stretch,shrink,stretch_order,shrink_order)
 \stopfunctioncall
 
-When you pass values, only arguments that are numbers
-are assigned so
+When you pass values, only arguments that are numbers are assigned so
 
 \starttyping
 node.setglue(n,655360,false,65536)
 \stoptyping
 
 will only adapt the width and shrink.
+
+When a list node is passed, you set the glue, order and sign instead.
 
 \subsubsection{\type {node.getglue}}
 
@@ -1647,6 +1648,9 @@ The next call will return 5 values (or northing when no glue is passed).
 
 When the second argument is false, only the width is returned (this is consistent
 with \type {tex.get}).
+
+When a list node is passed, you get back the glue that is set, the order of that
+glue and the sign.
 
 \subsubsection{\type {node.is_zero_glue}}
 

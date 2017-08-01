@@ -3142,6 +3142,11 @@ static int lua_nodelib_direct_get_glue(lua_State * L)
             lua_pushinteger(L,stretch_order(n));
             lua_pushinteger(L,shrink_order(n));
             return 5;
+        } else if (t == hlist_node || t == vlist_node) {
+            lua_pushnumber(L, (double) glue_set(n)); /* float */
+            lua_pushinteger(L,glue_order(n));
+            lua_pushinteger(L,glue_sign(n));
+            return 3;
         }
     }
     return 0;
@@ -3159,6 +3164,11 @@ static int lua_nodelib_direct_set_glue(lua_State * L)
             shrink(n)        = ((top > 3 && lua_type(L, 4) == LUA_TNUMBER)) ? lua_roundnumber(L,4) : 0;
             stretch_order(n) = ((top > 4 && lua_type(L, 5) == LUA_TNUMBER)) ? lua_tointeger(L,5) : 0;
             shrink_order(n)  = ((top > 5 && lua_type(L, 6) == LUA_TNUMBER)) ? lua_tointeger(L,6) : 0;
+        } else if (t == hlist_node || t == vlist_node) {
+            glue_set(n)   = ((top > 1 && lua_type(L, 2) == LUA_TNUMBER)) ? (glue_ratio) lua_tonumber(L,2) : 0;
+            glue_order(n) = ((top > 2 && lua_type(L, 3) == LUA_TNUMBER)) ? lua_tointeger(L,3) : 0;
+            glue_sign(n)  = ((top > 3 && lua_type(L, 4) == LUA_TNUMBER)) ? lua_tointeger(L,4) : 0;
+            return 3;
         }
     }
     return 0;
@@ -3172,9 +3182,12 @@ static int lua_nodelib_direct_is_zero_glue(lua_State * L)
         if (t == glue_node || t == glue_spec_node || t == math_node || t == ins_node) {
             lua_pushboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
             return 1;
+        } else if (t == hlist_node || t == vlist_node) {
+            lua_pushboolean(L,(glue_set(n) == 0 && glue_order(n) == 0 && glue_sign(n) == 0));
+            return 1;
         }
     }
-    return luaL_error(L, "glue (spec) expected");
+    return 0;
 }
 
 /* node.getglue */
@@ -3193,9 +3206,14 @@ static int lua_nodelib_get_glue(lua_State * L)
             lua_pushinteger(L,stretch_order(n));
             lua_pushinteger(L,shrink_order(n));
             return 5;
+        } else if (t == hlist_node || t == vlist_node) {
+            lua_pushnumber(L, (double) glue_set(n)); /* float */
+            lua_pushinteger(L,glue_order(n));
+            lua_pushinteger(L,glue_sign(n));
+            return 3;
         }
     }
-    return luaL_error(L, "glue (spec) expected");
+    return luaL_error(L, "glue (spec) or list expected");
 }
 
 static int lua_nodelib_set_glue(lua_State * L)
@@ -3210,20 +3228,31 @@ static int lua_nodelib_set_glue(lua_State * L)
             shrink(n)        = ((top > 3 && lua_type(L, 4) == LUA_TNUMBER)) ? lua_roundnumber(L,4) : 0;
             stretch_order(n) = ((top > 4 && lua_type(L, 5) == LUA_TNUMBER)) ? lua_tointeger(L,5) : 0;
             shrink_order(n)  = ((top > 5 && lua_type(L, 6) == LUA_TNUMBER)) ? lua_tointeger(L,6) : 0;
+        } else if (t == hlist_node || t == vlist_node) {
+            glue_set(n)   = ((top > 1 && lua_type(L, 2) == LUA_TNUMBER)) ? (glue_ratio) lua_tonumber(L,2) : 0;
+            glue_order(n) = ((top > 2 && lua_type(L, 3) == LUA_TNUMBER)) ? lua_tointeger(L,3) : 0;
+            glue_sign(n)  = ((top > 3 && lua_type(L, 4) == LUA_TNUMBER)) ? lua_tointeger(L,4) : 0;
+            return 3;
         }
         return 0;
     }
-    return luaL_error(L, "glue (spec) expected");
+    return luaL_error(L, "glue (spec) or list expected");
 }
 
 static int lua_nodelib_is_zero_glue(lua_State * L)
 {
     halfword n = *check_isnode(L, 1);
-    if ((n != null) && (type(n) == glue_node || type(n) == glue_spec_node || type(n) == math_node || type(n) == ins_node)) {
-        lua_pushboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
-        return 1;
+    if (n != null) {
+        halfword t = type(n);
+        if (t == glue_node || t == glue_spec_node || t == math_node || t == ins_node) {
+            lua_pushboolean(L,(width(n) == 0 && stretch(n) == 0 && shrink(n) == 0));
+            return 1;
+        } else if (t == hlist_node || t == vlist_node) {
+            lua_pushboolean(L,(glue_set(n) == 0 && glue_order(n) == 0 && glue_sign(n) == 0));
+            return 1;
+        }
     }
-    return luaL_error(L, "glue (spec) expected");
+    return luaL_error(L, "glue (spec) or list expected");
 }
 
 /* iteration */
@@ -5285,13 +5314,27 @@ static int font_tex_direct_kerning(lua_State * L)
         } \
     }
 
+#define protect_all_indeed(n) \
+    h = n ; \
+    if (h != null) { \
+        while (h != null) { \
+            if (type(h) == glyph_node) { \
+                int s = subtype(h); \
+                if (s <= 256) { \
+                    subtype(h) = (quarterword) (s == 1 ? 256 : 256 + s); \
+                } \
+            } \
+            h = vlink(h); \
+        } \
+    }
+
 #define protect_node_indeed(n) \
     if (type(n) == glyph_node) { \
         protect_one_indeed(n); \
     } else if (type(n) == disc_node) { \
-        protect_one_indeed(vlink(no_break(n))); \
-        protect_one_indeed(vlink(pre_break(n))); \
-        protect_one_indeed(vlink(post_break(n))); \
+        protect_all_indeed(vlink(no_break(n))); \
+        protect_all_indeed(vlink(pre_break(n))); \
+        protect_all_indeed(vlink(post_break(n))); \
     }
 
 #define unprotect_one_indeed(n) \
@@ -5302,18 +5345,33 @@ static int font_tex_direct_kerning(lua_State * L)
         } \
     }
 
+#define unprotect_all_indeed(n) \
+    h = n ; \
+    if (h != null) { \
+        while (h != null) { \
+            if (type(h) == glyph_node) { \
+                int s = subtype(h); \
+                if (s <= 256) { \
+                    subtype(h) = (quarterword) (s - 256); \
+                } \
+            } \
+            h = vlink(h); \
+        } \
+    }
+
 #define unprotect_node_indeed(n) \
     if (type(n) == glyph_node) { \
         unprotect_one_indeed(n); \
     } else if (type(n) == disc_node) { \
-        unprotect_one_indeed(vlink(no_break(n))); \
-        unprotect_one_indeed(vlink(pre_break(n))); \
-        unprotect_one_indeed(vlink(post_break(n))); \
+        unprotect_all_indeed(vlink(no_break(n))); \
+        unprotect_all_indeed(vlink(pre_break(n))); \
+        unprotect_all_indeed(vlink(post_break(n))); \
     }
 
 static int lua_nodelib_protect_glyph(lua_State * L)
 {
     halfword n = *check_isnode(L, 1);
+    halfword h;
     protect_node_indeed(n);
     return 0;
 }
@@ -5321,6 +5379,7 @@ static int lua_nodelib_protect_glyph(lua_State * L)
 static int lua_nodelib_unprotect_glyph(lua_State * L)
 {
     halfword n = *check_isnode(L, 1);
+    halfword h;
     unprotect_node_indeed(n);
     return 0;
 }
@@ -5329,6 +5388,7 @@ static int lua_nodelib_protect_glyphs(lua_State * L)
 {
     halfword head = *check_isnode(L, 1);
     halfword tail = null;
+    halfword h;
     if (lua_gettop(L) > 1) {
         tail = *check_isnode(L, 2);
     }
@@ -5346,6 +5406,7 @@ static int lua_nodelib_unprotect_glyphs(lua_State * L)
 {
     halfword head = *check_isnode(L, 1);
     halfword tail = null;
+    halfword h;
     if (lua_gettop(L) > 1) {
         tail = *check_isnode(L, 2);
     }
@@ -5365,6 +5426,7 @@ static int lua_nodelib_unprotect_glyphs(lua_State * L)
 static int lua_nodelib_direct_protect_glyph(lua_State * L)
 {
     halfword n = (halfword) lua_tointeger(L,1);
+    halfword h;
     protect_node_indeed(n);
     return 0;
 }
@@ -5372,6 +5434,7 @@ static int lua_nodelib_direct_protect_glyph(lua_State * L)
 static int lua_nodelib_direct_unprotect_glyph(lua_State * L)
 {
     halfword n = (halfword) lua_tointeger(L,1);
+    halfword h;
     unprotect_node_indeed(n);
     return 0;
 }
@@ -5380,6 +5443,7 @@ static int lua_nodelib_direct_protect_glyphs(lua_State * L)
 {
     halfword head = (halfword) lua_tointeger(L,1);
     halfword tail = (halfword) lua_tointeger(L,2);
+    halfword h;
     while (head != null) {
         protect_node_indeed(head);
         if (head == tail) {
@@ -5394,6 +5458,7 @@ static int lua_nodelib_direct_unprotect_glyphs(lua_State * L)
 {
     halfword head = (halfword) lua_tointeger(L,1);
     halfword tail = (halfword) lua_tointeger(L,2);
+    halfword h;
     while (head != null) {
         unprotect_node_indeed(head);
         if (head == tail) {
@@ -7573,20 +7638,20 @@ static int lua_nodelib_effective_glue(lua_State * L)
     if ((glue == NULL) || (type(*glue) != glue_node)) {
         lua_pushnil(L) ;
     } else {
-        int w = width(*glue) ;
+        double w = width(*glue) ;
         parent = lua_touserdata(L, 2);
         if ((parent != NULL) && ((type(*parent) == hlist_node) || (type(*parent) == vlist_node))) {
-            if ((int)glue_sign(*parent) == 1) {
+            if ((int) glue_sign(*parent) == 1) {
                 if (stretch_order(*glue) == glue_order(*parent)) {
-                    w += stretch(*glue) * glue_set(*parent);
+                    w += stretch(*glue) * (double) glue_set(*parent);
                 }
             } else if (glue_sign(*parent) == 2) {
                 if (shrink_order(*glue) == glue_order(*parent)) {
-                    w -= shrink(*glue) * glue_set(*parent);
+                    w -= shrink(*glue) * (double) glue_set(*parent);
                 }
             }
         }
-        lua_pushinteger(L,w);
+        lua_pushinteger(L,round(w));
     }
     return 1;
 }
@@ -7597,20 +7662,20 @@ static int lua_nodelib_direct_effective_glue(lua_State * L)
     if ((glue == null) || (type(glue) != glue_node)) {
         lua_pushnil(L) ;
     } else {
-        int w = width(glue) ;
+        double w = (double) width(glue) ;
         halfword parent = lua_tointeger(L, 2);
         if ((parent != null) && ((type(parent) == hlist_node) || (type(parent) == vlist_node))) {
             if ((int)glue_sign(parent) == 1) {
                 if (stretch_order(glue) == glue_order(parent)) {
-                    w += stretch(glue) * glue_set(parent);
+                    w += stretch(glue) * (double) glue_set(parent);
                 }
             } else if (glue_sign(parent) == 2) {
                 if (shrink_order(glue) == glue_order(parent)) {
-                    w -= shrink(glue) * glue_set(parent);
+                    w -= shrink(glue) * (double) glue_set(parent);
                 }
             }
         }
-        lua_pushinteger(L,w);
+        lua_pushnumber(L,round(w));
     }
     return 1;
 }
