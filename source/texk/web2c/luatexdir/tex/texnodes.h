@@ -536,6 +536,16 @@ typedef enum {
                                      ((delimiteroptions(a) & noad_option_no_super_script) == noad_option_no_super_script) || \
                                      ((delimiteroptions(a) & noad_option_no_script      ) == noad_option_no_script      ) ))
 
+typedef enum {
+    noad_delimiter_mode_noshift = 0x01,
+    noad_delimiter_mode_italics = 0x02,
+    noad_delimiter_mode_ordinal = 0x04,
+} delimiter_modes ;
+
+#  define delimitermodenoshift ((math_delimiters_mode_par & noad_delimiter_mode_noshift) == noad_delimiter_mode_noshift)
+#  define delimitermodeitalics ((math_delimiters_mode_par & noad_delimiter_mode_italics) == noad_delimiter_mode_italics)
+#  define delimitermodeordinal ((math_delimiters_mode_par & noad_delimiter_mode_ordinal) == noad_delimiter_mode_ordinal)
+
 /* subtype of fence noads */
 
 #  define left_noad_side   1

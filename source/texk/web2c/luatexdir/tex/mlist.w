@@ -1479,13 +1479,13 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
             *stack = false ;
     }
     if (!flat) {
-if (math_delimiters_mode_par == 0 || same == NULL || ! same) {
-        /* vertical variant */
-        shift_amount(b) = half(height(b) - depth(b));
-        if (shift) {
-            shift_amount(b) -= math_axis_size(s);
+        if (emas == 0 || ! delimitermodenoshift) {
+            /* vertical variant */
+            shift_amount(b) = half(height(b) - depth(b));
+            if (shift) {
+                shift_amount(b) -= math_axis_size(s);
+            }
         }
-}
     }
     delete_attribute_ref(att);
     return b;
@@ -4114,7 +4114,7 @@ if (same) {
                             delta = 0;
                             break;
                         case inner_noad_type:
-                            if (math_delimiters_mode_par == 0) {
+                            if (! delimitermodeitalics) {
                                 delta = 0;
                             }
                             break;
@@ -4259,7 +4259,7 @@ if (same) {
         if (r_type > 0) {
             /* not the first noad */
             pp = p;
-if (t_subtype == inner_noad_type && noadextra4(q) == 1 && math_delimiters_mode_par == 1) {
+if (delimitermodeordinal && t_subtype == inner_noad_type && noadextra4(q) == 1) {
     z = math_spacing_glue(r_subtype, ord_noad_type, cur_style, cur_mu);
 } else {
             z = math_spacing_glue(r_subtype, t_subtype, cur_style, cur_mu);

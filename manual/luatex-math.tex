@@ -617,25 +617,60 @@ experimenting.
 
 The \type {\mathitalicsmode} parameter can be set to~1 to force italic correction
 before noads that represent some more complex structure (read: everything
-that is not an ord, bin, rel, open, close, punct or inner).
+that is not an ord, bin, rel, open, close, punct or inner). We show a Cambria
+example.
 
 \starttexdefinition Whatever #1
-    \NC \type{\mathitalicsmode=#1}
+    \NC \type{\mathitalicsmode = #1}
     \NC \mathitalicsmode#1\ruledhbox{$\left|T^1\right|$}
     \NC \mathitalicsmode#1\ruledhbox{$\left|T\right|$}
     \NC \mathitalicsmode#1\ruledhbox{$T+1$}
     \NC \mathitalicsmode#1\ruledhbox{$T{1\over2}$}
     \NC \mathitalicsmode#1\ruledhbox{$T\sqrt{1}$}
-    \NR \NR
+    \NC \NR
 \stoptexdefinition
 
-\starttabulate[|c|c|c|c|c|c|]
-    \Whatever0
-    \Whatever1
-\stoptabulate
+\start
+    \setupbodyfont[cambria]
+    \starttabulate[|c|c|c|c|c|c|]
+        \Whatever{0}%
+        \Whatever{1}%
+    \stoptabulate
+\stop
 
 This kind of parameters relate to the fact that italic correction in \OPENTYPE\
 math is bound to fuzzy rules. So, control is the solution.
+
+\section{Unscaled fences}
+
+The \type {\mathdelimitersmode} primitive is experimental and deals with the
+following (potential) problems. Three bits can be set. The first bit prevents
+an unwanted shift when the fence symbol is not scaled (a cambria side effect). The
+second bit forces italic correction between a preceding character ordinal and
+the fenced subformula, while the third bit turns that subformula into a ordinary
+so that the same spacing applies as with unfenced variants. Here we show Cambria
+(with \type {\mathitalicsmode} enabled).
+
+\starttexdefinition Whatever #1
+    \NC \type{\mathdelimitersmode = #1}
+    \NC \mathitalicsmode1\mathdelimitersmode#1\ruledhbox{\showglyphs\showfontkerns\showfontitalics$f(x)$}
+    \NC \mathitalicsmode1\mathdelimitersmode#1\ruledhbox{\showglyphs\showfontkerns\showfontitalics$f\left(x\right)$}
+    \NC \NR
+\stoptexdefinition
+
+\start
+    \setupbodyfont[cambria]
+    \starttabulate[|l|l|l|]
+        \Whatever{0}\Whatever{1}\Whatever{2}\Whatever{3}%
+        \Whatever{4}\Whatever{5}\Whatever{6}\Whatever{7}%
+    \stoptabulate
+\stop
+
+So, when set to 7 fenced subformulas with unscaled delimiters come out the same
+as unfenced ones. This can be handy for cases where one is forced to use \type
+{\left} and \type {\right} always because of unpredictable content. As said, it's
+an experimental features (which somehow fits in the exceptional way fences are
+dealt with in the engine).
 
 \section{Math spacing setting}
 
