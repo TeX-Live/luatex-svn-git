@@ -2046,9 +2046,9 @@ void math_left_right(void)
         delimiteroptions(p) = options;
         delimiterclass(p) = type;
         delimiteritalic(p) = 0;
+        delimitersamesize(p) = 0;
 
         scan_delimiter(delimiter(p), no_mathcode);
-
         if (t == no_noad_side) {
             tail_append(new_noad());
             subtype(tail) = inner_noad_type;
