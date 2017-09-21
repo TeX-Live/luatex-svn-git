@@ -570,17 +570,18 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 
 \type {Annot} methods:
 
+
 \startfunctioncall
 <boolean>     = <Annot>:isOK()
-<Object>      = <Annot>:getAppearance()
-<AnnotBorder> = <Annot>:getBorder()
 <boolean>     = <Annot>:match(<Ref>)
+<Object>      = <Annot>:getAppearance() -- gone
+<AnnotBorder> = <Annot>:getBorder()     -- gone
 \stopfunctioncall
 
-\type {AnnotBorderStyle} methods:
+\type {AnnotBorderStyle} methods (gone):
 
 \startfunctioncall
-<number> = <AnnotBorderStyle>:getWidth()
+<number> = <AnnotBorderStyle>:getWidth() -- gone
 \stopfunctioncall
 
 \type {Annots} methods:
@@ -593,10 +594,10 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 \type {Array} methods:
 
 \startfunctioncall
-            <Array>:incRef()
-            <Array>:decRef()
+            <Array>:incRef()      -- gone
+            <Array>:decRef()      -- gone
+            <Array>:add(<Object>) -- will go
 <integer> = <Array>:getLength()
-            <Array>:add(<Object>)
 <Object>  = <Array>:get(<integer>)
 <Object>  = <Array>:getNF(<integer>)
 <string>  = <Array>:getString(<integer>)
@@ -614,11 +615,11 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <Object>   = <Attribute>:getDefaultValue
 <string>   = <Attribute>:getName()
 <integer>  = <Attribute>:getRevision()
-             <Attribute>:setRevision(<unsigned integer>)
-<boolean>  = <Attribute>:istHidden()
-             <Attribute>:setHidden(<boolean>)
+             <Attribute>:setRevision(<unsigned integer>) -- will go
+<boolean>  = <Attribute>:isHidden()
+             <Attribute>:setHidden(<boolean>)            -- will go
 <string>   = <Attribute>:getFormattedValue()
-<string>   = <Attribute>:setFormattedValue(<string>)
+<string>   = <Attribute>:setFormattedValue(<string>)     -- will go
 \stopfunctioncall
 
 \type {Catalog} methods:
@@ -645,26 +646,37 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 \type {EmbFile} methods:
 
 \startfunctioncall
-<string>   = <EmbFile>:name()
-<string>   = <EmbFile>:description()
 <integer>  = <EmbFile>:size()
 <string>   = <EmbFile>:modDate()
 <string>   = <EmbFile>:createDate()
 <string>   = <EmbFile>:checksum()
 <string>   = <EmbFile>:mimeType()
-<Object>   = <EmbFile>:streamObject()
 <boolean>  = <EmbFile>:isOk()
+<string>   = <EmbFile>:name()         -- not (yet) implemented
+<string>   = <EmbFile>:description()  -- not (yet) implemented
+<Object>   = <EmbFile>:streamObject() -- not (yet) implemented
+<boolean>  = <EmbFile>:save()         -- will go
+\stopfunctioncall
+
+\type {FileSpec} methods:
+
+\startfunctioncall
+<boolean> = <FileSpec>:isOk()
+<string>  = <FileSpec>:getFileName()
+<string>  = <FileSpec>:getFileNameForPlatform()
+<string>  = <FileSpec>:getDescription()
+<EmbFile> = <FileSpec>:getEmbeddedFile()
 \stopfunctioncall
 
 \type {Dict} methods:
 
 \startfunctioncall
-            <Dict>:incRef()
-            <Dict>:decRef()
-<integer> = <Dict>:getLength()
-            <Dict>:add(<string>, <Object>)
-            <Dict>:set(<string>, <Object>)
+            <Dict>:incRef()                -- will go
+            <Dict>:decRef()                -- will go
+            <Dict>:add(<string>, <Object>) -- will go
+            <Dict>:set(<string>, <Object>) -- will go
             <Dict>:remove(<string>)
+<integer> = <Dict>:getLength()
 <boolean> = <Dict>:is(<string>)
 <Object>  = <Dict>:lookup(<string>)
 <Object>  = <Dict>:lookupNF(<string>)
@@ -675,12 +687,12 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <boolean> = <Dict>:hasKey(<string>)
 \stopfunctioncall
 
-\type {Link} methods:
+% \type {Link} methods:
 
-\startfunctioncall
-<boolean>  = <Link>:isOK()
-<boolean>  = <Link>:inRect(<number>, <number>)
-\stopfunctioncall
+% \startfunctioncall
+% <boolean>  = <Link>:isOK()
+% <boolean>  = <Link>:inRect(<number>, <number>)
+% \stopfunctioncall
 
 \type {LinkDest} methods:
 
@@ -703,27 +715,29 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 
 \type {Links} methods:
 
+% <Link>     = <Links>:getLink(<integer>)
+
 \startfunctioncall
 <integer>  = <Links>:getNumLinks()
-<Link>     = <Links>:getLink(<integer>)
 \stopfunctioncall
 
 \type {Object} methods:
 
 \startfunctioncall
-            <Object>:initBool(<boolean>)
-            <Object>:initInt(<integer>)
-            <Object>:initReal(<number>)
-            <Object>:initString(<string>)
-            <Object>:initName(<string>)
-            <Object>:initNull()
-            <Object>:initArray(<XRef>)
-            <Object>:initDict(<XRef>)
-            <Object>:initStream(<Stream>)
-            <Object>:initRef(<integer> object number, <integer> object generation)
-            <Object>:initCmd(<string>)
-            <Object>:initError()
-            <Object>:initEOF()
+            <Object>:initBool(<boolean>)              -- will go
+            <Object>:initInt(<integer>)               -- will go
+            <Object>:initReal(<number>)               -- will go
+            <Object>:initString(<string>)             -- will go
+            <Object>:initName(<string>)               -- will go
+            <Object>:initNull()                       -- will go
+            <Object>:initArray(<XRef>)                -- will go
+            <Object>:initDict(<XRef>)                 -- will go
+            <Object>:initStream(<Stream>)             -- will go
+            <Object>:initRef(<integer> object number,
+                <integer> object generation)          -- will go
+            <Object>:initCmd(<string>)                -- will go
+            <Object>:initError()                      -- will go
+            <Object>:initEOF()                        -- will go
 <Object>  = <Object>:fetch(<XRef>)
 <integer> = <Object>:getType()
 <string>  = <Object>:getTypeName()
@@ -756,19 +770,19 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <integer> = <Object>:getRefGen()
 <string>  = <Object>:getCmd()
 <integer> = <Object>:arrayGetLength()
-          = <Object>:arrayAdd(<Object>)
+          = <Object>:arrayAdd(<Object>)               -- will go
 <Object>  = <Object>:arrayGet(<integer>)
 <Object>  = <Object>:arrayGetNF(<integer>)
 <integer> = <Object>:dictGetLength(<integer>)
-          = <Object>:dictAdd(<string>, <Object>)
-          = <Object>:dictSet(<string>, <Object>)
+          = <Object>:dictAdd(<string>, <Object>)      -- will go
+          = <Object>:dictSet(<string>, <Object>)      -- will go
 <Object>  = <Object>:dictLookup(<string>)
 <Object>  = <Object>:dictLookupNF(<string>)
 <string>  = <Object>:dictgetKey(<integer>)
 <Object>  = <Object>:dictgetVal(<integer>)
 <Object>  = <Object>:dictgetValNF(<integer>)
 <boolean> = <Object>:streamIs(<string>)
-          = <Object>:streamReset()
+          = <Object>:streamReset()                    -- will go
 <integer> = <Object>:streamGetChar()
 <integer> = <Object>:streamLookChar()
 <integer> = <Object>:streamGetPos()
@@ -820,7 +834,8 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <integer>  = <PDFDoc>:getNumPages()
 <string>   = <PDFDoc>:readMetadata()
 <Object>   = <PDFDoc>:getStructTreeRoot()
-<integer>  = <PDFDoc>:findPage(<integer> object number, <integer> object generation)
+<integer>  = <PDFDoc>:findPage(<integer> object number,
+                <integer> object generation)
 <Links>    = <PDFDoc>:getLinks(<integer>)
 <LinkDest> = <PDFDoc>:findDest(<string>)
 <boolean>  = <PDFDoc>:isEncrypted()
@@ -838,7 +853,7 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 \type {PDFRectangle} methods:
 
 \startfunctioncall
-<boolean>  = <PDFRectangle>:isValid()
+<boolean>  = <PDFRectangle>:isValid() -- setindex/newindex will go
 \stopfunctioncall
 
 %\type {Ref} methods:
@@ -884,16 +899,17 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <string>         = <StructElement>:getID()
 <string>         = <StructElement>:getLanguage()
 <integer>        = <StructElement>:getRevision()
-                   <StructElement>:setRevision(<unsigned integer>)
+                   <StructElement>:setRevision(<unsigned integer>)   -- will go
 <string>         = <StructElement>:getTitle()
 <string>         = <StructElement>:getExpandedAbbr()
 <integer>        = <StructElement>:getNumChildren()
 <StructElement>  = <StructElement>:getChild()
-                 = <StructElement>:appendChild<StructElement>)
+                 = <StructElement>:appendChild<StructElement>)       -- will go
 <integer>        = <StructElement>:getNumAttributes()
-<Attribute>      = <StructElement>:geAttribute(<integer>)
-<string>         = <StructElement>:appendAttribute(<Attribute>)
-<Attribute>      = <StructElement>:findAttribute(<Attribute::Type>,boolean,Attribute::Owner)
+<Attribute>      = <StructElement>:getAttribute(<integer>)
+<string>         = <StructElement>:appendAttribute(<Attribute>)      -- will go
+<Attribute>      = <StructElement>:findAttribute(<Attribute::Type>,
+                        boolean,Attribute::Owner)
 <string>         = <StructElement>:getAltText()
 <string>         = <StructElement>:getActualText()
 <string>         = <StructElement>:getText(<boolean>)
@@ -909,7 +925,7 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <Dict>          = <StructTreeRoot>:getClassMap
 <integer>       = <StructTreeRoot>:getNumChildren
 <StructElement> = <StructTreeRoot>:getChild
-                  <StructTreeRoot>:appendChild
+                  <StructTreeRoot>:appendChild       -- will go
 <StructElement> = <StructTreeRoot>:findParentElement
 \stopfunctioncall
 
@@ -934,7 +950,8 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <boolean>  = <XRef>:okToAccessibility()
 <boolean>  = <XRef>:okToAssemble()
 <Object>   = <XRef>:getCatalog()
-<Object>   = <XRef>:fetch(<integer> object number, <integer> object generation)
+<Object>   = <XRef>:fetch(<integer> object number,
+                <integer> object generation)
 <Object>   = <XRef>:getDocInfo()
 <Object>   = <XRef>:getDocInfoNF()
 <integer>  = <XRef>:getNumObjects()

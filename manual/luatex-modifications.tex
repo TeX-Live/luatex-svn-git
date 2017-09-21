@@ -1255,6 +1255,28 @@ previous code (that mostly used \type {getc} calls), it can be quite a bit faste
 
 \stopsubsection
 
+\startsubsection[title=Tabs and spaces]
+
+We conform to the way other \TEX\ engines handle trailing tabs and spaces. For
+decades trailing tabs and spaces (before a newline) were removed from the input
+but this behaviour was changed in September 2017 to only handle spaces. We are
+aware that this can introduce compatibility issues in existing workflows but
+because we don't want too many differences with upstream \TEXLIVE\ we just follow
+up on that patch (which is a functional one and not really a fix). It is up to
+macro packages maintainers to deal with possible compatibility issues and in
+\LUATEX\ they can do so via the callbacks that deal with reading from files.
+
+The previous behaviour was a known side effect and (as that kind of input
+normally comes from generated sources) it was normally dealt with by adding a
+comment token to the line in case the spaces and|/|or tabs were intentional and
+to be kept. We are aware of the fact that this contradicts some of our other
+choices but consistency with other engines and the fact that in \KPSE\ mode a
+common file \IO\ layer is used can have a side effect of breaking compatibility.
+We still stick to our view that at the log level we can (and might be) more
+incompatible.
+
+\stopsubsection
+
 \stopsection
 
 \stopchapter
