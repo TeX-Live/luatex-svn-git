@@ -348,12 +348,11 @@ int char_exists(internal_font_number f, int c)
 }
 
 @ @c
-#if 0
-static int lua_char_exists_callback(internal_font_number f, int c)
+int lua_glyph_not_found_callback(internal_font_number f, int c)
 {
     int callback_id;
     int ret = 0;
-    callback_id = callback_defined(char_exists_callback);
+    callback_id = callback_defined(glyph_not_found_callback);
     if (callback_id != 0) {
         if (!get_callback(Luas, callback_id)) {
             lua_pop(Luas, 2);
@@ -368,10 +367,11 @@ static int lua_char_exists_callback(internal_font_number f, int c)
         } else {
             ret = lua_toboolean(Luas, -1);
         }
+    } else {
+        char_warning(f,c);
     }
     return ret;
 }
-#endif
 
 @ @c
 extinfo *new_variant(int glyph, int startconnect, int endconnect,

@@ -942,6 +942,17 @@ definition can be reused instead of creating a whole new font structure.
 Setting this callback to \type {false} is pointless as it will prevent font
 loading completely but will nevertheless generate errors.
 
+\subsection{\type {glyph_not_found}}
+
+This callback kicks in when the backend cannot insert a glyph. When no callback
+is defined a message is written to the log.
+
+\startfunctioncall
+function(<number> id, <number> char)
+    -- do something with font id and char code
+end
+\stopfunctioncall
+
 \stopchapter
 
 \stopcomponent

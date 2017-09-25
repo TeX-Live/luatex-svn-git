@@ -435,6 +435,7 @@ typedef enum {
 
 extern charinfo *get_charinfo(internal_font_number f, int c);
 extern int char_exists(internal_font_number f, int c);
+extern int lua_glyph_not_found_callback(internal_font_number f, int c);
 extern charinfo *char_info(internal_font_number f, int c);
 
 /*
