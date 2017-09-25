@@ -478,9 +478,15 @@ static int resetmessages(lua_State * L)
     return 0;
 }
 
+static int setexitcode(lua_State * L) {
+    defaultexitcode = luaL_checkinteger(L,1);
+    return 0;
+}
+
 static const struct luaL_Reg statslib[] = {
     {"list", statslist},
     {"resetmessages", resetmessages},
+    {"setexitcode", setexitcode},
     {NULL, NULL}                /* sentinel */
 };
 
