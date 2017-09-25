@@ -1,5 +1,5 @@
 m4_define([poppler_version_major],[0])
-m4_define([poppler_version_minor],[55])
+m4_define([poppler_version_minor],[59])
 m4_define([poppler_version_micro],[0])
 m4_define([poppler_version],[poppler_version_major.poppler_version_minor.poppler_version_micro])
 
@@ -26,7 +26,7 @@ AC_PROG_CC_STDC
 #fi
 AC_PROG_CXX
 AC_PROG_INSTALL
-CXXFLAGS="$CXXFLAGS -std=c++11"
+CXXFLAGS="$CXXFLAGS -std=c++11 -D_DEFAULT_SOURCE"
 
 dnl ##### Check for pkgconfig
 PKG_PROG_PKG_CONFIG
@@ -122,16 +122,36 @@ else
 fi
 
 AC_ARG_ENABLE(single-precision,
-[  --enable-single-precision     use single precision arithmetic (instead of double precision) in the Splash backend],
-AC_DEFINE(USE_FLOAT,      [1], [Use single precision arithmetic in the Splash backend]))
+        AC_HELP_STRING([--enable-single-precision],
+                       [use single precision arithmetic (instead of double
+                        precision) in the Splash backend]),
+        enable_single_precision=$enableval,
+        enable_single_precision=no)
+if test x$enable_single_precision != xno; then
+        AC_DEFINE(USE_FLOAT, [1], [Use single precision arithmetic in the Splash backend])
+fi
 
 AC_ARG_ENABLE(fixedpoint,
-[  --enable-fixedpoint     use fixed point (instead of double precision) arithmetic in the Splash backend],
-AC_DEFINE(USE_FIXEDPOINT, [1], [Use fixed point arithmetic in the Splash backend]))
+        AC_HELP_STRING([--enable-fixedpoint],
+                       [use fixed point (instead of double precision) arithmetic
+                        in the Splash backend]),
+        enable_fixedpoint=$enableval,
+        enable_fixedpoint=no)
+if test x$enable_fixedpoint != xno; then
+        if test x$enable_single_precision != xno; then
+                AC_MSG_ERROR([Choose only one of --enable-single-precision or --enable-fixedpoint!])
+        fi
+        AC_DEFINE(USE_FIXEDPOINT, [1], [Use fixed point arithmetic in the Splash backend])
+fi
 
 AC_ARG_ENABLE(cmyk,
-[  --enable-cmyk           Include support for CMYK rasterization],
-AC_DEFINE(SPLASH_CMYK, [1], [Include support for CMYK rasterization]))
+        AC_HELP_STRING([--enable-cmyk],
+                       [Include support for CMYK rasterization]),
+        enable_cmyk=$enableval,
+        enable_cmyk=no)
+if test x$enable_cmyk != xno; then
+        AC_DEFINE(SPLASH_CMYK, [1], [Include support for CMYK rasterization])
+fi
 
 dnl Relocation support
 AC_ARG_ENABLE(relocatable,

@@ -501,8 +501,54 @@ functionality is being used since long time to embed \PDF\ files. The \type
 {epdf} library allows to scrutinize an external \PDF\ file. It gives access to
 its document structure: catalog, cross|-|reference table, individual pages,
 objects, annotations, info, and metadata. The \type {epdf} library only provides
-read|-|only acess. At some point we might decide to limit the interface to a
+read|-|only access. At some point we might decide to limit the interface to a
 reasonable subset.
+
+\start \em
+
+The following functions will be removed in a next version. This is partly due to
+a change in the api of the used library and partly due to the fact that write
+access is not needed at all.
+
+\starttabulate[|T|T||]
+\NC Annot            \NC  getAppearance     \NC gone    \NC \NR
+\NC                  \NC  getBorder         \NC gone    \NC \NR
+\NC AnnotBorderStyle \NC  getWidth          \NC gone    \NC \NR
+\NC Array            \NC  incRef            \NC gone    \NC \NR
+\NC                  \NC  decRef            \NC gone    \NC \NR
+\NC                  \NC  add               \NC will go \NC \NR
+\NC Attribute        \NC  setRevision       \NC will go \NC \NR
+\NC                  \NC  setHidden         \NC will go \NC \NR
+\NC                  \NC  setFormattedValue \NC will go \NC \NR
+\NC EmbFile          \NC  save              \NC will go \NC \NR
+\NC Dict             \NC  incRef            \NC will go \NC \NR
+\NC                  \NC  decRef            \NC will go \NC \NR
+\NC                  \NC  add               \NC will go \NC \NR
+\NC                  \NC  set               \NC will go \NC \NR
+\NC                  \NC  remove            \NC will go \NC \NR
+\NC Object           \NC  initBool          \NC will go \NC \NR
+\NC                  \NC  initInt           \NC will go \NC \NR
+\NC                  \NC  initReal          \NC will go \NC \NR
+\NC                  \NC  initString        \NC will go \NC \NR
+\NC                  \NC  initName          \NC will go \NC \NR
+\NC                  \NC  initNull          \NC will go \NC \NR
+\NC                  \NC  initArray         \NC will go \NC \NR
+\NC                  \NC  initDict          \NC will go \NC \NR
+\NC                  \NC  initStream        \NC will go \NC \NR
+\NC                  \NC  initRef           \NC will go \NC \NR
+\NC                  \NC  initCmd           \NC will go \NC \NR
+\NC                  \NC  initError         \NC will go \NC \NR
+\NC                  \NC  initEOF           \NC will go \NC \NR
+\NC                  \NC  dictAdd           \NC will go \NC \NR
+\NC                  \NC  dictSet           \NC will go \NC \NR
+\NC                  \NC  streamReset       \NC will go \NC \NR
+\NC StructElement    \NC  setRevision       \NC will go \NC \NR
+\NC                  \NC  appendChild       \NC will go \NC \NR
+\NC                  \NC  appendAttribute   \NC will go \NC \NR
+\NC StructTreeRoot   \NC  appendChild       \NC will go \NC \NR
+\stoptabulate
+
+\stop
 
 For a start, a \PDF\ file is opened by \type {epdf.open()} with file name, e.g.:
 
@@ -675,7 +721,7 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
             <Dict>:decRef()                -- will go
             <Dict>:add(<string>, <Object>) -- will go
             <Dict>:set(<string>, <Object>) -- will go
-            <Dict>:remove(<string>)
+            <Dict>:remove(<string>)        -- will go
 <integer> = <Dict>:getLength()
 <boolean> = <Dict>:is(<string>)
 <Object>  = <Dict>:lookup(<string>)
