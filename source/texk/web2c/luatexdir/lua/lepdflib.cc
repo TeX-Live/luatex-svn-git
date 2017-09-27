@@ -502,8 +502,9 @@ static int l_new_Object(lua_State * L)
 	  uout->pd = NULL;            
 	}
       } else if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2))) {
-	double typeA = lua_tonumber(L,1);
-	if ( ((typeA)==(int)(typeA)) ){
+	double d_typeA = lua_tonumber(L,1);
+	int typeA = (int)(d_typeA);
+	if (d_typeA==typeA){
 	  switch((int)(typeA)) {
 	  case     objBool:
 	  case     objInt:
@@ -534,7 +535,7 @@ static int l_new_Object(lua_State * L)
 	    luaL_error(L, "Invalid values for Object constructor");
 	    break;
 	  }//switch((int)(d))
-	} else //  (typeA)!=(int)(typeA) 
+	} else //  (d_typeA)!=(typeA) 
 	  luaL_error(L, "Invalid/unsupported values for Object constructor");	   
       } // if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2))) 
       break;
