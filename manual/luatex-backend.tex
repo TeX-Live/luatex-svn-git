@@ -521,8 +521,8 @@ access is not needed at all.
 \NC                  \NC  setHidden         \NC will go \NC \NR
 \NC                  \NC  setFormattedValue \NC will go \NC \NR
 \NC EmbFile          \NC  save              \NC will go \NC \NR
-\NC Dict             \NC  incRef            \NC will go \NC \NR
-\NC                  \NC  decRef            \NC will go \NC \NR
+\NC Dict             \NC  incRef            \NC gone    \NC \NR
+\NC                  \NC  decRef            \NC gone    \NC \NR
 \NC                  \NC  add               \NC will go \NC \NR
 \NC                  \NC  set               \NC will go \NC \NR
 \NC                  \NC  remove            \NC will go \NC \NR
@@ -607,12 +607,17 @@ These are the object constructors:
 <Array>        = epdf.Array(<XRef>)
 <Attribute>    = epdf.Attribute(<Type>,<Object>)| epdf.Attribute(<string>, <int>, <Object>)
 <Dict>         = epdf.Dict(<XRef>)
-<Object>       = epdf.Object()
+<Object>       = epdf.Object()|epdf.Object(<Type>)|epdf.Object(<Object_Type>,<string>)|
 <PDFRectangle> = epdf.PDFRectangle()
 \stopfunctioncall
 
-The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
+There is a new API for the \type {Object} constructors: the old \type {init<ObjType>} constructors
+are still present but they are deprecated. They will disappear after the next \TeX Live.
+The functions \type {StructElement_Type}, \type {Object_Type}, \type {Attribute_Type} and \type
 {AttributeOwner_Type} return a hash table \type {{<string>,<integer>}}.
+The hash table \type {Object_Type} is useful for the
+\type {epdf.Object(<Object_Type>,<string>)} \type {Object} constructor, where \type {<Object_Type>} is an
+integer.
 
 \type {Annot} methods:
 

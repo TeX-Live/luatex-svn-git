@@ -255,6 +255,12 @@ static int l_new_Attribute(lua_State * L)
    lua_settable(L,-3)
 
 
+#define OBJECT_TYPE(name)                   \
+   lua_pushstring(L, #name);                \
+   lua_pushinteger(L, (int)name);           \
+   lua_settable(L,-3)
+
+
 #define STRUCTELEMENT_TYPE_ENTRY(name)      \
    lua_pushstring(L, #name);                \
    lua_pushinteger(L, StructElement::name); \
@@ -307,6 +313,28 @@ static int l_Attribute_Type(lua_State * L) {
    ATTRIBUTE_TYPE_ENTRY(checked);
    return 1;
 }
+
+static int l_Object_Type(lua_State * L) {
+   lua_createtable(L,0,16);/*nr of ObjType values*/ ;
+   OBJECT_TYPE(objBool);
+   OBJECT_TYPE(objInt);
+   OBJECT_TYPE(objReal);
+   OBJECT_TYPE(objString);
+   OBJECT_TYPE(objName);
+   OBJECT_TYPE(objNull);
+   OBJECT_TYPE(objArray);
+   OBJECT_TYPE(objDict);
+   OBJECT_TYPE(objStream);
+   OBJECT_TYPE(objRef);
+   OBJECT_TYPE(objCmd);
+   OBJECT_TYPE(objError);
+   OBJECT_TYPE(objEOF);
+   OBJECT_TYPE(objNone);
+   OBJECT_TYPE(objInt64);
+   OBJECT_TYPE(objDead);
+   return 1;
+}
+
 
 static int l_StructElement_Type(lua_State * L) {
    lua_createtable (L, 0, 50);
@@ -397,44 +425,136 @@ static int l_new_Dict(lua_State * L)
     return 1;
 }
 
-// static int l_new_Object(lua_State * L)
-// {
-//     udstruct *uout;
-//     int n = lua_gettop(L); // number of arguments
-//     uout = new_Object_userdata(L);
-//     switch(n) {
-//     case 0:
-//       uout->d = new Object();     // automatic init to type "none"
-//       uout->atype = ALLOC_LEPDF;
-//       uout->pc = 0;
-//       uout->pd = NULL;            // not connected to any PDFDoc
-//       break;
-//     case 1:
-//       if (lua_isboolean (L,1)) {
-// 	*((Object *) uin->d) = (lua_toboolean(L, 1)? gTrue : gFalse);
-//       } else if 
-	  
-//       break;
-//     case 2:
-//       break;
-      
-     
-//     }
-//     lua_settop(L,1);
-//     return 1;
-    
-// }
-
 static int l_new_Object(lua_State * L)
 {
     udstruct *uout;
+    int n = lua_gettop(L); // number of arguments
     uout = new_Object_userdata(L);
-    uout->d = new Object();     // automatic init to type "none"
-    uout->atype = ALLOC_LEPDF;
-    uout->pc = 0;
-    uout->pd = NULL;            // not connected to any PDFDoc
+    switch(n) {
+    case 0:
+      uout->d = new Object();     // automatic init to type "none"
+      uout->atype = ALLOC_LEPDF;
+      uout->pc = 0;
+      uout->pd = NULL;            // not connected to any PDFDoc
+      break;
+    case 1:
+      if (lua_isboolean (L,1)) {
+	uout->d = new Object(lua_toboolean(L, 1)? gTrue : gFalse);
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (lua_isnumber (L,1)) {
+	double d = lua_tonumber(L,1);
+	// Missed :Object(long long int64gA)
+	if (d==((int)d)) {
+	  uout->d = new Object((int)d);
+	} else {
+	  uout->d = new Object(d);
+	}
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (lua_isstring (L,1)){
+	GooString *gs;
+	const char *s;
+	size_t len;
+	s = luaL_checklstring(L, 2, &len);
+	gs = new GooString(s, len);
+	uout->d = new Object(gs);
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (luaL_testudata(L,1,M_Array)){
+	udstruct *u;
+	Array *a;
+	u = (udstruct *) luaL_checkudata(L, 1, M_Array);
+	a = (Array *)u->d;
+	uout->d = new Object(a);
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (luaL_testudata(L,1,M_Dict)){
+	udstruct *u;
+	Dict *d;
+	u = (udstruct *) luaL_checkudata(L, 1, M_Dict);
+	d = (Dict *)u->d;
+	uout->d = new Object(d);
+	uout->atype = ALLOC_LEPDF;
+	uout->pc = 0;
+	uout->pd = NULL;            
+      } else if (luaL_testudata(L,1,M_Stream)){
+	udstruct *u;
+	Stream *s;
+	u = (udstruct *) luaL_checkudata(L, 1, M_Stream);
+	s = (Stream *)u->d;
+	*((Object *) uout->d) = Object(s);
+      } else
+	luaL_error(L, "Invalid/unsupported value for Object constructor");
+      break;
+    case 2:
+      if (lua_isnumber (L,1) && lua_isnumber (L,2)) {
+	double numA = lua_tonumber(L,1);
+	double genA = lua_tonumber(L,2);
+	if ( ((numA)==(int)(numA)) && ((genA)==(int)(genA)) ){
+	  uout->d = new Object((int)(numA), (int)(genA));
+	  uout->atype = ALLOC_LEPDF;
+	  uout->pc = 0;
+	  uout->pd = NULL;            
+	}
+      } else if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2))) {
+	double typeA = lua_tonumber(L,1);
+	if ( ((typeA)==(int)(typeA)) ){
+	  switch((int)(typeA)) {
+	  case     objBool:
+	  case     objInt:
+	  case     objReal:
+	  case     objString:
+	  case     objName:
+	  case     objNull:
+	  case     objArray:
+	  case     objDict:
+	  case     objStream:
+	  case     objRef:
+	  case     objCmd:
+	  case     objError:
+	  case     objEOF:
+	  case     objNone:
+	  case     objInt64:
+	  case     objDead:
+	    if (lua_isstring(L,2))
+	      uout->d = new Object((ObjType)(typeA), luaL_checkstring(L, 2));
+	    else
+	      uout->d = new Object((ObjType)(typeA));
+	    uout->atype = ALLOC_LEPDF;
+	    uout->pc = 0;
+	    uout->pd = NULL;            
+
+	    break;
+	  default:
+	    luaL_error(L, "Invalid values for Object constructor");
+	    break;
+	  }//switch((int)(d))
+	} else //  (typeA)!=(int)(typeA) 
+	  luaL_error(L, "Invalid/unsupported values for Object constructor");	   
+      } // if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2))) 
+      break;
+    default:
+      luaL_error(L, "Invalid specification for Object constructor");	   
+    }
+    lua_settop(L,1);
     return 1;
 }
+
+// static int l_new_Object(lua_State * L)
+// {
+//     udstruct *uout;
+//     uout = new_Object_userdata(L);
+//     uout->d = new Object();     // automatic init to type "none"
+//     uout->atype = ALLOC_LEPDF;
+//     uout->pc = 0;
+//     uout->pd = NULL;            // not connected to any PDFDoc
+//     return 1;
+// }
 
 
 // PDFRectangle see Page.h
@@ -460,6 +580,7 @@ static const struct luaL_Reg epdflib_f[] = {
     {"AttributeOwner_Type",l_AttributeOwner_Type},
     {"Dict", l_new_Dict},
     {"Object", l_new_Object},
+    {"Object_Type", l_Object_Type},
     {"PDFRectangle", l_new_PDFRectangle},
     {NULL, NULL}                // sentinel
 };
