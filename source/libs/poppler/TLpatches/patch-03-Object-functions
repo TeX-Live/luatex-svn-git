@@ -1,0 +1,35 @@
+diff -u Object.h.std Object.h
+--- Object.h.std	2017-09-18 19:14:36.231203342 +0200
++++ Object.h	2017-09-18 19:15:49.387200342 +0200
+@@ -207,7 +207,7 @@
+   GBool isName(const char *nameA)
+     { return type == objName && !strcmp(cString, nameA); }
+   GBool isDict(const char *dictType);
+-  GBool isStream(char *dictType);
++  GBool isStream(const char *dictType);
+   GBool isCmd(const char *cmdA)
+     { return type == objCmd && !strcmp(cString, cmdA); }
+ 
+@@ -264,7 +264,7 @@
+   Object dictGetValNF(int i);
+ 
+   // Stream accessors.
+-  GBool streamIs(char *dictType);
++  GBool streamIs(const char *dictType);
+   void streamReset();
+   void streamClose();
+   int streamGetChar();
+@@ -379,10 +379,10 @@
+ 
+ #include "Stream.h"
+ 
+-inline GBool Object::streamIs(char *dictType)
++inline GBool Object::streamIs(const char *dictType)
+   { OBJECT_TYPE_CHECK(objStream); return stream->getDict()->is(dictType); }
+ 
+-inline GBool Object::isStream(char *dictType)
++inline GBool Object::isStream(const char *dictType)
+   { return type == objStream && streamIs(dictType); }
+ 
+ inline void Object::streamReset()
+
