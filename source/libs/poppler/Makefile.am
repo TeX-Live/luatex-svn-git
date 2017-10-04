@@ -41,17 +41,22 @@ nodist_libpoppler_a_SOURCES = \
 	$(poppler_libpoppler_a_sources)
 
 goo_libGoo_a_sources = \
+	@POPPLER_TREE@/goo/FixedPoint.cc \
+	@POPPLER_TREE@/goo/GooHash.cc \
+	@POPPLER_TREE@/goo/GooList.cc \
+	@POPPLER_TREE@/goo/GooString.cc \
+	@POPPLER_TREE@/goo/GooTimer.cc \
+	@POPPLER_TREE@/goo/ImgWriter.cc \
+	@POPPLER_TREE@/goo/JpegWriter.cc \
+	@POPPLER_TREE@/goo/NetPBMWriter.cc \
+	@POPPLER_TREE@/goo/PNGWriter.cc \
+	@POPPLER_TREE@/goo/TiffWriter.cc \
 	@POPPLER_TREE@/goo/gfile.cc \
 	@POPPLER_TREE@/goo/glibc.cc \
 	@POPPLER_TREE@/goo/gmem.cc \
 	@POPPLER_TREE@/goo/gmempp.cc \
 	@POPPLER_TREE@/goo/grandom.cc \
-	@POPPLER_TREE@/goo/gstrtod.cc \
-	@POPPLER_TREE@/goo/FixedPoint.cc \
-	@POPPLER_TREE@/goo/GooHash.cc \
-	@POPPLER_TREE@/goo/GooList.cc \
-	@POPPLER_TREE@/goo/GooString.cc \
-	@POPPLER_TREE@/goo/GooTimer.cc
+	@POPPLER_TREE@/goo/gstrtod.cc 
 
 fofi_libfofi_a_sources = \
 	@POPPLER_TREE@/fofi/FoFiBase.cc \
@@ -59,9 +64,7 @@ fofi_libfofi_a_sources = \
 	@POPPLER_TREE@/fofi/FoFiIdentifier.cc \
 	@POPPLER_TREE@/fofi/FoFiTrueType.cc \
 	@POPPLER_TREE@/fofi/FoFiType1.cc \
-	@POPPLER_TREE@/fofi/FoFiType1C.cc
-
-
+	@POPPLER_TREE@/fofi/FoFiType1C.cc 
 
 poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/Annot.cc \
@@ -77,6 +80,7 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/Dict.cc \
 	@POPPLER_TREE@/poppler/Error.cc \
 	@POPPLER_TREE@/poppler/FileSpec.cc \
+	@POPPLER_TREE@/poppler/FlateEncoder.cc \
 	@POPPLER_TREE@/poppler/FlateStream.cc \
 	@POPPLER_TREE@/poppler/FontEncodingTables.cc \
 	@POPPLER_TREE@/poppler/FontInfo.cc \
@@ -93,6 +97,7 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/Lexer.cc \
 	@POPPLER_TREE@/poppler/Linearization.cc \
 	@POPPLER_TREE@/poppler/Link.cc \
+	@POPPLER_TREE@/poppler/LocalPDFDocBuilder.cc \
 	@POPPLER_TREE@/poppler/MarkedContentOutputDev.cc \
 	@POPPLER_TREE@/poppler/Movie.cc \
 	@POPPLER_TREE@/poppler/NameToCharCode.cc \
@@ -103,6 +108,7 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/PDFDoc.cc \
 	@POPPLER_TREE@/poppler/PDFDocEncoding.cc \
 	@POPPLER_TREE@/poppler/PDFDocFactory.cc \
+	@POPPLER_TREE@/poppler/PSOutputDev.cc \
 	@POPPLER_TREE@/poppler/PSTokenizer.cc \
 	@POPPLER_TREE@/poppler/Page.cc \
 	@POPPLER_TREE@/poppler/PageLabelInfo.cc \
@@ -125,8 +131,7 @@ poppler_libpoppler_a_sources = \
 	@POPPLER_TREE@/poppler/UnicodeTypeTable.cc \
 	@POPPLER_TREE@/poppler/ViewerPreferences.cc \
 	@POPPLER_TREE@/poppler/XRef.cc \
-	@POPPLER_TREE@/poppler/XpdfPluginAPI.cc \
-	@POPPLER_TREE@/poppler/strtok_r.cpp
+	@POPPLER_TREE@/poppler/XpdfPluginAPI.cc 
 
 $(libpoppler_a_OBJECTS): config.force
 
