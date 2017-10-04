@@ -25,6 +25,7 @@
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Peter Breitenlohner <peb@mppmu.mpg.de>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2017 Christoph Cullmann <cullmann@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -72,7 +73,7 @@ GooString *getCurrentDir() {
 #if defined(__EMX__)
   if (_getcwd2(buf, sizeof(buf)))
 #elif defined(_WIN32)
-  if (GetCurrentDirectory(sizeof(buf), buf))
+  if (GetCurrentDirectoryA(sizeof(buf), buf))
 #elif defined(ACORN)
   if (strcpy(buf, "@"))
 #elif defined(MACOS)
@@ -134,7 +135,7 @@ GooString *appendToPath(GooString *path, const char *fileName) {
   tmp = new GooString(path);
   tmp->append('/');
   tmp->append(fileName);
-  GetFullPathName(tmp->getCString(), sizeof(buf), buf, &fp);
+  GetFullPathNameA(tmp->getCString(), sizeof(buf), buf, &fp);
   delete tmp;
   path->clear();
   path->append(buf);
@@ -620,7 +621,7 @@ Goffset GooFile::size() const {
 }
 
 GooFile* GooFile::open(const GooString *fileName) {
-  HANDLE handle = CreateFile(fileName->getCString(),
+  HANDLE handle = CreateFileA(fileName->getCString(),
                               GENERIC_READ,
                               FILE_SHARE_READ | FILE_SHARE_WRITE,
                               NULL,
@@ -697,7 +698,7 @@ GDirEntry::GDirEntry(char *dirPath, char *nameA, GBool doStat) {
 #elif defined(ACORN)
 #else
 #ifdef _WIN32
-    fa = GetFileAttributes(fullPath->getCString());
+    fa = GetFileAttributesA(fullPath->getCString());
     dir = (fa != 0xFFFFFFFF && (fa & FILE_ATTRIBUTE_DIRECTORY));
 #else
     if (stat(fullPath->getCString(), &st) == 0)
@@ -720,7 +721,7 @@ GDir::GDir(char *name, GBool doStatA) {
 
   tmp = path->copy();
   tmp->append("/*.*");
-  hnd = FindFirstFile(tmp->getCString(), &ffd);
+  hnd = FindFirstFileA(tmp->getCString(), &ffd);
   delete tmp;
 #elif defined(ACORN)
 #elif defined(MACOS)
@@ -753,7 +754,7 @@ GDirEntry *GDir::getNextEntry() {
 #if defined(_WIN32)
   if (hnd != INVALID_HANDLE_VALUE) {
     e = new GDirEntry(path->getCString(), ffd.cFileName, doStat);
-    if (!FindNextFile(hnd, &ffd)) {
+    if (!FindNextFileA(hnd, &ffd)) {
       FindClose(hnd);
       hnd = INVALID_HANDLE_VALUE;
     }
@@ -797,7 +798,7 @@ void GDir::rewind() {
     FindClose(hnd);
   tmp = path->copy();
   tmp->append("/*.*");
-  hnd = FindFirstFile(tmp->getCString(), &ffd);
+  hnd = FindFirstFileA(tmp->getCString(), &ffd);
   delete tmp;
 #elif defined(ACORN)
 #elif defined(MACOS)

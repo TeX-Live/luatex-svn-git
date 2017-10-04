@@ -108,6 +108,7 @@ texmf_other_scripts = \
 	diadia/diadia.lua \
 	dosepsbin/dosepsbin.pl \
 	dviasm/dviasm.py \
+	dviinfox/dviinfox.pl \
 	ebong/ebong.py \
 	epspdf/epspdf.tlu \
 	epspdf/epspdftk.tcl \
@@ -122,6 +123,7 @@ texmf_other_scripts = \
 	getmap/getmapdl.lua \
 	glossaries/makeglossaries \
 	glossaries/makeglossaries-lite.lua \
+	jfmutil/jfmutil.pl \
 	kotex-utils/jamo-normalize.pl \
 	kotex-utils/komkindex.pl \
 	kotex-utils/ttf2kotexfont.pl \

@@ -943,33 +943,47 @@ halfword new_node(int i, int j)
     }
     if (synctex_anyway_mode) {
         switch (i) {
-            case glyph_node: /* new, experiment */
+            /* 1 = all but glyphs  */
+            /* 2 = also glyphs     */
+            /* 3 = glyphs and glue */
+            /* 4 = only glyphs     */
+            case glyph_node:
                 if (synctex_anyway_mode > 1) {
                     synctex_tag_glyph(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
                     synctex_line_glyph(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
                 }
                 break;
             case glue_node:
-                synctex_tag_glue(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
-                synctex_line_glue(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                if (synctex_anyway_mode < 4) {
+                    synctex_tag_glue(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_glue(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
                 break;
             case kern_node:
-                synctex_tag_kern(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
-                synctex_line_kern(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                if (synctex_anyway_mode < 3) {
+                    synctex_tag_kern(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_kern(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
                 break;
             case hlist_node:
             case vlist_node:
             case unset_node: /* useless */
-                synctex_tag_box(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
-                synctex_line_box(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                if (synctex_anyway_mode < 3) {
+                    synctex_tag_box(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_box(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
                 break;
             case rule_node:
-                synctex_tag_rule(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
-                synctex_line_rule(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                if (synctex_anyway_mode < 3) {
+                    synctex_tag_rule(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_rule(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
                 break;
             case math_node: /* noads probably make more sense */
-                synctex_tag_math(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
-                synctex_line_math(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                if (synctex_anyway_mode < 3) {
+                    synctex_tag_math(n) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
+                    synctex_line_math(n) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
+                }
                 break;
         }
     } else if (synctex_par) {
@@ -1191,12 +1205,14 @@ halfword copy_node(const halfword p)
     */
 
     if (synctex_anyway_mode) {
+        /*
         if (t == glyph_node) {
             if (synctex_anyway_mode > 1) {
                 synctex_tag_glyph(r) = forced_tag ? forced_tag : cur_input.synctex_tag_field;
                 synctex_line_glyph(r) = forced_line ? forced_line : synctex_line_field ? synctex_line_field : line;
             }
         }
+        */
     } else if (synctex_par) {
         /* handle synctex extension */
         switch (t) {

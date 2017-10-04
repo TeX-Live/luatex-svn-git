@@ -1,3 +1,19 @@
+2017-09-25  Luigi Scarso <luigi.scarso@gmail.com>
+
+	Imported poppler-0.59.0 source tree from:
+	  http://poppler.freedesktop.org/
+	* patch-02-LLONG_MAX, patch-03-Object-functions: Adapted.
+
+
+
+2017-06-15  Luigi Scarso <luigi.scarso@gmail.com>
+
+	Imported poppler-0.55.0 source tree from:
+	  http://poppler.freedesktop.org/
+	* patch-02-LLONG_MAX, patch-03-Object-functions: Adapted.
+
+
+
 2017-02-17  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	Imported poppler-0.52.0 source tree from:

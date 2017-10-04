@@ -1,4 +1,4 @@
-dnl $Id: version.ac 43542 2017-03-18 22:47:27Z karl $
+dnl $Id: version.ac 44643 2017-06-19 23:28:55Z karl $
 dnl   Copyright 2016-2017 Karl Berry <tex-live@tug.org>
 dnl   Copyright 2010-2015 Peter Breitenlohner <tex-live@tug.org>
 dnl
@@ -9,4 +9,4 @@ dnl
 dnl --------------------------------------------------------
 dnl
 dnl  m4-include this file to define the current TeX Live version
-m4_define([tex_live_version], [2017])
+m4_define([tex_live_version], [2018/dev])

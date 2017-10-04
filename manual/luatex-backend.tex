@@ -437,15 +437,15 @@ value.
 
 The list of possible operand types and associated \LUA\ value types is:
 
-\starttabulate[|lT|p|]
-\NC integer  \NC <number>  \NC \NR
-\NC real     \NC <number>  \NC \NR
-\NC boolean  \NC <boolean> \NC \NR
-\NC name     \NC <string>  \NC \NR
-\NC operator \NC <string>  \NC \NR
-\NC string   \NC <string>  \NC \NR
-\NC array    \NC <table>   \NC \NR
-\NC dict     \NC <table>   \NC \NR
+\starttabulate[|l|c|]
+\NC \type{integer}  \NC <number>  \NC \NR
+\NC \type{real}     \NC <number>  \NC \NR
+\NC \type{boolean}  \NC <boolean> \NC \NR
+\NC \type{name}     \NC <string>  \NC \NR
+\NC \type{operator} \NC <string>  \NC \NR
+\NC \type{string}   \NC <string>  \NC \NR
+\NC \type{array}    \NC <table>   \NC \NR
+\NC \type{dict}     \NC <table>   \NC \NR
 \stoptabulate
 
 In case of \type {integer} or \type {real}, the value is always a \LUA\ (floating
@@ -469,15 +469,15 @@ values are \type {pop} return values.
 
 There are few more methods defined that you can ask \type {scanner}:
 
-\starttabulate[|lT|p|]
-\NC pop       \NC as explained above \NC \NR
-\NC popNumber \NC return only the value of a \type {real} or \type {integer} \NC \NR
-\NC popName   \NC return only the value of a \type {name} \NC \NR
-\NC popString \NC return only the value of a \type {string} \NC \NR
-\NC popArray  \NC return only the value of a \type {array} \NC \NR
-\NC popDict   \NC return only the value of a \type {dict} \NC \NR
-\NC popBool   \NC return only the value of a \type {boolean} \NC \NR
-\NC done      \NC abort further processing of this \type {scan()} call \NC \NR
+\starttabulate[|l|p|]
+\NC \type{pop}       \NC as explained above \NC \NR
+\NC \type{popNumber} \NC return only the value of a \type {real} or \type {integer} \NC \NR
+\NC \type{popName}   \NC return only the value of a \type {name} \NC \NR
+\NC \type{popString} \NC return only the value of a \type {string} \NC \NR
+\NC \type{popArray}  \NC return only the value of a \type {array} \NC \NR
+\NC \type{popDict}   \NC return only the value of a \type {dict} \NC \NR
+\NC \type{popBool}   \NC return only the value of a \type {boolean} \NC \NR
+\NC \type{done}      \NC abort further processing of this \type {scan()} call \NC \NR
 \stoptabulate
 
 The \type {popXXX} are convenience functions, and come in handy when you know the
@@ -501,8 +501,54 @@ functionality is being used since long time to embed \PDF\ files. The \type
 {epdf} library allows to scrutinize an external \PDF\ file. It gives access to
 its document structure: catalog, cross|-|reference table, individual pages,
 objects, annotations, info, and metadata. The \type {epdf} library only provides
-read|-|only acess. At some point we might decide to limit the interface to a
+read|-|only access. At some point we might decide to limit the interface to a
 reasonable subset.
+
+\start \em
+
+The following functions will be removed in a next version. This is partly due to
+a change in the api of the used library and partly due to the fact that write
+access is not needed at all.
+
+\starttabulate[|T|T||]
+\NC Annot            \NC  getAppearance     \NC gone    \NC \NR
+\NC                  \NC  getBorder         \NC gone    \NC \NR
+\NC AnnotBorderStyle \NC  getWidth          \NC gone    \NC \NR
+\NC Array            \NC  incRef            \NC gone    \NC \NR
+\NC                  \NC  decRef            \NC gone    \NC \NR
+\NC                  \NC  add               \NC will go \NC \NR
+\NC Attribute        \NC  setRevision       \NC will go \NC \NR
+\NC                  \NC  setHidden         \NC will go \NC \NR
+\NC                  \NC  setFormattedValue \NC will go \NC \NR
+\NC EmbFile          \NC  save              \NC will go \NC \NR
+\NC Dict             \NC  incRef            \NC gone    \NC \NR
+\NC                  \NC  decRef            \NC gone    \NC \NR
+\NC                  \NC  add               \NC will go \NC \NR
+\NC                  \NC  set               \NC will go \NC \NR
+\NC                  \NC  remove            \NC will go \NC \NR
+\NC Object           \NC  initBool          \NC will go \NC \NR
+\NC                  \NC  initInt           \NC will go \NC \NR
+\NC                  \NC  initReal          \NC will go \NC \NR
+\NC                  \NC  initString        \NC will go \NC \NR
+\NC                  \NC  initName          \NC will go \NC \NR
+\NC                  \NC  initNull          \NC will go \NC \NR
+\NC                  \NC  initArray         \NC will go \NC \NR
+\NC                  \NC  initDict          \NC will go \NC \NR
+\NC                  \NC  initStream        \NC will go \NC \NR
+\NC                  \NC  initRef           \NC will go \NC \NR
+\NC                  \NC  initCmd           \NC will go \NC \NR
+\NC                  \NC  initError         \NC will go \NC \NR
+\NC                  \NC  initEOF           \NC will go \NC \NR
+\NC                  \NC  dictAdd           \NC will go \NC \NR
+\NC                  \NC  dictSet           \NC will go \NC \NR
+\NC                  \NC  streamReset       \NC will go \NC \NR
+\NC StructElement    \NC  setRevision       \NC will go \NC \NR
+\NC                  \NC  appendChild       \NC will go \NC \NR
+\NC                  \NC  appendAttribute   \NC will go \NC \NR
+\NC StructTreeRoot   \NC  appendChild       \NC will go \NC \NR
+\stoptabulate
+
+\stop
 
 For a start, a \PDF\ file is opened by \type {epdf.open()} with file name, e.g.:
 
@@ -561,26 +607,32 @@ These are the object constructors:
 <Array>        = epdf.Array(<XRef>)
 <Attribute>    = epdf.Attribute(<Type>,<Object>)| epdf.Attribute(<string>, <int>, <Object>)
 <Dict>         = epdf.Dict(<XRef>)
-<Object>       = epdf.Object()
+<Object>       = epdf.Object()|epdf.Object(<Type>)|epdf.Object(<Object_Type>,<string>)|
 <PDFRectangle> = epdf.PDFRectangle()
 \stopfunctioncall
 
-The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
+There is a new API for the \type {Object} constructors: the old \type {init<ObjType>} constructors
+are still present but they are deprecated. They will disappear after the next \TeX Live.
+The functions \type {StructElement_Type}, \type {Object_Type}, \type {Attribute_Type} and \type
 {AttributeOwner_Type} return a hash table \type {{<string>,<integer>}}.
+The hash table \type {Object_Type} is useful for the
+\type {epdf.Object(<Object_Type>,<string>)} \type {Object} constructor, where \type {<Object_Type>} is an
+integer.
 
 \type {Annot} methods:
 
+
 \startfunctioncall
 <boolean>     = <Annot>:isOK()
-<Object>      = <Annot>:getAppearance()
-<AnnotBorder> = <Annot>:getBorder()
 <boolean>     = <Annot>:match(<Ref>)
+<Object>      = <Annot>:getAppearance() -- gone
+<AnnotBorder> = <Annot>:getBorder()     -- gone
 \stopfunctioncall
 
-\type {AnnotBorderStyle} methods:
+\type {AnnotBorderStyle} methods (gone):
 
 \startfunctioncall
-<number> = <AnnotBorderStyle>:getWidth()
+<number> = <AnnotBorderStyle>:getWidth() -- gone
 \stopfunctioncall
 
 \type {Annots} methods:
@@ -593,10 +645,10 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 \type {Array} methods:
 
 \startfunctioncall
-            <Array>:incRef()
-            <Array>:decRef()
+            <Array>:incRef()      -- gone
+            <Array>:decRef()      -- gone
+            <Array>:add(<Object>) -- will go
 <integer> = <Array>:getLength()
-            <Array>:add(<Object>)
 <Object>  = <Array>:get(<integer>)
 <Object>  = <Array>:getNF(<integer>)
 <string>  = <Array>:getString(<integer>)
@@ -614,11 +666,11 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <Object>   = <Attribute>:getDefaultValue
 <string>   = <Attribute>:getName()
 <integer>  = <Attribute>:getRevision()
-             <Attribute>:setRevision(<unsigned integer>)
-<boolean>  = <Attribute>:istHidden()
-             <Attribute>:setHidden(<boolean>)
+             <Attribute>:setRevision(<unsigned integer>) -- will go
+<boolean>  = <Attribute>:isHidden()
+             <Attribute>:setHidden(<boolean>)            -- will go
 <string>   = <Attribute>:getFormattedValue()
-<string>   = <Attribute>:setFormattedValue(<string>)
+<string>   = <Attribute>:setFormattedValue(<string>)     -- will go
 \stopfunctioncall
 
 \type {Catalog} methods:
@@ -645,26 +697,37 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 \type {EmbFile} methods:
 
 \startfunctioncall
-<string>   = <EmbFile>:name()
-<string>   = <EmbFile>:description()
 <integer>  = <EmbFile>:size()
 <string>   = <EmbFile>:modDate()
 <string>   = <EmbFile>:createDate()
 <string>   = <EmbFile>:checksum()
 <string>   = <EmbFile>:mimeType()
-<Object>   = <EmbFile>:streamObject()
 <boolean>  = <EmbFile>:isOk()
+<string>   = <EmbFile>:name()         -- not (yet) implemented
+<string>   = <EmbFile>:description()  -- not (yet) implemented
+<Object>   = <EmbFile>:streamObject() -- not (yet) implemented
+<boolean>  = <EmbFile>:save()         -- will go
+\stopfunctioncall
+
+\type {FileSpec} methods:
+
+\startfunctioncall
+<boolean> = <FileSpec>:isOk()
+<string>  = <FileSpec>:getFileName()
+<string>  = <FileSpec>:getFileNameForPlatform()
+<string>  = <FileSpec>:getDescription()
+<EmbFile> = <FileSpec>:getEmbeddedFile()
 \stopfunctioncall
 
 \type {Dict} methods:
 
 \startfunctioncall
-            <Dict>:incRef()
-            <Dict>:decRef()
+            <Dict>:incRef()                -- will go
+            <Dict>:decRef()                -- will go
+            <Dict>:add(<string>, <Object>) -- will go
+            <Dict>:set(<string>, <Object>) -- will go
+            <Dict>:remove(<string>)        -- will go
 <integer> = <Dict>:getLength()
-            <Dict>:add(<string>, <Object>)
-            <Dict>:set(<string>, <Object>)
-            <Dict>:remove(<string>)
 <boolean> = <Dict>:is(<string>)
 <Object>  = <Dict>:lookup(<string>)
 <Object>  = <Dict>:lookupNF(<string>)
@@ -675,12 +738,12 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <boolean> = <Dict>:hasKey(<string>)
 \stopfunctioncall
 
-\type {Link} methods:
+% \type {Link} methods:
 
-\startfunctioncall
-<boolean>  = <Link>:isOK()
-<boolean>  = <Link>:inRect(<number>, <number>)
-\stopfunctioncall
+% \startfunctioncall
+% <boolean>  = <Link>:isOK()
+% <boolean>  = <Link>:inRect(<number>, <number>)
+% \stopfunctioncall
 
 \type {LinkDest} methods:
 
@@ -703,27 +766,29 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 
 \type {Links} methods:
 
+% <Link>     = <Links>:getLink(<integer>)
+
 \startfunctioncall
 <integer>  = <Links>:getNumLinks()
-<Link>     = <Links>:getLink(<integer>)
 \stopfunctioncall
 
 \type {Object} methods:
 
 \startfunctioncall
-            <Object>:initBool(<boolean>)
-            <Object>:initInt(<integer>)
-            <Object>:initReal(<number>)
-            <Object>:initString(<string>)
-            <Object>:initName(<string>)
-            <Object>:initNull()
-            <Object>:initArray(<XRef>)
-            <Object>:initDict(<XRef>)
-            <Object>:initStream(<Stream>)
-            <Object>:initRef(<integer> object number, <integer> object generation)
-            <Object>:initCmd(<string>)
-            <Object>:initError()
-            <Object>:initEOF()
+            <Object>:initBool(<boolean>)              -- will go
+            <Object>:initInt(<integer>)               -- will go
+            <Object>:initReal(<number>)               -- will go
+            <Object>:initString(<string>)             -- will go
+            <Object>:initName(<string>)               -- will go
+            <Object>:initNull()                       -- will go
+            <Object>:initArray(<XRef>)                -- will go
+            <Object>:initDict(<XRef>)                 -- will go
+            <Object>:initStream(<Stream>)             -- will go
+            <Object>:initRef(<integer> object number,
+                <integer> object generation)          -- will go
+            <Object>:initCmd(<string>)                -- will go
+            <Object>:initError()                      -- will go
+            <Object>:initEOF()                        -- will go
 <Object>  = <Object>:fetch(<XRef>)
 <integer> = <Object>:getType()
 <string>  = <Object>:getTypeName()
@@ -756,19 +821,19 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <integer> = <Object>:getRefGen()
 <string>  = <Object>:getCmd()
 <integer> = <Object>:arrayGetLength()
-          = <Object>:arrayAdd(<Object>)
+          = <Object>:arrayAdd(<Object>)               -- will go
 <Object>  = <Object>:arrayGet(<integer>)
 <Object>  = <Object>:arrayGetNF(<integer>)
 <integer> = <Object>:dictGetLength(<integer>)
-          = <Object>:dictAdd(<string>, <Object>)
-          = <Object>:dictSet(<string>, <Object>)
+          = <Object>:dictAdd(<string>, <Object>)      -- will go
+          = <Object>:dictSet(<string>, <Object>)      -- will go
 <Object>  = <Object>:dictLookup(<string>)
 <Object>  = <Object>:dictLookupNF(<string>)
 <string>  = <Object>:dictgetKey(<integer>)
 <Object>  = <Object>:dictgetVal(<integer>)
 <Object>  = <Object>:dictgetValNF(<integer>)
 <boolean> = <Object>:streamIs(<string>)
-          = <Object>:streamReset()
+          = <Object>:streamReset()                    -- will go
 <integer> = <Object>:streamGetChar()
 <integer> = <Object>:streamLookChar()
 <integer> = <Object>:streamGetPos()
@@ -820,7 +885,8 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <integer>  = <PDFDoc>:getNumPages()
 <string>   = <PDFDoc>:readMetadata()
 <Object>   = <PDFDoc>:getStructTreeRoot()
-<integer>  = <PDFDoc>:findPage(<integer> object number, <integer> object generation)
+<integer>  = <PDFDoc>:findPage(<integer> object number,
+                <integer> object generation)
 <Links>    = <PDFDoc>:getLinks(<integer>)
 <LinkDest> = <PDFDoc>:findDest(<string>)
 <boolean>  = <PDFDoc>:isEncrypted()
@@ -838,7 +904,7 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 \type {PDFRectangle} methods:
 
 \startfunctioncall
-<boolean>  = <PDFRectangle>:isValid()
+<boolean>  = <PDFRectangle>:isValid() -- setindex/newindex will go
 \stopfunctioncall
 
 %\type {Ref} methods:
@@ -884,16 +950,17 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <string>         = <StructElement>:getID()
 <string>         = <StructElement>:getLanguage()
 <integer>        = <StructElement>:getRevision()
-                   <StructElement>:setRevision(<unsigned integer>)
+                   <StructElement>:setRevision(<unsigned integer>)   -- will go
 <string>         = <StructElement>:getTitle()
 <string>         = <StructElement>:getExpandedAbbr()
 <integer>        = <StructElement>:getNumChildren()
 <StructElement>  = <StructElement>:getChild()
-                 = <StructElement>:appendChild<StructElement>)
+                 = <StructElement>:appendChild<StructElement>)       -- will go
 <integer>        = <StructElement>:getNumAttributes()
-<Attribute>      = <StructElement>:geAttribute(<integer>)
-<string>         = <StructElement>:appendAttribute(<Attribute>)
-<Attribute>      = <StructElement>:findAttribute(<Attribute::Type>,boolean,Attribute::Owner)
+<Attribute>      = <StructElement>:getAttribute(<integer>)
+<string>         = <StructElement>:appendAttribute(<Attribute>)      -- will go
+<Attribute>      = <StructElement>:findAttribute(<Attribute::Type>,
+                        boolean,Attribute::Owner)
 <string>         = <StructElement>:getAltText()
 <string>         = <StructElement>:getActualText()
 <string>         = <StructElement>:getText(<boolean>)
@@ -909,7 +976,7 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <Dict>          = <StructTreeRoot>:getClassMap
 <integer>       = <StructTreeRoot>:getNumChildren
 <StructElement> = <StructTreeRoot>:getChild
-                  <StructTreeRoot>:appendChild
+                  <StructTreeRoot>:appendChild       -- will go
 <StructElement> = <StructTreeRoot>:findParentElement
 \stopfunctioncall
 
@@ -934,7 +1001,8 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <boolean>  = <XRef>:okToAccessibility()
 <boolean>  = <XRef>:okToAssemble()
 <Object>   = <XRef>:getCatalog()
-<Object>   = <XRef>:fetch(<integer> object number, <integer> object generation)
+<Object>   = <XRef>:fetch(<integer> object number,
+                <integer> object generation)
 <Object>   = <XRef>:getDocInfo()
 <Object>   = <XRef>:getDocInfoNF()
 <integer>  = <XRef>:getNumObjects()

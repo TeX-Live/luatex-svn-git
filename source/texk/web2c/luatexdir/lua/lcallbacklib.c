@@ -54,7 +54,7 @@ static const char *const callbacknames[] = {
     "pre_output_filter",
     "buildpage_filter",
     "hpack_filter", "vpack_filter",
-    "char_exists",
+    "glyph_not_found",
     "hyphenate",
     "ligaturing",
     "kerning",

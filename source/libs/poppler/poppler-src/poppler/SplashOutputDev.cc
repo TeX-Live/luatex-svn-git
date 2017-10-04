@@ -15,7 +15,7 @@
 //
 // Copyright (C) 2005 Takashi Iwai <tiwai@suse.de>
 // Copyright (C) 2006 Stefan Schweizer <genstef@gentoo.org>
-// Copyright (C) 2006-2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
@@ -37,6 +37,7 @@
 // Copyright (C) 2015 Tamas Szekeres <szekerest@gmail.com>
 // Copyright (C) 2015 Kenji Uno <ku@digitaldolphins.jp>
 // Copyright (C) 2016 Takahiro Hashimoto <kenya888.en@gmail.com>
+// Copyright (C) 2017 Even Rouault <even.rouault@spatialys.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -1215,7 +1216,7 @@ public:
 
   ~SplashOutFontFileID() {}
 
-  GBool matches(SplashFontFileID *id) {
+  GBool matches(SplashFontFileID *id) override {
     return ((SplashOutFontFileID *)id)->r.num == r.num &&
            ((SplashOutFontFileID *)id)->r.gen == r.gen;
   }
@@ -2075,8 +2076,10 @@ reload:
   delete id;
   delete fontLoc;
   fontLoc = NULL;
-  if (fontsrc && !fontsrc->isFile)
+  if (fontsrc && !fontsrc->isFile) {
       fontsrc->unref();
+      fontsrc = nullptr;
+  }
 
   id = new SplashOutFontFileID(gfxFont->getID());
   if ((fontFile = fontEngine->getFontFile(id))) {
@@ -2725,7 +2728,7 @@ void SplashOutputDev::type3D1(GfxState *state, double wx, double wy,
   int i, j;
 
   // ignore multiple d0/d1 operators
-  if (t3GlyphStack->haveDx) {
+  if (!t3GlyphStack || t3GlyphStack->haveDx) {
     return;
   }
   t3GlyphStack->haveDx = gTrue;
@@ -3797,7 +3800,7 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
 				      int maskHeight, GBool maskInvert,
 				      GBool maskInterpolate) {
   GfxImageColorMap *maskColorMap;
-  Object maskDecode, decodeLow, decodeHigh;
+  Object decodeLow, decodeHigh;
   double *ctm;
   SplashCoord mat[6];
   SplashOutMaskedImageData imgData;
@@ -3824,14 +3827,11 @@ void SplashOutputDev::drawMaskedImage(GfxState *state, Object *ref,
   // If the mask is higher resolution than the image, use
   // drawSoftMaskedImage() instead.
   if (maskWidth > width || maskHeight > height) {
-    decodeLow.initInt(maskInvert ? 0 : 1);
-    decodeHigh.initInt(maskInvert ? 1 : 0);
-    maskDecode.initArray((xref) ? xref : doc->getXRef());
-    maskDecode.arrayAdd(&decodeLow);
-    maskDecode.arrayAdd(&decodeHigh);
+    Object maskDecode(new Array((xref) ? xref : doc->getXRef()));
+    maskDecode.arrayAdd(Object(maskInvert ? 0 : 1));
+    maskDecode.arrayAdd(Object(maskInvert ? 1 : 0));
     maskColorMap = new GfxImageColorMap(1, &maskDecode,
 					new GfxDeviceGrayColorSpace());
-    maskDecode.free();
     drawSoftMaskedImage(state, ref, str, width, height, colorMap, interpolate,
 			maskStr, maskWidth, maskHeight, maskColorMap, maskInterpolate);
     delete maskColorMap;
@@ -4020,9 +4020,7 @@ void SplashOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref,
     maskStr->reset();
     maskStr->doGetChars(maskWidth * maskHeight, data);
     maskStr->close();
-    Object *maskDict = new Object();
-    maskDict->initDict(maskStr->getDict());
-    maskStr = new MemStream((char *)data, 0, maskWidth * maskHeight, maskDict);
+    maskStr = new MemStream((char *)data, 0, maskWidth * maskHeight, maskStr->getDictObject()->copy());
     ((MemStream *) maskStr)->setNeedFree(gTrue);
   }
   imgMaskData.imgStr = new ImageStream(maskStr, maskWidth,

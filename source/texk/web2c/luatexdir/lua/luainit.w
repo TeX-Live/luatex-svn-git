@@ -446,7 +446,7 @@ static void parse_options(int ac, char **av)
                  "kpathsea  : Karl Berry, Olaf Weber and others\n"
                  "lua       : Roberto Ierusalimschy, Waldemar Celes and Luiz Henrique de Figueiredo\n"
                  "metapost  : John Hobby, Taco Hoekwater and friends\n"
-                 "poppler   : Derek Noonburg, Kristian H\\ogsberg (partial)\n"
+                 "poppler   : Derek Noonburg, Kristian Hogsberg (partial)\n"
                  "fontforge : George Williams (partial)\n"
                  "luajit    : Mike Pall (used in LuajitTeX)\n");
             /* *INDENT-ON* */
@@ -943,7 +943,7 @@ void lua_initialize(int ac, char **av)
         /* If setlocale fails here, then the state   */
         /* could be compromised, and we exit.        */
         env_locale = setlocale (LC_ALL, "");
-	if (!env_locale) {
+	if (!env_locale && !lua_only) {
 	  fprintf(stderr,"Unable to read environment locale: exit now.\n");
 	  exit(1);
 	}

@@ -1,6 +1,6 @@
 % macros=mkvi
 
-% author    : Hans Hagen
+% author    : Hans Hagen with Taco Hoekwater, Luigi Scarso & Hartmut Henkel
 % copyright : PRAGMA ADE & ConTeXt Development Team
 % license   : Creative Commons Attribution ShareAlike 4.0 International
 % reference : pragma-ade.nl | contextgarden.net | texlive (related) distributions
@@ -13,9 +13,13 @@
 %             the manuals contain characteristic graphics and personal notes or examples that
 %             make no sense when used out-of-context.
 %
-% comment   : Some chapters might have been published in TugBoat, the NTG Maps, the ConTeXt
-%             Group journal or otherwise. Thanks to the editors for corrections. Also thanks
-%             to users for testing, feedback and corrections.
+% comment   : Some (parts of) chapters might have been published in TugBoat, the NTG Maps, the
+%             ConTeXt Group journal or otherwise. Thanks to the editors for corrections. Also
+%             thanks to users for testing, feedback and corrections.
+%
+% 238 pages : 2017-07-06
+%             luatex 9.5 sec / luajittex 7.0 sec
+%             Dell 7600 / i7 3840QM / passmark 1.922 / Windows 10 64 bit
 
 % \tex vs \type vs \syntax vs. \luatex
 % \em \it \/
@@ -23,16 +27,33 @@
 % "context --nodates --nocompression luatex" can be used for comparison
 % runs, not that we do it
 
+% \enabledirectives[hyphenator.flatten]
+
+% \setupsynctex[state=start,method=max] % adds 5 pct overhead
+
 \environment luatex-style
 \environment luatex-logos
+
+\startmode[export]
+
+    \setupbackend
+      [export=luatex]
+
+\stopmode
 
 \dontcomplain
 
 \startdocument
-  [status=release,
-   version=1.0.5]
+  [status=beta,
+   version=1.06.1]
 
-\component luatex-titlepage
+\startnotmode[*export]
+    \component luatex-titlepage
+\stopnotmode
+
+\startmode[*export]
+    \component luatex-export-titlepage
+\stopmode
 
 \startfrontmatter
     \component luatex-contents

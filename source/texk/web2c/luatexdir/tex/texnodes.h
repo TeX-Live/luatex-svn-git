@@ -421,6 +421,8 @@ typedef enum {
 */
 
 #  define precedes_break(a)  (type(a)<=last_preceding_break_node)
+#  define precedes_kern(a)   ((type(a) == kern_node) && (subtype(a) == font_kern || subtype(a) == accent_kern))
+#  define precedes_dir(a)    ((type(a) == dir_node) && (break_after_dir_mode_par == 1))
 #  define non_discardable(a) (type(a)<=last_non_discardable_node)
 
 #  define known_node_type(i) ( i >= 0 && i <= MAX_NODE_TYPE)
@@ -483,7 +485,7 @@ typedef enum {
 #  define noadextra1(a)  vlink((a)+6) /* we need to match delimiter (saves copy) */
 #  define noadoptions(a) vinfo((a)+6)
 #  define noadextra3(a)  vlink((a)+7) /* see (!) below */
-#  define noadextra4(a)  vinfo((a)+7)
+#  define noadextra4(a)  vinfo((a)+7) /* used to store samesize */
 
 /* accent noads */
 
@@ -495,15 +497,15 @@ typedef enum {
 
 /* left and right noads */
 
-#  define fence_noad_size     8            /* needs to match noad size */
-#  define delimiteritalic(a)  vlink((a)+4)
-/* define delimiterwidth(a)   vinfo((a)+4) */
-#  define delimiterheight(a)  vlink((a)+5)
-#  define delimiterdepth(a)   vinfo((a)+5)
-#  define delimiter(a)        vlink((a)+6) /* |delimiter| field in left and right noads */
-#  define delimiteroptions(a) vinfo((a)+6)
-#  define delimiterclass(a)   vlink((a)+7) /* (!) we could probably pack some more in 6 */
-#  define delimiterextra1(a)  vinfo((a)+7) /* not used */
+#  define fence_noad_size      8            /* needs to match noad size */
+#  define delimiteritalic(a)   vlink((a)+4)
+/* define delimiterwidth(a)    vinfo((a)+4) */
+#  define delimiterheight(a)   vlink((a)+5)
+#  define delimiterdepth(a)    vinfo((a)+5)
+#  define delimiter(a)         vlink((a)+6) /* |delimiter| field in left and right noads */
+#  define delimiteroptions(a)  vinfo((a)+6)
+#  define delimiterclass(a)    vlink((a)+7) /* (!) we could probably pack some more in 6 */
+#  define delimitersamesize(a) vinfo((a)+7) /* set by engine */
 
 /* when dimensions then axis else noaxis */
 
@@ -533,6 +535,16 @@ typedef enum {
 #  define noadoptionnosupscript(a) ( (type(a) == simple_noad) && ( \
                                      ((delimiteroptions(a) & noad_option_no_super_script) == noad_option_no_super_script) || \
                                      ((delimiteroptions(a) & noad_option_no_script      ) == noad_option_no_script      ) ))
+
+typedef enum {
+    noad_delimiter_mode_noshift = 0x01,
+    noad_delimiter_mode_italics = 0x02,
+    noad_delimiter_mode_ordinal = 0x04,
+} delimiter_modes ;
+
+#  define delimitermodenoshift ((math_delimiters_mode_par & noad_delimiter_mode_noshift) == noad_delimiter_mode_noshift)
+#  define delimitermodeitalics ((math_delimiters_mode_par & noad_delimiter_mode_italics) == noad_delimiter_mode_italics)
+#  define delimitermodeordinal ((math_delimiters_mode_par & noad_delimiter_mode_ordinal) == noad_delimiter_mode_ordinal)
 
 /* subtype of fence noads */
 

@@ -224,43 +224,43 @@ node. But by default also a hlist, vlist, rule, dir, whatsit, ins, and adjust no
 indicate a start or end. You can omit the last set from the test by setting
 \type {\hyphenationbounds} to a non|-|zero value:
 
-\starttabulate[|Tl|l|]
-\NC 0 \NC not strict \NC \NR
-\NC 1 \NC strict start \NC \NR
-\NC 2 \NC strict end \NC \NR
-\NC 3 \NC strict start and strict end \NC \NR
+\starttabulate[|l|l|]
+\NC \type{0} \NC not strict \NC \NR
+\NC \type{1} \NC strict start \NC \NR
+\NC \type{2} \NC strict end \NC \NR
+\NC \type{3} \NC strict start and strict end \NC \NR
 \stoptabulate
 
 The word start is determined as follows:
 
-\starttabulate[|Bl|l|]
-\NC boundary  \NC yes when wordboundary \NC \NR
-\NC hlist     \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC vlist     \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC rule      \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC dir       \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC whatsit   \NC when hyphenationbounds 1 or 3 \NC \NR
-\NC glue      \NC yes \NC \NR
-\NC math      \NC skipped \NC \NR
-\NC glyph     \NC exhyphenchar (one only) : yes (so no -- ---) \NC \NR
-\NC otherwise \NC yes \NC \NR
+\starttabulate[|l|l|]
+\BC boundary  \NC yes when wordboundary \NC \NR
+\BC hlist     \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC vlist     \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC rule      \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC dir       \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC whatsit   \NC when hyphenationbounds 1 or 3 \NC \NR
+\BC glue      \NC yes \NC \NR
+\BC math      \NC skipped \NC \NR
+\BC glyph     \NC exhyphenchar (one only) : yes (so no -- ---) \NC \NR
+\BC otherwise \NC yes \NC \NR
 \stoptabulate
 
 The word end is determined as follows:
 
-\starttabulate[|Bl|l|]
-\NC boundary  \NC yes \NC \NR
-\NC glyph     \NC yes when different language \NC \NR
-\NC glue      \NC yes \NC \NR
-\NC penalty   \NC yes \NC \NR
-\NC kern      \NC yes when not italic (for some historic reason) \NC \NR
-\NC hlist     \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC vlist     \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC rule      \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC dir       \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC whatsit   \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC ins       \NC when hyphenationbounds 2 or 3 \NC \NR
-\NC adjust    \NC when hyphenationbounds 2 or 3 \NC \NR
+\starttabulate[|l|l|]
+\BC boundary  \NC yes \NC \NR
+\BC glyph     \NC yes when different language \NC \NR
+\BC glue      \NC yes \NC \NR
+\BC penalty   \NC yes \NC \NR
+\BC kern      \NC yes when not italic (for some historic reason) \NC \NR
+\BC hlist     \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC vlist     \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC rule      \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC dir       \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC whatsit   \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC ins       \NC when hyphenationbounds 2 or 3 \NC \NR
+\BC adjust    \NC when hyphenationbounds 2 or 3 \NC \NR
 \stoptabulate
 
 \in{Figures}[hb:1] upto \in[hb:5] show some examples. In all cases we set the min
@@ -336,7 +336,7 @@ hyphenated. A side effect is that a leading hyphen can lead to a split but one
 will seldom run into that situation. Setting a pre and post character makes this
 more prominent. A value of 1 will prevent this side effect and a value of 2 will
 not turn the hyphen into a discretionary. Experiments with other options, like
-permitting hyphenation, of the words on both sides were discarded.
+permitting hyphenation of the words on both sides were discarded.
 
 \startbuffer[a]
 before-after \par
@@ -491,18 +491,18 @@ have been added:
 The first parameter has the following consequences for automatic discs (the ones
 resulting from an \type {\exhyphenchar}:
 
-\starttabulate[|Tc|l|l|]
-\BC mode \BC automatic disc \type{-}         \BC explicit disc \type{\-}         \NC \NR
+\starttabulate[|c|l|l|]
+\BC mode     \BC automatic disc \type{-}         \BC explicit disc \type{\-}         \NC \NR
 \HL
-\NC 0    \NC \type {\exhyphenpenalty}        \NC \type {\exhyphenpenalty}        \NC \NR
-\NC 1    \NC \type {\hyphenpenalty}          \NC \type {\hyphenpenalty}          \NC \NR
-\NC 2    \NC \type {\exhyphenpenalty}        \NC \type {\hyphenpenalty}          \NC \NR
-\NC 3    \NC \type {\hyphenpenalty}          \NC \type {\exhyphenpenalty}        \NC \NR
-\NC 4    \NC \type {\automatichyphenpenalty} \NC \type {\explicithyphenpenalty}  \NC \NR
-\NC 5    \NC \type {\exhyphenpenalty}        \NC \type {\explicithyphenpenalty}  \NC \NR
-\NC 6    \NC \type {\hyphenpenalty}          \NC \type {\explicithyphenpenalty}  \NC \NR
-\NC 7    \NC \type {\automatichyphenpenalty} \NC \type {\exhyphenpenalty}        \NC \NR
-\NC 8    \NC \type {\automatichyphenpenalty} \NC \type {\hyphenpenalty}          \NC \NR
+\NC \type{0} \NC \type {\exhyphenpenalty}        \NC \type {\exhyphenpenalty}        \NC \NR
+\NC \type{1} \NC \type {\hyphenpenalty}          \NC \type {\hyphenpenalty}          \NC \NR
+\NC \type{2} \NC \type {\exhyphenpenalty}        \NC \type {\hyphenpenalty}          \NC \NR
+\NC \type{3} \NC \type {\hyphenpenalty}          \NC \type {\exhyphenpenalty}        \NC \NR
+\NC \type{4} \NC \type {\automatichyphenpenalty} \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC \type{5} \NC \type {\exhyphenpenalty}        \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC \type{6} \NC \type {\hyphenpenalty}          \NC \type {\explicithyphenpenalty}  \NC \NR
+\NC \type{7} \NC \type {\automatichyphenpenalty} \NC \type {\exhyphenpenalty}        \NC \NR
+\NC \type{8} \NC \type {\automatichyphenpenalty} \NC \type {\hyphenpenalty}          \NC \NR
 \stoptabulate
 
 other values do what we always did in \LUATEX: insert \type {\exhyphenpenalty}.
@@ -547,9 +547,9 @@ listed items. It is important to note that the keys in an exception dictionary
 can always be generated from the values. Here are a few examples:
 
 \starttabulate[|l|l|l|]
-\NC \bf value \NC \bf implied key (input) \NC \bf effect \NC\NR
-\NC \type {ta-ble} \NC table \NC \type {ta\-ble} ($=$ \type {ta\discretionary{-}{}{}ble}) \NC\NR
-\NC \type {ba{k-}{}{c}ken} \NC backen \NC \type {ba\discretionary{k-}{}{c}ken} \NC\NR
+\BC value                  \BC implied key (input) \NC effect \NC\NR
+\NC \type {ta-ble}         \NC table               \NC \type {ta\-ble} ($=$ \type {ta\discretionary{-}{}{}ble}) \NC\NR
+\NC \type {ba{k-}{}{c}ken} \NC backen              \NC \type {ba\discretionary{k-}{}{c}ken} \NC\NR
 \stoptabulate
 
 The resultant patterns and exception dictionary will be stored under the language
@@ -709,10 +709,10 @@ For example, take the word \type {office}, hyphenated \type {of-fice}, using a
 type ligatures:
 
 \starttabulate[|l|l|]
-\NC Initial:               \NC \type {{o}{f}{f}{i}{c}{e}}             \NC\NR
-\NC After hyphenation:     \NC \type {{o}{f}{{-},{},{}}{f}{i}{c}{e}}  \NC\NR
-\NC First ligature stage:  \NC \type {{o}{{f-},{f},{<ff>}}{i}{c}{e}}  \NC\NR
-\NC Final result:          \NC \type {{o}{{f-},{<fi>},{<ffi>}}{c}{e}} \NC\NR
+\NC initial              \NC \type {{o}{f}{f}{i}{c}{e}}             \NC\NR
+\NC after hyphenation    \NC \type {{o}{f}{{-},{},{}}{f}{i}{c}{e}}  \NC\NR
+\NC first ligature stage \NC \type {{o}{{f-},{f},{<ff>}}{i}{c}{e}}  \NC\NR
+\NC final result         \NC \type {{o}{{f-},{<fi>},{<ffi>}}{c}{e}} \NC\NR
 \stoptabulate
 
 That's bad enough, but let us assume that there is also a hyphenation point
@@ -734,25 +734,25 @@ the top-level discretionary that resulted from the first hyphenation point.
 
 Here is that nested solution again, in a different representation:
 
-\starttabulate[|l|l|l|l|]
-\NC         \NC pre              \NC post          \NC replace           \NC \NR
-\NC topdisc \NC \type {f-}$^1$   \NC sub1          \NC sub2              \NC \NR
-\NC sub1    \NC \type {f-}$^2$   \NC \type {i}$^3$ \NC \type {<fi>}$^4$  \NC \NR
-\NC sub2    \NC \type {<ff>-}$^5$\NC \type {i}$^6$ \NC \type {<ffi>}$^7$ \NC \NR
+\starttabulate[|l|c|c|c|c|c|c|]
+\NC         \BC pre           \BC     \BC post      \BC       \BC replace       \BC       \NC \NR
+\NC topdisc \NC \type {f-}    \NC (1) \NC           \NC sub 1 \NC               \NC sub 2 \NC \NR
+\NC sub 1   \NC \type {f-}    \NC (2) \NC \type {i} \NC (3)   \NC \type {<fi>}  \NC (4)   \NC \NR
+\NC sub 2   \NC \type {<ff>-} \NC (5) \NC \type {i} \NC (6)   \NC \type {<ffi>} \NC (7)   \NC \NR
 \stoptabulate
 
 When line breaking is choosing its breakpoints, the following fields will
 eventually be selected:
 
-\starttabulate[|l|l|l|]
-\NC \type {of-f-ice} \NC \type {f-}$^1$    \NC \NR
-\NC                  \NC \type {f-}$^2$    \NC \NR
-\NC                  \NC \type {i}$^3$     \NC \NR
-\NC \type {of-fice}  \NC \type {f-}$^1$    \NC \NR
-\NC                  \NC \type {<fi>}$^4$  \NC \NR
-\NC \type {off-ice}  \NC \type {<ff>-}$^5$ \NC \NR
-\NC                  \NC \type {i}$^6$     \NC \NR
-\NC \type {office}   \NC \type {<ffi>}$^7$ \NC \NR
+\starttabulate[|l|c|c|]
+\NC \type {of-f-ice} \NC \type {f-}    \NC (1) \NC \NR
+\NC                  \NC \type {f-}    \NC (2) \NC \NR
+\NC                  \NC \type {i}     \NC (3) \NC \NR
+\NC \type {of-fice}  \NC \type {f-}    \NC (1) \NC \NR
+\NC                  \NC \type {<fi>}  \NC (4) \NC \NR
+\NC \type {off-ice}  \NC \type {<ff>-} \NC (5) \NC \NR
+\NC                  \NC \type {i}     \NC (6) \NC \NR
+\NC \type {office}   \NC \type {<ffi>} \NC (7) \NC \NR
 \stoptabulate
 
 The current solution in \LUATEX\ is not able to handle nested discretionaries,
@@ -770,14 +770,14 @@ make the whole stuff fit into just two discretionary nodes.
 The mapping of the seven list fields to the six fields in this discretionary node
 pair is as follows:
 
-\starttabulate[|l|p|]
-\NC \bf field            \NC \bf description \NC \NR
-\NC \type {disc1.pre}     \NC \type {f-}$^1$  \NC \NR
-\NC \type {disc1.post}    \NC \type {<fi>}$^4$  \NC \NR
-\NC \type {disc1.replace} \NC \type {<ffi>}$^7$ \NC \NR
-\NC \type {disc2.pre}     \NC \type {f-}$^2$  \NC \NR
-\NC \type {disc2.post}    \NC \type {i}$^{3{,}6}$\NC \NR
-\NC \type {disc2.replace} \NC \type {<ff>-}$^5$\NC \NR
+\starttabulate[|l|c|c|]
+\BC field                 \BC description   \NC       \NC \NR
+\NC \type {disc1.pre}     \NC \type {f-}    \NC (1)   \NC \NR
+\NC \type {disc1.post}    \NC \type {<fi>}  \NC (4)   \NC \NR
+\NC \type {disc1.replace} \NC \type {<ffi>} \NC (7)   \NC \NR
+\NC \type {disc2.pre}     \NC \type {f-}    \NC (2)   \NC \NR
+\NC \type {disc2.post}    \NC \type {i}     \NC (3,6) \NC \NR
+\NC \type {disc2.replace} \NC \type {<ff>-} \NC (5)   \NC \NR
 \stoptabulate
 
 What is actually generated after ligaturing has been applied is therefore:

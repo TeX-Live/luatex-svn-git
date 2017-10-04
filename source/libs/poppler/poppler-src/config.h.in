@@ -6,7 +6,7 @@
 /* Build against libcurl. */
 #undef ENABLE_LIBCURL
 
-/* Use libjpeg instead of builtin jpeg decoder. */
+/* Use libjpeg instead of builtin unmaintained jpeg decoder. */
 #undef ENABLE_LIBJPEG
 
 /* Use libopenjpeg instead of builtin jpeg2000 decoder. */
@@ -32,6 +32,9 @@
 
 /* Use cairo for rendering. */
 #undef HAVE_CAIRO
+
+/* Do we have any DCT decoder?. */
+#undef HAVE_DCT_DECODER
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
@@ -66,6 +69,9 @@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Do we have any JPX decoder?. */
+#undef HAVE_JPX_DECODER
 
 /* Define to 1 if you have the `tiff' library (-ltiff). */
 #undef HAVE_LIBTIFF

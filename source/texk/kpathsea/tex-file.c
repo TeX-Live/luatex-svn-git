@@ -1011,6 +1011,9 @@ kpathsea_find_file_generic (kpathsea kpse, const_string const_name,
                             kpse_file_format_type format,
                             boolean must_exist, boolean all)
 {
+#if defined(_WIN32)
+  char tmpbuffer[512];
+#endif
   string *target, name;
   const_string *ext;
   unsigned count;
@@ -1133,7 +1136,26 @@ kpathsea_find_file_generic (kpathsea kpse, const_string const_name,
   }
 
   free (name);
-
+#if defined(_WIN32)
+  if (ret && *ret) {
+    size_t cplen;
+    if (all) {
+      for (count = 0; ret[count] != NULL; count++) {
+        if ((cplen = GetLongPathName (ret[count], tmpbuffer, 500))) {
+          if (cplen > strlen (ret[count]))
+            ret[count] = realloc (ret[count], cplen + 1);
+          strcpy (ret[count], tmpbuffer);
+        }
+      }
+    } else {
+      if ((cplen = GetLongPathName (*ret, tmpbuffer, 500))) {
+        if (cplen > strlen (*ret))
+          *ret = realloc (*ret, cplen + 1);
+        strcpy (*ret, tmpbuffer);
+      }
+    } 
+  }
+#endif
   return ret;
 }
 

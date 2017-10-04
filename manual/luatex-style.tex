@@ -214,7 +214,7 @@
 
         luaorbitfactor := 1 ;
         picture p ; p := lualogo xsized (3PaperWidth/5) ;
-        draw p shifted center Page shifted (0,-.5ypart center ulcorner p) ;
+        draw p shifted center Page shifted (0,-.85ypart center ulcorner p) ;
 
     StopPage ;
 \stopuseMPgraphic
@@ -353,6 +353,16 @@
   [subsection,subsubsection]
   [margin=3em,
    width=5em]
+
+\definestartstop
+  [notabene]
+  [style=slanted]
+
+\definestartstop
+  [preamble]
+  [style=normal,
+   before=\blank,
+   after=\blank]
 
 % Hans doesn't like the bookmarks opening by default so we comment this:
 %

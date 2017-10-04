@@ -46,7 +46,7 @@ then
 fi
 
 # try to find gnu make; we may need it
-MAKE=make
+MAKE="make V=1"
 if make -v 2>&1| grep "GNU Make" >/dev/null
 then 
   echo "Your make is a GNU-make; I will use that"
@@ -77,6 +77,10 @@ TARGET_TCFLAGS=
 
 CFLAGS="$CFLAGS"
 CXXFLAGS="$CXXFLAGS"
+
+# poppler 0.55 needs c++11 
+# for the moment we put the flag here
+export CXXFLAGS="-std=c++11 $CXXFLAGS"
 
 until [ -z "$1" ]; do
   case "$1" in
@@ -181,6 +185,7 @@ then
   CXXFLAGS="-arch $ARCH -g -O2 $CXXFLAGS"
   LDFLAGS="-arch $ARCH $LDFLAGS" 
   STRIP="${CONFHOST#--host=}-strip -u -r -A -n"
+  #STRIP="${CONFHOST#--host=}-strip"
   export CFLAGS CXXFLAGS LDFLAGS
 fi
 
@@ -251,6 +256,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-dump-share  \
     --enable-coremp  \
     --enable-web2c  \
+    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
     --enable-luatex $JITENABLE \
     --without-system-cairo  \
     --without-system-pixman \

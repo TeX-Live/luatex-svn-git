@@ -45,7 +45,7 @@ then
 fi
 
 # try to find gnu make; we may need it
-MAKE=make;
+MAKE="make V=1";
 if make -v 2>&1| grep "GNU Make" >/dev/null
 then 
   echo "Your make is a GNU-make; I will use that"
@@ -77,6 +77,11 @@ TARGET_TCFLAGS=
 
 CFLAGS="$CFLAGS"
 CXXFLAGS="$CXXFLAGS"
+
+# poppler 0.55 needs c++11 
+# for the moment we put the flag here
+export CXXFLAGS="-std=c++11 $CXXFLAGS"
+
 
 until [ -z "$1" ]; do
   case "$1" in
@@ -220,11 +225,12 @@ then
 fi
 #
 # get a new svn version header
-#if [ "$WARNINGS" = "max" ]
-#then
-#    rm -f source/texk/web2c/luatexdir/luatex_svnversion.h
-#fi
-#( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
+if [ "$WARNINGS" = "max" ]
+then
+    rm -f source/texk/web2c/luatexdir/luatex_svnversion.h
+fi
+## Not used anymore
+##( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
 
 
 JITENABLE=
@@ -247,6 +253,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-ipc \
     --enable-dump-share  \
     --enable-web2c  \
+    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
     --enable-luatex $JITENABLE \
     --without-system-ptexenc \
     --without-system-kpathsea \

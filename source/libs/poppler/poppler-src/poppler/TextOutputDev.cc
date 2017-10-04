@@ -20,7 +20,7 @@
 // Copyright (C) 2006 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2007, 2008, 2012 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
-// Copyright (C) 2008, 2010-2012, 2014-2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010-2012, 2014-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008, 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 Ross Moore <ross@maths.mq.edu.au>
@@ -891,6 +891,7 @@ void TextPool::addWord(TextWord *word) {
   // expand the array if needed
   if (unlikely((word->base / textPoolStep) > INT_MAX)) {
       error(errSyntaxWarning, -1, "word->base / textPoolStep > INT_MAX");
+      delete word;
       return;
   }
   wordBaseIdx = (int)(word->base / textPoolStep);
@@ -4327,20 +4328,20 @@ TextSelectionVisitor::TextSelectionVisitor (TextPage *page)
 class TextSelectionDumper : public TextSelectionVisitor {
 public:
   TextSelectionDumper(TextPage *page);
-  virtual ~TextSelectionDumper();
+  ~TextSelectionDumper();
 
-  virtual void visitBlock (TextBlock *block, 
+  void visitBlock (TextBlock *block, 
 			   TextLine *begin,
 			   TextLine *end,
-			   PDFRectangle *selection) { };
-  virtual void visitLine (TextLine *line,
+			   PDFRectangle *selection) override { };
+  void visitLine (TextLine *line,
 			  TextWord *begin,
 			  TextWord *end,
 			  int edge_begin,
 			  int edge_end,
-			  PDFRectangle *selection);
-  virtual void visitWord (TextWord *word, int begin, int end,
-			  PDFRectangle *selection);
+			  PDFRectangle *selection) override;
+  void visitWord (TextWord *word, int begin, int end,
+			  PDFRectangle *selection) override;
   void endPage();
 
   GooString *getText(void);
@@ -4498,18 +4499,18 @@ public:
   TextSelectionSizer(TextPage *page, double scale);
   ~TextSelectionSizer() { }
 
-  virtual void visitBlock (TextBlock *block,
+  void visitBlock (TextBlock *block,
 			   TextLine *begin,
 			   TextLine *end,
-			   PDFRectangle *selection) { };
-  virtual void visitLine (TextLine *line, 
+			   PDFRectangle *selection) override { };
+  void visitLine (TextLine *line, 
 			  TextWord *begin,
 			  TextWord *end,
 			  int edge_begin,
 			  int edge_end,
-			  PDFRectangle *selection);
-  virtual void visitWord (TextWord *word, int begin, int end,
-			  PDFRectangle *selection) { };
+			  PDFRectangle *selection) override;
+  void visitWord (TextWord *word, int begin, int end,
+			  PDFRectangle *selection) override { };
 
   GooList *getRegion () { return list; }
 
@@ -4559,18 +4560,18 @@ public:
 		       GfxColor *glyph_color);
   ~TextSelectionPainter();
 
-  virtual void visitBlock (TextBlock *block,
+  void visitBlock (TextBlock *block,
 			   TextLine *begin,
 			   TextLine *end,
-			   PDFRectangle *selection) { };
-  virtual void visitLine (TextLine *line, 
+			   PDFRectangle *selection) override { };
+  void visitLine (TextLine *line, 
 			  TextWord *begin,
 			  TextWord *end,
 			  int edge_begin,
 			  int edge_end,
-			  PDFRectangle *selection);
-  virtual void visitWord (TextWord *word, int begin, int end,
-			  PDFRectangle *selection);
+			  PDFRectangle *selection) override;
+  void visitWord (TextWord *word, int begin, int end,
+			  PDFRectangle *selection) override;
   void endPage();
 
 private:

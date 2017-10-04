@@ -326,7 +326,7 @@ provide the ability to use content that has been rendered in several places,
 and images are also common. For that reason we also changed the names:
 
 \starttabulate[|l|l|]
-\NC \bf new name                         \NC \bf old name \NC \NR
+\BC new name                             \BC old name                    \NC \NR
 \NC \type {\saveboxresource}             \NC \type {\pdfxform}           \NC \NR
 \NC \type {\saveimageresource}           \NC \type {\pdfximage}          \NC \NR
 \NC \type {\useboxresource}              \NC \type {\pdfrefxform}        \NC \NR
@@ -1063,20 +1063,58 @@ kerns, should be handled in the input or macro package because there is no way w
 can predict the expected behaviour. In fact, the \type {\linedir} is just a
 convenience extra which could also have been implemented using node list parsing.
 
+Glue after a dir node is ignored in the linebreak decision but you can bypass that
+by setting \type {\breakafterdirmode} to~\type {1}. The following table shows the
+difference. Watch your spaces.
+
+\def\ShowSome#1{%
+    \BC
+        \type{#1}
+    \NC
+        \breakafterdirmode = 0
+        \hsize 0pt
+        #1
+    \NC
+    \NC
+        \breakafterdirmode = 1
+        \hsize 0pt
+        #1
+    \NC
+    \NC \NR \HL
+}
+
+\starttabulate[|l|pT(0pt)|w(5em)|pT(0pt)|p|]
+    \HL
+    \BC \type{\breakafterdirmode}
+    \BC \type{0}
+    \NC
+    \BC \type{1}
+    \NC
+    \NC \NR
+    \HL
+    \ShowSome{pre {\textdir TLT xxx} post}
+    \ShowSome{pre {\textdir TLT xxx }post}
+    \ShowSome{pre{ \textdir TLT xxx} post}
+    \ShowSome{pre{ \textdir TLT xxx }post}
+    \ShowSome{pre { \textdir TLT xxx } post}
+    \ShowSome{pre {\textdir TLT\relax\space xxx} post}
+\stoptabulate
+
+
 Another adaptation to the \ALEPH\ directional model is control over shapes driven
 by \type {\hangindent} and \type {\parshape}. This is controlled by a new parameter
 \type {\shapemode}:
 
-\starttabulate[|cTB|c|]
-\NC   \NC \bf \type {\hangindent} \NC \bf \type {\parshape} \NC \NR
-\NC 0 \NC  normal                 \NC normal                \NC \NR
-\NC 1 \NC  mirrored               \NC normal                \NC \NR
-\NC 2 \NC  normal                 \NC mirrored              \NC \NR
-\NC 3 \NC  mirrored               \NC mirrored              \NC \NR
+\starttabulate[|c|c|c|]
+\BC          \BC \type {\hangindent} \BC \type {\parshape} \NC \NR
+\BC \type{0} \NC  normal             \NC normal            \NC \NR
+\BC \type{1} \NC  mirrored           \NC normal            \NC \NR
+\BC \type{2} \NC  normal             \NC mirrored          \NC \NR
+\BC \type{3} \NC  mirrored           \NC mirrored          \NC \NR
 \stoptabulate
 
 The value is reset to zero (like \type {\hangindent} and \type {\parshape})
-after the paragraph is done with. You can use negative values to preven t
+after the paragraph is done with. You can use negative values to prevent
 this.
 
 In \in {figure} [fig:shapemode] a few examples are given.
@@ -1214,6 +1252,28 @@ using basically the same convention as the callback: a single read into a buffer
 big enough to hold the entire file contents. While this uses more memory than the
 previous code (that mostly used \type {getc} calls), it can be quite a bit faster
 (depending on your \IO\ subsystem).
+
+\stopsubsection
+
+\startsubsection[title=Tabs and spaces]
+
+We conform to the way other \TEX\ engines handle trailing tabs and spaces. For
+decades trailing tabs and spaces (before a newline) were removed from the input
+but this behaviour was changed in September 2017 to only handle spaces. We are
+aware that this can introduce compatibility issues in existing workflows but
+because we don't want too many differences with upstream \TEXLIVE\ we just follow
+up on that patch (which is a functional one and not really a fix). It is up to
+macro packages maintainers to deal with possible compatibility issues and in
+\LUATEX\ they can do so via the callbacks that deal with reading from files.
+
+The previous behaviour was a known side effect and (as that kind of input
+normally comes from generated sources) it was normally dealt with by adding a
+comment token to the line in case the spaces and|/|or tabs were intentional and
+to be kept. We are aware of the fact that this contradicts some of our other
+choices but consistency with other engines and the fact that in \KPSE\ mode a
+common file \IO\ layer is used can have a side effect of breaking compatibility.
+We still stick to our view that at the log level we can (and might be) more
+incompatible.
 
 \stopsubsection
 

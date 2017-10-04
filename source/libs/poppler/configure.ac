@@ -63,6 +63,30 @@ AC_ARG_ENABLE([fixedpoint],
 fi
 ])
 
+
+AC_ARG_ENABLE([dctdecoder],
+              AS_HELP_STRING([--enable-dctdecoder],
+                             [use dctdecoder]),
+              [if test "x$enableval" = xlibjpeg; then
+  AC_DEFINE([HAVE_DCT_DECODER], 1, [Do we have any DCT decoder?.])
+fi
+])
+
+AC_ARG_ENABLE([libopenjpeg],
+              AS_HELP_STRING([--enable-libopenjpeg],
+                             [use openjpeg decoder]),
+              [if test "x$enableval" = xopenjpeg2; then
+  AC_DEFINE([HAVE_JPX_DECODER], 1, [Do we have any JPX decoder?.])
+fi
+])
+
+
+
+
+--enable-libopenjpeg=@<:@auto/openjpeg1/openjpeg2
+
+
+
 dnl **** Checks for header files ****
 
 AC_CHECK_HEADERS([strings.h])
