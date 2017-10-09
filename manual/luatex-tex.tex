@@ -776,13 +776,14 @@ called xforms in \PDF). You can (re)use the box with \type {\useboxresource} or
 by creating a rule node with subtype~2.
 
 \starttyping
-local index = tex.saveboxresource(n,attributes,resources,immediate,type)
+local index = tex.saveboxresource(n,attributes,resources,immediate,type,margin)
 \stoptyping
 
 The optional second and third arguments are strings, the fourth is a boolean. The
 fifth argument is a type. When set to non|-|zero the \type {/Type} entry is
 omitted. A value of 1 or 3 still writes a \type {/BBox}, while 2 or 3 will write
-a \type {/Matrix}.
+a \type {/Matrix}. The sixth argument is the (virtual) margin that extends beyond
+the effective boundingbox as seen by \TEX.
 
 You can generate the reference (a rule type) with:
 
@@ -795,8 +796,10 @@ following is just a bonus (no dimensions returned means that the resource is
 unknown):
 
 \starttyping
-local w, h, d = tex.getboxresourcedimensions(n)
+local w, h, d, m = tex.getboxresourcedimensions(n)
 \stoptyping
+
+This returns the width, height, depth and margin of the resource.
 
 You can split a box:
 

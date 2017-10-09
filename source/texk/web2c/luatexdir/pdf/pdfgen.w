@@ -1732,6 +1732,7 @@ void pdf_begin_page(PDF pdf)
             pdf_dict_add_int(pdf, "FormType", 1);
         }
         xform_attributes = pdf_xform_attr; /* lookup once */
+        form_margin = obj_xform_margin(pdf, pdf_cur_form); /* now stored in object */
         if (xform_attributes != null)
             pdf_print_toks(pdf, xform_attributes);
         if (obj_xform_attr(pdf, pdf_cur_form) != null) {

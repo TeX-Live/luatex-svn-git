@@ -3041,6 +3041,7 @@ static int tex_save_box_resource(lua_State * L)
     int attributes = null;
     int resources = null;
     int type = 0;
+    int margin = pdf_xform_margin;
     boolean immediate = false;
     /* box attributes resources */
     halfword boxnumber = lua_tointeger(L,1);
@@ -3058,6 +3059,9 @@ static int tex_save_box_resource(lua_State * L)
     if (lua_type(L,5) == LUA_TNUMBER) {
         type = lua_tointeger(L, 5);
     }
+    if (lua_type(L,6) == LUA_TNUMBER) {
+        margin = lua_tointeger(L, 6);
+    }
     /* more or less same as scanner variant */
     boxdata = box(boxnumber);
     if (boxdata == null)
@@ -3074,6 +3078,7 @@ static int tex_save_box_resource(lua_State * L)
     set_obj_xform_height(static_pdf, index, height(boxdata));
     set_obj_xform_depth(static_pdf, index, depth(boxdata));
     set_obj_xform_type(static_pdf, index, type);
+    set_obj_xform_margin(static_pdf, index, margin);
     box(boxnumber) = null;
     last_saved_box_index = index;
     lua_pushinteger(L, index);
@@ -3138,14 +3143,16 @@ static int tex_get_box_resource_dimensions(lua_State * L)
         lua_pushnil(L);
         lua_pushnil(L);
         lua_pushnil(L);
+        lua_pushnil(L);
     } else {
         index = lua_tointeger(L,1);
         check_obj_type(static_pdf, obj_type_xform, index);
         lua_pushinteger(L, (int) obj_xform_width(static_pdf, index));
         lua_pushinteger(L, (int) obj_xform_height(static_pdf, index));
         lua_pushinteger(L, (int) obj_xform_depth(static_pdf, index));
+        lua_pushinteger(L, (int) obj_xform_margin(static_pdf, index));
     }
-    return 3;
+    return 4;
 }
 
 static int tex_build_page(lua_State * L)
