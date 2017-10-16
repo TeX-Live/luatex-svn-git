@@ -2072,19 +2072,21 @@ void pdf_end_page(PDF pdf)
         pdf_end_dict(pdf);
     }
     /* Generate ProcSet */
-    pdf_add_name(pdf, "ProcSet");
-    pdf_begin_array(pdf);
-    if ((procset & PROCSET_PDF) != 0)
-        pdf_add_name(pdf, "PDF");
-    if ((procset & PROCSET_TEXT) != 0)
-        pdf_add_name(pdf, "Text");
-    if ((procset & PROCSET_IMAGE_B) != 0)
-        pdf_add_name(pdf, "ImageB");
-    if ((procset & PROCSET_IMAGE_C) != 0)
-        pdf_add_name(pdf, "ImageC");
-    if ((procset & PROCSET_IMAGE_I) != 0)
-        pdf_add_name(pdf, "ImageI");
-    pdf_end_array(pdf);
+    if (pdf->major_version == 1) {
+        pdf_add_name(pdf, "ProcSet");
+        pdf_begin_array(pdf);
+        if ((procset & PROCSET_PDF) != 0)
+            pdf_add_name(pdf, "PDF");
+        if ((procset & PROCSET_TEXT) != 0)
+            pdf_add_name(pdf, "Text");
+        if ((procset & PROCSET_IMAGE_B) != 0)
+            pdf_add_name(pdf, "ImageB");
+        if ((procset & PROCSET_IMAGE_C) != 0)
+            pdf_add_name(pdf, "ImageC");
+        if ((procset & PROCSET_IMAGE_I) != 0)
+            pdf_add_name(pdf, "ImageI");
+        pdf_end_array(pdf);
+    }
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
 }
