@@ -225,10 +225,13 @@ is a \type {glue_spec} node btu when you pass \type {false} as last argument to
 \type {tex.get} you get the width of the glue and when you pass \type {true} you
 get all five values. Otherwise you get a node which is a copy of the internal
 value so you are responsible for its freeing at the \LUA\ end. When you set a
-glue quantity you can either pass a \type {glue_spec} or upto five numbers.
+glue quantity you can either pass a \type {glue_spec} or upto five numbers. If
+you pass \type {true} to \type {get} you get 5 values returned for a glue and
+when you pass \type {false} you only get the width returned.
 
 For the registers you can use \type {getskip} (node), \type {getglue} (numbers)
-\type {setskip} (node) and \type {setglue} (numbers).
+\type {setskip} (node) and \type {setglue} (numbers). If you pass \type {false}
+as second argument to \type {getglue} you only get the width returned.
 
 There are also dedicated setters, getters and checkers:
 

@@ -789,7 +789,7 @@ static int get_item_index(lua_State * L, int i, int base)
 
 static int gettex(lua_State * L);
 
-#define get_item_index_plus(L, where, base, what, value, is_assign, get_register, glue) { \
+#define get_item_index_plus(L, where, base, what, value, is_assign, get_register, texget) { \
     size_t len;                                                                       \
     const char *str;                                                                  \
     int key, cs;                                                                      \
@@ -804,7 +804,7 @@ static int gettex(lua_State * L);
                 if (key >= 0 && key <= 65535) {                                       \
                     value = get_register(key);                                        \
                 } else if (is_assign(eq_type(cs))) {                                  \
-                    gettex(L); /* lazy */                                             \
+                    texget = gettex(L); /* lazy */                                    \
                 } else {                                                              \
                     luaL_error(L, "incorrect %s name", what);                         \
                 }                                                                     \
@@ -849,7 +849,11 @@ static int setdimen(lua_State * L)
 static int getdimen(lua_State * L)
 {
     int value = 0;
-    get_item_index_plus(L, lua_gettop(L), scaled_base, "dimen", value, is_dim_assign, get_tex_dimen_register, false);
+    int texget = 0;
+    get_item_index_plus(L, lua_gettop(L), scaled_base, "dimen", value, is_dim_assign, get_tex_dimen_register, texget);
+    if (texget > 0) {
+        return texget;
+    }
     lua_pushinteger(L, value);
     return 1;
 }
@@ -877,7 +881,11 @@ static int setskip(lua_State * L)
 static int getskip(lua_State * L)
 {
     int value = 0;
-    get_item_index_plus(L, lua_gettop(L), skip_base, "skip", value, is_glue_assign, get_tex_skip_register, true);
+    int texget = 0;
+    get_item_index_plus(L, lua_gettop(L), skip_base, "skip", value, is_glue_assign, get_tex_skip_register, texget);
+    if (texget > 0) {
+        return texget;
+    }
     if (value == null) {
         lua_nodelib_push_fast(L, copy_node(zero_glue));
     } else {
@@ -910,22 +918,47 @@ static int setglue(lua_State * L)
 static int getglue(lua_State * L)
 {
     int value = 0;
+    int texget = 0;
     int top = lua_gettop(L);
-    get_item_index_plus(L, top, skip_base, "skip", value, is_glue_assign, get_tex_skip_register, true);
-    if (value == null) {
-        lua_pushinteger(L,0);
-        lua_pushinteger(L,0);
-        lua_pushinteger(L,0);
-        lua_pushinteger(L,0);
-        lua_pushinteger(L,0);
+    int dim = -1;
+    if (top > 1 && lua_type(L,top) == LUA_TBOOLEAN) {
+        dim = lua_toboolean(L,top);
+        top = top - 1;
     } else {
-        lua_pushinteger(L,width(value));
-        lua_pushinteger(L,stretch(value));
-        lua_pushinteger(L,shrink(value));
-        lua_pushinteger(L,stretch_order(value));
-        lua_pushinteger(L,shrink_order(value));
+        lua_pushboolean(L,1);
+        dim = 1 ;
+        /* no top adaption. somewhat messy, but the gettex fallback checks itself */
     }
-    return 5;
+    /* checks itself for the boolean */
+    get_item_index_plus(L, top, skip_base, "glue", value, is_glue_assign, get_tex_skip_register, texget);
+    if (texget > 0) {
+        return texget;
+    }
+    if (dim == 0) {
+        /* false */
+        if (value == null) {
+            lua_pushinteger(L,0);
+        } else {
+            lua_pushinteger(L,width(value));
+        }
+        return 1;
+   } else {
+        /* true and nil */
+        if (value == null) {
+            lua_pushinteger(L,0);
+            lua_pushinteger(L,0);
+            lua_pushinteger(L,0);
+            lua_pushinteger(L,0);
+            lua_pushinteger(L,0);
+        } else {
+            lua_pushinteger(L,width(value));
+            lua_pushinteger(L,stretch(value));
+            lua_pushinteger(L,shrink(value));
+            lua_pushinteger(L,stretch_order(value));
+            lua_pushinteger(L,shrink_order(value));
+        }
+        return 5;
+    }
 }
 
 static int ismuskip(lua_State * L)
@@ -947,7 +980,11 @@ static int setmuskip(lua_State * L)
 static int getmuskip(lua_State * L)
 {
     int value = 0;
-    get_item_index_plus(L, lua_gettop(L), mu_skip_base, "muskip", value, is_mu_glue_assign, get_tex_mu_skip_register, true);
+    int texget = 0;
+    get_item_index_plus(L, lua_gettop(L), mu_skip_base, "muskip", value, is_mu_glue_assign, get_tex_mu_skip_register, texget);
+    if (texget > 0) {
+        return texget;
+    }
     lua_nodelib_push_fast(L, copy_node(value));
     return 1;
 }
@@ -976,16 +1013,45 @@ static int setmuglue(lua_State * L)
 static int getmuglue(lua_State * L)
 {
     int value = 0;
-    get_item_index_plus(L, lua_gettop(L), mu_skip_base, "muskip", value, is_mu_glue_assign, get_tex_mu_skip_register, true);
-    if (value == null) {
-        lua_pushnil(L);
-        return 1;
+    int texget = 0;
+    int top = lua_gettop(L);
+    int dim = -1;
+    if (top > 1 && lua_type(L,top) == LUA_TBOOLEAN) {
+        dim = lua_toboolean(L,top);
+        top = top - 1;
     } else {
-        lua_pushinteger(L,width(value));
-        lua_pushinteger(L,stretch(value));
-        lua_pushinteger(L,shrink(value));
-        lua_pushinteger(L,stretch_order(value));
-        lua_pushinteger(L,shrink_order(value));
+        lua_pushboolean(L,1);
+        dim = 1 ;
+        /* no top adaption. somewhat messy, but the gettex fallback checks itself */
+    }
+    /* checks itself for the boolean */
+    get_item_index_plus(L, top, mu_skip_base, "muskip", value, is_mu_glue_assign, get_tex_mu_skip_register, texget);
+    if (texget > 0) {
+        return texget;
+    }
+    if (dim == 0) {
+        /* false */
+        if (value == null) {
+            lua_pushinteger(L,0);
+        } else {
+            lua_pushinteger(L,width(value));
+        }
+        return 1;
+   } else {
+        /* true and nil */
+        if (value == null) {
+            lua_pushinteger(L,0);
+            lua_pushinteger(L,0);
+            lua_pushinteger(L,0);
+            lua_pushinteger(L,0);
+            lua_pushinteger(L,0);
+        } else {
+            lua_pushinteger(L,width(value));
+            lua_pushinteger(L,stretch(value));
+            lua_pushinteger(L,shrink(value));
+            lua_pushinteger(L,stretch_order(value));
+            lua_pushinteger(L,shrink_order(value));
+        }
         return 5;
     }
 }
@@ -1015,7 +1081,11 @@ static int setcount(lua_State * L)
 static int getcount(lua_State * L)
 {
     int value = 0;
-    get_item_index_plus(L, lua_gettop(L), count_base, "count", value, is_int_assign, get_tex_count_register, false);
+    int texget = 0;
+    get_item_index_plus(L, lua_gettop(L), count_base, "count", value, is_int_assign, get_tex_count_register, texget);
+    if (texget > 0) {
+        return texget;
+    }
     lua_pushinteger(L, value);
     return 1;
 }
@@ -1047,7 +1117,11 @@ static int setattribute(lua_State * L)
 static int getattribute(lua_State * L)
 {
     int value = 0;
-    get_item_index_plus(L, lua_gettop(L), attribute_base, "attribute", value, is_attr_assign, get_tex_attribute_register, false);
+    int texget = 0;
+    get_item_index_plus(L, lua_gettop(L), attribute_base, "attribute", value, is_attr_assign, get_tex_attribute_register, texget);
+    if (texget > 0) {
+        return texget;
+    }
     lua_pushinteger(L, value);
     return 1;
 }
