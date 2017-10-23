@@ -1,3 +1,861 @@
+commit 9432e0bfc4c4f2e16b7c152aa8b04d6d19ed4898
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Oct 2 23:29:21 2017 +0200
+
+    Add missing (C)
+
+ cpp/poppler-private.cpp      | 1 +
+ fofi/FoFiTrueType.cc         | 2 +-
+ goo/GooString.cc             | 2 +-
+ goo/GooString.h              | 2 +-
+ goo/JpegWriter.cc            | 1 +
+ goo/gmem.h                   | 2 +-
+ poppler/CairoOutputDev.cc    | 2 +-
+ poppler/CurlPDFDocBuilder.cc | 2 +-
+ poppler/Decrypt.cc           | 2 +-
+ poppler/GfxState.h           | 2 +-
+ poppler/GlobalParams.cc      | 2 +-
+ poppler/PSOutputDev.cc       | 2 +-
+ poppler/PSOutputDev.h        | 2 +-
+ poppler/UnicodeMap.cc        | 1 +
+ qt4/src/poppler-link.cc      | 2 +-
+ qt4/src/poppler-private.cc   | 2 +-
+ qt5/src/poppler-link.cc      | 2 +-
+ qt5/src/poppler-private.cc   | 2 +-
+ qt5/src/poppler-qt5.h        | 1 +
+ splash/Splash.cc             | 2 +-
+ splash/SplashFTFontFile.cc   | 1 +
+ splash/SplashFTFontFile.h    | 1 +
+ utils/pdfseparate.cc         | 2 +-
+ 23 files changed, 23 insertions(+), 17 deletions(-)
+
+commit da02d7c683f1788d38cccb3716edd1ba011cb94c
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Oct 2 23:05:59 2017 +0200
+
+    remove m4 gtk-doc.make and add comments to poppler-features.h.cmake
+
+ glib/poppler-features.h.cmake |  55 ++++++++
+ gtk-doc.make                  | 305
+ ----------------------------------------
+ m4/.gitignore                 |   5 -
+ m4/ax_pthread.m4              | 317
+ ------------------------------------------
+ m4/define-dir.m4              |  34 -----
+ m4/gtk-doc.m4                 |  88 ------------
+ m4/iconv.m4                   | 180 ------------------------
+ m4/introspection.m4           |  94 -------------
+ m4/libjpeg.m4                 | 114 ---------------
+ 9 files changed, 55 insertions(+), 1137 deletions(-)
+
+commit f871b82edfd632f79ec7bdd0b4d560cd348d8b1a
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Fri Sep 8 23:27:45 2017 +0200
+
+    qt5: ArthurOutputDev: Fix several small bugs related to dash pattern
+    handling
+
+ qt5/src/ArthurOutputDev.cc | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+commit 3ec5e86ca000653525650a99755c85e512a04bdc
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Fri Sep 29 21:24:23 2017 +0200
+
+    qt5: ArthurOutputDev: Implement the drawSoftMaskedImage method
+
+ qt5/src/ArthurOutputDev.cc | 67
+ ++++++++++++++++++++++++++++++++++++++++++++++
+ qt5/src/ArthurOutputDev.h  |  9 +++++++
+ 2 files changed, 76 insertions(+)
+
+commit 376ae2f8b8a92fd7bd751fbfcd0aa46530b59ca4
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sat Sep 30 11:27:44 2017 +0200
+
+    Remove the gir-girs target
+
+    It depends on the same files (subset) as the gir-typelibs target
+    meaning that sometimes when doing a parallel build you'd get the
+    two commands trying to generate the same file at once and bad
+    things happen
+
+ cmake/modules/GObjectIntrospectionMacros.cmake | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 19eedc6fb693a62f305e13079501e3105f869f3c
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sat Sep 30 11:12:31 2017 +0200
+
+    Fix crash in broken files
+
+    Bug #103045
+
+ fofi/FoFiTrueType.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 5df4a8b0ad56b11c9be3b362e33810c5af57952b
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Tue Sep 26 23:49:41 2017 +0200
+
+    Enable libcurl support by default
+
+ CMakeLists.txt | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+commit 2c92c7b6a828c9db8a38f079ea7a3d51c12a481d
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Sep 25 19:33:44 2017 +0200
+
+    Fix infinite recursion on broken files
+
+    Bug #102969
+
+ poppler/Gfx.cc      | 46 ++++++++++++++++++++++++++++++++++------------
+ poppler/GfxState.cc | 33 ++++++++++++++++++---------------
+ poppler/GfxState.h  | 15 +++++++++------
+ 3 files changed, 61 insertions(+), 33 deletions(-)
+
+commit d3f12611b30e6421f05603a9838ed9131b1aa61e
+Author: Bernd Kuhls <berndkuhls@hotmail.com>
+Date:   Sun Sep 24 23:56:29 2017 +0200
+
+    include ctype.h for isdigit
+
+    Bug #102951
+
+ poppler/Form.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit a1a4be92323ae45f1ecc16595438520309554eb0
+Author: Carlos Garcia Campos <carlosgc@gnome.org>
+Date:   Sun Sep 24 13:21:58 2017 +0200
+
+    cairo: do not use the custom downscaling for rendering images when
+    using cairo >= 1.14
+
+ poppler/CairoOutputDev.cc | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+commit 3b64fc488e7ff10634aa2dd76ad4f152ebfe7edc
+Author: Carlos Garcia Campos <carlosgc@gnome.org>
+Date:   Sun Sep 24 12:39:06 2017 +0200
+
+    regtest: change default value of utils dir to ../build/utils
+
+ regtest/main.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit deba5f3c57929a96105d822c8cba46e5334694c7
+Author: Carlos Garcia Campos <carlosgc@gnome.org>
+Date:   Sun Sep 24 12:31:43 2017 +0200
+
+    cairo: Do not extend the pattern in drawImageMaskRegular
+
+    This is causing some documents with tiling patterns to take ages
+    to render,
+    since we switched to use drawImageMaskRegular in 00a536a4. This patch
+    applies the same changes made in 7d8dfb09 and db87dc7f for
+    drawImageMaskPrescaled to drawImageMaskRegular.
+
+ poppler/CairoOutputDev.cc | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+commit cceb80b353ca748d1e04373d238195fd548319b8
+Author: Carlos Garcia Campos <cgarcia@igalia.com>
+Date:   Sun Sep 24 08:24:44 2017 +0200
+
+    glib: Make g-ir-scanner always link to the libs in build directory
+
+    It was using the installed libraries, causing a build failure when
+    there's new API added to the poppler core.
+
+ glib/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 2afde7084ab55893182c2da59c429b48eb5d5a35
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 22 18:18:54 2017 +0200
+
+    Remove GlobalParams::splashResolution
+
+    Noone was setting or getting the variable
+
+ poppler/GlobalParams.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit df783c5d10490e94e911316a6f42bb2d91a22dea
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 22 18:18:50 2017 +0200
+
+    Add a const to the static structure
+
+ poppler/GlobalParamsWin.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit a309cbfdd831b37461284b95763ca5a872e6af2b
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 22 18:18:46 2017 +0200
+
+    Remove GlobalParams::setPSFile
+
+    It had a setter but not a getter so wasn't used for anything
+
+ poppler/GlobalParams.cc | 13 -------------
+ poppler/GlobalParams.h  |  2 --
+ 2 files changed, 15 deletions(-)
+
+commit 7af5f7cadbdb89e0eaab148940c2c65cb12cc6d6
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 22 18:18:42 2017 +0200
+
+    Remove GlobalParams::ccFontFiles
+
+    it was never filled so it was basically a noop
+
+ poppler/GfxFont.cc      | 10 ----------
+ poppler/GlobalParams.cc | 14 --------------
+ poppler/GlobalParams.h  |  3 ---
+ 3 files changed, 27 deletions(-)
+
+commit b5f8be7ede64e55d44ed484797a66ca068ba955f
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 22 18:18:39 2017 +0200
+
+    Remove GlobalParams::fontDirs
+
+    It was only read but never filled so it was basically a noop
+
+ poppler/GlobalParams.cc | 31 +------------------------------
+ poppler/GlobalParams.h  |  1 -
+ 2 files changed, 1 insertion(+), 31 deletions(-)
+
+commit 3463537624a24e3bdcaa42c135d337c6cd452ea5
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 22 18:18:22 2017 +0200
+
+    Remove GlobalParams::getPSResidentFont*
+
+    There was no way to set its contents so it's basically a noop
+
+ poppler/GfxFont.cc      | 38 ----------------------
+ poppler/GlobalParams.cc | 85
+ -------------------------------------------------
+ poppler/GlobalParams.h  | 29 -----------------
+ poppler/PSOutputDev.cc  |  6 ----
+ 4 files changed, 158 deletions(-)
+
+commit 851bc59c6f4b007333d064af5c6992702b92cdf6
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Sep 21 20:45:52 2017 +0200
+
+    Remove the autotools based build system
+
+ .gitignore                       |   20 +-
+ INSTALL                          |  244 ++------
+ INSTALL.cmake                    |   76 ---
+ Makefile.am                      |  133 -----
+ autogen.sh                       |  117 ----
+ configure.ac                     | 1154
+ --------------------------------------
+ cpp/Makefile.am                  |   74 ---
+ cpp/tests/Makefile.am            |   21 -
+ fofi/Makefile.am                 |   28 -
+ glib/Makefile.am                 |  122 ----
+ glib/demo/Makefile.am            |   56 --
+ glib/poppler-features.h.in       |   88 ---
+ glib/reference/Makefile.am       |   92 ---
+ glib/reference/version.xml.in    |    1 -
+ goo/Makefile.am                  |   69 ---
+ poppler-cairo-uninstalled.pc.in  |    6 -
+ poppler-cairo.pc.in              |    9 -
+ poppler-cpp-uninstalled.pc.in    |    7 -
+ poppler-cpp.pc.in                |   13 -
+ poppler-glib-uninstalled.pc.in   |    7 -
+ poppler-glib.pc.in               |   13 -
+ poppler-qt4-uninstalled.pc.in    |    7 -
+ poppler-qt4.pc.in                |   13 -
+ poppler-qt5-uninstalled.pc.in    |    7 -
+ poppler-qt5.pc.in                |   13 -
+ poppler-splash-uninstalled.pc.in |    7 -
+ poppler-splash.pc.in             |    9 -
+ poppler-uninstalled.pc.in        |    6 -
+ poppler.pc.in                    |   11 -
+ poppler/Makefile.am              |  348 ------------
+ poppler/poppler-config.h.in      |  196 -------
+ qt4/Makefile.am                  |    1 -
+ qt4/demos/Makefile.am            |   65 ---
+ qt4/src/Makefile.am              |   76 ---
+ qt4/tests/Makefile.am            |  141 -----
+ qt5/Makefile.am                  |    1 -
+ qt5/demos/Makefile.am            |   65 ---
+ qt5/src/Makefile.am              |   78 ---
+ qt5/tests/Makefile.am            |  141 -----
+ splash/Makefile.am               |   73 ---
+ test/Makefile.am                 |   67 ---
+ utils/Makefile.am                |  155 -----
+ 42 files changed, 43 insertions(+), 3787 deletions(-)
+
+commit 1a33f60da2996ea64c1b903580885697940cf046
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Sep 21 20:32:25 2017 +0200
+
+    Add some constness to the basic classes
+
+ goo/GooString.cc  |   2 +-
+ goo/GooString.h   |   2 +-
+ poppler/Array.cc  |   8 +--
+ poppler/Array.h   |  12 ++---
+ poppler/Dict.cc   |  18 +++----
+ poppler/Dict.h    |  26 +++++-----
+ poppler/Object.cc |   4 +-
+ poppler/Object.h  | 152
+ +++++++++++++++++++++++++++---------------------------
+ 8 files changed, 112 insertions(+), 112 deletions(-)
+
+commit 135843fa8398364e0559c2b0b96f9be4a44572c5
+Author: Carlos Garcia Campos <cgarcia@igalia.com>
+Date:   Wed Sep 20 19:38:14 2017 +0200
+
+    Add gtk-doc support to CMake build
+
+ CMakeLists.txt                |   4 +-
+ glib/CMakeLists.txt           |   4 +
+ glib/reference/CMakeLists.txt |  12 ++
+ gtkdoc.py                     | 440
+ ++++++++++++++++++++++++++++++++++++++++++
+ make-glib-api-docs            |  66 +++++++
+ 5 files changed, 525 insertions(+), 1 deletion(-)
+
+commit e51db61a33cdbe6307f048b65912a85f6cd1ec5b
+Author: William Bader <william@newspapersystems.com>
+Date:   Wed Sep 20 19:36:46 2017 +0200
+
+    PSOutputDev: Fix wrong text generation
+
+    This patch moves the code to update the max valid glyph hash into its
+    own function and updates the max valid glyph only if the new value is
+    higher than the previous value.
+    This fixes a problem with pages that have multiple copies of the same
+    font with different glyph counts. If poppler processed the font
+    with the
+    smaller count last, and then the PDF wrote text in the font with the
+    larger count, pdftops would not show the glyphs above the maximum
+    of the
+    smaller font.
+
+    Bug #102760
+
+ poppler/PSOutputDev.cc | 16 ++++++++++------
+ poppler/PSOutputDev.h  |  1 +
+ 2 files changed, 11 insertions(+), 6 deletions(-)
+
+commit 6665839b5ce2e4f6fb2acc682ce2f91ed2404ce8
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Sep 20 19:36:29 2017 +0200
+
+    qt5: The tests don't need GUI
+
+ qt5/tests/check_actualtext.cpp     | 2 +-
+ qt5/tests/check_attachments.cpp    | 2 +-
+ qt5/tests/check_dateConversion.cpp | 2 +-
+ qt5/tests/check_fonts.cpp          | 2 +-
+ qt5/tests/check_goostring.cpp      | 2 +-
+ qt5/tests/check_lexer.cpp          | 2 +-
+ qt5/tests/check_links.cpp          | 2 +-
+ qt5/tests/check_metadata.cpp       | 2 +-
+ qt5/tests/check_optcontent.cpp     | 2 +-
+ qt5/tests/check_pagelabelinfo.cpp  | 2 +-
+ qt5/tests/check_pagelayout.cpp     | 2 +-
+ qt5/tests/check_pagemode.cpp       | 2 +-
+ qt5/tests/check_password.cpp       | 2 +-
+ qt5/tests/check_permissions.cpp    | 2 +-
+ qt5/tests/check_search.cpp         | 2 +-
+ qt5/tests/check_strings.cpp        | 2 +-
+ 16 files changed, 16 insertions(+), 16 deletions(-)
+
+commit 26a067d4a84f80eeb892e30a5ab608d0fbea1de5
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Sep 20 10:36:04 2017 +0200
+
+    Remove the moc includes
+
+    Some people are having trouble with them and automoc really should
+    be taking care of this so no need to have the include. Let's hope this
+    doesn't break some other people :D
+
+ qt5/demos/abstractinfodock.cpp  | 1 -
+ qt5/demos/embeddedfiles.cpp     | 1 -
+ qt5/demos/fonts.cpp             | 1 -
+ qt5/demos/info.cpp              | 1 -
+ qt5/demos/metadata.cpp          | 1 -
+ qt5/demos/navigationtoolbar.cpp | 1 -
+ qt5/demos/optcontent.cpp        | 1 -
+ qt5/demos/pageview.cpp          | 1 -
+ qt5/demos/permissions.cpp       | 1 -
+ qt5/demos/thumbnails.cpp        | 1 -
+ qt5/demos/toc.cpp               | 1 -
+ qt5/demos/viewer.cpp            | 1 -
+ qt5/src/poppler-optcontent.cc   | 1 -
+ 13 files changed, 13 deletions(-)
+
+commit 939465c40902d72e0c05d4f3a27ee67e4a007ed7
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Tue Sep 19 21:19:03 2017 +0200
+
+    Fix crash in broken files
+
+    Bug #102854
+
+ poppler/Stream.cc | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+commit a8aa61f774503c9ebd840e148c4fa31a6959600d
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Tue Sep 19 21:17:49 2017 +0200
+
+    autotools: Fix build
+
+ qt5/src/Makefile.am | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 6b82904b717994c887f33bfc72e4999363fc8e72
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Sep 17 23:03:48 2017 +0200
+
+    Fix printf-like format warnings
+
+ poppler/Stream.h  | 2 +-
+ test/perf-test.cc | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+commit b26924e32128b7ba57260e9fdc54be1893bcff77
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Sep 17 02:06:32 2017 +0200
+
+    A few more static markers
+
+ test/perf-test.cc         | 2 +-
+ utils/pdftocairo-win32.cc | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+commit 4a4e291246f238731429729e10633ee1f627eb77
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Sep 17 01:58:36 2017 +0200
+
+    Make newer gcc happy about fallthrough
+
+    on HtmlOutputDev.cc fixes a leak when printHtml is false
+
+ fofi/FoFiTrueType.cc       | 2 ++
+ poppler/Annot.cc           | 4 ++--
+ poppler/SplashOutputDev.cc | 8 ++++++++
+ splash/Splash.cc           | 2 ++
+ utils/HtmlOutputDev.cc     | 9 ++++-----
+ 5 files changed, 18 insertions(+), 7 deletions(-)
+
+commit 0790dd3afb8370aebca8e7e154bbd2b5ae5cd5a2
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sat Sep 16 18:01:49 2017 +0200
+
+    Fix missing-declarations warnings
+
+    ... and add it to default warning set
+
+ cmake/modules/PopplerMacros.cmake |  2 +-
+ cpp/tests/poppler-dump.cpp        |  2 +-
+ glib/poppler-action.cc            |  1 +
+ goo/JpegWriter.cc                 |  2 +-
+ goo/gmem.h                        |  2 +-
+ poppler/Annot.cc                  |  6 ++--
+ poppler/Decrypt.cc                |  2 +-
+ poppler/TextOutputDev.cc          |  2 +-
+ qt4/src/poppler-link.cc           |  2 +-
+ qt4/src/poppler-private.cc        |  6 ++--
+ qt4/tests/check_links.cpp         |  4 +--
+ qt4/tests/poppler-forms.cpp       | 14 ++++-----
+ qt5/src/poppler-link.cc           |  2 +-
+ qt5/src/poppler-private.cc        |  6 ++--
+ qt5/tests/check_links.cpp         |  4 +--
+ qt5/tests/poppler-forms.cpp       | 18 ++++++------
+ test/perf-test-preview-dummy.cc   |  4 +++
+ test/perf-test.cc                 | 62
+ +++++++++++++++++++--------------------
+ utils/pdfinfo.cc                  |  4 +--
+ utils/pdfseparate.cc              |  2 +-
+ utils/pdfsig.cc                   |  6 ++--
+ utils/pdftotext.cc                |  2 +-
+ utils/pdfunite.cc                 |  6 ++--
+ 23 files changed, 83 insertions(+), 78 deletions(-)
+
+commit afd91b148d3d0ba025821740ff4c075b1de2fdc5
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sat Sep 16 17:47:42 2017 +0200
+
+    Fix warning: format ‘%x’ expects argument of type ‘unsigned
+    int*’, but argument 3 has type ‘int*’
+
+ poppler/UnicodeMap.cc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit a0ed20f3fb8025706ad9a580f6a692316bf6df66
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sat Sep 16 17:45:42 2017 +0200
+
+    -Woverflow fixes
+
+ cpp/poppler-private.cpp    |  4 ++--
+ glib/poppler-document.cc   |  3 +--
+ goo/GooString.cc           |  6 ++++++
+ goo/GooString.h            |  1 +
+ poppler/Annot.cc           |  9 +++------
+ poppler/Form.cc            | 13 +++++--------
+ qt4/src/poppler-private.cc |  4 ++--
+ qt5/src/poppler-private.cc |  4 ++--
+ 8 files changed, 22 insertions(+), 22 deletions(-)
+
+commit d51cc34d7d51b6ddb7bfba318ed12bcbe763be6a
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sat Sep 16 17:35:15 2017 +0200
+
+    -pedantic fixes
+
+ glib/poppler-media.cc             |  2 +-
+ glib/poppler-movie.cc             |  2 +-
+ glib/poppler-structure-element.cc |  2 +-
+ goo/glibc.h                       |  2 +-
+ poppler/StructElement.cc          | 14 +++++++-------
+ utils/JSInfo.cc                   |  2 +-
+ 6 files changed, 12 insertions(+), 12 deletions(-)
+
+commit 804a823a67fedc3e633e89f817232d3c15715b56
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sat Sep 16 20:16:58 2017 +0930
+
+    cmake: restructure the warnings into a "default" and "extra" group
+
+    Most of the previous warnings are now in default. Extra warnings that
+    should be fixed but currently result in a lot of warnings are in the
+    extra group.
+
+    The old no/yes/kde COMPILE_WARNINGS option has been replaced with the
+    boolean option EXTRA_WARN (default off) to enable the extra warnings.
+
+ CMakeLists.txt                    | 18 +++++-------------
+ cmake/modules/PopplerMacros.cmake | 32 ++++++++++++++++++++++++--------
+ 2 files changed, 29 insertions(+), 21 deletions(-)
+
+commit 6d40d4bad46ce1b53624feca7410b35e4fe0048d
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 15 01:07:59 2017 +0200
+
+    CurlPDFDocBuilder don't crash if given a url that doesn't exist
+
+ poppler/CurlPDFDocBuilder.cc | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit cc43c720e857548175a9e35b0686a1a7a8957f50
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Fri Aug 18 11:51:06 2017 +0200
+
+    Replace Splash font rendering by Qt font rendering
+
+    Previously, the Arthur backend would use Splash code to do
+    its font rendering.  That was not a satisfactory solution:
+    Qt can do font rendering directly.  Also, the Splash font
+    rendering in the Arthur code had a few bugs, which lead
+    to legible-but-not-pretty fonts.
+
+    This patch replaces the Splash font rendering by Qt font
+    rendering.  Some Splash code will have to remain, because
+    Qt seems unable to do the proper charcode-to-glyph-index
+    transformations.
+
+    I took a lot of inspiration from Mihai Niculescu's patch at
+
+      https://lists.freedesktop.org/archives/poppler/2013-June/010370.html
+
+    That's why the patch adds Mihai's name in the copyright list.
+
+ qt5/src/ArthurOutputDev.cc | 254
+ +++++++++++++++++++++++++--------------------
+ qt5/src/ArthurOutputDev.h  |  31 +++++-
+ splash/SplashFTFontFile.cc |   4 +
+ splash/SplashFTFontFile.h  |   3 +
+ 4 files changed, 177 insertions(+), 115 deletions(-)
+
+commit da63c35549e8852a410946ab016a3f25ac701bdf
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Sep 14 19:14:41 2017 +0200
+
+    FoFiType1C::convertToType0: Fix crash in broken files
+
+    Bug #102724
+
+ fofi/FoFiType1C.cc | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 504b3590182175390f474657a372e78fb1508262
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Sep 14 19:14:23 2017 +0200
+
+    Splash::scaleImage: Do not try to scale if srcHeight or srcWidth
+    are < 1
+
+    Bug #102719
+
+ splash/Splash.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 500ce88a3b5b0bd556ac6941ba66a86cae44663a
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Wed Sep 13 12:12:29 2017 +0200
+
+    Fix two minor typos
+
+ qt5/tests/test-render-to-file.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 80f9819b6233f9f9b5fd44f0e4cad026e5d048c2
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Sep 13 23:09:45 2017 +0200
+
+    isImageInterpolationRequired: Fix divide by 0 on broken documents
+
+    Bug #102688
+
+ splash/Splash.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit aaf5327649e8f7371c9d3270e7813c43ddfd47ee
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Sep 13 23:01:03 2017 +0200
+
+    Gfx::doShowText: Fix infinite recursion on broken files
+
+    Bug #102701
+
+ poppler/Gfx.cc     | 25 +++++++++++++++++++++++--
+ poppler/Gfx.h      |  1 +
+ poppler/GfxFont.cc |  8 ++++++++
+ poppler/GfxFont.h  |  1 +
+ 4 files changed, 33 insertions(+), 2 deletions(-)
+
+commit 476394e7a025e02e4897da2e765df2c895d0708f
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Sep 13 22:58:14 2017 +0200
+
+    XRef::parseEntry: Fix crash in broken file
+
+    Bug #102687
+
+ poppler/XRef.cc | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 0f891b85169dabd3d23348aba40266547bd4bcf6
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Wed Sep 13 20:12:52 2017 +0930
+
+    pdfinfo: don't truncate dest name
+
+ utils/pdfinfo.cc | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 951e7b3c1f337ceaf490edce3c575f89c45cb6d4
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Wed Sep 13 19:24:07 2017 +0930
+
+    cmake: ensure user cflags/cxxflags are appended to end
+
+ cmake/modules/PopplerMacros.cmake | 44
+ +++++++++++++++++++++------------------
+ 1 file changed, 24 insertions(+), 20 deletions(-)
+
+commit a5c616a65a77bf597836cced6f987e5b93480ca5
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Sep 11 20:55:01 2017 +0930
+
+    cmake INSTALL file
+
+ INSTALL.cmake | 76
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 76 insertions(+)
+
+commit a5e5649ecf16fa05770620dbbd4985935dc2bbff
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Sep 11 12:35:16 2017 +0200
+
+    Fix crash in FoFiType1C::convertToType0 in broken files
+
+    Bug #102653
+
+ fofi/FoFiType1C.cc | 435
+ +++++++++++++++++++++++++++--------------------------
+ 1 file changed, 220 insertions(+), 215 deletions(-)
+
+commit 325887ebef8ea1c6ef9d3607a59d95ffea383986
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Sep 10 17:41:47 2017 +0200
+
+    Make JBIG2Stream::readGenericBitmap return cleanly on error
+
+    instead of causing abort
+
+    Also fixes warning when compiled with newer gcc
+
+ poppler/JBIG2Stream.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit f253a28f4c5bb65c363d31b8b46f984c660499ee
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 8 19:05:36 2017 +0200
+
+    qt5: in development -> is stable
+
+    The API itself is done-ish even if it gets improvements from time to
+    time. In development seems to imply "don't use me yet"
+
+ qt5/src/Mainpage.dox | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 1316c7a41f4dd7276f404f775ebb5fef2d24ab1c
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 8 18:29:42 2017 +0200
+
+    Annot: Fix crash on broken files
+
+    Bug #102607
+
+ poppler/Annot.cc | 42 +++++++++++++++++++++++-------------------
+ 1 file changed, 23 insertions(+), 19 deletions(-)
+
+commit 2532df6060092e9fab7f041ae9598aff9cdd94bb
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 8 18:28:15 2017 +0200
+
+    Annot: Fix crash on broken files
+
+    Bug #102601
+
+ poppler/Annot.cc | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+commit 6472d8493f7e82cc78b41da20a2bf19fcb4e0a7d
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 8 18:26:05 2017 +0200
+
+    SplashOutputDev: Fix crash on broken files
+
+    Bug #102604
+
+ poppler/SplashOutputDev.cc | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+commit 3ab44e2a77b560198c1e1616cfb39c1ac7374e29
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Sep 8 18:21:40 2017 +0200
+
+    Remove unmaintained TODO file
+
+ TODO | 40 ----------------------------------------
+ 1 file changed, 40 deletions(-)
+
+commit dfcf997e6fbca31dbe051fbd9c32aca818825e38
+Author: Hans-Ulrich Jüttner <huj@froreich-bioscientia.de>
+Date:   Wed Sep 6 11:03:52 2017 +0200
+
+    Added methods to get and set the font size of text fields
+
+    Fixes bug #101692
+
+ poppler/Annot.cc        | 24 +++----------
+ poppler/Form.cc         | 92
+ +++++++++++++++++++++++++++++++++++++++++++++++++
+ poppler/Form.h          | 16 +++++++++
+ qt5/src/poppler-form.cc | 12 ++++++-
+ qt5/src/poppler-form.h  | 10 ++++++
+ 5 files changed, 134 insertions(+), 20 deletions(-)
+
+commit 0bda8bb8eda838316a61238441665abfd24eb020
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Thu Sep 7 19:55:54 2017 +0200
+
+    Disable glib if cairo is not found
+
+ CMakeLists.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 118cd73a3c4eba78bbfed16cfc2996dec5491944
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Sep 6 19:42:26 2017 +0200
+
+    cmake: Give people the option to build poppler as a static library
+
+ CMakeLists.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 766a32ff59dadd9ae4639d8a79861a17be6aec52
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Tue Sep 5 20:55:45 2017 +0930
+
+    cmake: add options to disable glib/qt4/qt5
+
+ CMakeLists.txt | 54
+ ++++++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 34 insertions(+), 20 deletions(-)
+
+commit 101aba9a8d6623bca419946262fea6b46a790454
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Tue Sep 5 19:34:12 2017 +0200
+
+    cmake: Fix build when using a cairo different than the system one
+
+ glib/demo/CMakeLists.txt | 2 +-
+ test/CMakeLists.txt      | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 1d3f00e8c53dbbd3a8409993b7b66667df434b5d
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Tue Sep 5 06:39:49 2017 +0930
+
+    ignore build directory
+
+ .gitignore | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 340a99f580b9f7b6add831e9a0252574bfea66f2
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Fri Sep 1 22:16:49 2017 +0200
+
+    Control whether renderToImage shows annotations
+
+    I'd like to control whether the renderToImage and renderToPainter
+    methods show annotations or not. To this end, this patch introduces
+    a new value 'HideAnnotations' to the Document::RenderHint enum.
+
+ qt5/src/poppler-page.cc | 36 ++++++++++++++++++++++++++++++++++--
+ qt5/src/poppler-qt5.h   |  3 ++-
+ 2 files changed, 36 insertions(+), 3 deletions(-)
+
+commit dd80c182cbcb188af0dd590f222ba9bbb31e3fb7
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Sep 4 19:36:06 2017 +0200
+
+    Fix building with old clang
+
+ poppler/StructElement.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit a22cd0badbc177f8a2eedb0386895ddf3379c618
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Sep 3 23:35:08 2017 +0200
+
+    Initial make dist support in cmake
+
+ .gitattributes | 5 +++++
+ CMakeLists.txt | 9 +++++++++
+ 2 files changed, 14 insertions(+)
+
 commit 85bfedad416906b1a5dff377d470387692b5ca70
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Sun Sep 3 22:54:32 2017 +0200

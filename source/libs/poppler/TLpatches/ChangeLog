@@ -1,3 +1,10 @@
+2017-10-04  Luigi Scarso <luigi.scarso@gmail.com>
+
+	Imported poppler-0.60.0 source tree from:
+	  http://poppler.freedesktop.org/
+	* patch-02-LLONG_MAX, patch-03-Object-functions: Adapted.
+	* removed all files but SplashTypes.h in the  splash/ directory
+
 2017-09-25  Luigi Scarso <luigi.scarso@gmail.com>
 
 	Imported poppler-0.59.0 source tree from:

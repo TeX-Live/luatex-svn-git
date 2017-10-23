@@ -1,3 +1,11 @@
+2017-10-04  Luigi Scarso  <luigi.scarso@gmail.com>
+
+	Import poppler-0.60.0.
+	* version.ac: Adjust.
+	* manually created poppler-config.h.in from poppler-config.h.cmake
+	* deleted useless files from splash folder
+
+
 2017-02-17  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	Import poppler-0.52.0.
