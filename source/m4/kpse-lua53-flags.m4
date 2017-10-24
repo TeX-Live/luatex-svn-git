@@ -21,7 +21,7 @@ _KPSE_LIB_FLAGS([lua53], [texlua53], [lt tree],
 # compiling or using the `-ltexlua53' library.
 AC_DEFUN([KPSE_LUA53_DEFINES], [dnl
 AC_REQUIRE([KPSE_CHECK_WIN32])[]dnl
-AC_SUBST([LUA53_DEFINES], ['-DLUA_COMPAT_MODULE -DLUAI_HASHLIMIT=6'])
+AC_SUBST([LUA53_DEFINES], ['-DLUA_COMPAT_MODULE -DLUA_COMPAT_5_2 -DLUAI_HASHLIMIT=6'])
 if test "x$kpse_cv_have_win32" = xno; then
   LUA53_DEFINES="$LUA53_DEFINES -DLUA_USE_POSIX"
   AC_SEARCH_LIBS([dlopen], [dl])

@@ -254,7 +254,11 @@ static int set_bytecode(lua_State * L)
         lua_bytecode_registers[k].buf = xmalloc(LOAD_BUF_SIZE);
         lua_bytecode_registers[k].alloc = LOAD_BUF_SIZE;
         memset(lua_bytecode_registers[k].buf, 0, LOAD_BUF_SIZE);
+#ifdef LuajitTeX
         lua_dump(L, writer, (void *) (lua_bytecode_registers + k));
+#else
+        lua_dump(L, writer, (void *) (lua_bytecode_registers + k),1);
+#endif
     }
     lua_pop(L, 1);
     return 0;

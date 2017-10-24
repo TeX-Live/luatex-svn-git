@@ -13462,7 +13462,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_cv_have_win32" >&5
 $as_echo "$kpse_cv_have_win32" >&6; }
 
-LUA53_DEFINES='-DLUA_COMPAT_MODULE -DLUAI_HASHLIMIT=6'
+LUA53_DEFINES='-DLUA_COMPAT_MODULE -DLUA_COMPAT_5_2 -DLUAI_HASHLIMIT=6'
 
 if test "x$kpse_cv_have_win32" = xno; then
   LUA53_DEFINES="$LUA53_DEFINES -DLUA_USE_POSIX"
