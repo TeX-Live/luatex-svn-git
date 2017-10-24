@@ -39,6 +39,9 @@ if test "x$ac_cv_header_stdc" = xyes; then
   LUA53_DEFINES="$LUA53_DEFINES -DHAVE_UNISTD_H"
 fi
 
+LUA53_DEFINES="$LUA53_DEFINES -DLUA_COMPAT_5_2 -DLUA_USE_CTYPE"
+LUA53_CFLAGS="-DLUA_COMPAT_5_2 -DLUA_USE_CTYPE"
+
 AC_SUBST([LUA53_TREE], [lua53-src])
 
 AC_CONFIG_FILES([Makefile include/Makefile texlua53.pc])
