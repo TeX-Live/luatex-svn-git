@@ -709,10 +709,10 @@ LUAJIT_RULE
 LUAJIT_DEPEND
 LUAJIT_LIBS
 LUAJIT_INCLUDES
-LUA52_RULE
-LUA52_DEPEND
-LUA52_LIBS
-LUA52_INCLUDES
+LUA53_RULE
+LUA53_DEPEND
+LUA53_LIBS
+LUA53_INCLUDES
 ZLIB_RULE
 ZLIB_DEPEND
 ZLIB_LIBS
@@ -815,7 +815,7 @@ USE_DLOPEN_FALSE
 USE_DLOPEN_TRUE
 LUAJIT_LDEXTRA
 LUAJIT_DEFINES
-LUA52_DEFINES
+LUA53_DEFINES
 WIN32_CALL_FALSE
 WIN32_CALL_TRUE
 MINGW32_FALSE
@@ -18772,7 +18772,7 @@ test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
-  need_lua52=yes
+  need_lua53=yes
 }
 # Check whether --enable-luajittex was given.
 if test "${enable_luajittex+set}" = set; then :
@@ -18910,7 +18910,7 @@ case $enable_mflua_nowin in #(
 esac
 
 test "x$enable_web2c:$enable_mflua" = xyes:yes && {
-  need_lua52=yes
+  need_lua53=yes
 }
 # Check whether --enable-mfluajit was given.
 if test "${enable_mfluajit+set}" = set; then :
@@ -19344,10 +19344,10 @@ fi
 # and maybe -lresolv for inet_aton().
 lua_socketlibs=$socketlibs
 kpse_save_LIBS=$LIBS
-LUA52_DEFINES='-DLUA_COMPAT_MODULE -DLUAI_HASHLIMIT=6'
+LUA53_DEFINES='-DLUA_COMPAT_MODULE -DLUAI_HASHLIMIT=6'
 
 if test "x$kpse_cv_have_win32" = xno; then
-  LUA52_DEFINES="$LUA52_DEFINES -DLUA_USE_POSIX"
+  LUA53_DEFINES="$LUA53_DEFINES -DLUA_USE_POSIX"
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing dlopen" >&5
 $as_echo_n "checking for library containing dlopen... " >&6; }
 if ${ac_cv_search_dlopen+:} false; then :
@@ -19408,7 +19408,7 @@ fi
     ac_fn_c_check_header_compile "$LINENO" "dlfcn.h" "ac_cv_header_dlfcn_h" "$ac_includes_default
 "
 if test "x$ac_cv_header_dlfcn_h" = xyes; then :
-  LUA52_DEFINES="$LUA52_DEFINES -DLUA_USE_DLOPEN"
+  LUA53_DEFINES="$LUA53_DEFINES -DLUA_USE_DLOPEN"
 fi
 
 
@@ -23838,15 +23838,15 @@ $as_echo "#define z_const /**/" >>confdefs.h
  ;;
 esac
 
-## _KPSE_LIB_FLAGS: Setup lua52 (-ltexlua52) flags
-  LUA52_INCLUDES="-I$kpse_BLD/libs/lua52/include"
-  LUA52_LIBS="$kpse_BLD/libs/lua52/libtexlua52.la"
-  LUA52_DEPEND='${top_builddir}/../../libs/lua52/libtexlua52.la'
-  LUA52_RULE='# Rebuild libtexlua52
-$(LUA52_DEPEND): ${top_builddir}/../../libs/lua52/include/lua.h
-	cd ${top_builddir}/../../libs/lua52 && $(MAKE) $(AM_MAKEFLAGS) rebuild
-${top_builddir}/../../libs/lua52/include/lua.h:
-	cd ${top_builddir}/../../libs/lua52 && $(MAKE) $(AM_MAKEFLAGS) rebuild'
+## _KPSE_LIB_FLAGS: Setup lua53 (-ltexlua53) flags
+  LUA53_INCLUDES="-I$kpse_BLD/libs/lua53/include"
+  LUA53_LIBS="$kpse_BLD/libs/lua53/libtexlua53.la"
+  LUA53_DEPEND='${top_builddir}/../../libs/lua53/libtexlua53.la'
+  LUA53_RULE='# Rebuild libtexlua53
+$(LUA53_DEPEND): ${top_builddir}/../../libs/lua53/include/lua.h
+	cd ${top_builddir}/../../libs/lua53 && $(MAKE) $(AM_MAKEFLAGS) rebuild
+${top_builddir}/../../libs/lua53/include/lua.h:
+	cd ${top_builddir}/../../libs/lua53 && $(MAKE) $(AM_MAKEFLAGS) rebuild'
 
 ## _KPSE_LIB_FLAGS: Setup luajit (-ltexluajit) flags
   LUAJIT_INCLUDES="-I$kpse_BLD/libs/luajit/include"

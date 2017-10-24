@@ -87,8 +87,8 @@ $(proglib): ${srcdir}/lib/*.c
 @PTEXENC_RULE@
 ## Rebuild libz
 @ZLIB_RULE@
-## Rebuild liblua52
-@LUA52_RULE@
+## Rebuild liblua53
+@LUA53_RULE@
 ## Rebuild libluajit
 @LUAJIT_RULE@
 ## Rebuild libpng

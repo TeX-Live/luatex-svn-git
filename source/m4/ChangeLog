@@ -1,3 +1,8 @@
+2017-10-24 Luigi Scarso <luigi.scarso@gmail.com>
+	* adapted kpse-lua53-flags.m4 and  kpse-pkgs.m4
+	for Lua 5.3.4
+
+
 2017-02-17  Karl Berry  <karl@freefriends.org>
 
 	* kpse-setup.m4 (_KPSE_RECURSE): do not add a package to
