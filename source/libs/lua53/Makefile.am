@@ -59,10 +59,12 @@ nodist_libtexlua53_la_SOURCES = \
 	@LUA53_TREE@/src/ltable.c \
 	@LUA53_TREE@/src/ltablib.c \
 	@LUA53_TREE@/src/ltm.c \
-	@LUA53_TREE@/src/luaconf.h \
+	@LUA53_TREE@/src/lua.c \
+	@LUA53_TREE@/src/luac.c \
 	@LUA53_TREE@/src/lundump.c \
+	@LUA53_TREE@/src/lutf8lib.c \
 	@LUA53_TREE@/src/lvm.c \
-	@LUA53_TREE@/src/lzio.c
+	@LUA53_TREE@/src/lzio.c 
 
 lua53includedir = ${includedir}/texlua53
 

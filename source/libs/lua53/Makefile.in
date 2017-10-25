@@ -164,8 +164,9 @@ nodist_libtexlua53_la_OBJECTS = @LUA53_TREE@/src/lapi.lo \
 	@LUA53_TREE@/src/lstate.lo @LUA53_TREE@/src/lstring.lo \
 	@LUA53_TREE@/src/lstrlib.lo @LUA53_TREE@/src/ltable.lo \
 	@LUA53_TREE@/src/ltablib.lo @LUA53_TREE@/src/ltm.lo \
-	@LUA53_TREE@/src/lundump.lo @LUA53_TREE@/src/lvm.lo \
-	@LUA53_TREE@/src/lzio.lo
+	@LUA53_TREE@/src/lua.lo @LUA53_TREE@/src/luac.lo \
+	@LUA53_TREE@/src/lundump.lo @LUA53_TREE@/src/lutf8lib.lo \
+	@LUA53_TREE@/src/lvm.lo @LUA53_TREE@/src/lzio.lo
 libtexlua53_la_OBJECTS = $(nodist_libtexlua53_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -663,10 +664,12 @@ nodist_libtexlua53_la_SOURCES = \
 	@LUA53_TREE@/src/ltable.c \
 	@LUA53_TREE@/src/ltablib.c \
 	@LUA53_TREE@/src/ltm.c \
-	@LUA53_TREE@/src/luaconf.h \
+	@LUA53_TREE@/src/lua.c \
+	@LUA53_TREE@/src/luac.c \
 	@LUA53_TREE@/src/lundump.c \
+	@LUA53_TREE@/src/lutf8lib.c \
 	@LUA53_TREE@/src/lvm.c \
-	@LUA53_TREE@/src/lzio.c
+	@LUA53_TREE@/src/lzio.c 
 
 lua53includedir = ${includedir}/texlua53
 lua53include_HEADERS = \
@@ -845,7 +848,13 @@ clean-libLTLIBRARIES:
 	@LUA53_TREE@/src/$(DEPDIR)/$(am__dirstamp)
 @LUA53_TREE@/src/ltm.lo: @LUA53_TREE@/src/$(am__dirstamp) \
 	@LUA53_TREE@/src/$(DEPDIR)/$(am__dirstamp)
+@LUA53_TREE@/src/lua.lo: @LUA53_TREE@/src/$(am__dirstamp) \
+	@LUA53_TREE@/src/$(DEPDIR)/$(am__dirstamp)
+@LUA53_TREE@/src/luac.lo: @LUA53_TREE@/src/$(am__dirstamp) \
+	@LUA53_TREE@/src/$(DEPDIR)/$(am__dirstamp)
 @LUA53_TREE@/src/lundump.lo: @LUA53_TREE@/src/$(am__dirstamp) \
+	@LUA53_TREE@/src/$(DEPDIR)/$(am__dirstamp)
+@LUA53_TREE@/src/lutf8lib.lo: @LUA53_TREE@/src/$(am__dirstamp) \
 	@LUA53_TREE@/src/$(DEPDIR)/$(am__dirstamp)
 @LUA53_TREE@/src/lvm.lo: @LUA53_TREE@/src/$(am__dirstamp) \
 	@LUA53_TREE@/src/$(DEPDIR)/$(am__dirstamp)
@@ -913,8 +922,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/ltable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/ltablib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/ltm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/lua.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/luac.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/luatry-lua.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/lundump.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/lutf8lib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/lvm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@LUA53_TREE@/src/$(DEPDIR)/lzio.Plo@am__quote@
 
