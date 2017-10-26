@@ -324,6 +324,10 @@ then
   then
     K=$(find "$B/texk/kpathsea" -name "libkpathsea*dll")
     TEXLUADLL="texlua52.dll"
+    if [ "$LUA52" = "TRUE" ]
+    then
+         TEXLUADLL="texlua52.dll"
+    fi
     if [ "$LUA53" = "TRUE" ]
     then
          TEXLUADLL="texlua53.dll"
