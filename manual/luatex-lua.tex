@@ -303,17 +303,17 @@ piecemeal:
     \type {string.utfcharacters(s)}: a string with a single \UTF-8 token in it
 \stopitem
 \startitem
-    \type {string.characters(s)} \NC a string containing one byte
+    \type {string.characters(s)}: a string containing one byte
 \stopitem
 \startitem
-    \type {string.characterpairs(s)} two strings each containing one byte or an
+    \type {string.characterpairs(s)}: two strings each containing one byte or an
     empty second string if the string length was odd
 \stopitem
 \startitem
-    \type {string.bytes(s)} a single byte value
+    \type {string.bytes(s)}: a single byte value
 \stopitem
 \startitem
-    \type {string.bytepairs(s)} two byte values or nil instead of a number as
+    \type {string.bytepairs(s)}: two byte values or nil instead of a number as
     its second return value if the string length was odd
 \stopitem
 \stopitemize
@@ -335,8 +335,28 @@ always returns byte positions in a string, and \type {unicode.utf8.match} and
 are} \UNICODE|-|aware, they fall|-|back to non|-|\UNICODE|-|aware behavior when
 using the empty capture \type {()} but other captures work as expected. For the
 interpretation of character classes in \type {unicode.utf8} functions refer to
-the library sources at \hyphenatedurl {http://luaforge.net/projects/sln}. Version
-5.3 of \LUA\ will provide some native \UTF8 support.
+the library sources at \hyphenatedurl {http://luaforge.net/projects/sln}.
+
+Version 5.3 of \LUA\ provides some native \UTF8 support but we have added a few
+similar helpers too:
+
+\startitemize
+\startitem
+    \type {string.utfvalue(s)}: returns the codepoints of the characters in the
+    given string
+\stopitem
+\startitem
+    \type {string.utfcharacter(c,...)}: returns a string with the characters of
+    the given code points
+\stopitem
+\startitem
+    \type {string.utflength(s)}: returns the length oif the given string
+\stopitem
+\stopitemize
+
+These three functions are relative fast and don't do much checking. They can be used
+as building blocks for other helpers.
+
 
 \blank
 
