@@ -316,7 +316,7 @@ then
   if [ "$ENABLESHARED" = "TRUE" ]
   then
     K=$(find "$B/texk/kpathsea" -name "libkpathsea*dll")
-    L1=$(find "$B/libs" -name "texlua52.dll")
+    L1=$(find "$B/libs" -name "texlua53.dll")
     L2=$(find "$B/libs" -name "texluajit.dll")
     #cp "$B/texk/web2c/.libs/$LUATEXEXE" "$B"
     #cp "$B/texk/web2c/.libs/$LUATEXEXEJIT" "$B"
