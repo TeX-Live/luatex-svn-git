@@ -7,6 +7,8 @@
 #ifndef lctype_h
 #define lctype_h
 
+#include <ctype.h>
+
 #include "lua.h"
 
 
