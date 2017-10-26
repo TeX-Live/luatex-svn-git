@@ -20,6 +20,8 @@
 # new script to build luatex binaries
 # ----------
 # Options:
+#      --lua52     : build with lua 5.2.4
+#      --lua53     : build with lua 5.3.4
 #      --jit       : also build luajittex
 #      --make      : only make, no make distclean; configure
 #      --parallel  : make -j 2 -l 3.0
@@ -75,6 +77,9 @@ MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
 TARGET_CC=gcc
 TARGET_TCFLAGS=
 
+LUA52=TRUE
+LUA53=FALSE
+
 CFLAGS="$CFLAGS"
 CXXFLAGS="$CXXFLAGS"
 
@@ -85,6 +90,8 @@ export CXXFLAGS="-std=c++11 $CXXFLAGS"
 
 until [ -z "$1" ]; do
   case "$1" in
+    --lua52     ) LUA52=TRUE         ;;
+    --lua53     ) LUA53=TRUE         ;;
     --jit       ) BUILDJIT=TRUE     ;;
     --nojit     ) BUILDJIT=FALSE     ;;
     --make      ) ONLY_MAKE=TRUE     ;;
@@ -316,7 +323,12 @@ then
   if [ "$ENABLESHARED" = "TRUE" ]
   then
     K=$(find "$B/texk/kpathsea" -name "libkpathsea*dll")
-    L1=$(find "$B/libs" -name "texlua53.dll")
+    TEXLUADLL="texlua52.dll"
+    if [ "$LUA53" = "TRUE" ]
+    then
+         TEXLUADLL="texlua53.dll"
+    fi
+    L1=$(find "$B/libs" -name $TEXLUADLL)
     L2=$(find "$B/libs" -name "texluajit.dll")
     #cp "$B/texk/web2c/.libs/$LUATEXEXE" "$B"
     #cp "$B/texk/web2c/.libs/$LUATEXEXEJIT" "$B"
