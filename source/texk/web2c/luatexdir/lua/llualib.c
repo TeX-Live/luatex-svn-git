@@ -257,7 +257,7 @@ static int set_bytecode(lua_State * L)
 #ifdef LuajitTeX
         lua_dump(L, writer, (void *) (lua_bytecode_registers + k));
 #else
-        lua_dump(L, writer, (void *) (lua_bytecode_registers + k),1);
+        lua_dump(L, writer, (void *) (lua_bytecode_registers + k),0);
 #endif
     }
     lua_pop(L, 1);

@@ -438,7 +438,7 @@ static int str_dump (lua_State *L) {
 #if defined(LuajitTeX)
 	if (lua_dump(L, writer, &b) != 0)
 #else
-	if (lua_dump(L, writer, &b,1) != 0)
+	if (lua_dump(L, writer, &b,0) != 0)
 #endif
 		luaL_error(L, "unable to dump given function");
 	luaL_pushresult(&b);
