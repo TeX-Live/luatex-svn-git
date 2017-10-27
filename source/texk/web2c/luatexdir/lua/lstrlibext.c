@@ -501,8 +501,12 @@ static const luaL_Reg strlibext[] = {
 #ifdef LuajitTeX
   /* luajit has dump built in */
 #else
+/* lua 5.3.4 doesn't need this patch */
+#if (LUA_VERSION_NUM == 502) 
   {"dump", str_dump},
 #endif
+  
+#endif /* #ifdef LuajitTeX */
   {NULL, NULL}
 };
 
