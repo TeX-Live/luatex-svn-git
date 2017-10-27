@@ -139,8 +139,8 @@ then
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
-  CXXFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS"
+  CFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS -DLUA_USE_C89"
+  CXXFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS -DLUA_USE_C89"
   : ${CONFHOST:=--host=x86_64-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
@@ -157,8 +157,8 @@ then
   OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-m32 -mtune=nocona -g -O3 $CFLAGS"
-  CXXFLAGS="-m32 -mtune=nocona -g -O3 $CXXFLAGS"
+  CFLAGS="-m32 -mtune=nocona -g -O3 $CFLAGS -DLUA_USE_C89"
+  CXXFLAGS="-m32 -mtune=nocona -g -O3 $CXXFLAGS -DLUA_USE_C89"
   : ${CONFHOST:=--host=i686-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
