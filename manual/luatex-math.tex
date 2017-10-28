@@ -631,7 +631,7 @@ example.
 \stoptexdefinition
 
 \start
-    \setupbodyfont[cambria]
+    \switchtobodyfont[cambria]
     \starttabulate[|c|c|c|c|c|c|]
         \Whatever{0}%
         \Whatever{1}%
@@ -640,6 +640,55 @@ example.
 
 This kind of parameters relate to the fact that italic correction in \OPENTYPE\
 math is bound to fuzzy rules. So, control is the solution.
+
+\section{Script boxes}
+
+If you want typeset text in math macro packages often provide something \type
+{\text} which obeys the script sizes. As the definition can be anything there is
+a good change that the kerning doesn't come out well when used in a script. Given
+that the first glyph ends up in an \type {\hbox} we have some control over this.
+And, as a bonus we also added control over the normal sublist kerning. The \type
+{\mathscriptboxmode} parameter defaults to~1.
+
+\starttabulate[|l|l|]
+\NC \type {0} \NC forget about kerning \NC \NR
+\NC \type {1} \NC kern math sub lists with a valid glyph \NC \NR
+\NC \type {2} \NC also kern math sub boxes that have a valid glyph \NC \NR
+\NC \type {2} \NC only kern math sub boxes with a boundary node present\NC \NR
+\stoptabulate
+
+Here we show some examples. Of course this doesn't solve all our problems, if
+only because some fonts have characters with bounding boxes that compensate for
+italics, while other fonts can lack kerns.
+
+\startbuffer[1]
+    $T_{\tf fluff}$
+\stopbuffer
+
+\startbuffer[2]
+    $T_{\text{fluff}}$
+\stopbuffer
+
+\startbuffer[3]
+    $T_{\text{\boundary1 fluff}}$
+\stopbuffer
+
+\unexpanded\def\Show#1#2#3%
+  {\doifelsenothing{#3}
+     {\small\typeinlinebuffer[#1]}
+     {\doifelse{#3}{-}
+        {\small\type{mode #2}}
+        {\switchtobodyfont[#3]\showfontkerns\showglyphs\mathscriptboxmode#2\relax\inlinebuffer[#1]}}}
+
+\starttabulate[|lT|c|c|c|c|c|]
+    \NC          \NC \Show{1}{0}{}         \NC\Show{1}{1}{}         \NC \Show{2}{1}{}         \NC \Show{2}{2}{}         \NC \Show{3}{3}{}         \NC \NR
+    \NC          \NC \Show{1}{0}{-}        \NC\Show{1}{1}{-}        \NC \Show{2}{1}{-}        \NC \Show{2}{2}{-}        \NC \Show{3}{3}{-}        \NC \NR
+    \NC modern   \NC \Show{1}{0}{modern}   \NC\Show{1}{1}{modern}   \NC \Show{2}{1}{modern}   \NC \Show{2}{2}{modern}   \NC \Show{3}{3}{modern}   \NC \NR
+    \NC lucidaot \NC \Show{1}{0}{lucidaot} \NC\Show{1}{1}{lucidaot} \NC \Show{2}{1}{lucidaot} \NC \Show{2}{2}{lucidaot} \NC \Show{3}{3}{lucidaot} \NC \NR
+    \NC pagella  \NC \Show{1}{0}{pagella}  \NC\Show{1}{1}{pagella}  \NC \Show{2}{1}{pagella}  \NC \Show{2}{2}{pagella}  \NC \Show{3}{3}{pagella}  \NC \NR
+    \NC cambria  \NC \Show{1}{0}{cambria}  \NC\Show{1}{1}{cambria}  \NC \Show{2}{1}{cambria}  \NC \Show{2}{2}{cambria}  \NC \Show{3}{3}{cambria}  \NC \NR
+    \NC dejavu   \NC \Show{1}{0}{dejavu}   \NC\Show{1}{1}{dejavu}   \NC \Show{2}{1}{dejavu}   \NC \Show{2}{2}{dejavu}   \NC \Show{3}{3}{dejavu}   \NC \NR
+\stoptabulate
 
 \section{Unscaled fences}
 
@@ -659,7 +708,7 @@ so that the same spacing applies as with unfenced variants. Here we show Cambria
 \stoptexdefinition
 
 \start
-    \setupbodyfont[cambria]
+    \switchtobodyfont[cambria]
     \starttabulate[|l|l|l|]
         \Whatever{0}\Whatever{1}\Whatever{2}\Whatever{3}%
         \Whatever{4}\Whatever{5}\Whatever{6}\Whatever{7}%
