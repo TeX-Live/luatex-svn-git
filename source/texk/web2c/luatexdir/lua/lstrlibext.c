@@ -331,6 +331,8 @@ static int lua_sdump (lua_State *L, lua_Writer writer, void *data, int stripping
   return status;
 }
 
+#if (LUA_VERSION_NUM == 502) 
+  {"dump", str_dump},
 static int str_dump (lua_State *L) {
   luaL_Buffer b;
   int stripping = 0;
@@ -345,6 +347,7 @@ static int str_dump (lua_State *L) {
   luaL_pushresult(&b);
   return 1;
 }
+#endif
 #endif /*ifdef LuajitTeX*/
 
 static int str_bytetable (lua_State *L) {
