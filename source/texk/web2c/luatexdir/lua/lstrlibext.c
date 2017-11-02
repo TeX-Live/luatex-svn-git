@@ -332,7 +332,6 @@ static int lua_sdump (lua_State *L, lua_Writer writer, void *data, int stripping
 }
 
 #if (LUA_VERSION_NUM == 502) 
-  {"dump", str_dump},
 static int str_dump (lua_State *L) {
   luaL_Buffer b;
   int stripping = 0;

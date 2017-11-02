@@ -1255,7 +1255,7 @@ int luaopen_pdf(lua_State * L)
     lua_newtable(L);
     lua_settable(L,LUA_REGISTRYINDEX);
     /* */
-    luaL_register(L, "pdf", pdflib);
+    luaL_openlib(L, "pdf", pdflib, 0);
     /*
     luaL_newmetatable(L, "pdf.meta");
     lua_pushstring(L, "__index");

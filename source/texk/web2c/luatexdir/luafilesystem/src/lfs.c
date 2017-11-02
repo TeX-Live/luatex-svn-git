@@ -226,11 +226,11 @@ static int lfs_lock_dir(lua_State *L) {
   const char *lockfile = "/lockfile.lfs";
   const char *path = luaL_checklstring(L, 1, &pathl);
   ln = (char*)malloc(pathl + strlen(lockfile) + 1);
-  if(!ln) { 
+  if(!ln) {
     lua_pushnil(L); lua_pushstring(L, strerror(errno)); return 2;
   }
   strcpy(ln, path); strcat(ln, lockfile);
-  if((fd = CreateFile(ln, GENERIC_WRITE, 0, NULL, CREATE_NEW, 
+  if((fd = CreateFile(ln, GENERIC_WRITE, 0, NULL, CREATE_NEW,
 	  	FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE, NULL)) == INVALID_HANDLE_VALUE) {
   	int en = GetLastError();
   	free(ln); lua_pushnil(L);
@@ -264,12 +264,12 @@ static int lfs_lock_dir(lua_State *L) {
   const char *path = luaL_checklstring(L, 1, &pathl);
   lock = (lfs_Lock*)lua_newuserdata(L, sizeof(lfs_Lock));
   ln = (char*)malloc(pathl + strlen(lockfile) + 1);
-  if(!ln) { 
+  if(!ln) {
     lua_pushnil(L); lua_pushstring(L, strerror(errno)); return 2;
   }
   strcpy(ln, path); strcat(ln, lockfile);
   if(symlink("lock", ln) == -1) {
-    free(ln); lua_pushnil(L); 
+    free(ln); lua_pushnil(L);
     lua_pushstring(L, strerror(errno)); return 2;
   }
   lock->ln = ln;
@@ -681,12 +681,12 @@ static void push_invalid (lua_State *L, STAT_STRUCT *info) {
 static const char *perm2string (unsigned short mode) {
   static char perms[10] = "---------\0";
   int i;
-  for (i=0;i<9;i++) perms[i]='-';  
-  if (mode  & _S_IREAD) 
+  for (i=0;i<9;i++) perms[i]='-';
+  if (mode  & _S_IREAD)
    { perms[0] = 'r'; perms[3] = 'r'; perms[6] = 'r'; }
-  if (mode  & _S_IWRITE) 
+  if (mode  & _S_IWRITE)
    { perms[1] = 'w'; perms[4] = 'w'; perms[7] = 'w'; }
-  if (mode  & _S_IEXEC) 
+  if (mode  & _S_IEXEC)
    { perms[2] = 'x'; perms[5] = 'x'; perms[8] = 'x'; }
   return perms;
 }
@@ -840,7 +840,7 @@ static const struct luaL_Reg fslib[] = {
 int luaopen_lfs (lua_State *L) {
 	dir_create_meta (L);
 	lock_create_meta (L);
-	luaL_register (L, "lfs", fslib);
+	luaL_openlib(L, "lfs", fslib, 0);
 	set_info (L);
 	return 1;
 }

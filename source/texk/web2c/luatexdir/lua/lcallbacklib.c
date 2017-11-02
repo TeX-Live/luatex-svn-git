@@ -585,7 +585,7 @@ static const struct luaL_Reg callbacklib[] = {
 
 int luaopen_callback(lua_State * L)
 {
-    luaL_register(L, "callback", callbacklib);
+    luaL_openlib(L, "callback", callbacklib, 0);
     luaL_checkstack(L, 1, "out of stack space");
     lua_newtable(L);
     callback_callbacks_id = luaL_ref(L, LUA_REGISTRYINDEX);
