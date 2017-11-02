@@ -21,14 +21,7 @@
 #ifndef LUATEXFONT_H
 #  define LUATEXFONT_H
 
-#  include "ptexlib.h"
-#  ifndef pdfTeX
-#    define pdfTeX
-#    include "sfnt.h"           /* which wants that pdfTeX is defined */
-#    undef pdfTeX
-#  else
-#    include "sfnt.h"
-#  endif
+#  include "sfnt.h"
 
 /**********************************************************************/
 
