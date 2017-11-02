@@ -2306,7 +2306,9 @@ EXTRA_DIST = PROJECTS cftests cpascal.h help.h w2c/config.h \
 	luatexdir/slnunicode/slnudata.c \
 	luatexdir/luafilesystem/Makefile \
 	luatexdir/luafilesystem/Makefile.win \
-	luatexdir/luafilesystem/README luatexdir/luafilesystem/config \
+	luatexdir/luafilesystem/LICENSE \
+	luatexdir/luafilesystem/README.md \
+	luatexdir/luafilesystem/config \
 	luatexdir/luafilesystem/config.win luatexdir/luafilesystem/doc \
 	luatexdir/luafilesystem/src/lfs.def \
 	luatexdir/luafilesystem/tests luatexdir/luafilesystem/vc6 \

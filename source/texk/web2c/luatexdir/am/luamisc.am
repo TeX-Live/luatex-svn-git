@@ -49,7 +49,8 @@ EXTRA_DIST += \
 EXTRA_DIST += \
 	luatexdir/luafilesystem/Makefile \
 	luatexdir/luafilesystem/Makefile.win \
-	luatexdir/luafilesystem/README \
+	luatexdir/luafilesystem/LICENSE \
+	luatexdir/luafilesystem/README.md \
 	luatexdir/luafilesystem/config \
 	luatexdir/luafilesystem/config.win \
 	luatexdir/luafilesystem/doc \
