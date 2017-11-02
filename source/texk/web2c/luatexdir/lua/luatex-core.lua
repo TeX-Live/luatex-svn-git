@@ -182,7 +182,7 @@ if md5 then
 
 end
 
--- compatibility
+-- compatibility: this might go away
 
 if not unpack then
     unpack = table.unpack
@@ -191,6 +191,12 @@ end
 if not package.loaders then
     package.loaders = package.searchers
 end
+
+if not loadstring then
+    loadstring = load
+end
+
+-- compatibility: this might stay
 
 if bit32 then
 

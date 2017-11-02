@@ -311,6 +311,7 @@ static int str_split (lua_State *L) {
 #ifdef LuajitTeX
     /* dump is built in */
 #else
+#if (LUA_VERSION_NUM == 502) 
 static int writer (lua_State *L, const void* b, size_t size, void* B) {
   (void)L;
   luaL_addlstring((luaL_Buffer*) B, (const char *)b, size);
@@ -331,7 +332,7 @@ static int lua_sdump (lua_State *L, lua_Writer writer, void *data, int stripping
   return status;
 }
 
-#if (LUA_VERSION_NUM == 502) 
+
 static int str_dump (lua_State *L) {
   luaL_Buffer b;
   int stripping = 0;
