@@ -46,13 +46,15 @@ libluasocket_sources = \
         luatexdir/luasocket/src/options.h \
         luatexdir/luasocket/src/select.c \
         luatexdir/luasocket/src/select.h \
+        luatexdir/luasocket/src/serial.c \
+        luatexdir/luasocket/src/socket.h \
+        luatexdir/luasocket/src/socket.c \
         luatexdir/luasocket/src/tcp.c \
         luatexdir/luasocket/src/tcp.h \
         luatexdir/luasocket/src/timeout.c \
         luatexdir/luasocket/src/timeout.h \
         luatexdir/luasocket/src/udp.c \
         luatexdir/luasocket/src/udp.h \
-        luatexdir/luasocket/src/usocket.c \
         luatexdir/luasocket/src/usocket.h 
 
 
@@ -147,6 +149,7 @@ EXTRA_DIST += \
 	luatexdir/luasocket/src/unixstream.c \
 	luatexdir/luasocket/src/unixstream.h \
 	luatexdir/luasocket/src/url.lua \
+        luatexdir/luasocket/src/usocket.c \
 	luatexdir/luasocket/src/wsocket.c \
 	luatexdir/luasocket/src/wsocket.h \
 	luatexdir/luasocket/test/README \

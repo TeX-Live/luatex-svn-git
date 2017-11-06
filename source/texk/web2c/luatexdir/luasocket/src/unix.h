@@ -12,6 +12,7 @@
 #include "buffer.h"
 #include "timeout.h"
 #include "socket.h"
+#include "luasocket.h"
 
 #ifndef UNIX_API
 #define UNIX_API extern

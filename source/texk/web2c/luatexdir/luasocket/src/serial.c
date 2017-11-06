@@ -11,8 +11,12 @@
 #include "socket.h"
 #include "options.h"
 #include "unix.h"
-#include <sys/un.h>
-
+#ifndef _WIN32
+#include <sys/un.h> 
+#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 /*
 Reuses userdata definition from unix.h, since it is useful for all
 stream-like objects.
@@ -149,7 +153,11 @@ static int global_create(lua_State *L) {
     p_unix un = (p_unix) lua_newuserdata(L, sizeof(t_unix));
 
     /* open serial device */
+#ifdef __MINGW32__
+    t_socket sock = open(path, O_RDWR);
+#else
     t_socket sock = open(path, O_NOCTTY|O_RDWR);
+#endif
 
     /*printf("open %s on %d\n", path, sock);*/
 
