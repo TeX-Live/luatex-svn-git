@@ -42,7 +42,6 @@ static const char *const callbacknames[] = {
     "find_type1_file", "read_type1_file",
     "find_truetype_file", "read_truetype_file",
     "find_opentype_file", "read_opentype_file",
-    "find_sfd_file", "read_sfd_file",
     "find_cidmap_file", "read_cidmap_file",
     "find_pk_file", "read_pk_file",
     "show_error_hook",
@@ -585,7 +584,7 @@ static const struct luaL_Reg callbacklib[] = {
 
 int luaopen_callback(lua_State * L)
 {
-    luaL_openlib(L, "callback", callbacklib, 0);
+    luaL_register(L, "callback", callbacklib);
     luaL_checkstack(L, 1, "out of stack space");
     lua_newtable(L);
     callback_callbacks_id = luaL_ref(L, LUA_REGISTRYINDEX);

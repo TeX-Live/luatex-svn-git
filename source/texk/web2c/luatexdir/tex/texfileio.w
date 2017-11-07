@@ -150,9 +150,6 @@ char *luatex_find_file(const char *s, int callback_index)
         case find_enc_file_callback:
             ftemp = kpse_find_file(s, kpse_enc_format, 0);
             break;
-        case find_sfd_file_callback:
-            ftemp = kpse_find_file(s, kpse_sfd_format, 0);
-            break;
         case find_map_file_callback:
             ftemp = kpse_find_file(s, kpse_fontmap_format, 0);
             break;

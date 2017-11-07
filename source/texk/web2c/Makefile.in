@@ -548,8 +548,7 @@ am__objects_5 = libluajittex_a-dvigen.$(OBJEXT) \
 	libluajittex_a-dofont.$(OBJEXT) \
 	libluajittex_a-luafont.$(OBJEXT) \
 	libluajittex_a-mapfile.$(OBJEXT) libluajittex_a-pkin.$(OBJEXT) \
-	libluajittex_a-sfnt.$(OBJEXT) libluajittex_a-subfont.$(OBJEXT) \
-	libluajittex_a-texfont.$(OBJEXT) \
+	libluajittex_a-sfnt.$(OBJEXT) libluajittex_a-texfont.$(OBJEXT) \
 	libluajittex_a-tfmofm.$(OBJEXT) \
 	libluajittex_a-tounicode.$(OBJEXT) \
 	libluajittex_a-tt_glyf.$(OBJEXT) \
@@ -704,14 +703,13 @@ am__objects_8 =  \
 am__objects_9 = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-dofont.$(OBJEXT) libluatex_a-luafont.$(OBJEXT) \
 	libluatex_a-mapfile.$(OBJEXT) libluatex_a-pkin.$(OBJEXT) \
-	libluatex_a-sfnt.$(OBJEXT) libluatex_a-subfont.$(OBJEXT) \
-	libluatex_a-texfont.$(OBJEXT) libluatex_a-tfmofm.$(OBJEXT) \
-	libluatex_a-tounicode.$(OBJEXT) libluatex_a-tt_glyf.$(OBJEXT) \
-	libluatex_a-tt_table.$(OBJEXT) libluatex_a-vfovf.$(OBJEXT) \
-	libluatex_a-vfpacket.$(OBJEXT) libluatex_a-writecff.$(OBJEXT) \
-	libluatex_a-writeenc.$(OBJEXT) libluatex_a-writefont.$(OBJEXT) \
-	libluatex_a-writet1.$(OBJEXT) libluatex_a-writet3.$(OBJEXT) \
-	libluatex_a-writettf.$(OBJEXT) \
+	libluatex_a-sfnt.$(OBJEXT) libluatex_a-texfont.$(OBJEXT) \
+	libluatex_a-tfmofm.$(OBJEXT) libluatex_a-tounicode.$(OBJEXT) \
+	libluatex_a-tt_glyf.$(OBJEXT) libluatex_a-tt_table.$(OBJEXT) \
+	libluatex_a-vfovf.$(OBJEXT) libluatex_a-vfpacket.$(OBJEXT) \
+	libluatex_a-writecff.$(OBJEXT) libluatex_a-writeenc.$(OBJEXT) \
+	libluatex_a-writefont.$(OBJEXT) libluatex_a-writet1.$(OBJEXT) \
+	libluatex_a-writet3.$(OBJEXT) libluatex_a-writettf.$(OBJEXT) \
 	libluatex_a-writetype0.$(OBJEXT) \
 	libluatex_a-writetype2.$(OBJEXT) \
 	libluatex_a-writeimg.$(OBJEXT) \
@@ -3386,55 +3384,54 @@ nodist_libluajittex_a_SOURCES = \
 libluatex_web = luatexdir/dvi/dvigen.w luatexdir/font/dofont.w \
 	luatexdir/font/luafont.w luatexdir/font/mapfile.w \
 	luatexdir/font/pkin.w luatexdir/font/sfnt.w \
-	luatexdir/font/subfont.w luatexdir/font/texfont.w \
-	luatexdir/font/tfmofm.w luatexdir/font/tounicode.w \
-	luatexdir/font/tt_glyf.w luatexdir/font/tt_table.w \
-	luatexdir/font/vfovf.w luatexdir/font/vfpacket.w \
-	luatexdir/font/writecff.w luatexdir/font/writeenc.w \
-	luatexdir/font/writefont.w luatexdir/font/writet1.w \
-	luatexdir/font/writet3.w luatexdir/font/writettf.w \
-	luatexdir/font/writetype0.w luatexdir/font/writetype2.w \
-	luatexdir/image/writeimg.w luatexdir/image/writejbig2.w \
-	luatexdir/image/writejpg.w luatexdir/image/writejp2.w \
-	luatexdir/image/writepng.w luatexdir/image/pdftoepdf.w \
-	luatexdir/lang/texlang.w luatexdir/lang/hyphen.w \
-	luatexdir/lang/hnjalloc.w luatexdir/lua/helpers.w \
-	luatexdir/lua/luainit.w luatexdir/lua/luanode.w \
-	luatexdir/lua/luastuff.w luatexdir/lua/luatoken.w \
-	luatexdir/lua/mplibstuff.w luatexdir/lua/texluac.w \
-	luatexdir/lua/texluajitc.w luatexdir/pdf/pdfpagetree.w \
-	luatexdir/pdf/pdfaction.w luatexdir/pdf/pdfannot.w \
-	luatexdir/pdf/pdfcolorstack.w luatexdir/pdf/pdfdest.w \
-	luatexdir/pdf/pdffont.w luatexdir/pdf/pdfgen.w \
-	luatexdir/pdf/pdfglyph.w luatexdir/pdf/pdfimage.w \
-	luatexdir/pdf/pdflink.w luatexdir/pdf/pdflistout.w \
-	luatexdir/pdf/pdfliteral.w luatexdir/pdf/pdfobj.w \
-	luatexdir/pdf/pdfoutline.w luatexdir/pdf/pdfpage.w \
-	luatexdir/pdf/pdfrule.w luatexdir/pdf/pdfsaverestore.w \
-	luatexdir/pdf/pdfsetmatrix.w luatexdir/pdf/pdfshipout.w \
-	luatexdir/pdf/pdftables.w luatexdir/pdf/pdfthread.w \
-	luatexdir/pdf/pdfxform.w luatexdir/tex/align.w \
-	luatexdir/tex/arithmetic.w luatexdir/tex/buildpage.w \
-	luatexdir/tex/commands.w luatexdir/tex/conditional.w \
-	luatexdir/tex/directions.w luatexdir/tex/dumpdata.w \
-	luatexdir/tex/equivalents.w luatexdir/tex/errors.w \
-	luatexdir/tex/expand.w luatexdir/tex/extensions.w \
-	luatexdir/tex/filename.w luatexdir/tex/inputstack.w \
-	luatexdir/tex/linebreak.w luatexdir/tex/mainbody.w \
-	luatexdir/tex/maincontrol.w luatexdir/tex/mathcodes.w \
-	luatexdir/tex/memoryword.w luatexdir/tex/mlist.w \
-	luatexdir/tex/nesting.w luatexdir/tex/packaging.w \
-	luatexdir/tex/postlinebreak.w luatexdir/tex/primitive.w \
-	luatexdir/tex/printing.w luatexdir/tex/scanning.w \
-	luatexdir/tex/stringpool.w luatexdir/tex/texdeffont.w \
-	luatexdir/tex/texfileio.w luatexdir/tex/texmath.w \
-	luatexdir/tex/texnodes.w luatexdir/tex/textcodes.w \
-	luatexdir/tex/textoken.w luatexdir/utils/avlstuff.w \
-	luatexdir/utils/managed-sa.w luatexdir/utils/utils.w \
-	luatexdir/utils/unistring.w
+	luatexdir/font/texfont.w luatexdir/font/tfmofm.w \
+	luatexdir/font/tounicode.w luatexdir/font/tt_glyf.w \
+	luatexdir/font/tt_table.w luatexdir/font/vfovf.w \
+	luatexdir/font/vfpacket.w luatexdir/font/writecff.w \
+	luatexdir/font/writeenc.w luatexdir/font/writefont.w \
+	luatexdir/font/writet1.w luatexdir/font/writet3.w \
+	luatexdir/font/writettf.w luatexdir/font/writetype0.w \
+	luatexdir/font/writetype2.w luatexdir/image/writeimg.w \
+	luatexdir/image/writejbig2.w luatexdir/image/writejpg.w \
+	luatexdir/image/writejp2.w luatexdir/image/writepng.w \
+	luatexdir/image/pdftoepdf.w luatexdir/lang/texlang.w \
+	luatexdir/lang/hyphen.w luatexdir/lang/hnjalloc.w \
+	luatexdir/lua/helpers.w luatexdir/lua/luainit.w \
+	luatexdir/lua/luanode.w luatexdir/lua/luastuff.w \
+	luatexdir/lua/luatoken.w luatexdir/lua/mplibstuff.w \
+	luatexdir/lua/texluac.w luatexdir/lua/texluajitc.w \
+	luatexdir/pdf/pdfpagetree.w luatexdir/pdf/pdfaction.w \
+	luatexdir/pdf/pdfannot.w luatexdir/pdf/pdfcolorstack.w \
+	luatexdir/pdf/pdfdest.w luatexdir/pdf/pdffont.w \
+	luatexdir/pdf/pdfgen.w luatexdir/pdf/pdfglyph.w \
+	luatexdir/pdf/pdfimage.w luatexdir/pdf/pdflink.w \
+	luatexdir/pdf/pdflistout.w luatexdir/pdf/pdfliteral.w \
+	luatexdir/pdf/pdfobj.w luatexdir/pdf/pdfoutline.w \
+	luatexdir/pdf/pdfpage.w luatexdir/pdf/pdfrule.w \
+	luatexdir/pdf/pdfsaverestore.w luatexdir/pdf/pdfsetmatrix.w \
+	luatexdir/pdf/pdfshipout.w luatexdir/pdf/pdftables.w \
+	luatexdir/pdf/pdfthread.w luatexdir/pdf/pdfxform.w \
+	luatexdir/tex/align.w luatexdir/tex/arithmetic.w \
+	luatexdir/tex/buildpage.w luatexdir/tex/commands.w \
+	luatexdir/tex/conditional.w luatexdir/tex/directions.w \
+	luatexdir/tex/dumpdata.w luatexdir/tex/equivalents.w \
+	luatexdir/tex/errors.w luatexdir/tex/expand.w \
+	luatexdir/tex/extensions.w luatexdir/tex/filename.w \
+	luatexdir/tex/inputstack.w luatexdir/tex/linebreak.w \
+	luatexdir/tex/mainbody.w luatexdir/tex/maincontrol.w \
+	luatexdir/tex/mathcodes.w luatexdir/tex/memoryword.w \
+	luatexdir/tex/mlist.w luatexdir/tex/nesting.w \
+	luatexdir/tex/packaging.w luatexdir/tex/postlinebreak.w \
+	luatexdir/tex/primitive.w luatexdir/tex/printing.w \
+	luatexdir/tex/scanning.w luatexdir/tex/stringpool.w \
+	luatexdir/tex/texdeffont.w luatexdir/tex/texfileio.w \
+	luatexdir/tex/texmath.w luatexdir/tex/texnodes.w \
+	luatexdir/tex/textcodes.w luatexdir/tex/textoken.w \
+	luatexdir/utils/avlstuff.w luatexdir/utils/managed-sa.w \
+	luatexdir/utils/utils.w luatexdir/utils/unistring.w
 nodist_libluatex_sources = dvigen.c dofont.c luafont.c mapfile.c \
-	pkin.c sfnt.c subfont.c texfont.c tfmofm.c tounicode.c \
-	tt_glyf.c tt_table.c vfovf.c vfpacket.c writecff.c writeenc.c \
+	pkin.c sfnt.c texfont.c tfmofm.c tounicode.c tt_glyf.c \
+	tt_table.c vfovf.c vfpacket.c writecff.c writeenc.c \
 	writefont.c writet1.c writet3.c writettf.c writetype0.c \
 	writetype2.c writeimg.c writejbig2.c writejpg.c writejp2.c \
 	writepng.c pdftoepdf.cc texlang.c hyphen.c hnjalloc.c \
@@ -5437,7 +5434,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-scanning.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-sfnt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-stringpool.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-subfont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-texdeffont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-texfileio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-texfont.Po@am__quote@
@@ -5533,7 +5529,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-scanning.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-sfnt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-stringpool.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-subfont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texdeffont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texfileio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-texfont.Po@am__quote@
@@ -7323,20 +7318,6 @@ libluajittex_a-sfnt.obj: sfnt.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sfnt.c' object='libluajittex_a-sfnt.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-sfnt.obj `if test -f 'sfnt.c'; then $(CYGPATH_W) 'sfnt.c'; else $(CYGPATH_W) '$(srcdir)/sfnt.c'; fi`
-
-libluajittex_a-subfont.o: subfont.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-subfont.o -MD -MP -MF $(DEPDIR)/libluajittex_a-subfont.Tpo -c -o libluajittex_a-subfont.o `test -f 'subfont.c' || echo '$(srcdir)/'`subfont.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-subfont.Tpo $(DEPDIR)/libluajittex_a-subfont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='subfont.c' object='libluajittex_a-subfont.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-subfont.o `test -f 'subfont.c' || echo '$(srcdir)/'`subfont.c
-
-libluajittex_a-subfont.obj: subfont.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-subfont.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-subfont.Tpo -c -o libluajittex_a-subfont.obj `if test -f 'subfont.c'; then $(CYGPATH_W) 'subfont.c'; else $(CYGPATH_W) '$(srcdir)/subfont.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-subfont.Tpo $(DEPDIR)/libluajittex_a-subfont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='subfont.c' object='libluajittex_a-subfont.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-subfont.obj `if test -f 'subfont.c'; then $(CYGPATH_W) 'subfont.c'; else $(CYGPATH_W) '$(srcdir)/subfont.c'; fi`
 
 libluajittex_a-texfont.o: texfont.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-texfont.o -MD -MP -MF $(DEPDIR)/libluajittex_a-texfont.Tpo -c -o libluajittex_a-texfont.o `test -f 'texfont.c' || echo '$(srcdir)/'`texfont.c
@@ -9283,20 +9264,6 @@ libluatex_a-sfnt.obj: sfnt.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sfnt.c' object='libluatex_a-sfnt.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-sfnt.obj `if test -f 'sfnt.c'; then $(CYGPATH_W) 'sfnt.c'; else $(CYGPATH_W) '$(srcdir)/sfnt.c'; fi`
-
-libluatex_a-subfont.o: subfont.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-subfont.o -MD -MP -MF $(DEPDIR)/libluatex_a-subfont.Tpo -c -o libluatex_a-subfont.o `test -f 'subfont.c' || echo '$(srcdir)/'`subfont.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-subfont.Tpo $(DEPDIR)/libluatex_a-subfont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='subfont.c' object='libluatex_a-subfont.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-subfont.o `test -f 'subfont.c' || echo '$(srcdir)/'`subfont.c
-
-libluatex_a-subfont.obj: subfont.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-subfont.obj -MD -MP -MF $(DEPDIR)/libluatex_a-subfont.Tpo -c -o libluatex_a-subfont.obj `if test -f 'subfont.c'; then $(CYGPATH_W) 'subfont.c'; else $(CYGPATH_W) '$(srcdir)/subfont.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-subfont.Tpo $(DEPDIR)/libluatex_a-subfont.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='subfont.c' object='libluatex_a-subfont.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-subfont.obj `if test -f 'subfont.c'; then $(CYGPATH_W) 'subfont.c'; else $(CYGPATH_W) '$(srcdir)/subfont.c'; fi`
 
 libluatex_a-texfont.o: texfont.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-texfont.o -MD -MP -MF $(DEPDIR)/libluatex_a-texfont.Tpo -c -o libluatex_a-texfont.o `test -f 'texfont.c' || echo '$(srcdir)/'`texfont.c
@@ -15021,8 +14988,6 @@ pkin.c: ctangle$(EXEEXT) luatexdir/font/pkin.w
 	$(luatex_font_ctangle) pkin.w
 sfnt.c: ctangle$(EXEEXT) luatexdir/font/sfnt.w
 	$(luatex_font_ctangle) sfnt.w
-subfont.c: ctangle$(EXEEXT) luatexdir/font/subfont.w
-	$(luatex_font_ctangle) subfont.w
 texfont.c: ctangle$(EXEEXT) luatexdir/font/texfont.w
 	$(luatex_font_ctangle) texfont.w
 tfmofm.c: ctangle$(EXEEXT) luatexdir/font/tfmofm.w
