@@ -153,7 +153,7 @@ static int global_create(lua_State *L) {
     p_unix un = (p_unix) lua_newuserdata(L, sizeof(t_unix));
 
     /* open serial device */
-#ifdef __MINGW32__
+#if defined(_WIN32)
     t_socket sock = open(path, O_RDWR);
 #else
     t_socket sock = open(path, O_NOCTTY|O_RDWR);
