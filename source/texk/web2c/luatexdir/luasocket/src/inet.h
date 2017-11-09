@@ -22,6 +22,10 @@
 #define LUASOCKET_INET_ATON
 #endif
 
+#if defined( __MINGW32__ ) || defined( __MINGW64__ )
+#define LUASOCKET_INET_PTON
+#endif
+
 int inet_open(lua_State *L);
 
 const char *inet_trycreate(p_socket ps, int family, int type, int protocol);
