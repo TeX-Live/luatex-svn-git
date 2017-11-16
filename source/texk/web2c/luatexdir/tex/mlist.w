@@ -3623,8 +3623,6 @@ static small_number make_left_right(pointer q, int style, scaled max_d, scaled m
         } else {
             return ord_noad_type;
         }
-    } else if (subtype(q) == no_noad_side) {
-        return open_noad_type;
     } else if (subtype(q) == left_noad_side) {
         return open_noad_type;
     } else {
