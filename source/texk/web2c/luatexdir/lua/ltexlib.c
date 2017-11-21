@@ -3289,6 +3289,13 @@ static int lua_get_synctex_line(lua_State * L)
     return 1;
 }
 
+static int lua_set_synctex_no_files(lua_State * L)
+{
+    halfword flag = lua_tointeger(L, 1);
+    synctex_set_no_files(flag);
+    return 0;
+}
+
 /* till here */
 
 void init_tex_table(lua_State * L)
@@ -3395,6 +3402,7 @@ static const struct luaL_Reg texlib[] = {
     { "get_synctex_mode", lua_get_synctex_mode },
     { "set_synctex_tag", lua_set_synctex_tag },
     { "get_synctex_tag", lua_get_synctex_tag },
+    { "set_synctex_no_files", lua_set_synctex_no_files },
     { "force_synctex_tag", lua_force_synctex_tag },
     { "force_synctex_line", lua_force_synctex_line },
     { "set_synctex_line", lua_set_synctex_line },
