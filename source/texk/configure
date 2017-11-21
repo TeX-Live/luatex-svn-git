@@ -589,8 +589,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-MAKE_SUBDIRS
 CONF_SUBDIRS
+MAKE_SUBDIRS
 WARNING_CFLAGS
 MAINT
 MAINTAINER_MODE_FALSE
@@ -4792,15 +4792,16 @@ WARNING_CFLAGS=$kpse_cv_warning_cflags
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for TeXk programs to build" >&5
 $as_echo_n "checking for TeXk programs to build... " >&6; }
-CONF_SUBDIRS=
+echo 'dbg:_KPSE_RECURSE called: list=texk, text=TeXk programs, cond=test "x$enable_Kpse_pkg" = xyes, prefix=.' >&5
 MAKE_SUBDIRS=
-if test -x $srcdir/web2c/configure && test "x$enable_web2c" = xyes; then
+CONF_SUBDIRS=
+if test -x $srcdir/web2c/configure; then
+  test "x$enable_web2c" = xyes && MAKE_SUBDIRS="$MAKE_SUBDIRS web2c"
   CONF_SUBDIRS="$CONF_SUBDIRS web2c"
-  MAKE_SUBDIRS="$MAKE_SUBDIRS web2c"
 fi
-if test -x $srcdir/texlive/configure && test "x$enable_texlive" = xyes; then
+if test -x $srcdir/texlive/configure; then
+  test "x$enable_texlive" = xyes && MAKE_SUBDIRS="$MAKE_SUBDIRS texlive"
   CONF_SUBDIRS="$CONF_SUBDIRS texlive"
-  MAKE_SUBDIRS="$MAKE_SUBDIRS texlive"
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MAKE_SUBDIRS" >&5

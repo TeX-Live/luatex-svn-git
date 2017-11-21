@@ -1,4 +1,4 @@
-$Id: README 43761 2017-04-12 17:31:37Z karl $
+$Id: README 45150 2017-08-28 06:43:57Z kakuto $
 Public domain.  Originally written 2005 by Karl Berry.
 
 Extra utilities we (optionally) compile for TeX Live.
@@ -10,7 +10,7 @@ asymptote 2.41 - checked 23mar17
   see http://tug.org/texlive/build.html#asymptote
   and tlpkg/bin/tl-update-asy
 
-autosp 2016-11-02 - checked 28feb17
+autosp 2017-07-14 - checked 26jul17
   http://ctan.org/pkg/autosp
 
 devnag - from devanagari package installed in texmf-dist.
@@ -26,7 +26,7 @@ pmx 2.7.6 - checked 09dec16
 ps2eps 1.68 - checked 10may12
   http://tm.uka.de/~bless/ps2eps
 
-t1utils 1.39 - checked 1mar15
+t1utils 1.41 - checked 28aug17
   http://www.lcdf.org/type/
 
 texdoctk - reluctantly maintained here in TL
