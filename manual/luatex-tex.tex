@@ -1401,18 +1401,23 @@ mind that the library used in editors assumes a certain logic and is geared for
 plain and \LATEX, so after a decade users expect a certain behaviour.
 
 \starttabulate[|l|p|]
-\NC \type{set_synctex_mode}   \NC \type {0} is the default and used normal synctex
-                                  logic, \type {1} uses the values set by the next
-                                  helpers while \type {2} also sets these for glyph
-                                  nodes; \type{3} sets glyphs and glue and \type {4}
-                                  sets only glyphs \NC \NR
-\NC \type{set_synctex_tag}    \NC set the current tag (file) value (obeys save stack) \NC \NR
-\NC \type{set_synctex_line}   \NC set the current line value (obeys save stack) \NC \NR
-\NC \type{force_synctex_tag}  \NC overload the tag (file) value (\type {0} resets) \NC \NR
-\NC \type{force_synctex_line} \NC overload the line value  (\type {0} resets) \NC \NR
-\NC \type{get_synctex_tag}    \NC get the currently set value of tag (file) \NC \NR
-\NC \type{get_synctex_line}   \NC get the currently set value of line \NC \NR
+\NC \type{set_synctex_mode}     \NC \type {0} is the default and used normal synctex
+                                    logic, \type {1} uses the values set by the next
+                                    helpers while \type {2} also sets these for glyph
+                                    nodes; \type{3} sets glyphs and glue and \type {4}
+                                    sets only glyphs \NC \NR
+\NC \type{set_synctex_tag}      \NC set the current tag (file) value (obeys save stack) \NC \NR
+\NC \type{set_synctex_line}     \NC set the current line value (obeys save stack) \NC \NR
+\NC \type{force_synctex_tag}    \NC overload the tag (file) value (\type {0} resets) \NC \NR
+\NC \type{force_synctex_line}   \NC overload the line value  (\type {0} resets) \NC \NR
+\NC \type{get_synctex_tag}      \NC get the currently set value of tag (file) \NC \NR
+\NC \type{get_synctex_line}     \NC get the currently set value of line \NC \NR
+\NC \type{set_synctex_no_files} \NC disable synctex file logging \NC \NR
 \stoptabulate
+
+The last one is somewhat special. Due to the way files are registered in \SYNCTEX\ we need
+to explicitly disable that feature if we provide our own alternative if we want to avoid
+that overhead. Passing a value of 1 disables registering.
 
 This mechanism is somewhat experimental.
 
