@@ -1,3 +1,45 @@
+2017-11-18  Karl Berry  <karl@tug.org>
+
+	* db.c (elt_in_db): protect against either argument being NULL or
+	empty.  From Doug McKenna, personal mail, 17nov17.
+
+2017-11-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* tex-file.c: Again use a custom kpathsea_getlongpath()
+	instead of a standard API function GetLongPathName(), since
+	the latter sometimes does not work as desired (W32 only).
+
+2017-11-09  Karl Berry  <karl@freefriends.org>
+
+	* db.c (kpathsea_db_search_list): remove redundant test of `found'.
+        From Doug McKenna, personal mail, 7nov17.
+
+2017-11-03  Karl Berry  <karl@freefriends.org>
+
+	* default.h: document that NULL or empty input path returns the
+	default string.
+	* kdefault.c (kpathsea_expand_default): check for empty input path.
+        From Doug McKenna, personal mail, 2nov17.	
+
+	* cnf.c (do_line): do not move past a nul byte on erroneous input
+	(with a . but no program name).
+	* hash.c: doc fix.
+        From Doug McKenna, personal mail, 31oct17.	
+
+2017-10-29  Karl Berry  <karl@freefriends.org>
+
+	* several files: missed copyright 2017 updates.
+
+	* elt-dirs.c (do_subdir): assert must include elt_length>0
+	to guarantee the assert of elt[elt_length-1] is valid.
+        From Doug McKenna, personal mail, 29oct17.
+
+2017-10-25  Karl Berry  <karl@tug.org>
+
+	* expand.c (brace_expand): do not look past the terminating
+	null with bad input like "a{\0whatever".
+	From Doug McKenna, personal mail, 23oct17.
+
 2017-09-22  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	* tex-file.c: Use a standard API function GetLongPathName()
