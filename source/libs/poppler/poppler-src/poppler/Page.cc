@@ -27,7 +27,7 @@
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013, 2014 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Jason Crain <jason@aquaticape.us>
-// Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2015 Philipp Reinkemeier <philipp.reinkemeier@offis.de>
 //
 // To see a description of the changes please see the Changelog file that
@@ -61,7 +61,7 @@
 #include "Catalog.h"
 #include "Form.h"
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
 #  define pageLocker()   MutexLocker locker(&mutex)
 #else
 #  define pageLocker()
@@ -249,7 +249,7 @@ GBool PageAttrs::readBox(Dict *dict, const char *key, PDFRectangle *box) {
 //------------------------------------------------------------------------
 
 Page::Page(PDFDoc *docA, int numA, Object *pageDict, Ref pageRefA, PageAttrs *attrsA, Form *form) {
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gInitMutex(&mutex);
 #endif
   ok = gTrue;
@@ -328,7 +328,7 @@ Page::Page(PDFDoc *docA, int numA, Object *pageDict, Ref pageRefA, PageAttrs *at
 Page::~Page() {
   delete attrs;
   delete annots;
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gDestroyMutex(&mutex);
 #endif
 }

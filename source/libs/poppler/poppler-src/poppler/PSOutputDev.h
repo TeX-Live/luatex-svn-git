@@ -15,14 +15,14 @@
 //
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2006-2008, 2012, 2013, 2015 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006-2008, 2012, 2013, 2015, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2007 Brad Hards <bradh@kde.org>
 // Copyright (C) 2009-2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 Till Kamppeter <till.kamppeter@gmail.com>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009, 2011, 2015-2017 William Bader <williambader@hotmail.com>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
-// Copyright (C) 2011, 2014 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2011, 2014, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 //
 // To see a description of the changes please see the Changelog file that
@@ -275,7 +275,7 @@ public:
 			       Stream *maskStr, int maskWidth, int maskHeight,
 			       GBool maskInvert, GBool maskInterpolate) override;
 
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
   //----- OPI functions
   void opiBegin(GfxState *state, Dict *opiDict) override;
   void opiEnd(GfxState *state, Dict *opiDict) override;
@@ -309,6 +309,7 @@ public:
     { overlayCbk = cbk; overlayCbkData = data; }
   void setDisplayText(GBool display) { displayText = display; }
 
+  void setPSCenter(GBool center) { psCenter = center; }
   void setRasterAntialias(GBool a) { rasterAntialias = a; }
   void setRasterResolution(double r) { rasterResolution = r; }
   void setRasterMono(GBool b) { rasterMono = b; }
@@ -323,7 +324,7 @@ public:
   GBool getPassLevel1CustomColor() const { return passLevel1CustomColor; }
   GBool getEnableLZW() const { return enableLZW; };
   GBool getEnableFlate() const
-#if ENABLE_ZLIB
+#ifdef ENABLE_ZLIB
     { return enableFlate; }
 #else
     { return gFalse; }
@@ -414,7 +415,7 @@ private:
 			    int x0, int y0, int x1, int y1,
 			    double xStep, double yStep);
 
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
   void opiBegin20(GfxState *state, Dict *dict);
   void opiBegin13(GfxState *state, Dict *dict);
   void opiTransform(GfxState *state, double x0, double y0,
@@ -527,6 +528,7 @@ private:
   GBool t3NeedsRestore;		// set if a 'q' operator was issued
   GBool forceRasterize;		// forces the page to be rasterized into a image before printing
   GBool displayText;		// displayText
+  GBool psCenter;		// center pages on the paper
   GBool rasterAntialias;	// antialias on rasterize
   GBool uncompressPreloadedImages;
   double rasterResolution;	// PostScript rasterization resolution (dpi)
@@ -551,7 +553,7 @@ private:
   GBool enableLZW;		// enable LZW compression
   GBool enableFlate;		// enable Flate compression
 
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
   int opi13Nest;		// nesting level of OPI 1.3 objects
   int opi20Nest;		// nesting level of OPI 2.0 objects
 #endif

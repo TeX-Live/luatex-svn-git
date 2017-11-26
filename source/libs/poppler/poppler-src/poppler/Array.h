@@ -17,6 +17,7 @@
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2017 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -79,7 +80,7 @@ private:
   int size;			// size of <elems> array
   int length;			// number of elements in array
   int ref;			// reference count
-#if MULTITHREADED
+#ifdef MULTITHREADED
   mutable GooMutex mutex;
 #endif
 };

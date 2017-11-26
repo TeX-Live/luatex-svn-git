@@ -21,6 +21,7 @@
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2014 Scott West <scott.gregory.west@gmail.com>
+// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -41,7 +42,7 @@
 #include "XRef.h"
 #include "Dict.h"
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
 #  define dictLocker()   MutexLocker locker(&mutex)
 #else
 #  define dictLocker()
@@ -81,7 +82,7 @@ Dict::Dict(XRef *xrefA) {
   size = length = 0;
   ref = 1;
   sorted = gFalse;
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gInitMutex(&mutex);
 #endif
 }
@@ -90,7 +91,7 @@ Dict::Dict(Dict* dictA) {
   xref = dictA->xref;
   size = length = dictA->length;
   ref = 1;
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gInitMutex(&mutex);
 #endif
 
@@ -124,7 +125,7 @@ Dict::~Dict() {
     entries[i].val.free();
   }
   gfree(entries);
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gDestroyMutex(&mutex);
 #endif
 }

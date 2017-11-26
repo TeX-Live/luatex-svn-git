@@ -19,7 +19,7 @@
 // Copyright (C) 2009, 2011, 2012 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2013 Adam Reichold <adamreichold@myopera.com>
-// Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2014 Bogdan Cristea <cristeab@gmail.com>
 // Copyright (C) 2014 Peter Breitenlohner <peb@mppmu.mpg.de>
 // Copyright (C) 2017 Christoph Cullmann <cullmann@kde.org>
@@ -53,21 +53,21 @@ extern "C" {
 #else
 #  include <unistd.h>
 #  include <sys/types.h>
-#  ifdef VMS
+#  if defined(VMS)
 #    include "vms_dirent.h"
-#  elif HAVE_DIRENT_H
+#  elif defined(HAVE_DIRENT_H)
 #    include <dirent.h>
 #    define NAMLEN(d) strlen((d)->d_name)
 #  else
 #    define dirent direct
 #    define NAMLEN(d) (d)->d_namlen
-#    if HAVE_SYS_NDIR_H
+#    ifdef HAVE_SYS_NDIR_H
 #      include <sys/ndir.h>
 #    endif
-#    if HAVE_SYS_DIR_H
+#    ifdef HAVE_SYS_DIR_H
 #      include <sys/dir.h>
 #    endif
-#    if HAVE_NDIR_H
+#    ifdef HAVE_NDIR_H
 #      include <ndir.h>
 #    endif
 #  endif
@@ -105,7 +105,7 @@ extern time_t getModTime(char *fileName);
 // should be "w" or "wb".  Returns true on success.
 extern GBool openTempFile(GooString **name, FILE **f, const char *mode);
 
-#ifdef WIN32
+#ifdef _WIN32
 // Convert a file name from Latin-1 to UTF-8.
 extern GooString *fileNameToUTF8(char *path);
 

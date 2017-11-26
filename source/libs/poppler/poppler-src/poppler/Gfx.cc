@@ -133,10 +133,6 @@
 // Operator table
 //------------------------------------------------------------------------
 
-#ifdef _MSC_VER // this works around a bug in the VC7 compiler
-#  pragma optimize("",off)
-#endif
-
 Operator Gfx::opTab[] = {
   {"\"",  3, {tchkNum,    tchkNum,    tchkString},
           &Gfx::opMoveSetShowText},
@@ -305,10 +301,6 @@ Operator Gfx::opTab[] = {
   {"y",   4, {tchkNum,    tchkNum,    tchkNum,    tchkNum},
           &Gfx::opCurveTo2},
 };
-
-#ifdef _MSC_VER // this works around a bug in the VC7 compiler
-#  pragma optimize("",on)
-#endif
 
 #define numOps (sizeof(opTab) / sizeof(Operator))
 
@@ -4160,7 +4152,7 @@ void Gfx::opXObject(Object args[], int numArgs) {
     return;
   }
 
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
   Object opiDict = obj1.streamGetDict()->lookup("OPI");
   if (opiDict.isDict()) {
     out->opiBegin(state, opiDict.getDict());
@@ -4203,7 +4195,7 @@ void Gfx::opXObject(Object args[], int numArgs) {
   } else {
     error(errSyntaxError, getPos(), "XObject subtype is missing or wrong type");
   }
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
   if (opiDict.isDict()) {
     out->opiEnd(state, opiDict.getDict());
   }

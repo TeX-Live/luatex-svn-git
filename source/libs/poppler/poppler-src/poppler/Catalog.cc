@@ -28,7 +28,7 @@
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Julien Nabet <serval2412@yahoo.fr>
 // Copyright (C) 2013 Adrian Perez de Castro <aperez@igalia.com>
-// Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 José Aliste <jaliste@src.gnome.org>
 // Copyright (C) 2014 Ed Porras <ed@moto-research.com>
 // Copyright (C) 2015 Even Rouault <even.rouault@spatialys.com>
@@ -64,7 +64,7 @@
 #include "FileSpec.h"
 #include "StructTreeRoot.h"
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
 #  define catalogLocker()   MutexLocker locker(&mutex)
 #else
 #  define catalogLocker()
@@ -74,7 +74,7 @@
 //------------------------------------------------------------------------
 
 Catalog::Catalog(PDFDoc *docA) {
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gInitMutex(&mutex);
 #endif
   ok = gTrue;
@@ -169,7 +169,7 @@ Catalog::~Catalog() {
   delete optContent;
   delete viewerPrefs;
   delete structTreeRoot;
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gDestroyMutex(&mutex);
 #endif
 }
