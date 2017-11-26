@@ -25,7 +25,7 @@
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009, 2011, 2012, 2014-2017 William Bader <williambader@hotmail.com>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
-// Copyright (C) 2009-2011, 2013-2015 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2009-2011, 2013-2015, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012, 2014 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
 // Copyright (C) 2014 Till Kamppeter <till.kamppeter@gmail.com>
@@ -67,10 +67,10 @@
 #include "Catalog.h"
 #include "Page.h"
 #include "Stream.h"
-#if ENABLE_ZLIB
+#ifdef ENABLE_ZLIB
 #  include "FlateEncoder.h"
 #endif
-#if ENABLE_ZLIB_UNCOMPRESS
+#ifdef ENABLE_ZLIB_UNCOMPRESS
 #  include "FlateStream.h"
 #endif
 #include "Annot.h"
@@ -78,7 +78,7 @@
 #include "PreScanOutputDev.h"
 #include "FileSpec.h"
 #include "CharCodeToUnicode.h"
-#if HAVE_SPLASH
+#ifdef HAVE_SPLASH
 #  include "splash/Splash.h"
 #  include "splash/SplashBitmap.h"
 #  include "SplashOutputDev.h"
@@ -1259,6 +1259,7 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
   rasterMono = gFalse;
   rasterResolution = 300;
   uncompressPreloadedImages = gFalse;
+  psCenter = gTrue;
   rasterAntialias = gFalse;
   displayText = gTrue;
   ok = gTrue;
@@ -1287,7 +1288,7 @@ void PSOutputDev::init(PSOutputFunc outputFuncA, void *outputStreamA,
   inUncoloredPattern = gFalse;
   t3FillColorOnly = gFalse;
 
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
   // initialize OPI nesting levels
   opi13Nest = 0;
   opi20Nest = 0;
@@ -1723,7 +1724,7 @@ void PSOutputDev::writeDocSetup(PDFDoc *doc, Catalog *catalog,
 	writePSFmt("{0:d} {1:d} pdfSetupPaper\n", paperWidth, paperHeight);
       }
     }
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
     if (generateOPI) {
       writePS("/opiMatrix matrix currentmatrix def\n");
     }
@@ -2985,7 +2986,7 @@ void PSOutputDev::setupImage(Ref id, Stream *str, GBool mask) {
   if (useCompressed) {
     str = str->getUndecodedStream();
   }
-#if ENABLE_ZLIB
+#ifdef ENABLE_ZLIB
   if (useFlate) {
     str = new FlateEncoder(str);
   } else
@@ -3220,7 +3221,7 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
 				  void *annotDisplayDecideCbkData) {
   PreScanOutputDev *scan;
   GBool rasterize;
-#if HAVE_SPLASH
+#ifdef HAVE_SPLASH
   GBool useFlate, useLZW;
   SplashOutputDev *splashOut;
   SplashColor paperColor;
@@ -3258,7 +3259,7 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
     return gTrue;
   }
 
-#if HAVE_SPLASH
+#ifdef HAVE_SPLASH
   // get the rasterization parameters
   useFlate = getEnableFlate() && level >= psLevel3;
   useLZW = getEnableLZW();
@@ -3281,7 +3282,7 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
     paperColor[0] = 0xff;
     splashOut = new SplashOutputDev(splashModeMono8, 1, gFalse,
 				    paperColor, gFalse);
-#if SPLASH_CMYK
+#ifdef SPLASH_CMYK
   } else if (level == psLevel1Sep || level == psLevel2Sep ||
 	     level == psLevel3Sep || globalParams->getOverprintPreview()) {
     numComps = 4;
@@ -3575,7 +3576,7 @@ GBool PSOutputDev::checkPageSlice(Page *page, double /*hDPI*/, double /*vDPI*/,
         isGray = gFalse;
       }
       str0->reset();
-#if ENABLE_ZLIB
+#ifdef ENABLE_ZLIB
       if (useFlate) {
         if (isGray && numComps == 4) {
 	  str = new FlateEncoder(new CMYKGrayEncoder(str0));
@@ -3834,7 +3835,7 @@ void PSOutputDev::startPage(int pageNum, GfxState *state, XRef *xrefA) {
     if (tx0 >= 0 && ty0 >= 0) {
       tx += (rotate == 0 || rotate == 180) ? tx0 : ty0;
       ty += (rotate == 0 || rotate == 180) ? ty0 : -tx0;
-    } else if (globalParams->getPSCenter()) {
+    } else if (psCenter) {
       if (clipLLX0 < clipURX0 && clipLLY0 < clipURY0) {
 	tx += (imgWidth2 - xScale * (clipURX0 - clipLLX0)) / 2;
 	ty += (imgHeight2 - yScale * (clipURY0 - clipLLY0)) / 2;
@@ -6067,7 +6068,7 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
 
     // end of image dictionary
     writePS(">>\n");
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
     if (opi13Nest) {
       if (inlineImg) {
 	// this can't happen -- OPI dictionaries are in XObjects
@@ -6120,7 +6121,7 @@ void PSOutputDev::doImageL2(Object *ref, GfxImageColorMap *colorMap,
     // add newline and trailer to the end
     writePSChar('\n');
     writePS("%-EOD-\n");
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
     if (opi13Nest) {
       writePS("%%EndData\n");
     }
@@ -6217,7 +6218,7 @@ void PSOutputDev::doImageL3(Object *ref, GfxImageColorMap *colorMap,
       if (maskUseCompressed) {
 	maskStr = maskStr->getUndecodedStream();
       }
-#if ENABLE_ZLIB
+#ifdef ENABLE_ZLIB
       if (maskUseFlate) {
 	maskStr = new FlateEncoder(maskStr);
       } else
@@ -6266,7 +6267,7 @@ void PSOutputDev::doImageL3(Object *ref, GfxImageColorMap *colorMap,
     if (inlineImg) {
       // create an array
       str2 = new FixedLengthEncoder(str, len);
-#if ENABLE_ZLIB
+#ifdef ENABLE_ZLIB
       if (getEnableFlate()) {
 	str2 = new FlateEncoder(str2);
       } else
@@ -6513,7 +6514,7 @@ void PSOutputDev::doImageL3(Object *ref, GfxImageColorMap *colorMap,
     }
 
     // add FlateEncode/LZWEncode/RunLengthEncode and ASCIIHex/85 encode filters
-#if ENABLE_ZLIB
+#ifdef ENABLE_ZLIB
     if (useFlate) {
       str = new FlateEncoder(str);
     } else
@@ -6828,7 +6829,7 @@ void PSOutputDev::dumpColorSpaceL2(GfxColorSpace *colorSpace,
   }
 }
 
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
 void PSOutputDev::opiBegin(GfxState *state, Dict *opiDict) {
   if (generateOPI) {
     Object dict = opiDict->lookup("2.0");

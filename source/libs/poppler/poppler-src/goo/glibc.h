@@ -6,7 +6,7 @@
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright (C) 2016 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2016, 2017 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
 
@@ -29,6 +29,10 @@ struct tm *localtime_r(const time_t *timep, struct tm *result);
 
 #ifndef HAVE_TIMEGM
 time_t timegm(struct tm *tm);
+#endif
+
+#ifndef HAVE_STRTOK_R
+char * strtok_r (char *s, const char *delim, char **save_ptr);
 #endif
 
 }

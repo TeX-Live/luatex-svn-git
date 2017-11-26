@@ -28,7 +28,7 @@
 // Copyright (C) 2010 Philip Lorenz <lorenzph+freedesktop@gmail.com>
 // Copyright (C) 2011-2016 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
-// Copyright (C) 2013, 2014 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2014, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Adam Reichold <adamreichold@myopera.com>
 // Copyright (C) 2014 Bogdan Cristea <cristeab@gmail.com>
 // Copyright (C) 2015 Li Junling <lijunling@sina.com>
@@ -51,6 +51,7 @@
 #include <locale.h>
 #include <stdio.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
@@ -80,7 +81,21 @@
 #include "PDFDoc.h"
 #include "Hints.h"
 
-#if MULTITHREADED
+/* <limits.h> and/or the compiler may or may not define these.  */
+/* Minimum and maximum values a `signed long long int' can hold.  */
+#ifndef LLONG_MAX
+# define LLONG_MAX     9223372036854775807LL
+#endif
+#ifndef LLONG_MIN
+# define LLONG_MIN     (-LLONG_MAX - 1LL)
+#endif
+
+/* Maximum value an `unsigned long long int' can hold.  (Minimum is 0.)  */
+#ifndef ULLONG_MAX
+# define ULLONG_MAX    18446744073709551615ULL
+#endif
+
+#ifdef MULTITHREADED
 #  define pdfdocLocker()   MutexLocker locker(&mutex)
 #else
 #  define pdfdocLocker()
@@ -105,7 +120,7 @@
 
 void PDFDoc::init()
 {
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gInitMutex(&mutex);
 #endif
   ok = gFalse;
@@ -341,7 +356,7 @@ PDFDoc::~PDFDoc() {
     gfree(fileNameU);
   }
 #endif
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gDestroyMutex(&mutex);
 #endif
 }

@@ -22,7 +22,7 @@
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2012, 2013, 2016 Thomas Freitag <Thomas.Freitag@kabelmail.de>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
-// Copyright (C) 2013, 2014 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2014, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Pino Toscano <pino@kde.org>
 // Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
 //
@@ -32,6 +32,7 @@
 //========================================================================
 
 #include <config.h>
+#include "poppler-config.h"
 
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation
@@ -71,7 +72,7 @@
 #define permHighResPrint  (1<<11) // bit 12
 #define defPermFlags 0xfffc
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
 #  define xrefLocker()   MutexLocker locker(&mutex)
 #  define xrefCondLocker(X)  MutexLocker locker(&mutex, (X))
 #else
@@ -261,7 +262,7 @@ Object ObjectStream::getObject(int objIdx, int objNum) {
 //------------------------------------------------------------------------
 
 void XRef::init() {
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gInitMutex(&mutex);
 #endif
   ok = gTrue;
@@ -384,7 +385,7 @@ XRef::~XRef() {
   if (strOwner) {
     delete str;
   }
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gDestroyMutex(&mutex);
 #endif
 }
@@ -1221,13 +1222,13 @@ Object XRef::fetch(int num, int gen, int recursion) {
 }
 
 void XRef::lock() {
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gLockMutex(&mutex);
 #endif
 }
 
 void XRef::unlock() {
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gUnlockMutex(&mutex);
 #endif
 }

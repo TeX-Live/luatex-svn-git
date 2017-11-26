@@ -23,7 +23,7 @@
 // Copyright (C) 2009, 2011, 2012, 2014, 2015 William Bader <williambader@hotmail.com>
 // Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2011 Pino Toscano <pino@kde.org>
-// Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Jason Crain <jason@aquaticape.us>
 //
@@ -45,7 +45,7 @@
 #include "goo/gtypes.h"
 #include "CharTypes.h"
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
 #include "goo/GooMutex.h"
 #endif
 
@@ -100,15 +100,6 @@ enum EndOfLineKind {
 
 //------------------------------------------------------------------------
 
-enum ScreenType {
-  screenUnset,
-  screenDispersed,
-  screenClustered,
-  screenStochasticClustered
-};
-
-//------------------------------------------------------------------------
-
 class GlobalParams {
 public:
 
@@ -142,24 +133,12 @@ public:
 		              GooString *base14Name = NULL);
   GBool getPSExpandSmaller();
   GBool getPSShrinkLarger();
-  GBool getPSCenter();
   PSLevel getPSLevel();
   GooString *getTextEncodingName();
   EndOfLineKind getTextEOL();
   GBool getTextPageBreaks();
-  GBool getTextKeepTinyChars();
   GBool getEnableFreeType();
-  GBool getStrokeAdjust();
-  ScreenType getScreenType();
-  int getScreenSize();
-  int getScreenDotRadius();
-  double getScreenGamma();
-  double getScreenBlackThreshold();
-  double getScreenWhiteThreshold();
-  double getMinLineWidth();
   GBool getOverprintPreview() { return overprintPreview; }
-  GBool getMapNumericCharNames();
-  GBool getMapUnknownCharNames();
   GBool getPrintCommands();
   GBool getProfileCommands();
   GBool getErrQuiet();
@@ -179,25 +158,12 @@ public:
   void addFontFile(GooString *fontName, GooString *path);
   void setPSExpandSmaller(GBool expand);
   void setPSShrinkLarger(GBool shrink);
-  void setPSCenter(GBool center);
   void setPSLevel(PSLevel level);
   void setTextEncoding(char *encodingName);
   GBool setTextEOL(char *s);
   void setTextPageBreaks(GBool pageBreaks);
-  void setTextKeepTinyChars(GBool keep);
   GBool setEnableFreeType(char *s);
-  GBool setDisableFreeTypeHinting(char *s);
-  void setStrokeAdjust(GBool strokeAdjust);
-  void setScreenType(ScreenType st);
-  void setScreenSize(int size);
-  void setScreenDotRadius(int radius);
-  void setScreenGamma(double gamma);
-  void setScreenBlackThreshold(double blackThreshold);
-  void setScreenWhiteThreshold(double whiteThreshold);
-  void setMinLineWidth(double minLineWidth);
   void setOverprintPreview(GBool overprintPreviewA);
-  void setMapNumericCharNames(GBool map);
-  void setMapUnknownCharNames(GBool map);
   void setPrintCommands(GBool printCommandsA);
   void setProfileCommands(GBool profileCommandsA);
   void setErrQuiet(GBool errQuietA);
@@ -251,27 +217,14 @@ private:
   SysFontList *sysFonts;	// system fonts
   GBool psExpandSmaller;	// expand smaller pages to fill paper
   GBool psShrinkLarger;		// shrink larger pages to fit paper
-  GBool psCenter;		// center pages on the paper
   PSLevel psLevel;		// PostScript level to generate
   GooString *textEncoding;	// encoding (unicodeMap) to use for text
 				//   output
   EndOfLineKind textEOL;	// type of EOL marker to use for text
 				//   output
   GBool textPageBreaks;		// insert end-of-page markers?
-  GBool textKeepTinyChars;	// keep all characters in text output
   GBool enableFreeType;		// FreeType enable flag
-  GBool disableFreeTypeHinting;	// FreeType disable hinting flag
-  GBool strokeAdjust;		// stroke adjustment enable flag
-  ScreenType screenType;	// halftone screen type
-  int screenSize;		// screen matrix size
-  int screenDotRadius;		// screen dot radius
-  double screenGamma;		// screen gamma correction
-  double screenBlackThreshold;	// screen black clamping threshold
-  double screenWhiteThreshold;	// screen white clamping threshold
-  double minLineWidth;		// minimum line width
   GBool overprintPreview;	// enable overprint preview
-  GBool mapNumericCharNames;	// map numeric char names (from font subsets)?
-  GBool mapUnknownCharNames;	// map unknown char names?
   GBool printCommands;		// print the drawing commands
   GBool profileCommands;	// profile the drawing commands
   GBool errQuiet;		// suppress error messages?
@@ -287,7 +240,7 @@ private:
 				//   [XpdfSecurityHandler]
 #endif
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
   GooMutex mutex;
   GooMutex unicodeMapCacheMutex;
   GooMutex cMapCacheMutex;

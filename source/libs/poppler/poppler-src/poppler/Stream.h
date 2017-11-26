@@ -238,7 +238,7 @@ private:
   Stream *makeFilter(char *name, Stream *str, Object *params, int recursion = 0, Dict *dict = nullptr);
 
   int ref;			// reference count
-#if MULTITHREADED
+#ifdef MULTITHREADED
   GooMutex mutex;
 #endif
 };

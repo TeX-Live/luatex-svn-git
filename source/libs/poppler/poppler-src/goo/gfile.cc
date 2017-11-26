@@ -22,7 +22,7 @@
 // Copyright (C) 2009, 2012, 2014 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
 // Copyright (C) 2013 Adam Reichold <adamreichold@myopera.com>
-// Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Peter Breitenlohner <peb@mppmu.mpg.de>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2017 Christoph Cullmann <cullmann@kde.org>
@@ -399,7 +399,7 @@ GBool openTempFile(GooString **name, FILE **f, const char *mode) {
   char *s;
   int fd;
 
-#if HAVE_MKSTEMP
+#ifdef HAVE_MKSTEMP
   if ((s = getenv("TMPDIR"))) {
     *name = new GooString(s);
   } else {
@@ -423,7 +423,7 @@ GBool openTempFile(GooString **name, FILE **f, const char *mode) {
 #endif
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 GooString *fileNameToUTF8(char *path) {
   GooString *s;
   char *p;
@@ -462,7 +462,7 @@ GooString *fileNameToUTF8(wchar_t *path) {
 #endif
 
 FILE *openFile(const char *path, const char *mode) {
-#ifdef WIN32
+#ifdef _WIN32
   OSVERSIONINFO version;
   wchar_t wPath[_MAX_PATH + 1];
   char nPath[_MAX_PATH + 1];
@@ -554,13 +554,13 @@ char *getLine(char *buf, int size, FILE *f) {
 }
 
 int Gfseek(FILE *f, Goffset offset, int whence) {
-#if HAVE_FSEEKO
+#if defined(HAVE_FSEEKO)
   return fseeko(f, offset, whence);
-#elif HAVE_FSEEK64
+#elif defined(HAVE_FSEEK64)
   return fseek64(f, offset, whence);
 #elif defined(__MINGW32__)
   return fseeko64(f, offset, whence);
-#elif _WIN32
+#elif defined(_WIN32)
   return _fseeki64(f, offset, whence);
 #else
   return fseek(f, offset, whence);
@@ -568,13 +568,13 @@ int Gfseek(FILE *f, Goffset offset, int whence) {
 }
 
 Goffset Gftell(FILE *f) {
-#if HAVE_FSEEKO
+#if defined(HAVE_FSEEKO)
   return ftello(f);
-#elif HAVE_FSEEK64
+#elif defined(HAVE_FSEEK64)
   return ftell64(f);
 #elif defined(__MINGW32__)
   return ftello64(f);
-#elif _WIN32
+#elif defined(_WIN32)
   return _ftelli64(f);
 #else
   return ftell(f);
@@ -582,11 +582,11 @@ Goffset Gftell(FILE *f) {
 }
 
 Goffset GoffsetMax() {
-#if HAVE_FSEEKO
+#if defined(HAVE_FSEEKO)
   return (std::numeric_limits<off_t>::max)();
-#elif HAVE_FSEEK64 || defined(__MINGW32__)
+#elif defined(HAVE_FSEEK64) || defined(__MINGW32__)
   return (std::numeric_limits<off64_t>::max)();
-#elif _WIN32
+#elif defined(_WIN32)
   return (std::numeric_limits<__int64>::max)();
 #else
   return (std::numeric_limits<long>::max)();

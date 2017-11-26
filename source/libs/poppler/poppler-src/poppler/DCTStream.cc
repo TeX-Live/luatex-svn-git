@@ -11,6 +11,7 @@
 // Copyright 2011 Daiki Ueno <ueno@unixuser.org>
 // Copyright 2011 Tomas Hoger <thoger@redhat.com>
 // Copyright 2012, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright 2017 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
 
@@ -228,8 +229,10 @@ int DCTStream::getChar() {
 }
 
 int DCTStream::getChars(int nChars, Guchar *buffer) {
-  int c;
-  for (int i = 0; i < nChars; ++i) {
+  // Use volatile to prevent the compiler optimizing
+  // variables into registers. See setjmp man page.
+  volatile int i, c;
+  for (i = 0; i < nChars; ++i) {
     DO_GET_CHAR
     if (likely(c != EOF)) buffer[i] = c;
     else return i;

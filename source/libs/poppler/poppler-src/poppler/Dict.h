@@ -19,6 +19,7 @@
 // Copyright (C) 2010, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Paweł Wiejacha <pawel.wiejacha@gmail.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -105,7 +106,7 @@ private:
   int size;			// size of <entries> array
   int length;			// number of entries in dictionary
   int ref;			// reference count
-#if MULTITHREADED
+#ifdef MULTITHREADED
   mutable GooMutex mutex;
 #endif
 

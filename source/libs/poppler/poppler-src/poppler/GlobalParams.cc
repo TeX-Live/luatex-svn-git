@@ -31,7 +31,7 @@
 // Copyright (C) 2011 Pino Toscano <pino@kde.org>
 // Copyright (C) 2011 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2012 Yi Yang <ahyangyi@gmail.com>
-// Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2012 Peter Breitenlohner <peb@mppmu.mpg.de>
 // Copyright (C) 2013, 2014 Jason Crain <jason@aquaticape.us>
@@ -78,7 +78,7 @@
 #include "GlobalParams.h"
 #include "GfxFont.h"
 
-#if WITH_FONTCONFIGURATION_FONTCONFIG
+#ifdef WITH_FONTCONFIGURATION_FONTCONFIG
 #include <fontconfig/fontconfig.h>
 #endif
 
@@ -88,7 +88,7 @@
 #  include <strings.h>
 #endif
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
 #  define lockGlobalParams            gLockMutex(&mutex)
 #  define lockUnicodeMapCache         gLockMutex(&unicodeMapCacheMutex)
 #  define lockCMapCache               gLockMutex(&cMapCacheMutex)
@@ -127,27 +127,32 @@ extern XpdfPluginVecTable xpdfPluginVecTable;
 
 GlobalParams *globalParams = NULL;
 
-#if ENABLE_RELOCATABLE && defined(_WIN32)
+#if defined(ENABLE_RELOCATABLE) && defined(_WIN32)
 
 /* search for data relative to where we are installed */
 
 static HMODULE hmodule;
 
 extern "C" {
-BOOL WINAPI
-DllMain (HINSTANCE hinstDLL,
-	 DWORD     fdwReason,
-	 LPVOID    lpvReserved)
-{
-  switch (fdwReason)
-    {
-    case DLL_PROCESS_ATTACH:
-      hmodule = hinstDLL;
-      break;
+  /* Provide declaration to squelch -Wmissing-declarations warning */
+  BOOL WINAPI
+  DllMain (HINSTANCE hinstDLL,
+	   DWORD     fdwReason,
+	   LPVOID    lpvReserved);
+
+  BOOL WINAPI
+  DllMain (HINSTANCE hinstDLL,
+	   DWORD     fdwReason,
+	   LPVOID    lpvReserved)
+  {
+    switch (fdwReason) {
+      case DLL_PROCESS_ATTACH:
+	hmodule = hinstDLL;
+	break;
     }
 
-  return TRUE;
-}
+    return TRUE;
+  }
 }
 
 static const char *
@@ -253,7 +258,7 @@ public:
   ~SysFontList();
   SysFontInfo *find(GooString *name, GBool isFixedWidth, GBool exact);
 
-#ifdef WIN32
+#ifdef _WIN32
   void scanWindowsFonts(GooString *winFontDir);
 #endif
 #ifdef WITH_FONTCONFIGURATION_FONTCONFIG
@@ -261,7 +266,7 @@ public:
 #endif
 private:
 
-#ifdef WIN32
+#ifdef _WIN32
   SysFontInfo *makeWindowsFont(char *name, int fontNum,
 			       char *path);
 #endif
@@ -540,7 +545,7 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   UnicodeMap *map;
   int i;
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gInitMutex(&mutex);
   gInitMutex(&unicodeMapCacheMutex);
   gInitMutex(&cMapCacheMutex);
@@ -572,7 +577,6 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   sysFonts = new SysFontList();
   psExpandSmaller = gFalse;
   psShrinkLarger = gTrue;
-  psCenter = gTrue;
   psLevel = psLevel2;
   textEncoding = new GooString("UTF-8");
 #if defined(_WIN32)
@@ -583,19 +587,8 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   textEOL = eolUnix;
 #endif
   textPageBreaks = gTrue;
-  textKeepTinyChars = gFalse;
   enableFreeType = gTrue;
-  strokeAdjust = gTrue;
-  screenType = screenUnset;
-  screenSize = -1;
-  screenDotRadius = -1;
-  screenGamma = 1.0;
-  screenBlackThreshold = 0.0;
-  screenWhiteThreshold = 1.0;
-  minLineWidth = 0.0;
   overprintPreview = gFalse;
-  mapNumericCharNames = gTrue;
-  mapUnknownCharNames = gTrue;
   printCommands = gFalse;
   profileCommands = gFalse;
   errQuiet = gFalse;
@@ -798,7 +791,7 @@ GlobalParams::~GlobalParams() {
   deleteGooList(plugins, Plugin);
 #endif
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gDestroyMutex(&mutex);
   gDestroyMutex(&unicodeMapCacheMutex);
   gDestroyMutex(&cMapCacheMutex);
@@ -899,7 +892,7 @@ FILE *GlobalParams::findToUnicodeFile(GooString *name) {
   return NULL;
 }
 
-#if WITH_FONTCONFIGURATION_FONTCONFIG
+#ifdef WITH_FONTCONFIGURATION_FONTCONFIG
 static GBool findModifier(const char *name, const char *modifier, const char **start)
 {
   const char *match;
@@ -1089,7 +1082,7 @@ GooString *GlobalParams::findFontFile(GooString *fontName) {
 /* if you can't or don't want to use Fontconfig, you need to implement
    this function for your platform. For Windows, it's in GlobalParamsWin.cc
 */
-#if WITH_FONTCONFIGURATION_FONTCONFIG
+#ifdef WITH_FONTCONFIGURATION_FONTCONFIG
 // not needed for fontconfig
 void GlobalParams::setupBaseFonts(char *dir) {
 }
@@ -1384,15 +1377,6 @@ GBool GlobalParams::getPSShrinkLarger() {
   return f;
 }
 
-GBool GlobalParams::getPSCenter() {
-  GBool f;
-
-  lockGlobalParams;
-  f = psCenter;
-  unlockGlobalParams;
-  return f;
-}
-
 PSLevel GlobalParams::getPSLevel() {
   PSLevel level;
 
@@ -1429,15 +1413,6 @@ GBool GlobalParams::getTextPageBreaks() {
   return pageBreaks;
 }
 
-GBool GlobalParams::getTextKeepTinyChars() {
-  GBool tiny;
-
-  lockGlobalParams;
-  tiny = textKeepTinyChars;
-  unlockGlobalParams;
-  return tiny;
-}
-
 GBool GlobalParams::getEnableFreeType() {
   GBool f;
 
@@ -1445,96 +1420,6 @@ GBool GlobalParams::getEnableFreeType() {
   f = enableFreeType;
   unlockGlobalParams;
   return f;
-}
-
-GBool GlobalParams::getStrokeAdjust() {
-  GBool f;
-
-  lockGlobalParams;
-  f = strokeAdjust;
-  unlockGlobalParams;
-  return f;
-}
-
-ScreenType GlobalParams::getScreenType() {
-  ScreenType t;
-
-  lockGlobalParams;
-  t = screenType;
-  unlockGlobalParams;
-  return t;
-}
-
-int GlobalParams::getScreenSize() {
-  int size;
-
-  lockGlobalParams;
-  size = screenSize;
-  unlockGlobalParams;
-  return size;
-}
-
-int GlobalParams::getScreenDotRadius() {
-  int r;
-
-  lockGlobalParams;
-  r = screenDotRadius;
-  unlockGlobalParams;
-  return r;
-}
-
-double GlobalParams::getScreenGamma() {
-  double gamma;
-
-  lockGlobalParams;
-  gamma = screenGamma;
-  unlockGlobalParams;
-  return gamma;
-}
-
-double GlobalParams::getScreenBlackThreshold() {
-  double thresh;
-
-  lockGlobalParams;
-  thresh = screenBlackThreshold;
-  unlockGlobalParams;
-  return thresh;
-}
-
-double GlobalParams::getScreenWhiteThreshold() {
-  double thresh;
-
-  lockGlobalParams;
-  thresh = screenWhiteThreshold;
-  unlockGlobalParams;
-  return thresh;
-}
-
-double GlobalParams::getMinLineWidth() {
-  double minLineWidthA;
-
-  lockGlobalParams;
-  minLineWidthA = minLineWidth;
-  unlockGlobalParams;
-  return minLineWidthA;
-}
-
-GBool GlobalParams::getMapNumericCharNames() {
-  GBool map;
-
-  lockGlobalParams;
-  map = mapNumericCharNames;
-  unlockGlobalParams;
-  return map;
-}
-
-GBool GlobalParams::getMapUnknownCharNames() {
-  GBool map;
-
-  lockGlobalParams;
-  map = mapUnknownCharNames;
-  unlockGlobalParams;
-  return map;
 }
 
 GBool GlobalParams::getPrintCommands() {
@@ -1671,12 +1556,6 @@ void GlobalParams::setPSShrinkLarger(GBool shrink) {
   unlockGlobalParams;
 }
 
-void GlobalParams::setPSCenter(GBool center) {
-  lockGlobalParams;
-  psCenter = center;
-  unlockGlobalParams;
-}
-
 void GlobalParams::setPSLevel(PSLevel level) {
   lockGlobalParams;
   psLevel = level;
@@ -1712,12 +1591,6 @@ void GlobalParams::setTextPageBreaks(GBool pageBreaks) {
   unlockGlobalParams;
 }
 
-void GlobalParams::setTextKeepTinyChars(GBool keep) {
-  lockGlobalParams;
-  textKeepTinyChars = keep;
-  unlockGlobalParams;
-}
-
 GBool GlobalParams::setEnableFreeType(char *s) {
   GBool ok;
 
@@ -1727,86 +1600,9 @@ GBool GlobalParams::setEnableFreeType(char *s) {
   return ok;
 }
 
-GBool GlobalParams::setDisableFreeTypeHinting(char *s) {
-  GBool ok;
-
-  lockGlobalParams;
-  ok = parseYesNo2(s, &disableFreeTypeHinting);
-  unlockGlobalParams;
-  return ok;
-}
-
-void GlobalParams::setStrokeAdjust(GBool adjust)
-{
-  lockGlobalParams;
-  strokeAdjust = adjust;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setScreenType(ScreenType st)
-{
-  lockGlobalParams;
-  screenType = st;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setScreenSize(int size)
-{
-  lockGlobalParams;
-  screenSize = size;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setScreenDotRadius(int radius)
-{
-  lockGlobalParams;
-  screenDotRadius = radius;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setScreenGamma(double gamma)
-{
-  lockGlobalParams;
-  screenGamma = gamma;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setScreenBlackThreshold(double blackThreshold)
-{
-  lockGlobalParams;
-  screenBlackThreshold = blackThreshold;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setScreenWhiteThreshold(double whiteThreshold)
-{
-  lockGlobalParams;
-  screenWhiteThreshold = whiteThreshold;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setMinLineWidth(double minLineWidthA)
-{
-  lockGlobalParams;
-  minLineWidth = minLineWidthA;
-  unlockGlobalParams;
-}
-
 void GlobalParams::setOverprintPreview(GBool overprintPreviewA) {
   lockGlobalParams;
   overprintPreview = overprintPreviewA;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setMapNumericCharNames(GBool map) {
-  lockGlobalParams;
-  mapNumericCharNames = map;
-  unlockGlobalParams;
-}
-
-void GlobalParams::setMapUnknownCharNames(GBool map) {
-  lockGlobalParams;
-  mapUnknownCharNames = map;
   unlockGlobalParams;
 }
 

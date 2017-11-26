@@ -94,7 +94,7 @@ AC_HEADER_DIRENT
 
 dnl **** Checks for library functions ****
 
-AC_CHECK_FUNCS([gettimeofday gmtime_r mkstemp popen rand_r timegm])
+AC_CHECK_FUNCS([gettimeofday gmtime_r mkstemp popen rand_r strtok_r timegm])
 AC_SYS_LARGEFILE
 AC_FUNC_FSEEKO
 AC_CHECK_FUNC([ftell64], [AC_CHECK_FUNCS([fseek64])])
