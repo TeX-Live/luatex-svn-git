@@ -16,7 +16,7 @@
 // Copyright (C) 2005-2007 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Ed Catmur <ed@catmur.co.uk>
 // Copyright (C) 2007, 2008, 2011, 2013 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2007 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2007, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008, 2010, 2015, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Brian Ewins <brian.ewins@gmail.com>
 // Copyright (C) 2012, 2013, 2015, 2016 Jason Crain <jason@aquaticape.us>
@@ -91,7 +91,7 @@ public:
   // Get the writing mode (0 or 1), or 0 if the font is not set
   int getWMode();
 
-#if TEXTOUT_WORD_LIST
+#ifdef TEXTOUT_WORD_LIST
   // Get the font name (which may be NULL).
   GooString *getFontName() { return fontName; }
 
@@ -106,7 +106,7 @@ public:
 private:
 
   GfxFont *gfxFont;
-#if TEXTOUT_WORD_LIST
+#ifdef TEXTOUT_WORD_LIST
   GooString *fontName;
   int flags;
 #endif
@@ -165,7 +165,7 @@ public:
   // Get the next TextWord on the linked list.
   TextWord *getNext() { return next; }
 
-#if TEXTOUT_WORD_LIST
+#ifdef TEXTOUT_WORD_LIST
   int getLength() { return len; }
   const Unicode *getChar(int idx) { return &text[idx]; }
   GooString *getText();
@@ -215,7 +215,7 @@ private:
   GBool underlined;
   TextWord *next;		// next word in line
 
-#if TEXTOUT_WORD_LIST
+#ifdef TEXTOUT_WORD_LIST
   double colorR,		// word color
          colorG,
          colorB;
@@ -471,7 +471,7 @@ private:
   friend class TextPage;
 };
 
-#if TEXTOUT_WORD_LIST
+#ifdef TEXTOUT_WORD_LIST
 
 //------------------------------------------------------------------------
 // TextWordList
@@ -628,7 +628,7 @@ public:
   // character are drawn on eachother.
   void setMergeCombining(GBool merge);
 
-#if TEXTOUT_WORD_LIST
+#ifdef TEXTOUT_WORD_LIST
   // Build a flat word list, in content stream order (if
   // this->rawOrder is true), physical layout order (if <physLayout>
   // is true and this->rawOrder is false), or reading order (if both
@@ -847,7 +847,7 @@ public:
   // character are drawn on eachother.
   void setMergeCombining(GBool merge);
 
-#if TEXTOUT_WORD_LIST
+#ifdef TEXTOUT_WORD_LIST
   // Build a flat word list, in content stream order (if
   // this->rawOrder is true), physical layout order (if
   // this->physLayout is true and this->rawOrder is false), or reading

@@ -19,7 +19,7 @@
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Andreas Hartmetz <ahartmetz@gmail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
-// Copyright (C) 2011 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2011, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012, 2015 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2015, 2016 William Bader <williambader@hotmail.com>
 //
@@ -404,7 +404,7 @@ private:
   void setupScreenParams(double hDPI, double vDPI);
   SplashPattern *getColor(GfxGray gray);
   SplashPattern *getColor(GfxRGB *rgb);
-#if SPLASH_CMYK
+#ifdef SPLASH_CMYK
   SplashPattern *getColor(GfxCMYK *cmyk);
   SplashPattern *getColor(GfxColor *deviceN);
 #endif

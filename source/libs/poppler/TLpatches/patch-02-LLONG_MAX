@@ -1,10 +1,10 @@
-diff -u GooString.h.orig GooString.h 
---- GooString.h.orig	2017-09-18 19:09:44.011215326 +0200
-+++ GooString.h	2017-09-18 19:10:25.035213643 +0200
-@@ -36,6 +36,21 @@
- #endif
+diff -bur Lexer.cc.orig Lexer.cc  
+--- Lexer.cc.orig	2017-11-26 23:13:57.255696673 +0100
++++ Lexer.cc	2017-11-26 23:14:24.779695545 +0100
+@@ -39,6 +39,22 @@
+ #include "Error.h"
+ #include "XRef.h"
  
- #include <limits.h> // for LLONG_MAX and ULLONG_MAX
 +
 +/* <limits.h> and/or the compiler may or may not define these.  */
 +/* Minimum and maximum values a `signed long long int' can hold.  */
@@ -20,6 +20,32 @@ diff -u GooString.h.orig GooString.h
 +# define ULLONG_MAX    18446744073709551615ULL
 +#endif
 +
- #include <stdarg.h>
- #include <stdlib.h> // for NULL
- #include "gtypes.h"
++
+ //------------------------------------------------------------------------
+ 
+ // A '1' in this array means the character is white space.  A '1' or
+
+diff -bur PDFDoc.cc.orig PDFDoc.cc 
+--- PDFDoc.cc.orig	2017-11-26 23:14:50.383694495 +0100
++++ PDFDoc.cc	2017-11-26 23:15:17.955693364 +0100
+@@ -81,6 +81,20 @@
+ #include "PDFDoc.h"
+ #include "Hints.h"
+ 
++/* <limits.h> and/or the compiler may or may not define these.  */
++/* Minimum and maximum values a `signed long long int' can hold.  */
++#ifndef LLONG_MAX
++# define LLONG_MAX     9223372036854775807LL
++#endif
++#ifndef LLONG_MIN
++# define LLONG_MIN     (-LLONG_MAX - 1LL)
++#endif
++
++/* Maximum value an `unsigned long long int' can hold.  (Minimum is 0.)  */
++#ifndef ULLONG_MAX
++# define ULLONG_MAX    18446744073709551615ULL
++#endif
++
+ #ifdef MULTITHREADED
+ #  define pdfdocLocker()   MutexLocker locker(&mutex)
+ #else

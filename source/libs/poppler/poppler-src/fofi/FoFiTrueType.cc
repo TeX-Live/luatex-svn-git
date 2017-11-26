@@ -19,7 +19,7 @@
 // Copyright (C) 2008, 2009, 2012, 2014-2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Tomas Are Haavet <tomasare@gmail.com>
 // Copyright (C) 2012 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
-// Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2014 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2015 Aleksei Volkov <Aleksei Volkov>
 // Copyright (C) 2015, 2016 William Bader <williambader@hotmail.com>
@@ -37,6 +37,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <algorithm>
 #include "goo/gtypes.h"
 #include "goo/gmem.h"

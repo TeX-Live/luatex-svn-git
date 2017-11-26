@@ -23,7 +23,7 @@
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Adrian Perez de Castro <aperez@igalia.com>
-// Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 José Aliste <jaliste@src.gnome.org>
 // Copyright (C) 2016 Masamichi Hosoda <trueroad@trueroad.jp>
 //
@@ -283,7 +283,7 @@ private:
   NameTree *getEmbeddedFileNameTree();
   NameTree *getJSNameTree();
   LinkDest *createLinkDest(Object *obj);
-#if MULTITHREADED
+#ifdef MULTITHREADED
   GooMutex mutex;
 #endif
 

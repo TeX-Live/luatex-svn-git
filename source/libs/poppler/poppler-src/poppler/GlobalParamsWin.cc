@@ -4,7 +4,7 @@
    // Copyright (C) 2010, 2012 Hib Eris <hib@hiberis.nl>
    // Copyright (C) 2012, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
    // Copyright (C) 2012 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
-   // Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
+   // Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
    // Copyright (C) 2012 Mark Brand <mabrand@mabrand.nl>
    // Copyright (C) 2013 Adam Reichold <adamreichold@myopera.com>
    // Copyright (C) 2013 Dmytro Morgun <lztoad@gmail.com>
@@ -54,7 +54,7 @@ description for all fonts available in Windows. That's how MuPDF works.
 #include "Lexer.h"
 #include "Parser.h"
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
 #  define lockGlobalParams            gLockMutex(&mutex)
 #  define lockUnicodeMapCache         gLockMutex(&unicodeMapCacheMutex)
 #  define lockCMapCache               gLockMutex(&cMapCacheMutex)

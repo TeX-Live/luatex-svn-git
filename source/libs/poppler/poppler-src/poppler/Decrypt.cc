@@ -18,7 +18,7 @@
 // Copyright (C) 2009 Matthias Franz <matthias@ktug.or.kr>
 // Copyright (C) 2009 David Benjamin <davidben@mit.edu>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
-// Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2016 Alok Anand <alok4nand@gmail.com>
 // Copyright (C) 2016 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
@@ -33,10 +33,10 @@
 #pragma implementation
 #endif
 
+#include <cstdint>
 #include <string.h>
 #include "goo/gmem.h"
 #include "goo/grandom.h"
-#include "goo/gtypes_p.h"
 #include "Decrypt.h"
 #include "Error.h"
 

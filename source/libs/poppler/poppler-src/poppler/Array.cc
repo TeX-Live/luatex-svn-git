@@ -17,6 +17,7 @@
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013, 2017 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -35,7 +36,7 @@
 #include "Object.h"
 #include "Array.h"
 
-#if MULTITHREADED
+#ifdef MULTITHREADED
 #  define arrayLocker()   MutexLocker locker(&mutex)
 #else
 #  define arrayLocker()
@@ -49,7 +50,7 @@ Array::Array(XRef *xrefA) {
   elems = NULL;
   size = length = 0;
   ref = 1;
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gInitMutex(&mutex);
 #endif
 }
@@ -60,7 +61,7 @@ Array::~Array() {
   for (i = 0; i < length; ++i)
     elems[i].free();
   gfree(elems);
-#if MULTITHREADED
+#ifdef MULTITHREADED
   gDestroyMutex(&mutex);
 #endif
 }

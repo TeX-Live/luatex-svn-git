@@ -1,6 +1,7 @@
---- Object.h.std	2017-10-02 23:29:21.000000000 +0200
-+++ Object.h	2017-10-03 10:13:36.496259318 +0200
-@@ -207,7 +207,7 @@
+$ diff -bur Object.h.orig Object.h 
+--- Object.h.orig	2017-11-26 23:29:43.879657854 +0100
++++ Object.h	2017-11-25 23:04:35.423262804 +0100
+@@ -208,7 +208,7 @@
    GBool isName(const char *nameA) const
      { return type == objName && !strcmp(cString, nameA); }
    GBool isDict(const char *dictType) const;
@@ -9,7 +10,7 @@
    GBool isCmd(const char *cmdA) const
      { return type == objCmd && !strcmp(cString, cmdA); }
  
-@@ -264,7 +264,7 @@
+@@ -265,7 +265,7 @@
    Object dictGetValNF(int i) const;
  
    // Stream accessors.
@@ -18,7 +19,7 @@
    void streamReset();
    void streamClose();
    int streamGetChar() const;
-@@ -379,10 +379,10 @@
+@@ -380,10 +380,10 @@
  
  #include "Stream.h"
  

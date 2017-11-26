@@ -1311,12 +1311,10 @@ Gfx8BitFont::Gfx8BitFont(XRef *xref, const char *tagA, Ref idA, GooString *nameA
 	  continue;
 	}
 
-	// if the 'mapUnknownCharNames' flag is set, do a simple pass-through
+	// do a simple pass-through
 	// mapping for unknown character names
-	if (globalParams->getMapUnknownCharNames()) {
-	    uBuf[0] = code;
-	    ctu->setMapping((CharCode)code, uBuf, 1);
-	}
+        uBuf[0] = code;
+        ctu->setMapping((CharCode)code, uBuf, 1);
       }
     }
   }
@@ -1505,54 +1503,52 @@ static int parseCharName(char *charName, Unicode *uBuf, int uLen,
   if (names && (uBuf[0] = globalParams->mapNameToUnicodeText(charName))) {
     return 1;
   }
-  if (globalParams->getMapNumericCharNames()) {
-    unsigned int n = strlen(charName);
-    // 3.3. otherwise, if the component is of the form "uni" (U+0075 U+006E
-    // U+0069) followed by a sequence of uppercase hexadecimal digits (0 .. 9,
-    // A .. F, i.e. U+0030 .. U+0039, U+0041 .. U+0046), the length of that
-    // sequence is a multiple of four, and each group of four digits represents
-    // a number in the set {0x0000 .. 0xD7FF, 0xE000 .. 0xFFFF}, then interpret
-    // each such number as a Unicode scalar value and map the component to the
-    // string made of those scalar values. Note that the range and digit length
-    // restrictions mean that the "uni" prefix can be used only with Unicode
-    // values from the Basic Multilingual Plane (BMP).
-    if (n >= 7 && (n % 4) == 3 && !strncmp(charName, "uni", 3)) {
-      int i;
-      unsigned int m;
-      for (i = 0, m = 3; i < uLen && m < n; m += 4) {
-	if (isxdigit(charName[m]) && isxdigit(charName[m + 1]) && 
-	    isxdigit(charName[m + 2]) && isxdigit(charName[m + 3])) {
-	  unsigned int u;
-	  sscanf(charName + m, "%4x", &u);
-	  if (u <= 0xD7FF || (0xE000 <= u && u <= 0xFFFF)) {
-	    uBuf[i++] = u;
-	  }
-	}
-      }
-      return i;
-    }
-    // 3.4. otherwise, if the component is of the form "u" (U+0075) followed by
-    // a sequence of four to six uppercase hexadecimal digits {0 .. 9, A .. F}
-    // (U+0030 .. U+0039, U+0041 .. U+0046), and those digits represent a
-    // number in {0x0000 .. 0xD7FF, 0xE000 .. 0x10FFFF}, then interpret this
-    // number as a Unicode scalar value and map the component to the string
-    // made of this scalar value.
-    if (n >= 5 && n <= 7 && charName[0] == 'u' && isxdigit(charName[1]) &&
-	isxdigit(charName[2]) && isxdigit(charName[3]) && isxdigit(charName[4])
-	&& (n <= 5 || isxdigit(charName[5]))
-	&& (n <= 6 || isxdigit(charName[6]))) {
-      unsigned int u;
-      sscanf(charName + 1, "%x", &u);
-      if (u <= 0xD7FF || (0xE000 <= u && u <= 0x10FFFF)) {
-	uBuf[0] = u;
-	return 1;
+  unsigned int n = strlen(charName);
+  // 3.3. otherwise, if the component is of the form "uni" (U+0075 U+006E
+  // U+0069) followed by a sequence of uppercase hexadecimal digits (0 .. 9,
+  // A .. F, i.e. U+0030 .. U+0039, U+0041 .. U+0046), the length of that
+  // sequence is a multiple of four, and each group of four digits represents
+  // a number in the set {0x0000 .. 0xD7FF, 0xE000 .. 0xFFFF}, then interpret
+  // each such number as a Unicode scalar value and map the component to the
+  // string made of those scalar values. Note that the range and digit length
+  // restrictions mean that the "uni" prefix can be used only with Unicode
+  // values from the Basic Multilingual Plane (BMP).
+  if (n >= 7 && (n % 4) == 3 && !strncmp(charName, "uni", 3)) {
+    int i;
+    unsigned int m;
+    for (i = 0, m = 3; i < uLen && m < n; m += 4) {
+      if (isxdigit(charName[m]) && isxdigit(charName[m + 1]) &&
+          isxdigit(charName[m + 2]) && isxdigit(charName[m + 3])) {
+        unsigned int u;
+        sscanf(charName + m, "%4x", &u);
+        if (u <= 0xD7FF || (0xE000 <= u && u <= 0xFFFF)) {
+          uBuf[i++] = u;
+        }
       }
     }
-    // Not in Adobe Glyph Mapping convention: look for names like xx
-    // or Axx and parse for hex or decimal values.
-    if (numeric && parseNumericName(charName, hex, uBuf))
-      return 1;
+    return i;
   }
+  // 3.4. otherwise, if the component is of the form "u" (U+0075) followed by
+  // a sequence of four to six uppercase hexadecimal digits {0 .. 9, A .. F}
+  // (U+0030 .. U+0039, U+0041 .. U+0046), and those digits represent a
+  // number in {0x0000 .. 0xD7FF, 0xE000 .. 0x10FFFF}, then interpret this
+  // number as a Unicode scalar value and map the component to the string
+  // made of this scalar value.
+  if (n >= 5 && n <= 7 && charName[0] == 'u' && isxdigit(charName[1]) &&
+      isxdigit(charName[2]) && isxdigit(charName[3]) && isxdigit(charName[4])
+      && (n <= 5 || isxdigit(charName[5]))
+      && (n <= 6 || isxdigit(charName[6]))) {
+    unsigned int u;
+    sscanf(charName + 1, "%x", &u);
+    if (u <= 0xD7FF || (0xE000 <= u && u <= 0x10FFFF)) {
+      uBuf[0] = u;
+      return 1;
+    }
+  }
+  // Not in Adobe Glyph Mapping convention: look for names like xx
+  // or Axx and parse for hex or decimal values.
+  if (numeric && parseNumericName(charName, hex, uBuf))
+    return 1;
   // 3.5. otherwise, map the component to the empty string
   return 0;
 }
