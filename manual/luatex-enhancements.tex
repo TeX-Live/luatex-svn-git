@@ -891,6 +891,20 @@ ignores the value.
 This allows for embedded spaces, without the need for double quotes. Macro
 expansion takes place inside the argument.
 
+The \type {\tracingfonts} primitive that has been inherited from \PDFTEX\ has
+been adapted to support variants in reporting the font. The reason for this
+extension is that a csname not always makes sense. The zero case is the default.
+
+\starttabulate[|T||]
+\NC 0 \EQ \type{\foo xyz} \NC \NR
+\NC 1 \EQ \type{\foo (bar)} \NC \NR
+\NC 2 \EQ \type{<bar> xyz} \NC \NR
+\NC 3 \EQ \type{<bar @ ..pt> xyz} \NC \NR
+\NC 4 \EQ \type{<id>} \NC \NR
+\NC 5 \EQ \type{<id: bar>} \NC \NR
+\NC 6 \EQ \type{<id: bar @ ..pt> xyz} \NC \NR
+\stoptabulate
+
 \subsection{Writing to file}
 
 You can now open upto 127 files with \type {\openout}. When no file is open
