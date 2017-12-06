@@ -1,11 +1,11 @@
 -- if not modules then modules = { } end modules ['luatex-core'] = {
---     version   = 1.001,
+--     version   = 1.004,
 --     comment   = 'companion to luatex',
 --     author    = 'Hans Hagen & Luigi Scarso',
 --     copyright = 'LuaTeX Development Team',
 -- }
 
-LUATEXCOREVERSION = 1.003
+LUATEXCOREVERSION = 1.004
 
 -- This file overloads some Lua functions. The readline variants provide the same
 -- functionality as LuaTeX <= 1.04 and doing it this way permits us to keep the
@@ -71,12 +71,32 @@ local function luatex_io_popen(name,...)
     end
 end
 
+-- local function luatex_io_lines(name,how)
+--     if name then
+--         local f = io_open(name,how or 'r')
+--         if f then
+--             return function()
+--                 return fio_readline(f)
+--             end
+--         end
+--     else
+--         return io_lines()
+--     end
+-- end
+
+-- For some reason the gc doesn't kick in so we need to close explitly
+-- so that the handle is flushed.
+
 local function luatex_io_lines(name,how)
     if name then
         local f = io_open(name,how or 'r')
         if f then
             return function()
-                return fio_readline(f)
+                local l = fio_readline(f)
+                if not l then
+                    f:close()
+                end
+                return l
             end
         end
     else

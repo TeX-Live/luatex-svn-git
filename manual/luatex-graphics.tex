@@ -364,9 +364,12 @@ An \type {\immediate} applied to \type {\saveimageresource} will also force a
 close after inclusion.
 
 \starttyping
-\immediate\pdfximage{foo.pdf}\pdfrefximage         \pdflastximage % closed
-          \pdfximage{foo.pdf}\pdfrefximage         \pdflastximage % kept open
-          \pdfximage{foo.pdf}\pdfrefximage keepopen\pdflastximage % kept open
+\immediate\useimageresource{foo.pdf}%
+          \saveimageresource         \lastsavedimageresourceindex % closed
+          \useimageresource{foo.pdf}%
+          \saveimageresource         \lastsavedimageresourceindex % kept open
+          \useimageresource{foo.pdf}%
+          \saveimageresource keepopen\lastsavedimageresourceindex % kept open
 
 \directlua{img.write(img.scan{ file = "foo.pdf" })}                  % closed
 \directlua{img.write(img.scan{ file = "foo.pdf", keepopen = true })} % kept open
