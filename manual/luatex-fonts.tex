@@ -483,8 +483,8 @@ parameters to that command. The allowed commands and their arguments are:
 \NC \type{right}   \NC 1         \NC number    \NC move right on the page \NC \NR
 \NC \type{special} \NC 1         \NC string    \NC output a \type {\special} command \NC \NR
 \NC \type{pdf}     \NC 2         \NC 2 strings \NC output a \PDF\ literal, the first string is one of \type {origin},
-                                                   \type {page}, \type {direct} or \type {raw}; if you have one string
-                                                   only \type {origin} is assumed \NC \NR
+                                                   \type {page}, \type {text}, \type {font}, \type {direct} or \type {raw}; if you
+                                                   have one string only \type {origin} is assumed \NC \NR
 \NC \type{lua}     \NC 1         \NC string    \NC execute a \LUA\ script (at \type {\latelua} time) \NC \NR
 \NC \type{image}   \NC 1         \NC image     \NC output an image (the argument can be either an \type
                                                    {<image>} variable or an \type {image_spec} table) \NC \NR
@@ -495,6 +495,27 @@ When a font id is set to~0 then it will be replaced by the currently assigned
 font id. This prevents the need for hackery with future id's (normally one could
 use \type {font.nextid} but when more complex fonts are built in the meantime
 other instances could have been loaded.
+
+The \type {pdf} option also accepts a \type {mode} keyword in which case the
+third argument sets the mode. That option will change the mode in an efficient
+way (passing an empty string would result in an extra empty lines in the \PDF\
+file. This option only makes sense for virtual fonts. The \type {font} mode only
+makes sense in virtual fonts.
+
+These modes are somewhat fuzzy and partially inherited from \PDFTEX.
+
+\starttabulate[|l|p|]
+\BC mode           \BC description \NC \NR
+\NC \type {origin} \NC enter page mode and set the position \NC \NR
+\NC \type {page}   \NC enter page mode \NC \NR
+\NC \type {text}   \NC enter text mode \NC \NR
+\NC \type {font}   \NC enter font mode (kind of text mode, only in virtual fonts) \NC \NR
+\NC \type {always} \NC finish the current string and force a transform if needed \NC \NR
+\NC \type {raw}    \NC finish the current string \NC \NR
+\stoptabulate
+
+You always need to check what \PDF\ code is generated because there can be all kind of
+interferences with optimizations in the backend and fonts are complicated anyway.
 
 Here is a rather elaborate glyph commands example:
 

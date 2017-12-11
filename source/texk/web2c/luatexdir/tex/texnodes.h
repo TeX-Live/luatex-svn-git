@@ -748,6 +748,7 @@ typedef enum {
     direct_always,
     direct_raw,
     direct_text,
+    direct_font,
     scan_special,
 } ctm_transform_modes;
 
