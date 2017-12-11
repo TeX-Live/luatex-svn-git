@@ -62,6 +62,9 @@ void pdf_out_literal(PDF pdf, halfword p)
             case direct_page:
                 pdf_goto_pagemode(pdf);
                 break;
+            case direct_text:
+                pdf_goto_textmode(pdf);
+                break;
             case direct_always:
                 pdf_end_string_nl(pdf);
                 ps->need_tm = true;
@@ -110,24 +113,6 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
                     tprint_nl("Non-PDF special ignored!");
                 return;
             }
-            /*
-            j = j + (pool_pointer) strlen("PDF:");
-            if (str_in_cstr(s, "direct:", strlen("PDF:"))) {
-                j = j + (pool_pointer) strlen("direct:");
-                literal_mode = direct_always;
-            } else if (str_in_cstr(s, "page:", strlen("PDF:"))) {
-                j = j + (pool_pointer) strlen("page:");
-                literal_mode = direct_page;
-            } else if (str_in_cstr(s, "raw:", strlen("PDF:"))) {
-                j = j + (pool_pointer) strlen("raw:");
-                literal_mode = direct_raw;
-            } else if (str_in_cstr(s, "origin:", strlen("PDF:"))) {
-                j = j + (pool_pointer) strlen("origin:");
-                literal_mode = set_origin;
-            } else {
-                literal_mode = set_origin;
-            }
-            */
             j = j + (pool_pointer) 4;                   /* strlen("PDF:") */
             if (str_in_cstr(s, "direct:", 4)) {         /* strlen("PDF:") */
                 j = j + (pool_pointer) 7;               /* strlen("direct:") */
@@ -135,6 +120,9 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
             } else if (str_in_cstr(s, "page:", 4)) {    /* strlen("PDF:") */
                 j = j + (pool_pointer) 5;               /* strlen("page:") */
                 literal_mode = direct_page;
+            } else if (str_in_cstr(s, "text:", 4)) {    /* strlen("PDF:") */
+                j = j + (pool_pointer) 5;               /* strlen("page:") */
+                literal_mode = direct_text;
             } else if (str_in_cstr(s, "raw:", 4)) {     /* strlen("PDF:") */
                 j = j + (pool_pointer) 4;               /* strlen("raw:") */
                 literal_mode = direct_raw;
@@ -153,6 +141,9 @@ void pdf_literal(PDF pdf, str_number s, int literal_mode, boolean warn)
             break;
         case direct_page:
             pdf_goto_pagemode(pdf);
+            break;
+        case direct_text:
+            pdf_goto_textmode(pdf);
             break;
         case direct_always:
             pdf_end_string_nl(pdf);

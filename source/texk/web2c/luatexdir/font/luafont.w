@@ -844,6 +844,8 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                                     n = direct_always;
                                 } else if (lua_key_eq(s, page)) {
                                     n = direct_page;
+                                } else if (lua_key_eq(s, text)) {
+                                    n = direct_text;
                                 } else if (lua_key_eq(s, raw)) {
                                     n = direct_raw;
                                 } else if (lua_key_eq(s, origin)) {

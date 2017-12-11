@@ -2441,6 +2441,8 @@ static int do_feedback_pdf(halfword c)
             cur_val = direct_page;
         else if (scan_keyword("raw"))
             cur_val = direct_raw;
+        else if (scan_keyword("origin"))
+            cur_val = set_origin;
         else
             cur_val = set_origin;
         save_scanner_status = scanner_status;
