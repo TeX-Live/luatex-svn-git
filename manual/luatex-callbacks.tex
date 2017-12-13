@@ -778,7 +778,8 @@ end
 \stopfunctioncall
 
 This callback replaces the code that prints \LUATEX's statistics and \quote
-{output written to} messages.
+{output written to} messages. The engine can still do housekeeping and therefore
+you should not rely on this hook for postprocessing the \PDF\ or log file.
 
 \subsection{\type {start_page_number}}
 
