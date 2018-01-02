@@ -358,6 +358,17 @@ else
 
 end
 
+-- this is needed for getting require("socket") right
+
+do
+
+    local loaded = package.loaded
+
+    if not loaded.socket then loaded.socket = loaded["socket.core"] end
+    if not loaded.mime   then loaded.mime   = loaded["mime.core"]   end
+
+end
+
 -- so far
 
 if utilities and utilities.merger and utilities.merger.compact then
