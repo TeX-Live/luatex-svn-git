@@ -297,7 +297,8 @@ texmf_shell_scripts = \
 	texosquery/texosquery.sh \
 	texosquery/texosquery-jre5.sh \
 	texosquery/texosquery-jre8.sh \
-	typeoutfileinfo/typeoutfileinfo.sh
+	typeoutfileinfo/typeoutfileinfo.sh \
+	wordcount/wordcount.sh
 
 texmf_other_scripts = \
 	a2ping/a2ping.pl \
@@ -318,6 +319,7 @@ texmf_other_scripts = \
 	crossrefware/bbl2bib.pl \
 	crossrefware/bibdoiadd.pl \
 	crossrefware/bibmradd.pl \
+	crossrefware/biburl2doi.pl \
 	crossrefware/bibzbladd.pl \
 	crossrefware/ltx2crossrefxml.pl \
 	ctan-o-mat/ctan-o-mat.pl \

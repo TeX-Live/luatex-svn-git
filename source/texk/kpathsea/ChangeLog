@@ -1,3 +1,37 @@
+2017-12-27  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* xbasename.c, xdirname.c: Remove IS_KANJI test for UNC names,
+	and fix a W32 bug in xdirname.c.
+	Report by Douglas McKenna:
+	http://tug.org/pipermail/tex-k/2017-December/002840.html
+
+2017-12-09  Jiang Jiang  <gzjjgod@gmail.com>
+
+	* tex-glyph.c (try_fallback_resolutions):
+	Avoid warning: taking the absolute value of unsigned type
+	'unsigned int' has no effect [-Wabsolute-value]
+	ref. https://github.com/jjgod/texlive/commit/4cbec4c
+
+2017-12-08  Karl Berry  <karl@freefriends.org>
+
+	* tex-file.c (kpathsea_init_format_return_varlist)
+	<kpse_program_text_format>, <kpse_program_binary_format>:
+	use DIR_SEP_STRING instead of hardwired /
+	Report from Douglas McKenna, tex-k 5 Dec 2017 22:27:10.
+
+2017-12-05  Karl Berry  <karl@freefriends.org>
+
+	* c-minmax.h (SCHAR_MAX): decrement to the correct 127.
+	Report from Douglas McKenna, tex-k 4 Dec 2017 18:26:35.
+
+2017-11-28  Karl Berry  <karl@tug.org>
+
+	* doc/unixtex.texi: no longer in ~ftp, etc.
+	
+	* doc/kpathsea.texi (Fontmap): clarify that it's the last %
+	on a line that starts a comment. From Doug McKenna, personal
+	email, 21nov17.
+
 2017-11-18  Karl Berry  <karl@tug.org>
 
 	* db.c (elt_in_db): protect against either argument being NULL or
