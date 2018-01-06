@@ -1219,6 +1219,7 @@ void FormFieldText::setTextFontSize(int fontSize)
     int idx = parseDA(daToks);
     if (idx == -1) {
       error(errSyntaxError, -1, "FormFieldText:: invalid DA object\n");
+      deleteGooList(daToks, GooString);
       return;
     }
     if (defaultAppearance)

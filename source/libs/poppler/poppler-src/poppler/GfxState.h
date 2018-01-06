@@ -23,6 +23,7 @@
 // Copyright (C) 2011-2014, 2016 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Lu Wang <coolwanglu@gmail.com>
 // Copyright (C) 2015, 2017 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -867,6 +868,13 @@ protected:
 
   GBool init(GfxResources *res, Dict *dict, OutputDev *out, GfxState *state);
 
+  // 1: Function-based shading
+  // 2: Axial shading
+  // 3: Radial shading
+  // 4: Free-form Gouraud-shaded triangle mesh
+  // 5: Lattice-form Gouraud-shaded triangle mesh
+  // 6: Coons patch mesh
+  // 7: Tensor-product patch mesh
   int type;
   GBool hasBackground;
   GBool hasBBox;

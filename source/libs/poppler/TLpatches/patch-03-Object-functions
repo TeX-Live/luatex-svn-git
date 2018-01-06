@@ -1,6 +1,5 @@
-$ diff -bur Object.h.orig Object.h 
---- Object.h.orig	2017-11-26 23:29:43.879657854 +0100
-+++ Object.h	2017-11-25 23:04:35.423262804 +0100
+--- ../poppler/Object.h.orig	2018-01-06 19:45:02.045350416 +0100
++++ ../poppler/Object.h	2018-01-06 20:00:59.721311143 +0100
 @@ -208,7 +208,7 @@
    GBool isName(const char *nameA) const
      { return type == objName && !strcmp(cString, nameA); }

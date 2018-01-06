@@ -734,7 +734,7 @@ GBool XRef::readXRefStream(Stream *xrefStr, Goffset *pos) {
       return gFalse;
     }
   }
-  if (w[0] > (int)sizeof(int) || w[1] > (int)sizeof(long long) || w[2] > (int)sizeof(int)) {
+  if (w[0] > (int)sizeof(int) || w[1] > (int)sizeof(long long) || w[2] > (int)sizeof(long long)) {
     return gFalse;
   }
 
@@ -782,8 +782,8 @@ GBool XRef::readXRefStream(Stream *xrefStr, Goffset *pos) {
 }
 
 GBool XRef::readXRefStreamSection(Stream *xrefStr, int *w, int first, int n) {
-  unsigned long long offset;
-  int type, gen, c, i, j;
+  unsigned long long offset, gen;
+  int type, c, i, j;
 
   if (first + n < 0) {
     return gFalse;
@@ -824,6 +824,10 @@ GBool XRef::readXRefStreamSection(Stream *xrefStr, int *w, int first, int n) {
 	return gFalse;
       }
       gen = (gen << 8) + c;
+    }
+    if (gen > INT_MAX) {
+      error(errSyntaxError, -1, "Gen inside xref table too large (bigger than INT_MAX)");
+      return gFalse;
     }
     if (entries[i].offset == -1) {
       switch (type) {

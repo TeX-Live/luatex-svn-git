@@ -29,6 +29,7 @@
 // Copyright (C) 2013 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2015 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2016 Marek Kasik <mkasik@redhat.com>
+// Copyright (C) 2017 Oliver Sander <oliver.sander@tu-dresden.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -178,40 +179,8 @@ static const char *gfxColorSpaceModeNames[] = {
 
 static const std::map<unsigned int, unsigned int>::size_type CMSCACHE_LIMIT = 2048;
 
-#ifdef USE_LCMS1
-#include <lcms.h>
-#define cmsColorSpaceSignature icColorSpaceSignature
-#define cmsSetLogErrorHandler cmsSetErrorHandler
-#define cmsSigXYZData icSigXYZData
-#define cmsSigLuvData icSigLuvData
-#define cmsSigLabData icSigLabData
-#define cmsSigYCbCrData icSigYCbCrData
-#define cmsSigYxyData icSigYxyData
-#define cmsSigRgbData icSigRgbData
-#define cmsSigHsvData icSigHsvData
-#define cmsSigHlsData icSigHlsData
-#define cmsSigCmyData icSigCmyData
-#define cmsSig3colorData icSig3colorData
-#define cmsSigGrayData icSigGrayData
-#define cmsSigCmykData icSigCmykData
-#define cmsSig4colorData icSig4colorData
-#define cmsSig2colorData icSig2colorData
-#define cmsSig5colorData icSig5colorData
-#define cmsSig6colorData icSig6colorData
-#define cmsSig7colorData icSig7colorData
-#define cmsSig8colorData icSig8colorData
-#define cmsSig9colorData icSig9colorData
-#define cmsSig10colorData icSig10colorData
-#define cmsSig11colorData icSig11colorData
-#define cmsSig12colorData icSig12colorData
-#define cmsSig13colorData icSig13colorData
-#define cmsSig14colorData icSig14colorData
-#define cmsSig15colorData icSig15colorData
-#define LCMS_FLAGS 0
-#else
 #include <lcms2.h>
 #define LCMS_FLAGS cmsFLAGS_NOOPTIMIZE | cmsFLAGS_BLACKPOINTCOMPENSATION
-#endif
 
 #define COLOR_PROFILE_DIR "/ColorProfiles/"
 #define GLOBAL_COLOR_PROFILE_DIR POPPLER_DATADIR COLOR_PROFILE_DIR
@@ -497,18 +466,10 @@ cmsHPROFILE loadColorProfile(const char *fileName)
   return hp;
 }
 
-#ifdef USE_LCMS1
-static int CMSError(int ecode, const char *msg)
-{
-    error(errSyntaxWarning, -1, "{0:s}", msg);
-    return 1;
-}
-#else
 static void CMSError(cmsContext /*contextId*/, cmsUInt32Number /*ecode*/, const char *text)
 {
     error(errSyntaxWarning, -1, "{0:s}", text);
 }
-#endif
 
 int GfxColorSpace::setupColorProfiles()
 {
@@ -1558,34 +1519,44 @@ GfxColorSpace *GfxLabColorSpace::parse(Array *arr, GfxState *state) {
     return NULL;
   }
   cs = new GfxLabColorSpace();
+  bool ok = true;
   obj2 = obj1.dictLookup("WhitePoint");
   if (obj2.isArray() && obj2.arrayGetLength() == 3) {
     Object obj3 = obj2.arrayGet(0);
-    cs->whiteX = obj3.getNum();
+    cs->whiteX = obj3.getNum(&ok);
     obj3 = obj2.arrayGet(1);
-    cs->whiteY = obj3.getNum();
+    cs->whiteY = obj3.getNum(&ok);
     obj3 = obj2.arrayGet(2);
-    cs->whiteZ = obj3.getNum();
+    cs->whiteZ = obj3.getNum(&ok);
   }
   obj2 = obj1.dictLookup("BlackPoint");
   if (obj2.isArray() && obj2.arrayGetLength() == 3) {
     Object obj3 = obj2.arrayGet(0);
-    cs->blackX = obj3.getNum();
+    cs->blackX = obj3.getNum(&ok);
     obj3 = obj2.arrayGet(1);
-    cs->blackY = obj3.getNum();
+    cs->blackY = obj3.getNum(&ok);
     obj3 = obj2.arrayGet(2);
-    cs->blackZ = obj3.getNum();
+    cs->blackZ = obj3.getNum(&ok);
   }
   obj2 = obj1.dictLookup("Range");
   if (obj2.isArray() && obj2.arrayGetLength() == 4) {
     Object obj3 = obj2.arrayGet(0);
-    cs->aMin = obj3.getNum();
+    cs->aMin = obj3.getNum(&ok);
     obj3 = obj2.arrayGet(1);
-    cs->aMax = obj3.getNum();
+    cs->aMax = obj3.getNum(&ok);
     obj3 = obj2.arrayGet(2);
-    cs->bMin = obj3.getNum();
+    cs->bMin = obj3.getNum(&ok);
     obj3 = obj2.arrayGet(3);
-    cs->bMax = obj3.getNum();
+    cs->bMax = obj3.getNum(&ok);
+  }
+
+  if (!ok) {
+      error(errSyntaxWarning, -1, "Bad Lab color space");
+#ifdef USE_CMS
+      cs->transform = nullptr;
+#endif
+      delete cs;
+      return nullptr;
   }
 
   cs->kr = 1 / (xyzrgb[0][0] * cs->whiteX +
