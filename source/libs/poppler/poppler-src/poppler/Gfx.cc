@@ -630,12 +630,7 @@ Gfx::Gfx(PDFDoc *docA, OutputDev *outA, Dict *resDict,
 
 #ifdef USE_CMS
 
-#ifdef USE_LCMS1
-#include <lcms.h>
-#else
 #include <lcms2.h>
-#define LCMS_FLAGS cmsFLAGS_NOOPTIMIZE
-#endif
 
 void Gfx::initDisplayProfile() {
    Object catDict = xref->getCatalog();

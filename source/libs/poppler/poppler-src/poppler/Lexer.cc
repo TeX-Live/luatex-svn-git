@@ -54,7 +54,6 @@
 # define ULLONG_MAX    18446744073709551615ULL
 #endif
 
-
 //------------------------------------------------------------------------
 
 // A '1' in this array means the character is white space.  A '1' or

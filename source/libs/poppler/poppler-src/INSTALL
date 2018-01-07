@@ -65,12 +65,40 @@ tools. Run cmake with the option:
 A sample toolchain for a 64-bit mingw build is shown below. Replace
 /path/to/win/root with the install prefix for the target environment.
 
-  SET(CMAKE_SYSTEM_NAME Windows)
-  SET(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
-  SET(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
-  SET(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
-  SET(CMAKE_FIND_ROOT_PATH  /usr/x86_64-w64-mingw32 /path/to/win/root )
+  set(CMAKE_SYSTEM_NAME Windows)
+  set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+  set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+  set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
+  set(CMAKE_FIND_ROOT_PATH  /usr/x86_64-w64-mingw32 /path/to/win/root )
   set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
   set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
   set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
+
+Debugging Options
+=================
+
+Debug Build Types
+-----------------
+Release build with debugging information:
+  -DCMAKE_BUILD_TYPE=relwithdebinfo
+
+Debug build with optimization except for some code re-ordering optimizations:
+  -DCMAKE_BUILD_TYPE=debug
+
+Debug build with no optimization:
+  -DCMAKE_BUILD_TYPE=debugfull
+
+Release build with debugging and profiling information:
+  -DCMAKE_BUILD_TYPE=profile
+
+
+Address Sanitizer
+-----------------
+Ensure the extra cmake modules are available (may be a separate
+package) then use -DECM_ENABLE_SANITIZERS to specify the santizers. eg
+
+  -DECM_ENABLE_SANITIZERS='address;leak;undefined'
+
+Some options may only be available with clang. Use
+-DCMAKE_CXX_COMPILER=clang++ to build with clang.

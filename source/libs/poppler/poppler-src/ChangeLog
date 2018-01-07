@@ -1,3 +1,1221 @@
+commit 72e0a3a087f160d819f7697a8536bbee12240c7a
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Dec 3 20:25:06 2017 +0100
+
+    0.62.0
+
+ CMakeLists.txt         |  6 +++---
+ NEWS                   | 26 ++++++++++++++++++++++++++
+ cpp/Doxyfile           |  2 +-
+ qt5/src/CMakeLists.txt |  2 +-
+ qt5/src/Doxyfile       |  2 +-
+ 5 files changed, 32 insertions(+), 6 deletions(-)
+
+commit 90958363fd5e8c5e74a889e0c2140c71a0c09eb6
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Dec 3 20:23:09 2017 +0100
+
+    Add missing (C)
+
+ poppler/Error.cc          | 2 +-
+ poppler/UTF.cc            | 2 +-
+ poppler/UTF.h             | 2 +-
+ poppler/UnicodeMapFuncs.h | 1 +
+ utils/JSInfo.cc           | 2 +-
+ utils/pdfdetach.cc        | 2 +-
+ utils/pdffonts.cc         | 2 +-
+ utils/pdfseparate.cc      | 1 +
+ utils/pdfsig.cc           | 1 +
+ utils/pdftohtml.cc        | 1 +
+ utils/pdftotext.cc        | 1 +
+ utils/printencodings.cc   | 1 +
+ 12 files changed, 12 insertions(+), 6 deletions(-)
+
+commit f007ab6beb2616850488271da5162f4ef0dbe789
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sat Dec 2 14:13:50 2017 +1030
+
+    INSTALL: add debug options
+
+    also ensure cmake commands are lowercase to be consistent with our
+    code style.
+
+ INSTALL | 38 +++++++++++++++++++++++++++++++++-----
+ 1 file changed, 33 insertions(+), 5 deletions(-)
+
+commit cef42ac807f4da7ae91be1b6b81b50adb9684975
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sat Dec 2 14:01:42 2017 +1030
+
+    Fix UTF test fail
+
+    The buffer size was not large enough. Increase it and add an assert to
+    check the buffer size.
+
+ qt5/tests/check_utf_conversion.cpp | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+commit fb4c69d270a618bb23791e52f46ec73c86574294
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Dec 1 23:44:17 2017 +0100
+
+    Remove the Qt4 frontend
+
+ .gitignore                                   |    2 -
+ CMakeLists.txt                               |   17 -
+ cmake/modules/FindQt4.cmake                  | 1311 -------
+ poppler-qt4.pc.cmake                         |   12 -
+ qt4/.gitignore                               |    4 -
+ qt4/CMakeLists.txt                           |    6 -
+ qt4/demos/.gitignore                         |    4 -
+ qt4/demos/CMakeLists.txt                     |   28 -
+ qt4/demos/abstractinfodock.cpp               |   57 -
+ qt4/demos/abstractinfodock.h                 |   48 -
+ qt4/demos/documentobserver.cpp               |   50 -
+ qt4/demos/documentobserver.h                 |   50 -
+ qt4/demos/embeddedfiles.cpp                  |   82 -
+ qt4/demos/embeddedfiles.h                    |   44 -
+ qt4/demos/fonts.cpp                          |   72 -
+ qt4/demos/fonts.h                            |   43 -
+ qt4/demos/info.cpp                           |   72 -
+ qt4/demos/info.h                             |   43 -
+ qt4/demos/main_viewer.cpp                    |   33 -
+ qt4/demos/metadata.cpp                       |   50 -
+ qt4/demos/metadata.h                         |   43 -
+ qt4/demos/navigationtoolbar.cpp              |  144 -
+ qt4/demos/navigationtoolbar.h                |   65 -
+ qt4/demos/optcontent.cpp                     |   69 -
+ qt4/demos/optcontent.h                       |   47 -
+ qt4/demos/pageview.cpp                       |  101 -
+ qt4/demos/pageview.h                         |   53 -
+ qt4/demos/permissions.cpp                    |   66 -
+ qt4/demos/permissions.h                      |   43 -
+ qt4/demos/thumbnails.cpp                     |   84 -
+ qt4/demos/thumbnails.h                       |   48 -
+ qt4/demos/toc.cpp                            |   88 -
+ qt4/demos/toc.h                              |   43 -
+ qt4/demos/viewer.cpp                         |  319 --
+ qt4/demos/viewer.h                           |   73 -
+ qt4/src/.gitignore                           |    9 -
+ qt4/src/ArthurOutputDev.cc                   |  812 ----
+ qt4/src/ArthurOutputDev.h                    |  170 -
+ qt4/src/CMakeLists.txt                       |   54 -
+ qt4/src/Doxyfile                             | 1637 ---------
+ qt4/src/Mainpage.dox                         |   85 -
+ qt4/src/poppler-annotation-helper.h          |  181 -
+ qt4/src/poppler-annotation-private.h         |  112 -
+ qt4/src/poppler-annotation.cc                | 5089
+ --------------------------
+ qt4/src/poppler-annotation.h                 | 1375 -------
+ qt4/src/poppler-base-converter.cc            |  105 -
+ qt4/src/poppler-converter-private.h          |   49 -
+ qt4/src/poppler-document.cc                  |  850 -----
+ qt4/src/poppler-embeddedfile-private.h       |   42 -
+ qt4/src/poppler-embeddedfile.cc              |  135 -
+ qt4/src/poppler-export.h                     |   20 -
+ qt4/src/poppler-fontinfo.cc                  |  150 -
+ qt4/src/poppler-form.cc                      |  416 ---
+ qt4/src/poppler-form.h                       |  343 --
+ qt4/src/poppler-link-extractor-private.h     |   57 -
+ qt4/src/poppler-link-extractor.cc            |   84 -
+ qt4/src/poppler-link-private.h               |   57 -
+ qt4/src/poppler-link.cc                      |  710 ----
+ qt4/src/poppler-link.h                       |  641 ----
+ qt4/src/poppler-media.cc                     |  168 -
+ qt4/src/poppler-media.h                      |  100 -
+ qt4/src/poppler-movie.cc                     |  110 -
+ qt4/src/poppler-optcontent-private.h         |  124 -
+ qt4/src/poppler-optcontent.cc                |  456 ---
+ qt4/src/poppler-optcontent.h                 |   84 -
+ qt4/src/poppler-page-private.h               |   57 -
+ qt4/src/poppler-page-transition-private.h    |   28 -
+ qt4/src/poppler-page-transition.cc           |  101 -
+ qt4/src/poppler-page-transition.h            |  158 -
+ qt4/src/poppler-page.cc                      |  810 ----
+ qt4/src/poppler-pdf-converter.cc             |  115 -
+ qt4/src/poppler-private.cc                   |  296 --
+ qt4/src/poppler-private.h                    |  241 --
+ qt4/src/poppler-ps-converter.cc              |  280 --
+ qt4/src/poppler-qiodeviceoutstream-private.h |   47 -
+ qt4/src/poppler-qiodeviceoutstream.cc        |   64 -
+ qt4/src/poppler-qt4.h                        | 1990 ----------
+ qt4/src/poppler-sound.cc                     |  132 -
+ qt4/src/poppler-textbox.cc                   |   63 -
+ qt4/tests/.gitignore                         |   33 -
+ qt4/tests/CMakeLists.txt                     |   67 -
+ qt4/tests/README.unittest                    |   23 -
+ qt4/tests/check_actualtext.cpp               |   33 -
+ qt4/tests/check_attachments.cpp              |  157 -
+ qt4/tests/check_dateConversion.cpp           |  142 -
+ qt4/tests/check_fonts.cpp                    |  248 --
+ qt4/tests/check_goostring.cpp                |  127 -
+ qt4/tests/check_lexer.cpp                    |  107 -
+ qt4/tests/check_links.cpp                    |   98 -
+ qt4/tests/check_metadata.cpp                 |  275 --
+ qt4/tests/check_optcontent.cpp               |  446 ---
+ qt4/tests/check_pagelabelinfo.cpp            |   43 -
+ qt4/tests/check_pagelayout.cpp               |   49 -
+ qt4/tests/check_pagemode.cpp                 |   73 -
+ qt4/tests/check_password.cpp                 |   88 -
+ qt4/tests/check_permissions.cpp              |   44 -
+ qt4/tests/check_search.cpp                   |  175 -
+ qt4/tests/check_strings.cpp                  |  250 --
+ qt4/tests/poppler-attachments.cpp            |   39 -
+ qt4/tests/poppler-fonts.cpp                  |   89 -
+ qt4/tests/poppler-forms.cpp                  |  166 -
+ qt4/tests/poppler-texts.cpp                  |   40 -
+ qt4/tests/stress-poppler-dir.cpp             |   67 -
+ qt4/tests/stress-poppler-qt4.cpp             |   74 -
+ qt4/tests/stress-threads-qt4.cpp             |  309 --
+ qt4/tests/test-password-qt4.cpp              |  136 -
+ qt4/tests/test-poppler-qt4.cpp               |  235 --
+ qt4/tests/test-render-to-file.cpp            |   69 -
+ 108 files changed, 25623 deletions(-)
+
+commit bb0011b74093cfbf5a21b72861ac46a2b8699c0e
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Dec 1 23:37:38 2017 +0100
+
+    Make the disable for ENABLE_CMS be none
+
+    as it is for ENABLE_LIBOPENJPEG and for ENABLE_DCTDECODER
+
+ CMakeLists.txt | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+commit 0ea5ad393601f0b1c060268cf1c310b47f928f7b
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Dec 1 23:35:28 2017 +0100
+
+    Stop supporting openjpeg1, you really want to use openjpeg2 :)
+
+ CMakeLists.txt            |  54 ++---------------
+ config.h.cmake            |   6 --
+ poppler/JPEG2000Stream.cc | 145
+ ----------------------------------------------
+ 3 files changed, 5 insertions(+), 200 deletions(-)
+
+commit ce8e17e4fa96b7dd639c72818bba5a26c16cc1cb
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Dec 1 23:19:39 2017 +0100
+
+    Stop supporting lcms1, you really want to use lcms2 :)
+
+ CMakeLists.txt      | 36 ++++++------------------------------
+ config.h.cmake      |  3 ---
+ poppler/Gfx.cc      |  5 -----
+ poppler/GfxState.cc | 40 ----------------------------------------
+ 4 files changed, 6 insertions(+), 78 deletions(-)
+
+commit 42d8d7ffd8b5393dc3103a45932b70bc8ca61c2e
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Wed Nov 22 21:50:24 2017 +0100
+
+    Open files that state 8 bits as third field of W
+
+    Even we only really accept 32 bits since it is really strange to have
+    more than 2^31 generations
+
+    Bug #103469
+
+ poppler/XRef.cc | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+commit 6ab81a63323e8339647f883649bf74f9d96820ae
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Tue Nov 7 17:25:27 2017 +0100
+
+    Document the meaning of the 'type' integer of a shading
+
+ poppler/GfxState.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+commit 0a9d6debdb3d4e28d9125a007244bca0c1cd760a
+Author: Jean Ghali <jghali@libertysurf.fr>
+Date:   Fri Nov 17 23:13:56 2017 +0100
+
+    Include glibc.h where needed
+
+    at least for strtok_r
+
+ fofi/FoFiType1.cc            | 2 ++
+ poppler/CharCodeToUnicode.cc | 2 ++
+ poppler/GlobalParams.cc      | 2 ++
+ poppler/PDFDoc.cc            | 2 ++
+ poppler/UnicodeMap.cc        | 2 ++
+ 5 files changed, 10 insertions(+)
+
+commit e0302537ec0919d9f3dbf180ebbc6e2653b1049b
+Author: Albert Astals Cid <albert.astals.cid@kdab.com>
+Date:   Wed Nov 15 10:44:14 2017 +0100
+
+    qt5: Add API to let the rendering process callback to get a partial
+    rendering
+
+    Bug #103372
+
+ qt5/src/poppler-page.cc | 254
+ +++++++++++++++++++++++++++++++++---------------
+ qt5/src/poppler-qt5.h   |  78 +++++++++++++++
+ 2 files changed, 254 insertions(+), 78 deletions(-)
+
+commit 33b8e6220d06a26378d7d21c88ead6e2280c2e52
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Wed Nov 15 19:58:53 2017 +1030
+
+    fix MSC macro
+
+ poppler/GlobalParams.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit a6dd3f957f5979fa34a05ba963862de7d0d9df61
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Nov 12 10:33:07 2017 +1030
+
+    Support unicode on windows console
+
+    The Win32Console should be used in programs that require unicode
+    support for command line arguments and stdio ouput on windows. On
+    windows it gets the command line arguments from GetCommandLineW and
+    converts to UTF-8, and redefines the stdio output functions to convert
+    UTF-8 to calls to WriteConsoleW. On other platforms this class is a
+    no-op.
+
+ poppler/PDFDoc.cc                  |   9 +-
+ poppler/UTF.cc                     | 287
+ ++++++++++++++++++++++++++++++++++++-
+ poppler/UTF.h                      |  39 +++++
+ qt5/tests/CMakeLists.txt           |   1 +
+ qt5/tests/check_utf_conversion.cpp |  87 +++++++++++
+ utils/CMakeLists.txt               |   1 +
+ utils/JSInfo.cc                    |   1 +
+ utils/Win32Console.cc              | 167 +++++++++++++++++++++
+ utils/Win32Console.h               |  63 ++++++++
+ utils/pdfdetach.cc                 |   2 +
+ utils/pdffonts.cc                  |   2 +
+ utils/pdfimages.cc                 |   2 +
+ utils/pdfinfo.cc                   |   2 +
+ utils/pdfseparate.cc               |   2 +
+ utils/pdfsig.cc                    |   2 +
+ utils/pdftocairo-win32.cc          |   1 +
+ utils/pdftocairo.cc                |   2 +
+ utils/pdftohtml.cc                 |   2 +
+ utils/pdftoppm.cc                  |   2 +
+ utils/pdftops.cc                   |   2 +
+ utils/pdftotext.cc                 |   2 +
+ 21 files changed, 676 insertions(+), 2 deletions(-)
+
+commit 49107ffcd4d3c9b18fc950d37bede08f89bcfcda
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Nov 12 10:33:07 2017 +1030
+
+    Fix some mingw warnings
+
+    - Include poppler-config.h for mingw PRINTF_FORMAT
+    - Only redefine strcasecmp for MSVC
+    - Recent versions of MSVC have snprintf and vsnprintf
+
+ poppler/Error.cc        |  1 +
+ poppler/GlobalParams.cc |  2 +-
+ poppler/PDFDoc.cc       |  1 +
+ test/perf-test.cc       | 15 +++------------
+ 4 files changed, 6 insertions(+), 13 deletions(-)
+
+commit 4f687665c39da743e802fc71ba05fb5966095293
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Nov 12 10:33:07 2017 +1030
+
+    sort encoding list
+
+    makes it easier to find encodings listed by -listenc
+
+ utils/printencodings.cc | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+commit 5c394f71f03d27507db3446ad34f299393fa3621
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Nov 12 10:33:07 2017 +1030
+
+    Move UTF8.h to UnicodeMapFuncs.h and rename UCS2 to UTF16
+
+    UTF8.h is not exclusively UTF-8 code. Renaming to UnicodeMapFuncs.h
+    identifies the file as containing maps for UnicodeMap and is
+    consistent with the name UnicodeMapTables.h.
+
+    The mapUCS2 code was changed to support UTF-16 in 979ef1ca without
+    changing the name.
+
+ CMakeLists.txt                        | 2 +-
+ poppler/GlobalParams.cc               | 4 ++--
+ poppler/{UTF8.h => UnicodeMapFuncs.h} | 6 +++---
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+commit 9ff60568ab420e86295bfa81cef9375d7c5600b8
+Author: Thomas Zajic <zlatko@gmx.at>
+Date:   Tue Nov 14 22:25:37 2017 +0100
+
+    pdfsig: install man page
+
+ utils/CMakeLists.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit d63ddd1fb762e536dd78f24bd3e3ddbc3504e1eb
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Tue Nov 14 20:05:33 2017 +0100
+
+    Use GfxLabColorSpace::transform only when USE_CMS is set
+
+    The recent commit e84338a44f27afb9872cb108fc29683b35ac55f7
+    introduced an unqualified use of GfxLabColorSpace::transform,
+    even though that member only exists if USE_CMS is set.
+
+    Fix this by adding the appropriate preprocessor conditionals.
+
+ poppler/GfxState.cc | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 19909998a2f1f703c9978510ae1fc3baed84de31
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sat Nov 11 05:38:25 2017 +1030
+
+    glib demo: fix warning
+
+ glib/demo/selections.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit e84338a44f27afb9872cb108fc29683b35ac55f7
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Nov 13 00:37:00 2017 +0100
+
+    GfxLabColorSpace::parse: Fix crash in broken documents
+
+    Bug #103582
+
+ poppler/GfxState.cc | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
+commit fea27db14358c8342c9f5bdbe6cb3bff02cebc2b
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Nov 12 19:54:52 2017 +0100
+
+    Fix leak if parseDA fails
+
+ poppler/Form.cc | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit faeb48920d64a776911a259bcf1bb6231ac1d24c
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Nov 12 19:14:32 2017 +0100
+
+    0.61.1
+
+ CMakeLists.txt   |  2 +-
+ NEWS             | 11 +++++++++++
+ cpp/Doxyfile     |  2 +-
+ qt4/src/Doxyfile |  2 +-
+ qt5/src/Doxyfile |  2 +-
+ 5 files changed, 15 insertions(+), 4 deletions(-)
+
+commit 155597a09b2c7fcbd0eea2b5a2021a5b65476e4c
+Author: Jeroen Ooms <jeroenooms@gmail.com>
+Date:   Sat Nov 4 05:33:09 2017 -0700
+
+    Fix for corrupted image files on Windows
+
+    Bug #102494
+
+ cpp/poppler-image.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit c45efa2d7e0db8a4ace0e8c6955b3fa48dc6d070
+Author: Adam Sampson <ats@offog.org>
+Date:   Sun Nov 5 11:45:00 2017 +0000
+
+    Fix incorrect paths in .pc files.
+
+    The change in 67c3878ef10449b241c37d1022e2518029860335 used the
+    CMAKE_INSTALL_x variables instead of CMAKE_INSTALL_FULL_x; the former
+    contain things like "include" instead of full paths, so the resulting
+    .pc files break packages that depend on poppler. Use the latter.
+
+    Also fix a missing @ in the qt5 file.
+
+    Bug #103578
+
+ poppler-cairo.pc.cmake  | 4 ++--
+ poppler-cpp.pc.cmake    | 4 ++--
+ poppler-glib.pc.cmake   | 4 ++--
+ poppler-qt4.pc.cmake    | 4 ++--
+ poppler-qt5.pc.cmake    | 4 ++--
+ poppler-splash.pc.cmake | 4 ++--
+ poppler.pc.cmake        | 4 ++--
+ 7 files changed, 14 insertions(+), 14 deletions(-)
+
+commit 7ccedf2b082e4d46257fb247e1f6e1197d66eead
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Wed Nov 8 21:07:45 2017 +1030
+
+    cairo: don't overflow y * stride when accessing image data
+
+ poppler/CairoOutputDev.cc | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+commit 6ae4293fce77290f4fbdc643c999809d5924bf2c
+Author: Roland Hieber <r.hieber@pengutronix.de>
+Date:   Wed Nov 8 08:22:01 2017 +0100
+
+    CMake: add the custom buildtests target only once
+
+    Make BUILDTESTS_ADDED a global property, so the `buildtests` target
+    gets added only once. As far as I understood, this seems to fulfil
+    the requirements of CMP0002.
+
+    Bug #103003
+
+ cmake/modules/PopplerMacros.cmake | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit aaa9c5308766a88d0512b87051d7c7082f152a9f
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Nov 3 11:25:02 2017 +0100
+
+    Poppler 0.61
+
+ CMakeLists.txt   |  6 +++---
+ NEWS             | 20 ++++++++++++++++++++
+ cpp/Doxyfile     |  2 +-
+ qt4/src/Doxyfile |  2 +-
+ qt5/src/Doxyfile |  2 +-
+ 5 files changed, 26 insertions(+), 6 deletions(-)
+
+commit 79b704b4017cf66dc3c39b49425c8b02760e5165
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Nov 3 11:14:10 2017 +0100
+
+    Update (C) for commits since last release
+
+ fofi/FoFiTrueType.cc           |  2 +-
+ goo/FixedPoint.cc              | 14 ++++++++++++++
+ goo/FixedPoint.h               | 15 +++++++++++++++
+ goo/GooMutex.h                 |  1 +
+ goo/GooString.cc               |  2 +-
+ goo/GooString.h                |  1 +
+ goo/gfile.cc                   |  2 +-
+ goo/gfile.h                    |  2 +-
+ goo/glibc.h                    |  2 +-
+ goo/glibc_strtok_r.cc          |  1 +
+ poppler/Annot.cc               |  2 +-
+ poppler/Annot.h                |  2 +-
+ poppler/Array.cc               |  1 +
+ poppler/Array.h                |  1 +
+ poppler/CMap.cc                |  1 +
+ poppler/CMap.h                 |  2 +-
+ poppler/CairoFontEngine.cc     |  2 +-
+ poppler/CairoFontEngine.h      |  2 +-
+ poppler/CairoRescaleBox.cc     |  2 +-
+ poppler/Catalog.cc             |  2 +-
+ poppler/Catalog.h              |  2 +-
+ poppler/CharCodeToUnicode.cc   |  2 +-
+ poppler/CharCodeToUnicode.h    |  1 +
+ poppler/DCTStream.cc           |  1 +
+ poppler/Decrypt.cc             |  2 +-
+ poppler/Dict.cc                |  1 +
+ poppler/Dict.h                 |  1 +
+ poppler/FlateEncoder.cc        |  1 +
+ poppler/FlateStream.cc         |  1 +
+ poppler/GlobalParams.cc        |  2 +-
+ poppler/GlobalParams.h         |  2 +-
+ poppler/GlobalParamsWin.cc     |  2 +-
+ poppler/Object.h               |  2 +-
+ poppler/OutputDev.cc           |  2 +-
+ poppler/OutputDev.h            |  2 +-
+ poppler/PDFDoc.cc              |  2 +-
+ poppler/PDFDoc.h               |  2 +-
+ poppler/PDFDocFactory.cc       |  1 +
+ poppler/PSOutputDev.cc         |  2 +-
+ poppler/PSOutputDev.h          |  2 +-
+ poppler/Page.cc                |  2 +-
+ poppler/Page.h                 |  2 +-
+ poppler/SplashOutputDev.cc     |  2 +-
+ poppler/SplashOutputDev.h      |  2 +-
+ poppler/StructTreeRoot.cc      |  1 +
+ poppler/TextOutputDev.cc       |  2 +-
+ poppler/TextOutputDev.h        |  2 +-
+ poppler/UnicodeMap.cc          |  1 +
+ poppler/UnicodeMap.h           | 14 ++++++++++++++
+ poppler/XRef.cc                |  2 +-
+ poppler/XRef.h                 |  2 +-
+ poppler/poppler-config.h.cmake |  1 +
+ qt4/src/ArthurOutputDev.cc     |  1 +
+ qt4/src/poppler-document.cc    |  1 +
+ qt4/src/poppler-page.cc        |  1 +
+ qt5/src/ArthurOutputDev.cc     |  1 +
+ qt5/src/poppler-document.cc    |  1 +
+ qt5/src/poppler-page.cc        |  1 +
+ splash/Splash.cc               |  2 +-
+ splash/Splash.h                |  2 +-
+ splash/SplashFTFont.cc         |  1 +
+ splash/SplashFTFont.h          |  1 +
+ splash/SplashFTFontEngine.cc   |  1 +
+ splash/SplashFTFontEngine.h    |  1 +
+ splash/SplashFTFontFile.cc     |  2 +-
+ splash/SplashFTFontFile.h      |  1 +
+ splash/SplashFontEngine.cc     |  1 +
+ splash/SplashFontEngine.h      |  1 +
+ splash/SplashMath.h            |  1 +
+ splash/SplashState.cc          |  1 +
+ splash/SplashState.h           |  1 +
+ splash/SplashTypes.h           |  1 +
+ splash/SplashXPath.cc          |  1 +
+ utils/pdfimages.cc             |  2 +-
+ utils/pdftocairo-win32.cc      |  2 +-
+ utils/pdftoppm.cc              |  2 +-
+ utils/pdftops.cc               |  2 +-
+ 77 files changed, 117 insertions(+), 40 deletions(-)
+
+commit b8b6a7c9240d1b98e79463ea93245127ac56e764
+Author: Sandro Mani <manisandro@gmail.com>
+Date:   Fri Nov 3 10:37:25 2017 +0100
+
+    mingw: change library names to include the soversion
+
+    Bug #103157
+
+ CMakeLists.txt         | 4 ++++
+ cpp/CMakeLists.txt     | 4 ++++
+ glib/CMakeLists.txt    | 4 ++++
+ qt4/src/CMakeLists.txt | 4 ++++
+ qt5/src/CMakeLists.txt | 4 ++++
+ 5 files changed, 20 insertions(+)
+
+commit f6ad64878d91cbd0c19531c7ff669af0e0fa0912
+Author: Sandro Mani <manisandro@gmail.com>
+Date:   Tue Oct 31 00:24:11 2017 +0100
+
+    Install pkg-config files also on mingw
+
+ cmake/modules/PopplerMacros.cmake | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 67c3878ef10449b241c37d1022e2518029860335
+Author: Emilio Pozuelo Monfort <pochu27@gmail.com>
+Date:   Tue Oct 31 00:20:29 2017 +0100
+
+    cmake: support GNUInstallDirs
+
+    This allows users to set various install directories, e.g.
+    libdir, includedir, mandir...
+
+    Bug #103211
+
+ CMakeLists.txt                                 | 21 ++++++++++-----------
+ cmake/modules/GObjectIntrospectionMacros.cmake |  4 ++--
+ cpp/CMakeLists.txt                             |  2 +-
+ glib/CMakeLists.txt                            |  2 +-
+ glib/reference/CMakeLists.txt                  |  2 +-
+ poppler-cairo.pc.cmake                         |  5 ++---
+ poppler-cpp.pc.cmake                           |  5 ++---
+ poppler-glib.pc.cmake                          |  5 ++---
+ poppler-qt4.pc.cmake                           |  5 ++---
+ poppler-qt5.pc.cmake                           |  5 ++---
+ poppler-splash.pc.cmake                        |  5 ++---
+ poppler.pc.cmake                               |  5 ++---
+ qt4/src/CMakeLists.txt                         |  2 +-
+ qt5/src/CMakeLists.txt                         |  2 +-
+ utils/CMakeLists.txt                           | 22
+ +++++++++++-----------
+ 15 files changed, 42 insertions(+), 50 deletions(-)
+
+commit 4d109589e5d2ac989d4fd7ac318ddf976f3106ed
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Sun Oct 29 20:28:52 2017 +0100
+
+    Fix leak in ArthurOutputDev::updateFont
+
+    Bug #103508
+
+ qt5/src/ArthurOutputDev.cc | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit b9ae2fd75c147988653093d0ecbf66188d81f8fc
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 22 18:29:31 2017 +1030
+
+    glib demo: correct the previous warnings fix
+
+    Bug 103050
+
+ glib/demo/utils.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
+
+commit d72f0383b959d8495a452d2d32377e588b15ad65
+Author: Kay Dohmann <k.dohmann@gmx.net>
+Date:   Mon Oct 23 23:31:13 2017 +0200
+
+    Tweak LZWStream::processNextCode
+
+    Fixes file attached at bug 103174 and doesn't seem to cause any
+    regression in the files we have around
+
+    Bug #103174
+
+ poppler/Stream.cc | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
+
+commit e0926ca8a94bafa6d5bfd694064c5e30da2b79db
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Thu Oct 5 18:32:40 2017 +0200
+
+    Properly implement saveState / restoreState
+
+    Not all of the internal state was actually saved/restored in
+    those methods, which lead to inconsistencies between the
+    ArthurOutputDev state and the GfxState object.
+
+    Bug #103118
+
+ qt5/src/ArthurOutputDev.cc | 14 ++++++++++++++
+ qt5/src/ArthurOutputDev.h  |  9 +++++++++
+ 2 files changed, 23 insertions(+)
+
+commit ebf6d1ca736fecad49fbf543875c794770bd4d57
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Fri Sep 15 11:18:58 2017 +0200
+
+    Clean up the remaining Splash code in Arthur backend
+
+    - remove some goto-style error handling
+    - use nullptr
+    - use std::unique_ptr (fixes a leak)
+    - remove unused data member m_currentFont
+    - remove some unused forward declarations
+
+    Bug #103117
+
+ qt5/src/ArthurOutputDev.cc | 48
+ +++++++++++++++++-----------------------------
+ qt5/src/ArthurOutputDev.h  |  4 ----
+ 2 files changed, 18 insertions(+), 34 deletions(-)
+
+commit 0a8174945379142348ce1006ce88cb1a75c01c96
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Sun Oct 22 12:45:05 2017 +0200
+
+    isfinite -> std::isfinite
+
+    Fixes build on the travis CI
+
+ poppler/SplashOutputDev.cc | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+commit 9c7b557da043c897292219a16f419ba9650e6dfc
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 20:22:02 2017 +1030
+
+    Fix mingw warnings
+
+ poppler/Annot.cc               |  6 +++---
+ poppler/DCTStream.cc           |  6 ++++--
+ poppler/GlobalParams.cc        | 29 +++++++++++++++++------------
+ poppler/XRef.cc                |  1 +
+ poppler/poppler-config.h.cmake |  3 +--
+ 5 files changed, 26 insertions(+), 19 deletions(-)
+
+commit 69414f14f60c49f9e0a8243603c6330fa3d11837
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 18:40:58 2017 +1030
+
+    mingw build fix - use win32 threads
+
+    The cmake FindThreads detects both win32 and pthreads on mingw.
+    It also attempts a TryRun test for pthreads which won't work with
+    a cross compile.
+
+ CMakeLists.txt | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+commit ecd2b7bf71b110b0e245e2866a13f2c0a901921f
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 17:03:19 2017 +1030
+
+    Remove VC7 workaround
+
+    VC7 (2002) does not support C++11
+
+ poppler/Gfx.cc | 8 --------
+ 1 file changed, 8 deletions(-)
+
+commit 6e3e639c632f8527f9dc75061605e4a55f2faae9
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 16:59:31 2017 +1030
+
+    Use <cmath> for isfinite()
+
+ poppler/SplashOutputDev.cc | 21 +--------------------
+ 1 file changed, 1 insertion(+), 20 deletions(-)
+
+commit f9cef28b504445c7976baa0a51676204f95397fc
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 15:13:42 2017 +1030
+
+    c++11 has long long
+
+ fofi/FoFiTrueType.cc |  1 +
+ fofi/FoFiType1.cc    |  1 +
+ goo/GooString.cc     | 36 ------------------------------------
+ goo/GooString.h      | 13 -------------
+ poppler/Object.h     |  1 +
+ poppler/PDFDoc.cc    |  1 +
+ 6 files changed, 4 insertions(+), 49 deletions(-)
+
+commit 4f2bd307711f792f8caf93a560444e17bd98611a
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 13:45:38 2017 +1030
+
+    Remove fmax/fmin from poppler-config.h
+
+    C++11 has fmax/fmin in <cmath> so use it and remove the #ifdefs
+    for MSVC.
+
+ poppler/TextOutputDev.cc       | 2 +-
+ poppler/poppler-config.h.cmake | 6 ------
+ 2 files changed, 1 insertion(+), 7 deletions(-)
+
+commit 555e2ea6b6f80a6f79eeaa44a39c24dc8461e78c
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 13:33:07 2017 +1030
+
+    Move strtok_r to goo/glibc
+
+    Move strtok_r out of poppler-config.h as it is not used in any
+    header files
+
+    Move strtok_r.cpp to goo/glibc_strtok_r.cc to keep it with the
+    other emulated
+    glibc functions. But keep it in a separate file due to the different
+    license.
+
+ CMakeLists.txt                                | 2 +-
+ ConfigureChecks.cmake                         | 1 +
+ config.h.cmake                                | 3 +++
+ goo/glibc.h                                   | 4 ++++
+ poppler/strtok_r.cpp => goo/glibc_strtok_r.cc | 4 +++-
+ poppler/poppler-config.h.cmake                | 8 --------
+ 6 files changed, 12 insertions(+), 10 deletions(-)
+
+commit 2ca32d2cfc57626bbc833d4981c7d0a071ccc985
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 13:18:12 2017 +1030
+
+    move/remove macros from poppler-config.h that don't need to be there
+
+    popen/pclose are not used in any .h files - move to config.h
+
+    POPEN_READ_MODE is not used - remove
+
+ config.h.cmake                 |  8 ++++++++
+ poppler/poppler-config.h.cmake | 15 ---------------
+ 2 files changed, 8 insertions(+), 15 deletions(-)
+
+commit bf3931016614c434f7229e00bb75e3b113803d04
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 12:55:41 2017 +1030
+
+    Remove unused HAVE_ZLIB_H/HAVE_LIBZ macros
+
+ CMakeLists.txt | 3 ---
+ config.h.cmake | 3 ---
+ 2 files changed, 6 deletions(-)
+
+commit 82e7f4bad79d122fe8cf16be54901d1f1668ca37
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 12:05:10 2017 +1030
+
+    Make poppler compile if threads not available
+
+ CMakeLists.txt | 5 ++++-
+ goo/GooMutex.h | 6 +++++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+commit 350b905537f59323a6b9a854cf019e8e95940bd6
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Mon Oct 2 11:36:42 2017 +1030
+
+    Use -pthread flag instead of -lpthread
+
+    The -pthread flag should be used for compiling with threads as it sets
+    flags for both the preprocessor and linker.
+
+    In cmake this is achieved with the set(THREADS_PREFER_PTHREAD_FLAG
+    TRUE)
+    before find_package(Threads) and using the Threads::Threads import
+    target.
+
+    Also added set(CMAKE_THREAD_PREFER_PTHREAD TRUE) as we only support
+    pthread on non windows platforms.
+
+ CMakeLists.txt       | 11 +++++------
+ glib/CMakeLists.txt  |  4 ++--
+ utils/CMakeLists.txt |  4 ++--
+ 3 files changed, 9 insertions(+), 10 deletions(-)
+
+commit e01e6db4e0643b7b318a3d7dc49442bb2d6ade00
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 20:51:13 2017 +1030
+
+    HAVE_PTHREAD is not used
+
+ config.h.cmake | 3 ---
+ 1 file changed, 3 deletions(-)
+
+commit 36010177e9c168d110c44407512c93b49a9cf95c
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 19:28:13 2017 +1030
+
+    Remove unused macros
+
+    The jpeg.h HAVE_BOOLEAN is only required if the application defines
+    type 'boolean' to prevent jpeg.h from redefining it.
+
+ ConfigureChecks.cmake |  6 ------
+ config.h.cmake        | 36 ------------------------------------
+ 2 files changed, 42 deletions(-)
+
+commit 6658754b9b8dfd1ba692da2681d95e21e9c1c2d4
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 19:09:28 2017 +1030
+
+    We always have config.h so drop the macro
+
+ CMakeLists.txt             | 1 -
+ poppler/CairoRescaleBox.cc | 2 --
+ 2 files changed, 3 deletions(-)
+
+commit 7b0d736ccd5d3e1327684d21d6afbe2dec01188f
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 19:04:39 2017 +1030
+
+    c++11 has <cstdint> so we can drop the stdint.h checks and emulation
+
+ ConfigureChecks.cmake      |  1 -
+ config.h.cmake             |  3 ---
+ goo/gtypes_p.h             | 30 ------------------------------
+ poppler/CairoOutputDev.cc  |  2 +-
+ poppler/CairoRescaleBox.cc |  2 +-
+ poppler/Decrypt.cc         |  2 +-
+ utils/pdftocairo-win32.h   |  2 +-
+ utils/pdftocairo.cc        |  2 +-
+ 8 files changed, 5 insertions(+), 39 deletions(-)
+
+commit 465edbbffcc94f9af9fac7606086a28362f92d09
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 18:48:07 2017 +1030
+
+    Fix remaining -Wundef warnings
+
+    and make -Wundef a default warning
+
+ cmake/modules/PopplerMacros.cmake |  2 +-
+ goo/FixedPoint.h                  |  2 +-
+ goo/TiffWriter.cc                 |  2 +-
+ goo/gfile.cc                      | 20 ++++++++---------
+ goo/gfile.h                       | 10 ++++-----
+ poppler/Annot.cc                  | 12 +++++-----
+ poppler/Annot.h                   |  2 +-
+ poppler/Array.cc                  |  6 ++---
+ poppler/Array.h                   |  2 +-
+ poppler/CMap.cc                   | 14 ++++++------
+ poppler/CMap.h                    |  4 ++--
+ poppler/CairoFontEngine.cc        | 10 ++++-----
+ poppler/CairoFontEngine.h         |  2 +-
+ poppler/Catalog.cc                |  6 ++---
+ poppler/Catalog.h                 |  2 +-
+ poppler/CharCodeToUnicode.cc      | 16 +++++++-------
+ poppler/CharCodeToUnicode.h       |  4 ++--
+ poppler/Dict.cc                   |  8 +++----
+ poppler/Dict.h                    |  2 +-
+ poppler/FlateStream.cc            |  2 +-
+ poppler/Gfx.cc                    |  4 ++--
+ poppler/GlobalParams.cc           | 12 +++++-----
+ poppler/GlobalParams.h            |  4 ++--
+ poppler/GlobalParamsWin.cc        |  2 +-
+ poppler/OutputDev.cc              |  2 +-
+ poppler/OutputDev.h               |  2 +-
+ poppler/PDFDoc.cc                 |  6 ++---
+ poppler/PDFDoc.h                  |  2 +-
+ poppler/PDFDocFactory.cc          |  4 ++--
+ poppler/PSOutputDev.cc            | 24 ++++++++++----------
+ poppler/PSOutputDev.h             |  8 +++----
+ poppler/Page.cc                   |  6 ++---
+ poppler/Page.h                    |  2 +-
+ poppler/Stream.cc                 |  8 +++----
+ poppler/Stream.h                  |  2 +-
+ poppler/TextOutputDev.cc          | 14 ++++++------
+ poppler/TextOutputDev.h           | 14 ++++++------
+ poppler/UnicodeMap.cc             | 16 +++++++-------
+ poppler/UnicodeMap.h              |  4 ++--
+ poppler/XRef.cc                   | 10 ++++-----
+ poppler/XRef.h                    |  2 +-
+ utils/ImageOutputDev.cc           |  4 ++--
+ utils/pdfimages.cc                |  4 ++--
+ utils/pdftocairo.cc               | 46
+ +++++++++++++++++++--------------------
+ utils/pdftoppm.cc                 |  6 ++---
+ utils/pdftops.cc                  |  6 ++---
+ 46 files changed, 171 insertions(+), 171 deletions(-)
+
+commit b424862bf5df75db651076c780c7242eaf887479
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 18:18:42 2017 +1030
+
+    Remove HAVE_FREETYPE macros
+
+    Freetype is a mandatory dependency so we can drop the macros.
+
+ CMakeLists.txt                 |  1 -
+ config.h.cmake                 |  3 ---
+ poppler/SplashOutputDev.cc     |  8 --------
+ poppler/poppler-config.h.cmake |  7 +------
+ qt4/src/ArthurOutputDev.cc     |  2 --
+ qt5/src/ArthurOutputDev.cc     |  2 --
+ splash/SplashFTFont.cc         |  4 ----
+ splash/SplashFTFont.h          |  4 ----
+ splash/SplashFTFontEngine.cc   |  4 ----
+ splash/SplashFTFontEngine.h    |  4 ----
+ splash/SplashFTFontFile.cc     |  4 ----
+ splash/SplashFTFontFile.h      |  4 ----
+ splash/SplashFontEngine.cc     | 20 --------------------
+ splash/SplashFontEngine.h      |  6 ------
+ utils/pdftoppm.cc              |  2 --
+ 15 files changed, 1 insertion(+), 74 deletions(-)
+
+commit e0428ef002e9c8d6e2046fcdeeedcf7462367501
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 18:02:15 2017 +1030
+
+    Remove unused t1lib code
+
+ CMakeLists.txt                 |   6 -
+ poppler/SplashOutputDev.cc     |   3 -
+ poppler/poppler-config.h.cmake |   2 +-
+ qt4/src/ArthurOutputDev.cc     |   3 -
+ qt5/src/ArthurOutputDev.cc     |   3 -
+ splash/SplashFontEngine.cc     |  30 ----
+ splash/SplashFontEngine.h      |   6 -
+ splash/SplashT1Font.cc         | 309
+ -----------------------------------------
+ splash/SplashT1Font.h          |  69 ---------
+ splash/SplashT1FontEngine.cc   | 138 ------------------
+ splash/SplashT1FontEngine.h    |  50 -------
+ splash/SplashT1FontFile.cc     | 134 ------------------
+ splash/SplashT1FontFile.h      |  70 ----------
+ 13 files changed, 1 insertion(+), 822 deletions(-)
+
+commit 7f01a804455dcc9d87fa17b566b8bd269b2d5489
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 17:31:23 2017 +1030
+
+    Use _WIN32 to check for windows, not WIN32
+
+    These should have been fixed in #24259 but must have been missed.
+
+ goo/gfile.cc            | 4 ++--
+ goo/gfile.h             | 2 +-
+ poppler/GlobalParams.cc | 4 ++--
+ splash/SplashMath.h     | 6 +++---
+ 4 files changed, 8 insertions(+), 8 deletions(-)
+
+commit e38ffea64dc9c113607168e298c7ccdf8edaa61e
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 17:25:19 2017 +1030
+
+    Fix some -Wundef warnings
+
+ goo/FixedPoint.cc           |   2 +-
+ poppler/GlobalParams.cc     |   2 +-
+ poppler/PSOutputDev.cc      |   8 +--
+ poppler/SplashOutputDev.cc  | 158
+ ++++++++++++++++++++++----------------------
+ poppler/SplashOutputDev.h   |   2 +-
+ qt4/src/poppler-document.cc |   2 +-
+ qt4/src/poppler-page.cc     |   4 +-
+ qt5/src/poppler-document.cc |   2 +-
+ qt5/src/poppler-page.cc     |   4 +-
+ splash/Splash.cc            |  76 ++++++++++-----------
+ splash/Splash.h             |  10 +--
+ splash/SplashBitmap.cc      |  20 +++---
+ splash/SplashBitmap.h       |   2 +-
+ splash/SplashFTFont.cc      |   6 +-
+ splash/SplashFontEngine.h   |   4 +-
+ splash/SplashMath.h         |  42 ++++++------
+ splash/SplashState.cc       |  10 +--
+ splash/SplashState.h        |   2 +-
+ splash/SplashTypes.h        |  16 ++---
+ splash/SplashXPath.cc       |   6 +-
+ utils/pdftoppm.cc           |  12 ++--
+ utils/pdftops.cc            |   6 +-
+ 22 files changed, 198 insertions(+), 198 deletions(-)
+
+commit 9bb84057624c3b2f8fc5d137e70ae34efa46fe31
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 13:27:10 2017 +1030
+
+    glib demo: fix deprecated warnings
+
+ glib/demo/utils.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+commit 5d954d1c4f25447f70d949e31afeeefb70c2a8d5
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 12:53:38 2017 +1030
+
+    Fix warning: implicit declaration of function ‘localtime_r’
+
+    poppler/glib/demo/utils.c:488:20: warning: implicit declaration of
+    function ‘localtime_r’ [-Wimplicit-function-declaration]
+      if (time == 0 || !localtime_r (&time, &t)) return NULL;
+                          ^~~~~~~~~~~
+
+    The c files also need the -D_DEFAULT_SOURCE feature macro to enable
+    non standard C++11 functons.
+
+ cmake/modules/PopplerMacros.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 8ccc9efb6c5f717b8cd206a92f802c66bc0a69c7
+Author: Adrian Johnson <ajohnson@redneon.com>
+Date:   Sun Oct 1 12:35:19 2017 +1030
+
+    Fix warning: comparison of unsigned expression < 0 is always false
+
+ poppler/FlateEncoder.cc   | 1 -
+ poppler/StructTreeRoot.cc | 4 ++--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+commit 88571e7877f729eec2f7a3552b0fa6cc913ae1a6
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Oct 19 18:11:49 2017 +0200
+
+    Move setPSCenter from GlobalParams to PSOutputDev
+
+ poppler/GlobalParams.cc | 16 ----------------
+ poppler/GlobalParams.h  |  3 ---
+ poppler/PSOutputDev.cc  |  3 ++-
+ poppler/PSOutputDev.h   |  4 +++-
+ utils/pdftops.cc        |  8 ++++----
+ 5 files changed, 9 insertions(+), 25 deletions(-)
+
+commit 5b8fe4ee986673f15fcf8f58409cc85e8bf7ca12
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Oct 19 17:49:06 2017 +0200
+
+    Remove various never called internal setters from GlobalParams.h
+
+    TextKeepTinyChars: false, simplify if in TextOutputDev
+    DisableFreeTypeHinting: didn't actually have a getter :D
+    StrokeAdjust: true, adjust the code in Cairo/SplashOutputDev to
+    use gTrue
+    ScreenType: unset, simplify switch in SplashOutputDev
+    ScreenSize: -1, simplify code in SplashOutputDev
+    ScreenDotRadius: -1, simplify code in SplashOutputDev
+    ScreenGamma: 1.0, simplify code in SplashOutputDev
+    ScreenBlackThreshold: 0.0, simplify code in SplashOutputDev
+    ScreenWhiteThreshold: 1.0, simplify code in SplashOutputDev
+    MinLineWidth: 0.0, define it as static const in SplashOutputDev
+    since was used in various places
+    MapNumericCharNames: true, remove GfxFont.cc if guard
+    MapUnknownCharNames: true, remove GfxFont.cc if guard
+
+ poppler/CairoOutputDev.cc  |   2 +-
+ poppler/GfxFont.cc         |  94 +++++++++++-----------
+ poppler/GlobalParams.cc    | 193
+ ---------------------------------------------
+ poppler/GlobalParams.h     |  44 -----------
+ poppler/SplashOutputDev.cc |  66 +++++-----------
+ poppler/TextOutputDev.cc   |   3 +-
+ 6 files changed, 68 insertions(+), 334 deletions(-)
+
+commit 19ebd40547186a8ea6da08c8d8e2a6d6b7e84f5d
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Fri Oct 13 00:55:49 2017 +0200
+
+    CairoOutputDev: Fix crash in broken files
+
+    Bug #103016
+
+ poppler/CairoOutputDev.cc | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit 7ee9dadef37b20bca707a6b1e858e17d191e368b
+Author: Jason Crain <jason@inspiresomeone.us>
+Date:   Thu Oct 5 15:32:13 2017 -0500
+
+    TextOutputDev: Fix crash in fuzzed file
+
+    This file crashes pdftotext because it positions texts past INT_MIN,
+    leading to overflow in subsequent calculations.
+
+    Bug #103116
+
+ poppler/TextOutputDev.cc | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit 369cd504e70e55378c6395355056fa8676679e56
+Author: David Tardon <dtardon@redhat.com>
+Date:   Fri Oct 6 08:07:35 2017 +0200
+
+    do not install Function.cc, as it's not a header
+
+ CMakeLists.txt | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit f09a9923bb65755e183694c5f1be6af4a50e96e6
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Oct 5 19:15:44 2017 +0200
+
+    Poppler 0.60.1
+
+ CMakeLists.txt   | 2 +-
+ NEWS             | 7 +++++++
+ cpp/Doxyfile     | 2 +-
+ qt4/src/Doxyfile | 2 +-
+ qt5/src/Doxyfile | 2 +-
+ 5 files changed, 11 insertions(+), 4 deletions(-)
+
+commit e816c7a47caa0c3f5261d467333f8c2eb6a2ad51
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Thu Oct 5 18:51:49 2017 +0200
+
+    FindLIBOPENJPEG.cmake: Add CheckCXXSourceCompiles
+
+    Since we use check_cxx_source_compiles
+
+ cmake/modules/FindLIBOPENJPEG.cmake | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit f538b74a38acb53b877e000a64647ce8043133ac
+Author: Oliver Sander <oliver.sander@tu-dresden.de>
+Date:   Tue Oct 3 00:04:17 2017 +0200
+
+    qt5: ArthurOutputDev: Add missing 'return' in error paths
+
+ qt5/src/ArthurOutputDev.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit c2ba8fd8cf51af48a9e789d29e9fd5512d1688e3
+Author: Albert Astals Cid <aacid@kde.org>
+Date:   Mon Oct 2 23:46:49 2017 +0200
+
+    Poppler 0.60.0
+
+ CMakeLists.txt         |  4 ++--
+ NEWS                   | 28 ++++++++++++++++++++++++++++
+ cpp/Doxyfile           |  2 +-
+ qt4/src/Doxyfile       |  2 +-
+ qt5/src/CMakeLists.txt |  2 +-
+ qt5/src/Doxyfile       |  2 +-
+ 6 files changed, 34 insertions(+), 6 deletions(-)
+
 commit 9432e0bfc4c4f2e16b7c152aa8b04d6d19ed4898
 Author: Albert Astals Cid <aacid@kde.org>
 Date:   Mon Oct 2 23:29:21 2017 +0200

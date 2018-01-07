@@ -10,11 +10,19 @@ include(MacroOptionalFindPackage)
 find_package(PkgConfig)
 include(MacroEnsureVersion)
 include(MacroBoolTo01)
-find_package(Threads)
+if (WIN32)
+  message("-- Using win32 threads")
+else()
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package(Threads)
+endif()
 include(TestBigEndian)
 test_big_endian(WORDS_BIGENDIAN)
 include(CheckFileOffsetBits)
 CHECK_FILE_OFFSET_BITS()
+
+include(GNUInstallDirs)
 
 find_package (ECM 1.6.0 QUIET NO_MODULE)
 if (ECM_FOUND)
@@ -22,7 +30,7 @@ if (ECM_FOUND)
 endif()
 
 set(POPPLER_MAJOR_VERSION "0")
-set(POPPLER_MINOR_VERSION "59")
+set(POPPLER_MINOR_VERSION "62")
 set(POPPLER_MICRO_VERSION "0")
 set(POPPLER_VERSION "${POPPLER_MAJOR_VERSION}.${POPPLER_MINOR_VERSION}.${POPPLER_MICRO_VERSION}")
 
@@ -32,7 +40,6 @@ set (CMAKE_CXX_EXTENSIONS OFF)
 # command line switches
 option(ENABLE_XPDF_HEADERS "Install unsupported xpdf headers." OFF)
 option(BUILD_GTK_TESTS "Whether compile the GTK+ test programs." ON)
-option(BUILD_QT4_TESTS "Whether compile the Qt4 test programs." ON)
 option(BUILD_QT5_TESTS "Whether compile the Qt5 test programs." ON)
 option(BUILD_CPP_TESTS "Whether compile the CPP test programs." ON)
 option(ENABLE_SPLASH "Build the Splash graphics backend." ON)
@@ -40,10 +47,9 @@ option(ENABLE_UTILS "Compile poppler command line utils." ON)
 option(ENABLE_CPP "Compile poppler cpp wrapper." ON)
 option(ENABLE_GLIB "Compile poppler glib wrapper." ON)
 option(ENABLE_GTK_DOC "Whether to generate glib API documentation." OFF)
-option(ENABLE_QT4 "Compile poppler qt4 wrapper." ON)
 option(ENABLE_QT5 "Compile poppler qt5 wrapper." ON)
-set(ENABLE_LIBOPENJPEG "auto" CACHE STRING "Use libopenjpeg for JPX streams. Possible values: auto, openjpeg1, openjpeg2, unmaintained, none. 'auto' prefers openjpeg2 over openjpeg1 if both are available. 'unmaintained' gives you the internal unmaintained decoder. Use at your own risk. 'none' compiles no JPX decoder at all. Default: auto")
-set(ENABLE_CMS "auto" CACHE STRING "Use color management system. Possible values: auto, lcms1, lcms2. 'auto' prefers lcms2 over lcms1 if both are available. Unset to disable color management system.")
+set(ENABLE_LIBOPENJPEG "openjpeg2" CACHE STRING "Use libopenjpeg for JPX streams. Possible values: openjpeg2, unmaintained, none. 'unmaintained' gives you the internal unmaintained decoder. Use at your own risk. 'none' compiles no JPX decoder at all. Default: openjpeg2")
+set(ENABLE_CMS "lcms2" CACHE STRING "Use color management system. Possible values: lcms2, none. 'none' disables color management system.")
 set(ENABLE_DCTDECODER "libjpeg" CACHE STRING "Use libjpeg for DCT streams. Possible values: libjpeg, unmaintained, none. will use libjpeg if available or fail if not. 'unmaintained' gives you the internal unmaintained decoder. Use at your own risk. 'none' compiles no DCT decoder at all. Default: libjpeg")
 option(ENABLE_LIBCURL "Build libcurl based HTTP support." ON)
 option(ENABLE_ZLIB "Build with zlib." ON)
@@ -58,9 +64,6 @@ else()
   set(ENABLE_RELOCATABLE OFF)
 endif()
 option(EXTRA_WARN "Enable extra compile warnings" OFF)
-
-set(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)")
-set(SHARE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share" CACHE STRING "Share directory name")
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -100,13 +103,15 @@ else()
   message(FATAL_ERROR "Invalid font configuration setting: ${FONT_CONFIGURATION}")
 endif()
 
+if(CMAKE_USE_PTHREADS_INIT OR WIN32)
+  set(MULTITHREADED ON)
+endif()
+
 # Enable these unconditionally.
-set(MULTITHREADED ON)
 set(OPI_SUPPORT ON)
 set(TEXTOUT_WORD_LIST ON)
 
 # setting the minimum required versions for some components
-set(QT4_MIN_VERSION "4.7.0")
 set(CAIRO_VERSION "1.10.0")
 set(GLIB_REQUIRED "2.41")
 
@@ -134,13 +139,6 @@ elseif(ENABLE_DCTDECODER STREQUAL "none")
   set(HAVE_DCT_DECODER OFF)
 else()
   message(FATAL_ERROR "Invalid ENABLE_DCTDECODER value.")
-endif()
-
-if (ENABLE_QT4)
-  macro_optional_find_package(Qt4)
-  if (NOT QT4_FOUND)
-    set(ENABLE_QT4 OFF)
-  endif()
 endif()
 
 if (ENABLE_QT5)
@@ -187,42 +185,15 @@ if(ENABLE_CPP)
 endif()
 if(ENABLE_ZLIB)
   find_package(ZLIB)
-  if(ZLIB_FOUND)
-    set(HAVE_LIBZ ${ZLIB_FOUND})
-  endif()
   set(ENABLE_ZLIB ${ZLIB_FOUND})
 endif()
 if(ENABLE_ZLIB_UNCOMPRESS AND NOT ENABLE_ZLIB)
   message("Warning: ENABLE_ZLIB_UNCOMPRESS requires ENABLE_ZLIB")
   set(ENABLE_ZLIB_UNCOMPRESS FALSE)
 endif()
-set(USE_OPENJPEG1 FALSE)
-set(USE_OPENJPEG2 FALSE)
 set(WITH_OPENJPEG FALSE)
-if(ENABLE_LIBOPENJPEG STREQUAL "auto")
+if(ENABLE_LIBOPENJPEG STREQUAL "openjpeg2")
   find_package(LIBOPENJPEG2)
-  set(USE_OPENJPEG2 ${LIBOPENJPEG2_FOUND})
-  set(WITH_OPENJPEG ${LIBOPENJPEG2_FOUND})
-  if(NOT LIBOPENJPEG2_FOUND)
-    find_package(LIBOPENJPEG)
-    set(USE_OPENJPEG1 ${LIBOPENJPEG_FOUND})
-    set(WITH_OPENJPEG ${LIBOPENJPEG_FOUND})  
-    if(NOT LIBOPENJPEG_FOUND)
-      message(FATAL_ERROR "Install libopenjpeg2 or libopenjpeg1 before trying to build poppler. You can also decide to use the internal unmaintained JPX decoder or none at all.")
-    endif()
-  endif()
-  set(HAVE_JPX_DECODER ON)
-elseif(ENABLE_LIBOPENJPEG STREQUAL "openjpeg1")
-  find_package(LIBOPENJPEG)
-  set(USE_OPENJPEG1 ${LIBOPENJPEG_FOUND})
-  set(WITH_OPENJPEG ${LIBOPENJPEG_FOUND})
-  if(NOT LIBOPENJPEG_FOUND)
-    message(FATAL_ERROR "Install libopenjpeg1 before trying to build poppler. You can also decide to use the internal unmaintained JPX decoder or none at all.")
-  endif()
-  set(HAVE_JPX_DECODER ON)
-elseif(ENABLE_LIBOPENJPEG STREQUAL "openjpeg2")
-  find_package(LIBOPENJPEG2)
-  set(USE_OPENJPEG2 ${LIBOPENJPEG2_FOUND})
   set(WITH_OPENJPEG ${LIBOPENJPEG2_FOUND})
   if(NOT LIBOPENJPEG2_FOUND)
     message(FATAL_ERROR "Install libopenjpeg2 before trying to build poppler. You can also decide to use the internal unmaintained JPX decoder or none at all.")
@@ -238,21 +209,11 @@ else()
   message(FATAL_ERROR "Invalid ENABLE_LIBOPENJPEG value: ${ENABLE_LIBOPENJPEG}")
 endif()
 set(ENABLE_LIBOPENJPEG "${WITH_OPENJPEG}")
-if(ENABLE_CMS STREQUAL "auto")
+if(ENABLE_CMS STREQUAL "lcms2")
   find_package(LCMS2)
   set(USE_CMS ${LCMS2_FOUND})
-  if(NOT LCMS2_FOUND)
-    find_package(LCMS)
-    set(USE_CMS ${LCMS_FOUND})
-    set(USE_LCMS1 ${LCMS_FOUND})
-  endif()
-elseif(ENABLE_CMS STREQUAL "lcms1")
-  find_package(LCMS)
-  set(USE_CMS ${LCMS_FOUND})
-  set(USE_LCMS1 ${LCMS_FOUND})
-elseif(ENABLE_CMS STREQUAL "lcms2")
-  find_package(LCMS2)
-  set(USE_CMS ${LCMS2_FOUND})
+elseif(NOT ENABLE_CMS STREQUAL "none")
+  message(FATAL_ERROR "Invalid ENABLE_CMS value: ${ENABLE_CMS}")
 endif()
 if(ENABLE_LIBCURL)
   find_package(CURL)
@@ -264,7 +225,6 @@ if(ENABLE_LIBCURL)
   endif()
 endif()
 
-add_definitions(-DHAVE_CONFIG_H=1)
 if(MINGW)
   # Use mingw's ansi stdio extensions
   add_definitions(-D__USE_MINGW_ANSI_STDIO=1)
@@ -288,10 +248,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}/poppler
   ${FREETYPE_INCLUDE_DIRS}
 )
-set(HAVE_FREETYPE_H ON)
-if(CMAKE_USE_PTHREADS_INIT)
-  set(HAVE_PTHREAD ON)
-endif()
 
 if(ENABLE_ZLIB)
   include_directories(${ZLIB_INCLUDE_DIR})
@@ -312,14 +268,8 @@ if(TIFF_FOUND)
   include_directories(${TIFF_INCLUDE_DIR})
   set(ENABLE_LIBTIFF ON)
 endif()
-if(LIBOPENJPEG_FOUND)
-  include_directories(${LIBOPENJPEG_INCLUDE_DIR})
-endif()
 if(LIBOPENJPEG2_FOUND)
   include_directories(${LIBOPENJPEG2_INCLUDE_DIRS})
-endif()
-if(LCMS_FOUND)
-  include_directories(${LCMS_INCLUDE_DIR})
 endif()
 if(LCMS2_FOUND)
   include_directories(${LCMS2_INCLUDE_DIR})
@@ -372,6 +322,7 @@ set(poppler_SRCS
   goo/gstrtod.cc
   goo/grandom.cc
   goo/glibc.cc
+  goo/glibc_strtok_r.cc
   fofi/FoFiBase.cc
   fofi/FoFiEncodings.cc
   fofi/FoFiTrueType.cc
@@ -426,7 +377,6 @@ set(poppler_SRCS
   poppler/Stream.cc
   poppler/StructTreeRoot.cc
   poppler/StructElement.cc
-  poppler/strtok_r.cpp
   poppler/UnicodeMap.cc
   poppler/UnicodeTypeTable.cc
   poppler/UTF.cc
@@ -461,9 +411,6 @@ if(ENABLE_SPLASH)
     splash/SplashPattern.cc
     splash/SplashScreen.cc
     splash/SplashState.cc
-    splash/SplashT1Font.cc
-    splash/SplashT1FontEngine.cc
-    splash/SplashT1FontFile.cc
     splash/SplashXPath.cc
     splash/SplashXPathScanner.cc
   )
@@ -502,17 +449,10 @@ if (ENABLE_NSS3)
   )
   set(poppler_LIBS ${poppler_LIBS} ${NSS3_LIBRARIES})
 endif()
-if(LIBOPENJPEG_FOUND)
+if (LIBOPENJPEG2_FOUND)
   set(poppler_SRCS ${poppler_SRCS}
     poppler/JPEG2000Stream.cc
   )
-  set(poppler_LIBS ${poppler_LIBS} ${LIBOPENJPEG_LIBRARIES})
-  add_definitions(-DUSE_OPENJPEG1)
-elseif (LIBOPENJPEG2_FOUND)
-  set(poppler_SRCS ${poppler_SRCS}
-    poppler/JPEG2000Stream.cc
-  )
-  add_definitions(-DUSE_OPENJPEG2)
   set(poppler_LIBS ${poppler_LIBS} ${LIBOPENJPEG2_LIBRARIES})
 else ()
   set(poppler_SRCS ${poppler_SRCS}
@@ -520,12 +460,7 @@ else ()
   )
 endif()
 if(USE_CMS)
-  if(LCMS_FOUND)
-    set(poppler_LIBS ${poppler_LIBS} ${LCMS_LIBRARIES})
-  endif()
-  if(LCMS2_FOUND)
-    set(poppler_LIBS ${poppler_LIBS} ${LCMS2_LIBRARIES})
-  endif()
+  set(poppler_LIBS ${poppler_LIBS} ${LCMS2_LIBRARIES})
 endif()
 if(WIN32)
   # use clean APIs
@@ -539,9 +474,6 @@ endif()
 if(TIFF_FOUND)
   set(poppler_LIBS ${poppler_LIBS} ${TIFF_LIBRARIES})
 endif()
-if(HAVE_PTHREAD)
-  set(poppler_LIBS ${poppler_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-endif()
 
 if(MSVC)
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -550,9 +482,16 @@ add_library(poppler STATIC ${poppler_SRCS})
 else()
 add_library(poppler ${poppler_SRCS})
 endif()
-set_target_properties(poppler PROPERTIES VERSION 70.0.0 SOVERSION 70)
+set_target_properties(poppler PROPERTIES VERSION 73.0.0 SOVERSION 73)
+if(MINGW)
+    get_target_property(POPPLER_SOVERSION poppler SOVERSION)
+    set_target_properties(poppler PROPERTIES SUFFIX "-${POPPLER_SOVERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+endif()
 target_link_libraries(poppler LINK_PRIVATE ${poppler_LIBS})
-install(TARGETS poppler RUNTIME DESTINATION bin LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX})
+if(CMAKE_USE_PTHREADS_INIT)
+   target_link_libraries(poppler LINK_PRIVATE Threads::Threads)
+endif()
+install(TARGETS poppler RUNTIME DESTINATION bin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 if(ENABLE_XPDF_HEADERS)
   install(FILES
@@ -572,7 +511,6 @@ if(ENABLE_XPDF_HEADERS)
     poppler/FontEncodingTables.h
     poppler/FontInfo.h
     poppler/Form.h
-    poppler/Function.cc
     poppler/Function.h
     poppler/Gfx.h
     poppler/GfxFont.h
@@ -610,6 +548,7 @@ if(ENABLE_XPDF_HEADERS)
     poppler/StructElement.h
     poppler/StructTreeRoot.h
     poppler/UnicodeMap.h
+    poppler/UnicodeMapFuncs.h
     poppler/UnicodeMapTables.h
     poppler/UnicodeTypeTable.h
     poppler/UnicodeCClassTables.h
@@ -627,7 +566,6 @@ if(ENABLE_XPDF_HEADERS)
     poppler/StdinCachedFile.h
     poppler/StdinPDFDocBuilder.h
     poppler/UTF.h
-    poppler/UTF8.h
     poppler/XpdfPluginAPI.h
     poppler/Sound.h
     ${CMAKE_CURRENT_BINARY_DIR}/poppler/poppler-config.h
@@ -676,11 +614,7 @@ if(ENABLE_XPDF_HEADERS)
       poppler/CurlPDFDocBuilder.h
       DESTINATION include/poppler)
   endif()
-  if(LIBOPENJPEG_FOUND)
-    install(FILES
-      poppler/JPEG2000Stream.h
-      DESTINATION include/poppler)
-  elseif(LIBOPENJPEG2_FOUND)
+  if(LIBOPENJPEG2_FOUND)
     install(FILES
       poppler/JPEG2000Stream.h
       DESTINATION include/poppler)
@@ -711,9 +645,6 @@ if(ENABLE_XPDF_HEADERS)
       splash/SplashPattern.h
       splash/SplashScreen.h
       splash/SplashState.h
-      splash/SplashT1Font.h
-      splash/SplashT1FontEngine.h
-      splash/SplashT1FontFile.h
       splash/SplashTypes.h
       splash/SplashXPath.h
       splash/SplashXPathScanner.h
@@ -729,9 +660,6 @@ if(ENABLE_GLIB)
   add_subdirectory(glib)
 endif()
 add_subdirectory(test)
-if(ENABLE_QT4)
-  add_subdirectory(qt4)
-endif()
 if(ENABLE_QT5)
   add_subdirectory(qt5)
 endif()
@@ -752,24 +680,21 @@ else()
   set(PC_REQUIRES_PRIVATE "")
 endif()
 
-poppler_create_install_pkgconfig(poppler.pc lib${LIB_SUFFIX}/pkgconfig)
+poppler_create_install_pkgconfig(poppler.pc ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 if(ENABLE_SPLASH)
-  poppler_create_install_pkgconfig(poppler-splash.pc lib${LIB_SUFFIX}/pkgconfig)
-endif()
-if(ENABLE_QT4)
-  poppler_create_install_pkgconfig(poppler-qt4.pc lib${LIB_SUFFIX}/pkgconfig)
+  poppler_create_install_pkgconfig(poppler-splash.pc ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 if(ENABLE_QT5)
-  poppler_create_install_pkgconfig(poppler-qt5.pc lib${LIB_SUFFIX}/pkgconfig)
+  poppler_create_install_pkgconfig(poppler-qt5.pc ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 if(ENABLE_GLIB)
-  poppler_create_install_pkgconfig(poppler-glib.pc lib${LIB_SUFFIX}/pkgconfig)
+  poppler_create_install_pkgconfig(poppler-glib.pc ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 if(CAIRO_FOUND)
-  poppler_create_install_pkgconfig(poppler-cairo.pc lib${LIB_SUFFIX}/pkgconfig)
+  poppler_create_install_pkgconfig(poppler-cairo.pc ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 if(ENABLE_CPP)
-  poppler_create_install_pkgconfig(poppler-cpp.pc lib${LIB_SUFFIX}/pkgconfig)
+  poppler_create_install_pkgconfig(poppler-cpp.pc ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
 
 
@@ -780,7 +705,6 @@ if(SPLASH_CMYK)
   message("      with CMYK support")
 endif()
 show_end_message_yesno("cairo output" CAIRO_FOUND)
-show_end_message_yesno("qt4 wrapper" ENABLE_QT4)
 show_end_message_yesno("qt5 wrapper" ENABLE_QT5)
 show_end_message_yesno("glib wrapper" ENABLE_GLIB)
 show_end_message_yesno("  introspection" INTROSPECTION_FOUND)
@@ -793,20 +717,8 @@ show_end_message_yesno("use zlib compress" ENABLE_ZLIB)
 show_end_message_yesno("use zlib uncompress" ENABLE_ZLIB_UNCOMPRESS)
 show_end_message_yesno("use nss3" ENABLE_NSS3)
 show_end_message_yesno("use curl" ENABLE_LIBCURL)
-show_end_message_yesno("use libopenjpeg" WITH_OPENJPEG)
-if(USE_OPENJPEG1)
-  message("      with openjpeg1")
-endif()
-if(USE_OPENJPEG2)
-  message("      with openjpeg2")
-endif()
-show_end_message_yesno("use cms" USE_CMS)
-if(LCMS_FOUND)
-  message("      with lcms1")
-endif()
-if(LCMS2_FOUND)
-  message("      with lcms2")
-endif()
+show_end_message_yesno("use libopenjpeg2" WITH_OPENJPEG)
+show_end_message_yesno("use lcms2" USE_CMS)
 show_end_message_yesno("command line utils" ENABLE_UTILS)
 show_end_message("test data dir" ${TESTDATADIR})
 

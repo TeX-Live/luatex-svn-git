@@ -16,6 +16,7 @@
 // Copyright (C) 2010 Jakub Wilk <jwilk@jwilk.net>
 // Copyright (C) 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2017 Jean Ghali <jghali@libertysurf.fr>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -30,6 +31,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "goo/glibc.h"
 #include "goo/gmem.h"
 #include "goo/gfile.h"
 #include "goo/GooString.h"

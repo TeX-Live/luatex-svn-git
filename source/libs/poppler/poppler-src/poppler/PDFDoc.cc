@@ -35,6 +35,7 @@
 // Copyright (C) 2015 André Guerreiro <aguerreiro1985@gmail.com>
 // Copyright (C) 2015 André Esser <bepandre@hotmail.com>
 // Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
+// Copyright (C) 2017 Jean Ghali <jghali@libertysurf.fr>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -42,6 +43,7 @@
 //========================================================================
 
 #include <config.h>
+#include <poppler-config.h>
 
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation
@@ -57,6 +59,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
+#include "goo/glibc.h"
 #include "goo/gstrtod.h"
 #include "goo/GooString.h"
 #include "goo/gfile.h"
@@ -80,6 +83,7 @@
 #endif
 #include "PDFDoc.h"
 #include "Hints.h"
+#include "UTF.h"
 
 /* <limits.h> and/or the compiler may or may not define these.  */
 /* Minimum and maximum values a `signed long long int' can hold.  */
@@ -165,7 +169,13 @@ PDFDoc::PDFDoc(GooString *fileNameA, GooString *ownerPassword,
 #endif
 
   // try to open file
-  file = GooFile::open(fileName);
+#ifdef _WIN32
+  wchar_t *wFileName = (wchar_t*)utf8ToUtf16(fileName->getCString());
+  file = GooFile::open(wFileName);
+  gfree(wFileName);
+#else
+   file = GooFile::open(fileName);
+#endif
   if (file == NULL) {
     // fopen() has failed.
     // Keep a copy of the errno returned by fopen so that it can be 
