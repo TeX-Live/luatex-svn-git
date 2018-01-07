@@ -1,3 +1,12 @@
+2018-01-06  Luigi Scarso  <luigi.scarso@gmail.com>
+
+	Import poppler-0.62.0.
+	* version.ac: Adjusted.
+	* manually created poppler-config.h.in from poppler-config.h.cmake
+	* deleted useless files from splash folder
+	* deleted goo/glibc_strtok_r.cc
+
+
 2017-11-26  Luigi Scarso  <luigi.scarso@gmail.com>
 
 	Import poppler-0.60.1.

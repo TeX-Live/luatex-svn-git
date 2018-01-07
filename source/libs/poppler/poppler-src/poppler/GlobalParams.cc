@@ -36,6 +36,7 @@
 // Copyright (C) 2012 Peter Breitenlohner <peb@mppmu.mpg.de>
 // Copyright (C) 2013, 2014 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2017 Christoph Cullmann <cullmann@kde.org>
+// Copyright (C) 2017 Jean Ghali <jghali@libertysurf.fr>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -60,6 +61,7 @@
 #  include <shlobj.h>
 #  include <mbstring.h>
 #endif
+#include "goo/glibc.h"
 #include "goo/gmem.h"
 #include "goo/GooString.h"
 #include "goo/GooList.h"
@@ -82,7 +84,7 @@
 #include <fontconfig/fontconfig.h>
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #  define strcasecmp stricmp
 #else
 #  include <strings.h>
@@ -110,7 +112,7 @@
 
 #include "NameToUnicodeTable.h"
 #include "UnicodeMapTables.h"
-#include "UTF8.h"
+#include "UnicodeMapFuncs.h"
 
 #ifdef ENABLE_PLUGINS
 #  ifdef _WIN32
@@ -629,7 +631,7 @@ GlobalParams::GlobalParams(const char *customPopplerDataDir)
   residentUnicodeMaps->add(map->getEncodingName(), map);
   map = new UnicodeMap("UTF-8", gTrue, &mapUTF8);
   residentUnicodeMaps->add(map->getEncodingName(), map);
-  map = new UnicodeMap("UCS-2", gTrue, &mapUCS2);
+  map = new UnicodeMap("UTF-16", gTrue, &mapUTF16);
   residentUnicodeMaps->add(map->getEncodingName(), map);
 
   scanEncodingDirs();
