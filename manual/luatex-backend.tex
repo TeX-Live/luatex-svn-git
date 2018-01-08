@@ -1,0 +1,1043 @@
+% language=uk
+
+\environment luatex-style
+\environment luatex-logos
+
+\startcomponent luatex-backend
+
+\startchapter[reference=backend,title={The backend libraries}]
+
+\section{The \type {pdf} library}
+
+This library contains variables and functions that are related to the \PDF\
+backend. You can find more details about the expected values to setters in \in
+{section} [backendprimitives].
+
+\subsection{\type {mapfile}, \type {mapline}}
+
+\startfunctioncall
+pdf.mapfile(<string> map file)
+pdf.mapline(<string> map line)
+\stopfunctioncall
+
+These two functions can be used to replace primitives \type {\pdfmapfile} and
+\type {\pdfmapline} inherited from \PDFTEX. They expect a string as only
+parameter and have no return value. The first character in a map line can be
+\type {-}, \type {+} or \type {=} which means as much as remove, add or replace
+this line.
+
+\subsection {\type {[set|get][catalog|info|names|trailer]}}
+
+These functions complement the corresponding \PDF\ backend token lists dealing
+with metadata. The value types are strings and they are written out to the \PDF\
+file directly after the token registers.
+
+\subsection {\type {[set|get][pageattributes|pageresources|pagesattributes]}}
+
+These functions complement the corresponding \PDF\ backend token lists dealing
+with page resources. The variables have no interaction with the corresponding \PDF\
+backend token register. They are written out to the \PDF\ file directly after the
+token registers.
+
+\subsection{\type {[set|get][xformattributes|xformresources]}}
+
+These functions complement the corresponding \PDF\ backend token lists dealing
+with reuseable boxes and images. The variables have no interaction with the
+corresponding \PDF\ backend token register. They are written out to the \PDF\
+file directly after the token registers.
+
+\subsection{\type {getversion} and \type {[set|get]minorversion}}
+
+The version is frozen in the binary but you can set the minor version. What minor
+version you set depends on what \PDF\ features you use. This is out of control
+of \LUATEX.
+
+\subsection{\type {getcreationdate}}
+
+This function returns a string with the date in the format that ends up in the
+\PDF\ file, in this case it's: {\tttf \cldcontext{pdf.getcreationdate()}}.
+
+\subsection{\type {[set|get]inclusionerrorlevel}, \type {[set|get]ignoreunknownimages}}
+
+These variable control how error in included image are treated. They are modeled
+after the \PDFTEX\ equivalents.
+
+\subsection{\type {[set|get]suppressoptionalinfo}}
+
+This bitset determnines what kind of info gets flushes. By default we flush all.
+
+\subsection{\type {[set|get]trailerid}}
+
+You can set your own trailer id. This has to be a valid array string
+with checksums.
+
+\subsection{\type {[set|get]compresslevel}}
+
+These two functions set the level of compression. The minimum value is~0,
+the maximum is~9.
+
+\subsection{\type {[set|get]objcompresslevel}}
+
+These two functions set the level of compression. The minimum value is~0,
+the maximum is~9.
+
+\subsection{\type {[set|get]gentounicode}}
+
+This flag enables tounicode generation (like in \PDFTEX).
+
+\subsection{\type {[set|get]omitcidset}}
+
+This flag disables inclusion of a so called CIDSet which can be handy when aiming
+at some of the many \PDF\ substandards.
+
+\subsection{\type {[set|get]decimaldigits}}
+
+These two functions set the accuracy of floats written to the \PDF file. You can
+set any value but the backend will not go below~3 and above~6.
+
+\subsection{\type {[set|get]pkresolution}}
+
+These setter takes two arguments: the resolution and an optional zero or one that
+indicates if this is a fixed one. The getter returns these two values.
+
+\subsection{\type {getlast[obj|link|annot]} and \type {getretval}}
+
+These status variables are similar to the ones traditionally used in the backend
+interface at the \TEX\ end.
+
+\subsection{\type {maxobjnum} and \type {objtype}, \type {fontname}, \type {fontobjnum},
+\type {fontsize}, \type {xformname}}.
+
+These (and some other) introspective helpers were moved from the the \type {tex}
+namespace to the \type {pdf} namespace but kept their original names. They are
+mostly used when you construct \PDF\ objects yourself and need for instance
+information about a (to be) embedded font.
+
+\subsection{\type {[set|get]origin}}
+
+This one is used to set the horizonal and|/|or vertical offset, a traditional
+backend property.
+
+\starttyping
+pdf.setorigin() -- sets both to 0pt
+pdf.setorigin(tex.sp("1in")) -- sets both to 1in
+pdf.setorigin(tex.sp("1in"),tex.sp("1in"))
+\stoptyping
+
+The counterpart of this function returns two values.
+
+\subsection{\type {[set|get]imageresolution}}
+
+These two functions relate to the imageresolution that is used when the image
+itself doesn't provide a non|-|zero x or y resolution.
+
+\subsection {\type {[set|get][link|dest|thread|xform]margin}}
+
+These functions can be used to set and retrieve the margins that are added to the
+natural bounding boxes of the respective objects.
+
+\subsection {\type {get[pos|hpos|vpos]}}
+
+These function get current location on the output page, measured from its lower
+left corner. The values return scaled points as units.
+
+\starttyping
+local h, v = pdf.getpos()
+\stoptyping
+
+\subsection {\type {[has|get]matrix}}
+
+The current matrix transformation is available via the \type {getmatrix} command,
+which returns 6 values: \type {sx}, \type {rx}, \type {ry}, \type {sy}, \type
+{tx}, and \type {ty}. The \type {hasmatrix} function returns \type {true} when a
+matrix is applied.
+
+\starttyping
+if pdf.hasmatrix() then
+    local sx, rx, ry, sy, tx, ty = pdf.getmatrix()
+    -- do something useful or not
+end
+\stoptyping
+
+\subsection {\type {print}}
+
+You can print string to the \PDF\ document from within a within a \type
+{\latelua} call. This function is not to be used inside \type {\directlua} unless
+you know {\it exactly} what you are doing.
+
+\startfunctioncall
+pdf.print(<string> s)
+pdf.print(<string> type, <string> s)
+\stopfunctioncall
+
+The optional parameter can be used to mimic the behavior of \PDF\ literals: the
+\type {type} is \type {direct} or \type {page}.
+
+\subsection {\type {immediateobj}}
+
+This function creates a \PDF\ object and immediately writes it to the \PDF\ file.
+It is modelled after \PDFTEX's \type {\immediate} \type {\pdfobj} primitives. All
+function variants return the object number of the newly generated object.
+
+\startfunctioncall
+<number> n =
+    pdf.immediateobj(<string> objtext)
+<number> n =
+    pdf.immediateobj("file", <string> filename)
+<number> n =
+    pdf.immediateobj("stream", <string> streamtext, <string> attrtext)
+<number> n =
+    pdf.immediateobj("streamfile", <string> filename, <string> attrtext)
+\stopfunctioncall
+
+The first version puts the \type {objtext} raw into an object. Only the object
+wrapper is automatically generated, but any internal structure (like \type {<<
+>>} dictionary markers) needs to provided by the user. The second version with
+keyword \type {file} as first argument puts the contents of the file with name
+\type {filename} raw into the object. The third version with keyword \type
+{stream} creates a stream object and puts the \type {streamtext} raw into the
+stream. The stream length is automatically calculated. The optional \type
+{attrtext} goes into the dictionary of that object. The fourth version with
+keyword \type {streamfile} does the same as the third one, it just reads the
+stream data raw from a file.
+
+An optional first argument can be given to make the function use a previously
+reserved \PDF\ object.
+
+\startfunctioncall
+<number> n =
+    pdf.immediateobj(<integer> n, <string> objtext)
+<number> n =
+    pdf.immediateobj(<integer> n, "file", <string> filename)
+<number> n =
+    pdf.immediateobj(<integer> n, "stream", <string> streamtext, <string> attrtext)
+<number> n =
+    pdf.immediateobj(<integer> n, "streamfile", <string> filename, <string> attrtext)
+\stopfunctioncall
+
+\subsection{\type{obj}}
+
+This function creates a \PDF\ object, which is written to the \PDF\ file only
+when referenced, e.g., by \type {refobj()}.
+
+All function variants return the object number of the newly generated object, and
+there are two separate calling modes. The first mode is modelled after \PDFTEX's
+\type {\pdfobj} primitive.
+
+\startfunctioncall
+<number> n =
+    pdf.obj(<string> objtext)
+<number> n =
+    pdf.obj("file", <string> filename)
+<number> n =
+    pdf.obj("stream", <string> streamtext, <string> attrtext)
+<number> n =
+    pdf.obj("streamfile", <string> filename, <string> attrtext)
+\stopfunctioncall
+
+An optional first argument can be given to make the function use a previously
+reserved \PDF\ object.
+
+\startfunctioncall
+<number> n =
+    pdf.obj(<integer> n, <string> objtext)
+<number> n =
+    pdf.obj(<integer> n, "file", <string> filename)
+<number> n =
+    pdf.obj(<integer> n, "stream", <string> streamtext, <string> attrtext)
+<number> n =
+    pdf.obj(<integer> n, "streamfile", <string> filename, <string> attrtext)
+\stopfunctioncall
+
+The second mode accepts a single argument table with key--value pairs.
+
+\startfunctioncall
+<number> n = pdf.obj {
+    type           = <string>,
+    immmediate     = <boolean>,
+    objnum         = <number>,
+    attr           = <string>,
+    compresslevel  = <number>,
+    objcompression = <boolean>,
+    file           = <string>,
+    string         = <string>
+}
+\stopfunctioncall
+
+The \type {type} field can have the values \type {raw} and \type {stream}, this
+field is required, the others are optional (within constraints).
+
+Note: this mode makes \type{obj} look more flexible than it actually is: the
+constraints from the separate parameter version still apply, so for example you
+can't have both \type {string} and \type {file} at the same time.
+
+\subsection {\type {refobj}}
+
+This function, the \LUA\ version of the \type {\pdfrefobj} primitive, references an
+object by its object number, so that the object will be written out.
+
+\startfunctioncall
+pdf.refobj(<integer> n)
+\stopfunctioncall
+
+This function works in both the \type {\directlua} and \type {\latelua} environment.
+Inside \type {\directlua} a new whatsit node \quote {pdf_refobj} is created, which
+will be marked for flushing during page output and the object is then written
+directly after the page, when also the resources objects are written out. Inside
+\type {\latelua} the object will be marked for flushing.
+
+This function has no return values.
+
+\subsection {\type {reserveobj}}
+
+This function creates an empty \PDF\ object and returns its number.
+
+\startfunctioncall
+<number> n = pdf.reserveobj()
+<number> n = pdf.reserveobj("annot")
+\stopfunctioncall
+
+\subsection {\type {registerannot}}
+
+This function adds an object number to the \type {/Annots} array for the current
+page without doing anything else. This function can only be used from within
+\type {\latelua}.
+
+\startfunctioncall
+pdf.registerannot (<number> objnum)
+\stopfunctioncall
+
+\subsection {\type {newcolorstack}}
+
+This function allocates a new color stack and returns it's id. The arguments
+are the same as for the similar backend extension primitive.
+
+\startfunctioncall
+pdf.newcolorstack("0 g","page",true) -- page|direct|origin
+\stopfunctioncall
+
+\subsection {\type {setfontattributes}}
+
+This function will force some additional code into the font resource. It can for
+instance be used to add a custom \type {ToUnicode} vector to a bitmap file.
+
+\startfunctioncall
+pdf.setfontattributes(<number> font id, <string> pdf code)
+\stopfunctioncall
+
+\section {The \type {pdfscanner} library}
+
+The \type {pdfscanner} library allows interpretation of \PDF\ content streams and
+\type {/ToUnicode} (cmap) streams. You can get those streams from the \type
+{epdf} library, as explained in an earlier section. There is only a single
+top|-|level function in this library:
+
+\startfunctioncall
+pdfscanner.scan (<Object> stream, <table> operatortable, <table> info)
+\stopfunctioncall
+
+The first argument, \type {stream}, should be either a \PDF\ stream object, or a
+\PDF\ array of \PDF\ stream objects (those options comprise the possible return
+values of \type {<Page>:getContents()} and \type {<Object>:getStream()} in the
+\type {epdf} library).
+
+The second argument, \type {operatortable}, should be a \LUA\ table where the
+keys are \PDF\ operator name strings and the values are \LUA\ functions (defined
+by you) that are used to process those operators. The functions are called
+whenever the scanner finds one of these \PDF\ operators in the content stream(s).
+The functions are called with two arguments: the \type {scanner} object itself,
+and the \type {info} table that was passed are the third argument to \type
+{pdfscanner.scan}.
+
+Internally, \type {pdfscanner.scan} loops over the \PDF\ operators in the
+stream(s), collecting operands on an internal stack until it finds a \PDF\
+operator. If that \PDF\ operator's name exists in \type {operatortable}, then the
+associated function is executed. After the function has run (or when there is no
+function to execute) the internal operand stack is cleared in preparation for the
+next operator, and processing continues.
+
+The \type {scanner} argument to the processing functions is needed because it
+offers various methods to get the actual operands from the internal operand
+stack.
+
+A simple example of processing a \PDF's document stream could look like this:
+
+\starttyping
+function Do (scanner, info)
+   local val       = scanner:pop()
+   local name      = val[2] -- val[1] == 'name'
+   local resources = info.resources
+   local xobject   = resources:lookup("XObject"):getDict():lookup(name)
+   print (info.space ..'Use XObject '.. name)
+   if xobject and xobject:isStream() then
+      local dict = xobject:getStream():getDict()
+      if dict then
+        local name = dict:lookup("Subtype")
+        if name:getName() == "Form" then
+          local newinfo =  {
+            space = info.space .. "  " ,
+            resources = dict:lookup("Resources"):getDict()
+          }
+          pdfscanner.scan(xobject, operatortable, newinfo)
+        end
+      end
+   end
+end
+
+operatortable = { Do = Do }
+
+doc      = epdf.open(arg[1])
+pagenum  = 1
+
+while pagenum <= doc:getNumPages() do
+   local page = doc:getCatalog():getPage(pagenum)
+   local info = {
+     space     = "  " ,
+     resources = page:getResourceDict()
+   }
+   print('Page ' .. pagenum)
+   pdfscanner.scan(page:getContents(), operatortable, info)
+   pagenum = pagenum + 1
+end
+\stoptyping
+
+This example iterates over all the actual content in the \PDF, and prints out the
+found \type {XObject} names. While the code demonstrates quite some of the \type
+{epdf} functions, let's focus on the type \type {pdfscanner} specific code
+instead.
+
+From the bottom up, the following line runs the scanner with the \PDF\ page's
+top-level content.
+
+\starttyping
+   pdfscanner.scan(page:getContents(), operatortable, info)
+\stoptyping
+
+The third argument, \type {info}, contains two entries: \type {space} is used to
+indent the printed output, and \type {resources} is needed so that embedded \type
+{XForms} can find their own content.
+
+The second argument, \type {operatortable} defines a processing function for a
+single \PDF\ operator, \type {Do}.
+
+The function \type {Do} prints the name of the current \type {XObject}, and then
+starts a new scanner for that object's content stream, under the condition that
+the \type {XObject} is in fact a \type {/Form}. That nested scanner is called
+with new \type {info} argument with an updated \type {space} value so that the
+indentation of the output nicely nests, and with an new \type {resources} field
+to help the next iteration down to properly process any other, embedded \type
+{XObject}s.
+
+Of course, this is not a very useful example in practise, but for the purpose of
+demonstrating \type {pdfscanner}, it is just long enough. It makes use of only
+one \type {scanner} method: \type {scanner:pop()}. That function pops the top
+operand of the internal stack, and returns a \LUA\ table where the object at index
+one is a string representing the type of the operand, and object two is its
+value.
+
+The list of possible operand types and associated \LUA\ value types is:
+
+\starttabulate[|l|c|]
+\NC \type{integer}  \NC <number>  \NC \NR
+\NC \type{real}     \NC <number>  \NC \NR
+\NC \type{boolean}  \NC <boolean> \NC \NR
+\NC \type{name}     \NC <string>  \NC \NR
+\NC \type{operator} \NC <string>  \NC \NR
+\NC \type{string}   \NC <string>  \NC \NR
+\NC \type{array}    \NC <table>   \NC \NR
+\NC \type{dict}     \NC <table>   \NC \NR
+\stoptabulate
+
+In case of \type {integer} or \type {real}, the value is always a \LUA\ (floating
+point) number.
+
+In case of \type {name}, the leading slash is always stripped.
+
+In case of \type {string}, please bear in mind that \PDF\ actually supports
+different types of strings (with different encodings) in different parts of the
+\PDF\ document, so may need to reencode some of the results; \type {pdfscanner}
+always outputs the byte stream without reencoding anything. \type {pdfscanner}
+does not differentiate between literal strings and hexadecimal strings (the
+hexadecimal values are decoded), and it treats the stream data for inline images
+as a string that is the single operand for \type {EI}.
+
+In case of \type {array}, the table content is a list of \type {pop} return
+values and in case of \type {dict}, the table keys are \PDF\ name strings and the
+values are \type {pop} return values.
+
+\blank
+
+There are few more methods defined that you can ask \type {scanner}:
+
+\starttabulate[|l|p|]
+\NC \type{pop}       \NC as explained above \NC \NR
+\NC \type{popNumber} \NC return only the value of a \type {real} or \type {integer} \NC \NR
+\NC \type{popName}   \NC return only the value of a \type {name} \NC \NR
+\NC \type{popString} \NC return only the value of a \type {string} \NC \NR
+\NC \type{popArray}  \NC return only the value of a \type {array} \NC \NR
+\NC \type{popDict}   \NC return only the value of a \type {dict} \NC \NR
+\NC \type{popBool}   \NC return only the value of a \type {boolean} \NC \NR
+\NC \type{done}      \NC abort further processing of this \type {scan()} call \NC \NR
+\stoptabulate
+
+The \type {popXXX} are convenience functions, and come in handy when you know the
+type of the operands beforehand (which you usually do, in \PDF). For example, the
+\type {Do} function could have used \type {local name = scanner:popName()}
+instead, because the single operand to the \type {Do} operator is always a \PDF\
+name object.
+
+The \type {done} function allows you to abort processing of a stream once you
+have learned everything you want to learn. This comes in handy while parsing
+\type {/ToUnicode}, because there usually is trailing garbage that you are not
+interested in. Without \type {done}, processing only end at the end of the
+stream, possibly wasting \CPU\ cycles.
+
+\section{The \type {epdf} library}
+
+The \type {epdf} library provides \LUA\ bindings to many \PDF\ access functions
+that are defined by the poppler \PDF\ viewer library (written in C$+{}+$ by
+Kristian H\o gsberg, based on xpdf by Derek Noonburg). Within \LUATEX\ xpdf
+functionality is being used since long time to embed \PDF\ files. The \type
+{epdf} library allows to scrutinize an external \PDF\ file. It gives access to
+its document structure: catalog, cross|-|reference table, individual pages,
+objects, annotations, info, and metadata. The \type {epdf} library only provides
+read|-|only access. At some point we might decide to limit the interface to a
+reasonable subset.
+
+\start \em
+
+The following functions will be removed in a next version. This is partly due to
+a change in the api of the used library and partly due to the fact that write
+access is not needed at all.
+
+\starttabulate[|T|T||]
+\NC Annot            \NC  getAppearance     \NC gone    \NC \NR
+\NC                  \NC  getBorder         \NC gone    \NC \NR
+\NC AnnotBorderStyle \NC  getWidth          \NC gone    \NC \NR
+\NC Array            \NC  incRef            \NC gone    \NC \NR
+\NC                  \NC  decRef            \NC gone    \NC \NR
+\NC                  \NC  add               \NC will go \NC \NR
+\NC Attribute        \NC  setRevision       \NC will go \NC \NR
+\NC                  \NC  setHidden         \NC will go \NC \NR
+\NC                  \NC  setFormattedValue \NC will go \NC \NR
+\NC EmbFile          \NC  save              \NC will go \NC \NR
+\NC Dict             \NC  incRef            \NC gone    \NC \NR
+\NC                  \NC  decRef            \NC gone    \NC \NR
+\NC                  \NC  add               \NC will go \NC \NR
+\NC                  \NC  set               \NC will go \NC \NR
+\NC                  \NC  remove            \NC will go \NC \NR
+\NC Object           \NC  initBool          \NC will go \NC \NR
+\NC                  \NC  initInt           \NC will go \NC \NR
+\NC                  \NC  initReal          \NC will go \NC \NR
+\NC                  \NC  initString        \NC will go \NC \NR
+\NC                  \NC  initName          \NC will go \NC \NR
+\NC                  \NC  initNull          \NC will go \NC \NR
+\NC                  \NC  initArray         \NC will go \NC \NR
+\NC                  \NC  initDict          \NC will go \NC \NR
+\NC                  \NC  initStream        \NC will go \NC \NR
+\NC                  \NC  initRef           \NC will go \NC \NR
+\NC                  \NC  initCmd           \NC will go \NC \NR
+\NC                  \NC  initError         \NC will go \NC \NR
+\NC                  \NC  initEOF           \NC will go \NC \NR
+\NC                  \NC  dictAdd           \NC will go \NC \NR
+\NC                  \NC  dictSet           \NC will go \NC \NR
+\NC                  \NC  streamReset       \NC will go \NC \NR
+\NC StructElement    \NC  setRevision       \NC will go \NC \NR
+\NC                  \NC  appendChild       \NC will go \NC \NR
+\NC                  \NC  appendAttribute   \NC will go \NC \NR
+\NC StructTreeRoot   \NC  appendChild       \NC will go \NC \NR
+\stoptabulate
+
+\stop
+
+For a start, a \PDF\ file is opened by \type {epdf.open()} with file name, e.g.:
+
+\starttyping
+doc = epdf.open("foo.pdf")
+\stoptyping
+
+This normally returns a \type {PDFDoc} userdata variable; but if the file could
+not be opened successfully, instead of a fatal error just the value \type {nil} is
+returned.
+
+All \LUA\ functions in the \type {epdf} library are named after the poppler
+functions listed in the poppler header files for the various classes, e.g., files
+\type {PDFDoc.h}, \type {Dict.h}, and \type {Array.h}. These files can be found
+in the poppler subdirectory within the \LUATEX\ sources. Which functions are
+already implemented in the \type {epdf} library can be found in the \LUATEX\
+source file \type {lepdflib.cc}. For using the \type {epdf} library, knowledge of
+the \PDF\ file architecture is indispensable.
+
+There are many different userdata types defined by the \type {epdf} library,
+currently these are \type {AnnotBorderStyle}, \type {AnnotBorder}, \type
+{Annots}, \type {Annot}, \type {Array}, \type {Attribute}, \type {Catalog}, \type
+{Dict}, \type {EmbFile}, \type {GString}, \type {LinkDest}, \type {Links}, \type
+{Link}, \type {ObjectStream}, \type {Object}, \type {PDFDoc}, \type
+{PDFRectangle}, \type {Page}, \type {Ref}, \type {Stream}, \type {StructElement},
+\type {StructTreeRoot} \type {TextSpan}, \type {XRefEntry} and \type {XRef}.
+
+All these userdata names and the \LUA\ access functions closely resemble the
+classes naming from the poppler header files, including the choice of mixed upper
+and lower case letters. The \LUA\ function calls use object|-|oriented syntax,
+e.g., the following calls return the \type {Page} object for page~1:
+
+\starttyping
+pageref = doc:getCatalog():getPageRef(1)
+pageobj = doc:getXRef():fetch(pageref.num, pageref.gen)
+\stoptyping
+
+But writing such chained calls is risky, as an intermediate function may return
+\type {nil} on error. Therefore between function calls there should be \LUA\ type
+checks (e.g., against \type {nil}) done. If a non|-|object item is requested (for
+instance a \type {Dict} item by calling \type {page:getPieceInfo()}, cf.~\type
+{Page.h}) but not available, the \LUA\ functions return \type {nil} (without
+error). If a function should return an \type {Object}, but it's not existing, a
+\type {Null} object is returned instead, also without error. This is in|-|line
+with poppler behavior.
+
+All library objects have a \type {__gc} metamethod for garbage collection. The
+\type {__tostring} metamethod gives the type name for each object.
+
+These are the object constructors:
+
+\startfunctioncall
+<PDFDoc>       = epdf.open(<string> PDF filename)
+<Annot>        = epdf.Annot(<XRef>, <Dict>, <Catalog>, <Ref>)
+<Annots>       = epdf.Annots(<XRef>, <Catalog>, <Object>)
+<Array>        = epdf.Array(<XRef>)
+<Attribute>    = epdf.Attribute(<Type>,<Object>)| epdf.Attribute(<string>, <int>, <Object>)
+<Dict>         = epdf.Dict(<XRef>)
+<Object>       = epdf.Object()|epdf.Object(<Type>)|epdf.Object(<Object_Type>,<string>)|
+<PDFRectangle> = epdf.PDFRectangle()
+\stopfunctioncall
+
+There is a new API for the \type {Object} constructors: the old \type {init<ObjType>} constructors
+are still present but they are deprecated. They will disappear after the next \TeX Live.
+The functions \type {StructElement_Type}, \type {Object_Type}, \type {Attribute_Type} and \type
+{AttributeOwner_Type} return a hash table \type {{<string>,<integer>}}.
+The hash table \type {Object_Type} is useful for the
+\type {epdf.Object(<Object_Type>,<string>)} \type {Object} constructor, where \type {<Object_Type>} is an
+integer.
+
+\type {Annot} methods:
+
+
+\startfunctioncall
+<boolean>     = <Annot>:isOK()
+<boolean>     = <Annot>:match(<Ref>)
+<Object>      = <Annot>:getAppearance() -- gone
+<AnnotBorder> = <Annot>:getBorder()     -- gone
+\stopfunctioncall
+
+\type {AnnotBorderStyle} methods (gone):
+
+\startfunctioncall
+<number> = <AnnotBorderStyle>:getWidth() -- gone
+\stopfunctioncall
+
+\type {Annots} methods:
+
+\startfunctioncall
+<integer> = <Annots>:getNumAnnots()
+<Annot>   = <Annots>:getAnnot(<integer>)
+\stopfunctioncall
+
+\type {Array} methods:
+
+\startfunctioncall
+            <Array>:incRef()      -- gone
+            <Array>:decRef()      -- gone
+            <Array>:add(<Object>) -- will go
+<integer> = <Array>:getLength()
+<Object>  = <Array>:get(<integer>)
+<Object>  = <Array>:getNF(<integer>)
+<string>  = <Array>:getString(<integer>)
+\stopfunctioncall
+
+\type {Attribute} methods:
+
+\startfunctioncall
+<boolean>  = <Attribute>:isOk()
+<integer>  = <Attribute>:getType()
+<integer>  = <Attribute>:getOwner()
+<string>   = <Attribute>:getTypeName()
+<string>   = <Attribute>:getOwnerName()
+<Object>   = <Attribute>:getValue()
+<Object>   = <Attribute>:getDefaultValue
+<string>   = <Attribute>:getName()
+<integer>  = <Attribute>:getRevision()
+             <Attribute>:setRevision(<unsigned integer>) -- will go
+<boolean>  = <Attribute>:isHidden()
+             <Attribute>:setHidden(<boolean>)            -- will go
+<string>   = <Attribute>:getFormattedValue()
+<string>   = <Attribute>:setFormattedValue(<string>)     -- will go
+\stopfunctioncall
+
+\type {Catalog} methods:
+
+\startfunctioncall
+<boolean>  = <Catalog>:isOK()
+<integer>  = <Catalog>:getNumPages()
+<Page>     = <Catalog>:getPage(<integer>)
+<Ref>      = <Catalog>:getPageRef(<integer>)
+<string>   = <Catalog>:getBaseURI()
+<string>   = <Catalog>:readMetadata()
+<Object>   = <Catalog>:getStructTreeRoot()
+<integer>  = <Catalog>:findPage(<integer> object number, <integer> object generation)
+<LinkDest> = <Catalog>:findDest(<string> name)
+<Object>   = <Catalog>:getDests()
+<integer>  = <Catalog>:numEmbeddedFiles()
+<EmbFile>  = <Catalog>:embeddedFile(<integer>)
+<integer>  = <Catalog>:numJS()
+<string>   = <Catalog>:getJS(<integer>)
+<Object>   = <Catalog>:getOutline()
+<Object>   = <Catalog>:getAcroForm()
+\stopfunctioncall
+
+\type {EmbFile} methods:
+
+\startfunctioncall
+<integer>  = <EmbFile>:size()
+<string>   = <EmbFile>:modDate()
+<string>   = <EmbFile>:createDate()
+<string>   = <EmbFile>:checksum()
+<string>   = <EmbFile>:mimeType()
+<boolean>  = <EmbFile>:isOk()
+<string>   = <EmbFile>:name()         -- not (yet) implemented
+<string>   = <EmbFile>:description()  -- not (yet) implemented
+<Object>   = <EmbFile>:streamObject() -- not (yet) implemented
+<boolean>  = <EmbFile>:save()         -- will go
+\stopfunctioncall
+
+\type {FileSpec} methods:
+
+\startfunctioncall
+<boolean> = <FileSpec>:isOk()
+<string>  = <FileSpec>:getFileName()
+<string>  = <FileSpec>:getFileNameForPlatform()
+<string>  = <FileSpec>:getDescription()
+<EmbFile> = <FileSpec>:getEmbeddedFile()
+\stopfunctioncall
+
+\type {Dict} methods:
+
+\startfunctioncall
+            <Dict>:incRef()                -- will go
+            <Dict>:decRef()                -- will go
+            <Dict>:add(<string>, <Object>) -- will go
+            <Dict>:set(<string>, <Object>) -- will go
+            <Dict>:remove(<string>)        -- will go
+<integer> = <Dict>:getLength()
+<boolean> = <Dict>:is(<string>)
+<Object>  = <Dict>:lookup(<string>)
+<Object>  = <Dict>:lookupNF(<string>)
+<integer> = <Dict>:lookupInt(<string>, <string>)
+<string>  = <Dict>:getKey(<integer>)
+<Object>  = <Dict>:getVal(<integer>)
+<Object>  = <Dict>:getValNF(<integer>)
+<boolean> = <Dict>:hasKey(<string>)
+\stopfunctioncall
+
+% \type {Link} methods:
+
+% \startfunctioncall
+% <boolean>  = <Link>:isOK()
+% <boolean>  = <Link>:inRect(<number>, <number>)
+% \stopfunctioncall
+
+\type {LinkDest} methods:
+
+\startfunctioncall
+<boolean>  = <LinkDest>:isOK()
+<integer>  = <LinkDest>:getKind()
+<string>   = <LinkDest>:getKindName()
+<boolean>  = <LinkDest>:isPageRef()
+<integer>  = <LinkDest>:getPageNum()
+<Ref>      = <LinkDest>:getPageRef()
+<number>   = <LinkDest>:getLeft()
+<number>   = <LinkDest>:getBottom()
+<number>   = <LinkDest>:getRight()
+<number>   = <LinkDest>:getTop()
+<number>   = <LinkDest>:getZoom()
+<boolean>  = <LinkDest>:getChangeLeft()
+<boolean>  = <LinkDest>:getChangeTop()
+<boolean>  = <LinkDest>:getChangeZoom()
+\stopfunctioncall
+
+\type {Links} methods:
+
+% <Link>     = <Links>:getLink(<integer>)
+
+\startfunctioncall
+<integer>  = <Links>:getNumLinks()
+\stopfunctioncall
+
+\type {Object} methods:
+
+\startfunctioncall
+            <Object>:initBool(<boolean>)              -- will go
+            <Object>:initInt(<integer>)               -- will go
+            <Object>:initReal(<number>)               -- will go
+            <Object>:initString(<string>)             -- will go
+            <Object>:initName(<string>)               -- will go
+            <Object>:initNull()                       -- will go
+            <Object>:initArray(<XRef>)                -- will go
+            <Object>:initDict(<XRef>)                 -- will go
+            <Object>:initStream(<Stream>)             -- will go
+            <Object>:initRef(<integer> object number,
+                <integer> object generation)          -- will go
+            <Object>:initCmd(<string>)                -- will go
+            <Object>:initError()                      -- will go
+            <Object>:initEOF()                        -- will go
+<Object>  = <Object>:fetch(<XRef>)
+<integer> = <Object>:getType()
+<string>  = <Object>:getTypeName()
+<boolean> = <Object>:isBool()
+<boolean> = <Object>:isInt()
+<boolean> = <Object>:isReal()
+<boolean> = <Object>:isNum()
+<boolean> = <Object>:isString()
+<boolean> = <Object>:isName()
+<boolean> = <Object>:isNull()
+<boolean> = <Object>:isArray()
+<boolean> = <Object>:isDict()
+<boolean> = <Object>:isStream()
+<boolean> = <Object>:isRef()
+<boolean> = <Object>:isCmd()
+<boolean> = <Object>:isError()
+<boolean> = <Object>:isEOF()
+<boolean> = <Object>:isNone()
+<boolean> = <Object>:getBool()
+<integer> = <Object>:getInt()
+<number>  = <Object>:getReal()
+<number>  = <Object>:getNum()
+<string>  = <Object>:getString()
+<string>  = <Object>:getName()
+<Array>   = <Object>:getArray()
+<Dict>    = <Object>:getDict()
+<Stream>  = <Object>:getStream()
+<Ref>     = <Object>:getRef()
+<integer> = <Object>:getRefNum()
+<integer> = <Object>:getRefGen()
+<string>  = <Object>:getCmd()
+<integer> = <Object>:arrayGetLength()
+          = <Object>:arrayAdd(<Object>)               -- will go
+<Object>  = <Object>:arrayGet(<integer>)
+<Object>  = <Object>:arrayGetNF(<integer>)
+<integer> = <Object>:dictGetLength(<integer>)
+          = <Object>:dictAdd(<string>, <Object>)      -- will go
+          = <Object>:dictSet(<string>, <Object>)      -- will go
+<Object>  = <Object>:dictLookup(<string>)
+<Object>  = <Object>:dictLookupNF(<string>)
+<string>  = <Object>:dictgetKey(<integer>)
+<Object>  = <Object>:dictgetVal(<integer>)
+<Object>  = <Object>:dictgetValNF(<integer>)
+<boolean> = <Object>:streamIs(<string>)
+          = <Object>:streamReset()                    -- will go
+<integer> = <Object>:streamGetChar()
+<integer> = <Object>:streamLookChar()
+<integer> = <Object>:streamGetPos()
+          = <Object>:streamSetPos(<integer>)
+<Dict>    = <Object>:streamGetDict()
+\stopfunctioncall
+
+\type {Page} methods:
+
+\startfunctioncall
+<boolean>      = <Page>:isOk()
+<integer>      = <Page>:getNum()
+<PDFRectangle> = <Page>:getMediaBox()
+<PDFRectangle> = <Page>:getCropBox()
+<boolean>      = <Page>:isCropped()
+<number>       = <Page>:getMediaWidth()
+<number>       = <Page>:getMediaHeight()
+<number>       = <Page>:getCropWidth()
+<number>       = <Page>:getCropHeight()
+<PDFRectangle> = <Page>:getBleedBox()
+<PDFRectangle> = <Page>:getTrimBox()
+<PDFRectangle> = <Page>:getArtBox()
+<integer>      = <Page>:getRotate()
+<string>       = <Page>:getLastModified()
+<Dict>         = <Page>:getBoxColorInfo()
+<Dict>         = <Page>:getGroup()
+<Stream>       = <Page>:getMetadata()
+<Dict>         = <Page>:getPieceInfo()
+<Dict>         = <Page>:getSeparationInfo()
+<Dict>         = <Page>:getResourceDict()
+<Object>       = <Page>:getAnnots()
+<Links>        = <Page>:getLinks(<Catalog>)
+<Object>       = <Page>:getContents()
+\stopfunctioncall
+
+\type {PDFDoc} methods:
+
+\startfunctioncall
+<boolean>  = <PDFDoc>:isOk()
+<integer>  = <PDFDoc>:getErrorCode()
+<string>   = <PDFDoc>:getErrorCodeName()
+<string>   = <PDFDoc>:getFileName()
+<XRef>     = <PDFDoc>:getXRef()
+<Catalog>  = <PDFDoc>:getCatalog()
+<number>   = <PDFDoc>:getPageMediaWidth()
+<number>   = <PDFDoc>:getPageMediaHeight()
+<number>   = <PDFDoc>:getPageCropWidth()
+<number>   = <PDFDoc>:getPageCropHeight()
+<integer>  = <PDFDoc>:getNumPages()
+<string>   = <PDFDoc>:readMetadata()
+<Object>   = <PDFDoc>:getStructTreeRoot()
+<integer>  = <PDFDoc>:findPage(<integer> object number,
+                <integer> object generation)
+<Links>    = <PDFDoc>:getLinks(<integer>)
+<LinkDest> = <PDFDoc>:findDest(<string>)
+<boolean>  = <PDFDoc>:isEncrypted()
+<boolean>  = <PDFDoc>:okToPrint()
+<boolean>  = <PDFDoc>:okToChange()
+<boolean>  = <PDFDoc>:okToCopy()
+<boolean>  = <PDFDoc>:okToAddNotes()
+<boolean>  = <PDFDoc>:isLinearized()
+<Object>   = <PDFDoc>:getDocInfo()
+<Object>   = <PDFDoc>:getDocInfoNF()
+<integer>  = <PDFDoc>:getPDFMajorVersion()
+<integer>  = <PDFDoc>:getPDFMinorVersion()
+\stopfunctioncall
+
+\type {PDFRectangle} methods:
+
+\startfunctioncall
+<boolean>  = <PDFRectangle>:isValid() -- setindex/newindex will go
+\stopfunctioncall
+
+%\type {Ref} methods:
+%
+%\startfunctioncall
+%\stopfunctioncall
+
+\type {Stream} methods:
+
+\startfunctioncall
+<integer>  = <Stream>:getKind()
+<string>   = <Stream>:getKindName()
+           = <Stream>:reset()
+           = <Stream>:close()
+<integer>  = <Stream>:getChar()
+<integer>  = <Stream>:lookChar()
+<integer>  = <Stream>:getRawChar()
+<integer>  = <Stream>:getUnfilteredChar()
+           = <Stream>:unfilteredReset()
+<integer>  = <Stream>:getPos()
+<boolean>  = <Stream>:isBinary()
+<Stream>   = <Stream>:getUndecodedStream()
+<Dict>     = <Stream>:getDict()
+\stopfunctioncall
+
+\type {StructElement} methods:
+
+\startfunctioncall
+<string>         = <StructElement>:getTypeName()
+<integer>        = <StructElement>:getType()
+<boolean>        = <StructElement>:isOk()
+<boolean>        = <StructElement>:isBlock()
+<boolean>        = <StructElement>:isInline()
+<boolean>        = <StructElement>:isGrouping()
+<boolean>        = <StructElement>:isContent()
+<boolean>        = <StructElement>:isObjectRef()
+<integer>        = <StructElement>:getMCID()
+<Ref>            = <StructElement>:getObjectRef()
+<Ref>            = <StructElement>:getParentRef()
+<boolean>        = <StructElement>:hasPageRef()
+<Ref>            = <StructElement>:getPageRef()
+<StructTreeRoot> = <StructElement>:getStructTreeRoot()
+<string>         = <StructElement>:getID()
+<string>         = <StructElement>:getLanguage()
+<integer>        = <StructElement>:getRevision()
+                   <StructElement>:setRevision(<unsigned integer>)   -- will go
+<string>         = <StructElement>:getTitle()
+<string>         = <StructElement>:getExpandedAbbr()
+<integer>        = <StructElement>:getNumChildren()
+<StructElement>  = <StructElement>:getChild()
+                 = <StructElement>:appendChild<StructElement>)       -- will go
+<integer>        = <StructElement>:getNumAttributes()
+<Attribute>      = <StructElement>:getAttribute(<integer>)
+<string>         = <StructElement>:appendAttribute(<Attribute>)      -- will go
+<Attribute>      = <StructElement>:findAttribute(<Attribute::Type>,
+                        boolean,Attribute::Owner)
+<string>         = <StructElement>:getAltText()
+<string>         = <StructElement>:getActualText()
+<string>         = <StructElement>:getText(<boolean>)
+<table>          = <StructElement>:getTextSpans()
+\stopfunctioncall
+
+\type {StructTreeRoot} methods:
+
+\startfunctioncall
+<StructElement> = <StructTreeRoot>:findParentElement
+<PDFDoc>        = <StructTreeRoot>:getDoc
+<Dict>          = <StructTreeRoot>:getRoleMap
+<Dict>          = <StructTreeRoot>:getClassMap
+<integer>       = <StructTreeRoot>:getNumChildren
+<StructElement> = <StructTreeRoot>:getChild
+                  <StructTreeRoot>:appendChild       -- will go
+<StructElement> = <StructTreeRoot>:findParentElement
+\stopfunctioncall
+
+\type {TextSpan} han only one method:
+
+\startfunctioncall
+<string> = <TestSpan>:getText()
+\stopfunctioncall
+
+\type {XRef} methods:
+
+\startfunctioncall
+<boolean>  = <XRef>:isOk()
+<integer>  = <XRef>:getErrorCode()
+<boolean>  = <XRef>:isEncrypted()
+<boolean>  = <XRef>:okToPrint()
+<boolean>  = <XRef>:okToPrintHighRes()
+<boolean>  = <XRef>:okToChange()
+<boolean>  = <XRef>:okToCopy()
+<boolean>  = <XRef>:okToAddNotes()
+<boolean>  = <XRef>:okToFillForm()
+<boolean>  = <XRef>:okToAccessibility()
+<boolean>  = <XRef>:okToAssemble()
+<Object>   = <XRef>:getCatalog()
+<Object>   = <XRef>:fetch(<integer> object number,
+                <integer> object generation)
+<Object>   = <XRef>:getDocInfo()
+<Object>   = <XRef>:getDocInfoNF()
+<integer>  = <XRef>:getNumObjects()
+<integer>  = <XRef>:getRootNum()
+<integer>  = <XRef>:getRootGen()
+<integer>  = <XRef>:getSize()
+<Object>   = <XRef>:getTrailerDict()
+\stopfunctioncall
+
+There is an experimental function \type {epdf.openMemStream} that takes three
+arguments:
+
+\starttabulate
+\NC \type {stream}  \NC this is a (in low level \LUA\ speak) light userdata
+                        object, i.e.\ a pointer to a sequence of bytes \NC \NR
+\NC \type {length}  \NC this is the length of the stream in bytes \NC \NR
+\NC \type {name}    \NC this is a unique identifier that is used for hashing the
+                        stream, so that multiple doesn't use more memory \NC \NR
+\stoptabulate
+
+Instead of a light userdata stream you can also pass a \LUA\ string, in which
+case the given length is (at most) the string length.
+
+The function returns a \type{epdf} object and a string. The string can be used in
+the \type {img} library instead of a filename. You need to prevent garbage
+collection of the object when you use it as image (for instance by storing it
+somewhere).
+
+Both the memory stream and it's use in the image library is experimental and can
+change. In case you wonder where this can be used: when you use the swiglib
+library for \type {graphicmagick}, it can return such a userdata object. This
+permits conversion in memory and passing the result directly to the backend. This
+might save some runtime in one|-|pass workflows. This feature is currently not
+meant for production and we might come up with a better implementation.
+
+\stopchapter
+
+\stopcomponent
