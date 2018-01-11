@@ -71,6 +71,7 @@ BUILDLUA53=TRUE
 ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
 WARNINGS=yes
+MINGW=FALSE
 MINGWCROSS=FALSE
 MINGWCROSS64=FALSE
 MACCROSS=FALSE
@@ -123,7 +124,8 @@ LUATEXEXE53=luatex53
 
 
 case `uname` in
-  MINGW64*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+    MINGW*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+   MINGW64*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
   MINGW32*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
   CYGWIN*    ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
   Darwin     ) STRIP="strip -u -r" ;;
@@ -145,13 +147,13 @@ then
   B=build-clang
 fi
 
+OLDPATH=$PATH
 if [ "$MINGWCROSS64" = "TRUE" ]
 then
   B=build-windows64
   LUATEXEXEJIT=luajittex.exe
   LUATEXEXE=luatex.exe
   LUATEXEXE53=luatex53.exe
-  OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
   CFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
@@ -170,7 +172,6 @@ then
   LUATEXEXEJIT=luajittex.exe
   LUATEXEXE=luatex.exe
   LUATEXEXE53=luatex53.exe
-  OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
   CFLAGS="-mtune=nocona -g -O3 $CFLAGS"

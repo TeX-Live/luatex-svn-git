@@ -70,6 +70,7 @@ BUILDLUA53=TRUE
 ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
 WARNINGS=yes
+MINGW=FALSE
 MINGWCROSS=FALSE
 MINGWCROSS64=FALSE
 MACCROSS=FALSE
@@ -123,10 +124,11 @@ LUATEXEXE=luatex
 LUATEXEXE53=luatex53
 
 case `uname` in
-  MINGW64*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
-  MINGW32*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+  MINGW64*   ) MINGW=TRUE ; LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+  MINGW32*   ) MINGW=TRUE ; LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
   CYGWIN*    ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
 esac
+
 
 WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
 
@@ -137,13 +139,13 @@ then
   B=build-clang
 fi
 
+OLDPATH=$PATH
 if [ "$MINGWCROSS64" = "TRUE" ]
 then
   B=build-windows64
   LUATEXEXEJIT=luajittex.exe
   LUATEXEXE=luatex.exe
   LUATEXEXE53=luatex53.exe
-  OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
   CFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
@@ -162,7 +164,6 @@ then
   LUATEXEXEJIT=luajittex.exe
   LUATEXEXE=luatex.exe
   LUATEXEXE53=luatex53.exe
-  OLDPATH=$PATH
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
   CFLAGS="-m32 -mtune=nocona -g -O3 $CFLAGS"
@@ -260,12 +261,11 @@ then
   LUA52ENABLE="--enable-luatex"
 fi
 
-LUA53ENABLE=--enable-luatex53
+LUA53ENABLE="--enable-luatex53"
 if [ "$BUILDLUA53" = "FALSE" ]
 then
   LUA53ENABLE=
 fi
-
 
 cd "$B"
 
@@ -332,8 +332,6 @@ then
 fi
 
 
-
-
 # go back
 cd ..
 
@@ -355,8 +353,7 @@ else
   echo "lua(jit)tex binary not stripped"
 fi
 
-
-if [ "$MINGWCROSS" = "TRUE" ] || [ "$MINGWCROSS64" = "TRUE" ]
+if [ "$MINGWCROSS" = "TRUE" ] || [ "$MINGWCROSS64" = "TRUE" ] || [ "$MINGW" = "TRUE" ]
 then
   PATH=$OLDPATH
   if [ "$ENABLESHARED" = "TRUE" ]
@@ -389,7 +386,6 @@ then
       then
         $STRIP "$B/texk/web2c/.libs/$LUATEXEXE53"  "$L3"
       fi
-      
     fi
     cp "$K" "$B"
     if [ "$BUILDJIT" = "TRUE" ]
@@ -415,6 +411,7 @@ then
   fi
 fi
 
+
 # show the result
 if [ -e "$B/$LUATEXEXEJIT" ]
 then
@@ -428,7 +425,3 @@ if [ -e "$B/$LUATEXEXE53" ]
 then
     ls -l "$B/$LUATEXEXE53"
 fi
-
-
-
-
