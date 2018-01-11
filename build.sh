@@ -284,9 +284,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-coremp  \
     --enable-web2c  \
     --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
-    $LUA52ENABLE  \
-    $LUA53ENABLE  \
-    $JITENABLE \
+    $LUA52ENABLE  $LUA53ENABLE  $JITENABLE \
     --without-system-cairo  \
     --without-system-pixman \
     --without-system-ptexenc \
@@ -345,15 +343,15 @@ if [ "$STRIP_LUATEX" = "TRUE" ] ;
 then
     if [ "$BUILDJIT" = "TRUE" ]
     then
-    $STRIP "$B"/texk/web2c/$LUATEXEXEJIT
+	$STRIP "$B"/texk/web2c/$LUATEXEXEJIT
     fi
     if [ "$BUILDLUA52" = "TRUE" ]
     then
-      $STRIP "$B"/texk/web2c/$LUATEXEXE
+	$STRIP "$B"/texk/web2c/$LUATEXEXE
     fi
     if [ "$BUILDLUA53" = "TRUE" ]
     then
-      $STRIP "$B"/texk/web2c/$LUATEXEXE53
+	$STRIP "$B"/texk/web2c/$LUATEXEXE53
     fi
 else
   echo "lua(jit)tex binary not stripped"
