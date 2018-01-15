@@ -1,119 +1,73 @@
-Files source/Build and /home/luigisvn/temp/exp-lua5.3/source/Build differ
-Only in /home/luigisvn/temp/exp-lua5.3/source: DIFF
-Only in /home/luigisvn/temp/exp-lua5.3/source: DO.SH
-Only in /home/luigisvn/temp/exp-lua5.3/source: GPATH
-Only in /home/luigisvn/temp/exp-lua5.3/source: GRTAGS
-Only in /home/luigisvn/temp/exp-lua5.3/source: GTAGS
-Files source/README and /home/luigisvn/temp/exp-lua5.3/source/README differ
-Only in /home/luigisvn/temp/exp-lua5.3/source: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/auxdir/auxsub: autom4te.cache
-Files source/build-aux/compile and /home/luigisvn/temp/exp-lua5.3/source/build-aux/compile differ
-Files source/build-aux/depcomp and /home/luigisvn/temp/exp-lua5.3/source/build-aux/depcomp differ
-Files source/libs/README and /home/luigisvn/temp/exp-lua5.3/source/libs/README differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs: _poppler
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/gmp: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/gmp/native: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/libpng: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/lua53: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/luajit/LuaJIT-src/src: lauxlib.h.orig
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/luajit/LuaJIT-src/src: lj_load.c.orig
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/luajit: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/luajit/native: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/mpfr: autom4te.cache
-Files source/libs/poppler/ChangeLog and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/ChangeLog differ
-Files source/libs/poppler/Makefile.am and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/Makefile.am differ
-Files source/libs/poppler/Makefile.in and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/Makefile.in differ
-Files source/libs/poppler/TLpatches/ChangeLog and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/TLpatches/ChangeLog differ
-Files source/libs/poppler/TLpatches/TL-Changes and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/TLpatches/TL-Changes differ
-Only in source/libs/poppler/TLpatches: patch-02-LLONG_MAX
-Only in source/libs/poppler/TLpatches: patch-03-Object-functions
-Files source/libs/poppler/aclocal.m4 and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/aclocal.m4 differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler: autom4te.cache
-Files source/libs/poppler/config.h.in and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/config.h.in differ
-Files source/libs/poppler/configure and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/configure differ
-Files source/libs/poppler/configure.ac and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/configure.ac differ
-Files source/libs/poppler/include/Makefile.in and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/include/Makefile.in differ
-Files source/libs/poppler/include/fofi/Makefile.in and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/include/fofi/Makefile.in differ
-Files source/libs/poppler/include/goo/Makefile.in and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/include/goo/Makefile.in differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src: config.h.cmake
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/goo: glibc_strtok_r.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src: gtkdoc.py
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src: make-glib-api-docs
-Files source/libs/poppler/poppler-src/poppler/Lexer.cc and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/poppler/Lexer.cc differ
-Files source/libs/poppler/poppler-src/poppler/Object.h and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/poppler/Object.h differ
-Files source/libs/poppler/poppler-src/poppler/PDFDoc.cc and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/poppler/PDFDoc.cc differ
-Files source/libs/poppler/poppler-src/poppler/poppler-config.h.in and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/poppler/poppler-config.h.in differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src: poppler-cairo.pc.cmake
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src: poppler-cpp.pc.cmake
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src: poppler-glib.pc.cmake
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src: poppler-qt5.pc.cmake
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src: poppler-splash.pc.cmake
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src: poppler.pc.cmake
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: Splash.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: Splash.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashBitmap.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashBitmap.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashClip.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashClip.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashErrorCodes.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFTFont.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFTFont.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFTFontEngine.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFTFontEngine.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFTFontFile.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFTFontFile.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFont.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFont.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFontEngine.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFontEngine.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFontFile.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFontFile.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFontFileID.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashFontFileID.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashGlyphBitmap.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashMath.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashPath.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashPath.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashPattern.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashPattern.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashScreen.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashScreen.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashState.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashState.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashXPath.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashXPath.h
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashXPathScanner.cc
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/poppler-src/splash: SplashXPathScanner.h
-Files source/libs/poppler/version.ac and /home/luigisvn/temp/exp-lua5.3/source/libs/poppler/version.ac differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/zlib: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/libs/zziplib: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/m4: ax_cxx_compile_stdcxx.m4
-Only in /home/luigisvn/temp/exp-lua5.3/source: reautoconf-lua53
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk: autom4te.cache
-Files source/texk/kpathsea/ChangeLog and /home/luigisvn/temp/exp-lua5.3/source/texk/kpathsea/ChangeLog differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/kpathsea: autom4te.cache
-Files source/texk/kpathsea/doc/kpathsea.info and /home/luigisvn/temp/exp-lua5.3/source/texk/kpathsea/doc/kpathsea.info differ
-Files source/texk/kpathsea/pathsearch.c and /home/luigisvn/temp/exp-lua5.3/source/texk/kpathsea/pathsearch.c differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/texlive: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c: autom4te.cache
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c: c-auto.in~
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir: DIFF
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir: DO.SH
-Files source/texk/web2c/luatexdir/NEWS and /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir/NEWS differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir: _luafilesystem
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir: _luasocket
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir/am: _luasocket.am
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir/lua: lstrlibext.c.orig
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir/lua: lstrlibext.c~
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir/lua: luastuff.w~
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir/luasocket/src: serial.c~
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir/luasocket/src: socket_lua.c.module
-Files source/texk/web2c/luatexdir/luatex_svnversion.h and /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/luatexdir/luatex_svnversion.h differ
-Files source/texk/web2c/omegafonts/Makefile.in and /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/omegafonts/Makefile.in differ
-Files source/texk/web2c/otps/Makefile.in and /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/otps/Makefile.in differ
-Files source/texk/web2c/otps/win32/Makefile.in and /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/otps/win32/Makefile.in differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/web2c: autom4te.cache
-Files source/texk/web2c/window/Makefile.in and /home/luigisvn/temp/exp-lua5.3/source/texk/web2c/window/Makefile.in differ
-Files source/utils/README and /home/luigisvn/temp/exp-lua5.3/source/utils/README differ
-Only in /home/luigisvn/temp/exp-lua5.3/source/utils: autom4te.cache
+Files source/Build and /home/luigisvn/temp/experimental/experimental/source/Build differ
+Files source/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/Makefile.in differ
+Files source/README and /home/luigisvn/temp/experimental/experimental/source/README differ
+Only in /home/luigisvn/temp/experimental/experimental/source: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/auxdir/auxsub: autom4te.cache
+Files source/build-aux/compile and /home/luigisvn/temp/experimental/experimental/source/build-aux/compile differ
+Files source/build-aux/depcomp and /home/luigisvn/temp/experimental/experimental/source/build-aux/depcomp differ
+Files source/configure and /home/luigisvn/temp/experimental/experimental/source/configure differ
+Files source/doc/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/doc/Makefile.in differ
+Files source/libs/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/libs/Makefile.in differ
+Files source/libs/README and /home/luigisvn/temp/experimental/experimental/source/libs/README differ
+Only in /home/luigisvn/temp/experimental/experimental/source/libs: autom4te.cache
+Files source/libs/configure and /home/luigisvn/temp/experimental/experimental/source/libs/configure differ
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/gmp: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/gmp/native: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/libpng: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/libs: lua52
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/lua53: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/luajit/LuaJIT-src/src: lauxlib.h.orig
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/luajit/LuaJIT-src/src: lj_load.c.orig
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/luajit: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/luajit/native: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/mpfr: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/zlib: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/libs/zziplib: autom4te.cache
+Only in /home/luigisvn/temp/experimental/experimental/source/m4: kpse-lua52-flags.m4
+Files source/m4/kpse-pkgs.m4 and /home/luigisvn/temp/experimental/experimental/source/m4/kpse-pkgs.m4 differ
+Only in /home/luigisvn/temp/experimental/experimental/source: reautoconf-luatex
+Files source/texk/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/texk/Makefile.in differ
+Only in /home/luigisvn/temp/experimental/experimental/source/texk: autom4te.cache
+Files source/texk/configure and /home/luigisvn/temp/experimental/experimental/source/texk/configure differ
+Files source/texk/kpathsea/ChangeLog and /home/luigisvn/temp/experimental/experimental/source/texk/kpathsea/ChangeLog differ
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/kpathsea: autom4te.cache
+Files source/texk/kpathsea/doc/kpathsea.info and /home/luigisvn/temp/experimental/experimental/source/texk/kpathsea/doc/kpathsea.info differ
+Files source/texk/kpathsea/pathsearch.c and /home/luigisvn/temp/experimental/experimental/source/texk/kpathsea/pathsearch.c differ
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/texlive: autom4te.cache
+Files source/texk/web2c/Makefile.am and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/Makefile.am differ
+Files source/texk/web2c/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/Makefile.in differ
+Files source/texk/web2c/ac/web2c.ac and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/ac/web2c.ac differ
+Files source/texk/web2c/aclocal.m4 and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/aclocal.m4 differ
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/web2c: autom4te.cache
+Files source/texk/web2c/configure and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/configure differ
+Files source/texk/web2c/configure.ac and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/configure.ac differ
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/web2c: configure.ac~
+Files source/texk/web2c/doc/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/doc/Makefile.in differ
+Files source/texk/web2c/lib/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/lib/Makefile.in differ
+Files source/texk/web2c/luatexdir/ChangeLog and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/ChangeLog differ
+Files source/texk/web2c/luatexdir/am/libluatex.am and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/am/libluatex.am differ
+Files source/texk/web2c/luatexdir/am/luaffi.am and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/am/luaffi.am differ
+Files source/texk/web2c/luatexdir/am/luamisc.am and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/am/luamisc.am differ
+Files source/texk/web2c/luatexdir/am/luasocket.am and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/am/luasocket.am differ
+Files source/texk/web2c/luatexdir/am/luatex.am and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/am/luatex.am differ
+Files source/texk/web2c/luatexdir/lua/llualib.c and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/lua/llualib.c differ
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/lua: lstrlibext.c.orig
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/lua: lstrlibext.c~
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/lua: luastuff.w~
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/luasocket/src: serial.c~
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/luasocket/src: socket_lua.c.module
+Files source/texk/web2c/luatexdir/luatex.c and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/luatex.c differ
+Files source/texk/web2c/luatexdir/luatex_svnversion.h and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/luatex_svnversion.h differ
+Files source/texk/web2c/luatexdir/slnunicode/slnunico.c and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/slnunicode/slnunico.c differ
+Files source/texk/web2c/luatexdir/tex/mlist.w and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/luatexdir/tex/mlist.w differ
+Files source/texk/web2c/man/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/man/Makefile.in differ
+Files source/texk/web2c/mplibdir/mp.w and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/mplibdir/mp.w differ
+Files source/texk/web2c/omegafonts/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/omegafonts/Makefile.in differ
+Files source/texk/web2c/otps/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/otps/Makefile.in differ
+Files source/texk/web2c/otps/win32/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/otps/win32/Makefile.in differ
+Only in /home/luigisvn/temp/experimental/experimental/source/texk/web2c/web2c: autom4te.cache
+Files source/texk/web2c/window/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/texk/web2c/window/Makefile.in differ
+Files source/utils/Makefile.in and /home/luigisvn/temp/experimental/experimental/source/utils/Makefile.in differ
+Files source/utils/README and /home/luigisvn/temp/experimental/experimental/source/utils/README differ
+Only in /home/luigisvn/temp/experimental/experimental/source/utils: autom4te.cache
+Files source/utils/configure and /home/luigisvn/temp/experimental/experimental/source/utils/configure differ
