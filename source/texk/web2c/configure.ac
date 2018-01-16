@@ -1,8 +1,6 @@
-dnl $Id: configure.ac 46257 2018-01-09 18:53:05Z karl $
 dnl Process this file with Autoconf to produce a configure script for Web2c.
 dnl
-dnl   Copyright 2018 Karl Berry <tex-live@tug.org>
-dnl   Copyright 2009-2015 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright (C) 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -17,7 +15,9 @@ dnl   more than 256 fonts.
 dnl - NONASCII: necessary for the character translation feature.
 dnl - REGFIX: modern compilers mostly ignore register declarations, anyway.
 dnl The code for these things remains (where applicable), so you can
-dnl get these features if you are willing to hack the sources.
+dnl get these features if you are willing to hack the sources. If not,
+dnl it'll take a good argument to convince me to invest the time to make
+dnl them configurable.
 dnl
 m4_include([../../version.ac])[] dnl define tex_live_version
 AC_INIT([Web2C], tex_live_version(), [tex-k@tug.org])
@@ -45,15 +45,6 @@ KPSE_LT_HACK
 dnl Include additional code for web2c.
 KPSE_WEB2C_PREPARE
 m4_include([ac/web2c.ac])
-
-dnl LuaTeX requires C++11 because poppler does :(.
-if test "x$enable_xetex" = xyes \
-   || test "x$enable_luatex" = xyes \
-   || test "x$enable_luajittex" = xyes \
-   || test "x$enable_luatex53" = xyes; then
-  AC_MSG_NOTICE(LuaTeX enabled, requiring C++11 support)
-  AX_CXX_COMPILE_STDCXX([11])
-fi
 
 AS_IF([test "x$enable_texlive_build" = xyes],
       [banner_pre='TeX Live'],
@@ -92,6 +83,7 @@ KPSE_CHECK_SOCKET_LIBS
 AS_CASE([$ac_cv_search_connect],
         ["none required"], [],
         [no], [WEB2C_DISABLE([luatex], [no socket library])
+	       WEB2C_DISABLE([luatex53], [no socket library])
                WEB2C_DISABLE([ipc], [no socket library])],
             [socketlibs=$ac_cv_search_connect])
 if test "x$enable_ipc" = xyes; then
@@ -104,6 +96,7 @@ fi
 # and maybe -lresolv for inet_aton().
 lua_socketlibs=$socketlibs
 kpse_save_LIBS=$LIBS
+KPSE_LUA53_DEFINES
 KPSE_LUA52_DEFINES
 KPSE_LUAJIT_DEFINES
 LIBS=$kpse_save_LIBS
@@ -120,24 +113,24 @@ if test "x$kpse_cv_have_win32" = xno; then
                           [lua_socketlibs="$lua_socketlibs $ac_cv_search_dlopen"])])
   AS_CASE([$ac_cv_search_hstrerror],
           ["none required"], [],
-          [no], [WEB2C_DISABLE([luatex], [no hstrerror()])],
+          [no], [WEB2C_DISABLE([luatex], [no hstrerror()]) WEB2C_DISABLE([luatex53], [no hstrerror()])],
               [lua_socketlibs="$lua_socketlibs $ac_cv_search_hstrerror"])
   AS_CASE([$ac_cv_search_inet_aton],
           ["none required"], [],
-          [no], [WEB2C_DISABLE([luatex], [no inet_aton()])],
+          [no], [WEB2C_DISABLE([luatex], [no inet_aton()]) WEB2C_DISABLE([luatex53], [no inet_aton()])],
               [lua_socketlibs="$lua_socketlibs $ac_cv_search_inet_aton"])
   AS_CASE([$ac_cv_search_gethostbyname],
           ["none required"], [],
-          [no], [WEB2C_DISABLE([luatex], [no gethostbyname()])],
+          [no], [WEB2C_DISABLE([luatex], [no gethostbyname()]) WEB2C_DISABLE([luatex53], [no gethostbyname()])],
               [lua_socketlibs="$lua_socketlibs $ac_cv_search_gethostbyname"])
   AS_CASE([$ac_cv_search_nanosleep],
           ["none required"], [],
-          [no], [WEB2C_DISABLE([luatex], [no nanosleep()])],
+          [no], [WEB2C_DISABLE([luatex], [no nanosleep()]) WEB2C_DISABLE([luatex53], [no nanosleep()])],
               [lua_socketlibs="$lua_socketlibs $ac_cv_search_nanosleep"])
 else
   AC_CHECK_LIB([ws2_32], [main],
                [lua_socketlibs="$socketlibs -lws2_32"],
-               [WEB2C_DISABLE([luatex], [no getaddrinfo()])])
+               [WEB2C_DISABLE([luatex], [no getaddrinfo()]) WEB2C_DISABLE([luatex53], [no getaddrinfo()])])
 fi
 AM_CONDITIONAL([USE_DLOPEN], [test "x$ac_cv_header_dlfcn_h" = xyes])
 AC_SUBST([lua_socketlibs])
@@ -250,6 +243,7 @@ AC_TYPE_SIGNAL
 KPSE_KPATHSEA_FLAGS
 KPSE_PTEXENC_FLAGS
 KPSE_ZLIB_FLAGS
+KPSE_LUA53_FLAGS
 KPSE_LUA52_FLAGS
 KPSE_LUAJIT_FLAGS
 KPSE_LIBPNG_FLAGS
