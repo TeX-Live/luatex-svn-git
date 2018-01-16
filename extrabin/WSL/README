@@ -47,7 +47,8 @@ https://www.gnu.org/software/libtool/manual/libtool.html#File-name-conversion
 
 As expected, cross-compiling
 in the Windows Subsystem for Linux is not supported by libtool, because it's seen as a native Linux
-and currently in some distro fro the store (e.g. Ubuntu)  is not possibile to install winepath.
+and currently in some distro from the store (e.g. Ubuntu) it is 
+not possibile to install winepath.
 In this case the Perl script here simply (and really simply!) 
 takes an input path and mimic the winepath -w under native Linux.
 You should put it under where libtool can read it (e.g. /usr/local/bin).
