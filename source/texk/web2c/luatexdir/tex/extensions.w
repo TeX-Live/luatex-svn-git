@@ -142,8 +142,12 @@ static void do_extension_pdf(int immediate)
             set_pdf_literal_mode(tail, direct_always);
         else if (scan_keyword("page"))
             set_pdf_literal_mode(tail, direct_page);
+        else if (scan_keyword("text"))
+            set_pdf_literal_mode(tail, direct_text);
         else if (scan_keyword("raw"))
             set_pdf_literal_mode(tail, direct_raw);
+        else if (scan_keyword("origin"))
+            set_pdf_literal_mode(tail, set_origin);
         else
             set_pdf_literal_mode(tail, set_origin);
         scan_toks(false, true);
