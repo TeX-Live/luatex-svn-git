@@ -21,10 +21,15 @@
 # ----------
 # Options:
 #      --jit       : also build luajittex
+#      --nojit     : don't build luajit 
 #      --make      : only make, no make distclean; configure
 #      --parallel  : make -j 2 -l 3.0
 #      --nostrip   : do not strip binary
 #      --warnings= : enable compiler warnings
+#      --lua52     : build luatex  with luatex 52
+#      --nolua52   : don't build luatex  with luatex 52
+#      --lua53     : build luatex  with luatex 53
+#      --nolua53   : don't build luatex  with luatex 53
 #      --mingw     : crosscompile for mingw32 from x86_64linux
 #      --mingw32   : crosscompile for mingw32 from x86_64linux
 #      --mingw64   : crosscompile for mingw64 from x86_64linux
@@ -60,14 +65,17 @@ else
 fi
 
 BUILDJIT=FALSE
+BUILDLUA52=FALSE
+BUILDLUA53=TRUE
 ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
 WARNINGS=yes
+MINGW=FALSE
 MINGWCROSS=FALSE
 MINGWCROSS64=FALSE
 MACCROSS=FALSE
 CLANG=FALSE
-ENABLESHARED=FALSE
+ENABLESHARED=TRUE
 CONFHOST=
 CONFBUILD=
 JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
@@ -92,6 +100,10 @@ until [ -z "$1" ]; do
     --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-g -O0 -ggdb3 $CFLAGS" ; CXXFLAGS="-g -O0 -ggdb3 $CXXFLAGS"  ;;
     --clang     ) export CC=clang; export CXX=clang++ ; TARGET_CC=$CC ; CLANG=TRUE ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
+    --lua52     ) BUILDLUA52=TRUE    ;;
+    --nolua52   ) BUILDLUA52=FALSE   ;;
+    --lua53     ) BUILDLUA53=TRUE    ;;
+    --nolua53   ) BUILDLUA53=FALSE   ;;
     --mingw     ) MINGWCROSS=TRUE    ;;
     --mingw32   ) MINGWCROSS=TRUE    ;;
     --mingw64   ) MINGWCROSS64=TRUE  ;;
@@ -109,11 +121,14 @@ done
 STRIP=strip
 LUATEXEXEJIT=luajittex
 LUATEXEXE=luatex
+LUATEXEXE53=luatex53
 
 case `uname` in
-  MINGW32*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ;;
-  CYGWIN*    ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ;;
+  MINGW64*   ) MINGW=TRUE ; LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+  MINGW32*   ) MINGW=TRUE ; LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+  CYGWIN*    ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
 esac
+
 
 WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
 
@@ -124,12 +139,13 @@ then
   B=build-clang
 fi
 
+OLDPATH=$PATH
 if [ "$MINGWCROSS64" = "TRUE" ]
 then
   B=build-windows64
   LUATEXEXEJIT=luajittex.exe
   LUATEXEXE=luatex.exe
-  OLDPATH=$PATH
+  LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
   CFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
@@ -147,7 +163,7 @@ then
   B=build-windows
   LUATEXEXEJIT=luajittex.exe
   LUATEXEXE=luatex.exe
-  OLDPATH=$PATH
+  LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
   CFLAGS="-m32 -mtune=nocona -g -O3 $CFLAGS"
@@ -239,6 +255,18 @@ then
   JITENABLE="--enable-luajittex --without-system-luajit "
 fi
 
+LUA52ENABLE=
+if [ "$BUILDLUA52" = "TRUE" ]
+then
+  LUA52ENABLE="--enable-luatex"
+fi
+
+LUA53ENABLE="--enable-luatex53"
+if [ "$BUILDLUA53" = "FALSE" ]
+then
+  LUA53ENABLE=
+fi
+
 cd "$B"
 
 if [ "$ONLY_MAKE" = "FALSE" ]
@@ -254,7 +282,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-dump-share  \
     --enable-web2c  \
     --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
-    --enable-luatex $JITENABLE \
+    $LUA52ENABLE  $LUA53ENABLE  $JITENABLE \
     --without-system-ptexenc \
     --without-system-kpathsea \
     --without-system-poppler \
@@ -292,7 +320,16 @@ then
   (cd libs/luajit; $MAKE all )
   (cd texk/web2c; $MAKE $LUATEXEXEJIT)
 fi
-(cd texk/web2c; $MAKE $LUATEXEXE )
+
+if [ "$BUILDLUA52" = "TRUE" ]
+then
+  (cd texk/web2c; $MAKE $LUATEXEXE )
+fi
+
+if [ "$BUILDLUA53" = "TRUE" ]
+then
+  (cd texk/web2c; $MAKE $LUATEXEXE53 )
+fi
 
 
 # go back
@@ -300,24 +337,31 @@ cd ..
 
 if [ "$STRIP_LUATEX" = "TRUE" ] 
 then
-if [ "$BUILDJIT" = "TRUE" ]
-then
-  $STRIP "$B"/texk/web2c/$LUATEXEXEJIT
-fi
-  $STRIP "$B"/texk/web2c/$LUATEXEXE
+    if [ "$BUILDJIT" = "TRUE" ]
+    then
+	$STRIP "$B"/texk/web2c/$LUATEXEXEJIT
+    fi
+    if [ "$BUILDLUA52" = "TRUE" ]
+    then
+	$STRIP "$B"/texk/web2c/$LUATEXEXE
+    fi
+    if [ "$BUILDLUA53" = "TRUE" ]
+    then
+	$STRIP "$B"/texk/web2c/$LUATEXEXE53
+    fi
 else
   echo "lua(jit)tex binary not stripped"
 fi
 
-
-if [ "$MINGWCROSS" = "TRUE" ] || [ "$MINGWCROSS64" = "TRUE" ]
+if [ "$MINGWCROSS" = "TRUE" ] || [ "$MINGWCROSS64" = "TRUE" ] || [ "$MINGW" = "TRUE" ]
 then
   PATH=$OLDPATH
   if [ "$ENABLESHARED" = "TRUE" ]
   then
     K=$(find "$B/texk/kpathsea" -name "libkpathsea*dll")
-    L1=$(find "$B/libs" -name "texlua52.dll")
-    L2=$(find "$B/libs" -name "texluajit.dll")
+    L1=$(find "$B/libs" -name "texluajit.dll")
+    L2=$(find "$B/libs" -name "texlua52.dll")
+    L3=$(find "$B/libs" -name "texlua53.dll")
     #cp "$B/texk/web2c/.libs/$LUATEXEXE" "$B"
     #cp "$B/texk/web2c/.libs/$LUATEXEXEJIT" "$B"
     #cp "$K" "$B"
@@ -329,27 +373,55 @@ then
     #$STRIP "$B/$LUATEXEXE" "$B/$LUATEXEXEJIT" "$B/$K" "$B/$L1" "$B/$L2"
     if [ "$STRIP_LUATEX" = "TRUE" ] 
     then 
-      $STRIP "$B/texk/web2c/.libs/$LUATEXEXE" "$K" "$L1" 
+      $STRIP  "$K" 
       if [ "$BUILDJIT" = "TRUE" ]
       then
-        $STRIP "$B/texk/web2c/.libs/$LUATEXEXEJIT"  "$L2"
+        $STRIP "$B/texk/web2c/.libs/$LUATEXEXEJIT"  "$L1"
       fi
-    fi 
-    cp "$B/texk/web2c/.libs/$LUATEXEXE" "$B"
-    cp "$B/texk/web2c/.libs/$LUATEXEXEJIT" "$B"
+      if [ "$BUILDLUA52" = "TRUE" ]
+      then
+        $STRIP "$B/texk/web2c/.libs/$LUATEXEXE"  "$L2"
+      fi
+      if [ "$BUILDLUA53" = "TRUE" ]
+      then
+        $STRIP "$B/texk/web2c/.libs/$LUATEXEXE53"  "$L3"
+      fi
+    fi
     cp "$K" "$B"
-    cp "$L1" "$B" 
-    cp "$L2" "$B" 
+    if [ "$BUILDJIT" = "TRUE" ]
+    then
+	cp "$B/texk/web2c/.libs/$LUATEXEXEJIT" "$B"
+	cp "$L1" "$B"
+    fi
+    if [ "$BUILDLUA52" = "TRUE" ]
+    then
+	cp "$B/texk/web2c/.libs/$LUATEXEXE" "$B"
+	cp "$L2" "$B"
+    fi
+    if [ "$BUILDLUA53" = "TRUE" ]
+    then
+	cp "$B/texk/web2c/.libs/$LUATEXEXE53" "$B"
+	cp "$L3" "$B"
+    fi
+    if [[ ("$BUILDLUA52" = "FALSE") && ("$BUILDLUA53" = "TRUE") ]]
+    then
+	mv "$B/$LUATEXEXE53" "$B/$LUATEXEXE"
+    fi
+
   fi
 fi
 
+
 # show the result
-if [ "$BUILDJIT" = "TRUE" ]
+if [ -e "$B/$LUATEXEXEJIT" ]
 then
-ls -l "$B"/texk/web2c/$LUATEXEXEJIT
+    ls -l "$B/$LUATEXEXEJIT"
 fi
-ls -l "$B"/texk/web2c/$LUATEXEXE
-
-
-
-
+if [ -e "$B/$LUATEXEXE" ]
+then
+    ls -l "$B/$LUATEXEXE"
+fi
+if [ -e "$B/$LUATEXEXE53" ]
+then
+    ls -l "$B/$LUATEXEXE53"
+fi
