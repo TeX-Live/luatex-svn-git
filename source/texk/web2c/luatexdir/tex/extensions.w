@@ -1195,7 +1195,6 @@ system-dependent section allows easy integration of Web2c and e-\TeX, etc.)
 @c
 pool_pointer edit_name_start;   /* where the filename to switch to starts */
 int edit_name_length, edit_line;        /* what line to start editing at */
-int ipcon;                      /* level of IPC action, 0 for none [default] */
 boolean stop_at_space;          /* whether |more_name| returns false for space */
 
 @ The |edit_name_start| will be set to point into |str_pool| somewhere after
