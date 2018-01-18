@@ -72,11 +72,10 @@ code in \TEX\ engines (especially code that is not needed any longer).
         \IO\ can be intercepted.
     \stopitem
     \startitem
-        We currently use \LUA\ 5.2.*. At some point we might decide to move to
-        5.3.* but that is yet to be decided. There are few \LUA\ libraries that
-        we consider part of the core \LUA\ machinery, for instance \type {lpeg}.
+        We currently use \LUA\ 5.3.*. There are few \LUA\ libraries that we
+        consider part of the core \LUA\ machinery, for instance \type {lpeg}.
         There are additional \LUA\ libraries that interface to the internals of
-        \TEX.
+        \TEX. We also keep the \LUA\ 5.2 \type {bit32} library around.
     \stopitem
     \startitem
         There are various \TEX\ extensions but only those that cannot be done
