@@ -88,7 +88,7 @@ CXXFLAGS="$CXXFLAGS"
 
 # poppler 0.55 needs c++11 
 # for the moment we put the flag here
-export CXXFLAGS="-std=c++11 $CXXFLAGS"
+# export CXXFLAGS="-std=c++11 $CXXFLAGS"
 
 until [ -z "$1" ]; do
   case "$1" in
