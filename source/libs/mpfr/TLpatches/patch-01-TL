@@ -1,0 +1,12 @@
+diff -ur mpfr-4.0.0.orig/src/mparam_h.in mpfr-4.0.0/src/mparam_h.in
+--- mpfr-4.0.0.orig/src/mparam_h.in	Sun Jan 01 10:34:35 2017
++++ mpfr-4.0.0/src/mparam_h.in	Tue Dec 26 19:31:48 2017
+@@ -32,6 +32,8 @@
+    for example with gcc -dM -E -xc /dev/null
+    As of gcc 4.2, you can also use: -march=native or -mtune=native */
+ 
++#elif 1 /* no processor specific optimization for TeX Live */
++#define MPFR_TUNE_CASE "default"
+ #elif defined (__tune_pentium4__) /* Threshold for Pentium 4 */
+ #define MPFR_TUNE_CASE "src/x86_64/pentium4/mparam.h"
+ #include "x86_64/pentium4/mparam.h"

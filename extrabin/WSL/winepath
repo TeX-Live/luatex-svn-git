@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+use strict; use warnings;
+use File::Spec::Win32;
+
+my $winpath=File::Spec::Win32->canonpath($ARGV[1]);
+$winpath = "Z:".$winpath;
+print($winpath,"\n");
