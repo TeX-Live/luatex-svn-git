@@ -369,16 +369,16 @@ if [ "$BUILDJIT" = "TRUE" ]
 then
 ls -l "$B"/texk/web2c/$LUATEXEXEJIT
 fi
-if [[ ("$BUILDLUA52" = "TRUE") && ("$BUILDLUA53" = "TRUE") ]]
+if [ "$BUILDLUA52" = "TRUE" ] && [ "$BUILDLUA53" = "TRUE" ]
 then
     ls -l "$B"/texk/web2c/$LUATEXEXE
     ls -l "$B"/texk/web2c/$LUATEXEXE53
 fi
-if [[ ("$BUILDLUA52" = "TRUE") && ("$BUILDLUA53" = "FALSE") ]]
+if [ "$BUILDLUA52" = "TRUE" ] && [ "$BUILDLUA53" = "FALSE" ]
 then
     ls -l "$B"/texk/web2c/$LUATEXEXE
 fi
-if [[ ("$BUILDLUA52" = "FALSE") && ("$BUILDLUA53" = "TRUE") ]]
+if [ "$BUILDLUA52" = "FALSE" ]  && [ "$BUILDLUA53" = "TRUE" ]
 then
     mv -v  "$B"/texk/web2c/$LUATEXEXE53 "$B"/texk/web2c/$LUATEXEXE
     ls -l "$B"/texk/web2c/$LUATEXEXE

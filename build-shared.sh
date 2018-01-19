@@ -403,7 +403,7 @@ then
 	cp "$B/texk/web2c/.libs/$LUATEXEXE53" "$B"
 	cp "$L3" "$B"
     fi
-    if [[ ("$BUILDLUA52" = "FALSE") && ("$BUILDLUA53" = "TRUE") ]]
+    if [ "$BUILDLUA52" = "FALSE" ] && [ "$BUILDLUA53" = "TRUE" ]
     then
 	mv "$B/$LUATEXEXE53" "$B/$LUATEXEXE"
     fi
