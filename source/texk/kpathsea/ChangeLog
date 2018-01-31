@@ -1,6 +1,30 @@
+2018-01-27  Karl Berry  <karl@freefriends.org>
+
+	* readable.h: doc fixes.
+	* readable.c (READABLE): take (ignored) kpse arg in macro, so:
+	(kpathsea_readable_file): we can avoid #ifdefs in body.
+
+	* str-list.c (str_list_concat_elements): reformat for consistency.
+
+	* str-list.h (STR_LIST_EMPTY, STR_LIST_FIRST_ELT): new macros.
+	* kpsewhich.c,
+	* pathsearch.c,
+	* str-list.c (str_list_concat_elements): use them.
+
+2018-01-26  Karl Berry  <karl@freefriends.org>
+
+	* tex-file.c (kpathsea_init_format_return_varlist): log a newline
+	before kpse_cnf_format, since this happens mid-search.
+
+2018-01-25  Karl Berry  <karl@freefriends.org>
+
+	* pathsearch.c: more consistent code formatting, doc fixes.
+	No functional code changes.
+
 2018-01-17  Norbert Preining  <norbert@preining.info>
 
-	* mktexlsr (treefile): use mktemp with fallback option for temporary file.
+	* mktexlsr (treefile): use mktemp with fallback option for
+	temporary file.
 
 2018-01-16  Karl Berry  <karl@freefriends.org>
 
