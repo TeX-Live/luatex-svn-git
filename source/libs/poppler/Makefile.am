@@ -1,4 +1,4 @@
-## $Id: Makefile.am 46257 2018-01-09 18:53:05Z karl $
+## $Id: Makefile.am 46370 2018-01-18 23:05:30Z lscarso $
 ## Proxy Makefile.am to build poppler for TeX Live.
 ##
 ##   Copyright 2016-2018 Karl Berry <tex-live@tug.org>
