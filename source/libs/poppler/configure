@@ -637,7 +637,6 @@ MINGW32_FALSE
 MINGW32_TRUE
 WIN32_FALSE
 WIN32_TRUE
-CXX_FLAGS_RELEASE
 NO_WARN_CXXFLAGS
 EGREP
 GREP
@@ -6978,11 +6977,6 @@ fi
 if test "x$GXX" = xyes; then
   NO_WARN_CXXFLAGS='-Wno-write-strings'
 fi
-
-
-
-CXX_FLAGS_RELEASE='-O2 -DNDEBUG -fno-exceptions -fno-check-new -fno-common -D_DEFAULT_SOURCE'
-
 
 
 
