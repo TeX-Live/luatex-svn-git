@@ -584,17 +584,18 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
     clang = char_lang(wordstart);
     langdata.pre_hyphen_char = get_pre_hyphen_char(clang);
     langdata.post_hyphen_char = get_post_hyphen_char(clang);
-
     for (i = 0; i < len; i++) {
         if (uword[i + 1] == '-') {      /* a hyphen follows */
-            while (vlink(t) != r && (type(t) != glyph_node || !is_simple_character(t)))
-                t = vlink(t);
+            /*
+                while (vlink(t) != r && (type(t) != glyph_node || !is_simple_character(t)))
+                    t = vlink(t);
+            */
             if (vlink(t) == r)
                 break;
             insert_syllable_discretionary(t, &langdata);
             t = vlink(t);       /* skip the new disc */
         } else if (uword[i + 1] == '=') {
-            /* do nothing ? */
+            /* skip disc */
             t = vlink(t);
         } else if (uword[i + 1] == '{') {
             halfword gg, hh, replace = null;
@@ -631,6 +632,11 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
         } else {
             t = vlink(t);
         }
+        /* new */
+        if (vlink(t) == r) {
+            break;
+        }
+        /* */
     }
 }
 
@@ -862,6 +868,11 @@ void hnj_hyphenation(halfword head, halfword tail)
     halfword first_language = first_valid_language_par;
     halfword strict_bound = hyphenation_bounds_par;
     halfword s, r = head, wordstart = null, save_tail1 = null, left = null, right = null;
+    halfword expstart = null;
+    /*
+        for now just for testing, disables \hyphenation{aa-bb=cc-dd}
+    */
+    boolean compound_hyphen = compound_hyphen_mode_par;
 
     /*
         This first movement assures two things:
@@ -888,7 +899,6 @@ void hnj_hyphenation(halfword head, halfword tail)
     save_tail1 = vlink(tail);
     s = new_penalty(0,word_penalty);
     couple_nodes(tail, s);
-
     while (r != null) { /* could be while(1), but let's be paranoid */
         int clang, lhmin, rhmin, hmin;
         halfword hyf_font;
@@ -952,6 +962,15 @@ void hnj_hyphenation(halfword head, halfword tail)
             if ((automatic_hyphen_mode_par == 0 || automatic_hyphen_mode_par == 1) && (t != null) && ((type(t) == glyph_node) && (character(t) != ex_hyphen_char_par))) {
                 /* we have a word already but the next character may not be a hyphen too */
                 r = compound_word_break(r, char_lang(r));
+                if (compound_hyphen) {
+                    if (expstart == null) {
+                        expstart = wordstart;
+                    }
+                    explicit_hyphen = false;
+                    hy = uni2string(hy, '-');
+                    r = t;
+                    continue;
+                }
             } else {
                 /* we jump over the sequence of hyphens */
                 while ((t != null) && (type(t) == glyph_node) && (character(t) == ex_hyphen_char_par)) {
@@ -973,7 +992,11 @@ void hnj_hyphenation(halfword head, halfword tail)
             *hy = 0;
             if (lang->exceptions != 0 && (replacement = hyphenation_exception(lang->exceptions, utf8word)) != NULL) {
                 /* handle the exception and go on to the next word */
-                do_exception(wordstart, r, replacement);
+                if (expstart == null) {
+                    do_exception(wordstart, r, replacement);
+                } else {
+                    do_exception(expstart,r,replacement);
+                }
                 free(replacement);
             } else if (lang->patterns != NULL) {
                 left = wordstart;
@@ -994,9 +1017,14 @@ void hnj_hyphenation(halfword head, halfword tail)
                     /* if (!right) break; */
                     /* what is right overruns left .. a bit messy */
                 }
-                (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, end_word, wordlen, left, right, &langdata);
+                if (expstart == null) {
+                    (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, end_word, wordlen, left, right, &langdata);
+                } else {
+                    /* nothing yet */
+                }
             }
         }
+        expstart = null ;
         explicit_hyphen = false;
         wordlen = 0;
         hy = utf8word;

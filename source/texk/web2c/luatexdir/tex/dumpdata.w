@@ -23,7 +23,7 @@
 
 /* we start with 907: the sum of the values of the bytes of "don knuth" */
 
-#define FORMAT_ID (907+37)
+#define FORMAT_ID (907+38)
 #if ((FORMAT_ID>=0) && (FORMAT_ID<=256))
 #error Wrong value for FORMAT_ID.
 #endif

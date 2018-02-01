@@ -3630,6 +3630,7 @@ void initialize(void)
         pre_bin_op_penalty_par = inf_penalty;
         math_script_box_mode_par = 1;
         pre_rel_penalty_par = inf_penalty;
+        compound_hyphen_mode_par = 1;
         escape_char_par = '\\';
         end_line_char_par = carriage_return;
         set_del_code('.', 0, 0, 0, 0, level_one); /* this null delimiter is used in error recovery */
