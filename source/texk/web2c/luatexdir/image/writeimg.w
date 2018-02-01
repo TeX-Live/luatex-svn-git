@@ -628,6 +628,11 @@ void write_img(PDF pdf, image_dict * idict)
         img_state(idict) = DICT_WRITTEN;
 }
 
+int write_img_object(PDF pdf, image_dict * idict, int n)
+{
+    return write_epdf_object(pdf, idict, n);
+}
+
 @ write an image
 @c
 void pdf_write_image(PDF pdf, int n)
