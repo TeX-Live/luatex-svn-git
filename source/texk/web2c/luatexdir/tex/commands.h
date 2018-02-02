@@ -179,7 +179,9 @@ typedef enum {
     set_font_cmd,                         /* set current font ( font identifiers ) */
     def_font_cmd,                         /* define a font file ( \.{\\font} ) */
     register_cmd,                         /* internal register ( \.{\\count}, \.{\\dimen}, etc.~) */
+    assign_box_direction_cmd,             /* (\.{\\boxdirection}) */
     assign_box_dir_cmd,                   /* (\.{\\boxdir}) */
+    assign_direction_cmd,                 /* (\.{\\pagedirection}, \.{\\textdirection}) */
     assign_dir_cmd,                       /* (\.{\\pagedir}, \.{\\textdir}) */
 # define max_internal_cmd assign_dir_cmd  /* the largest code that can follow \.{\\the} */
     advance_cmd,                          /* advance a register or parameter ( \.{\\advance} ) */

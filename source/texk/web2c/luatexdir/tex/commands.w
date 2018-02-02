@@ -442,6 +442,7 @@ void initialize_commands(void)
     primitive_tex("xleaders", leader_ship_cmd, x_leaders, 0);
     primitive_luatex("gleaders", leader_ship_cmd, g_leaders, 0);
     primitive_luatex("boxdir", assign_box_dir_cmd, 0, 0);
+    primitive_luatex("boxdirection", assign_box_direction_cmd, 0, 0);
     primitive_tex("indent", start_par_cmd, 1, 0);
     primitive_tex("noindent", start_par_cmd, 0, 0);
     primitive_luatex("quitvmode", start_par_cmd, 2, 0);
@@ -729,6 +730,13 @@ void initialize_commands(void)
     primitive_luatex("pdffeedback", feedback_cmd, pdf_feedback_code, 0);
     primitive_luatex("pdfvariable", variable_cmd, pdf_variable_code, 0);
     primitive_luatex("mathoption", option_cmd, math_option_code, 0);
+
+    primitive_luatex("pagedirection", assign_direction_cmd, int_base + page_direction_code, dir_base);
+    primitive_luatex("bodydirection", assign_direction_cmd, int_base + body_direction_code, dir_base);
+    primitive_luatex("pardirection",  assign_direction_cmd, int_base + par_direction_code,  dir_base);
+    primitive_luatex("textdirection", assign_direction_cmd, int_base + text_direction_code, dir_base);
+    primitive_luatex("mathdirection", assign_direction_cmd, int_base + math_direction_code, dir_base);
+    primitive_luatex("linedirection", assign_direction_cmd, int_base + line_direction_code, dir_base);
 
     /*
         some of the internal integer parameters are not associated with actual

@@ -21,44 +21,35 @@
 #ifndef DIRECTIONS_H
 #  define DIRECTIONS_H
 
-/*
-    #  define dir_TLT  0
-    #  define dir_TRT  4
-    #  define dir_LTL  9
-    #  define dir_RTT  24
-
-    extern const char *dir_strings[128];
-*/
-
 extern const char *dir_strings[8];
 
-extern int dir_swap;
+#define dir_swap 4
+#define dir_min_value 0
+#define dir_max_value 3
 
-/*
-#  define RETURN_DIR_VALUES(a)       \
-    if (s==luaS_##a##_ptr) {         \
-        return (dir_##a);            \
-    } else if (!absolute_only)  {    \
-        if (s==luaS_p##a##_ptr)      \
-            return (dir_##a);        \
-        else if (s==luaS_m##a##_ptr) \
-            return ((dir_##a)-4);    \
-    }
-*/
+#define check_dir_value(d) \
+    if ((d < dir_min_value) || (d > dir_max_value)) \
+        d = dir_min_value;
 
-#  define RETURN_DIR_VALUES(a)    \
-    if (s==lua_key(a)) {          \
-        return (dir_##a);         \
-    } else if (!absolute_only)  { \
-        if (s==lua_key_plus(a))        \
-            return (dir_##a);     \
-        else if (s==lua_key_minus(a))   \
+#define check_dir_value_all(d) \
+    if (d < dir_min_value-4) \
+        d = dir_min_value-4; \
+    else if (d > dir_max_value) \
+        d = dir_min_value;
+
+#define RETURN_DIR_VALUES(a) \
+    if (s==lua_key(a)) { \
+        return (dir_##a); \
+    } else if (!absolute_only) { \
+        if (s==lua_key_plus(a)) \
+            return (dir_##a); \
+        else if (s==lua_key_minus(a)) \
             return ((dir_##a)-4); \
     }
 
-#  define is_mirrored(a) 0
+#define is_mirrored(a) 0
 
-#  define is_rotated(a) (a == dir_RTT)
+#define is_rotated(a) (a == dir_RTT)
 
 /*
 
@@ -90,10 +81,10 @@ extern int dir_swap;
         (a == dir_RTT && b == dir_TRT) \
     )
 
-*/
+    # define dir_TLT_or_TRT(a) (a == dir_TLT || a == dir_TRT)
+    # define dir_LTL_or_RTT(a) (a == dir_LTL || a == dir_RTT)
 
-/* # define dir_TLT_or_TRT(a) (a == dir_TLT || a == dir_TRT) */
-/* # define dir_LTL_or_RTT(a) (a == dir_LTL || a == dir_RTT) */
+*/
 
 # define dir_TLT_or_TRT(a) (a < 2)
 # define dir_LTL_or_RTT(a) (a > 1)

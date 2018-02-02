@@ -209,6 +209,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         scanned_result(eqtb[m].cint, int_val_level);
         break;
     case assign_dir_cmd:
+    case assign_direction_cmd:
         if (m == (int_base + line_direction_code)) {
             m = int_base + text_direction_code;
         }

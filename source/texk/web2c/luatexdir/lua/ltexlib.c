@@ -2112,6 +2112,7 @@ static int gettex(lua_State * L)
             case assign_int_cmd:
             case assign_attr_cmd:
             case assign_dir_cmd:
+            case assign_direction_cmd:
             case assign_dimen_cmd:
             case set_aux_cmd:
             case set_prev_graf_cmd:

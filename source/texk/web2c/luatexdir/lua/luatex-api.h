@@ -139,6 +139,7 @@ extern int tokenlist_from_lua(lua_State * L);
 
 extern void lua_nodelib_push(lua_State * L);
 extern int nodelib_getdir(lua_State * L, int n, int absolute_only);
+extern int nodelib_getdirection(lua_State * L, int n, int absolute_only);
 extern int nodelib_getlist(lua_State * L, int n);
 
 extern int luaopen_node(lua_State * L);

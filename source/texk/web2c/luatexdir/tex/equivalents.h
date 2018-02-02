@@ -526,7 +526,7 @@ typedef enum {
     cramped_script_script_style, /* |subtype| for \.{\\crampedscriptscriptstyle} */
 } math_style_subtypes;
 
-typedef enum {
+typedef enum { /* this could move to directions.h */
     dir_TLT = 0,
     dir_TRT,
     dir_LTL,

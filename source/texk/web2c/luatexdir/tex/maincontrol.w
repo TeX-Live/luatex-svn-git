@@ -372,6 +372,16 @@ static void run_box_dir (void) {
         box_dir(cur_box) = cur_val;
 }
 
+static void run_box_direction (void) {
+    scan_register_num();
+    cur_box = box(cur_val);
+    scan_optional_equals();
+    scan_int();
+    check_dir_value(cur_val);
+    if (cur_box != null)
+        box_dir(cur_box) = cur_val;
+}
+
 @ There is a really small patch to add a new primitive called
 \.{\\quitvmode}. In vertical modes, it is identical to \.{\\indent},
 but in horizontal and math modes it is really a no-op (as opposed to
@@ -749,6 +759,7 @@ static void init_main_control (void) {
     any_mode(leader_ship_cmd, run_leader_ship);
     any_mode(make_box_cmd, run_make_box);
     any_mode(assign_box_dir_cmd, run_box_dir);
+    any_mode(assign_box_direction_cmd, run_box_direction);
     jump_table[vmode + start_par_cmd] = run_start_par_vmode;
     jump_table[hmode + start_par_cmd] = run_start_par;
     jump_table[mmode + start_par_cmd] = run_start_par;
@@ -835,6 +846,7 @@ static void init_main_control (void) {
     any_mode(assign_int_cmd, prefixed_command);
     any_mode(assign_attr_cmd, prefixed_command);
     any_mode(assign_dir_cmd, prefixed_command);
+    any_mode(assign_direction_cmd, prefixed_command);
     any_mode(assign_dimen_cmd, prefixed_command);
     any_mode(assign_glue_cmd, prefixed_command);
     any_mode(assign_mu_glue_cmd, prefixed_command);
@@ -2446,9 +2458,16 @@ void prefixed_command(void)
             attr_list_cache = cache_disabled;
             word_define(p, cur_val);
             break;
+        case assign_direction_cmd:
         case assign_dir_cmd:
             /* DIR: Assign direction codes */
-            scan_direction();
+            if (cur_cmd == assign_direction_cmd) {
+                scan_optional_equals();
+                scan_int();
+                check_dir_value(cur_val);
+            } else {
+                scan_direction();
+            }
             switch (cur_chr) {
                 case int_base + page_direction_code:
                     eq_word_define(int_base + page_direction_code, cur_val);
