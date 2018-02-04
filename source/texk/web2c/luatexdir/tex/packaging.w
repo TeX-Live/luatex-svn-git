@@ -221,8 +221,8 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         }
     }
   KEYWORDS:
- // if (scan_keyword("attr")) {
-    if (first_char_is('a','A') && scan_keyword("attr")) {
+    /* multiple attr keys possible */
+    if (scan_keyword("attr")) {
         scan_register_num();
         i = cur_val;
         scan_optional_equals();
@@ -235,16 +235,25 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         attr_list = do_set_attribute(attr_list, i, v);
         goto CONTINUE;
     }
- // if (scan_keyword("dir")) {
-    if (first_char_is('d','D') && scan_keyword("dir")) {
-        scan_direction();
-        spec_direction = cur_val;
-        goto CONTINUE;
+    /* we know the next character if one so no need to gobble and backtrack */
+    if (first_char_is('b','B')) {
+        if (scan_keyword("bdir")) {
+            scan_int();
+            check_dir_value(cur_val);
+            spec_direction = cur_val;
+            goto CONTINUE;
+        }
     }
- // if (scan_keyword("to")) {
+    if (first_char_is('d','D')) {
+        if (scan_keyword("dir")) {
+            scan_direction();
+            spec_direction = cur_val;
+            goto CONTINUE;
+        }
+    }
+    /* only one to or spread key possible and it comes last */
     if (first_char_is('t','T') && scan_keyword("to")) {
         spec_code = exactly;
- // } else if (scan_keyword("spread")) {
     } else if (first_char_is('s','S') && scan_keyword("spread")) {
         spec_code = additional;
     } else {
