@@ -148,8 +148,8 @@ then
   LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
-  CXXFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS"
+  CFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
+  CXXFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS"
   : ${CONFHOST:=--host=x86_64-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
@@ -166,8 +166,8 @@ then
   LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-m32 -mtune=nocona -g -O3 $CFLAGS"
-  CXXFLAGS="-m32 -mtune=nocona -g -O3 $CXXFLAGS"
+  CFLAGS="-Wno-unknown-pragmas -m32 -mtune=nocona -g -O3 $CFLAGS"
+  CXXFLAGS="-Wno-unknown-pragmas -m32 -mtune=nocona -g -O3 $CXXFLAGS"
   : ${CONFHOST:=--host=i686-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"

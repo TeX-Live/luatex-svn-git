@@ -38,6 +38,8 @@
 #      --clang     : use clang & clang++
 #      --debug     : CFLAGS="-g -O0" --warnings=max --nostrip
 #      --debugopt  : CFLAGS="-g -O3" --warnings=max --nostrip
+#      --musl      : use musl libc (EXPERIMENTAL)
+#      --tlopt     : option to pass to TeXLive configure
 $DEBUG
 #export CFLAGS="-D_FORTIFY_SOURCE=2 -O3"
 #export CXXFLAGS="-D_FORTIFY_SOURCE=2 -O3"
@@ -82,6 +84,8 @@ JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-8}
 MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-8}
 TARGET_CC=gcc
 TARGET_TCFLAGS=
+USEMUSL=FALSE
+TEXLIVEOPT=
 
 CFLAGS="$CFLAGS"
 CXXFLAGS="$CXXFLAGS"
@@ -111,6 +115,8 @@ until [ -z "$1" ]; do
     --build=*   ) CONFBUILD="$1"     ;;
     --parallel  ) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
     --arch=*    ) MACCROSS=TRUE; ARCH=`echo $1 | sed 's/--arch=\(.*\)/\1/' ` ;;
+    --musl      ) USEMUSL=TRUE       ;; 
+    --tlopt=*   ) TEXLIVEOPT=`echo $1 | sed 's/--tlopt=\(.*\)/\1/' `      ;;
     *           ) echo "ERROR: invalid build.sh parameter: $1"; exit 1       ;;
   esac
   shift
@@ -156,8 +162,8 @@ then
   LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
-  CXXFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS"
+  CFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
+  CXXFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS"
   : ${CONFHOST:=--host=x86_64-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
@@ -174,8 +180,8 @@ then
   LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-mtune=nocona -g -O3 $CFLAGS"
-  CXXFLAGS="-mtune=nocona -g -O3 $CXXFLAGS"
+  CFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 $CFLAGS"
+  CXXFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 $CXXFLAGS"
   : ${CONFHOST:=--host=i686-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
@@ -204,6 +210,15 @@ then
   STRIP="${CONFHOST#--host=}-strip -u -r -A -n"
   #STRIP="${CONFHOST#--host=}-strip"
   export CFLAGS CXXFLAGS LDFLAGS
+fi
+
+if [ "$USEMUSL" = "TRUE" ]
+then
+ TARGET_CC=musl-gcc
+ CC=musl-gcc 
+ B="$B-musl"
+ LIBS="$LIBS -ldl"
+ export LIBS
 fi
 
 
@@ -270,11 +285,9 @@ then
 fi
 
 
-
-
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
-TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
+TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-cxx-runtime-hack \
     --enable-silent-rules \
     --disable-all-pkgs \
@@ -306,6 +319,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --without-mf-x-toolkit --without-x \
    || exit 1 
 fi
+
 
 $MAKE
 
