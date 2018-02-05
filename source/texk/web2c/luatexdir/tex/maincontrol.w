@@ -2509,11 +2509,13 @@ void prefixed_command(void)
                             /* tail is non zero but we test anyway */
                             if (check_glue && (tail != null && type(tail) == glue_node))  {
                                 halfword prev = alink(tail);
-                                halfword dirn = new_dir(text_direction_par - dir_swap);
+                                halfword dirn = new_dir(text_direction_par);
+                                subtype(dirn) = cancel_dir;
                                 couple_nodes(prev,dirn);
                                 couple_nodes(dirn,tail);
                             } else {
-                                tail_append(new_dir(text_direction_par - dir_swap));
+                                tail_append(new_dir(text_direction_par));
+                                subtype(tail) = cancel_dir;
                             }
                         } else {
                             /* what is the use of nolocaldirs .. maybe we should get rid of it */
@@ -2524,19 +2526,6 @@ void prefixed_command(void)
                     } else {
                         update_text_dir_ptr(cur_val);
                     }
-                    /*  original:
-
-                        // if ((no_local_dirs_par > 0) && (abs(mode) == hmode)) {
-                        //  // tail_append(new_dir(text_direction_par)              // kind of wrong
-                        //     tail_append(new_dir(text_direction_par - dir_swap)); // better
-                        // }
-
-                        update_text_dir_ptr(cur_val);
-                        if (abs(mode) == hmode) {
-                            tail_append(new_dir(cur_val));
-                            dir_level(tail) = cur_level;
-                        }
-                    */
                     eq_word_define(int_base + text_direction_code, cur_val);
                     eq_word_define(int_base + no_local_dirs_code, no_local_dirs_par + 1);
                     break;
@@ -2867,7 +2856,8 @@ void fixup_directions(void)
         if (temp_no_dirs != 0) {
             /* DIR: Add local dir node */
             tail_append(new_dir(text_direction_par));
-            dir_dir(tail) = temporary_dir - dir_swap;
+            dir_dir(tail) = temporary_dir;
+            subtype(tail) = cancel_dir;
         }
         if (temp_no_whatsits != 0) {
             /* LOCAL: Add local paragraph node */

@@ -842,7 +842,8 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                     break;
                 case dir_node:
                     /* Adjust the dir stack for the |hpack| routine */
-                    if (dir_dir(p) >= 0) {
+                    /* if (dir_dir(p) >= 0) { */
+                    if (subtype(p) == normal_dir) {
                         hpack_dir = dir_dir(p);
                         push_dir_node(dir_ptr1,p);
                     } else {

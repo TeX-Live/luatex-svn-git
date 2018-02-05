@@ -90,27 +90,31 @@ halfword new_dir(int s)
     return p;
 }
 
-@ The global static array variable  |dir_strings| is also used
-by the lua nodelib interface, so it cannot be static. Putting
-it here instead of there avoid the nodelib having to know
-about the actual values of |dir_TRT| etc.
+@ @c
+const char *dir_strings_par[4] = { [0] =
+  "TLT","TRT","LTL","RTT",
+};
 
-@c
-
-const char *dir_strings[8] = {
-  "-TLT","-TRT","-LTL","-RTT",
+const char *dir_strings_text_normal[4] = { [0] =
   "+TLT","+TRT","+LTL","+RTT",
 };
 
-const char *string_dir(int d)
+const char *dir_strings_text_cancel[4] = { [0] =
+  "-TLT","-TRT","-LTL","-RTT",
+};
+
+void print_dir_par(int d)
 {
-    return (dir_strings[d+dir_swap]+1);
+    tprint(dir_strings_par[d]);
 }
 
-@ @c
-void print_dir(int d)
+void print_dir_text(halfword d)
 {
-    tprint(string_dir(d));
+    if (subtype(d) == cancel_dir) {
+        tprint(dir_strings_text_cancel[dir_dir(d)]);
+    } else {
+        tprint(dir_strings_text_normal[dir_dir(d)]);
+    }
 }
 
 @ @c

@@ -698,6 +698,11 @@ typedef enum {
 
 #  define special_node_size 3
 
+typedef enum {
+    normal_dir = 0,
+    cancel_dir,
+} dir_subtypes ;
+
 #  define dir_node_size 5
 #  define dir_dir(a)       vinfo((a)+2)
 #  define dir_level(a)     vlink((a)+2)

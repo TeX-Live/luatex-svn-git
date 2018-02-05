@@ -207,7 +207,8 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_
                         w += simple_advance_width(no_break(q));
                     break;
                 case dir_node:
-                    if (dir_dir(q) >= 0)
+                    /* if (dir_dir(q) >= 0) */
+                    if (subtype(q) == normal_dir)
                         dir_nest++;
                     else
                         dir_nest--;
@@ -601,7 +602,8 @@ cur.h += x_advance(p);
                     break;
                 case dir_node:
                     /* output a reflection instruction if the direction has changed */
-                    if (dir_dir(p) >= 0) {
+                    /* if (dir_dir(p) >= 0) { */
+                    if (subtype(p) == normal_dir) {
                         /*
                             Calculate the needed width to the matching |enddir|, return the
                             |enddir| node, with width info
@@ -619,7 +621,8 @@ cur.h += x_advance(p);
                             dir_refpos_h(enddir_ptr) = refpos->pos.h;
                             dir_refpos_v(enddir_ptr) = refpos->pos.v;
                             /* negative: mark it as |enddir| */
-                            dir_dir(enddir_ptr) = localpos.dir - dir_swap;
+                            /* dir_dir(enddir_ptr) = localpos.dir - dir_swap; */
+                            dir_dir(enddir_ptr) = localpos.dir;
                         }
                         /* fake a nested |hlist_out| */
                         synch_pos_with_cur(pdf->posstruct, refpos, cur);
@@ -630,7 +633,7 @@ cur.h += x_advance(p);
                     } else {
                         refpos->pos.h = dir_refpos_h(p);
                         refpos->pos.v = dir_refpos_v(p);
-                        localpos.dir = dir_dir(p) + dir_swap;
+                        localpos.dir = dir_dir(p);
                         cur.h = dir_cur_h(p);
                         cur.v = dir_cur_v(p);
                     }
@@ -912,6 +915,12 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                         if (subtype(p) == g_leaders) {
                             save_v = cur.v;
                             switch (localpos.dir) {
+                                case dir_TLT:
+                                case dir_TRT:
+                                    cur.v = refpos->pos.v - shipbox_refpos.v - cur.v;
+                                    cur.v = leader_ht * (cur.v / leader_ht);
+                                    cur.v = refpos->pos.v - shipbox_refpos.v - cur.v;
+                                    break;
                                 case dir_LTL:
                                     cur.v += refpos->pos.h - shipbox_refpos.h;
                                     cur.v = leader_ht * (cur.v / leader_ht);
@@ -921,12 +930,6 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                                     cur.v = refpos->pos.h - shipbox_refpos.h - cur.v;
                                     cur.v = leader_ht * (cur.v / leader_ht);
                                     cur.v = refpos->pos.h - shipbox_refpos.h - cur.v;
-                                    break;
-                                case dir_TLT:
-                                case dir_TRT:
-                                    cur.v = refpos->pos.v - shipbox_refpos.v - cur.v;
-                                    cur.v = leader_ht * (cur.v / leader_ht);
-                                    cur.v = refpos->pos.v - shipbox_refpos.v - cur.v;
                                     break;
                                 default:
                                     formatted_warning("pdf backend","forcing bad dir %i to TLT in vlist case 1",localpos.dir);

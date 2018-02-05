@@ -21,31 +21,16 @@
 #ifndef DIRECTIONS_H
 #  define DIRECTIONS_H
 
-extern const char *dir_strings[8];
-
+/*
 #define dir_swap 4
+*/
+
 #define dir_min_value 0
 #define dir_max_value 3
 
 #define check_dir_value(d) \
     if ((d < dir_min_value) || (d > dir_max_value)) \
         d = dir_min_value;
-
-#define check_dir_value_all(d) \
-    if (d < dir_min_value-4) \
-        d = dir_min_value-4; \
-    else if (d > dir_max_value) \
-        d = dir_min_value;
-
-#define RETURN_DIR_VALUES(a) \
-    if (s==lua_key(a)) { \
-        return (dir_##a); \
-    } else if (!absolute_only) { \
-        if (s==lua_key_plus(a)) \
-            return (dir_##a); \
-        else if (s==lua_key_minus(a)) \
-            return ((dir_##a)-4); \
-    }
 
 #define is_mirrored(a) 0
 
@@ -85,6 +70,8 @@ extern const char *dir_strings[8];
     # define dir_LTL_or_RTT(a) (a == dir_LTL || a == dir_RTT)
 
 */
+
+/* TLT TRT LTL RTT */
 
 # define dir_TLT_or_TRT(a) (a < 2)
 # define dir_LTL_or_RTT(a) (a > 1)
@@ -165,7 +152,8 @@ extern void initialize_directions(void);
 extern halfword new_dir(int s);
 
 extern const char *string_dir(int d);
-extern void print_dir(int d);
+extern void print_dir_par(int d);
+extern void print_dir_text(halfword d);
 
 extern void scan_direction(void);
 

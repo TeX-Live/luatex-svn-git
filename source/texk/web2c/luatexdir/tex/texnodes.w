@@ -1511,10 +1511,6 @@ void flush_node(halfword p)
             break;
         case glue_spec_node:
             /* this allows free-ing of lua-allocated glue specs */
-//if (valid_node(p)) {
-//    free_node(p, subtype(p));
-//}
-//            return ;
             break ;
         case dir_node:
         case local_par_node:
@@ -3028,7 +3024,7 @@ void show_node_list(int p)
                         print_scaled(shift_amount(p));
                     }
                     tprint(", direction ");
-                    print_dir(box_dir(p));
+                    print_dir_par(box_dir(p));
                 }
                 node_list_display(list_ptr(p)); /* recursive call */
                 break;
@@ -3066,15 +3062,13 @@ void show_node_list(int p)
                 node_list_display(ins_ptr(p));  /* recursive call */
                 break;
             case dir_node:
-                if (dir_dir(p) < 0) {
+                if (subtype(p) == cancel_dir) {
                     tprint_esc("enddir");
-                    print_char(' ');
-                    print_dir(dir_dir(p) + dir_swap);
                 } else {
                     tprint_esc("begindir");
-                    print_char(' ');
-                    print_dir(dir_dir(p));
                 }
+                print_char(' ');
+                print_dir_par(dir_dir(p));
                 break;
             case local_par_node:
                 tprint_esc("localpar");

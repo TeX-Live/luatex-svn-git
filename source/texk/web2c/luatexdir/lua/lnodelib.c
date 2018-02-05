@@ -209,6 +209,80 @@ halfword *check_isnode(lua_State * L, int i)
     return NULL;
 }
 
+static int nodelib_setdir_text(lua_State * L, int i, halfword n)
+{
+    if (lua_type(L, i) == LUA_TSTRING) {
+        const char *s = lua_tostring(L, i);
+        if (s==lua_key_plus(TLT)) {
+            dir_dir(n) = 0 ;
+            subtype(n) = normal_dir;
+        } else if (s==lua_key_minus(TLT)) {
+            dir_dir(n) = 0 ;
+            subtype(n) = cancel_dir;
+        } else if (s==lua_key_plus(TRT)) {
+            dir_dir(n) = 1 ;
+            subtype(n) = normal_dir;
+        } else if (s==lua_key_minus(TRT)) {
+            dir_dir(n) = 1 ;
+            subtype(n) = cancel_dir;
+        } else if (s==lua_key_plus(LTL)) {
+            dir_dir(n) = 2 ;
+            subtype(n) = normal_dir;
+        } else if (s==lua_key_minus(LTL)) {
+            dir_dir(n) = 2 ;
+            subtype(n) = cancel_dir;
+        } else if (s==lua_key_plus(RTT)) {
+            dir_dir(n) = 3 ;
+            subtype(n) = normal_dir;
+        } else if (s==lua_key_minus(RTT)) {
+            dir_dir(n) = 3 ;
+            subtype(n) = cancel_dir;
+        } else {
+            luaL_error(L, "Bad direction specifier %s", s);
+        }
+    } else {
+        luaL_error(L, "Direction specifiers have to be strings");
+    }
+    return 0;
+}
+
+static int nodelib_getdir_par(lua_State * L, int n)
+{
+    if (lua_type(L, n) == LUA_TSTRING) {
+        const char *s = lua_tostring(L, n);
+        if (s==lua_key(TLT))
+            return 0 ;
+        else if (s==lua_key(TRT))
+            return 1 ;
+        else if (s==lua_key(LTL))
+            return 2 ;
+        else if (s==lua_key(RTT))
+            return 3 ;
+        else
+            luaL_error(L, "Bad direction specifier %s", s);
+    } else {
+        luaL_error(L, "Direction specifiers have to be strings");
+    }
+    return 0;
+}
+
+static int nodelib_getdirection(lua_State * L, int n)
+{
+    if (lua_type(L, n) == LUA_TNUMBER) {
+        int i = lua_tointeger(L, n);
+        check_dir_value(i);
+        return i;
+    } else {
+        luaL_error(L, "Direction specifiers have to be numbers");
+    }
+    return 0;
+}
+
+int nodelib_getdir(lua_State * L, int n) /* the api public one */
+{
+    return nodelib_getdir_par(L,n);
+}
+
 /*
 
     This routine finds the numerical value of a string (or number) at
@@ -874,7 +948,7 @@ static int lua_nodelib_direct_getdir(lua_State * L)
     if (n) {
         halfword t = type(n);
         if (t == dir_node) {
-            lua_push_dir_text(L, dir_dir(n));
+            lua_push_dir_text(L, dir_dir(n), subtype(n));
         } else if (t == hlist_node || t == vlist_node) {
             lua_push_dir_par(L, box_dir(n));
         } else if (t == rule_node) {
@@ -897,6 +971,8 @@ static int lua_nodelib_direct_getdirection(lua_State * L)
         halfword t = type(n);
         if (t == dir_node) {
             lua_pushinteger(L, dir_dir(n));
+            lua_pushboolean(L, subtype(n));
+            return 2;
         } else if (t == hlist_node || t == vlist_node) {
             lua_pushinteger(L, box_dir(n));
         } else if (t == rule_node) {
@@ -918,13 +994,20 @@ static int lua_nodelib_direct_setdir(lua_State * L)
     if (n) {
         halfword t = type(n);
         if (t == dir_node) {
-            dir_dir(n) = nodelib_getdir(L, 2, 0);
+            nodelib_setdir_text(L, 2, n);
+            if ((lua_type(L, 2) == LUA_TBOOLEAN)) {
+                if (lua_toboolean(L, 2)) {
+                    subtype(n) = cancel_dir;
+                } else {
+                    subtype(n) = normal_dir;
+                }
+            }
         } else if (t == hlist_node || type(n) == vlist_node) {
-            box_dir(n) = nodelib_getdir(L, 2, 1);
+            box_dir(n) = nodelib_getdir_par(L, 2);
         } else if (t == rule_node) {
-            rule_dir(n) = nodelib_getdir(L, 2, 1);
+            rule_dir(n) = nodelib_getdir_par(L, 2);
         } else if (t == local_par_node) {
-            local_par_dir(n) = nodelib_getdir(L, 3, 1);
+            local_par_dir(n) = nodelib_getdir_par(L, 2);
         }
     }
     return 0;
@@ -936,13 +1019,13 @@ static int lua_nodelib_direct_setdirection(lua_State * L)
     if (n) {
         halfword t = type(n);
         if (t == dir_node) {
-            dir_dir(n) = nodelib_getdirection(L, 2, 0);
+            dir_dir(n) = nodelib_getdirection(L, 2);
         } else if (t == hlist_node || type(n) == vlist_node) {
-            box_dir(n) = nodelib_getdirection(L, 2, 1);
+            box_dir(n) = nodelib_getdirection(L, 2);
         } else if (t == rule_node) {
-            rule_dir(n) = nodelib_getdirection(L, 2, 1);
+            rule_dir(n) = nodelib_getdirection(L, 2);
         } else if (t == local_par_node) {
-            local_par_dir(n) = nodelib_getdirection(L, 3, 1);
+            local_par_dir(n) = nodelib_getdirection(L, 2);
         }
     }
     return 0;
@@ -2132,9 +2215,9 @@ static int lua_nodelib_hpack(lua_State * L)
             }
             if (lua_gettop(L) > 3) {
                 if (lua_type(L, 4) == LUA_TNUMBER) {
-                    d = nodelib_getdirection(L, 4, 1);
+                    d = nodelib_getdirection(L, 4);
                 } else if (lua_type(L, 4) == LUA_TSTRING) {
-                    d = nodelib_getdir(L, 4, 1);
+                    d = nodelib_getdir_par(L, 4);
                 } else {
                     lua_pushstring(L, "incorrect 4th argument");
                 }
@@ -2181,9 +2264,9 @@ static int lua_nodelib_direct_hpack(lua_State * L)
             }
             if (lua_gettop(L) > 3) {
                 if (lua_type(L, 4) == LUA_TNUMBER) {
-                    d = nodelib_getdirection(L, 4, 1);
+                    d = nodelib_getdirection(L, 4);
                 } else if (lua_type(L, 4) == LUA_TSTRING) {
-                    d = nodelib_getdir(L, 4, 1);
+                    d = nodelib_getdir_par(L, 4);
                 } else {
                     lua_pushstring(L, "incorrect 4th argument");
                 }
@@ -2222,9 +2305,9 @@ static int lua_nodelib_vpack(lua_State * L)
 
                 if (lua_gettop(L) > 3) {
                     if (lua_type(L, 4) == LUA_TNUMBER) {
-                        d = nodelib_getdirection(L, 4, 1);
+                        d = nodelib_getdirection(L, 4);
                     } else if (lua_type(L, 4) == LUA_TSTRING) {
-                        d = nodelib_getdir(L, 4, 1);
+                        d = nodelib_getdir_par(L, 4);
                     } else {
                         lua_pushstring(L, "incorrect 4th argument");
                     }
@@ -2269,9 +2352,9 @@ static int lua_nodelib_direct_vpack(lua_State * L)
 
                 if (lua_gettop(L) > 3) {
                     if (lua_type(L, 4) == LUA_TNUMBER) {
-                        d = nodelib_getdirection(L, 4, 1);
+                        d = nodelib_getdirection(L, 4);
                     } else if (lua_type(L, 4) == LUA_TSTRING) {
-                        d = nodelib_getdir(L, 4, 1);
+                        d = nodelib_getdir_par(L, 4);
                     } else {
                         lua_pushstring(L, "incorrect 4th argument");
                     }
@@ -2317,18 +2400,18 @@ static int lua_nodelib_dimensions(lua_State * L)
         n = *(check_isnode(L, i));
         if (lua_gettop(L) > i && !lua_isnil(L, (i + 1))) {
             if (lua_type(L, (i + 1)) == LUA_TNUMBER) {
-                d = nodelib_getdirection(L, (i + 1), 1);
+                d = nodelib_getdirection(L, (i + 1));
             } else if (lua_type(L, (i + 1)) == LUA_TSTRING) {
-                d = nodelib_getdir(L, (i + 1), 1);
+                d = nodelib_getdir_par(L, (i + 1));
             } else {
                 p = *(check_isnode(L, (i + 1)));
             }
         }
         if (lua_gettop(L) > (i + 1)) {
             if (lua_type(L, (i + 2)) == LUA_TNUMBER) {
-                d = nodelib_getdirection(L, (i + 2), 1);
+                d = nodelib_getdirection(L, (i + 2));
             } else if (lua_type(L, (i + 2)) == LUA_TSTRING) {
-                d = nodelib_getdir(L, (i + 2), 1);
+                d = nodelib_getdir_par(L, (i + 2));
             }
         }
         siz = natural_sizes(n, p, g_mult, g_sign, g_order, d);
@@ -2387,18 +2470,18 @@ static int lua_nodelib_direct_dimensions(lua_State * L)
         n = (halfword) lua_tointeger(L,i);
         if (lua_gettop(L) > i && !lua_isnil(L, (i + 1))) {
             if (lua_type(L, (i + 1)) == LUA_TNUMBER) {
-                d = nodelib_getdirection(L, (i + 1), 1);
+                d = nodelib_getdirection(L, (i + 1));
             } else if (lua_type(L, (i + 1)) == LUA_TSTRING) {
-                d = nodelib_getdir(L, (i + 1), 1);
+                d = nodelib_getdir_par(L, (i + 1));
             } else {
                 p = (halfword) lua_tointeger(L,i+1);
             }
         }
         if (lua_gettop(L) > (i + 1)) {
             if (lua_type(L, (i + 2)) == LUA_TNUMBER) {
-                d = nodelib_getdirection(L, (i + 2), 1);
+                d = nodelib_getdirection(L, (i + 2));
             } else if (lua_type(L, (i + 2)) == LUA_TSTRING) {
-                d = nodelib_getdir(L, (i + 2), 1);
+                d = nodelib_getdir_par(L, (i + 2));
             }
         }
         siz = natural_sizes(n, p, g_mult, g_sign, g_order, d);
@@ -3712,40 +3795,6 @@ int nodelib_getlist(lua_State * L, int n)
     }
 }
 
-int nodelib_getdir(lua_State * L, int n, int absolute_only)
-{
-    if (lua_type(L, n) == LUA_TSTRING) {
-        const char *s = lua_tostring(L, n);
-        RETURN_DIR_VALUES(TLT);
-        RETURN_DIR_VALUES(TRT);
-        RETURN_DIR_VALUES(LTL);
-        RETURN_DIR_VALUES(RTT);
-        luaL_error(L, "Bad direction specifier %s", s);
-    } else {
-        luaL_error(L, "Direction specifiers have to be strings");
-    }
-    return 0;
-}
-
-int nodelib_getdirection(lua_State * L, int n, int absolute_only)
-{
-    if (lua_type(L, n) == LUA_TNUMBER) {
-        int i = lua_tointeger(L, n);
-        if (absolute_only) {
-            if (i < dir_min_value) {
-                i = i + dir_swap ;
-            }
-            check_dir_value(i);
-        } else {
-            check_dir_value_all(i);
-        }
-        return i;
-    } else {
-        luaL_error(L, "Direction specifiers have to be numbers");
-    }
-    return 0;
-}
-
 static str_number nodelib_getstring(lua_State * L, int a)
 {
     size_t k;
@@ -4184,7 +4233,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         if (lua_key_eq(s, direction)) {
             lua_pushinteger(L, dir_dir(n));
         } else if (lua_key_eq(s, dir)) {
-            lua_push_dir_text(L, dir_dir(n));
+            lua_push_dir_text(L, dir_dir(n),subtype(n));
         } else if (lua_key_eq(s, level)) {
             lua_pushinteger(L, dir_level(n));
         } else if (lua_key_eq(s, subtype)) { /* can be used for anything */
@@ -4955,7 +5004,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         if (lua_key_eq(s, direction)) {
             lua_pushinteger(L, dir_dir(n));
         } else if (lua_key_eq(s, dir)) {
-            lua_push_dir_text(L, dir_dir(n));
+            lua_push_dir_text(L, dir_dir(n), subtype(n));
         } else if (lua_key_eq(s, level)) {
             lua_pushinteger(L, dir_level(n));
         } else if (lua_key_eq(s, subtype)) { /* can be used for anything */
@@ -6243,9 +6292,9 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             depth(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, direction)) {
-            box_dir(n) = nodelib_getdirection(L, 3, 1);
+            box_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            box_dir(n) = nodelib_getdir(L, 3, 1);
+            box_dir(n) = nodelib_getdir_par(L, 3);
         } else if (lua_key_eq(s, shift)) {
             shift_amount(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, glue_order)) {
@@ -6317,9 +6366,9 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             depth(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, direction)) {
-            rule_dir(n) = nodelib_getdirection(L, 3, 1);
+            rule_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            rule_dir(n) = nodelib_getdir(L, 3, 1);
+            rule_dir(n) = nodelib_getdir_par(L, 3);
         } else if (lua_key_eq(s, index)) {
             rule_index(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, transform)) {
@@ -6329,13 +6378,11 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         }
     } else if (t == dir_node) {
         if (lua_key_eq(s, direction)) {
-            dir_dir(n) = nodelib_getdirection(L, 3, 0);
+            dir_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            dir_dir(n) = nodelib_getdir(L, 3, 0);
+            nodelib_setdir_text(L, 3, n);
         } else if (lua_key_eq(s, level)) {
             dir_level(n) = (halfword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, subtype)) { /* can be used for anything */
-            subtype(n) = (quarterword) lua_tointeger(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -6345,9 +6392,9 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         } else if (lua_key_eq(s, pen_broken)) {
             local_pen_broken(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, direction)) {
-            local_par_dir(n) = nodelib_getdirection(L, 3, 1);
+            local_par_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            local_par_dir(n) = nodelib_getdir(L, 3, 1);
+            local_par_dir(n) = nodelib_getdir_par(L, 3);
         } else if (lua_key_eq(s, box_left)) {
             local_box_left(n) = nodelib_getlist(L, 3);
         } else if (lua_key_eq(s, box_left_width)) {
@@ -6627,9 +6674,9 @@ static int lua_nodelib_fast_setfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             depth(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, direction)) {
-            box_dir(n) = nodelib_getdirection(L, 3, 1);
+            box_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            box_dir(n) = nodelib_getdir(L, 3, 1);
+            box_dir(n) = nodelib_getdir_par(L, 3);
         } else if (lua_key_eq(s, shrink)) {
             glue_shrink(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, glue_order)) {
@@ -7109,9 +7156,9 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             depth(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, direction)) {
-            box_dir(n) = nodelib_getdirection(L, 3, 1);
+            box_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            box_dir(n) = nodelib_getdir(L, 3, 1);
+            box_dir(n) = nodelib_getdir_par(L, 3);
         } else if (lua_key_eq(s, shift)) {
             shift_amount(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, glue_order)) {
@@ -7183,9 +7230,9 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             depth(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, direction)) {
-            rule_dir(n) = nodelib_getdirection(L, 3, 1);
+            rule_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            rule_dir(n) = nodelib_getdir(L, 3, 1);
+            rule_dir(n) = nodelib_getdir_par(L, 3);
         } else if (lua_key_eq(s, index)) {
             rule_index(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, transform)) {
@@ -7195,13 +7242,11 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         }
     } else if (t == dir_node) {
         if (lua_key_eq(s, direction)) {
-            dir_dir(n) = nodelib_getdirection(L, 3, 0);
+            dir_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            dir_dir(n) = nodelib_getdir(L, 3, 0);
+            nodelib_setdir_text(L, 3, n);
         } else if (lua_key_eq(s, level)) {
             dir_level(n) = (halfword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, subtype)) { /* can be used for anything */
-            subtype(n) = (quarterword) lua_tointeger(L, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -7217,9 +7262,9 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         } else if (lua_key_eq(s, pen_broken)) {
             local_pen_broken(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, direction)) {
-            local_par_dir(n) = nodelib_getdirection(L, 3, 1);
+            local_par_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            local_par_dir(n) = nodelib_getdir(L, 3, 1);
+            local_par_dir(n) = nodelib_getdir_par(L, 3);
         } else if (lua_key_eq(s, box_left)) {
             local_box_left(n) = nodelib_getlist(L, 3);
         } else if (lua_key_eq(s, box_left_width)) {
@@ -7493,9 +7538,9 @@ static int lua_nodelib_direct_setfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             depth(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, direction)) {
-            box_dir(n) = nodelib_getdirection(L, 3, 1);
+            box_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
-            box_dir(n) = nodelib_getdir(L, 3, 1);
+            box_dir(n) = nodelib_getdir_par(L, 3);
         } else if (lua_key_eq(s, shrink)) {
             glue_shrink(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, glue_order)) {

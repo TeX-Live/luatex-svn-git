@@ -281,9 +281,9 @@ void ext_post_line_break(int paragraph_dir,
             halfword p;
             for (e = vlink(temp_head); e != null && e != cur_break(cur_p); e = vlink(e)) {
                 if (type(e) == dir_node) {
-                    if (dir_dir(e) >= 0) {
+                    if (subtype(e) == normal_dir) {
                         dir_ptr = do_push_dir_node(dir_ptr, e);
-                    } else if (dir_ptr != null && dir_dir(dir_ptr) == (dir_dir(e) + dir_swap)) {
+                    } else if (dir_ptr != null && subtype(dir_ptr) == cancel_dir) {
                         dir_ptr = do_pop_dir_node(dir_ptr);
                     }
                 }
@@ -293,7 +293,8 @@ void ext_post_line_break(int paragraph_dir,
             /* DIR: Insert dir nodes at the end of the current line; */
             e = vlink(r);
             for (p = dir_ptr; p != null; p = vlink(p)) {
-                halfword s = new_dir(dir_dir(p) - dir_swap);
+                halfword s = new_dir(dir_dir(p));
+                subtype(s) = cancel_dir;
                 delete_attribute_ref(node_attr(s));
                 node_attr(s) = node_attr(r);
                 add_node_attr_ref(node_attr(s));

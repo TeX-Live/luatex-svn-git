@@ -1690,7 +1690,7 @@ halfword the_toks(void)
             print_int(cur_val);
             break;
         case dir_val_level:
-            print_dir(cur_val);
+            print_dir_par(cur_val);
             break;
         case dimen_val_level:
             print_scaled(cur_val);
@@ -1736,7 +1736,7 @@ str_number the_scanned_result(void)
             print_int(cur_val);
             break;
         case dir_val_level:
-            print_dir(cur_val);
+            print_dir_par(cur_val);
             break;
         case dimen_val_level:
             print_scaled(cur_val);

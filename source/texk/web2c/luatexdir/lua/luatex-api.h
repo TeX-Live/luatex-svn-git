@@ -138,8 +138,7 @@ extern void tokenlist_to_luastring(lua_State * L, int p);
 extern int tokenlist_from_lua(lua_State * L);
 
 extern void lua_nodelib_push(lua_State * L);
-extern int nodelib_getdir(lua_State * L, int n, int absolute_only);
-extern int nodelib_getdirection(lua_State * L, int n, int absolute_only);
+extern int nodelib_getdir(lua_State * L, int n);
 extern int nodelib_getlist(lua_State * L, int n);
 
 extern int luaopen_node(lua_State * L);
@@ -343,22 +342,31 @@ preassign these at startup time. */
 #define LOCAL_PAR_SIZE        5
 #define MATH_STYLE_NAME_SIZE  8
 #define APPEND_LIST_SIZE      5
-#define DIR_PAR_SIZE          8
-#define DIR_TEXT_SIZE         8
+#define DIR_PAR_SIZE          4
+#define DIR_TEXT_SIZE         4
 
 extern int l_pack_type_index       [PACK_TYPE_SIZE];
 extern int l_group_code_index      [GROUP_CODE_SIZE];
 extern int l_local_par_index       [LOCAL_PAR_SIZE];
 extern int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
 extern int l_dir_par_index         [DIR_PAR_SIZE];
-extern int l_dir_text_index        [DIR_TEXT_SIZE];
+extern int l_dir_text_index_normal [DIR_TEXT_SIZE];
+extern int l_dir_text_index_cancel [DIR_TEXT_SIZE];
 
 #define lua_push_pack_type(L,pack_type)        lua_rawgeti(L, LUA_REGISTRYINDEX, l_pack_type_index[pack_type] );
 #define lua_push_group_code(L,group_code)      lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index[group_code]);
 #define lua_push_local_par_mode(L,par_mode)    lua_rawgeti(L, LUA_REGISTRYINDEX, l_local_par_index[par_mode]);
 #define lua_push_math_style_name(L,style_name) lua_rawgeti(L, LUA_REGISTRYINDEX, l_math_style_name_index[style_name]);
-#define lua_push_dir_par(L,dir)                lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir+dir_swap])
-#define lua_push_dir_text(L,dir)               lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index[dir+dir_swap])
+#define lua_push_dir_par(L,dir)                lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir])
+#define lua_push_dir_text_normal(L,dir)        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_normal[dir])
+#define lua_push_dir_text_cancel(L,dir)        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_cancel[dir])
+
+#define lua_push_dir_text(L,dir,sub) \
+    if (sub == cancel_dir) \
+        lua_push_dir_text_cancel(L, dir); \
+    else \
+        lua_push_dir_text_normal(L, dir);
+
 
 #define lua_push_string_by_index(L,index)      lua_rawgeti(L, LUA_REGISTRYINDEX, index)
 #define lua_push_string_by_name(L,index)       lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(index))
@@ -415,21 +423,17 @@ l_math_style_name_index[cramped_script_script_style] = lua_key_index(crampedscri
 l_dir_par_index[dir_TLT]   = lua_key_index(TLT);\
 l_dir_par_index[dir_TRT]   = lua_key_index(TRT);\
 l_dir_par_index[dir_LTL]   = lua_key_index(LTL);\
-l_dir_par_index[dir_RTT]   = lua_key_index(RTT);\
-l_dir_par_index[dir_TLT+4] = lua_key_index(TLT);\
-l_dir_par_index[dir_TRT+4] = lua_key_index(TRT);\
-l_dir_par_index[dir_LTL+4] = lua_key_index(LTL);\
-l_dir_par_index[dir_RTT+4] = lua_key_index(RTT);\
+l_dir_par_index[dir_RTT]   = lua_key_index(RTT);
 
 #define set_l_dir_text_index \
-l_dir_text_index[dir_TLT]   = lua_key_index(mTLT);\
-l_dir_text_index[dir_TRT]   = lua_key_index(mTRT);\
-l_dir_text_index[dir_LTL]   = lua_key_index(mLTL);\
-l_dir_text_index[dir_RTT]   = lua_key_index(mRTT);\
-l_dir_text_index[dir_TLT+4] = lua_key_index(pTLT);\
-l_dir_text_index[dir_TRT+4] = lua_key_index(pTRT);\
-l_dir_text_index[dir_LTL+4] = lua_key_index(pLTL);\
-l_dir_text_index[dir_RTT+4] = lua_key_index(pRTT);\
+l_dir_text_index_normal[dir_TLT] = lua_key_index(pTLT);\
+l_dir_text_index_normal[dir_TRT] = lua_key_index(pTRT);\
+l_dir_text_index_normal[dir_LTL] = lua_key_index(pLTL);\
+l_dir_text_index_normal[dir_RTT] = lua_key_index(pRTT);\
+l_dir_text_index_cancel[dir_TLT] = lua_key_index(mTLT);\
+l_dir_text_index_cancel[dir_TRT] = lua_key_index(mTRT);\
+l_dir_text_index_cancel[dir_LTL] = lua_key_index(mLTL);\
+l_dir_text_index_cancel[dir_RTT] = lua_key_index(mRTT);
 
 #define img_parms_max     25
 #define img_pageboxes_max  6
