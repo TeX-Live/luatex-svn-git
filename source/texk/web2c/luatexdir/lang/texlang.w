@@ -865,6 +865,7 @@ void hnj_hyphenation(halfword head, halfword tail)
     char *hy = utf8word;
     char *replacement = NULL;
     boolean explicit_hyphen = false;
+    boolean valid_word = false;
     halfword first_language = first_valid_language_par;
     halfword strict_bound = hyphenation_bounds_par;
     halfword s, r = head, wordstart = null, save_tail1 = null, left = null, right = null;
@@ -973,7 +974,7 @@ void hnj_hyphenation(halfword head, halfword tail)
                 }
             } else {
                 /* we jump over the sequence of hyphens */
-                while ((t != null) && (type(t) == glyph_node) && (character(t) == ex_hyphen_char_par)) {
+               while ((t != null) && (type(t) == glyph_node) && (character(t) == ex_hyphen_char_par)) {
                     r = t ;
                     t = vlink(r) ;
                 }
@@ -990,6 +991,7 @@ void hnj_hyphenation(halfword head, halfword tail)
               && (lang = tex_languages[clang]) != NULL
            ) {
             *hy = 0;
+            /* this is messy and nasty: we can have a word with a - in it which is why we have two branches */
             if (lang->exceptions != 0 && (replacement = hyphenation_exception(lang->exceptions, utf8word)) != NULL) {
                 /* handle the exception and go on to the next word */
                 if (expstart == null) {
@@ -998,29 +1000,57 @@ void hnj_hyphenation(halfword head, halfword tail)
                     do_exception(expstart,r,replacement);
                 }
                 free(replacement);
+            } else if (expstart != null) {
+                /* we're done already */
             } else if (lang->patterns != NULL) {
+                /*
+                    old comments:
+
+                        if (!left) break;
+                        if (!right) break;
+                        what if left overruns right .. a bit messy
+                */
+                valid_word = true; /* safeguard, not needed but doesn't hurt either */
                 left = wordstart;
                 for (i = lhmin; i > 1; i--) {
                     left = vlink(left);
+                    if (left == null) {
+                        valid_word = false;
+                        break ;
+                    }
                     while (!is_simple_character(left)) {
                         left = vlink(left);
+                        if (left == null) {
+                            valid_word = false;
+                            break ;
+                        }
                     }
-                    /* if (!left) break; */
-                    /* what is left overruns right .. a bit messy */
                 }
-                right = r;
-                for (i = rhmin; i > 0; i--) {
-                    right = alink(right);
-                    while (!is_simple_character(right)) {
+                if (valid_word) {
+                    right = r;
+                    if (right == left) {
+                        valid_word = false;
+                        break ;
+                    }
+                    for (i = rhmin; i > 0; i--) {
                         right = alink(right);
+                        if (right == null || right == left) {
+                            valid_word = false;
+                            break ;
+                        }
+                        while (!is_simple_character(right)) {
+                            right = alink(right);
+                            if (right == null || right == left) {
+                                valid_word = false;
+                                break ;
+                            }
+                        }
                     }
-                    /* if (!right) break; */
-                    /* what is right overruns left .. a bit messy */
-                }
-                if (expstart == null) {
-                    (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, end_word, wordlen, left, right, &langdata);
-                } else {
-                    /* nothing yet */
+                    if (valid_word && expstart == null) {
+                        (void) hnj_hyphen_hyphenate(lang->patterns, wordstart, end_word, wordlen, left, right, &langdata);
+                    } else {
+                        /* nothing yet */
+                    }
                 }
             }
         }

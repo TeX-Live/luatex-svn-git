@@ -487,40 +487,57 @@ expanded, etc.). @^inner loop@>
 
 @c
 boolean scan_keyword(const char *s)
-{                               /* look for a given string */
-    halfword p;                 /* tail of the backup list */
-    halfword q;                 /* new node being added to the token list via |store_new_token| */
-    const char *k;              /* index into |str_pool| */
+{
+    halfword p;                    /* tail of the backup list */
+    halfword q;                    /* new node being added to the token list via |store_new_token| */
+    const char *k;                 /* index into |str_pool| */
     halfword save_cur_cs = cur_cs;
-    if (strlen(s) == 0)        /* was assert (strlen(s) > 1); */
-      return false ;           /* but not with newtokenlib  zero keyword simply doesn't match  */
+    if (strlen(s) == 0)            /* was assert (strlen(s) > 1); */
+        return false ;             /* but not with newtokenlib  zero keyword simply doesn't match  */
     p = backup_head;
     token_link(p) = null;
     k = s;
     while (*k) {
-        get_x_token();      /* recursion is possible here */
+        get_x_token();             /* recursion is possible here */
         if ((cur_cs == 0) && ((cur_chr == *k) || (cur_chr == *k - 'a' + 'A'))) {
             store_new_token(cur_tok);
             k++;
         } else if ((cur_cmd != spacer_cmd) || (p != backup_head)) {
-            /*
-                crashes on some alignments:
-
-                if (p != backup_head) {
-                    q = get_avail();
-                    token_info(q) = cur_tok;
-                    token_link(q) = null;
-                    token_link(p) = q;
-                    begin_token_list(token_link(backup_head), backed_up);
-                } else {
-                    back_input();
-                }
-            */
             back_input();
             if (p != backup_head) {
                 begin_token_list(token_link(backup_head), backed_up);
             }
-            /*  */
+            cur_cs = save_cur_cs;
+            return false;
+        }
+    }
+    if (token_link(backup_head) != null)
+        flush_list(token_link(backup_head));
+    cur_cs = save_cur_cs;
+    return true;
+}
+
+boolean scan_keyword_case_sensitive(const char *s)
+{
+    halfword p;
+    halfword q;
+    const char *k;
+    halfword save_cur_cs = cur_cs;
+    if (strlen(s) == 0)
+        return false ;
+    p = backup_head;
+    token_link(p) = null;
+    k = s;
+    while (*k) {
+        get_x_token();
+        if ((cur_cs == 0) && (cur_chr == *k)) {
+            store_new_token(cur_tok);
+            k++;
+        } else if ((cur_cmd != spacer_cmd) || (p != backup_head)) {
+            back_input();
+            if (p != backup_head) {
+                begin_token_list(token_link(backup_head), backed_up);
+            }
             cur_cs = save_cur_cs;
             return false;
         }

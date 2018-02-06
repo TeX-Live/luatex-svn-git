@@ -126,6 +126,7 @@ extern void make_token_table(lua_State * L, int cmd, int chr, int cs);
 extern void get_next(void);
 extern void check_outer_validity(void);
 extern boolean scan_keyword(const char *);
+extern boolean scan_keyword_case_sensitive(const char *);
 extern halfword active_to_cs(int, int);
 extern void get_token_lua(void);
 halfword string_to_toks(const char *);

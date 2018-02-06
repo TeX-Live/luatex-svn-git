@@ -197,6 +197,7 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
     boolean done = false ;
     halfword attr_list;
     boolean attr_done = false ;
+    boolean dir_done = false ;
     if (attr_list_cache == cache_disabled)
         update_attribute_cache();
     attr_list = attr_list_cache;
@@ -211,9 +212,6 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         goto KEYWORDS;
     }
   CONTINUE:
-    if (cur_cmd == left_brace_cmd) {
-        goto QUICK;
-    }
     while (cur_cmd == relax_cmd || cur_cmd == spacer_cmd) {
         get_x_token();
         if (cur_cmd == left_brace_cmd) {
@@ -224,7 +222,7 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         }
     }
   KEYWORDS:
-    /* multiple attr keys possible */
+    /* multiple attr keys possible (before or after dir) */
     if (scan_keyword("attr")) {
         scan_register_num();
         i = cur_val;
@@ -238,17 +236,21 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         attr_list = do_set_attribute(attr_list, i, v);
         goto CONTINUE;
     }
-    /* we know the next character if one so no need to gobble and backtrack */
-    if (scan_keyword("bdir")) {
-        scan_int();
-        check_dir_value(cur_val);
-        spec_direction = cur_val;
-        goto CONTINUE;
-    }
-    if (scan_keyword("dir")) {
-        scan_direction();
-        spec_direction = cur_val;
-        goto CONTINUE;
+    /* we only permit one (b)dir directive */
+    if (! dir_done) {
+        if (scan_keyword("bdir")) {
+            scan_int();
+            check_dir_value(cur_val);
+            spec_direction = cur_val;
+            dir_done = true;
+            goto CONTINUE;
+        }
+        if (scan_keyword("dir")) {
+            scan_direction();
+            spec_direction = cur_val;
+            dir_done = true;
+            goto CONTINUE;
+        }
     }
     /* only one to or spread key possible and it comes last */
     if (scan_keyword("to")) {

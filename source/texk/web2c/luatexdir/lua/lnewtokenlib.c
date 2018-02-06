@@ -296,6 +296,22 @@ static int run_scan_keyword(lua_State * L)
     return 1;
 }
 
+static int run_scan_keyword_cs(lua_State * L)
+{
+    saved_tex_scanner texstate;
+    const char *s = luaL_checkstring(L, -1);
+    int v = 0;
+    if (s) {
+        save_tex_scanner(texstate);
+        if (scan_keyword_case_sensitive(s)) {
+            v = 1;
+        }
+        unsave_tex_scanner(texstate);
+    }
+    lua_pushboolean(L,v);
+    return 1;
+}
+
 static int run_scan_csname(lua_State * L)
 {
     unsigned char *s;
@@ -971,6 +987,7 @@ static const struct luaL_Reg tokenlib[] = {
     { "get_next", run_get_next },
     { "put_next", run_put_next },
     { "scan_keyword", run_scan_keyword },
+    { "scan_keyword_cs", run_scan_keyword_cs },
     { "scan_int", run_scan_int },
     { "scan_dimen", run_scan_dimen },
     { "scan_glue", run_scan_glue },
