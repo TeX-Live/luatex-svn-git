@@ -189,7 +189,7 @@ others are \.{\\vcenter}, \.{\\valign}, and \.{\\halign}).
 
 /* scans a box specification and left brace */
 
-#define first_char_is(a,A) ((cur_cs == 0) && (cur_chr == a || cur_chr == A))
+#define first_char_is(a,A) (cur_cs == 0 && (cur_chr == a || cur_chr == A))
 
 void scan_full_spec(group_code c, int spec_direction, int just_pack)
 {
@@ -211,6 +211,9 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         goto KEYWORDS;
     }
   CONTINUE:
+    if (cur_cmd == left_brace_cmd) {
+        goto QUICK;
+    }
     while (cur_cmd == relax_cmd || cur_cmd == spacer_cmd) {
         get_x_token();
         if (cur_cmd == left_brace_cmd) {
@@ -236,25 +239,21 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         goto CONTINUE;
     }
     /* we know the next character if one so no need to gobble and backtrack */
-    if (first_char_is('b','B')) {
-        if (scan_keyword("bdir")) {
-            scan_int();
-            check_dir_value(cur_val);
-            spec_direction = cur_val;
-            goto CONTINUE;
-        }
+    if (scan_keyword("bdir")) {
+        scan_int();
+        check_dir_value(cur_val);
+        spec_direction = cur_val;
+        goto CONTINUE;
     }
-    if (first_char_is('d','D')) {
-        if (scan_keyword("dir")) {
-            scan_direction();
-            spec_direction = cur_val;
-            goto CONTINUE;
-        }
+    if (scan_keyword("dir")) {
+        scan_direction();
+        spec_direction = cur_val;
+        goto CONTINUE;
     }
     /* only one to or spread key possible and it comes last */
-    if (first_char_is('t','T') && scan_keyword("to")) {
+    if (scan_keyword("to")) {
         spec_code = exactly;
-    } else if (first_char_is('s','S') && scan_keyword("spread")) {
+    } else if (scan_keyword("spread")) {
         spec_code = additional;
     } else {
         spec_code = additional;
@@ -290,7 +289,6 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
     eq_word_define(int_base + par_direction_code, spec_direction);
     eq_word_define(int_base + text_direction_code, spec_direction);
 }
-
 
 @ To figure out the glue setting, |hpack| and |vpack| determine how much
 stretchability and shrinkability are present, considering all four orders of
