@@ -995,13 +995,6 @@ static int lua_nodelib_direct_setdir(lua_State * L)
         halfword t = type(n);
         if (t == dir_node) {
             nodelib_setdir_text(L, 2, n);
-            if ((lua_type(L, 2) == LUA_TBOOLEAN)) {
-                if (lua_toboolean(L, 2)) {
-                    subtype(n) = cancel_dir;
-                } else {
-                    subtype(n) = normal_dir;
-                }
-            }
         } else if (t == hlist_node || type(n) == vlist_node) {
             box_dir(n) = nodelib_getdir_par(L, 2);
         } else if (t == rule_node) {
@@ -1020,6 +1013,13 @@ static int lua_nodelib_direct_setdirection(lua_State * L)
         halfword t = type(n);
         if (t == dir_node) {
             dir_dir(n) = nodelib_getdirection(L, 2);
+            if ((lua_type(L, 2) == LUA_TBOOLEAN)) {
+                if (lua_toboolean(L, 2)) {
+                    subtype(n) = cancel_dir;
+                } else {
+                    subtype(n) = normal_dir;
+                }
+            }
         } else if (t == hlist_node || type(n) == vlist_node) {
             box_dir(n) = nodelib_getdirection(L, 2);
         } else if (t == rule_node) {
