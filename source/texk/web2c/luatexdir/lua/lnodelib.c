@@ -2399,9 +2399,7 @@ static int lua_nodelib_dimensions(lua_State * L)
         }
         n = *(check_isnode(L, i));
         if (lua_gettop(L) > i && !lua_isnil(L, (i + 1))) {
-            if (lua_type(L, (i + 1)) == LUA_TNUMBER) {
-                d = nodelib_getdirection(L, (i + 1));
-            } else if (lua_type(L, (i + 1)) == LUA_TSTRING) {
+            if (lua_type(L, (i + 1)) == LUA_TSTRING) {
                 d = nodelib_getdir_par(L, (i + 1));
             } else {
                 p = *(check_isnode(L, (i + 1)));
@@ -2469,9 +2467,7 @@ static int lua_nodelib_direct_dimensions(lua_State * L)
         }
         n = (halfword) lua_tointeger(L,i);
         if (lua_gettop(L) > i && !lua_isnil(L, (i + 1))) {
-            if (lua_type(L, (i + 1)) == LUA_TNUMBER) {
-                d = nodelib_getdirection(L, (i + 1));
-            } else if (lua_type(L, (i + 1)) == LUA_TSTRING) {
+            if (lua_type(L, (i + 1)) == LUA_TSTRING) {
                 d = nodelib_getdir_par(L, (i + 1));
             } else {
                 p = (halfword) lua_tointeger(L,i+1);
