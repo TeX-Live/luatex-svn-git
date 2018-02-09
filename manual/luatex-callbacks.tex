@@ -158,10 +158,6 @@ Like \type {find_font_file}, but for map files.
 
 Like \type {find_font_file}, but for enc files.
 
-\subsection{\type {find_sfd_file}}
-
-Like \type {find_font_file}, but for subfont definition files.
-
 \subsection{\type {find_pk_file}}
 
 Like \type {find_font_file}, but for pk bitmap files. This callback takes two
@@ -322,7 +318,6 @@ The list of functions is as follows:
 \NC \type{read_vf_file}       \NC virtual fonts \NC \NR
 \NC \type{read_map_file}      \NC map files \NC \NR
 \NC \type{read_enc_file}      \NC encoding files \NC \NR
-\NC \type{read_sfd_file}      \NC subfont definition files \NC \NR
 \NC \type{read_pk_file}       \NC pk bitmap files \NC \NR
 \NC \type{read_data_file}     \NC embedded files (as is possible with \PDF\ objects) \NC \NR
 \NC \type{read_truetype_file} \NC \TRUETYPE\ font files \NC \NR
@@ -783,7 +778,8 @@ end
 \stopfunctioncall
 
 This callback replaces the code that prints \LUATEX's statistics and \quote
-{output written to} messages.
+{output written to} messages. The engine can still do housekeeping and therefore
+you should not rely on this hook for postprocessing the \PDF\ or log file.
 
 \subsection{\type {start_page_number}}
 
@@ -875,11 +871,16 @@ This callback replaces the call to an external editor when \quote{E} is pressed
 in reply to an error message. Processing will end immediately after the callback
 returns control to the main program.
 
-\subsection{\type {finish_synctex_callback}}
+\subsection{\type {finish_synctex}}
 
 This callback can be used to wrap up alternative synctex methods. It kicks in
 after the normal synctex finalizer (that happens to remove the synctex files
 after a run when native synctex is not enabled).
+
+\subsection{\type {wrapup_run}}
+
+This callback is called after the \PDF\ and log files are closed. Use it at your own
+risk.
 
 \section{PDF-related callbacks}
 

@@ -74,7 +74,8 @@ static const char *const callbacknames[] = {
     "call_edit",
     "build_page_insert",
     "glyph_stream_provider",
-    "finish_synctex_callback",
+    "finish_synctex",
+    "wrapup_run",
     NULL
 };
 
