@@ -1628,7 +1628,10 @@ int font_from_lua(lua_State * L, int f)
                 and that needs to know |bc| and |ec|.
             */
 
-            if (font_type(f) != virtual_font_type) {
+            /* if (font_type(f) != virtual_font_type) { */
+
+                /* we permits virtual fonts to use expansion .. one can always turn it off */
+
                 int fstep = lua_numeric_field_by_index(L, lua_key_index(step), 0);
                 if (fstep < 0)
                     fstep = 0;
@@ -1653,7 +1656,7 @@ int font_from_lua(lua_State * L, int f)
                         fstretch = 0;
                     set_expand_params(f, fstretch, fshrink, fstep);
                 }
-            }
+            /* } */
 
         } else {
             /* jikes, no characters */
