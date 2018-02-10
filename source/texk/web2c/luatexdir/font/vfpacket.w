@@ -215,17 +215,23 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
                 backend_out[glyph_node] (pdf, vp->lf, (int) k, ex_glyph);
             }
             w = char_width(vp->lf, (int) k);
-            mat_p->pos.h += round_xn_over_d(w, 1000 + ex_glyph, 1000);
+            if (ex_glyph != 0 && w != 0)
+                w = round_xn_over_d(w, 1000 + ex_glyph, 1000);
+            mat_p->pos.h += w;
             break;
         case packet_rule_code:
             packet_scaled(size.v, vp->fs_f);    /* height (where is depth?) */
             packet_scaled(size.h, vp->fs_f);
+            if (ex_glyph != 0 && size.h > 0) /* new, experiment */
+                size.h = round_xn_over_d(size.h, 1000 + ex_glyph, 1000);
             if (size.h > 0 && size.v > 0)
                 backend_out[rule_node](pdf, 0, size);  /* the 0 is unused */
             mat_p->pos.h += size.h;
             break;
         case packet_right_code:
             packet_scaled(i, vp->fs_f);
+            if (ex_glyph != 0 && i != 0) /* new, experiment */
+                i = round_xn_over_d(i, 1000 + ex_glyph, 1000);
             mat_p->pos.h += i;
             break;
         case packet_down_code:
