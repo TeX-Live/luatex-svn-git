@@ -2462,9 +2462,11 @@ void prefixed_command(void)
         case assign_dir_cmd:
             /* DIR: Assign direction codes */
             if (cur_cmd == assign_direction_cmd) {
+                p = cur_chr;
                 scan_optional_equals();
                 scan_int();
                 check_dir_value(cur_val);
+                cur_chr = p;
             } else {
                 scan_direction();
             }
