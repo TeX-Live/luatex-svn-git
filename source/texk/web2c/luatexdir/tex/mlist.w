@@ -1360,6 +1360,7 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
     pointer att = null;            /* to save the current attribute list */
     int emas = 0 ;
     boolean do_parts = false;
+    boolean parts_done = false;
     extinfo *ext;
     f = null_font;
     c = 0;
@@ -1434,6 +1435,7 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
         ext = NULL;
         if ((do_parts) && ((!flat && (ext = get_charinfo_vert_variants(char_info(f,c))) != NULL)
                        ||  ( flat && (ext = get_charinfo_hor_variants (char_info(f,c))) != NULL))) {
+            parts_done = true;
             if (flat) {
                 b = get_delim_box(d, ext, f, v, att, cur_style, hlist_node);
             } else {
@@ -1449,6 +1451,7 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
             if (stack != NULL)
                 *stack = true ;
         } else {
+            parts_done = false;
             if (same != NULL && x == c) {
                 *same = emas;
             }
@@ -1479,14 +1482,26 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
             *stack = false ;
     }
     if (!flat) {
-        if (emas == 0 || ! delimitermodenoshift) {
-            /* vertical variant */
-            shift_amount(b) = half(height(b) - depth(b));
-            if (shift) {
-                shift_amount(b) -= math_axis_size(s);
-            }
+        /* when emas ~= 0 then we have a non scaled character */
+        if (emas != 0 && delimitermodesamenos) {
+            /* same character and no shift when same forced */
+            goto DONE;
+        }
+        if (! parts_done && delimitermodecharnos) {
+            /* same character and no shift when same forced */
+            goto DONE;
+        }
+        if (delimitermodenoshift) {
+            /* no shift forced */
+            goto DONE;
+        }
+        /* vertical variant */
+        shift_amount(b) = half(height(b) - depth(b));
+        if (shift) {
+            shift_amount(b) -= math_axis_size(s);
         }
     }
+    DONE:
     delete_attribute_ref(att);
     return b;
 }

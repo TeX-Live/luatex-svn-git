@@ -540,11 +540,15 @@ typedef enum {
     noad_delimiter_mode_noshift = 0x01,
     noad_delimiter_mode_italics = 0x02,
     noad_delimiter_mode_ordinal = 0x04,
+    noad_delimiter_mode_samenos = 0x08,
+    noad_delimiter_mode_charnos = 0x10,
 } delimiter_modes ;
 
 #  define delimitermodenoshift ((math_delimiters_mode_par & noad_delimiter_mode_noshift) == noad_delimiter_mode_noshift)
 #  define delimitermodeitalics ((math_delimiters_mode_par & noad_delimiter_mode_italics) == noad_delimiter_mode_italics)
 #  define delimitermodeordinal ((math_delimiters_mode_par & noad_delimiter_mode_ordinal) == noad_delimiter_mode_ordinal)
+#  define delimitermodesamenos ((math_delimiters_mode_par & noad_delimiter_mode_samenos) == noad_delimiter_mode_samenos)
+#  define delimitermodecharnos ((math_delimiters_mode_par & noad_delimiter_mode_charnos) == noad_delimiter_mode_charnos)
 
 /* subtype of fence noads */
 

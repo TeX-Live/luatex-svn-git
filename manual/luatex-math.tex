@@ -719,7 +719,18 @@ So, when set to 7 fenced subformulas with unscaled delimiters come out the same
 as unfenced ones. This can be handy for cases where one is forced to use \type
 {\left} and \type {\right} always because of unpredictable content. As said, it's
 an experimental features (which somehow fits in the exceptional way fences are
-dealt with in the engine).
+dealt with in the engine). The full list of flags is given in the next table:
+
+\starttabulate[|T|l|]
+\NC "01 \NC don't apply the usual shift \NC \NR
+\NC "02 \NC apply italic correction when possible \NC \NR
+\NC "04 \NC force a ordinary subformula \NC \NR
+\NC "08 \NC no shift when a base character \NC \NR
+\NC "10 \NC only shift when an extensible \NC \NR
+\stoptabulate
+
+The effect can depend on the font (and for Cambria one can use for instance \type
+{"16}).
 
 \section{Math spacing setting}
 
