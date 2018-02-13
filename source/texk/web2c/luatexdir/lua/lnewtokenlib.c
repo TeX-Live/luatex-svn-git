@@ -979,6 +979,35 @@ static int set_macro(lua_State * L)
     return 0;
 }
 
+static int set_char(lua_State * L)
+{
+    const char *name = null;
+    const char *s  = null;
+    size_t lname = 0;
+    int cs, value;
+    int n = lua_gettop(L);
+    int a = 0 ; /* global state */
+    int nncs = no_new_control_sequence;
+    if (n < 2)
+        return 0;
+    name = lua_tolstring(L, 1, &lname);
+    if (name == null)
+        return 0;
+    value = lua_tointeger(L, 2);
+    if (value < 0)
+        return 0;
+    if (n > 2)
+        s = lua_tostring(L, 3);
+    if (s && (lua_key_eq(s, global))) {
+        a = 4;
+    }
+    no_new_control_sequence = false ;
+    cs = string_lookup(name, lname);
+    no_new_control_sequence = nncs;
+    define(cs, char_given_cmd, value);
+    return 0;
+}
+
 static const struct luaL_Reg tokenlib[] = {
     { "type", lua_tokenlib_type },
     { "create", run_build },
@@ -1016,6 +1045,7 @@ static const struct luaL_Reg tokenlib[] = {
     { "set_macro", set_macro },
     { "get_macro", get_macro },
     { "get_meaning", get_meaning },
+    { "set_char", set_char },
     /* probably never */
  /* {"expand", run_expand},               */ /* does not work yet! */
  /* {"csname_id", run_get_csname_id},     */ /* yes or no */

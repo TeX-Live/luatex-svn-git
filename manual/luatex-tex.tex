@@ -1694,17 +1694,17 @@ bit but for passing strings conversion to and from tokens has to be done anyway
 The \type {set_macro} function can get upto 4 arguments:
 
 \starttyping
-setmacro("csname","content")
-setmacro("csname","content","global")
-setmacro("csname")
+set_macro("csname","content")
+set_macro("csname","content","global")
+set_macro("csname")
 \stoptyping
 
 You can pass a catcodetable identifier as first argument:
 
 \starttyping
-setmacro(catcodetable,"csname","content")
-setmacro(catcodetable,"csname","content","global")
-setmacro(catcodetable,"csname")
+set_macro(catcodetable,"csname","content")
+set_macro(catcodetable,"csname","content","global")
+set_macro(catcodetable,"csname")
 \stoptyping
 
 The results are like:
@@ -1714,6 +1714,20 @@ The results are like:
 \gdef\csname{content}
  \def\csname{}
 \stoptyping
+
+The \type {get_macro} function can be used to get the content of a macro while
+the \type {get_meaning} function gives the meaning including the argument
+specification (as usual in \TEX\ separated by \type {->}).
+
+The \type {set_char} function can be used to do a \type {\chardef} at the
+\LUA\ end:
+
+\starttyping
+set_char("csname",number)
+set_char("csname",number,"global")
+\stoptyping
+
+Invalid assignments are silently ignored.
 
 \subsection{Pushing back}
 
