@@ -1,1 +1,1 @@
-#define luatex_svn_revision 6612
+#define luatex_svn_revision 6613

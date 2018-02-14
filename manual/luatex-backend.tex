@@ -504,52 +504,6 @@ objects, annotations, info, and metadata. The \type {epdf} library only provides
 read|-|only access. At some point we might decide to limit the interface to a
 reasonable subset.
 
-\start \em
-
-The following functions will be removed in a next version. This is partly due to
-a change in the api of the used library and partly due to the fact that write
-access is not needed at all.
-
-\starttabulate[|T|T||]
-\NC Annot            \NC  getAppearance     \NC gone    \NC \NR
-\NC                  \NC  getBorder         \NC gone    \NC \NR
-\NC AnnotBorderStyle \NC  getWidth          \NC gone    \NC \NR
-\NC Array            \NC  incRef            \NC gone    \NC \NR
-\NC                  \NC  decRef            \NC gone    \NC \NR
-\NC                  \NC  add               \NC will go \NC \NR
-\NC Attribute        \NC  setRevision       \NC will go \NC \NR
-\NC                  \NC  setHidden         \NC will go \NC \NR
-\NC                  \NC  setFormattedValue \NC will go \NC \NR
-\NC EmbFile          \NC  save              \NC will go \NC \NR
-\NC Dict             \NC  incRef            \NC gone    \NC \NR
-\NC                  \NC  decRef            \NC gone    \NC \NR
-\NC                  \NC  add               \NC will go \NC \NR
-\NC                  \NC  set               \NC will go \NC \NR
-\NC                  \NC  remove            \NC will go \NC \NR
-\NC Object           \NC  initBool          \NC will go \NC \NR
-\NC                  \NC  initInt           \NC will go \NC \NR
-\NC                  \NC  initReal          \NC will go \NC \NR
-\NC                  \NC  initString        \NC will go \NC \NR
-\NC                  \NC  initName          \NC will go \NC \NR
-\NC                  \NC  initNull          \NC will go \NC \NR
-\NC                  \NC  initArray         \NC will go \NC \NR
-\NC                  \NC  initDict          \NC will go \NC \NR
-\NC                  \NC  initStream        \NC will go \NC \NR
-\NC                  \NC  initRef           \NC will go \NC \NR
-\NC                  \NC  initCmd           \NC will go \NC \NR
-\NC                  \NC  initError         \NC will go \NC \NR
-\NC                  \NC  initEOF           \NC will go \NC \NR
-\NC                  \NC  dictAdd           \NC will go \NC \NR
-\NC                  \NC  dictSet           \NC will go \NC \NR
-\NC                  \NC  streamReset       \NC will go \NC \NR
-\NC StructElement    \NC  setRevision       \NC will go \NC \NR
-\NC                  \NC  appendChild       \NC will go \NC \NR
-\NC                  \NC  appendAttribute   \NC will go \NC \NR
-\NC StructTreeRoot   \NC  appendChild       \NC will go \NC \NR
-\stoptabulate
-
-\stop
-
 For a start, a \PDF\ file is opened by \type {epdf.open()} with file name, e.g.:
 
 \starttyping
@@ -602,22 +556,11 @@ These are the object constructors:
 
 \startfunctioncall
 <PDFDoc>       = epdf.open(<string> PDF filename)
-<Annot>        = epdf.Annot(<XRef>, <Dict>, <Catalog>, <Ref>)
-<Annots>       = epdf.Annots(<XRef>, <Catalog>, <Object>)
-<Array>        = epdf.Array(<XRef>)
-<Attribute>    = epdf.Attribute(<Type>,<Object>)| epdf.Attribute(<string>, <int>, <Object>)
-<Dict>         = epdf.Dict(<XRef>)
-<Object>       = epdf.Object()|epdf.Object(<Type>)|epdf.Object(<Object_Type>,<string>)|
-<PDFRectangle> = epdf.PDFRectangle()
+<PDFDoc>       = epdf.openMemStream(<string> PDF code)
 \stopfunctioncall
 
-There is a new API for the \type {Object} constructors: the old \type {init<ObjType>} constructors
-are still present but they are deprecated. They will disappear after the next \TeX Live.
-The functions \type {StructElement_Type}, \type {Object_Type}, \type {Attribute_Type} and \type
+The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 {AttributeOwner_Type} return a hash table \type {{<string>,<integer>}}.
-The hash table \type {Object_Type} is useful for the
-\type {epdf.Object(<Object_Type>,<string>)} \type {Object} constructor, where \type {<Object_Type>} is an
-integer.
 
 \type {Annot} methods:
 
@@ -645,9 +588,6 @@ integer.
 \type {Array} methods:
 
 \startfunctioncall
-            <Array>:incRef()      -- gone
-            <Array>:decRef()      -- gone
-            <Array>:add(<Object>) -- will go
 <integer> = <Array>:getLength()
 <Object>  = <Array>:get(<integer>)
 <Object>  = <Array>:getNF(<integer>)
@@ -666,11 +606,8 @@ integer.
 <Object>   = <Attribute>:getDefaultValue
 <string>   = <Attribute>:getName()
 <integer>  = <Attribute>:getRevision()
-             <Attribute>:setRevision(<unsigned integer>) -- will go
 <boolean>  = <Attribute>:isHidden()
-             <Attribute>:setHidden(<boolean>)            -- will go
 <string>   = <Attribute>:getFormattedValue()
-<string>   = <Attribute>:setFormattedValue(<string>)     -- will go
 \stopfunctioncall
 
 \type {Catalog} methods:
@@ -722,11 +659,6 @@ integer.
 \type {Dict} methods:
 
 \startfunctioncall
-            <Dict>:incRef()                -- will go
-            <Dict>:decRef()                -- will go
-            <Dict>:add(<string>, <Object>) -- will go
-            <Dict>:set(<string>, <Object>) -- will go
-            <Dict>:remove(<string>)        -- will go
 <integer> = <Dict>:getLength()
 <boolean> = <Dict>:is(<string>)
 <Object>  = <Dict>:lookup(<string>)
@@ -775,20 +707,6 @@ integer.
 \type {Object} methods:
 
 \startfunctioncall
-            <Object>:initBool(<boolean>)              -- will go
-            <Object>:initInt(<integer>)               -- will go
-            <Object>:initReal(<number>)               -- will go
-            <Object>:initString(<string>)             -- will go
-            <Object>:initName(<string>)               -- will go
-            <Object>:initNull()                       -- will go
-            <Object>:initArray(<XRef>)                -- will go
-            <Object>:initDict(<XRef>)                 -- will go
-            <Object>:initStream(<Stream>)             -- will go
-            <Object>:initRef(<integer> object number,
-                <integer> object generation)          -- will go
-            <Object>:initCmd(<string>)                -- will go
-            <Object>:initError()                      -- will go
-            <Object>:initEOF()                        -- will go
 <Object>  = <Object>:fetch(<XRef>)
 <integer> = <Object>:getType()
 <string>  = <Object>:getTypeName()
@@ -821,12 +739,9 @@ integer.
 <integer> = <Object>:getRefGen()
 <string>  = <Object>:getCmd()
 <integer> = <Object>:arrayGetLength()
-          = <Object>:arrayAdd(<Object>)               -- will go
 <Object>  = <Object>:arrayGet(<integer>)
 <Object>  = <Object>:arrayGetNF(<integer>)
 <integer> = <Object>:dictGetLength(<integer>)
-          = <Object>:dictAdd(<string>, <Object>)      -- will go
-          = <Object>:dictSet(<string>, <Object>)      -- will go
 <Object>  = <Object>:dictLookup(<string>)
 <Object>  = <Object>:dictLookupNF(<string>)
 <string>  = <Object>:dictgetKey(<integer>)
@@ -950,12 +865,10 @@ integer.
 <string>         = <StructElement>:getID()
 <string>         = <StructElement>:getLanguage()
 <integer>        = <StructElement>:getRevision()
-                   <StructElement>:setRevision(<unsigned integer>)   -- will go
 <string>         = <StructElement>:getTitle()
 <string>         = <StructElement>:getExpandedAbbr()
 <integer>        = <StructElement>:getNumChildren()
 <StructElement>  = <StructElement>:getChild()
-                 = <StructElement>:appendChild<StructElement>)       -- will go
 <integer>        = <StructElement>:getNumAttributes()
 <Attribute>      = <StructElement>:getAttribute(<integer>)
 <string>         = <StructElement>:appendAttribute(<Attribute>)      -- will go
@@ -976,7 +889,6 @@ integer.
 <Dict>          = <StructTreeRoot>:getClassMap
 <integer>       = <StructTreeRoot>:getNumChildren
 <StructElement> = <StructTreeRoot>:getChild
-                  <StructTreeRoot>:appendChild       -- will go
 <StructElement> = <StructTreeRoot>:findParentElement
 \stopfunctioncall
 

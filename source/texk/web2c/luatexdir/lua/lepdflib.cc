@@ -21,33 +21,33 @@
 
 #include "image/epdf.h"
 
-// Patches for the new poppler 0.59 from
-// https://www.mail-archive.com/arch-commits@archlinux.org/msg357548.html
-// with some modifications to comply the poppler API.
+/*
+    Patches for the new poppler 0.59 from:
 
-// define DEBUG
+    https://www.mail-archive.com/arch-commits@archlinux.org/msg357548.html
 
-//**********************************************************************
-// TODO: add more poppler functions (many are still missing)
+    with some modifications to comply the poppler API.
+*/
 
-//**********************************************************************
-// objects allocated by poppler may not be deleted in the lepdflib
+/* define DEBUG */
+
+/* objects allocated by poppler may not be deleted in the lepdflib */
 
 typedef enum { ALLOC_POPPLER, ALLOC_LEPDF } alloctype;
 
 typedef struct {
     void *d;
-    alloctype atype;            // was it allocated by poppler or the lepdflib.cc?
-    PdfDocument *pd;            // reference to PdfDocument, or NULL
-    unsigned long pc;           // counter to detect PDFDoc change
+    alloctype atype;   // was it allocated by poppler or the lepdflib.cc?
+    PdfDocument *pd;   // reference to PdfDocument, or NULL
+    unsigned long pc;  // counter to detect PDFDoc change
 } udstruct;
 
-static const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
+static const char *ErrorCodeNames[] = {
+    "None", "OpenFile", "BadCatalog",
     "Damaged", "Encrypted", "HighlightFile", "BadPrinter", "Printing",
-    "Permission", "BadPageNum", "FileIO", NULL
+    "Permission", "BadPageNum", "FileIO",
+    NULL
 };
-
-//**********************************************************************
 
 #define M_Annot            "epdf.Annot" /* ls-hh: epdf.* gives better protection in registry */
 #define M_Annots           "epdf.Annots"
@@ -73,8 +73,6 @@ static const char *ErrorCodeNames[] = { "None", "OpenFile", "BadCatalog",
 #define M_XRefEntry        "epdf.XRefEntry"
 #define M_XRef             "epdf.XRef"
 
-//**********************************************************************
-
 #define new_poppler_userdata(type)                                              \
 static udstruct *new_##type##_userdata(lua_State * L)                           \
 {                                                                               \
@@ -87,7 +85,6 @@ static udstruct *new_##type##_userdata(lua_State * L)                           
 }
 
 new_poppler_userdata(PDFDoc);
-
 new_poppler_userdata(Annot);
 new_poppler_userdata(Array);
 new_poppler_userdata(Catalog);
@@ -107,7 +104,7 @@ new_poppler_userdata(TextSpan);
 new_poppler_userdata(StructTreeRoot);
 new_poppler_userdata(XRef);
 
-//**********************************************************************
+/* These two can go away as we don't change the document. */
 
 static void pdfdoc_changed_error(lua_State * L)
 {
@@ -119,8 +116,6 @@ static void pdfdoc_differs_error(lua_State * L)
     luaL_error(L, "PDFDoc differs between arguments");
 }
 
-//**********************************************************************
-
 static int l_open_PDFDoc(lua_State * L)
 {
     const char *file_path;
@@ -131,15 +126,15 @@ static int l_open_PDFDoc(lua_State * L)
     if (d == NULL)
         lua_pushnil(L);
     else {
-      if (!(globalParams)) // globalParams could be already created
-          globalParams = new GlobalParams();
+        if (!(globalParams)) // globalParams could be already created
+            globalParams = new GlobalParams();
         uout = new_PDFDoc_userdata(L);
         uout->d = d;
         uout->atype = ALLOC_LEPDF;
         uout->pc = d->pc;
         uout->pd = d;
     }
-    return 1;                   // doc path
+    return 1;
 }
 
 static int l_open_MemStreamPDFDoc(lua_State * L)
@@ -151,442 +146,221 @@ static int l_open_MemStreamPDFDoc(lua_State * L)
     udstruct *uout;
     PdfDocument *d;
     switch (lua_type(L, 1)) {
-      case LUA_TSTRING:
-         docstream = luaL_checkstring(L, 1); // stream as Lua string
-         break;
-      case LUA_TLIGHTUSERDATA:
-         docstream = (const char *) lua_touserdata(L, 1); // stream as sequence of bytes
-	 break;
-       default:
-         luaL_error(L, "bad argument: string or lightuserdata expected");
+        case LUA_TSTRING:
+            docstream = luaL_checkstring(L, 1); // stream as Lua string
+            break;
+        case LUA_TLIGHTUSERDATA:
+            docstream = (const char *) lua_touserdata(L, 1); // stream as sequence of bytes
+            break;
+        default:
+            luaL_error(L, "bad argument: string or lightuserdata expected");
     }
     if (docstream==NULL)
-      luaL_error(L, "bad document");
+        luaL_error(L, "bad document");
     stream_size = (unsigned long long) luaL_checkint(L, 2);// size of the stream
     file_id  =  luaL_checkstring(L, 3); // a symbolic name for this stream, mandatory
     if (file_id == NULL)
-      luaL_error(L, "PDFDoc has an invalid id");
+        luaL_error(L, "PDFDoc has an invalid id");
     if (strlen(file_id) >STREAM_FILE_ID_LEN )  // a limit to the length of the string
-      luaL_error(L, "PDFDoc has a too long id");
+        luaL_error(L, "PDFDoc has a too long id");
     docstream_usr = (char *)gmalloc((unsigned) (stream_size + 1));
     if (!docstream_usr)
-      luaL_error(L, "no room for PDFDoc");
+        luaL_error(L, "no room for PDFDoc");
     memcpy(docstream_usr, docstream, (stream_size + 1));
     docstream_usr[stream_size]='\0';
     d = refMemStreamPdfDocument(docstream_usr, stream_size, file_id);
     if (d == NULL) {
-      lua_pushnil(L);
-      lua_pushnil(L);
-      lua_pushnil(L);
-    }
-    else if (d->file_path == NULL ) {
-      lua_pushnil(L);
-      lua_pushnil(L);
-      lua_pushnil(L);
+        lua_pushnil(L);
+        lua_pushnil(L);
+        lua_pushnil(L);
+    } else if (d->file_path == NULL ) {
+        lua_pushnil(L);
+        lua_pushnil(L);
+        lua_pushnil(L);
     }
     else {
-      if (!(globalParams)) // globalParams could be already created
-        globalParams = new GlobalParams();
-      uout = new_PDFDoc_userdata(L);
-      uout->d = d;
-      uout->atype = ALLOC_LEPDF;
-      uout->pc = d->pc;
-      uout->pd = d;
-      lua_pushstring(L,d->file_path);
-      lua_pushstring(L,STREAM_URI);
+        if (!(globalParams)) // globalParams could be already created
+            globalParams = new GlobalParams();
+        uout = new_PDFDoc_userdata(L);
+        uout->d = d;
+        uout->atype = ALLOC_LEPDF;
+        uout->pc = d->pc;
+        uout->pd = d;
+        lua_pushstring(L,d->file_path);
+        lua_pushstring(L,STREAM_URI);
     }
     return 3;                   // stream, stream_id, stream_uri
 }
 
-
-
-
-static int l_new_Array(lua_State * L)
-{
-    udstruct *uxref, *uout;
-    uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
-    if (uxref->pd != NULL && uxref->pd->pc != uxref->pc)
-        pdfdoc_changed_error(L);
-    uout = new_Array_userdata(L);
-    uout->d = new Array((XRef *) uxref->d);     // automatic init to length 0
-    uout->atype = ALLOC_LEPDF;
-    uout->pc = uxref->pc;
-    uout->pd = uxref->pd;
-    return 1;
-}
-
-static int l_new_Attribute(lua_State * L)
-{
-    Attribute::Type t;
-    const char *n;
-    int nlen;
-    udstruct *uobj, *uout;
-
-    if (lua_type(L,1)==LUA_TNUMBER) {
-       uobj = (udstruct *) luaL_checkudata(L, 2, M_Object);
-       if (uobj->pd != NULL && uobj->pd->pc != uobj->pc)
-           pdfdoc_changed_error(L);
-       t = (Attribute::Type) luaL_checkint(L, 1);
-       uout = new_Attribute_userdata(L);
-       uout->d = new Attribute(t, (Object *)uobj->d);
-       uout->atype = ALLOC_LEPDF;
-       uout->pc = uobj->pc;
-       uout->pd = uobj->pd;
-
-    } else if (lua_type(L,1)==LUA_TSTRING) {
-       n = luaL_checkstring(L,1);
-       nlen = luaL_checkint(L,2);
-       uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
-       if (uobj->pd != NULL && uobj->pd->pc != uobj->pc)
-          pdfdoc_changed_error(L);
-       uout = new_Attribute_userdata(L);
-       uout->d = new Attribute(n, nlen, (Object *)uobj->d);
-       uout->atype = ALLOC_LEPDF;
-       uout->pc = uobj->pc;
-       uout->pd = uobj->pd;
-    } else
-       lua_pushnil(L);
-    return 1;
-}
-
 #define ATTRIBUTE_TYPE_ENTRY(name)          \
-   lua_pushstring(L, #name);                \
-   lua_pushinteger(L, Attribute::name);     \
-   lua_settable(L,-3)
+    lua_pushstring(L, #name);                \
+    lua_pushinteger(L, Attribute::name);     \
+    lua_settable(L,-3)
 
 
 #define OBJECT_TYPE(name)                   \
-   lua_pushstring(L, #name);                \
-   lua_pushinteger(L, (int)name);           \
-   lua_settable(L,-3)
+    lua_pushstring(L, #name);                \
+    lua_pushinteger(L, (int)name);           \
+    lua_settable(L,-3)
 
 
 #define STRUCTELEMENT_TYPE_ENTRY(name)      \
-   lua_pushstring(L, #name);                \
-   lua_pushinteger(L, StructElement::name); \
-   lua_settable(L,-3)
+    lua_pushstring(L, #name);                \
+    lua_pushinteger(L, StructElement::name); \
+    lua_settable(L,-3)
 
 
 static int l_Attribute_Type(lua_State * L) {
-   lua_createtable (L, 0, 42);
-   ATTRIBUTE_TYPE_ENTRY(BBox);
-   ATTRIBUTE_TYPE_ENTRY(BackgroundColor);
-   ATTRIBUTE_TYPE_ENTRY(BorderColor);
-   ATTRIBUTE_TYPE_ENTRY(BorderThickness);
-   ATTRIBUTE_TYPE_ENTRY(Color);
-   ATTRIBUTE_TYPE_ENTRY(ColumnGap);
-   ATTRIBUTE_TYPE_ENTRY(ColumnWidths);
-   ATTRIBUTE_TYPE_ENTRY(Desc);
-   ATTRIBUTE_TYPE_ENTRY(Role);
-   ATTRIBUTE_TYPE_ENTRY(TextDecorationColor);
-   ATTRIBUTE_TYPE_ENTRY(TextDecorationThickness);
-   ATTRIBUTE_TYPE_ENTRY(BaselineShift);
-   ATTRIBUTE_TYPE_ENTRY(BlockAlign);
-   ATTRIBUTE_TYPE_ENTRY(BorderStyle);
-   ATTRIBUTE_TYPE_ENTRY(ColSpan);
-   ATTRIBUTE_TYPE_ENTRY(ColumnCount);
-   ATTRIBUTE_TYPE_ENTRY(EndIndent);
-   ATTRIBUTE_TYPE_ENTRY(GlyphOrientationVertical);
-   ATTRIBUTE_TYPE_ENTRY(Headers);
-   ATTRIBUTE_TYPE_ENTRY(Height);
-   ATTRIBUTE_TYPE_ENTRY(InlineAlign);
-   ATTRIBUTE_TYPE_ENTRY(LineHeight);
-   ATTRIBUTE_TYPE_ENTRY(ListNumbering);
-   ATTRIBUTE_TYPE_ENTRY(Padding);
-   ATTRIBUTE_TYPE_ENTRY(Placement);
-   ATTRIBUTE_TYPE_ENTRY(RowSpan);
-   ATTRIBUTE_TYPE_ENTRY(RubyAlign);
-   ATTRIBUTE_TYPE_ENTRY(RubyPosition);
-   ATTRIBUTE_TYPE_ENTRY(Scope);
-   ATTRIBUTE_TYPE_ENTRY(SpaceAfter);
-   ATTRIBUTE_TYPE_ENTRY(SpaceBefore);
-   ATTRIBUTE_TYPE_ENTRY(StartIndent);
-   ATTRIBUTE_TYPE_ENTRY(Summary);
-   ATTRIBUTE_TYPE_ENTRY(TBorderStyle);
-   ATTRIBUTE_TYPE_ENTRY(TPadding);
-   ATTRIBUTE_TYPE_ENTRY(TextAlign);
-   ATTRIBUTE_TYPE_ENTRY(TextDecorationType);
-   ATTRIBUTE_TYPE_ENTRY(TextIndent);
-   ATTRIBUTE_TYPE_ENTRY(Width);
-   ATTRIBUTE_TYPE_ENTRY(WritingMode);
-   ATTRIBUTE_TYPE_ENTRY(Unknown);
-   ATTRIBUTE_TYPE_ENTRY(checked);
-   return 1;
+    lua_createtable (L, 0, 42);
+    ATTRIBUTE_TYPE_ENTRY(BBox);
+    ATTRIBUTE_TYPE_ENTRY(BackgroundColor);
+    ATTRIBUTE_TYPE_ENTRY(BorderColor);
+    ATTRIBUTE_TYPE_ENTRY(BorderThickness);
+    ATTRIBUTE_TYPE_ENTRY(Color);
+    ATTRIBUTE_TYPE_ENTRY(ColumnGap);
+    ATTRIBUTE_TYPE_ENTRY(ColumnWidths);
+    ATTRIBUTE_TYPE_ENTRY(Desc);
+    ATTRIBUTE_TYPE_ENTRY(Role);
+    ATTRIBUTE_TYPE_ENTRY(TextDecorationColor);
+    ATTRIBUTE_TYPE_ENTRY(TextDecorationThickness);
+    ATTRIBUTE_TYPE_ENTRY(BaselineShift);
+    ATTRIBUTE_TYPE_ENTRY(BlockAlign);
+    ATTRIBUTE_TYPE_ENTRY(BorderStyle);
+    ATTRIBUTE_TYPE_ENTRY(ColSpan);
+    ATTRIBUTE_TYPE_ENTRY(ColumnCount);
+    ATTRIBUTE_TYPE_ENTRY(EndIndent);
+    ATTRIBUTE_TYPE_ENTRY(GlyphOrientationVertical);
+    ATTRIBUTE_TYPE_ENTRY(Headers);
+    ATTRIBUTE_TYPE_ENTRY(Height);
+    ATTRIBUTE_TYPE_ENTRY(InlineAlign);
+    ATTRIBUTE_TYPE_ENTRY(LineHeight);
+    ATTRIBUTE_TYPE_ENTRY(ListNumbering);
+    ATTRIBUTE_TYPE_ENTRY(Padding);
+    ATTRIBUTE_TYPE_ENTRY(Placement);
+    ATTRIBUTE_TYPE_ENTRY(RowSpan);
+    ATTRIBUTE_TYPE_ENTRY(RubyAlign);
+    ATTRIBUTE_TYPE_ENTRY(RubyPosition);
+    ATTRIBUTE_TYPE_ENTRY(Scope);
+    ATTRIBUTE_TYPE_ENTRY(SpaceAfter);
+    ATTRIBUTE_TYPE_ENTRY(SpaceBefore);
+    ATTRIBUTE_TYPE_ENTRY(StartIndent);
+    ATTRIBUTE_TYPE_ENTRY(Summary);
+    ATTRIBUTE_TYPE_ENTRY(TBorderStyle);
+    ATTRIBUTE_TYPE_ENTRY(TPadding);
+    ATTRIBUTE_TYPE_ENTRY(TextAlign);
+    ATTRIBUTE_TYPE_ENTRY(TextDecorationType);
+    ATTRIBUTE_TYPE_ENTRY(TextIndent);
+    ATTRIBUTE_TYPE_ENTRY(Width);
+    ATTRIBUTE_TYPE_ENTRY(WritingMode);
+    ATTRIBUTE_TYPE_ENTRY(Unknown);
+    ATTRIBUTE_TYPE_ENTRY(checked);
+    return 1;
 }
 
 static int l_Object_Type(lua_State * L) {
-   lua_createtable(L,0,16);/*nr of ObjType values*/ ;
-   OBJECT_TYPE(objBool);
-   OBJECT_TYPE(objInt);
-   OBJECT_TYPE(objReal);
-   OBJECT_TYPE(objString);
-   OBJECT_TYPE(objName);
-   OBJECT_TYPE(objNull);
-   OBJECT_TYPE(objArray);
-   OBJECT_TYPE(objDict);
-   OBJECT_TYPE(objStream);
-   OBJECT_TYPE(objRef);
-   OBJECT_TYPE(objCmd);
-   OBJECT_TYPE(objError);
-   OBJECT_TYPE(objEOF);
-   OBJECT_TYPE(objNone);
-   OBJECT_TYPE(objInt64);
-   OBJECT_TYPE(objDead);
-   return 1;
+    lua_createtable(L,0,16);/*nr of ObjType values*/ ;
+    OBJECT_TYPE(objBool);
+    OBJECT_TYPE(objInt);
+    OBJECT_TYPE(objReal);
+    OBJECT_TYPE(objString);
+    OBJECT_TYPE(objName);
+    OBJECT_TYPE(objNull);
+    OBJECT_TYPE(objArray);
+    OBJECT_TYPE(objDict);
+    OBJECT_TYPE(objStream);
+    OBJECT_TYPE(objRef);
+    OBJECT_TYPE(objCmd);
+    OBJECT_TYPE(objError);
+    OBJECT_TYPE(objEOF);
+    OBJECT_TYPE(objNone);
+    OBJECT_TYPE(objInt64);
+    OBJECT_TYPE(objDead);
+    return 1;
 }
 
-
 static int l_StructElement_Type(lua_State * L) {
-   lua_createtable (L, 0, 50);
-   STRUCTELEMENT_TYPE_ENTRY(Document);
-   STRUCTELEMENT_TYPE_ENTRY(Part);
-   STRUCTELEMENT_TYPE_ENTRY(Art);
-   STRUCTELEMENT_TYPE_ENTRY(Sect);
-   STRUCTELEMENT_TYPE_ENTRY(Div);
-   STRUCTELEMENT_TYPE_ENTRY(BlockQuote);
-   STRUCTELEMENT_TYPE_ENTRY(Caption);
-   STRUCTELEMENT_TYPE_ENTRY(NonStruct);
-   STRUCTELEMENT_TYPE_ENTRY(Index);
-   STRUCTELEMENT_TYPE_ENTRY(Private);
-   STRUCTELEMENT_TYPE_ENTRY(Span);
-   STRUCTELEMENT_TYPE_ENTRY(Quote);
-   STRUCTELEMENT_TYPE_ENTRY(Note);
-   STRUCTELEMENT_TYPE_ENTRY(Reference);
-   STRUCTELEMENT_TYPE_ENTRY(BibEntry);
-   STRUCTELEMENT_TYPE_ENTRY(Code);
-   STRUCTELEMENT_TYPE_ENTRY(Link);
-   STRUCTELEMENT_TYPE_ENTRY(Annot);
-   STRUCTELEMENT_TYPE_ENTRY(Ruby);
-   STRUCTELEMENT_TYPE_ENTRY(RB);
-   STRUCTELEMENT_TYPE_ENTRY(RT);
-   STRUCTELEMENT_TYPE_ENTRY(RP);
-   STRUCTELEMENT_TYPE_ENTRY(Warichu);
-   STRUCTELEMENT_TYPE_ENTRY(WT);
-   STRUCTELEMENT_TYPE_ENTRY(WP);
-   STRUCTELEMENT_TYPE_ENTRY(P);
-   STRUCTELEMENT_TYPE_ENTRY(H);
-   STRUCTELEMENT_TYPE_ENTRY(H1);
-   STRUCTELEMENT_TYPE_ENTRY(H2);
-   STRUCTELEMENT_TYPE_ENTRY(H3);
-   STRUCTELEMENT_TYPE_ENTRY(H4);
-   STRUCTELEMENT_TYPE_ENTRY(H5);
-   STRUCTELEMENT_TYPE_ENTRY(H6);
-   STRUCTELEMENT_TYPE_ENTRY(L);
-   STRUCTELEMENT_TYPE_ENTRY(LI);
-   STRUCTELEMENT_TYPE_ENTRY(Lbl);
-   STRUCTELEMENT_TYPE_ENTRY(LBody);
-   STRUCTELEMENT_TYPE_ENTRY(Table);
-   STRUCTELEMENT_TYPE_ENTRY(TR);
-   STRUCTELEMENT_TYPE_ENTRY(TH);
-   STRUCTELEMENT_TYPE_ENTRY(TD);
-   STRUCTELEMENT_TYPE_ENTRY(THead);
-   STRUCTELEMENT_TYPE_ENTRY(TFoot);
-   STRUCTELEMENT_TYPE_ENTRY(TBody);
-   STRUCTELEMENT_TYPE_ENTRY(Figure);
-   STRUCTELEMENT_TYPE_ENTRY(Formula);
-   STRUCTELEMENT_TYPE_ENTRY(Form);
-   STRUCTELEMENT_TYPE_ENTRY(TOC);
-   STRUCTELEMENT_TYPE_ENTRY(TOCI);
-   lua_pushstring(L, "Unknown");
-   lua_pushinteger(L, 0);
-   lua_settable(L,-3);
-   return 1;
+    lua_createtable (L, 0, 50);
+    STRUCTELEMENT_TYPE_ENTRY(Document);
+    STRUCTELEMENT_TYPE_ENTRY(Part);
+    STRUCTELEMENT_TYPE_ENTRY(Art);
+    STRUCTELEMENT_TYPE_ENTRY(Sect);
+    STRUCTELEMENT_TYPE_ENTRY(Div);
+    STRUCTELEMENT_TYPE_ENTRY(BlockQuote);
+    STRUCTELEMENT_TYPE_ENTRY(Caption);
+    STRUCTELEMENT_TYPE_ENTRY(NonStruct);
+    STRUCTELEMENT_TYPE_ENTRY(Index);
+    STRUCTELEMENT_TYPE_ENTRY(Private);
+    STRUCTELEMENT_TYPE_ENTRY(Span);
+    STRUCTELEMENT_TYPE_ENTRY(Quote);
+    STRUCTELEMENT_TYPE_ENTRY(Note);
+    STRUCTELEMENT_TYPE_ENTRY(Reference);
+    STRUCTELEMENT_TYPE_ENTRY(BibEntry);
+    STRUCTELEMENT_TYPE_ENTRY(Code);
+    STRUCTELEMENT_TYPE_ENTRY(Link);
+    STRUCTELEMENT_TYPE_ENTRY(Annot);
+    STRUCTELEMENT_TYPE_ENTRY(Ruby);
+    STRUCTELEMENT_TYPE_ENTRY(RB);
+    STRUCTELEMENT_TYPE_ENTRY(RT);
+    STRUCTELEMENT_TYPE_ENTRY(RP);
+    STRUCTELEMENT_TYPE_ENTRY(Warichu);
+    STRUCTELEMENT_TYPE_ENTRY(WT);
+    STRUCTELEMENT_TYPE_ENTRY(WP);
+    STRUCTELEMENT_TYPE_ENTRY(P);
+    STRUCTELEMENT_TYPE_ENTRY(H);
+    STRUCTELEMENT_TYPE_ENTRY(H1);
+    STRUCTELEMENT_TYPE_ENTRY(H2);
+    STRUCTELEMENT_TYPE_ENTRY(H3);
+    STRUCTELEMENT_TYPE_ENTRY(H4);
+    STRUCTELEMENT_TYPE_ENTRY(H5);
+    STRUCTELEMENT_TYPE_ENTRY(H6);
+    STRUCTELEMENT_TYPE_ENTRY(L);
+    STRUCTELEMENT_TYPE_ENTRY(LI);
+    STRUCTELEMENT_TYPE_ENTRY(Lbl);
+    STRUCTELEMENT_TYPE_ENTRY(LBody);
+    STRUCTELEMENT_TYPE_ENTRY(Table);
+    STRUCTELEMENT_TYPE_ENTRY(TR);
+    STRUCTELEMENT_TYPE_ENTRY(TH);
+    STRUCTELEMENT_TYPE_ENTRY(TD);
+    STRUCTELEMENT_TYPE_ENTRY(THead);
+    STRUCTELEMENT_TYPE_ENTRY(TFoot);
+    STRUCTELEMENT_TYPE_ENTRY(TBody);
+    STRUCTELEMENT_TYPE_ENTRY(Figure);
+    STRUCTELEMENT_TYPE_ENTRY(Formula);
+    STRUCTELEMENT_TYPE_ENTRY(Form);
+    STRUCTELEMENT_TYPE_ENTRY(TOC);
+    STRUCTELEMENT_TYPE_ENTRY(TOCI);
+    lua_pushstring(L, "Unknown");
+    lua_pushinteger(L, 0);
+    lua_settable(L,-3);
+    return 1;
 }
 
 static int l_AttributeOwner_Type(lua_State * L) {
-  lua_createtable (L, 0, 12);
-  lua_pushstring(L, "XML-1.00");       lua_pushinteger(L, Attribute::XML_1_00);      lua_settable(L,-3);
-  lua_pushstring(L, "HTML-3.20");      lua_pushinteger(L, Attribute::HTML_3_20);     lua_settable(L,-3);
-  lua_pushstring(L, "HTML-4.01");      lua_pushinteger(L, Attribute::HTML_4_01);     lua_settable(L,-3);
-  lua_pushstring(L, "OEB-1.00");       lua_pushinteger(L, Attribute::OEB_1_00);      lua_settable(L,-3);
-  lua_pushstring(L, "RTF-1.05");       lua_pushinteger(L, Attribute::RTF_1_05);      lua_settable(L,-3);
-  lua_pushstring(L, "CSS-1.00");       lua_pushinteger(L, Attribute::CSS_1_00);      lua_settable(L,-3);
-  lua_pushstring(L, "CSS-2.00");       lua_pushinteger(L, Attribute::CSS_2_00);      lua_settable(L,-3);
-  lua_pushstring(L, "Layout");	       lua_pushinteger(L, Attribute::Layout);        lua_settable(L,-3);
-  lua_pushstring(L, "PrintField");     lua_pushinteger(L, Attribute::PrintField);    lua_settable(L,-3);
-  lua_pushstring(L, "Table");	       lua_pushinteger(L, Attribute::Table);         lua_settable(L,-3);
-  lua_pushstring(L, "List");	       lua_pushinteger(L, Attribute::List);          lua_settable(L,-3);
-  lua_pushstring(L, "UserProperties"); lua_pushinteger(L, Attribute::UserProperties);lua_settable(L,-3);
-  return 1;
-}
-
-
-static int l_new_Dict(lua_State * L)
-{
-    udstruct *uxref, *uout;
-    uxref = (udstruct *) luaL_checkudata(L, 1, M_XRef);
-    if (uxref->pd != NULL && uxref->pd->pc != uxref->pc)
-        pdfdoc_changed_error(L);
-    uout = new_Dict_userdata(L);
-    uout->d = new Dict((XRef *) uxref->d);      // automatic init to length 0
-    uout->atype = ALLOC_LEPDF;
-    uout->pc = uxref->pc;
-    uout->pd = uxref->pd;
-    return 1;
-}
-
-static int l_new_Object(lua_State * L)
-{
-    udstruct *uout;
-    int n = lua_gettop(L); // number of arguments
-    uout = new_Object_userdata(L);
-    switch(n) {
-    case 0:
-      uout->d = new Object();     // automatic init to type "none"
-      uout->atype = ALLOC_LEPDF;
-      uout->pc = 0;
-      uout->pd = NULL;            // not connected to any PDFDoc
-      break;
-    case 1:
-      if (lua_isboolean (L,1)) {
-	uout->d = new Object(lua_toboolean(L, 1)? gTrue : gFalse);
-	uout->atype = ALLOC_LEPDF;
-	uout->pc = 0;
-	uout->pd = NULL;
-      } else if (lua_isnumber (L,1)) {
-	double d = lua_tonumber(L,1);
-	// Missed :Object(long long int64gA)
-	if (d==((int)d)) {
-	  uout->d = new Object((int)d);
-	} else {
-	  uout->d = new Object(d);
-	}
-	uout->atype = ALLOC_LEPDF;
-	uout->pc = 0;
-	uout->pd = NULL;
-      } else if (lua_isstring (L,1)){
-	GooString *gs;
-	const char *s;
-	size_t len;
-	s = luaL_checklstring(L, 2, &len);
-	gs = new GooString(s, len);
-	uout->d = new Object(gs);
-	uout->atype = ALLOC_LEPDF;
-	uout->pc = 0;
-	uout->pd = NULL;
-      } else if (luaL_testudata(L,1,M_Array)){
-	udstruct *u;
-	Array *a;
-	u = (udstruct *) luaL_checkudata(L, 1, M_Array);
-	a = (Array *)u->d;
-	uout->d = new Object(a);
-	uout->atype = ALLOC_LEPDF;
-	uout->pc = 0;
-	uout->pd = NULL;
-      } else if (luaL_testudata(L,1,M_Dict)){
-	udstruct *u;
-	Dict *d;
-	u = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-	d = (Dict *)u->d;
-	uout->d = new Object(d);
-	uout->atype = ALLOC_LEPDF;
-	uout->pc = 0;
-	uout->pd = NULL;
-      } else if (luaL_testudata(L,1,M_Stream)){
-	udstruct *u;
-	Stream *s;
-	u = (udstruct *) luaL_checkudata(L, 1, M_Stream);
-	s = (Stream *)u->d;
-	*((Object *) uout->d) = Object(s);
-      } else
-	luaL_error(L, "Invalid/unsupported value for Object constructor");
-      break;
-    case 2:
-      if (lua_isnumber (L,1) && lua_isnumber (L,2)) {
-	double numA = lua_tonumber(L,1);
-	double genA = lua_tonumber(L,2);
-	if ( ((numA)==(int)(numA)) && ((genA)==(int)(genA)) ){
-	  uout->d = new Object((int)(numA), (int)(genA));
-	  uout->atype = ALLOC_LEPDF;
-	  uout->pc = 0;
-	  uout->pd = NULL;
-	}
-      } else if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2))) {
-	double d_typeA = lua_tonumber(L,1);
-	int typeA = (int)(d_typeA);
-	if (d_typeA==typeA){
-	  switch((int)(typeA)) {
-	  case     objBool:
-	  case     objInt:
-	  case     objReal:
-	  case     objString:
-	  case     objName:
-	  case     objNull:
-	  case     objArray:
-	  case     objDict:
-	  case     objStream:
-	  case     objRef:
-	  case     objCmd:
-	  case     objError:
-	  case     objEOF:
-	  case     objNone:
-	  case     objInt64:
-	  case     objDead:
-	    if (lua_isstring(L,2))
-	      uout->d = new Object((ObjType)(typeA), luaL_checkstring(L, 2));
-	    else
-	      uout->d = new Object((ObjType)(typeA));
-	    uout->atype = ALLOC_LEPDF;
-	    uout->pc = 0;
-	    uout->pd = NULL;
-
-	    break;
-	  default:
-	    luaL_error(L, "Invalid values for Object constructor");
-	    break;
-	  }//switch((int)(d))
-	} else //  (d_typeA)!=(typeA)
-	  luaL_error(L, "Invalid/unsupported values for Object constructor");
-      } // if (lua_isnumber (L,1) && (lua_isstring(L,2)|| lua_isnoneornil(L,2)))
-      break;
-    default:
-      luaL_error(L, "Invalid specification for Object constructor");
-    }
-    lua_settop(L,1);
-    return 1;
-}
-
-// static int l_new_Object(lua_State * L)
-// {
-//     udstruct *uout;
-//     uout = new_Object_userdata(L);
-//     uout->d = new Object();     // automatic init to type "none"
-//     uout->atype = ALLOC_LEPDF;
-//     uout->pc = 0;
-//     uout->pd = NULL;            // not connected to any PDFDoc
-//     return 1;
-// }
-
-
-// PDFRectangle see Page.h
-
-static int l_new_PDFRectangle(lua_State * L)
-{
-    udstruct *uout;
-    uout = new_PDFRectangle_userdata(L);
-    uout->d = new PDFRectangle();       // automatic init to [0, 0, 0, 0]
-    uout->atype = ALLOC_LEPDF;
-    uout->pc = 0;
-    uout->pd = NULL;
+    lua_createtable (L, 0, 12);
+    lua_pushstring(L, "XML-1.00");       lua_pushinteger(L, Attribute::XML_1_00);      lua_settable(L,-3);
+    lua_pushstring(L, "HTML-3.20");      lua_pushinteger(L, Attribute::HTML_3_20);     lua_settable(L,-3);
+    lua_pushstring(L, "HTML-4.01");      lua_pushinteger(L, Attribute::HTML_4_01);     lua_settable(L,-3);
+    lua_pushstring(L, "OEB-1.00");       lua_pushinteger(L, Attribute::OEB_1_00);      lua_settable(L,-3);
+    lua_pushstring(L, "RTF-1.05");       lua_pushinteger(L, Attribute::RTF_1_05);      lua_settable(L,-3);
+    lua_pushstring(L, "CSS-1.00");       lua_pushinteger(L, Attribute::CSS_1_00);      lua_settable(L,-3);
+    lua_pushstring(L, "CSS-2.00");       lua_pushinteger(L, Attribute::CSS_2_00);      lua_settable(L,-3);
+    lua_pushstring(L, "Layout");	       lua_pushinteger(L, Attribute::Layout);        lua_settable(L,-3);
+    lua_pushstring(L, "PrintField");     lua_pushinteger(L, Attribute::PrintField);    lua_settable(L,-3);
+    lua_pushstring(L, "Table");	       lua_pushinteger(L, Attribute::Table);         lua_settable(L,-3);
+    lua_pushstring(L, "List");	       lua_pushinteger(L, Attribute::List);          lua_settable(L,-3);
+    lua_pushstring(L, "UserProperties"); lua_pushinteger(L, Attribute::UserProperties);lua_settable(L,-3);
     return 1;
 }
 
 static const struct luaL_Reg epdflib_f[] = {
     {"open", l_open_PDFDoc},
     {"openMemStream", l_open_MemStreamPDFDoc},
-    {"Array", l_new_Array},
-    {"Attribute",          l_new_Attribute},
     {"StructElement_Type", l_StructElement_Type},
-    {"Attribute_Type",     l_Attribute_Type},
+    {"Attribute_Type", l_Attribute_Type},
     {"AttributeOwner_Type",l_AttributeOwner_Type},
-    {"Dict", l_new_Dict},
-    {"Object", l_new_Object},
     {"Object_Type", l_Object_Type},
-    {"PDFRectangle", l_new_PDFRectangle},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
-
-//**********************************************************************
 
 #define m_poppler_get_poppler(in, out, function)               \
 static int m_##in##_##function(lua_State * L)                  \
@@ -736,8 +510,7 @@ static int m_##in##_##function(lua_State * L)                  \
     return 1;                                                  \
 }
 
-//**********************************************************************
-// Annot
+/* Annot */
 
 m_poppler_get_BOOL(Annot, isOk);
 
@@ -780,11 +553,10 @@ static const struct luaL_Reg Annot_m[] = {
     {"match", m_Annot_match},
     {"__tostring", m_Annot__tostring},
     {"__gc", m_Annot__gc},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// Annots
+/* Annots */
 
 m_poppler_get_INT(Annots, getNumAnnots);
 
@@ -813,48 +585,12 @@ static const struct luaL_Reg Annots_m[] = {
     {"getNumAnnots", m_Annots_getNumAnnots},
     {"getAnnot", m_Annots_getAnnot},
     {"__tostring", m_Annots__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// Array
-// Now private
-// static int m_Array_incRef(lua_State * L)
-// {
-//     udstruct *uin;
-//     uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
-//     if (uin->pd != NULL && uin->pd->pc != uin->pc)
-//         pdfdoc_changed_error(L);
-//     lua_pushinteger(L, 1);
-//     return 1;
-// }
-// Now private
-// static int m_Array_decRef(lua_State * L)
-// {
-//     int i;
-//     udstruct *uin;
-//     uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
-//     if (uin->pd != NULL && uin->pd->pc != uin->pc)
-//         pdfdoc_changed_error(L);
-//     lua_pushinteger(L, 1);
-//     return 1;
-// }
+/* Array */
 
 m_poppler_get_INT(Array, getLength);
-
-static int m_Array_add(lua_State * L)
-{
-    udstruct *uin, *uobj;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Array);
-    uobj = (udstruct *) luaL_checkudata(L, 2, M_Object);
-    if (uin->pd != NULL && uobj->pd != NULL && uin->pd != uobj->pd)
-        pdfdoc_differs_error(L);
-    if ((uin->pd != NULL && uin->pd->pc != uin->pc)
-        || (uobj->pd != NULL && uobj->pd->pc != uobj->pc))
-        pdfdoc_changed_error(L);
-    ((Array *) uin->d)->add(std::move(*((Object *) uobj->d)));
-    return 0;
-}
 
 static int m_Array_get(lua_State * L)
 {
@@ -923,19 +659,15 @@ static int m_Array_getString(lua_State * L)
 m_poppler__tostring(Array);
 
 static const struct luaL_Reg Array_m[] = {
-    // {"incRef", m_Array_incRef},// Now private
-    // {"decRef", m_Array_decRef},// Now private
     {"getLength", m_Array_getLength},
-    {"add", m_Array_add},
     {"get", m_Array_get},
     {"getNF", m_Array_getNF},
     {"getString", m_Array_getString},
     {"__tostring", m_Array__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// Catalog
+/* Catalog */
 
 m_poppler_get_BOOL(Catalog, isOk);
 m_poppler_get_INT(Catalog, getNumPages);
@@ -1095,71 +827,12 @@ static const struct luaL_Reg Catalog_m[] = {
     {"getOutline", m_Catalog_getOutline},
     {"getAcroForm", m_Catalog_getAcroForm},
     {"__tostring", m_Catalog__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// Dict
-// Now private
-// static int m_Dict_incRef(lua_State * L)
-// {
-//     udstruct *uin;
-//     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-//     if (uin->pd != NULL && uin->pd->pc != uin->pc)
-//         pdfdoc_changed_error(L);
-//     lua_pushinteger(L, 1);
-//     return 1;
-// }
-// Now private
-// static int m_Dict_decRef(lua_State * L)
-// {
-//     udstruct *uin;
-//     uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-//     if (uin->pd != NULL && uin->pd->pc != uin->pc)
-//         pdfdoc_changed_error(L);
-//     lua_pushinteger(L, 1);
-//     return 1;
-// }
+/* Dict */
 
 m_poppler_get_INT(Dict, getLength);
-
-static int m_Dict_add(lua_State * L)
-{
-    char *s;
-    udstruct *uin, *uobj;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    s = copyString(luaL_checkstring(L, 2));
-    uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
-    ((Dict *) uin->d)->add(s, std::move(*((Object *) uobj->d)));
-    return 0;
-}
-
-static int m_Dict_set(lua_State * L)
-{
-    const char *s;
-    udstruct *uin, *uobj;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    s = luaL_checkstring(L, 2);
-    uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
-    ((Dict *) uin->d)->set(s, std::move(*((Object *) uobj->d)));
-    return 0;
-}
-
-static int m_Dict_remove(lua_State * L)
-{
-    const char *s;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Dict);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    s = luaL_checkstring(L, 2);
-    ((Dict *) uin->d)->remove(s);
-    return 0;
-}
 
 m_poppler_check_string(Dict, is);
 
@@ -1277,12 +950,7 @@ m_poppler_check_string(Dict, hasKey);
 m_poppler__tostring(Dict);
 
 static const struct luaL_Reg Dict_m[] = {
-    // {"incRef", m_Dict_incRef},// Now private
-    // {"decRef", m_Dict_decRef},// Now private
     {"getLength", m_Dict_getLength},
-    {"add", m_Dict_add},
-    {"set", m_Dict_set},
-    {"remove", m_Dict_remove},
     {"is", m_Dict_is},
     {"lookup", m_Dict_lookup},
     {"lookupNF", m_Dict_lookupNF},
@@ -1292,11 +960,10 @@ static const struct luaL_Reg Dict_m[] = {
     {"getValNF", m_Dict_getValNF},
     {"hasKey", m_Dict_hasKey},
     {"__tostring", m_Dict__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// EmbFile
+/* EmbFile */
 
 m_poppler_get_INT(EmbFile, size);
 m_poppler_get_GOOSTRING(EmbFile, modDate);
@@ -1333,11 +1000,10 @@ static const struct luaL_Reg EmbFile_m[] = {
     {"isOk", m_EmbFile_isOk},
     {"save", m_EmbFile_save},
     {"__tostring", m_EmbFile__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// FileSpec
+/* FileSpec */
 
 m_poppler_get_BOOL(FileSpec, isOk);
 m_poppler_get_GOOSTRING(FileSpec, getFileName);
@@ -1366,11 +1032,10 @@ static const struct luaL_Reg FileSpec_m[] = {
     {"getDescription", m_FileSpec_getDescription},
     {"getEmbeddedFile", m_FileSpec_getEmbeddedFile},
     {"__tostring", m_FileSpec__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// GooString
+/* GooString */
 
 static int m_GooString__tostring(lua_State * L)
 {
@@ -1385,14 +1050,15 @@ static int m_GooString__tostring(lua_State * L)
 
 static const struct luaL_Reg GooString_m[] = {
     {"__tostring", m_GooString__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// LinkDest
+/* LinkDest */
 
-static const char *LinkDestKindNames[] =
-    { "XYZ", "Fit", "FitH", "FitV", "FitR", "FitB", "FitBH", "FitBV", NULL };
+static const char *LinkDestKindNames[] = {
+    "XYZ", "Fit", "FitH", "FitV", "FitR", "FitB", "FitBH", "FitBV",
+    NULL
+};
 
 m_poppler_get_BOOL(LinkDest, isOk);
 
@@ -1466,11 +1132,10 @@ static const struct luaL_Reg LinkDest_m[] = {
     {"getChangeTop", m_LinkDest_getChangeTop},
     {"getChangeZoom", m_LinkDest_getChangeZoom},
     {"__tostring", m_LinkDest__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// Links
+/* Links */
 
 m_poppler_get_INT(Links, getNumLinks);
 
@@ -1478,23 +1143,24 @@ m_poppler__tostring(Links);
 
 static const struct luaL_Reg Links_m[] = {
     {"getNumLinks", m_Links_getNumLinks},
-    //{"getLink", m_Links_getLink},
     {"__tostring", m_Links__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// Object
+/* Object */
 
 #ifdef HAVE_OBJECT_INITCMD_CONST_CHARP
 #define CHARP_CAST
 #else
-// must cast arg of Object::initCmd, Object::isStream, and Object::streamIs
-// from 'const char *' to 'char *', although they are not modified.
+/*
+    Must cast arg of Object::initCmd, Object::isStream, and Object::streamIs
+    from 'const char *' to 'char *', although they are not modified.
+*/
 #define CHARP_CAST (char *)
 #endif
 
-// Special type checking.
+/* Special type checking. */
+
 #define m_Object_isType_(function, cast)                                   \
 static int m_Object_##function(lua_State * L)                              \
 {                                                                          \
@@ -1516,178 +1182,9 @@ static int m_Object_##function(lua_State * L)                              \
     }                                                                      \
     return 1;                                                              \
 }
+
 #define m_Object_isType(function) m_Object_isType_(function, )
 #define m_Object_isType_nonconst(function) m_Object_isType_(function, CHARP_CAST)
-
-static int m_Object_initBool(lua_State * L)
-{
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    luaL_checktype(L, 2, LUA_TBOOLEAN);
-    if (lua_toboolean(L, 2) != 0)
-        *((Object *) uin->d) = Object(gTrue);
-    else
-        *((Object *) uin->d) = Object(gFalse);
-    return 0;
-}
-
-static int m_Object_initInt(lua_State * L)
-{
-    int i;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    i = luaL_checkint(L, 2);
-    *((Object *) uin->d) = Object(i);
-    return 0;
-}
-
-static int m_Object_initReal(lua_State * L)
-{
-    double d;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    d = luaL_checknumber(L, 2);
-    *((Object *) uin->d) = Object(d);
-    return 0;
-}
-
-static int m_Object_initString(lua_State * L)
-{
-    GooString *gs;
-    const char *s;
-    size_t len;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    s = luaL_checklstring(L, 2, &len);
-    gs = new GooString(s, len);
-    *((Object *) uin->d) = Object(gs);
-    return 0;
-}
-
-static int m_Object_initName(lua_State * L)
-{
-    const char *s;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    s = luaL_checkstring(L, 2);
-    *((Object *) uin->d) = Object(objName, s);
-    return 0;
-}
-
-static int m_Object_initNull(lua_State * L)
-{
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    *((Object *) uin->d) = Object(objNull);
-    return 0;
-}
-
-static int m_Object_initArray(lua_State * L)
-{
-    udstruct *uin, *uxref;
-    Array *a;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    uxref = (udstruct *) luaL_checkudata(L, 2, M_XRef);
-    if (uin->pd != NULL && uxref->pd != NULL && uin->pd != uxref->pd)
-        pdfdoc_differs_error(L);
-    if ((uin->pd != NULL && uin->pd->pc != uin->pc)
-        || (uxref->pd != NULL && uxref->pd->pc != uxref->pc))
-        pdfdoc_changed_error(L);
-    a = new Array((XRef *) uxref->d);
-    *((Object *) uin->d) = Object(a);
-    return 0;
-}
-
-// TODO: decide betweeen
-//   Object *initDict(XRef *xref);
-//   Object *initDict(Dict *dictA);
-
-static int m_Object_initDict(lua_State * L)
-{
-    udstruct *uin, *uxref;
-    Dict *d;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    uxref = (udstruct *) luaL_checkudata(L, 2, M_XRef);
-    if (uin->pd != NULL && uxref->pd != NULL && uin->pd != uxref->pd)
-        pdfdoc_differs_error(L);
-    if ((uin->pd != NULL && uin->pd->pc != uin->pc)
-        || (uxref->pd != NULL && uxref->pd->pc != uxref->pc))
-        pdfdoc_changed_error(L);
-    d = new Dict((XRef *) uxref->d);
-    *((Object *) uin->d) = Object(d);
-    return 0;
-}
-
-static int m_Object_initStream(lua_State * L)
-{
-    udstruct *uin, *ustream;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    ustream = (udstruct *) luaL_checkudata(L, 2, M_Stream);
-    if (uin->pd != NULL && ustream->pd != NULL && uin->pd != ustream->pd)
-        pdfdoc_differs_error(L);
-    if ((uin->pd != NULL && uin->pd->pc != uin->pc)
-        || (ustream->pd != NULL && ustream->pd->pc != ustream->pc))
-        pdfdoc_changed_error(L);
-    *((Object *) uin->d) = Object((Stream *) ustream->d);
-    return 0;
-}
-
-static int m_Object_initRef(lua_State * L)
-{
-    int num, gen;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    num = luaL_checkint(L, 2);
-    gen = luaL_checkint(L, 3);
-    *((Object *) uin->d) = Object(num, gen);
-    return 0;
-}
-
-static int m_Object_initCmd(lua_State * L)
-{
-    const char *s;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    s = luaL_checkstring(L, 2);
-    *((Object *) uin->d) = Object(objCmd, s);
-    return 0;
-}
-
-static int m_Object_initError(lua_State * L)
-{
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    *((Object *) uin->d) = Object(objError);
-    return 0;
-}
-
-static int m_Object_initEOF(lua_State * L)
-{
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    *((Object *) uin->d) = Object(objEOF);
-    return 0;
-}
 
 static int m_Object_fetch(lua_State * L)
 {
@@ -1958,22 +1455,6 @@ static int m_Object_arrayGetLength(lua_State * L)
     return 1;
 }
 
-static int m_Object_arrayAdd(lua_State * L)
-{
-    udstruct *uin, *uobj;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    uobj = (udstruct *) luaL_checkudata(L, 2, M_Object);
-    if (uin->pd != NULL && uobj->pd != NULL && uin->pd != uobj->pd)
-        pdfdoc_differs_error(L);
-    if ((uin->pd != NULL && uin->pd->pc != uin->pc)
-        || (uobj->pd != NULL && uobj->pd->pc != uobj->pd->pc))
-        pdfdoc_changed_error(L);
-    if (!((Object *) uin->d)->isArray())
-        luaL_error(L, "Object is not an Array");
-    ((Object *) uin->d)->arrayAdd(std::move(*((Object *) uobj->d)));
-    return 0;
-}
-
 static int m_Object_arrayGet(lua_State * L)
 {
     int i, len;
@@ -2035,42 +1516,6 @@ static int m_Object_dictGetLength(lua_State * L)
     } else
         lua_pushnil(L);
     return 1;
-}
-
-static int m_Object_dictAdd(lua_State * L)
-{
-    const char *s;
-    udstruct *uin, *uobj;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    s = luaL_checkstring(L, 2);
-    uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
-    if (uin->pd != NULL && uobj->pd != NULL && uin->pd != uobj->pd)
-        pdfdoc_differs_error(L);
-    if ((uin->pd != NULL && uin->pd->pc != uin->pc)
-        || (uobj->pd != NULL && uobj->pd->pc != uobj->pd->pc))
-        pdfdoc_changed_error(L);
-    if (!((Object *) uin->d)->isDict())
-        luaL_error(L, "Object is not a Dict");
-    ((Object *) uin->d)->dictAdd(copyString(s), std::move(*((Object *) uobj->d)));
-    return 0;
-}
-
-static int m_Object_dictSet(lua_State * L)
-{
-    const char *s;
-    udstruct *uin, *uobj;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-    s = luaL_checkstring(L, 2);
-    uobj = (udstruct *) luaL_checkudata(L, 3, M_Object);
-    if (uin->pd != NULL && uobj->pd != NULL && uin->pd != uobj->pd)
-        pdfdoc_differs_error(L);
-    if ((uin->pd != NULL && uin->pd->pc != uin->pc)
-        || (uobj->pd != NULL && uobj->pd->pc != uobj->pd->pc))
-        pdfdoc_changed_error(L);
-    if (!((Object *) uin->d)->isDict())
-        luaL_error(L, "Object is not a Dict");
-    ((Object *) uin->d)->dictSet(s, std::move(*((Object *) uobj->d)));
-    return 0;
 }
 
 static int m_Object_dictLookup(lua_State * L)
@@ -2293,8 +1738,10 @@ static int m_Object__gc(lua_State * L)
     printf("\n===== Object GC ===== uin=<%p>\n", uin);
 #endif
     if (uin->atype == ALLOC_LEPDF) {
-      // free() seems to collide with the lua gc
-      //((Object *) uin->d)->free();
+        /* free() seems to collide with the lua gc */
+        /* */
+        /* ((Object *) uin->d)->free(); */
+        /* */
         delete(Object *) uin->d;
     }
     return 0;
@@ -2303,20 +1750,6 @@ static int m_Object__gc(lua_State * L)
 m_poppler__tostring(Object);
 
 static const struct luaL_Reg Object_m[] = {
-    {"initBool", m_Object_initBool},
-    {"initInt", m_Object_initInt},
-    {"initReal", m_Object_initReal},
-    {"initString", m_Object_initString},
-    {"initName", m_Object_initName},
-    {"initNull", m_Object_initNull},
-    {"initArray", m_Object_initArray},
-    {"initDict", m_Object_initDict},
-    {"initStream", m_Object_initStream},
-    {"initRef", m_Object_initRef},
-    {"initCmd", m_Object_initCmd},
-    {"initError", m_Object_initError},
-    {"initEOF", m_Object_initEOF},
-    // {"copy", m_Object_copy},
     {"fetch", m_Object_fetch},
     {"getType", m_Object_getType},
     {"getTypeName", m_Object_getTypeName},
@@ -2349,12 +1782,9 @@ static const struct luaL_Reg Object_m[] = {
     {"getRefGen", m_Object_getRefGen},
     {"getCmd", m_Object_getCmd},
     {"arrayGetLength", m_Object_arrayGetLength},
-    {"arrayAdd", m_Object_arrayAdd},
     {"arrayGet", m_Object_arrayGet},
     {"arrayGetNF", m_Object_arrayGetNF},
     {"dictGetLength", m_Object_dictGetLength},
-    {"dictAdd", m_Object_dictAdd},
-    {"dictSet", m_Object_dictSet},
     {"dictLookup", m_Object_dictLookup},
     {"dictLookupNF", m_Object_dictLookupNF},
     {"dictGetKey", m_Object_dictGetKey},
@@ -2362,20 +1792,17 @@ static const struct luaL_Reg Object_m[] = {
     {"dictGetValNF", m_Object_dictGetValNF},
     {"streamIs", m_Object_streamIs},
     {"streamReset", m_Object_streamReset},
-    // {"streamClose", m_Object_streamClose},
     {"streamGetChar", m_Object_streamGetChar},
     {"streamLookChar", m_Object_streamLookChar},
-    // {"streamGetLine", m_Object_streamGetLine},
     {"streamGetPos", m_Object_streamGetPos},
     {"streamSetPos", m_Object_streamSetPos},
     {"streamGetDict", m_Object_streamGetDict},
     {"__tostring", m_Object__tostring},
-    {"__gc", m_Object__gc},     // finalizer
-    {NULL, NULL}                // sentinel
+    {"__gc", m_Object__gc},
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// Page
+/* Page */
 
 m_poppler_get_BOOL(Page, isOk);
 m_poppler_get_INT(Page, getNum);
@@ -2427,11 +1854,10 @@ static const struct luaL_Reg Page_m[] = {
     {"getAnnotsObject", m_Page_getAnnotsObject},
     {"getContents", m_Page_getContents},
     {"__tostring", m_Page__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// PDFDoc
+/* PDFDoc */
 
 #define m_PDFDoc_BOOL(function)                         \
 static int m_PDFDoc_##function(lua_State * L)           \
@@ -2728,7 +2154,6 @@ static const struct luaL_Reg PDFDoc_m[] = {
     {"getFileName", m_PDFDoc_getFileName},
     {"getXRef", m_PDFDoc_getXRef},
     {"getCatalog", m_PDFDoc_getCatalog},
-    // {"getBaseStream", m_PDFDoc_getBaseStream},
     {"getPageMediaWidth", m_PDFDoc_getPageMediaWidth},
     {"getPageMediaHeight", m_PDFDoc_getPageMediaHeight},
     {"getPageCropWidth", m_PDFDoc_getPageCropWidth},
@@ -2750,12 +2175,11 @@ static const struct luaL_Reg PDFDoc_m[] = {
     {"getPDFMajorVersion", m_PDFDoc_getPDFMajorVersion},
     {"getPDFMinorVersion", m_PDFDoc_getPDFMinorVersion},
     {"__tostring", m_PDFDoc__tostring},
-    {"__gc", m_PDFDoc__gc},     // finalizer
-    {NULL, NULL}                // sentinel
+    {"__gc", m_PDFDoc__gc},
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// PDFRectangle
+/* PDFRectangle */
 
 m_poppler_get_BOOL(PDFRectangle, isValid);
 
@@ -2841,11 +2265,10 @@ static const struct luaL_Reg PDFRectangle_m[] = {
     {"__newindex", m_PDFRectangle__newindex},
     {"__tostring", m_PDFRectangle__tostring},
     {"__gc", m_PDFRectangle__gc},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// Ref
+/* Ref */
 
 static int m_Ref__index(lua_State * L)
 {
@@ -2883,16 +2306,16 @@ static int m_Ref__gc(lua_State * L)
 static const struct luaL_Reg Ref_m[] = {
     {"__index", m_Ref__index},
     {"__tostring", m_Ref__tostring},
-    {"__gc", m_Ref__gc},        // finalizer
-    {NULL, NULL}                // sentinel
+    {"__gc", m_Ref__gc},
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// Stream
+/* Stream */
 
-static const char *StreamKindNames[] =
-    { "File", "ASCIIHex", "ASCII85", "LZW", "RunLength", "CCITTFax", "DCT",
-    "Flate", "JBIG2", "JPX", "Weird", NULL
+static const char *StreamKindNames[] = {
+    "File", "ASCIIHex", "ASCII85", "LZW", "RunLength", "CCITTFax", "DCT",
+    "Flate", "JBIG2", "JPX", "Weird",
+    NULL
 };
 
 m_poppler_get_INT(Stream, getKind);
@@ -2934,17 +2357,15 @@ static const struct luaL_Reg Stream_m[] = {
     {"getRawChar", m_Stream_getRawChar},
     {"getUnfilteredChar", m_Stream_getUnfilteredChar},
     {"unfilteredReset", m_Stream_unfilteredReset},
-    // {"getLine", m_Stream_getLine},
     {"getPos", m_Stream_getPos},
     {"isBinary", m_Stream_isBinary},
     {"getUndecodedStream", m_Stream_getUndecodedStream},
     {"getDict", m_Stream_getDict},
     {"__tostring", m_Stream__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// TextSpan
+/* TextSpan */
 
 m_poppler_get_GOOSTRING(TextSpan, getText);
 m_poppler__tostring(TextSpan);
@@ -2952,14 +2373,11 @@ m_poppler__tostring(TextSpan);
 static const struct luaL_Reg TextSpan_m[] = {
     {"getText", m_TextSpan_getText},
     {"__tostring", m_TextSpan__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
+/* Attribute */
 
-
-
-//**********************************************************************
-// Attribute
 m_poppler_get_BOOL(Attribute,isOk);
 m_poppler_get_INT(Attribute,getType);
 m_poppler_get_INT(Attribute,getOwner);
@@ -3002,7 +2420,6 @@ static int m_Attribute_getValue(lua_State * L)
     return 1;
 }
 
-
 static int m_Attribute_getDefaultValue(lua_State * L)
 {
     Attribute::Type t;
@@ -3019,34 +2436,9 @@ static int m_Attribute_getDefaultValue(lua_State * L)
     return 1;
 }
 
-
 m_poppler_get_GUINT(Attribute,getRevision);
 
-static int m_Attribute_setRevision(lua_State * L)
-{
-    Guint i;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Attribute);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    i = (Guint) luaL_checkint(L, 2);
-    ((Attribute *) uin->d)->setRevision(i);
-    return 0;
-}
-
 m_poppler_get_BOOL(Attribute, isHidden);
-
-static int m_Attribute_setHidden(lua_State * L)
-{
-    GBool i;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Attribute);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    i = (GBool) lua_toboolean(L, 2);
-    ((Attribute *) uin->d)->setHidden(i);
-    return 0;
-}
 
 static int m_Attribute_getFormattedValue(lua_State * L)
 {
@@ -3056,19 +2448,6 @@ static int m_Attribute_getFormattedValue(lua_State * L)
         pdfdoc_changed_error(L);
     lua_pushstring(L, ((Attribute *) uin->d)->getFormattedValue());
     return 1;
-}
-
-
-static int m_Attribute_setFormattedValue(lua_State * L)
-{
-    const char *c;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_Attribute);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    c = luaL_checkstring(L, 2);
-    ((Attribute *) uin->d)->setFormattedValue(c);
-    return 0;
 }
 
 static int m_Attribute__gc(lua_State * L)
@@ -3086,36 +2465,27 @@ static int m_Attribute__gc(lua_State * L)
     return 0;
 }
 
-
 m_poppler__tostring(Attribute);
 
 
 static const struct luaL_Reg Attribute_m[] = {
-  {"isOk",m_Attribute_isOk},
-  {"getType",m_Attribute_getType},
-  {"getOwner",m_Attribute_getOwner},
-  {"getTypeName",m_Attribute_getTypeName},
-  {"getOwnerName",m_Attribute_getOwnerName},
-  {"getValue",m_Attribute_getValue},
-  {"getDefaultValue",m_Attribute_getDefaultValue},
-  {"getName",m_Attribute_getName},
-  {"getRevision",m_Attribute_getRevision},
-  {"setRevision",m_Attribute_setRevision},
-  {"istHidden",m_Attribute_isHidden},
-  {"setHidden",m_Attribute_setHidden},
-  {"getFormattedValue",m_Attribute_getFormattedValue},
-  {"setFormattedValue",m_Attribute_setFormattedValue},
-  {"__gc", m_Attribute__gc},
-  {"__tostring", m_Attribute__tostring},
-  {NULL, NULL}                // sentinel
+    {"isOk",m_Attribute_isOk},
+    {"getType",m_Attribute_getType},
+    {"getOwner",m_Attribute_getOwner},
+    {"getTypeName",m_Attribute_getTypeName},
+    {"getOwnerName",m_Attribute_getOwnerName},
+    {"getValue",m_Attribute_getValue},
+    {"getDefaultValue",m_Attribute_getDefaultValue},
+    {"getName",m_Attribute_getName},
+    {"getRevision",m_Attribute_getRevision},
+    {"isHidden",m_Attribute_isHidden},
+    {"getFormattedValue",m_Attribute_getFormattedValue},
+    {"__gc", m_Attribute__gc},
+    {"__tostring", m_Attribute__tostring},
+    {NULL, NULL}
 };
 
-
-
-
-//**********************************************************************
-// StructElement
-
+/* StructElement */
 
 m_poppler_get_INT(StructElement,getType);
 m_poppler_get_BOOL(StructElement,isOk);
@@ -3141,7 +2511,6 @@ m_poppler_get_GOOSTRING(StructElement, getActualText);
 m_poppler_get_poppler(StructElement, StructTreeRoot, getStructTreeRoot);
 m_poppler__tostring(StructElement);
 
-
 static int m_StructElement_getObjectRef(lua_State * L)
 {
     udstruct *uin, *uout;
@@ -3157,7 +2526,6 @@ static int m_StructElement_getObjectRef(lua_State * L)
     uout->pd = uin->pd;
     return 1;
 }
-
 
 static int m_StructElement_getParentRef(lua_State * L)
 {
@@ -3175,9 +2543,15 @@ static int m_StructElement_getParentRef(lua_State * L)
     return 1;
 }
 
-// Not exactly as the header:
-// Ref = StructElement:getPageRef()
-// Ref is false if the C++ functione return false
+/*
+    Not exactly as the header:
+
+    Ref = StructElement:getPageRef()
+
+    Ref is false if the C++ function return false
+
+*/
+
 static int m_StructElement_getPageRef(lua_State * L)
 {
     GBool b;
@@ -3191,15 +2565,13 @@ static int m_StructElement_getPageRef(lua_State * L)
     if (b) {
       uout = new_Ref_userdata(L);
       uout->d = r ;
-      //uout->atype = ALLOC_LEPDF;
+   /* uout->atype = ALLOC_LEPDF; */
       uout->pc = uin->pc;
       uout->pd = uin->pd;
     } else
       lua_pushboolean(L,0);
     return 1;
 }
-
-
 
 static int m_StructElement_getTypeName(lua_State * L)
 {
@@ -3209,19 +2581,6 @@ static int m_StructElement_getTypeName(lua_State * L)
         pdfdoc_changed_error(L);
     lua_pushstring(L, ((StructElement *) uin->d)->getTypeName());
     return 1;
-}
-
-
-static int m_StructElement_setRevision(lua_State * L)
-{
-    Guint i;
-    udstruct *uin;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_StructElement);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    i = (Guint) luaL_checkint(L, 2);
-    ((StructElement *) uin->d)->setRevision(i);
-    return 0;
 }
 
 static int m_StructElement_getText(lua_State * L)
@@ -3241,7 +2600,6 @@ static int m_StructElement_getText(lua_State * L)
     return 1;
 }
 
-
 static int m_StructElement_getChild(lua_State * L)
 {
     StructElement *c;
@@ -3255,7 +2613,7 @@ static int m_StructElement_getChild(lua_State * L)
     if (c != NULL) {
       uout = new_StructElement_userdata(L);
       uout->d = c ;
-      //uout->atype = ALLOC_LEPDF;
+   /* uout->atype = ALLOC_LEPDF; */
       uout->pc = uin->pc;
       uout->pd = uin->pd;
     }
@@ -3263,21 +2621,6 @@ static int m_StructElement_getChild(lua_State * L)
         lua_pushnil(L);
     return 1;
 }
-
-
-static int m_StructElement_appendChild(lua_State * L)
-{
-    udstruct *uin, *uin1;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_StructElement);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    uin1 = (udstruct *) luaL_checkudata(L, 2, M_StructElement);
-    if (uin1->pd != NULL && uin1->pd->pc != uin1->pc)
-        pdfdoc_changed_error(L);
-    ((StructElement *) uin->d)->appendChild( (StructElement *)uin1->d );
-    return 0;
-}
-
 
 static int m_StructElement_getAttribute(lua_State * L)
 {
@@ -3299,23 +2642,6 @@ static int m_StructElement_getAttribute(lua_State * L)
         lua_pushnil(L);
     return 1;
 }
-
-
-
-static int m_StructElement_appendAttribute(lua_State * L)
-{
-
-    udstruct *uin, *uin1;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_StructElement);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    uin1 = (udstruct *) luaL_checkudata(L, 2, M_Attribute);
-    if (uin1->pd != NULL && uin1->pd->pc != uin1->pc)
-        pdfdoc_changed_error(L);
-    ((StructElement *) uin->d)->appendAttribute( (Attribute *)uin1->d );
-    return 0;
-}
-
 
 static int m_StructElement_findAttribute(lua_State * L)
 {
@@ -3343,7 +2669,8 @@ static int m_StructElement_findAttribute(lua_State * L)
     return 1;
 }
 
-// This returns a lua table
+/* This returns a lua table */
+
 static int m_StructElement_getTextSpans(lua_State * L)
 {
     int i ;
@@ -3369,47 +2696,40 @@ static int m_StructElement_getTextSpans(lua_State * L)
     return 1;
 }
 
-
-
 static const struct luaL_Reg StructElement_m[] = {
-  {"getTypeName", m_StructElement_getTypeName},
-  {"getType",m_StructElement_getType},
-  {"isOk",m_StructElement_isOk},
-  {"isBlock",m_StructElement_isBlock},
-  {"isInline",m_StructElement_isInline},
-  {"isGrouping",m_StructElement_isGrouping},
-  {"isContent",m_StructElement_isContent},
-  {"isObjectRef",m_StructElement_isObjectRef},
-  {"getMCID",m_StructElement_getMCID},
-  {"getObjectRef",m_StructElement_getObjectRef},
-  {"getParentRef",m_StructElement_getParentRef},
-  {"hasPageRef",m_StructElement_hasPageRef},
-  {"getPageRef",m_StructElement_getPageRef},
-  {"getStructTreeRoot",m_StructElement_getStructTreeRoot},
-  {"getID",m_StructElement_getID},
-  {"getLanguage",m_StructElement_getLanguage},
-  {"getRevision",m_StructElement_getRevision},
-  {"setRevision",m_StructElement_setRevision},
-  {"getTitle",m_StructElement_getTitle},
-  {"getExpandedAbbr",m_StructElement_getExpandedAbbr},
-  {"getNumChildren",m_StructElement_getNumChildren},
-  {"getChild",m_StructElement_getChild},
-  {"appendChild",m_StructElement_appendChild},
-  {"getNumAttributes",m_StructElement_getNumAttributes},
-  {"getAttribute",m_StructElement_getAttribute},
-  {"appendAttribute",m_StructElement_appendAttribute},
-  {"findAttribute",m_StructElement_findAttribute},
-  {"getAltText",m_StructElement_getAltText},
-  {"getActualText",m_StructElement_getActualText},
-  {"getText",m_StructElement_getText},
-  {"getTextSpans",m_StructElement_getTextSpans},
-  {"__tostring", m_StructElement__tostring},
-  {NULL, NULL}                // sentinel
+    {"getTypeName", m_StructElement_getTypeName},
+    {"getType",m_StructElement_getType},
+    {"isOk",m_StructElement_isOk},
+    {"isBlock",m_StructElement_isBlock},
+    {"isInline",m_StructElement_isInline},
+    {"isGrouping",m_StructElement_isGrouping},
+    {"isContent",m_StructElement_isContent},
+    {"isObjectRef",m_StructElement_isObjectRef},
+    {"getMCID",m_StructElement_getMCID},
+    {"getObjectRef",m_StructElement_getObjectRef},
+    {"getParentRef",m_StructElement_getParentRef},
+    {"hasPageRef",m_StructElement_hasPageRef},
+    {"getPageRef",m_StructElement_getPageRef},
+    {"getStructTreeRoot",m_StructElement_getStructTreeRoot},
+    {"getID",m_StructElement_getID},
+    {"getLanguage",m_StructElement_getLanguage},
+    {"getRevision",m_StructElement_getRevision},
+    {"getTitle",m_StructElement_getTitle},
+    {"getExpandedAbbr",m_StructElement_getExpandedAbbr},
+    {"getNumChildren",m_StructElement_getNumChildren},
+    {"getChild",m_StructElement_getChild},
+    {"getNumAttributes",m_StructElement_getNumAttributes},
+    {"getAttribute",m_StructElement_getAttribute},
+    {"findAttribute",m_StructElement_findAttribute},
+    {"getAltText",m_StructElement_getAltText},
+    {"getActualText",m_StructElement_getActualText},
+    {"getText",m_StructElement_getText},
+    {"getTextSpans",m_StructElement_getTextSpans},
+    {"__tostring", m_StructElement__tostring},
+    {NULL, NULL}
 };
 
-
-//**********************************************************************
-// StructTreeRoot
+/* StructTreeRoot */
 
 m_poppler_get_INT(StructTreeRoot, getNumChildren);
 m_poppler_get_poppler(StructTreeRoot, PDFDoc, getDoc);
@@ -3433,31 +2753,13 @@ static int m_StructTreeRoot_getChild(lua_State * L)
        child = root->getChild(i-1);
        uout = new_StructElement_userdata(L);
        uout->d = child;
-       //uout->atype = ALLOC_LEPDF;
+    /* uout->atype = ALLOC_LEPDF; */
        uout->pc = uin->pc;
        uout->pd = uin->pd;
     } else
       lua_pushnil(L);
     return 1;
 }
-
-static int m_StructTreeRoot_appendChild(lua_State * L)
-{
-    udstruct *uin, *uin_child;
-    StructElement *child ;
-    StructTreeRoot *root ;
-    uin = (udstruct *) luaL_checkudata(L, 1, M_StructTreeRoot);
-    if (uin->pd != NULL && uin->pd->pc != uin->pc)
-        pdfdoc_changed_error(L);
-    uin_child = (udstruct *) luaL_checkudata(L, 2, M_StructElement);
-    if (uin_child->pd != NULL && uin_child->pd->pc != uin_child->pc)
-        pdfdoc_changed_error(L);
-    root = (StructTreeRoot *) uin->d;
-    child = (StructElement *) uin_child->d;
-    root->appendChild(child);
-    return 0;
-}
-
 
 static int m_StructTreeRoot_findParentElement(lua_State * L)
 {
@@ -3474,7 +2776,7 @@ static int m_StructTreeRoot_findParentElement(lua_State * L)
     parent = root->findParentElement(i-1);
     if (parent != NULL) {
        uout = new_StructElement_userdata(L);
-       // see https://isocpp.org/wiki/faq/const-correctness#aliasing-and-const
+       /* see https://isocpp.org/wiki/faq/const-correctness#aliasing-and-const */
        uout->d = (StructElement *) parent;
        uout->atype = ALLOC_LEPDF;
        uout->pc = uin->pc;
@@ -3484,21 +2786,18 @@ static int m_StructTreeRoot_findParentElement(lua_State * L)
     return 1;
 }
 
-
 static const struct luaL_Reg StructTreeRoot_m[] = {
-  {"getDoc",m_StructTreeRoot_getDoc},
-  {"getRoleMap",m_StructTreeRoot_getRoleMap},
-  {"getClassMap",m_StructTreeRoot_getClassMap},
-  {"getNumChildren",m_StructTreeRoot_getNumChildren},
-  {"getChild",m_StructTreeRoot_getChild},
-  {"appendChild",m_StructTreeRoot_appendChild},
-  {"findParentElement",m_StructTreeRoot_findParentElement},
-  {"__tostring", m_StructTreeRoot__tostring},
-  {NULL, NULL}                // sentinel
+    {"getDoc",m_StructTreeRoot_getDoc},
+    {"getRoleMap",m_StructTreeRoot_getRoleMap},
+    {"getClassMap",m_StructTreeRoot_getClassMap},
+    {"getNumChildren",m_StructTreeRoot_getNumChildren},
+    {"getChild",m_StructTreeRoot_getChild},
+    {"findParentElement",m_StructTreeRoot_findParentElement},
+    {"__tostring", m_StructTreeRoot__tostring},
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// XRef
+/* XRef */
 
 m_poppler_get_BOOL(XRef, isOk);
 m_poppler_get_INT(XRef, getErrorCode);
@@ -3536,7 +2835,6 @@ m_poppler_get_OBJECT(XRef, getDocInfoNF);
 m_poppler_get_INT(XRef, getNumObjects);
 m_poppler_get_INT(XRef, getRootNum);
 m_poppler_get_INT(XRef, getRootGen);
-// getStreamEnd
 
 static int m_XRef_getNumEntry(lua_State * L)
 {
@@ -3577,24 +2875,22 @@ static const struct luaL_Reg XRef_m[] = {
     {"getNumObjects", m_XRef_getNumObjects},
     {"getRootNum", m_XRef_getRootNum},
     {"getRootGen", m_XRef_getRootGen},
-    // {"getStreamEnd", m_XRef_getStreamEnd},
     {"getNumEntry", m_XRef_getNumEntry},
     {"getTrailerDict", m_XRef_getTrailerDict},
     {"__tostring", m_XRef__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
-// XRefEntry
+/* XRefEntry */
 
 m_poppler__tostring(XRefEntry);
 
 static const struct luaL_Reg XRefEntry_m[] = {
     {"__tostring", m_XRefEntry__tostring},
-    {NULL, NULL}                // sentinel
+    {NULL, NULL}
 };
 
-//**********************************************************************
+/* Done */
 
 #ifdef LuajitTeX
 #define setfuncs_meta(type)                 \
