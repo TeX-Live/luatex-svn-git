@@ -2734,6 +2734,7 @@ static int lua_nodelib_subtypes(lua_State * L)
         s = lua_tostring(L,1);
              if (lua_key_eq(s,glyph))           subtypes = node_subtypes_glyph;
         else if (lua_key_eq(s,glue))          { subtypes = node_subtypes_glue; l = 1; }
+        else if (lua_key_eq(s,dir))             subtypes = node_subtypes_dir;
         else if (lua_key_eq(s,boundary))        subtypes = node_subtypes_boundary;
         else if (lua_key_eq(s,penalty))         subtypes = node_subtypes_penalty;
         else if (lua_key_eq(s,kern))            subtypes = node_subtypes_kern;
@@ -2759,6 +2760,7 @@ static int lua_nodelib_subtypes(lua_State * L)
         t = lua_tointeger(L,1);
              if (t == glyph_node)               subtypes = node_subtypes_glyph;
         else if (t == glue_node)              { subtypes = node_subtypes_glue; l = 1; }
+        else if (t == dir_node)                 subtypes = node_subtypes_dir;
         else if (t == boundary_node)            subtypes = node_subtypes_boundary;
         else if (t == penalty_node)             subtypes = node_subtypes_penalty;
         else if (t == kern_node)                subtypes = node_subtypes_kern;

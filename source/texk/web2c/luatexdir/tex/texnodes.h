@@ -921,6 +921,7 @@ typedef struct _node_info {
 extern node_info node_data[];
 extern node_info whatsit_node_data[];
 
+extern const char *node_subtypes_dir[];
 extern const char *node_subtypes_glue[];
 extern const char *node_subtypes_mathglue[];
 extern const char *node_subtypes_leader[];

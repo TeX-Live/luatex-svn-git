@@ -243,6 +243,9 @@ const char *node_fields_whatsit_pdf_restore[] = {
 
 /* subtypes */
 
+const char *node_subtypes_dir[] = {
+    "normal", "cancel", NULL
+};
 const char *node_subtypes_glue[] = {
     "userskip", "lineskip", "baselineskip", "parskip", "abovedisplayskip", "belowdisplayskip",
     "abovedisplayshortskip", "belowdisplayshortskip", "leftskip", "rightskip", "topskip",
