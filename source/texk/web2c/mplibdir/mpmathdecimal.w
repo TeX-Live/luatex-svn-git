@@ -582,7 +582,6 @@ void mp_decimal_set_precision (MP mp) {
 }
 
 void mp_free_decimal_math (MP mp) {
-  int i;
   free_number (((math_data *)mp->math)->three_sixty_deg_t);
   free_number (((math_data *)mp->math)->one_eighty_deg_t);
   free_number (((math_data *)mp->math)->fraction_one_t);
