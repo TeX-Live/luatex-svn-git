@@ -1600,6 +1600,7 @@ int font_from_lua(lua_State * L, int f)
             lua_pop(L, 1);
         }
         if (bc != -1) {
+   	    int fstep;
             font_malloc_charinfo(f, num);
             set_font_bc(f, bc);
             set_font_ec(f, ec);
@@ -1622,24 +1623,22 @@ int font_from_lua(lua_State * L, int f)
                 lua_pop(L, 1);
             }
             lua_pop(L, 1);
-
+	    
             /*
                 Handle font expansion last: the |copy_font| routine is called eventually,
                 and that needs to know |bc| and |ec|.
             */
 
             /* if (font_type(f) != virtual_font_type) { */
-
-                /* we permits virtual fonts to use expansion .. one can always turn it off */
-
-                int fstep = lua_numeric_field_by_index(L, lua_key_index(step), 0);
+                /* we permits virtual fonts to use expansion .. one can always turn it off */ 
+		fstep = lua_numeric_field_by_index(L, lua_key_index(step), 0);
                 if (fstep < 0)
                     fstep = 0;
                 if (fstep > 100)
                     fstep = 100;
                 if (fstep != 0) {
                     int fshrink = lua_numeric_field_by_index(L, lua_key_index(shrink), 0);
-                    int fstretch =lua_numeric_field_by_index(L, lua_key_index(stretch), 0);
+                    int fstretch= lua_numeric_field_by_index(L, lua_key_index(stretch), 0);
                     if (fshrink < 0)
                         fshrink = 0;
                     if (fshrink > 500)
