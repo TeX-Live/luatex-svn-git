@@ -2481,6 +2481,146 @@ them.  Therefore such casts should be avoided whenever possible and
 otherwise must be carefully analyzed to make sure that they cannot
 cause the modification of quantities supposed to be constant.
 
+
+@node Continuous Integration
+@chapter Continuous Integration
+
+@cindex ci
+@cindex continuous integration
+
+The sources of @TL{} are subjected to continuous integration testing on
+Travis-CI (@url{https://travis-ci.org/TeX-Live/texlive-source}) via a
+git-svn mirror of the sources that is pushed to Github
+(@url{https://github.com/TeX-Live/texlive-source}). The git-svn mirror
+is updated (currently) at a 30min interval and only the last commit
+pushed is tested on Travis-CI.
+
+@subheading Transfer from Subversion to Github
+
+Git-svn (@url{https://git-scm.com/docs/git-svn}) is used to check out
+the subtree @code{Build/source} of the Subversion repository. The author
+index file used is not maintained in Git or Subversion but provided on
+demand. 
+
+TODO what should we do here with the author index file? It contains a
+mapping from subversion names to name/email as shown in git.
+
+The initial checkout was done by invocing
+@code{git svn --authors-file usermap clone svn://USER@tug.org/texlive/trunk/Build/source}
+where the @code{usermap} file maps subversion user names to name and
+emails of the authors. 
+
+TODO should we use anonymous checkout here? Should be possible!
+
+In the following we will refer with @emph{admin} to a user who has
+read/write access to the \TL{} subversion repository, and an
+administrator of the \@code{TeX-Live} Team on Github. The above initial
+checkout has been carried out by @emph{admin} on the server
+@code{texlive.info}. 
+
+On Github (@url{https://github.com/}) a new git repository named
+@code{texlive-source} was created by @emph{admin} within the
+@code{TeX-Live} organization (@url{https://github.com/TeX-Live/}), the
+remote added to the checkout with
+@code{git remote add origin git@github.com:TeX-Live/texlive-source.git}.
+
+To automate the update on Github, a new ssh key was generated and added
+to the @code{texlive-source} repository on Github as deployment
+key. This way pushes using this key can only go to the
+@code{texlive-source} repository and not anywhere else.
+
+The usage of @code{git-svn} requires a strict discipline to keep a
+linear history in the master branch. Since we are aiming at a pure
+mirror facility, we have decided to further restrict the @code{master}
+branch of the @code{texlive-source} repository on Github to changes by
+@emph{admin}.
+
+This setup allows other developers to branch of @code{master} and
+push their branches to the Github repository, but all updates need to
+from the local @code{master} (not the one on Github) to Subversion and
+back to @code{master} on @code{texlive.info} and from there to Github.
+See below for setup for developers.
+
+@subheading Automatic update of the Git mirror
+
+@emph{admin} has installed a cron job on @code{texlive.info} running
+every 30min which basically runs @code{git svn rebase} and @code{git
+push} in the @code{master} branch of the checkout. The first command
+fetches the changes from the Subversion repository and updates the
+@code{master} branch with them, the second one pushes changes (if
+available) to Github. 
+
+@subheading CI testing on Travis-CI
+
+The @code{source} tree of \TL{} already contains a file
+@code{.travis.yml} which controls the automatic testing on
+Travis-CI. @emph{admin} has registered to Travis-CI and allowed access
+to the Github's @code{TeX-Live} organization's @code{texlive-source}
+repository. The default settings are to build the last commit of each
+push. No further action is necessary on Travis-CI.
+
+In case changes have been pushed during the cron job mentioned above,
+Travis-CI will automatically checkout the last pushed commit and try
+building it.
+
+@comment
+@comment The following needs improvement
+@comment
+@comment @subheading Developer setup for Git/Subversion
+@comment 
+@comment In case a developer of code in the @TL{} source code wants to use the CI
+@comment testing facility, the following steps are necessary for initialization:
+@comment 
+@comment @itemize @bullet
+@comment @item
+@comment Initial @code{git-svn} checkout as laid out above, replacing
+@comment @code{USER} with the Subversion user name. This initial checkout might
+@comment take quite some time as the whole history has to be parsed. In case the
+@comment checkout is interrupted, change into the already created folder and call
+@comment @code{git svn fetch} to continue pulling from the remote until all
+@comment changes have been fetched.
+@comment 
+@comment @item
+@comment Adding the Git remote as laid out above. After that it is also necessary
+@comment to set the upstream for the @code{master} branch with
+@comment @code{git branch --set-upstream-to=origin/master master} followed by a
+@comment @code{git pull}. The last command will probably not fetch anything since
+@comment but update the local information about availability.
+@comment 
+@comment @end itemize
+@comment 
+@comment After this development can be done as follows:
+@comment 
+@comment @itemize @bullet
+@comment @item
+@comment Create a new branch based on @code{master}: @code{git checkout -b feature}
+@comment and develop the new features in this branch.
+@comment 
+@comment @item
+@comment Pushing the branch to Github will kick of automatic CI testing on this
+@comment branch, too.
+@comment 
+@comment @item
+@comment When the feature is ready, first the branch @code{feature} needs to be
+@comment rebased onto current @code{master} with @code{git rebase master}, then
+@comment merged into @code{master}, followed by a submission to the Subversion
+@comment repository via @code{git svn dcommit}. Don't push to master on Github
+@comment (it is anyway protected), your changes will come in in due time via a
+@comment pull on master.
+@comment 
+@comment @item
+@comment After the branch is included in master, optionally delete the local and
+@comment rmeote branch @code{feature}.
+@comment 
+@comment @end itemize
+@comment 
+@comment The above method is the standards and safest method, but there is an
+@comment alternative way by first pulling from Github, and then tricking git-svn
+@comment into believing that everything has been fetched from Subversion
+@comment already. This alternative method is explained XXXXXXXXX (my BLOG?)
+@comment 
+@comment 
+
 @c made from pod doc.
 @include tlbuild-incl/install-tl.texi
 @include tlbuild-incl/tlmgr.texi
