@@ -241,6 +241,32 @@ const char *node_fields_whatsit_pdf_restore[] = {
     "attr", NULL
 };
 
+/* values */
+
+const char *node_values_dir[] = {
+    "TLT", "TRT", "LTL", "RTT", NULL
+};
+
+const char *node_values_glue[] = {
+    "normal", "fi", "fil", "fill", "filll", NULL
+};
+
+const char *node_values_pdf_literal[] = {
+    "origin", "page", "always", "raw", "text", "font", "special", NULL
+};
+
+const char *node_values_pdf_action[] = {
+    "page", "goto", "thread", "user", NULL
+};
+
+const char *node_values_pdf_window[] = {
+    "unset", "new","nonew", NULL
+};
+
+const char *node_values_color_stack[] = {
+    "set", "push", "pop", "current", NULL
+};
+
 /* subtypes */
 
 const char *node_subtypes_dir[] = {
@@ -304,7 +330,7 @@ const char *node_subtypes_accent[] = {
     "bothflexible", "fixedtop", "fixedbottom", "fixedboth", NULL,
 };
 const char *node_subtypes_fence[] = {
-    "unset", "left", "middle", "right", NULL
+    "unset", "left", "middle", "right", "no", NULL
 };
 
 node_info node_data[] = { /* the last entry in a row is the etex number */

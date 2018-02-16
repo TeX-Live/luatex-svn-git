@@ -35,6 +35,12 @@ You can ask for a list of fields with the \type {node.fields} (which takes an id
 and for valid subtypes with \type {node.subtypes} (which takes a string because
 eventually we might support more used enumerations).
 
+The \type {node.values} function reports some used values. Valid arguments are
+\type {dir}, \type {direction}, \type {glue}, \type {pdf_literal}, \type
+{pdf_action}, \type {pdf_window} and \type {color_stack}. Keep in mind that the
+setters normally expect a number, but this helper gives you a list of what
+numbers matter.
+
 \subsection{Attributes}
 
 The newly introduced attribute registers are non|-|trivial, because the value
@@ -758,11 +764,12 @@ The difference between \type {data} and \type {string} is that on assignment, th
 Possible mode values are:
 
 \starttabulate[|l|p|]
-\BC value \BC \PDFTEX\ keyword \NC \NR
-\NC 0     \NC \type{setorigin} \NC \NR
-\NC 1     \NC \type{page}      \NC \NR
-\NC 2     \NC \type{direct}    \NC \NR
-\NC 3     \NC \type{raw}       \NC \NR
+\BC value \BC keyword        \NC \NR
+\NC 0     \NC \type{origin}  \NC \NR
+\NC 1     \NC \type{page}    \NC \NR
+\NC 2     \NC \type{direct}  \NC \NR
+\NC 3     \NC \type{raw}     \NC \NR
+\NC 4     \NC \type{text}    \NC \NR
 \stoptabulate
 
 The higher the number, the less checking and the more you can run into troubles.

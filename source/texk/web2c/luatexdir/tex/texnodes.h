@@ -944,6 +944,13 @@ extern const char *node_subtypes_fence[];
 extern const char *node_subtypes_pdf_destination[];
 extern const char *node_subtypes_pdf_literal[];
 
+extern const char *node_values_dir[];
+extern const char *node_values_glue[];
+extern const char *node_values_pdf_literal[];
+extern const char *node_values_pdf_action[];
+extern const char *node_values_pdf_window[];
+extern const char *node_values_color_stack[];
+
 extern halfword new_node(int i, int j);
 extern void flush_node_list(halfword);
 extern void flush_node(halfword);

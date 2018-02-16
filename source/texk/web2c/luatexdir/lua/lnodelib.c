@@ -2722,6 +2722,40 @@ static int lua_nodelib_fields(lua_State * L)
     return 1;
 }
 
+static int lua_nodelib_values(lua_State * L)
+{
+    int i = -1;
+    const char **values = NULL;
+    const char *s ;
+    int t = lua_type(L,1);
+    if (t == LUA_TSTRING) {
+        /*
+            delimiter options (bit set)
+            delimiter modes   (bit set)
+        */
+        s = lua_tostring(L,1);
+             if (lua_key_eq(s,dir))         values = node_values_dir;
+        else if (lua_key_eq(s,direction))   values = node_values_dir;
+        else if (lua_key_eq(s,glue))        values = node_values_glue;
+        /* backend */
+        else if (lua_key_eq(s,pdf_literal)) values = node_values_pdf_literal;
+        else if (lua_key_eq(s,pdf_action))  values = node_values_pdf_action;
+        else if (lua_key_eq(s,pdf_window))  values = node_values_pdf_window;
+        else if (lua_key_eq(s,color_stack)) values = node_values_color_stack;
+    }
+    if (values != NULL) {
+        lua_checkstack(L, 2);
+        lua_newtable(L);
+        for (i = 0; values[i] != NULL; i++) {
+            lua_pushstring(L, values[i]); /* todo */
+            lua_rawseti(L, -2, i);
+        }
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
 static int lua_nodelib_subtypes(lua_State * L)
 {
     int i = -1;
@@ -8305,6 +8339,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"family_font", lua_nodelib_mfont},
     {"fields", lua_nodelib_fields},
     {"subtypes", lua_nodelib_subtypes},
+    {"values", lua_nodelib_values},
     {"first_glyph", lua_nodelib_first_glyph},
     {"flush_list", lua_nodelib_flush_list},
     {"flush_node", lua_nodelib_flush_node},

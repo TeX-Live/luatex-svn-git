@@ -542,6 +542,7 @@ make_lua_key(class);\
 make_lua_key(clubpenalty);\
 make_lua_key(colordepth);\
 make_lua_key(colorspace);\
+make_lua_key(color_stack);\
 make_lua_key(command);\
 make_lua_key(commands);\
 make_lua_key(comment);\
@@ -724,9 +725,11 @@ make_lua_key(parameters);\
 make_lua_key(pardir);\
 make_lua_key(parshape);\
 make_lua_key(pdf);\
+make_lua_key(pdf_action);\
 make_lua_key(pdf_data);\
 make_lua_key(pdf_destination);\
 make_lua_key(pdf_literal);\
+make_lua_key(pdf_window);\
 make_lua_key(pen_broken);\
 make_lua_key(pen_inter);\
 make_lua_key(penalty);\
@@ -914,6 +917,7 @@ init_lua_key(class);\
 init_lua_key(clubpenalty);\
 init_lua_key(colordepth);\
 init_lua_key(colorspace);\
+init_lua_key(color_stack);\
 init_lua_key(command);\
 init_lua_key(commands);\
 init_lua_key(comment);\
@@ -1086,8 +1090,10 @@ init_lua_key(pagesattributes);\
 init_lua_key(parameters);\
 init_lua_key(pardir);\
 init_lua_key(parshape);\
+init_lua_key(pdf_action);\
 init_lua_key(pdf_destination);\
 init_lua_key(pdf_literal);\
+init_lua_key(pdf_window);\
 init_lua_key(pen_broken);\
 init_lua_key(pen_inter);\
 init_lua_key(penalty);\
@@ -1333,6 +1339,7 @@ use_lua_key(class);
 use_lua_key(clubpenalty);
 use_lua_key(colordepth);
 use_lua_key(colorspace);
+use_lua_key(color_stack);
 use_lua_key(command);
 use_lua_key(commands);
 use_lua_key(comment);
@@ -1515,9 +1522,11 @@ use_lua_key(parameters);
 use_lua_key(pardir);
 use_lua_key(parshape);
 use_lua_key(pdf);
+use_lua_key(pdf_action);
 use_lua_key(pdf_data);
 use_lua_key(pdf_destination);
 use_lua_key(pdf_literal);
+use_lua_key(pdf_window);
 use_lua_key(pen_broken);
 use_lua_key(pen_inter);
 use_lua_key(penalty);
