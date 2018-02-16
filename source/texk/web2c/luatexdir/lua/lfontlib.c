@@ -468,6 +468,16 @@ static int l_vf_special(lua_State * L)
     return 0;
 }
 
+static int l_vf_pdf(lua_State * L)
+{
+    vf_struct *vsp = static_pdf->vfstruct;
+    if (!vsp->vflua)
+        normal_error("vf", "vf.special() outside virtual font");
+    luapdfprint(L);
+    pdf_out(static_pdf, '\n');
+    return 0;
+}
+
 static const struct luaL_Reg vflib[] = {
     {"char", l_vf_char},
     {"down", l_vf_down},
@@ -484,6 +494,7 @@ static const struct luaL_Reg vflib[] = {
     /* {"scale", l_vf_scale}, */
     /* {"slot", l_vf_slot}, */
     {"special", l_vf_special},
+    {"pdf", l_vf_pdf},
     {NULL, NULL}                /* sentinel */
 };
 

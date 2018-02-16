@@ -22,7 +22,7 @@
 #include "lua/luatex-api.h"
 #include "pdf/pdftables.h"
 
-static int luapdfprint(lua_State * L)
+int luapdfprint(lua_State * L)
 {
     int n;
     const_lstring st;
@@ -82,6 +82,7 @@ static int luapdfprint(lua_State * L)
     }
     st.s = lua_tolstring(L, n, &st.l);
     pdf_out_block(static_pdf, st.s, st.l);
+/*  pdf_out(pdf, '\n'); */
     return 0;
 }
 

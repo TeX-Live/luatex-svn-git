@@ -76,6 +76,8 @@ extern int luaopen_pdf(lua_State * L);
 extern int luaopen_texio(lua_State * L);
 extern int luaopen_lang(lua_State * L);
 
+extern int luapdfprint(lua_State * L);
+
 #  define LUA_TEXFILEHANDLE "TEXFILE*"
 
 extern lua_State *luatex_error(lua_State * L, int fatal);
