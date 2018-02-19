@@ -3215,11 +3215,15 @@ str_number tokens_to_string(halfword p)
     return make_string();
 }
 
-@ @c
+@ Values like 512 and 128 also work ok. There is not much to gain in optimization here.
+@c
+#define alloci_default 1024
+#define alloci_step     256
+
 #define make_room(a)                     \
     if ((unsigned)i+a+1>alloci) {        \
-        ret = xrealloc(ret,(alloci+64)); \
-        alloci = alloci + 64;            \
+        ret = xrealloc(ret,(alloci+alloci_step)); \
+        alloci = alloci + alloci_step; \
     }
 
 #define append_i_byte(a) ret[i++] = (char)(a)
@@ -3279,7 +3283,7 @@ char *tokenlist_to_cstring(int pp, int inhibit_par, int *siz)
     char *ret;
     int match_chr = '#';
     int n = '0';
-    unsigned alloci = 1024;
+    unsigned alloci = alloci_default;
     int i = 0;
     p = pp;
     if (p == null) {
@@ -3406,7 +3410,7 @@ char *tokenlist_to_xstring(int pp, int inhibit_par, int *siz)
     char *ret;
     int match_chr = '#';
     int n = '0';
-    unsigned alloci = 1024;
+    unsigned alloci = alloci_default;
     int i = 0;
     int skipping = 1;
     p = pp;
