@@ -1,4 +1,4 @@
-% $Id: mpmathdecimal.w 1915 2013-06-13 10:17:31Z taco $
+% $Id$
 %
 % This file is part of MetaPost;
 % the MetaPost program is in the public domain.
