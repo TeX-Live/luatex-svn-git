@@ -302,6 +302,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --without-system-t1lib \
     --without-system-icu \
     --without-system-graphite \
+    --without-system-harfbuzz \
     --without-system-zziplib \
     --without-mf-x-toolkit --without-x \
    || exit 1 
