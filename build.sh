@@ -314,6 +314,7 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --without-system-zlib \
     --without-system-t1lib \
     --without-system-icu \
+    --without-system-harfbuzz \
     --without-system-graphite \
     --without-system-zziplib \
     --without-mf-x-toolkit --without-x \
