@@ -2742,6 +2742,8 @@ static int lua_nodelib_values(lua_State * L)
         else if (lua_key_eq(s,pdf_action))  values = node_values_pdf_action;
         else if (lua_key_eq(s,pdf_window))  values = node_values_pdf_window;
         else if (lua_key_eq(s,color_stack)) values = node_values_color_stack;
+        /* extras */
+        else if (lua_key_eq(s,pagestate))   values = other_values_page_states;
     }
     if (values != NULL) {
         lua_checkstack(L, 2);

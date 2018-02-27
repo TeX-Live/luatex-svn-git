@@ -333,6 +333,13 @@ const char *node_subtypes_fence[] = {
     "unset", "left", "middle", "right", "no", NULL
 };
 
+/* states */
+
+const char *other_values_page_states[] = {
+    "empty", "box_there", "inserts_only", NULL
+};
+
+
 node_info node_data[] = { /* the last entry in a row is the etex number */
     { hlist_node,          box_node_size,         node_fields_list,                          "hlist",           1 },
     { vlist_node,          box_node_size,         node_fields_list,                          "vlist",           2 },

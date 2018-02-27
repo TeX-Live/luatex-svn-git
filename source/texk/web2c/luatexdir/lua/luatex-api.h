@@ -719,6 +719,7 @@ make_lua_key(pages);\
 make_lua_key(page_discards_head);\
 make_lua_key(page_head);\
 make_lua_key(page_ins_head);\
+make_lua_key(pagestate);\
 make_lua_key(pageattributes);\
 make_lua_key(pagebox);\
 make_lua_key(pageresources);\
@@ -1085,6 +1086,7 @@ init_lua_key(pages);\
 init_lua_key(page_discards_head);\
 init_lua_key(page_head);\
 init_lua_key(page_ins_head);\
+init_lua_key(pagestate);\
 init_lua_key(pageattributes);\
 init_lua_key(pagebox);\
 init_lua_key(pageresources);\
@@ -1516,6 +1518,7 @@ use_lua_key(pages);
 use_lua_key(page_discards_head);
 use_lua_key(page_head);
 use_lua_key(page_ins_head);
+use_lua_key(pagestate);
 use_lua_key(pagebox);
 use_lua_key(pageattributes);
 use_lua_key(pageresources);

@@ -1394,6 +1394,11 @@ tex.shipout(<number> n)
 
 Ships out box number \type {n} to the output file, and clears the box register.
 
+\subsubsection{\type {tex.getpagestate}}
+
+This helper reports the current page state: \type {empty}, \type {box_there} or
+\type {inserts_only} as integer value.
+
 \subsection[synctex]{Functions related to synctex}
 
 The next helpers only make sense when you implement your own synctex logic. Keep in

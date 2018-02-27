@@ -951,6 +951,8 @@ extern const char *node_values_pdf_action[];
 extern const char *node_values_pdf_window[];
 extern const char *node_values_color_stack[];
 
+extern const char *other_values_page_states[];
+
 extern halfword new_node(int i, int j);
 extern void flush_node_list(halfword);
 extern void flush_node(halfword);

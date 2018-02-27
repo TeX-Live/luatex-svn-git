@@ -3236,6 +3236,12 @@ static int tex_build_page(lua_State * L)
     return 0;
 }
 
+static int lua_get_page_state(lua_State * L)
+{
+    lua_pushinteger(L,page_contents);
+    return 1;
+}
+
 /* synctex */
 
 static int lua_set_synctex_mode(lua_State * L)
@@ -3398,6 +3404,7 @@ static const struct luaL_Reg texlib[] = {
     { "getboxresourcedimensions", tex_get_box_resource_dimensions },
     /* just for testing: it will probably stay but maybe with options */
     { "triggerbuildpage", tex_build_page },
+    { "getpagestate", lua_get_page_state },
     /* not the best place but better than in node */
     { "set_synctex_mode", lua_set_synctex_mode },
     { "get_synctex_mode", lua_get_synctex_mode },
