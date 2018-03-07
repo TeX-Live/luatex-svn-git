@@ -395,7 +395,7 @@ then
 fi
 if [ "$BUILDLUA52" = "FALSE" ]  && [ "$BUILDLUA53" = "TRUE" ]
 then
-    mv -v  "$B"/texk/web2c/$LUATEXEXE53 "$B"/texk/web2c/$LUATEXEXE
+    mv  "$B"/texk/web2c/$LUATEXEXE53 "$B"/texk/web2c/$LUATEXEXE
     ls -l "$B"/texk/web2c/$LUATEXEXE
 fi
 
