@@ -1013,8 +1013,8 @@ static int lua_nodelib_direct_setdirection(lua_State * L)
         halfword t = type(n);
         if (t == dir_node) {
             dir_dir(n) = nodelib_getdirection(L, 2);
-            if ((lua_type(L, 2) == LUA_TBOOLEAN)) {
-                if (lua_toboolean(L, 2)) {
+            if ((lua_type(L, 3) == LUA_TBOOLEAN)) {
+                if (lua_toboolean(L, 3)) {
                     subtype(n) = cancel_dir;
                 } else {
                     subtype(n) = normal_dir;
@@ -8213,7 +8213,6 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"getkern", lua_nodelib_direct_getkern},
     {"getpenalty", lua_nodelib_direct_getpenalty},
     {"getdir", lua_nodelib_direct_getdir},
-    {"getdirection", lua_nodelib_direct_getdirection},
     {"getoffsets", lua_nodelib_direct_getoffsets},
     {"getdisc", lua_nodelib_direct_getdisc},
     {"getwhd", lua_nodelib_direct_getwhd},
@@ -8235,6 +8234,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"getnucleus", lua_nodelib_direct_getnucleus},
     {"getsub", lua_nodelib_direct_getsub},
     {"getsup", lua_nodelib_direct_getsup},
+    {"getdirection", lua_nodelib_direct_getdirection},
     {"has_glyph", lua_nodelib_direct_has_glyph},
     {"has_attribute", lua_nodelib_direct_has_attribute},
     {"get_attribute", lua_nodelib_direct_get_attribute},
