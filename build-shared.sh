@@ -281,7 +281,6 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-ipc \
     --enable-dump-share  \
     --enable-web2c  \
-    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
     $LUA52ENABLE  $LUA53ENABLE  $JITENABLE \
     --without-system-ptexenc \
     --without-system-kpathsea \

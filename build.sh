@@ -270,8 +270,6 @@ then
 fi
 
 
-
-
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
 TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
@@ -285,7 +283,6 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --enable-dump-share  \
     --enable-coremp  \
     --enable-web2c  \
-    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
     $LUA52ENABLE  $LUA53ENABLE  $JITENABLE \
     --without-system-cairo  \
     --without-system-pixman \
