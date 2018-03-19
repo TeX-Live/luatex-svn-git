@@ -1840,6 +1840,7 @@ void pdf_end_page(PDF pdf)
     pdf_object_list *annot_list, *bead_list, *link_list, *ol, *ol1;
     scaledpos save_cur_page_size; /* to save |pdf->page_size| during flushing pending forms */
     shipping_mode_e save_shipping_mode;
+    int save_pdf_cur_form;
     int xform_resources;
     int page_resources, page_attributes;
     int procset = PROCSET_PDF;
@@ -1933,6 +1934,7 @@ void pdf_end_page(PDF pdf)
     ol = get_page_resources_list(pdf, obj_type_xform);
     while (ol != NULL) {
         if (!is_obj_written(pdf, ol->info)) {
+            save_pdf_cur_form = pdf_cur_form;
             pdf_cur_form = ol->info;
             save_cur_page_size = pdf->page_size;
             save_shipping_mode = global_shipping_mode;
@@ -1944,6 +1946,7 @@ void pdf_end_page(PDF pdf)
             global_shipping_mode = save_shipping_mode;
             destroy_page_resources_tree(pdf);
             pdf->page_resources = res_p;
+            pdf_cur_form = save_pdf_cur_form;
         }
         ol = ol->link;
     }
