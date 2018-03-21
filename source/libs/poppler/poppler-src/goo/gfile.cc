@@ -80,7 +80,14 @@ template< typename Stat, typename = void_t<> >
 struct StatMtim
 {
   static const struct timespec& value(const Stat& stbuf) {
+#ifdef  HAVE_STRUCT_STAT_ST_MTIM
     return stbuf.st_mtim;
+#else
+    static struct timespec t ;
+    t.tv_sec=stbuf.st_mtime;
+    t.tv_nsec=0;
+    return t;
+#endif
   }
 };
 
