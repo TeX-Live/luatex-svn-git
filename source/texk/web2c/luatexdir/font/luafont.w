@@ -446,6 +446,8 @@ int font_to_lua(lua_State * L, int f)
     dump_intfield(L,checksum,font_checksum(f));
     dump_intfield(L,slant,font_slant(f));
     dump_intfield(L,extend,font_extend(f));
+    dump_intfield(L,mode,font_mode(f));
+    dump_intfield(L,width,font_width(f));
     dump_intfield(L,direction,font_natural_dir(f));
     dump_intfield(L,encodingbytes,font_encodingbytes(f));
     dump_booleanfield(L,oldmath,font_oldmath(f));
@@ -1476,12 +1478,27 @@ int font_from_lua(lua_State * L, int f)
     if (i > FONT_EXTEND_MAX)
         i = FONT_EXTEND_MAX;
     set_font_extend(f, i);
+
     i = lua_numeric_field_by_index(L,lua_key_index(slant), 0);
     if (i < FONT_SLANT_MIN)
         i = FONT_SLANT_MIN;
     if (i > FONT_SLANT_MAX)
         i = FONT_SLANT_MAX;
     set_font_slant(f, i);
+
+    i = lua_numeric_field_by_index(L,lua_key_index(width), 0);
+    if (i < FONT_WIDTH_MIN)
+        i = FONT_WIDTH_MIN;
+    if (i > FONT_WIDTH_MAX)
+        i = FONT_WIDTH_MAX;
+    set_font_width(f, i);
+
+    i = lua_numeric_field_by_index(L,lua_key_index(mode), 0);
+    if (i < FONT_MODE_MIN)
+        i = FONT_MODE_MIN;
+    if (i > FONT_MODE_MAX)
+        i = FONT_MODE_MAX;
+    set_font_mode(f, i);
 
     i = lua_numeric_field_by_index(L,lua_key_index(hyphenchar), default_hyphen_char_par);
     set_hyphen_char(f, i);
@@ -1623,14 +1640,14 @@ int font_from_lua(lua_State * L, int f)
                 lua_pop(L, 1);
             }
             lua_pop(L, 1);
-	    
+
             /*
                 Handle font expansion last: the |copy_font| routine is called eventually,
                 and that needs to know |bc| and |ec|.
             */
 
             /* if (font_type(f) != virtual_font_type) { */
-                /* we permits virtual fonts to use expansion .. one can always turn it off */ 
+                /* we permits virtual fonts to use expansion .. one can always turn it off */
 		fstep = lua_numeric_field_by_index(L, lua_key_index(step), 0);
                 if (fstep < 0)
                     fstep = 0;

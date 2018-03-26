@@ -32,6 +32,15 @@
 
 #  define pointer halfword
 
+#  define FONT_SLANT_MIN   -2000
+#  define FONT_SLANT_MAX    2000
+#  define FONT_EXTEND_MIN  -5000
+#  define FONT_EXTEND_MAX   5000
+#  define FONT_MODE_MIN        0
+#  define FONT_MODE_MAX        2
+#  define FONT_WIDTH_MIN       0
+#  define FONT_WIDTH_MAX    5000
+
 /* these are dumped en block, so they need endianness tests */
 
 typedef struct liginfo {
@@ -141,6 +150,8 @@ typedef struct texfont {
     boolean _font_oldmath;      /* default to false when MathConstants seen */
     int _font_slant;            /* a slant in ppt */
     int _font_extend;           /* an extension in ppt, or 1000 */
+    int _font_width;
+    int _font_mode;
     int font_max_shrink;
     int font_max_stretch;
     int _font_step;             /* amount of one step of expansion */
@@ -328,6 +339,12 @@ boolean cmp_font_area(int, str_number);
 
 #  define font_extend(a)                 font_tables[a]->_font_extend
 #  define set_font_extend(a,b)           font_extend(a) = b
+
+#  define font_width(a)                  font_tables[a]->_font_width
+#  define set_font_width(a,b)            font_width(a) = b
+
+#  define font_mode(a)                   font_tables[a]->_font_mode
+#  define set_font_mode(a,b)             font_mode(a) = b
 
 #  define font_shrink(a)                 font_tables[a]->_font_shrink
 #  define set_font_shrink(a,b)           font_shrink(a) = b

@@ -68,6 +68,8 @@ static void setup_fontparameters(PDF pdf, internal_font_number f, int ex_glyph)
     p->tm[3].m = i64round(scale * ten_pow[p->tm[3].e]);
     p->k2 = ten_pow[e_tj + p->cw.e] * scale / (ten_pow[p->pdf.h.e] * pdf2double(p->fs) * pdf2double(p->tm[0]));
     p->cur_ex = ex_glyph ;  /* we keep track of the state of ex */
+    p->need_width = font_width(f);
+    p->need_mode = font_mode(f);
 }
 
 
@@ -75,6 +77,22 @@ static void setup_fontparameters(PDF pdf, internal_font_number f, int ex_glyph)
 static void set_font(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
+
+    if (p->need_width != 0) {
+        pdf_printf(pdf, "%0.3f w\n",p->need_width / 1000.0);
+        p->done_width = 1;
+    } else if (p->done_width) {
+        pdf_puts(pdf, "0 w\n");
+        p->done_width = 0;
+    }
+    if (p->need_mode != 0) {
+        pdf_printf(pdf, "%d Tr\n", (int) p->need_mode);
+        p->done_mode = 1;
+    } else if (p->done_mode) {
+        pdf_puts(pdf, "0 Tr\n");
+        p->done_mode = 0;
+    }
+
     pdf_printf(pdf, "/F%d", (int) p->f_pdf);
     pdf_print_resname_prefix(pdf);
     pdf_out(pdf, ' ');

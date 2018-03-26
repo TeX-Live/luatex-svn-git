@@ -120,6 +120,8 @@ int new_font(void)
     set_skew_char(id, -1);
     font_slant(id) = 0;          /* vertical */
     font_extend(id) = 1000;      /* normal width */
+    font_width(id) = 0;
+    font_mode(id) = 0;
 
     /* allocate eight values including 0 */
     set_font_params(id, 7);
@@ -1532,6 +1534,8 @@ static void dump_font_entry(texfont * f)
     dump_int(f->_font_oldmath);
     dump_int(f->_font_slant);
     dump_int(f->_font_extend);
+    dump_int(f->_font_mode);
+    dump_int(f->_font_width);
     dump_int(f->font_max_shrink);
     dump_int(f->font_max_stretch);
     dump_int(f->_font_step);
@@ -1711,6 +1715,8 @@ static void undump_font_entry(texfont * f)
     undump_int(x); f->_font_oldmath = x;
     undump_int(x); f->_font_slant = x;
     undump_int(x); f->_font_extend = x;
+    undump_int(x); f->_font_mode = x;
+    undump_int(x); f->_font_width = x;
     undump_int(x); f->font_max_shrink = x;
     undump_int(x); f->font_max_stretch = x;
     undump_int(x); f->_font_step = x;
