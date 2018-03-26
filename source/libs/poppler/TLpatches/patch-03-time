@@ -1,0 +1,13 @@
+$ diff -u gfile.h.orig gfile.h 
+--- gfile.h.orig	2018-03-26 11:43:40.479917632 +0200
++++ gfile.h	2018-03-26 11:41:51.965590455 +0200
+@@ -52,6 +52,9 @@
+ #elif defined(MACOS)
+ #  include <ctime.h>
+ #else
++#  if defined(__NetBSD__)
++#   include <time.h>
++#  endif
+ #  include <unistd.h>
+ #  include <sys/types.h>
+ #  if defined(VMS)
