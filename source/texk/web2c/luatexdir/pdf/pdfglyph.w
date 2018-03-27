@@ -79,7 +79,7 @@ static void set_font(PDF pdf)
     pdfstructure *p = pdf->pstruct;
 
     if (p->need_width != 0) {
-        pdf_printf(pdf, "%0.3f w\n",p->need_width / 1000.0);
+        pdf_printf(pdf, "%0.3f w\n",((7227.0/7200.0)/1000.0) * p->need_width );
         p->done_width = 1;
     } else if (p->done_width) {
         pdf_puts(pdf, "0 w\n");
