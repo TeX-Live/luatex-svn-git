@@ -1634,7 +1634,7 @@ static void math_kern(pointer p, scaled m)
 void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
 {
     int callback_id;
-    int a, sfix;
+    int a, sfix, i;
     if (p == null) {
         vlink(temp_head) = null;
         return;
@@ -1651,18 +1651,16 @@ void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
         nodelist_to_lua(Luas, p);
         lua_push_math_style_name(Luas, mstyle);
         lua_pushboolean(Luas, penalties);
-        if (lua_pcall(Luas, 3, 1, 0) != 0) {            /* 3 args, 1 result */
-            char errmsg[256]; /* temp hack ... we will have a formatted error */
-            snprintf(errmsg, 255, "error: %s\n", lua_tostring(Luas, -1));
-            errmsg[255]='\0';
+        if ((i=lua_pcall(Luas, 3, 1, 0)) != 0) {
+            formatted_warning("mlist to hlist","error: %s",lua_tostring(Luas, -1));
             lua_settop(Luas, sfix);
-            normal_error("mlist to hlist",errmsg); /* to be done */
+            luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
             return;
         }
         a = nodelist_from_lua(Luas);
         /* alink(vlink(a)) = null; */
-        lua_settop(Luas, sfix);
         vlink(temp_head) = a;
+        lua_settop(Luas, sfix);
     } else if (callback_id == 0) {
         mlist_to_hlist(p, penalties, mstyle);
     } else {
@@ -3117,7 +3115,7 @@ static scaled find_math_kern(internal_font_number l_f, int l_c,
 {
     scaled corr_height_top = 0, corr_height_bot = 0;
     scaled krn_l = 0, krn_r = 0, krn = 0;
-//    if ((!do_new_math(l_f)) || (!do_new_math(r_f)) || (!char_exists(l_f, l_c)) || (!char_exists(r_f, r_c)))
+/*    if ((!do_new_math(l_f)) || (!do_new_math(r_f)) || (!char_exists(l_f, l_c)) || (!char_exists(r_f, r_c))) */
     if ((!(do_new_math(l_f) || do_new_math(r_f))) || (!char_exists(l_f, l_c)) || (!char_exists(r_f, r_c)))
         return MATH_KERN_NOT_FOUND;
 

@@ -2393,12 +2393,15 @@ static halfword run_lua_ligkern_callback(halfword head, halfword tail, int callb
     int i;
     int top = lua_gettop(Luas);
     if (!get_callback(Luas, callback_id)) {
-        lua_pop(Luas, 2);
+/*      lua_pop(Luas, 2); */
+        lua_settop(Luas, top);
         return tail;
     }
     nodelist_to_lua(Luas, head);
     nodelist_to_lua(Luas, tail);
     if ((i=lua_pcall(Luas, 2, 0, 0)) != 0) {
+        formatted_warning("ligkern","error: %s",lua_tostring(Luas, -1));
+        lua_settop(Luas, top);
         luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
         return tail;
     }

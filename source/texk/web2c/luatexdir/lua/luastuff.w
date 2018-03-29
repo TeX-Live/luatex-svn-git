@@ -440,6 +440,7 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
     size_t ll = 0;
     char *lua_id;
     char *s = NULL;
+    int stacktop = lua_gettop(Luas);
 
     if (Luas == NULL) {
         luainterpreter();
@@ -459,6 +460,7 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
                 lua_gc(Luas, LUA_GCCOLLECT, 0);
                 Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
             }
+            lua_settop(Luas,stacktop);
             lua_active--;
             return ;
         }
@@ -505,6 +507,7 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
         }
         xfree(ls.s);
     }
+    lua_settop(Luas,stacktop);
     lua_active--;
 }
 
@@ -525,11 +528,11 @@ void late_lua(PDF pdf, halfword p)
 void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
 {
     LoadS ls;
-    int i, l;
+    int i;
+    int l = 0;
     char *s = NULL;
     char *lua_id;
-    assert(Luas);
-    l = 0;
+    int stacktop = lua_gettop(Luas);
     lua_active++;
     s = tokenlist_to_cstring(p, 1, &l);
     ls.s = s;
@@ -565,6 +568,7 @@ void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
             }
         }
     }
+    lua_settop(Luas,stacktop);
     lua_active--;
 }
 

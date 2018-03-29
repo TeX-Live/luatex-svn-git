@@ -268,7 +268,7 @@ static int set_bytecode(lua_State * L)
         lua_dump(L, writer, (void *) (lua_bytecode_registers + k),strip);
 #endif
 #if LUA_VERSION_NUM == 502
-        lua_dump(L, writer, (void *) (lua_bytecode_registers + k));    
+        lua_dump(L, writer, (void *) (lua_bytecode_registers + k));
 #endif
 #endif
     }
@@ -329,6 +329,18 @@ static int new_table(lua_State * L) /* hh */
     return 1;
 }
 
+static int get_stack_top(lua_State * L) /* hh */
+{
+    lua_pushinteger(L, lua_gettop(L));
+    return 1;
+}
+
+static int get_call_level(lua_State * L) /* hh */
+{
+    lua_pushinteger(L, lua_active);
+    return 1;
+}
+
 static const struct luaL_Reg lualib[] = {
     /* *INDENT-OFF* */
     {"getluaname",  get_luaname},
@@ -337,6 +349,8 @@ static const struct luaL_Reg lualib[] = {
     {"setbytecode", set_bytecode},
     {"newtable",    new_table},
     {"get_functions_table",lua_functions_get_table},
+    {"getstacktop",get_stack_top},
+    {"getcalllevel", get_call_level},
     /* *INDENT-ON* */
     {NULL, NULL}                /* sentinel */
 };

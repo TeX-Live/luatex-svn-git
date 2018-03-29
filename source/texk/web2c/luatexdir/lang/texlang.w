@@ -1069,25 +1069,29 @@ void hnj_hyphenation(halfword head, halfword tail)
 @ @c
 void new_hyphenation(halfword head, halfword tail)
 {
+    int i, top;
     register int callback_id = 0;
     if (head == null || vlink(head) == null)
         return;
     fix_node_list(head);
     callback_id = callback_defined(hyphenate_callback);
     if (callback_id > 0) {
+        top = lua_gettop(Luas);
         if (!get_callback(Luas, callback_id)) {
-            lua_pop(Luas, 2);
+/*            lua_pop(Luas, 2); */
+            lua_settop(Luas, top);
             return;
         }
         nodelist_to_lua(Luas, head);
         nodelist_to_lua(Luas, tail);
-        if (lua_pcall(Luas, 2, 0, 0) != 0) {
+        if ((i=lua_pcall(Luas, 2, 0, 0)) != 0) {
             formatted_warning("hyphenation","bad specification: %s",lua_tostring(Luas, -1));
-            lua_pop(Luas, 2);
-            lua_error(Luas);
+            lua_settop(Luas, top);
+            luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
             return;
         }
-        lua_pop(Luas, 1);
+/*        lua_pop(Luas, 1); */
+        lua_settop(Luas, top);
     } else if (callback_id == 0) {
         hnj_hyphenation(head, tail);
     }

@@ -354,21 +354,25 @@ int lua_glyph_not_found_callback(internal_font_number f, int c)
 {
     int callback_id;
     int ret = 0;
+    int top, i;
     callback_id = callback_defined(glyph_not_found_callback);
     if (callback_id != 0) {
+        top = lua_gettop(Luas);
         if (!get_callback(Luas, callback_id)) {
-            lua_pop(Luas, 2);
+/*            lua_pop(Luas, 2); */
+            lua_settop(Luas, top);
             return 0;
         }
         lua_pushinteger(Luas, f);
         lua_pushinteger(Luas, c);
-        if (lua_pcall(Luas, 2, 1, 0) != 0) {       /* two args, 1 result */
-            fprintf(stdout, "error: %s\n", lua_tostring(Luas, -1));
-            lua_pop(Luas, 2);
-            error();
+        if ((i=lua_pcall(Luas, 2, 1, 0)) != 0) {
+            formatted_warning   ("glyph not found", "error: %s", lua_tostring(Luas, -1));
+            lua_settop(Luas, top);
+            luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
         } else {
             ret = lua_toboolean(Luas, -1);
         }
+        lua_settop(Luas, top);
     } else {
         char_warning(f,c);
     }

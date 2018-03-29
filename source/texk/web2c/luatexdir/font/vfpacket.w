@@ -206,7 +206,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
             break;
         case packet_char_code:
             packet_number(k);
-            /* we also check if c == k and font(c) == font)k) */
+            /* we also check if c == k and font(c) == font(k) */
             if (!char_exists(vp->lf, (int) k)) {
                 char_warning(vp->lf, (int) k);
             } else if (! ((c == k && vp->lf == vf_f)) && (has_packet(vp->lf, (int) k))) {
@@ -268,6 +268,7 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
         case packet_lua_code:
             packet_number(k);
             vp->vflua = true;
+            /* todo: proper handling like other lua_pcalls */
             if (luaL_loadbuffer
                 (Luas, (const char *) vfp, (size_t) k, "packet_lua_code")
                 || lua_pcall(Luas, 0, LUA_MULTRET, 0))
