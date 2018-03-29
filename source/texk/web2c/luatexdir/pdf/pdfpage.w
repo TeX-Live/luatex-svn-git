@@ -61,6 +61,8 @@ void init_pdf_pagecalculations(PDF pdf)
     p->ishex = 0;
     p->need_tf = false;
     p->need_tm = false;
+    p->done_width = false;
+    p->done_mode = false;
     p->k1 = ten_pow[p->pdf.h.e] / by_one_bp;
 }
 
