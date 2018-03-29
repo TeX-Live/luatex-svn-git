@@ -37,7 +37,7 @@
 #  define FONT_EXTEND_MIN  -5000
 #  define FONT_EXTEND_MAX   5000
 #  define FONT_MODE_MIN        0
-#  define FONT_MODE_MAX        2
+#  define FONT_MODE_MAX        3 /* pdf values */
 #  define FONT_WIDTH_MIN       0
 #  define FONT_WIDTH_MAX    5000
 

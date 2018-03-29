@@ -661,6 +661,20 @@ static void run_option(void) {
     }
 }
 
+static void lua_function_call(void) {
+    scan_int();
+    if (cur_val <= 0) {
+        normal_error("luafunctioncall", "invalid number");
+    } else {
+        str_number u = save_cur_string();
+        luacstrings = 0;
+        luafunctioncall(cur_val);
+        restore_cur_string(u);
+        if (luacstrings > 0)
+            lua_string_start();
+    }
+}
+
 @ For mode-independent commands, the following macro is useful.
 
 Also, there is a list of cases where the user has probably gotten into or out of math
@@ -891,6 +905,8 @@ static void init_main_control (void) {
     any_mode(normal_cmd, run_normal);
     any_mode(extension_cmd, run_extension);
     any_mode(option_cmd, run_option);
+
+    any_mode(lua_function_call_cmd, lua_function_call);
 }
 
 @ And here is |main_control| itself.  It is quite short nowadays.
