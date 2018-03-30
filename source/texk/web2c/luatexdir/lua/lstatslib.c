@@ -147,9 +147,9 @@ static lua_Number get_luatexhashchars(void)
 static const char *get_luatexhashtype(void)
 {
 #ifdef LuajitTeX
-     if (jithash_hashname) 
+     if (jithash_hashname)
         return (const char *)jithash_hashname;
-     else 
+     else
         return "???";
 #else
   return "lua";
@@ -358,9 +358,14 @@ static struct statistic stats[] = {
     {"luabytecodes", 'g', &luabytecode_max},
     {"luabytecode_bytes", 'g', &luabytecode_bytes},
     {"luastate_bytes", 'g', &luastate_bytes},
-    {"callbacks", 'g', &callback_count},
 
-    {"indirect_callbacks", 'g', &saved_callback_count},
+    {"callbacks", 'g', &callback_count},
+    {"indirect_callbacks", 'g', &saved_callback_count}, /* these are file io callbacks */
+
+    {"saved_callbacks", 'g', &saved_callback_count},
+    {"late_callbacks", 'g', &late_callback_count},
+    {"direct_callbacks", 'g', &direct_callback_count},
+    {"function_callbacks", 'g', &function_callback_count},
 
     {"lc_ctype", 'S', (void *) &get_lc_ctype},
     {"lc_collate", 'S', (void *) &get_lc_collate},

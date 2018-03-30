@@ -124,6 +124,7 @@ void luafunctioncall(int slot)
         lua_pushinteger(Luas, slot);
         lua_pushcfunction(Luas, lua_traceback); /* push traceback function */
         lua_insert(Luas, base); /* put it under chunk  */
+        ++function_callback_count;
         i = lua_pcall(Luas, 1, 0, base);
         lua_remove(Luas, base); /* remove traceback function */
         if (i != 0) {
@@ -454,6 +455,7 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
             lua_checkstack(Luas, 1);
             lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
             lua_insert(Luas, base);     /* put it under chunk  */
+            ++late_callback_count;
             i = lua_pcall(Luas, 0, 0, base);
             lua_remove(Luas, base);     /* remove traceback function */
             if (i != 0) {
@@ -498,6 +500,7 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
             lua_checkstack(Luas, 1);
             lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
             lua_insert(Luas, base);     /* put it under chunk  */
+            ++late_callback_count;
             i = lua_pcall(Luas, 0, 0, base);
             lua_remove(Luas, base);     /* remove traceback function */
             if (i != 0) {
@@ -560,6 +563,7 @@ void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
             lua_checkstack(Luas, 1);
             lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
             lua_insert(Luas, base);     /* put it under chunk  */
+            ++direct_callback_count;
             i = lua_pcall(Luas, 0, 0, base);
             lua_remove(Luas, base);     /* remove traceback function */
             if (i != 0) {

@@ -195,6 +195,9 @@ extern int luastate_bytes;
 
 extern int callback_count;
 extern int saved_callback_count;
+extern int direct_callback_count;
+extern int late_callback_count;
+extern int function_callback_count;
 
 extern const char *luatex_banner;
 extern const char *engine_name;
