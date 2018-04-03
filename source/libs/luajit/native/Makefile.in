@@ -114,7 +114,8 @@ nodist_buildvm_OBJECTS =  \
 	@LUAJIT_TREE@/src/host/buildvm-buildvm_peobj.$(OBJEXT)
 buildvm_OBJECTS = $(nodist_buildvm_OBJECTS)
 buildvm_LDADD = $(LDADD)
-nodist_minilua_OBJECTS = @LUAJIT_TREE@/src/host/minilua.$(OBJEXT)
+nodist_minilua_OBJECTS =  \
+	@LUAJIT_TREE@/src/host/minilua-minilua.$(OBJEXT)
 minilua_OBJECTS = $(nodist_minilua_OBJECTS)
 am__DEPENDENCIES_1 =
 minilua_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -322,6 +323,7 @@ nodist_buildvm_SOURCES = \
 	@LUAJIT_TREE@/src/host/buildvm_lib.c \
 	@LUAJIT_TREE@/src/host/buildvm_peobj.c
 
+minilua_CPPFLAGS = $(AM_CPPFLAGS) $(LUAJIT_DEFINES) `cat ../native_flags`
 nodist_minilua_SOURCES = \
 	@LUAJIT_TREE@/src/host/minilua.c
 
@@ -405,7 +407,7 @@ distclean-hdr:
 buildvm$(EXEEXT): $(buildvm_OBJECTS) $(buildvm_DEPENDENCIES) $(EXTRA_buildvm_DEPENDENCIES) 
 	@rm -f buildvm$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(buildvm_OBJECTS) $(buildvm_LDADD) $(LIBS)
-@LUAJIT_TREE@/src/host/minilua.$(OBJEXT):  \
+@LUAJIT_TREE@/src/host/minilua-minilua.$(OBJEXT):  \
 	@LUAJIT_TREE@/src/host/$(am__dirstamp) \
 	@LUAJIT_TREE@/src/host/$(DEPDIR)/$(am__dirstamp)
 
@@ -425,7 +427,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@@LUAJIT_TREE@/src/host/$(DEPDIR)/buildvm-buildvm_fold.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@LUAJIT_TREE@/src/host/$(DEPDIR)/buildvm-buildvm_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@@LUAJIT_TREE@/src/host/$(DEPDIR)/buildvm-buildvm_peobj.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@@LUAJIT_TREE@/src/host/$(DEPDIR)/minilua.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@LUAJIT_TREE@/src/host/$(DEPDIR)/minilua-minilua.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -512,6 +514,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='@LUAJIT_TREE@/src/host/buildvm_peobj.c' object='@LUAJIT_TREE@/src/host/buildvm-buildvm_peobj.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(buildvm_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o @LUAJIT_TREE@/src/host/buildvm-buildvm_peobj.obj `if test -f '@LUAJIT_TREE@/src/host/buildvm_peobj.c'; then $(CYGPATH_W) '@LUAJIT_TREE@/src/host/buildvm_peobj.c'; else $(CYGPATH_W) '$(srcdir)/@LUAJIT_TREE@/src/host/buildvm_peobj.c'; fi`
+
+@LUAJIT_TREE@/src/host/minilua-minilua.o: @LUAJIT_TREE@/src/host/minilua.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(minilua_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT @LUAJIT_TREE@/src/host/minilua-minilua.o -MD -MP -MF @LUAJIT_TREE@/src/host/$(DEPDIR)/minilua-minilua.Tpo -c -o @LUAJIT_TREE@/src/host/minilua-minilua.o `test -f '@LUAJIT_TREE@/src/host/minilua.c' || echo '$(srcdir)/'`@LUAJIT_TREE@/src/host/minilua.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) @LUAJIT_TREE@/src/host/$(DEPDIR)/minilua-minilua.Tpo @LUAJIT_TREE@/src/host/$(DEPDIR)/minilua-minilua.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='@LUAJIT_TREE@/src/host/minilua.c' object='@LUAJIT_TREE@/src/host/minilua-minilua.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(minilua_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o @LUAJIT_TREE@/src/host/minilua-minilua.o `test -f '@LUAJIT_TREE@/src/host/minilua.c' || echo '$(srcdir)/'`@LUAJIT_TREE@/src/host/minilua.c
+
+@LUAJIT_TREE@/src/host/minilua-minilua.obj: @LUAJIT_TREE@/src/host/minilua.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(minilua_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT @LUAJIT_TREE@/src/host/minilua-minilua.obj -MD -MP -MF @LUAJIT_TREE@/src/host/$(DEPDIR)/minilua-minilua.Tpo -c -o @LUAJIT_TREE@/src/host/minilua-minilua.obj `if test -f '@LUAJIT_TREE@/src/host/minilua.c'; then $(CYGPATH_W) '@LUAJIT_TREE@/src/host/minilua.c'; else $(CYGPATH_W) '$(srcdir)/@LUAJIT_TREE@/src/host/minilua.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) @LUAJIT_TREE@/src/host/$(DEPDIR)/minilua-minilua.Tpo @LUAJIT_TREE@/src/host/$(DEPDIR)/minilua-minilua.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='@LUAJIT_TREE@/src/host/minilua.c' object='@LUAJIT_TREE@/src/host/minilua-minilua.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(minilua_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o @LUAJIT_TREE@/src/host/minilua-minilua.obj `if test -f '@LUAJIT_TREE@/src/host/minilua.c'; then $(CYGPATH_W) '@LUAJIT_TREE@/src/host/minilua.c'; else $(CYGPATH_W) '$(srcdir)/@LUAJIT_TREE@/src/host/minilua.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
