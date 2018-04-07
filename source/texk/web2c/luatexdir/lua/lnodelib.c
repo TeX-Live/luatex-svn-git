@@ -646,7 +646,7 @@ static int lua_nodelib_direct_setfam(lua_State * L)
 
     /* node.getchar */
 
-    static int lua_nodelib_getchar(lua_State * L)
+static int lua_nodelib_getchar(lua_State * L)
     {
         halfword *n = lua_touserdata(L, 1);
         if ((n == NULL) || (! lua_getmetatable(L,1))) {
@@ -3503,6 +3503,13 @@ static int nodelib_aux_nil(lua_State * L)
     return 1;
 }
 
+static int nodelib_aux_nil_2(lua_State * L)
+{
+    lua_pushnil(L);
+    lua_pushnil(L);
+    return 2;
+}
+
 /* node.direct.traverse_id */
 /* node.direct.traverse */
 /* node.direct.traverse_char */
@@ -3552,8 +3559,8 @@ static int lua_nodelib_direct_traverse_filtered(lua_State * L)
 
 static int nodelib_direct_aux_next(lua_State * L)
 {
-    halfword t;            /* traverser */
-    if (lua_isnil(L, 2)) { /* first call */
+    halfword t;
+    if (lua_isnil(L, 2)) {
         t = lua_tointeger(L,1) ;
         lua_settop(L,1);
     } else {
@@ -3563,22 +3570,24 @@ static int nodelib_direct_aux_next(lua_State * L)
     }
     if (t == null) {
         lua_pushnil(L);
+        lua_pushnil(L);
     } else {
         lua_pushinteger(L,t);
+        lua_pushinteger(L,type(t));
     }
-    return 1;
+    return 2;
 }
 
 static int lua_nodelib_direct_traverse(lua_State * L)
 {
     halfword n;
     if (lua_isnil(L, 1)) {
-        lua_pushcclosure(L, nodelib_aux_nil, 0);
+        lua_pushcclosure(L, nodelib_aux_nil_2, 0);
         return 1;
     }
     n = (halfword) lua_tointeger(L, 1);
     if (n == null) {
-        lua_pushcclosure(L, nodelib_aux_nil, 0);
+        lua_pushcclosure(L, nodelib_aux_nil_2, 0);
         return 1;
     }
     lua_pushcclosure(L, nodelib_direct_aux_next, 0);
@@ -3675,9 +3684,9 @@ static int lua_nodelib_traverse_filtered(lua_State * L)
 
 static int nodelib_aux_next(lua_State * L)
 {
-    halfword t;            /* traverser */
-    halfword *a;           /* a or *a */
-    if (lua_isnil(L, 2)) { /* first call */
+    halfword t;
+    halfword *a;
+    if (lua_isnil(L, 2)) {
         t = *check_isnode(L, 1);
         lua_settop(L,1);
     } else {
@@ -3687,17 +3696,19 @@ static int nodelib_aux_next(lua_State * L)
     }
     if (t == null) {
         lua_pushnil(L);
+        lua_pushnil(L);
     } else {
         fast_metatable_top(t);
+        lua_pushinteger(L,type(t));
     }
-    return 1;
+    return 2;
 }
 
 static int lua_nodelib_traverse(lua_State * L)
 {
     halfword n;
     if (lua_isnil(L, 1)) {
-        lua_pushcclosure(L, nodelib_aux_nil, 0);
+        lua_pushcclosure(L, nodelib_aux_nil_2, 0);
         return 1;
     }
     n = *check_isnode(L, 1);
