@@ -270,9 +270,19 @@ static scaled minimum_operator_size(int var)
 the backward compatibility code, and it means that we can't raise an error here.
 
 @c
-static scaled radical_rule_par(int var)
+static scaled radical_rule_par(int cur_style, int cur_size, int cur_fam)
 {
-    scaled a = get_math_param(math_param_radical_rule, var);
+    scaled a, f ;
+    /* new, let the opentype font win */
+    f = fam_fnt(cur_fam,cur_size);
+    if (do_new_math(f)) {
+        a = font_MATH_par(f, RadicalRuleThickness);
+        if (a != undefined_math_parameter) {
+            return a;
+        }
+    }
+    /* till here */
+    a = get_math_param(math_param_radical_rule, cur_style);
     return a;
 }
 
@@ -1899,14 +1909,15 @@ static void make_hextension(pointer q, int cur_style)
 static void make_radical(pointer q, int cur_style)
 {
     pointer x, y, p, l1, l2;     /* temporary registers for box construction */
-    scaled delta, clr, theta, h; /* dimensions involved in the calculation */
+    scaled delta, clr, theta, h, d; /* dimensions involved in the calculation */
     x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     clr = radical_vgap(cur_style);
-    theta = radical_rule_par(cur_style);
+    d = left_delimiter(q);
+    theta = radical_rule_par(cur_style, cur_size, small_fam(d));
     if (theta == undefined_math_parameter) {
         /* a real radical */
         theta = fraction_rule(cur_style);
-        y = do_delimiter(q, left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
+        y = do_delimiter(q, d, cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
         /*
             If |y| is a composite then set |theta| to the height of its top
             character, else set it to the height of |y|.
@@ -1926,7 +1937,7 @@ static void make_radical(pointer q, int cur_style)
         }
     } else {
         /* not really a radical but we use its node, historical sharing (like in mathml) */
-        y = do_delimiter(q, left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
+        y = do_delimiter(q, d, cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
     }
     left_delimiter(q) = null;
     delta = (depth(y) + height(y) - theta) - (height(x) + depth(x) + clr);
@@ -1936,7 +1947,7 @@ static void make_radical(pointer q, int cur_style)
     }
     shift_amount(y) = (height(y) - theta) - (height(x) + clr);
     h = depth(y) + height(y);
-    p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y), math_radical_rule, cur_size, small_fam(left_delimiter(q)));
+    p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y), math_radical_rule, cur_size, small_fam(d));
     couple_nodes(y,p);
     if (degree(q) != null) {
         scaled wr, br, ar;
