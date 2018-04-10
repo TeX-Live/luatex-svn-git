@@ -794,6 +794,7 @@ make_lua_key(special);\
 make_lua_key(split_discards_head);\
 make_lua_key(split_keep);\
 make_lua_key(split_off);\
+make_lua_key(squeeze);\
 make_lua_key(stack);\
 make_lua_key(start);\
 make_lua_key(step);\
@@ -1159,6 +1160,7 @@ init_lua_key(special);\
 init_lua_key(split_discards_head);\
 init_lua_key(split_keep);\
 init_lua_key(split_off);\
+init_lua_key(squeeze);\
 init_lua_key(stack);\
 init_lua_key(start);\
 init_lua_key(step);\
@@ -1593,6 +1595,7 @@ use_lua_key(special);
 use_lua_key(split_discards_head);
 use_lua_key(split_keep);
 use_lua_key(split_off);
+use_lua_key(squeeze);
 use_lua_key(stack);
 use_lua_key(start);
 use_lua_key(step);

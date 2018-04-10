@@ -446,6 +446,7 @@ int font_to_lua(lua_State * L, int f)
     dump_intfield(L,checksum,font_checksum(f));
     dump_intfield(L,slant,font_slant(f));
     dump_intfield(L,extend,font_extend(f));
+    dump_intfield(L,squeeze,font_squeeze(f));
     dump_intfield(L,mode,font_mode(f));
     dump_intfield(L,width,font_width(f));
     dump_intfield(L,direction,font_natural_dir(f));
@@ -1472,6 +1473,13 @@ int font_from_lua(lua_State * L, int f)
     i = lua_numeric_field_by_index(L,lua_key_index(tounicode), 0);
     set_font_tounicode(f, (char) i);
 
+    i = lua_numeric_field_by_index(L,lua_key_index(slant), 0);
+    if (i < FONT_SLANT_MIN)
+        i = FONT_SLANT_MIN;
+    if (i > FONT_SLANT_MAX)
+        i = FONT_SLANT_MAX;
+    set_font_slant(f, i);
+
     i = lua_numeric_field_by_index(L,lua_key_index(extend), 1000);
     if (i < FONT_EXTEND_MIN)
         i = FONT_EXTEND_MIN;
@@ -1479,12 +1487,12 @@ int font_from_lua(lua_State * L, int f)
         i = FONT_EXTEND_MAX;
     set_font_extend(f, i);
 
-    i = lua_numeric_field_by_index(L,lua_key_index(slant), 0);
-    if (i < FONT_SLANT_MIN)
-        i = FONT_SLANT_MIN;
-    if (i > FONT_SLANT_MAX)
-        i = FONT_SLANT_MAX;
-    set_font_slant(f, i);
+    i = lua_numeric_field_by_index(L,lua_key_index(squeeze), 1000);
+    if (i < FONT_SQUEEZE_MIN)
+        i = FONT_SQUEEZE_MIN;
+    if (i > FONT_SQUEEZE_MAX)
+        i = FONT_SQUEEZE_MAX;
+    set_font_squeeze(f, i);
 
     i = lua_numeric_field_by_index(L,lua_key_index(width), 0);
     if (i < FONT_WIDTH_MIN)
