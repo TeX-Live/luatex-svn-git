@@ -53,6 +53,7 @@ void initialize_commands(void)
     primitive_luatex("mathsurroundskip", assign_glue_cmd, glue_base + math_skip_code, glue_base);
     primitive_luatex("mathsurroundmode", assign_int_cmd, int_base + math_skip_mode_code, int_base);
     primitive_luatex("mathscriptboxmode", assign_int_cmd, int_base + math_script_box_mode_code, int_base);
+    primitive_luatex("mathscriptcharmode", assign_int_cmd, int_base + math_script_char_mode_code, int_base);
     primitive_luatex("mathrulethicknessmode", assign_int_cmd, int_base + math_rule_thickness_mode_code, int_base);
     primitive_tex("output", assign_toks_cmd, output_routine_loc, local_base);
     primitive_tex("everypar", assign_toks_cmd, every_par_loc, local_base);

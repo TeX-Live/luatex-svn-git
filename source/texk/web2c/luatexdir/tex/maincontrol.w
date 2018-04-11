@@ -3656,6 +3656,7 @@ void initialize(void)
         math_pre_display_gap_factor_par = 2000;
         pre_bin_op_penalty_par = inf_penalty;
         math_script_box_mode_par = 1;
+        math_script_char_mode_par = 1;
         pre_rel_penalty_par = inf_penalty;
         compound_hyphen_mode_par = 1;
         escape_char_par = '\\';

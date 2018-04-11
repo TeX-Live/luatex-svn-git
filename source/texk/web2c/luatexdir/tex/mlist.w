@@ -3343,7 +3343,15 @@ the new fonts so eventualy there will be an option to ignore such corrections.
 #define analyze_script(init,su_n,su_f,su_c) do { \
     su_n = init; \
     if (su_n != null) { \
-        if (math_script_box_mode_par > 0 && type(su_n) == sub_mlist_node) { \
+        if (math_script_char_mode_par > 0 && type(su_n) == math_char_node) { \
+            fetch(su_n); \
+            if (char_exists(cur_f, cur_c)) { \
+                su_f = cur_f; \
+                su_c = cur_c; \
+            } else { \
+                su_n = null; \
+            } \
+        } else if (math_script_box_mode_par > 0 && type(su_n) == sub_mlist_node) { \
             su_n = math_list(su_n); \
             while (su_n != null) { \
                 if ((type(su_n) == kern_node) || (type(su_n) == glue_node)) { \
