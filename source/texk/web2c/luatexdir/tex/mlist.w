@@ -1972,8 +1972,8 @@ static void make_radical(pointer q, int cur_style)
         f = small_fam(left_delimiter(q));
         if (f >= 0) {
             t = fam_fnt(f,cur_size);
-            if (do_new_math(f)) {
-                t = font_MATH_par(f, RadicalRuleThickness);
+            if (do_new_math(t)) {
+                t = font_MATH_par(t, RadicalRuleThickness);
                 if (t != undefined_math_parameter) {
                     theta = t;
                     used_fam = f;
