@@ -146,7 +146,7 @@ const char *node_fields_radical[] = {
     "attr", "nucleus", "sub", "sup", "left", "degree", "width", "options", NULL
 };
 const char *node_fields_fraction[] = {
-    "attr", "width", "num", "denom", "left", "right", "middle", "options", NULL
+    "attr", "width", "num", "denom", "left", "right", "middle", "fam", "options", NULL
 };
 const char *node_fields_accent[] = {
     "attr", "nucleus", "sub", "sup", "accent", "bot_accent", "top_accent",
@@ -988,6 +988,12 @@ halfword new_node(int i, int j)
               n = slow_get_node(j);
               (void) memset((void *) (varmem + n + 1), 0, (sizeof(memory_word) * ((unsigned) j - 1)));
             }
+            break;
+        case fraction_noad:
+            fraction_fam(n) = -1;
+            break;
+        case simple_noad:
+            noad_fam(n) = -1;
             break;
         default:
             break;

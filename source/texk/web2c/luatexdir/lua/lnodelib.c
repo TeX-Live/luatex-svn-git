@@ -604,6 +604,10 @@ static int lua_nodelib_direct_getfam(lua_State * L)
             lua_pushinteger(L, math_fam(n));
         } else if (t == delim_node) {
             lua_pushinteger(L, small_fam(n));
+        } else if (t == fraction_noad) {
+            lua_pushinteger(L, fraction_fam(n));
+        } else if (t == simple_noad) {
+            lua_pushinteger(L, noad_fam(n));
         } else {
             lua_pushnil(L);
         }
@@ -639,6 +643,10 @@ static int lua_nodelib_direct_setfam(lua_State * L)
             math_fam(n) = (halfword) lua_tointeger(L, 2);
         } else if (t == delim_node) {
             small_fam(n) = (halfword) lua_tointeger(L, 2);
+        } else if (t == fraction_noad) {
+            fraction_fam(n) = (halfword) lua_tointeger(L, 2);
+        } else if (t == simple_noad) {
+            noad_fam(n) = (halfword) lua_tointeger(L, 2);
         }
     }
     return 0;
@@ -3250,7 +3258,8 @@ static int lua_nodelib_direct_setwidth(lua_State * L)
     if (n) {
         halfword t = type(n);
         if (t == hlist_node || t == vlist_node || t == rule_node || t == glue_node || t == glue_spec_node || t == math_node ||
-                t == kern_node || t == margin_kern_node ||  t == ins_node || t == unset_node) {
+                t == kern_node || t == margin_kern_node ||  t == ins_node || t == unset_node ||
+                t == fraction_noad || t == radical_noad ) {
             if (lua_type(L, 2) == LUA_TNUMBER) {
                 width(n) = lua_roundnumber(L,2);
             } else {
@@ -4424,6 +4433,8 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             fast_metatable_or_nil(right_delimiter(n));
         } else if (lua_key_eq(s, middle)) {
             fast_metatable_or_nil(middle_delimiter(n));
+        } else if (lua_key_eq(s, fam)) {
+            lua_pushinteger(L, fraction_fam(n));
         } else if (lua_key_eq(s, options)) {
             lua_pushinteger(L, fractionoptions(n));
         } else {
@@ -5162,6 +5173,8 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             nodelib_pushdirect_or_nil(right_delimiter(n));
         } else if (lua_key_eq(s, middle)) {
             nodelib_pushdirect_or_nil(middle_delimiter(n));
+        } else if (lua_key_eq(s, fam)) {
+            lua_pushinteger(L, fraction_fam(n));
         } else if (lua_key_eq(s, options)) {
             lua_pushinteger(L, fractionoptions(n));
         } else {
@@ -6550,6 +6563,8 @@ static int lua_nodelib_fast_setfield(lua_State * L)
             right_delimiter(n) = nodelib_getlist(L, 3);
         } else if (lua_key_eq(s, middle)) {
             middle_delimiter(n) = nodelib_getlist(L, 3);
+        } else if (lua_key_eq(s, fam)) {
+            fraction_fam(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, options)) {
             fractionoptions(n) = (halfword) lua_tointeger(L, 3);
         } else {
@@ -7414,6 +7429,8 @@ static int lua_nodelib_direct_setfield(lua_State * L)
             right_delimiter(n) = nodelib_popdirect(3);
         } else if (lua_key_eq(s, middle)) {
             middle_delimiter(n) = nodelib_popdirect(3);
+        } else if (lua_key_eq(s, fam)) {
+            fraction_fam(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, options)) {
             fractionoptions(n) = (halfword) lua_tointeger(L, 3);
         } else {

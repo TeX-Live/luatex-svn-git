@@ -487,6 +487,8 @@ typedef enum {
 #  define noadextra3(a)  vlink((a)+7) /* see (!) below */
 #  define noadextra4(a)  vinfo((a)+7) /* used to store samesize */
 
+#  define noad_fam(a)    vlink((a)+6) /* noadextra1 */
+
 /* accent noads */
 
 #  define accent_noad_size      8
@@ -559,7 +561,7 @@ typedef enum {
 
 /* fraction noads */
 
-#  define fraction_noad_size  7
+#  define fraction_noad_size  8
 #  define thickness(a)        vlink((a)+2) /* |thickness| field in a fraction noad */
 #  define numerator(a)        vlink((a)+3) /* |numerator| field in a fraction noad */
 #  define denominator(a)      vinfo((a)+3) /* |denominator| field in a fraction noad */
@@ -567,6 +569,7 @@ typedef enum {
 #  define right_delimiter(a)  vinfo((a)+5) /* second delimiter field of a fraction noad */
 #  define middle_delimiter(a) vlink((a)+6)
 #  define fractionoptions(a)  vinfo((a)+6)
+#  define fraction_fam(a)     vlink((a)+7)
 
 #  define fractionoptionset(a) ((fractionoptions(a) & noad_option_set    ) == noad_option_set    )
 #  define fractionexact(a)     ((fractionoptions(a) & noad_option_exact  ) == noad_option_exact  )

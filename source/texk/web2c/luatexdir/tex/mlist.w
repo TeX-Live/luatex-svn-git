@@ -270,19 +270,9 @@ static scaled minimum_operator_size(int var)
 the backward compatibility code, and it means that we can't raise an error here.
 
 @c
-static scaled radical_rule_par(int cur_style, int cur_size, int cur_fam)
+static scaled radical_rule_par(int var)
 {
-    scaled a, f ;
-    /* new, let the opentype font win */
-    f = fam_fnt(cur_fam,cur_size);
-    if (do_new_math(f)) {
-        a = font_MATH_par(f, RadicalRuleThickness);
-        if (a != undefined_math_parameter) {
-            return a;
-        }
-    }
-    /* till here */
-    a = get_math_param(math_param_radical_rule, cur_style);
+    scaled a = get_math_param(math_param_radical_rule, var);
     return a;
 }
 
@@ -1830,25 +1820,82 @@ illustrate the general setup of such procedures, let's begin with a
 couple of simple ones.
 
 @c
+/*
 static void make_over(pointer q, int cur_style, int cur_size, int cur_fam)
 {
     pointer p;
+
     p = overbar(clean_box(nucleus(q), cramped_style(cur_style), cur_style),
                 overbar_vgap(cur_style), overbar_rule(cur_style),
                 overbar_kern(cur_style), node_attr(nucleus(q)), math_over_rule, cur_size, cur_fam);
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
 }
+*/
+
+static void make_over(pointer q, int cur_style, int cur_size, int cur_fam)
+{
+    /* no rule adaption yet, maybe never as overbars should be proper extensibles */
+
+    pointer p;
+
+    scaled f, t;
+    scaled used_thickness = overbar_rule(cur_style);
+    scaled used_fam = cur_fam;
+
+    if (math_rule_thickness_mode_par > 0) {
+        f = noad_fam(q);
+        if (f >= 0) {
+            t = fam_fnt(f,cur_size);
+            if (do_new_math(t)) {
+                t = font_MATH_par(t, OverbarRuleThickness);
+                if (t != undefined_math_parameter) {
+                    used_thickness = t;
+                    used_fam = f;
+               }
+            }
+        }
+    }
+
+    p = overbar(clean_box(nucleus(q), cramped_style(cur_style), cur_style),
+                overbar_vgap(cur_style), used_thickness, overbar_kern(cur_style),
+                node_attr(nucleus(q)), math_over_rule, cur_size, used_fam);
+    math_list(nucleus(q)) = p;
+    type(nucleus(q)) = sub_box_node;
+}
 
 static void make_under(pointer q, int cur_style, int cur_size, int cur_fam)
 {
+    /* no rule adaption yet, maybe never as underbars should be proper extensibles */
+
     pointer p, x, y, r;         /* temporary registers for box construction */
     scaled delta;               /* overall height plus depth */
+
+    scaled f, t;
+    scaled used_thickness = underbar_rule(cur_style);
+    scaled used_fam = cur_fam;
+
     x = clean_box(nucleus(q), cur_style, cur_style);
     p = new_kern(underbar_vgap(cur_style));
     reset_attributes(p, node_attr(q));
     couple_nodes(x,p);
-    r = do_fraction_rule(underbar_rule(cur_style), node_attr(q), math_under_rule, cur_size, cur_fam);
+
+    if (math_rule_thickness_mode_par > 0) {
+        f = noad_fam(q);
+        if (f >= 0) {
+            t = fam_fnt(f,cur_size);
+            if (do_new_math(t)) {
+                t = font_MATH_par(t, UnderbarRuleThickness);
+                if (t != undefined_math_parameter) {
+                    used_thickness = t;
+                    used_fam = f;
+               }
+            }
+        }
+    }
+
+    r = do_fraction_rule(used_thickness, node_attr(q), math_under_rule, cur_size, used_fam);
+ // r = do_fraction_rule(underbar_rule(cur_style), node_attr(q), math_under_rule, cur_size, cur_fam);
     couple_nodes(p,r);
     y = vpackage(x, 0, additional, max_dimen, math_direction_par);
     reset_attributes(y, node_attr(q));
@@ -1909,15 +1956,36 @@ static void make_hextension(pointer q, int cur_style)
 static void make_radical(pointer q, int cur_style)
 {
     pointer x, y, p, l1, l2;     /* temporary registers for box construction */
-    scaled delta, clr, theta, h, d; /* dimensions involved in the calculation */
+    scaled delta, clr, theta, h, f; /* dimensions involved in the calculation */
+    scaled t, used_fam ;
     x = clean_box(nucleus(q), cramped_style(cur_style), cur_style);
     clr = radical_vgap(cur_style);
-    d = left_delimiter(q);
-    theta = radical_rule_par(cur_style, cur_size, small_fam(d));
+    theta = radical_rule_par(cur_style);
+    used_fam = small_fam(left_delimiter(q));
+
+    /*
+        We can take the rule width from the fam/style of the delimiter or use the most recent
+        math parameters value.
+    */
+
+    if (math_rule_thickness_mode_par > 0) {
+        f = small_fam(left_delimiter(q));
+        if (f >= 0) {
+            t = fam_fnt(f,cur_size);
+            if (do_new_math(f)) {
+                t = font_MATH_par(f, RadicalRuleThickness);
+                if (t != undefined_math_parameter) {
+                    theta = t;
+                    used_fam = f;
+                }
+            }
+        }
+    }
+
     if (theta == undefined_math_parameter) {
         /* a real radical */
         theta = fraction_rule(cur_style);
-        y = do_delimiter(q, d, cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
+        y = do_delimiter(q, left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
         /*
             If |y| is a composite then set |theta| to the height of its top
             character, else set it to the height of |y|.
@@ -1937,9 +2005,11 @@ static void make_radical(pointer q, int cur_style)
         }
     } else {
         /* not really a radical but we use its node, historical sharing (like in mathml) */
-        y = do_delimiter(q, d, cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
+        y = do_delimiter(q, left_delimiter(q), cur_size, height(x) + depth(x) + clr + theta, false, cur_style, true, NULL, NULL, NULL);
     }
+    /* weird hack, in overbar we use small_fam(left_delimiter(q)) so actually small_fam(0) */
     left_delimiter(q) = null;
+    /* */
     delta = (depth(y) + height(y) - theta) - (height(x) + depth(x) + clr);
     if (delta > 0) {
         /* increase the actual clearance */
@@ -1947,7 +2017,7 @@ static void make_radical(pointer q, int cur_style)
     }
     shift_amount(y) = (height(y) - theta) - (height(x) + clr);
     h = depth(y) + height(y);
-    p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y), math_radical_rule, cur_size, small_fam(d));
+    p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y), math_radical_rule, cur_size, used_fam);
     couple_nodes(y,p);
     if (degree(q) != null) {
         scaled wr, br, ar;
@@ -2451,10 +2521,32 @@ static void make_math_accent(pointer q, int cur_style)
 static void make_fraction(pointer q, int cur_style)
 {
     pointer p, p1, p2, v, x, y, z, l, r, m; /* temporary registers for box construction */
-    scaled delta, delta1, delta2, shift_up, shift_down, clr1, clr2;
-    /* dimensions for box calculations */
+    scaled delta, delta1, delta2, shift_up, shift_down, clr1, clr2, f, t;
+
+    /*
+        We can take the rule width from an explicitly set fam, even if a fraction itself has
+        no character, otherwise we just use the math parameter.
+    */
+
+    scaled used_fam = math_rules_fam_par;
+
+    if (math_rule_thickness_mode_par > 0) {
+        f = fraction_fam(q);
+        if (f >= 0) {
+            t = fam_fnt(f,cur_size);
+            if (do_new_math(t)) {
+                t = font_MATH_par(t, FractionRuleThickness);
+                if (t != undefined_math_parameter) {
+                    thickness(q) = t;
+                    used_fam = f;
+               }
+            }
+        }
+    }
+
     if (thickness(q) == default_code)
         thickness(q) = fraction_rule(cur_style);
+
     /*
         Create equal-width boxes |x| and |z| for the numerator and denominator,
         and compute the default amounts |shift_up| and |shift_down| by which they
@@ -2607,7 +2699,7 @@ static void make_fraction(pointer q, int cur_style)
             p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
             couple_nodes(p,z);
         } else {
-            y = do_fraction_rule(thickness(q), node_attr(q), math_fraction_rule, cur_size, math_rules_fam_par);
+            y = do_fraction_rule(thickness(q), node_attr(q), math_fraction_rule, cur_size, used_fam);
             p = new_kern((math_axis_size(cur_size) - delta) - (height(z) - shift_down));
             reset_attributes(p, node_attr(q));
             couple_nodes(y,p);
