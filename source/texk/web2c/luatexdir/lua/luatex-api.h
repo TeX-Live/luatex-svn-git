@@ -110,7 +110,10 @@ extern int luaopen_fio(lua_State * L);
 
 extern void open_oslibext(lua_State * L);
 extern void open_strlibext(lua_State * L);
-extern void open_lfslibext(lua_State * L);
+
+/*
+    extern void open_lfslibext(lua_State * L);
+*/
 
 extern void initfilecallbackids(int max);
 extern void setinputfilecallbackid(int n, int i);

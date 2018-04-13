@@ -369,6 +369,37 @@ do
 
 end
 
+do
+
+    local lfsattributes     = lfs.attributes
+    local symlinkattributes = lfs.symlinkattributes
+
+    -- these can now be done using lfs (was dead slow before)
+
+    function lfs.isfile(name)
+        local m = lfsattributes(name,"mode")
+        return m == "file" or m == "link"
+    end
+
+    function lfs.isdir(name)
+        local m = lfsattributes(name,"mode")
+        return m == "directory"
+    end
+
+    -- shortnames have also be sort of dropped from kpse
+
+    function lfs.shortname(name)
+        return name
+    end
+
+    -- now there is a target field, so ...
+
+    function lfs.readlink(name)
+        return symlinkattributes(name,"target") or nil
+    end
+
+end
+
 -- so far
 
 if utilities and utilities.merger and utilities.merger.compact then

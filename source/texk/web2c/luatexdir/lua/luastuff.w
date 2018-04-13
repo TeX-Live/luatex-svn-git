@@ -299,7 +299,10 @@ void luainterpreter(void)
 
     open_oslibext(L);
     open_strlibext(L);
-    open_lfslibext(L);
+
+    /*
+        open_lfslibext(L);
+    */
 
     /*
         The socket and mime libraries are a bit tricky to open because they use a load-time
