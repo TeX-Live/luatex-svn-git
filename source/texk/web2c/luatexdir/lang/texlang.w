@@ -259,6 +259,9 @@ const char *clean_hyphenation(int id, const char *buff, char **cleaned)
                 tex_error("exception syntax error", NULL);
                 return s;
             }
+            if (uword[i] == '[' && uword[i+1] >= '0' && uword[i+1] <= '9' && uword[i+2] == ']') {
+                i += 3;
+            }
         } else {
             STORE_CHAR(id,u);
         }
@@ -572,7 +575,7 @@ static const char *PAT_ERROR[] = {
 static void do_exception(halfword wordstart, halfword r, char *replacement)
 {
     unsigned i;
-    halfword t;
+    halfword t, pen;
     unsigned len;
     int clang;
     lang_variables langdata;
@@ -585,11 +588,10 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
     langdata.pre_hyphen_char = get_pre_hyphen_char(clang);
     langdata.post_hyphen_char = get_post_hyphen_char(clang);
     for (i = 0; i < len; i++) {
-        if (uword[i + 1] == '-') {      /* a hyphen follows */
-            /*
-                while (vlink(t) != r && (type(t) != glyph_node || !is_simple_character(t)))
-                    t = vlink(t);
-            */
+        if (uword[i + 1] == 0 ) {
+            break;
+        } else if (uword[i + 1] == '-') {
+            /* a hyphen follows */
             if (vlink(t) == r)
                 break;
             insert_syllable_discretionary(t, &langdata);
@@ -612,31 +614,56 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
             if (i == len) {
                 tex_error("broken pattern 3", PAT_ERROR);
             }
-            /*i++;  *//* jump over the last right brace */
             if (vlink(t) == r)
                 break;
             if (repl > 0) {
-                halfword q = t;
-                replace = vlink(q);
-                while (repl > 0 && q != null) {
-                    q = vlink(q);
-                    if (type(q) == glyph_node) {
-                        repl--;
+                if (type(t) == glyph_node) {
+                    halfword q = t;
+                    replace = vlink(q);
+                    while (repl > 0 && q != null) {
+                        q = vlink(q);
+                        if (type(q) == glyph_node) {
+                            repl--;
+                        } else {
+                            /* printf("WEIRD 1 %i\n",type(q)); */
+                        }
                     }
+                    try_couple_nodes(t, vlink(q));
+                    vlink(q) = null;
+                } else {
+                    /* printf("WEIRD 2 %i\n",type(t)); */
+                    break;
                 }
-                try_couple_nodes(t, vlink(q));
-                vlink(q) = null;
             }
-            t = insert_discretionary(t, gg, hh, replace, hyphen_penalty_par);
-            t = vlink(t);       /* skip the new disc */
+            if (uword[i+1] == '[' && uword[i+2] >= '0' && uword[i+2] <= '9' && uword[i+3] == ']') {
+                if (exception_penalty_par > 0) {
+                    if (exception_penalty_par > 100000) {
+                        pen = (uword[i+2] - '0') * exception_penalty_par ;
+                    } else {
+                        pen = exception_penalty_par;
+                    }
+                } else {
+                    pen = hyphen_penalty_par;
+                }
+                i += 3;
+            } else {
+                pen = hyphen_penalty_par;
+            }
+            t = insert_discretionary(t, gg, hh, replace, pen);
+            /* skip the new disc */
+            t = vlink(t);
+            /* check if we have two in a row */
+            if (uword[i + 1] == '{') {
+                i--;
+                /* printf("backtrack to %i\n",i); */
+            }
         } else {
             t = vlink(t);
         }
-        /* new */
+        /* safeguard */
         if (vlink(t) == r) {
             break;
         }
-        /* */
     }
 }
 
