@@ -111,12 +111,14 @@ problem for well|-|behaved input files, but it could create incompatibilities fo
 input that would have generated an error when processed by older \TEX|-|based
 engines. The affected commands with an altered initial (left of the equals sign)
 or secondary (right of the equals sign) value are: \type {\char}, \type
-{\lccode}, \type {\uccode}, \type {\catcode}, \type {\sfcode}, \type {\efcode},
-\type {\lpcode}, \type {\rpcode}, \type {\chardef}.
+{\lccode}, \type {\uccode}, \type {\hjcode}, \type {\catcode}, \type {\sfcode},
+\type {\efcode}, \type {\lpcode}, \type {\rpcode}, \type {\chardef}.
 
 As far as the core engine is concerned, all input and output to text files is
 \UTF-8 encoded. Input files can be pre|-|processed using the \type {reader}
-callback. This will be explained in a later chapter.
+callback. This will be explained in \in {section} [iocallback]. Normalization of
+the \UNICODE\ input is on purpose not built|-|in can be handled by a macro
+package during callback processing.
 
 Output in byte|-|sized chunks can be achieved by using characters just outside of
 the valid \UNICODE\ range, starting at the value $1{,}114{,}112$ (0x110000). When
@@ -129,8 +131,6 @@ are considered \quote {safe} and therefore printed as|-|is. You can disable
 escaping with \type {texio.setescape(false)} in which case you get the normal
 characters on the console.
 
-Normalization of the \UNICODE\ input can be handled by a macro package during
-callback processing (this will be explained in \in {section} [iocallback]).
 
 \subsection{\type {\Uchar}}
 
@@ -204,6 +204,34 @@ attributes for node list processing from \LUA\ is given in~\in {chapter}[nodes].
 Attributes are stored in a sorted (sparse) linked list that are shared when
 possible. This permits efficient testing and updating.
 
+\subsection{Nodes}
+
+When \TEX\ reads input it will interpret the stream according to the properties
+of the characters. Some signal a macro name and trigger expansion, others open
+and close groups, trigger math mode, etc. What's left over becomes the typeset
+text. Internally we get linked list of nodes. Characters become \type {glyph}
+nodes that have for instance a \type {font} and \type {char} property and \typ
+{\kern 10pt} becomes a \type {kern} node with a \type {width} property. Spaces
+are alien to \TEX\ as they are turned into \type {glue} nodes. So, a simple
+paragraph is mostly a mix of sequences of \type {glyph} nodes (words) and \type
+{glue} nodes (spaces).
+
+The sequences of characters at some point are extended with \type {disc} nodes
+that relate to hyphenation. After that font logic can be applied and we get a
+list where some characters can be replaced, for instance multiple characters can
+become one ligature, and font kerns can be injected. This is driven by the
+font properties.
+
+Boxes (like \type {\hbox} and \type {\vbox}) become \type {hlist} or \type
+{vlist} nodes with \type {width}, \type {height}, \type {depth} and \type {shift}
+properties and a pointer \type {list} to its actual content. Boxes can be
+constructed explicitly or can be the result of subprocesses. For instance, when
+lines are broken into paragraphs, the lines are a linked list of \type {hlist}
+nodes.
+
+We will see more of these nodes later on but for now that should be enough to be
+able to follow the rest oof this chapter.
+
 \subsection{Box attributes}
 
 Nodes typically receive the list of attributes that is in effect when they are
@@ -229,21 +257,53 @@ incompatibility is mostly due to the fact that separate specials and literals ar
 a more unnatural approach to colors than attributes.
 
 It is possible to fine-tune the list of attributes that are applied to a \type
-{hbox}, \type {vbox} or \type {vtop} by the use of the keyword \type {attr}. An
-example:
+{hbox}, \type {vbox} or \type {vtop} by the use of the keyword \type {attr}. The
+\type {attr} keyword(s) should come before a \type {to} or \type {spread}, if
+that is also specified. An example is:
 
-\starttyping
-\attribute2=5
+\startbuffer[tex]
+\attribute997=123
+\attribute998=456
 \setbox0=\hbox {Hello}
-\setbox2=\hbox attr1=12 attr2=-"7FFFFFFF{Hello}
-\stoptyping
+\setbox2=\hbox attr 999 = 789 attr 998 = -"7FFFFFFF{Hello}
+\stopbuffer
 
-This will set the attribute list of box~2 to $1=12$, and the attributes of box~0
-will be $2=5$. As you can see, assigning the maximum negative value causes an
-attribute to be ignored.
+\startbuffer[lua]
+  for b=0,2,2 do
+    for a=997, 999 do
+      tex.sprint("box ", b, " : attr ",a," : ",tostring(tex.box[b]     [a]))
+      tex.sprint("\\quad\\quad")
+      tex.sprint("list ",b, " : attr ",a," : ",tostring(tex.box[b].list[a]))
+      tex.sprint("\\par")
+    end
+  end
+\stopbuffer
 
-The \type {attr} keyword(s) should come before a \type {to} or \type {spread}, if
-that is also specified.
+\typebuffer[tex]
+
+Box 0 now has attributes 997 and 998 set while box 2 has attributes 997 and 999
+set while the nodes inside that box will all have attributes 997 and 998 set.
+Assigning the maximum negative value causes an attribute to be ignored.
+
+To give you an idea of what this means at the \LUA\ end, take the following
+code:
+
+\typebuffer[lua]
+
+Later we will see that you can access properties of a node. The boxes here are so
+called \type {hlist} nodes that have a field \type {list} that points to the
+content. Because the attributes are a list themselves you can access them by
+indexing the node (here we do that with \type {[a]}. Running this snippet gives:
+
+\start
+    \getbuffer[tex]
+    \startpacked \tt
+        \ctxluabuffer[lua]
+    \stoppacked
+\stop
+
+Because some values are not set we need to apply the \type {tostring} function
+here so that we get the word \type {nil}.
 
 \section{\LUA\ related primitives}
 
@@ -281,9 +341,10 @@ say:
 \stoptyping
 
 Then \LUA\ line comments can be used, since \TEX\ does not replace line endings
-with spaces.
+with spaces. Of course such an approach depends on the macro package that you
+use.
 
-Likewise, the \syntax {<16-bit number>} designates a name of a \LUA\ chunk and is
+The \syntax {<16-bit number>} designates a name of a \LUA\ chunk and is
 taken from the \type {lua.name} array (see the documentation of the \type {lua}
 table further in this manual). When a chunk name starts with a \type {@} it will
 be displayed as a file name. This is a side effect of the way \LUA\ implements
@@ -337,9 +398,6 @@ can break up \LUATEX\ pretty bad. If you are not careful while working with the
 node list interface, you may even end up with assertion errors from within the
 \TEX\ portion of the executable.
 
-The behaviour documented in the above subsection is considered stable in the sense
-that there will not be backward-incompatible changes any more.
-
 \subsection{\type {\latelua}}
 
 Contrary to \type {\directlua}, \type {\latelua} stores \LUA\ code in a whatsit
@@ -384,14 +442,14 @@ is easier to keep the code in a separate file and load it using \LUA's
 \directlua { dofile('mysetups.lua') }
 \stoptyping
 
-\subsection{\type {\luafunction}}
+\subsection{\type {\luafunction} and \type {\luafunctioncall}}
 
 The \type {\directlua} commands involves tokenization of its argument (after
 picking up an optional name or number specification). The tokenlist is then
 converted into a string and given to \LUA\ to turn into a function that is
-called. The overhead is rather small but when you use this primitive hundreds of
-thousands of times, it can become noticeable. For this reason there is a variant
-call available: \type {\luafunction}. This command is used as follows:
+called. The overhead is rather small but when you have millions of calls it can
+have some impact. For this reason there is a variant call available: \type
+{\luafunction}. This command is used as follows:
 
 \starttyping
 \directlua {
@@ -416,6 +474,9 @@ in the following example the number \type {8} gets typeset.
     t[8] = function(slot) tex.print(slot) end
 }
 \stoptyping
+
+The \type {\luafunctioncall} primitive does the same but is unexpandable, for instance
+in an \type {\edef}.
 
 \section {Alignments}
 
@@ -492,30 +553,26 @@ raised.
 
 \subsection{\type {\suppressfontnotfounderror}}
 
-\startsyntax
-\suppressfontnotfounderror = 1
-\stopsyntax
-
 If this integer parameter is non|-|zero, then \LUATEX\ will not complain about
 font metrics that are not found. Instead it will silently skip the font
 assignment, making the requested csname for the font \type {\ifx} equal to \type
 {\nullfont}, so that it can be tested against that without bothering the user.
 
-\subsection{\type {\suppresslongerror}}
-
 \startsyntax
-\suppresslongerror = 1
+\suppressfontnotfounderror = 1
 \stopsyntax
+
+\subsection{\type {\suppresslongerror}}
 
 If this integer parameter is non|-|zero, then \LUATEX\ will not complain about
 \type {\par} commands encountered in contexts where that is normally prohibited
 (most prominently in the arguments of non-long macros).
 
-\subsection{\type {\suppressifcsnameerror}}
-
 \startsyntax
-\suppressifcsnameerror = 1
+\suppresslongerror = 1
 \stopsyntax
+
+\subsection{\type {\suppressifcsnameerror}}
 
 If this integer parameter is non|-|zero, then \LUATEX\ will not complain about
 non-expandable commands appearing in the middle of a \type {\ifcsname} expansion.
@@ -524,15 +581,19 @@ an \type {\endcsname} command. If the input expansion is unbalanced with respect
 to \type {\csname} \ldots \type {\endcsname} pairs, the \LUATEX\ process may hang
 indefinitely.
 
-\subsection{\type {\suppressoutererror}}
-
 \startsyntax
-\suppressoutererror = 1
+\suppressifcsnameerror = 1
 \stopsyntax
+
+\subsection{\type {\suppressoutererror}}
 
 If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
 about \type {\outer} commands encountered in contexts where that is normally
 prohibited.
+
+\startsyntax
+\suppressoutererror = 1
+\stopsyntax
 
 \subsection{\type {\suppressmathparerror}}
 
@@ -554,33 +615,19 @@ a $
 
 When set to a non|-|zero value the following command will not issue an error:
 
-\starttyping
+\startsyntax
 \suppressprimitiveerror = 1
 
 \primitive\notaprimitive
-\stoptyping
+\stopsyntax
 
 \section {Math}
 
-\subsection{Extensions}
-
-We will cover math in its own chapter because not only the font subsystem and
-spacing model have been enhanced (thereby introducing many new primitives) but
-also because some more control has been added to existing functionality.
-
-\subsection{\type {\matheqnogapstep}}
-
-By default \TEX\ will add one quad between the equation and the number. This is
-hard coded. A new primitive can control this:
-
-\startsyntax
-\matheqnogapstep = 1000
-\stopsyntax
-
-Because a math quad from the math text font is used instead of a dimension, we
-use a step to control the size. A value of zero will suppress the gap. The step
-is divided by 1000 which is the usual way to mimmick floating point factors in
-\TEX.
+We will cover math extensions in its own chapter because not only the font
+subsystem and spacing model have been enhanced (thereby introducing many new
+primitives) but also because some more control has been added to existing
+functionality. Much of this relates to the differences approaches of traditional
+\TEX\ fonts and \OPENTYPE\ math.
 
 \section{Fonts}
 
@@ -715,10 +762,8 @@ a relaxed equivalent when there is no such name. It is equivalent to
 \stoptyping
 
 The advantage is that it saves a lookup (don't expect much speedup) but more
-important is that it avoids using the \type {\if}.
-
-The \type {\lastnamedcs} is one that should be used with care. The above
-example could be written as:
+important is that it avoids using the \type {\if} test. The \type {\lastnamedcs}
+is one that should be used with care. The above example could be written as:
 
 \starttyping
 \ifcsname foo\endcsname
@@ -742,8 +787,7 @@ immediate command.
 
 \subsection{\type{\letcharcode}}
 
-This primitive is still experimental but can be used to assign a meaning to an active
-character, as in:
+This primitive can be used to assign a meaning to an active character, as in:
 
 \starttyping
 \def\foo{bar} \letcharcode123=\foo
@@ -756,13 +800,13 @@ This can be a bit nicer that using the uppercase tricks (using the property of
 
 \subsection{\type {\outputbox}}
 
-\startsyntax
-\outputbox = 65535
-\stopsyntax
-
-This new integer parameter allows you to alter the number of the box that will be
+This integer parameter allows you to alter the number of the box that will be
 used to store the page sent to the output routine. Its default value is 255, and
 the acceptable range is from 0 to 65535.
+
+\startsyntax
+\outputbox = 12345
+\stopsyntax
 
 \subsection{\type {\vpack}, \type {\hpack} and \type {\tpack}}
 
@@ -855,7 +899,8 @@ This has the same effect but the subtype is now~1 and the value~123 is stored.
 The traditional ligature builder still sees this as a cancel boundary directive
 but at the \LUA\ end you can implement different behaviour. The added benefit of
 passing this value is a side effect of the generalization. The subtypes~2 and~3
-are used to control protrusion and word boundaries in hyphenation.
+are used to control protrusion and word boundaries in hyphenation and have
+related primitives.
 
 \section{Control and debugging}
 
@@ -864,7 +909,7 @@ are used to control protrusion and word boundaries in hyphenation.
 If \type {\tracingonline} is larger than~2, the node list display will also print
 the node number of the nodes.
 
-\subsection{\type {\outputmode} and \type {\draftmode}}
+\subsection{\type {\outputmode}}
 
 The \type {\outputmode} variable tells \LUATEX\ what it has to produce:
 
@@ -873,8 +918,10 @@ The \type {\outputmode} variable tells \LUATEX\ what it has to produce:
 \NC \type {1} \NC \PDF\ code \NC \NR
 \stoptabulate
 
+\subsection{\type {\draftmode}}
+
 The value of the \type {\draftmode} counter signals the backend if it should
-output less. The \PDF\ backend accepts a value of~$1$, while the \DVI\ backend
+output less. The \PDF\ backend accepts a value of~1, while the \DVI\ backend
 ignores the value.
 
 \section {Files}

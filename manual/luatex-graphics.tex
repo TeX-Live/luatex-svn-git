@@ -353,6 +353,28 @@ Note that the new version of \MPLIB\ no longer uses binary mem files, so the way
 to preload a set of macros is simply to start off with an \type {input} command
 in the first \type {mp:execute()} call.
 
+The \PDF\ file is kept open after its properties are determined. After inclusion,
+which happens when the page that references the image is flushed, the file is
+closed. This means that when you have thousands of images on one page, your
+operating system might decide to abort the run. When you include more than one
+page from a \PDF\ file you can set the \type {keepopen} flag when you allocate an
+image object, or pass the \type {keepopen} directive when you refer to the image
+with \type {\useimageresource} This only makes sense when you embed many pages.
+An \type {\immediate} applied to \type {\saveimageresource} will also force a
+close after inclusion.
+
+\starttyping
+\immediate\useimageresource{foo.pdf}%
+          \saveimageresource         \lastsavedimageresourceindex % closed
+          \useimageresource{foo.pdf}%
+          \saveimageresource         \lastsavedimageresourceindex % kept open
+          \useimageresource{foo.pdf}%
+          \saveimageresource keepopen\lastsavedimageresourceindex % kept open
+
+\directlua{img.write(img.scan{ file = "foo.pdf" })}                  % closed
+\directlua{img.write(img.scan{ file = "foo.pdf", keepopen = true })} % kept open
+\stoptyping
+
 \subsection{\type {mp:statistics}}
 
 You can request statistics with:

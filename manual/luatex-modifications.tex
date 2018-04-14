@@ -99,7 +99,8 @@ functionality, but with a few small adaptations.
 \startitem
     The \TEXXET\ extension is not present, so the primitives \type
     {\TeXXeTstate}, \type {\beginR}, \type {\beginL}, \type {\endR} and \type
-    {\endL} are missing. Instead we use the \OMEGA\ approach to directionality.
+    {\endL} are missing. Instead we used the \OMEGA/\ALEPH\ approach to
+    directionality as starting point.
 \stopitem
 
 \startitem
@@ -108,9 +109,9 @@ functionality, but with a few small adaptations.
 \stopitem
 
 \startitem
-    Register management in \LUATEX\ uses the \ALEPH\ model, so the maximum value
-    is 65535 and the implementation uses a flat array instead of the mixed
-    flat|\&|sparse model from \ETEX.
+    Register management in \LUATEX\ uses the \OMEGA/\ALEPH\ model, so the maximum
+    value is 65535 and the implementation uses a flat array instead of the mixed
+    flat & sparse model from \ETEX.
 \stopitem
 
 \startitem
@@ -144,13 +145,13 @@ The front- and backend are decoupled as much as possible.
 \startitem
     The (experimental) support for snap nodes has been removed, because it is
     much more natural to build this functionality on top of node processing and
-    attributes. The associated primitives that are now gone are: \type
+    attributes. The associated primitives that are gone are: \type
     {\pdfsnaprefpoint}, \type {\pdfsnapy}, and \type {\pdfsnapycomp}.
 \stopitem
 
 \startitem
     The (experimental) support for specialized spacing around nodes has also been
-    removed. The associated primitives that are now gone are: \type
+    removed. The associated primitives that are gone are: \type
     {\pdfadjustinterwordglue}, \type {\pdfprependkern}, and \type
     {\pdfappendkern}, as well as the five supporting primitives \type
     {\knbscode}, \type {\stbscode}, \type {\shbscode}, \type {\knbccode}, and
@@ -159,17 +160,13 @@ The front- and backend are decoupled as much as possible.
 
 \startitem
     A number of \quote {\PDFTEX\ primitives} have been removed as they can be
-    implemented using \LUA:
-
-    \start \raggedright
-    \type {\pdfelapsedtime}, \type {\pdfescapehex}, \type {\pdfescapename}, \type
-    {\pdfescapestring}, \type {\pdffiledump}, \type {\pdffilemoddate}, \type
-    {\pdffilesize}, \type {\pdfforcepagebox}, \type {\pdflastmatch}, \type
-    {\pdfmatch}, \type {\pdfmdfivesum}, \type {\pdfmovechars}, \type
-    {\pdfoptionalwaysusepdfpagebox}, \type {\pdfoptionpdfinclusionerrorlevel},
-    \type {\pdfresettimer}, \type {\pdfshellescape}, \type {\pdfstrcmp} and \type
-    {\pdfunescapehex}
-    \par \stop
+    implemented using \LUA: \type {\pdfelapsedtime}, \type {\pdfescapehex}, \type
+    {\pdfescapename}, \type {\pdfescapestring}, \type {\pdffiledump}, \type
+    {\pdffilemoddate}, \type {\pdffilesize}, \type {\pdfforcepagebox}, \type
+    {\pdflastmatch}, \type {\pdfmatch}, \type {\pdfmdfivesum}, \type
+    {\pdfmovechars}, \type {\pdfoptionalwaysusepdfpagebox}, \type
+    {\pdfoptionpdfinclusionerrorlevel}, \type {\pdfresettimer}, \type
+    {\pdfshellescape}, \type {\pdfstrcmp} and \type {\pdfunescapehex}
 \stopitem
 
 \startitem
@@ -180,13 +177,8 @@ The front- and backend are decoupled as much as possible.
 
 \startitem
     The experimental snapper mechanism has been removed and therefore also the
-    primitives:
-
-    \start \raggedright
-    \type {\pdfignoreddimen}, \type {\pdffirstlineheight}, \type
-    {\pdfeachlineheight}, \type {\pdfeachlinedepth} and \type
-    {\pdflastlinedepth}
-    \par \stop
+    primitives \type {\pdfignoreddimen}, \type {\pdffirstlineheight}, \type
+    {\pdfeachlineheight}, \type {\pdfeachlinedepth} and \type {\pdflastlinedepth}
 \stopitem
 
 \startitem
@@ -196,9 +188,9 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    The \PNG\ transparency fix from 1.40.6 is not applied as high|-|level support
-    is pending. Because \LUATEX\ has a different subsystem for managing images,
-    more diversion from its ancestor happened in the meantime.
+    Because \LUATEX\ has a different subsystem for managing images, more
+    diversion from its ancestor happened in the meantime. We don't adapt to
+    changes in \PDFTEX.
 \stopitem
 
 \startitem
@@ -289,7 +281,7 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    The pixel multiplier dimension \type {\pdfpxdimen} lots its prefix and is now calles
+    The pixel multiplier dimension \type {\pdfpxdimen} lost its prefix and is now calles
     \type {\pxdimen}.
 \stopitem
 
@@ -308,6 +300,10 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
+    There is some more control over what metadata goes into the \PDF\ file.
+\stopitem
+
+\startitem
     The promotion of primitives to core primitives as well as the separation of
     font- and backend means that the initialization namespace \type {pdftex} is
     gone.
@@ -318,8 +314,8 @@ The front- and backend are decoupled as much as possible.
 One change involves the so called xforms and ximages. In \PDFTEX\ these are
 implemented as so called whatsits. But contrary to other whatsits they have
 dimensions that need to be taken into account when for instance calculating
-optimal line breaks. In \LUATEX\ these are now promoted to normal nodes, which
-simplifies code that needs those dimensions.
+optimal line breaks. In \LUATEX\ these are now promoted to a special type of rule
+nodes, which simplifies code that needs those dimensions.
 
 Another reason for promotion is that these are useful concepts. Backends can
 provide the ability to use content that has been rendered in several places,
@@ -344,7 +340,7 @@ related) as before, you should not depend on that.
 The protrusion detection mechanism is enhanced a bit to enable a bit more complex
 situations. When protrusion characters are identified some nodes are skipped:
 
-\startitemize[packed]
+\startitemize[packed,columns,two]
 \startitem zero glue \stopitem
 \startitem penalties \stopitem
 \startitem empty discretionaries \stopitem
@@ -387,14 +383,11 @@ we say next applies to both these programs.
 
 \startitem
     The \OCP\ processing has been removed completely and as a consequence, the
-    following primitives have been removed:
-
-    \start \raggedright
-    \type {\ocp}, \type {\externalocp}, \type {\ocplist}, \type {\pushocplist},
-    \type {\popocplist}, \type {\clearocplists}, \type {\addbeforeocplist}, \type
-    {\addafterocplist}, \type {\removebeforeocplist}, \type {\removeafterocplist}
-    and \type {\ocptracelevel}
-    \par \stop
+    following primitives have been removed: \type {\ocp}, \type {\externalocp},
+    \type {\ocplist}, \type {\pushocplist}, \type {\popocplist}, \type
+    {\clearocplists}, \type {\addbeforeocplist}, \type {\addafterocplist}, \type
+    {\removebeforeocplist}, \type {\removeafterocplist} and \type
+    {\ocptracelevel}.
 \stopitem
 
 \startitem
@@ -405,17 +398,14 @@ we say next applies to both these programs.
 
 \startitem
     The input translations from \ALEPH\ are not implemented, the related
-    primitives are not available:
-
-    \start \raggedright
-    \type {\DefaultInputMode}, \type {\noDefaultInputMode}, \type {\noInputMode},
-    \type {\InputMode}, \type {\DefaultOutputMode}, \type {\noDefaultOutputMode},
-    \type {\noOutputMode}, \type {\OutputMode}, \type {\DefaultInputTranslation},
-    \type {\noDefaultInputTranslation}, \type {\noInputTranslation}, \type
+    primitives are not available: \type {\DefaultInputMode}, \type
+    {\noDefaultInputMode}, \type {\noInputMode}, \type {\InputMode}, \type
+    {\DefaultOutputMode}, \type {\noDefaultOutputMode}, \type {\noOutputMode},
+    \type {\OutputMode}, \type {\DefaultInputTranslation}, \type
+    {\noDefaultInputTranslation}, \type {\noInputTranslation}, \type
     {\InputTranslation}, \type {\DefaultOutputTranslation}, \type
     {\noDefaultOutputTranslation}, \type {\noOutputTranslation} and \type
-    {\OutputTranslation}
-    \par \stop
+    {\OutputTranslation}.
 \stopitem
 
 \startitem
@@ -473,13 +463,16 @@ we say next applies to both these programs.
 
 \startitem
     The promotion of primitives to core primitives as well as the removed of all
-    others means that the initialization namespace \type {aleph} is gone.
+    others means that the initialization namespace \type {aleph} that early
+    versions of \LUATEX\ provided is gone.
 \stopitem
 
 \stopitemize
 
 The above let's itself summarize as: we took the 32 bit aspects and much of the
-directional mechanisms.
+directional mechanisms and merged it into the \PDFTEX\ code base as starting
+point for further development. Then we simplified directionality, fixed it and
+opened it up.
 
 \stopsubsection
 
@@ -515,7 +508,8 @@ different:
     mode because \type {texmf.cnf} is not read: \type {shell-escape} is off (but
     that is not a problem because of \LUA's \type {os.execute}), and the paranoia
     checks on \type {openin} and \type {openout} do not happen. However, it is
-    easy for a \LUA\ script to do this itself by overloading \type {io.open}.
+    easy for a \LUA\ script to do this itself by overloading \type {io.open} and
+    alike.
 \stopitem
 
 \startitem
@@ -535,10 +529,10 @@ others promoted to core \LUATEX\ primitives. That is only part of the story. In
 order to separate the backend specific primitives in de code these commands are
 now replaced by only a few. In traditional \TEX\ we only had the \DVI\ backend
 but now we have two: \DVI\ and \PDF. Additional functionality is implemented as
-\quote {extensions} in \TEX speak. By separating more strickly we are able to
-keep the core (fontend) clean and stable. If for some reason an extra backend
-option is needed, it can be implemented without touching the core. The three
-\PDF\ backend related primitives are
+\quote {extensions} in \TEX\ speak. By separating more strickly we are able to
+keep the core (fontend) clean and stable and isolate these extensions. If for
+some reason an extra backend option is needed, it can be implemented without
+touching the core. The three \PDF\ backend related primitives are:
 
 \starttyping
 \pdfextension command [specification]
@@ -1068,21 +1062,15 @@ by setting \type {\breakafterdirmode} to~\type {1}. The following table shows th
 difference. Watch your spaces.
 
 \def\ShowSome#1{%
-    \BC
-        \type{#1}
+    \BC \type{#1}
+    \NC \breakafterdirmode\zerocount\hsize\zeropoint#1
     \NC
-        \breakafterdirmode = 0
-        \hsize 0pt
-        #1
-    \NC
-    \NC
-        \breakafterdirmode = 1
-        \hsize 0pt
-        #1
+    \NC \breakafterdirmode\plusone\hsize\zeropoint#1
     \NC
     \NC \NR \HL
 }
-\starttabulate[|l|Tp(0pt)|w(5em)|Tp(0pt)|p|]
+
+\starttabulate[|lp(10em)|Tp(1pt)|w(5em)|Tp(1pt)|w(5em)|]
     \HL
     \BC \type{\breakafterdirmode}
     \BC \type{0}
@@ -1114,9 +1102,7 @@ by \type {\hangindent} and \type {\parshape}. This is controlled by a new parame
 
 The value is reset to zero (like \type {\hangindent} and \type {\parshape})
 after the paragraph is done with. You can use negative values to prevent
-this.
-
-In \in {figure} [fig:shapemode] a few examples are given.
+this. In \in {figure} [fig:shapemode] a few examples are given.
 
 \startplacefigure[reference=fig:shapemode,title={The effect of \type {shapemode}.}]
     \startcombination[2*3]
@@ -1188,7 +1174,7 @@ structures, some of the macros have been duplicated. For instance, there are now
 {token_info}. All access to the variable memory array is now hidden behind a
 macro called \type {vmem}. We mention this because using the \TEX book as
 reference is still quite valid but not for memory related details. Another
-significate detail is that we have double linked node lists and that some nodes
+significate detail is that we have double linked node lists and that most nodes
 carry more data.
 
 The implementation of the growth of two arrays (via reallocation) introduces a
@@ -1208,17 +1194,21 @@ The \type {\mathcode}, \type {\delcode}, \type {\catcode}, \type {\sfcode}, \typ
 {\lccode} and \type {\uccode} (and the new \type {\hjcode}) tables are now sparse
 arrays that are implemented in~\CCODE. They are no longer part of the \TEX\
 \quote {equivalence table} and because each had 1.1 million entries with a few
-memory words each, this makes a major difference in memory usage.
+memory words each, this makes a major difference in memory usage. Performance is
+not really hurt by this.
 
 The \type {\catcode}, \type {\sfcode}, \type {\lccode}, \type {\uccode} and \type
-{\hjcode} assignments do not yet show up when using the \ETEX\ tracing routines
-\type {\tracingassigns} and \type {\tracingrestores}.
+{\hjcode} assignments don't show up when using the \ETEX\ tracing routines \type
+{\tracingassigns} and \type {\tracingrestores} but we don't see that as a real
+limitation.
 
 A side|-|effect of the current implementation is that \type {\global} is now more
-expensive in terms of processing than non|-|global assignments.
+expensive in terms of processing than non|-|global assignments but not many users
+will notice that.
 
 The glyph ids within a font are also managed by means of a sparse array as glyph
-ids can go up to index $2^{21}-1$.
+ids can go up to index $2^{21}-1$ but these are never accessed directly so again
+users will not notice this.
 
 \stopsubsection
 
@@ -1272,7 +1262,7 @@ to be kept. We are aware of the fact that this contradicts some of our other
 choices but consistency with other engines and the fact that in \KPSE\ mode a
 common file \IO\ layer is used can have a side effect of breaking compatibility.
 We still stick to our view that at the log level we can (and might be) more
-incompatible.
+incompatible. We already expose some more details.
 
 \stopsubsection
 
