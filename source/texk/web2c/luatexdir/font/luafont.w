@@ -1577,8 +1577,16 @@ int font_from_lua(lua_State * L, int f)
             lua_pop(L, 1); /* pop list entry */
         }
         lua_pop(L, 1); /* pop font table */
+    /*
+        // we no longer do this check ... //
+
     } else if (font_type(f) == virtual_font_type) {
+
         formatted_error("font","invalid local fonts in lua-loaded font '%s' (2)", font_name(f));
+
+        // ... but are nice and just create an entry //
+
+    */
     } else {
         l_fonts = xmalloc(3 * sizeof(int));
         l_fonts[0] = 0;
@@ -1654,33 +1662,32 @@ int font_from_lua(lua_State * L, int f)
                 and that needs to know |bc| and |ec|.
             */
 
-            /* if (font_type(f) != virtual_font_type) { */
-                /* we permits virtual fonts to use expansion .. one can always turn it off */
-		fstep = lua_numeric_field_by_index(L, lua_key_index(step), 0);
-                if (fstep < 0)
-                    fstep = 0;
-                if (fstep > 100)
-                    fstep = 100;
-                if (fstep != 0) {
-                    int fshrink = lua_numeric_field_by_index(L, lua_key_index(shrink), 0);
-                    int fstretch= lua_numeric_field_by_index(L, lua_key_index(stretch), 0);
-                    if (fshrink < 0)
-                        fshrink = 0;
-                    if (fshrink > 500)
-                        fshrink = 500;
-                    fshrink -= (fshrink % fstep);
-                    if (fshrink < 0)
-                        fshrink = 0;
-                    if (fstretch < 0)
-                        fstretch = 0;
-                    if (fstretch > 1000)
-                        fstretch = 1000;
-                    fstretch -= (fstretch % fstep);
-                    if (fstretch < 0)
-                        fstretch = 0;
-                    set_expand_params(f, fstretch, fshrink, fstep);
-                }
-            /* } */
+            /* we permits virtual fonts to use expansion .. one can always turn it off */
+
+            fstep = lua_numeric_field_by_index(L, lua_key_index(step), 0);
+            if (fstep < 0)
+                fstep = 0;
+            if (fstep > 100)
+                fstep = 100;
+            if (fstep != 0) {
+                int fshrink = lua_numeric_field_by_index(L, lua_key_index(shrink), 0);
+                int fstretch= lua_numeric_field_by_index(L, lua_key_index(stretch), 0);
+                if (fshrink < 0)
+                    fshrink = 0;
+                if (fshrink > 500)
+                    fshrink = 500;
+                fshrink -= (fshrink % fstep);
+                if (fshrink < 0)
+                    fshrink = 0;
+                if (fstretch < 0)
+                    fstretch = 0;
+                if (fstretch > 1000)
+                    fstretch = 1000;
+                fstretch -= (fstretch % fstep);
+                if (fstretch < 0)
+                    fstretch = 0;
+                set_expand_params(f, fstretch, fshrink, fstep);
+            }
 
         } else {
             /* jikes, no characters */
