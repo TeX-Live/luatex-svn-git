@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-tex
 
@@ -98,7 +97,8 @@ index into \type {status}.
 The current list is:
 
 \starttabulate[|l|p|]
-\BC key                       \BC explanation \NC \NR
+\DB key                       \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{banner}             \NC terminal display banner \NC \NR
 \NC \type{best_page_break}    \NC the current best break (a node) \NR \NR
 \NC \type{buf_size}           \NC current allocated size of the line buffer \NC \NR
@@ -884,7 +884,8 @@ The virtual table \type {tex.lists} contains the set of internal registers that
 keep track of building page lists.
 
 \starttabulate[|l|p|]
-\BC field                      \BC description \NC \NR
+\DB field                      \BC description \NC \NR
+\TB[small,samepage]
 \NC \type{page_ins_head}       \NC circular list of pending insertions \NC \NR
 \NC \type{contrib_head}        \NC the recent contributions \NC \NR
 \NC \type{page_head}           \NC the current page content \NC \NR
@@ -913,7 +914,8 @@ outermost (main vertical list) level.
 The known fields are:
 
 \starttabulate[|l|l|l|p|]
-\BC key                \BC type    \BC modes \BC explanation \NC \NR
+\DB key                \BC type    \BC modes \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{mode}        \NC number  \NC all   \NC a number representing the main mode at this level:
                                                  \type {0}    = no mode (this happens during \type {\write}),
                                                  \type {1}    = vertical,
@@ -1258,7 +1260,8 @@ end
 \stopluacode
 
 \starttabulate[|l|pl|]
-\BC name    \BC values \NC \NR
+\DB name    \BC values \NC \NR
+\TB[small,samepage]
 \NC tex     \NC \ctxlua{document.showprimitives('tex')    } \NC \NR
 \NC core    \NC \ctxlua{document.showprimitives('core')   } \NC \NR
 \NC etex    \NC \ctxlua{document.showprimitives('etex')   } \NC \NR
@@ -1313,7 +1316,8 @@ local <node> nodelist, <table> info =
 The understood parameters are as follows:
 
 \starttabulate[|l|l|p|]
-\BC name                        \BC type            \BC description \NC \NR
+\DB name                        \BC type            \BC description \NC \NR
+\TB[small,samepage]
 \NC \type{pardir}               \NC string          \NC \NC \NR
 \NC \type{pretolerance}         \NC number          \NC \NC \NR
 \NC \type{tracingparagraphs}    \NC number          \NC \NC \NR
@@ -1433,7 +1437,8 @@ fill this table with a number of settings that are read out by
 the executable after loading and executing the startup file.
 
 \starttabulate[|l|l|l|p|]
-\BC key                   \BC type     \BC default \BC explanation \NC \NR
+\DB key                   \BC type     \BC default \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{kpse_init}      \NC boolean  \NC true
 \NC
     \type {false} totally disables \KPATHSEA\ initialisation, and enables
@@ -1549,8 +1554,8 @@ minimal set of tools and no solutions. The functions provided in the \type
 {token} namespace are given in the next table:
 
 \starttabulate[|l|l|p|]
-\BC function            \BC argument           \BC result \NC \NR
-\HL
+\DB function            \BC argument           \BC result \NC \NR
+\TB[small,samepage]
 \NC \type{is_token}     \NC token              \NC checks if the given argument is a token userdatum \NC \NR
 \NC \type{get_next}     \NC                    \NC returns the next token in the input \NC \NR
 \NC \type{scan_keyword} \NC string             \NC returns true if the given keyword is gobbled \NC \NR
@@ -1997,7 +2002,8 @@ It returns a string for each found file.
 The options match commandline arguments from \type {kpsewhich}:
 
 \starttabulate[|l|l|p|]
-\BC key              \BC type     \BC description \NC \NR
+\DB key              \BC type     \BC description \NC \NR
+\TB[small,samepage]
 \NC \type{debug}     \NC number   \NC set debugging flags for this lookup\NC     \NR
 \NC \type{format}    \NC string   \NC use specific file type (see list above)\NC \NR
 \NC \type{dpi}       \NC number   \NC use this resolution for this lookup; default 600\NC \NR

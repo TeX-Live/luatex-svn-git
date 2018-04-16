@@ -2,7 +2,9 @@
 
 % todo: use \useMPlibrary[lua]
 
-\usemodule[abr-02]
+\enabletrackers[fonts.usage]
+
+\usemodule[fonts-statistics]
 
 \setuplayout
   [height=middle,
@@ -31,8 +33,23 @@
   [each]
   [packed]
 
+\setupitemize
+  [each]
+  [headcolor=maincolor,
+   symbolcolor=maincolor,
+   color=maincolor]
+
 \setupwhitespace
   [medium]
+
+\setuptabulate
+  [headstyle=bold,
+   foregroundcolor=white,
+   foregroundstyle=\ss\bfx\WORD,
+   backgroundcolor=maincolor]
+
+\setupcaptions
+  [headcolor=darkblue]
 
 \startluacode
     local skipped = table.tohash { 'id', 'subtype', 'next', 'prev' }
@@ -89,51 +106,13 @@
 \definecolor[keptcolor] [b=.5]
 \definecolor[othercolor][r=.5,g=.5]
 
-\usebodyfont[lucidaot]
-\usebodyfont[pagella]
-\usebodyfont[cambria]
-%usebodyfont[dejavu]
-\usebodyfont[modern] % we need this in examples so we predefine
-
-% \doifmodeelse {atpragma} {
-%
-%   %  \setupbodyfont
-%   %    [lucidaot,10pt]
-%
-%     \setupbodyfont
-%       [dejavu,10pt]
-%
-%     \setuphead [chapter]      [style=\bfd]
-%     \setuphead [section]      [style=\bfb]
-%     \setuphead [subsection]   [style=\bfa]
-%     \setuphead [subsubsection][style=\bf]
-%
-% } {
-%
-%     \definetypeface[mainfacenormal]  [ss][sans] [iwona]       [default]
-%     \definetypeface[mainfacenormal]  [rm][serif][palatino]    [default]
-%     \definetypeface[mainfacenormal]  [tt][mono] [modern]      [default][rscale=1.1]
-%     \definetypeface[mainfacenormal]  [mm][math] [iwona]       [default]
-%
-%     \definetypeface[mainfacemedium]  [ss][sans] [iwona-medium][default]
-%     \definetypeface[mainfacemedium]  [rm][serif][palatino]    [default]
-%     \definetypeface[mainfacemedium]  [tt][mono] [modern]      [default][rscale=1.1]
-%     \definetypeface[mainfacemedium]  [mm][math] [iwona-medium][default]
-%
-%     \setupbodyfont
-%       [mainfacenormal,10pt]
-%
-%     \setuphead [chapter]      [style=\mainfacemedium\bfd]
-%     \setuphead [section]      [style=\mainfacemedium\bfb]
-%     \setuphead [subsection]   [style=\mainfacemedium\bfa]
-%     \setuphead [subsubsection][style=\mainfacemedium\bf]
-%
-% }
-
-\writestatus{luatex manual}{we assume that dejavu math is available}
-
-\setupbodyfont % assumes dejavu-math
-  [dejavu,10pt]
+\writestatus{luatex manual}{}
+\writestatus{luatex manual}{defining lucodaot} \usebodyfont  [lucidaot]
+\writestatus{luatex manual}{defining pagella}  \usebodyfont  [pagella]
+\writestatus{luatex manual}{defining cambria}  \usebodyfont  [cambria]
+\writestatus{luatex manual}{defining modern}   \usebodyfont  [modern]
+\writestatus{luatex manual}{defining dejavu}   \setupbodyfont[dejavu,10pt]
+\writestatus{luatex manual}{}
 
 \setuphead [chapter]      [align={flushleft,broad},style=\bfd]
 \setuphead [section]      [align={flushleft,broad},style=\bfb]
@@ -360,7 +339,12 @@
 \setuplist
   [chapter]
   [style=bold,
+   before={\testpage[4]\blank},
    color=keptcolor]
+
+\setuplist
+  [section]
+  [before={\testpage[3]}]
 
 \setuplist
   [subsection,subsubsection]
@@ -382,11 +366,19 @@
 % \setupinteractionscreen
 %   [option=bookmark]
 
-\normalexpanded{\definemeasure[spinewidth] [0pt]}
-\normalexpanded{\definemeasure[paperwidth] [\the\paperwidth ]}
-\normalexpanded{\definemeasure[paperheight][\the\paperheight]}
-\normalexpanded{\definemeasure[spreadwidth][\measure{paperwidth}]}
+\startbuffer[stylecalculations]
+
+    \normalexpanded{\definemeasure[spinewidth] [0pt]}
+    \normalexpanded{\definemeasure[paperwidth] [\the\paperwidth ]}
+    \normalexpanded{\definemeasure[paperheight][\the\paperheight]}
+    \normalexpanded{\definemeasure[spreadwidth][\measure{paperwidth}]}
+
+\stopbuffer
+
+\getbuffer[stylecalculations]
 
 \dontcomplain
+
+\environment luatex-logos
 
 \stopenvironment

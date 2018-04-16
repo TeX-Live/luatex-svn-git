@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-fontloader
 
@@ -10,7 +9,11 @@
 The fontloader library is sort of independent of the rest in the sense that it
 can load font into a \LUA\ table that then can be converted into a table suitable
 for \TEX. The library is an adapted subset of \FONTFORGE\ and as such gives a
-similar view on a font (which has advantages when you want to debug.)
+similar view on a font (which has advantages when you want to debug). We will not
+discuss \OPENTYPE\ in detail here as the \MICROSOFT\ website offers enough
+information about it. The tables returned by the loader are not that far from the
+standard. We have no plans to extend the loader (it may even become an external
+module at some time).
 
 \section{Getting quick information on a font}
 
@@ -30,7 +33,8 @@ contain some fairly interesting information items from the font(s) defined by th
 file:
 
 \starttabulate[|l|l|p|]
-\BC key                 \BC type     \BC explanation \NC \NR
+\DB key                 \BC type     \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{fontname}     \NC string   \NC the \POSTSCRIPT\ name of the font\NC \NR
 \NC \type{fullname}     \NC string   \NC the formal name of the font\NC \NR
 \NC \type{familyname}   \NC string   \NC the family name this font belongs to\NC \NR
@@ -271,7 +275,8 @@ The top|-|level keys in the returned table are (the explanations in this part of
 the documentation are not yet finished):
 
 \starttabulate[|l|l|p|]
-\BC key                                 \BC type     \NC explanation \NC \NR
+\DB key                                 \BC type     \NC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{table_version}                \NC number   \NC indicates the metrics version (currently~0.3)\NC \NR
 \NC \type{fontname}                     \NC string   \NC \POSTSCRIPT\ font name\NC \NR
 \NC \type{fullname}                     \NC string   \NC official (human-oriented) font name\NC \NR
@@ -355,7 +360,8 @@ The \type {glyphs} is an array containing the per|-|character
 information (quite a few of these are only present if nonzero).
 
 \starttabulate[|l|l|p|]
-\BC \type{key}               \BC type     \BC explanation \NC \NR
+\DB key                      \BC type     \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{name}              \NC string   \NC the glyph name \NC \NR
 \NC \type{unicode}           \NC number   \NC unicode code point, or -1 \NC \NR
 \NC \type{boundingbox}       \NC array    \NC array of four numbers, see note below \NC \NR
@@ -398,7 +404,8 @@ it.
 The \type {kerns} and \type {vkerns} are linear arrays of small hashes:
 
 \starttabulate[|l|l|p|]
-\BC key           \BC type   \BC explanation \NC \NR
+\DB key           \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{char}   \NC string \NC \NC \NR
 \NC \type{off}    \NC number \NC \NC \NR
 \NC \type{lookup} \NC string \NC \NC \NR
@@ -410,7 +417,8 @@ the value of each key inside that a linear array of small hashes:
 % TODO: fix this description
 
 \starttabulate[|l|l|p|]
-\BC key                  \BC type \BC explanation \NC \NR
+\DB key                  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{type}          \NC enum \NC \type {position}, \type {pair}, \type
                                       {substitution}, \type {alternate}, \type
                                       {multiple}, \type {ligature}, \type {lcaret},
@@ -426,7 +434,8 @@ For the first seven values of \type {type}, there can be additional
 sub|-|information, stored in the sub-table \type {specification}:
 
 \starttabulate[|l|l|p|]
-\BC value               \BC type     \BC explanation \NC \NR
+\DB value               \BC type     \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{position}     \NC table    \NC a table of the \type {offset_specs} type \NC \NR
 \NC \type{pair}         \NC table    \NC one string: \type {paired}, and an array of one
                                          or two \type {offset_specs} tables: \type
@@ -445,7 +454,8 @@ width correction) and \type {v} (an advance height correction).
 The \type {ligatures} is a linear array of small hashes:
 
 \starttabulate[|l|l|p|]
-\BC key               \BC type   \BC explanation \NC \NR
+\DB key               \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{lig}        \NC table  \NC uses the same substructure as a single item in
                                      the \type {lookups} table explained above \NC \NR
 \NC \type{char}       \NC string \NC \NC \NR
@@ -457,7 +467,8 @@ The \type {anchor} table is indexed by a string signifying the anchor type, whic
 is one of
 
 \starttabulate[|l|l|p|]
-\BC key             \BC type  \BC explanation \NC \NR
+\DB key             \BC type  \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{mark}     \NC table \NC placement mark \NC \NR
 \NC \type{basechar} \NC table \NC mark for attaching combining items to a base char \NC \NR
 \NC \type{baselig}  \NC table \NC mark for attaching combining items to a ligature \NC \NR
@@ -471,7 +482,8 @@ entry keys being the anchor names. For all except \type {baselig}, the
 value is a single table with this definition:
 
 \starttabulate[|l|l|p|]
-\BC key                 \BC type   \BC explanation \NC \NR
+\DB key                 \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{x}            \NC number \NC x location \NC \NR
 \NC \type{y}            \NC number \NC y location \NC \NR
 \NC \type{ttf_pt_index} \NC number \NC truetype point index, only if given \NC \NR
@@ -506,7 +518,8 @@ The top|-|level map is a list of encoding mappings. Each of those is a table
 itself.
 
 \starttabulate[|l|l|p|]
-\BC key             \BC type   \BC explanation \NC \NR
+\DB key             \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{enccount} \NC number \NC \NC \NR
 \NC \type{encmax}   \NC number \NC \NC \NR
 \NC \type{backmax}  \NC number \NC \NC \NR
@@ -519,7 +532,8 @@ itself.
 The \type {remap} table is very small:
 
 \starttabulate[|l|l|p|]
-\BC key             \BC type   \BC explanation \NC \NR
+\DB key             \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{firstenc} \NC number \NC \NC \NR
 \NC \type{lastenc}  \NC number \NC \NC \NR
 \NC \type{infont}   \NC number \NC \NC \NR
@@ -528,7 +542,8 @@ The \type {remap} table is very small:
 The \type {enc} table is a bit more verbose:
 
 \starttabulate[|l|l|p|]
-\BC key                     \BC type   \BC explanation \NC \NR
+\DB key                     \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{enc_name}         \NC string \NC \NC \NR
 \NC \type{char_cnt}         \NC number \NC \NC \NR
 \NC \type{char_max}         \NC number \NC \NC \NR
@@ -562,7 +577,8 @@ both strings.
 \subsection{cidinfo table}
 
 \starttabulate[|l|l|p|]
-\BC key               \BC type   \BC explanation \NC \NR
+\DB key               \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{registry}   \NC string \NC \NC \NR
 \NC \type{ordering}   \NC string \NC \NC \NR
 \NC \type{supplement} \NC number \NC \NC \NR
@@ -574,7 +590,8 @@ both strings.
 The \type {pfminfo} table contains most of the OS/2 information:
 
 \starttabulate[|l|l|p|]
-\BC key                     \BC type   \BC explanation \NC \NR
+\DB key                     \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{pfmset}           \NC number \NC \NC \NR
 \NC \type{winascent_add}    \NC number \NC \NC \NR
 \NC \type{windescent_add}   \NC number \NC \NC \NR
@@ -626,7 +643,8 @@ The \type {pfminfo} table contains most of the OS/2 information:
 The \type {panose} subtable has exactly 10 string keys:
 
 \starttabulate[|l|l|p|]
-\BC key                    \BC type    \BC explanation \NC \NR
+\DB key                    \BC type    \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{familytype}      \NC string  \NC Values as in the \OPENTYPE\ font
                                            specification: \type {Any}, \type {No Fit},
                                            \type {Text and Display}, \type {Script},
@@ -649,47 +667,28 @@ The \type {panose} subtable has exactly 10 string keys:
 Each item has two top|-|level keys:
 
 \starttabulate[|l|l|p|]
-\BC key          \BC type   \BC explanation \NC \NR
+\DB key          \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{lang}  \NC string \NC language for this entry \NC \NR
 \NC \type{names} \NC table  \NC \NC \NR
 \stoptabulate
 
 The \type {names} keys are the actual \TRUETYPE\ name strings. The possible keys
-are:
-
-\starttabulate[|l|p|]
-\BC key                    \BC explanation \NC \NR
-\NC \type{copyright}       \NC \NC \NR
-\NC \type{family}          \NC \NC \NR
-\NC \type{subfamily}       \NC \NC \NR
-\NC \type{uniqueid}        \NC \NC \NR
-\NC \type{fullname}        \NC \NC \NR
-\NC \type{version}         \NC \NC \NR
-\NC \type{postscriptname}  \NC \NC \NR
-\NC \type{trademark}       \NC \NC \NR
-\NC \type{manufacturer}    \NC \NC \NR
-\NC \type{designer}        \NC \NC \NR
-\NC \type{descriptor}      \NC \NC \NR
-\NC \type{venderurl}       \NC \NC \NR
-\NC \type{designerurl}     \NC \NC \NR
-\NC \type{license}         \NC \NC \NR
-\NC \type{licenseurl}      \NC \NC \NR
-\NC \type{idontknow}       \NC \NC \NR
-\NC \type{preffamilyname}  \NC \NC \NR
-\NC \type{prefmodifiers}   \NC \NC \NR
-\NC \type{compatfull}      \NC \NC \NR
-\NC \type{sampletext}      \NC \NC \NR
-\NC \type{cidfindfontname} \NC \NC \NR
-\NC \type{wwsfamily}       \NC \NC \NR
-\NC \type{wwssubfamily}    \NC \NC \NR
-\stoptabulate
+are: \type {copyright}, \type {family}, \type {subfamily}, \type {uniqueid},
+\type {fullname}, \type {version}, \type {postscriptname}, \type {trademark},
+\type {manufacturer}, \type {designer}, \type {descriptor}, \type {venderurl},
+\type {designerurl}, \type {license}, \type {licenseurl}, \type {idontknow},
+\type {preffamilyname}, \type {prefmodifiers}, \type {compatfull}, \type
+{sampletext}, \type {cidfindfontname}, \type {wwsfamily} and \type
+{wwssubfamily}.
 
 \subsection{anchor_classes table}
 
 The anchor_classes classes:
 
 \starttabulate[|l|l|p|]
-\BC key           \BC type   \BC explanation \NC \NR
+\DB key           \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{name}   \NC string \NC a descriptive id of this anchor class\NC \NR
 \NC \type{lookup} \NC string \NC \NC \NR
 \NC \type{type}   \NC string \NC one of \type {mark}, \type {mkmk}, \type {curs}, \type {mklg} \NC \NR
@@ -704,7 +703,8 @@ The \type {gpos} table has one array entry for each lookup. (The \type {gpos_}
 prefix is somewhat redundant.)
 
 \starttabulate[|l|l|p|]
-\BC key              \BC type   \BC explanation \NC \NR
+\DB key              \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{type}      \NC string \NC one of \type {gpos_single}, \type {gpos_pair},
                                     \type {gpos_cursive}, \type {gpos_mark2base},\crlf
                                     \type {gpos_mark2ligature}, \type
@@ -720,7 +720,8 @@ The flags table has a true value for each of the lookup flags that is actually
 set:
 
 \starttabulate[|l|l|p|]
-\BC key                         \BC type    \BC explanation \NC \NR
+\DB key                         \BC type    \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{r2l}                  \NC boolean \NC \NC \NR
 \NC \type{ignorebaseglyphs}     \NC boolean \NC \NC \NR
 \NC \type{ignoreligatures}      \NC boolean \NC \NC \NR
@@ -731,7 +732,8 @@ set:
 The features subtable items of gpos have:
 
 \starttabulate[|l|l|p|]
-\BC key            \BC type   \BC explanation \NC \NR
+\DB key            \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{tag}     \NC string \NC \NC \NR
 \NC \type{scripts} \NC table  \NC \NC \NR
 \stoptabulate
@@ -739,7 +741,8 @@ The features subtable items of gpos have:
 The scripts table within features has:
 
 \starttabulate[|l|l|p|]
-\BC key           \BC type             \BC explanation \NC \NR
+\DB key           \BC type             \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{script} \NC string           \NC \NC \NR
 \NC \type{langs}  \NC array of strings \NC \NC \NR
 \stoptabulate
@@ -747,7 +750,8 @@ The scripts table within features has:
 The subtables table has:
 
 \starttabulate[|l|l|p|]
-\BC key                     \BC type   \BC explanation \NC \NR
+\DB key                     \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{name}             \NC string \NC \NC \NR
 \NC \type{suffix}           \NC string \NC (only if used)\NC \NR % used by gpos_single to get a default
 \NC \type{anchor_classes}   \NC number \NC (only if used)\NC \NR
@@ -758,7 +762,8 @@ The subtables table has:
 The kernclass with subtables table has:
 
 \starttabulate[|l|l|p|]
-\BC key            \BC type             \BC explanation \NC \NR
+\DB key            \BC type             \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{firsts}  \NC array of strings \NC \NC \NR
 \NC \type{seconds} \NC array of strings \NC \NC \NR
 \NC \type{lookup}  \NC string or array  \NC associated lookup(s) \NC \NR
@@ -775,7 +780,8 @@ This has identical layout to the \type {gpos} table, except for the
 type:
 
 \starttabulate[|l|l|p|]
-\BC key         \BC type   \BC explanation \NC \NR
+\DB key         \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{type} \NC string \NC one of \type {gsub_single}, \type {gsub_multiple},
                                \type {gsub_alternate}, \type
                                {gsub_ligature},\crlf \type {gsub_context}, \type
@@ -786,7 +792,8 @@ type:
 \subsection{ttf_tables and ttf_tab_saved tables}
 
 \starttabulate[|l|l|p|]
-\BC key           \BC type   \BC explanation \NC \NR
+\DB key           \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{tag}    \NC string \NC \NC \NR
 \NC \type{len}    \NC number \NC \NC \NR
 \NC \type{maxlen} \NC number \NC \NC \NR
@@ -796,7 +803,8 @@ type:
 \subsection{mm table}
 
 \starttabulate[|l|l|p|]
-\BC key                   \BC type   \BC explanation \NC \NR
+\DB key                   \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{axes}           \NC table  \NC array of axis names \NC \NR
 \NC \type{instance_count} \NC number \NC \NC \NR
 \NC \type{positions}      \NC table  \NC array of instance positions
@@ -810,7 +818,8 @@ type:
 The \type {axismaps}:
 
 \starttabulate[|l|l|p|]
-\BC key            \BC type   \BC explanation \NC \NR
+\DB key            \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{blends}  \NC table  \NC an array of blend points \NC \NR
 \NC \type{designs} \NC table  \NC an array of design values \NC \NR
 \NC \type{min}     \NC number \NC \NC \NR
@@ -825,88 +834,49 @@ space|-|separated string of glyph names in this class.
 
 \subsection{math table}
 
-\starttabulate[|l|p|]
-\NC \type{ScriptPercentScaleDown}                   \NC \NC \NR
-\NC \type{ScriptScriptPercentScaleDown}             \NC \NC \NR
-\NC \type{DelimitedSubFormulaMinHeight}             \NC \NC \NR
-\NC \type{DisplayOperatorMinHeight}                 \NC \NC \NR
-\NC \type{MathLeading}                              \NC \NC \NR
-\NC \type{AxisHeight}                               \NC \NC \NR
-\NC \type{AccentBaseHeight}                         \NC \NC \NR
-\NC \type{FlattenedAccentBaseHeight}                \NC \NC \NR
-\NC \type{SubscriptShiftDown}                       \NC \NC \NR
-\NC \type{SubscriptTopMax}                          \NC \NC \NR
-\NC \type{SubscriptBaselineDropMin}                 \NC \NC \NR
-\NC \type{SuperscriptShiftUp}                       \NC \NC \NR
-\NC \type{SuperscriptShiftUpCramped}                \NC \NC \NR
-\NC \type{SuperscriptBottomMin}                     \NC \NC \NR
-\NC \type{SuperscriptBaselineDropMax}               \NC \NC \NR
-\NC \type{SubSuperscriptGapMin}                     \NC \NC \NR
-\NC \type{SuperscriptBottomMaxWithSubscript}        \NC \NC \NR
-\NC \type{SpaceAfterScript}                         \NC \NC \NR
-\NC \type{UpperLimitGapMin}                         \NC \NC \NR
-\NC \type{UpperLimitBaselineRiseMin}                \NC \NC \NR
-\NC \type{LowerLimitGapMin}                         \NC \NC \NR
-\NC \type{LowerLimitBaselineDropMin}                \NC \NC \NR
-\NC \type{StackTopShiftUp}                          \NC \NC \NR
-\NC \type{StackTopDisplayStyleShiftUp}              \NC \NC \NR
-\NC \type{StackBottomShiftDown}                     \NC \NC \NR
-\NC \type{StackBottomDisplayStyleShiftDown}         \NC \NC \NR
-\NC \type{StackGapMin}                              \NC \NC \NR
-\NC \type{StackDisplayStyleGapMin}                  \NC \NC \NR
-\NC \type{StretchStackTopShiftUp}                   \NC \NC \NR
-\NC \type{StretchStackBottomShiftDown}              \NC \NC \NR
-\NC \type{StretchStackGapAboveMin}                  \NC \NC \NR
-\NC \type{StretchStackGapBelowMin}                  \NC \NC \NR
-\NC \type{FractionNumeratorShiftUp}                 \NC \NC \NR
-\NC \type{FractionNumeratorDisplayStyleShiftUp}     \NC \NC \NR
-\NC \type{FractionDenominatorShiftDown}             \NC \NC \NR
-\NC \type{FractionDenominatorDisplayStyleShiftDown} \NC \NC \NR
-\NC \type{FractionNumeratorGapMin}                  \NC \NC \NR
-\NC \type{FractionNumeratorDisplayStyleGapMin}      \NC \NC \NR
-\NC \type{FractionRuleThickness}                    \NC \NC \NR
-\NC \type{FractionDenominatorGapMin}                \NC \NC \NR
-\NC \type{FractionDenominatorDisplayStyleGapMin}    \NC \NC \NR
-\NC \type{SkewedFractionHorizontalGap}              \NC \NC \NR
-\NC \type{SkewedFractionVerticalGap}                \NC \NC \NR
-\NC \type{OverbarVerticalGap}                       \NC \NC \NR
-\NC \type{OverbarRuleThickness}                     \NC \NC \NR
-\NC \type{OverbarExtraAscender}                     \NC \NC \NR
-\NC \type{UnderbarVerticalGap}                      \NC \NC \NR
-\NC \type{UnderbarRuleThickness}                    \NC \NC \NR
-\NC \type{UnderbarExtraDescender}                   \NC \NC \NR
-\NC \type{RadicalVerticalGap}                       \NC \NC \NR
-\NC \type{RadicalDisplayStyleVerticalGap}           \NC \NC \NR
-\NC \type{RadicalRuleThickness}                     \NC \NC \NR
-\NC \type{RadicalExtraAscender}                     \NC \NC \NR
-\NC \type{RadicalKernBeforeDegree}                  \NC \NC \NR
-\NC \type{RadicalKernAfterDegree}                   \NC \NC \NR
-\NC \type{RadicalDegreeBottomRaisePercent}          \NC \NC \NR
-\NC \type{MinConnectorOverlap}                      \NC \NC \NR
-\NC \type{FractionDelimiterSize}                    \NC \NC \NR
-\NC \type{FractionDelimiterDisplayStyleSize}        \NC \NC \NR
-\stoptabulate
+The math table has the variables that are also discussed in the chapter aboout
+math: \type {ScriptPercentScaleDown}, \type {ScriptScriptPercentScaleDown}, \type
+{DelimitedSubFormulaMinHeight}, \type {DisplayOperatorMinHeight}, \type
+{MathLeading}, \type {AxisHeight}, \type {AccentBaseHeight}, \type
+{FlattenedAccentBaseHeight}, \type {SubscriptShiftDown}, \type {SubscriptTopMax},
+\type {SubscriptBaselineDropMin}, \type {SuperscriptShiftUp}, \type
+{SuperscriptShiftUpCramped}, \type {SuperscriptBottomMin}, \type
+{SuperscriptBaselineDropMax}, \type {SubSuperscriptGapMin}, \type
+{SuperscriptBottomMaxWithSubscript}, \type {SpaceAfterScript}, \type
+{UpperLimitGapMin}, \type {UpperLimitBaselineRiseMin}, \type {LowerLimitGapMin},
+\type {LowerLimitBaselineDropMin}, \type {StackTopShiftUp}, \type
+{StackTopDisplayStyleShiftUp}, \type {StackBottomShiftDown}, \type
+{StackBottomDisplayStyleShiftDown}, \type {StackGapMin}, \type
+{StackDisplayStyleGapMin}, \type {StretchStackTopShiftUp}, \type
+{StretchStackBottomShiftDown}, \type {StretchStackGapAboveMin}, \type
+{StretchStackGapBelowMin}, \type {FractionNumeratorShiftUp}, \type
+{FractionNumeratorDisplayStyleShiftUp}, \type {FractionDenominatorShiftDown},
+\type {FractionDenominatorDisplayStyleShiftDown}, \type
+{FractionNumeratorGapMin}, \type {FractionNumeratorDisplayStyleGapMin} \type
+{FractionRuleThickness}, \type {FractionDenominatorGapMin}, \type
+{FractionDenominatorDisplayStyleGapMin}, \type {SkewedFractionHorizontalGap},
+\type {SkewedFractionVerticalGap}, \type {OverbarVerticalGap}, \type
+{OverbarRuleThickness}, \type {OverbarExtraAscender}, \type
+{UnderbarVerticalGap}, \type {UnderbarRuleThickness}, \type
+{UnderbarExtraDescender}, \type {RadicalVerticalGap}, \type
+{RadicalDisplayStyleVerticalGap}, \type {RadicalRuleThickness}, \type
+{RadicalExtraAscender}, \type {RadicalKernBeforeDegree}, \type
+{RadicalKernAfterDegree}, \type {RadicalDegreeBottomRaisePercent}, \type
+{MinConnectorOverlap}, \type {FractionDelimiterSize} and \type
+{FractionDelimiterDisplayStyleSize}.
 
 \subsection{validation_state table}
 
-\starttabulate[|l|p|]
-\BC key                      \BC explanation \NC \NR
-\NC \type{bad_ps_fontname}   \NC \NC \NR
-\NC \type{bad_glyph_table}   \NC \NC \NR
-\NC \type{bad_cff_table}     \NC \NC \NR
-\NC \type{bad_metrics_table} \NC \NC \NR
-\NC \type{bad_cmap_table}    \NC \NC \NR
-\NC \type{bad_bitmaps_table} \NC \NC \NR
-\NC \type{bad_gx_table}      \NC \NC \NR
-\NC \type{bad_ot_table}      \NC \NC \NR
-\NC \type{bad_os2_version}   \NC \NC \NR
-\NC \type{bad_sfnt_header}   \NC \NC \NR
-\stoptabulate
+This is just a bonus table with keys: \type {bad_ps_fontname}, \type
+{bad_glyph_table}, \type {bad_cff_table}, \type {bad_metrics_table}, \type
+{bad_cmap_table}, \type {bad_bitmaps_table}, \type {bad_gx_table}, \type
+{bad_ot_table}, \type {bad_os2_version} and \type {bad_sfnt_header}.
 
 \subsection{horiz_base and vert_base table}
 
 \starttabulate[|l|l|p|]
-\BC key            \BC type  \BC explanation \NC \NR
+\DB key            \BC type  \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{tags}    \NC table \NC an array of script list tags\NC \NR
 \NC \type{scripts} \NC table \NC \NC \NR
 \stoptabulate
@@ -914,7 +884,8 @@ space|-|separated string of glyph names in this class.
 The \type {scripts} subtable:
 
 \starttabulate[|l|l|p|]
-\BC key                     \BC type    \BC explanation \NC \NR
+\DB key                     \BC type    \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{baseline}         \NC table   \NC \NC \NR
 \NC \type{default_baseline} \NC number  \NC \NC \NR
 \NC \type{lang}             \NC table   \NC \NC \NR
@@ -924,7 +895,8 @@ The \type {scripts} subtable:
 The \type {lang} subtable:
 
 \starttabulate[|l|l|p|]
-\BC key             \BC type   \BC explanation \NC \NR
+\DB key             \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{tag}      \NC string \NC a script tag \NC \NR
 \NC \type{ascent}   \NC number \NC \NC \NR
 \NC \type{descent}  \NC number \NC \NC \NR
@@ -939,7 +911,8 @@ that in those nested tables, the tag represents a language.
 An array of alternate \UNICODE\ values. Inside that array are hashes with:
 
 \starttabulate[|l|l|p|]
-\BC key            \BC type   \BC explanation \NC \NR
+\DB key            \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{unicode} \NC number \NC this glyph is also used for this unicode \NC \NR
 \NC \type{variant} \NC number \NC the alternative is driven by this unicode selector \NC \NR
 \stoptabulate
@@ -947,7 +920,8 @@ An array of alternate \UNICODE\ values. Inside that array are hashes with:
 \subsection{vert_variants and horiz_variants table}
 
 \starttabulate[|l|l|p|]
-\BC key                      \BC type   \BC explanation \NC \NR
+\DB key                      \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{variants}          \NC string \NC \NC \NR
 \NC \type{italic_correction} \NC number \NC \NC \NR
 \NC \type{parts}             \NC table  \NC \NC \NR
@@ -956,7 +930,8 @@ An array of alternate \UNICODE\ values. Inside that array are hashes with:
 The \type {parts} table is an array of smaller tables:
 
 \starttabulate[|l|l|p|]
-\BC key              \BC type   \BC explanation \NC \NR
+\DB key              \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{component} \NC string \NC \NC \NR
 \NC \type{extender}  \NC number \NC \NC \NR
 \NC \type{start}     \NC number \NC \NC \NR
@@ -967,7 +942,8 @@ The \type {parts} table is an array of smaller tables:
 \subsection{mathkern table}
 
 \starttabulate[|l|l|p|]
-\BC key                 \BC type  \BC explanation \NC \NR
+\DB key                 \BC type  \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{top_right}    \NC table \NC \NC \NR
 \NC \type{bottom_right} \NC table \NC \NC \NR
 \NC \type{top_left}     \NC table \NC \NC \NR
@@ -977,7 +953,8 @@ The \type {parts} table is an array of smaller tables:
 Each of the subtables is an array of small hashes with two keys:
 
 \starttabulate[|l|l|p|]
-\BC key           \BC type   \BC explanation \NC \NR
+\DB key           \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{height} \NC number \NC \NC \NR
 \NC \type{kern}   \NC number \NC \NC \NR
 \stoptabulate
@@ -993,7 +970,8 @@ Substructure is identical to the per|-|glyph subtable.
 \subsection{texdata table}
 
 \starttabulate[|l|l|p|]
-\BC key           \BC type   \BC explanation \NC \NR
+\DB key           \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{type}   \NC string \NC \type {unset}, \type {text}, \type {math}, \type {mathext} \NC \NR
 \NC \type{params} \NC array  \NC 22 font numeric parameters \NC \NR
 \stoptabulate
@@ -1005,7 +983,8 @@ The keys in this hash are strings, the values the actual lookups, represented as
 dictionary tables.
 
 \starttabulate[|l|l|p|]
-\BC key                  \BC type   \BC explanation \NC \NR
+\DB key                  \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{type}          \NC string \NC \NC \NR
 \NC \type{format}        \NC enum   \NC one of \type {glyphs}, \type {class}, \type {coverage}, \type {reversecoverage} \NC \NR
 \NC \type{tag}           \NC string \NC \NC \NR
@@ -1018,7 +997,8 @@ dictionary tables.
 Rule items have one common item and one specialized item:
 
 \starttabulate[|l|l|p|]
-\BC key                    \BC type  \BC explanation \NC \NR
+\DB key                    \BC type  \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{lookups}         \NC array \NC a linear array of lookup names\NC \NR
 \NC \type{glyphs}          \NC array \NC only if the parent's format is \type {glyphs}\NC \NR
 \NC \type{class}           \NC array \NC only if the parent's format is \type {class}\NC \NR
@@ -1029,7 +1009,8 @@ Rule items have one common item and one specialized item:
 A glyph table is:
 
 \starttabulate[|l|l|p|]
-\BC key          \BC type   \BC explanation \NC \NR
+\DB key          \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{names} \NC string \NC \NC \NR
 \NC \type{back}  \NC string \NC \NC \NR
 \NC \type{fore}  \NC string \NC \NC \NR
@@ -1038,7 +1019,8 @@ A glyph table is:
 A class table is:
 
 \starttabulate[|l|l|p|]
-\BC key            \BC type  \BC explanation \NC \NR
+\DB key            \BC type  \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{current} \NC array \NC of numbers \NC \NR
 \NC \type{before}  \NC array \NC of numbers  \NC \NR
 \NC \type{after}   \NC array \NC of numbers  \NC \NR
@@ -1047,7 +1029,8 @@ A class table is:
 coverage:
 
 \starttabulate[|l|l|p|]
-\BC key            \BC type  \BC explanation \NC \NR
+\DB key            \BC type  \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{current} \NC array \NC of strings \NC \NR
 \NC \type{before}  \NC array \NC of strings\NC \NR
 \NC \type{after}   \NC array \NC of strings \NC \NR
@@ -1056,7 +1039,8 @@ coverage:
 reversecoverage:
 
 \starttabulate[|l|l|p|]
-\BC key                 \BC type   \BC explanation \NC \NR
+\DB key                 \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{current}      \NC array  \NC of strings \NC \NR
 \NC \type{before}       \NC array  \NC of strings\NC \NR
 \NC \type{after}        \NC array  \NC of strings \NC \NR

@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-enhancements
 
@@ -55,7 +54,8 @@ chapters on fonts and math we discuss a few more new ones.
 There are three new primitives to test the version of \LUATEX:
 
 \starttabulate[|l|pl|pl|]
-\BC primitive               \BC explanation                               \BC value              \NC \NR
+\DB primitive               \BC explanation                               \BC value              \NC \NR
+\TB[small,samepage]
 \NC \type {\luatexbanner}   \NC the banner reported on the command line   \NC \luatexbanner      \NC \NR
 \NC \type {\luatexversion}  \NC a combination of major and minor number   \NC \the\luatexversion \NC \NR
 \NC \type {\luatexrevision} \NC the revision number, the current value is \NC \luatexrevision    \NC \NR
@@ -516,24 +516,25 @@ has to be zero. Table zero is initialized by \INITEX.
 \initcatcodetable <15-bit number>
 \stopsyntax
 
-The primitive \type {\initcatcodetable} creates a new table with catcodes identical
-to those defined by \INITEX:
+The primitive \type {\initcatcodetable} creates a new table with catcodes
+identical to those defined by \INITEX. The new catcode table is allocated
+globally: it will not go away after the current group has ended. If the supplied
+number is identical to the currently active table, an error is raised. The
+initial values are:
 
-\starttabulate[|r|l|l|l|]
-\NC  0 \NC \tttf \letterbackslash       \NC         \NC \type {escape}       \NC\NR
-\NC  5 \NC \tttf \letterhat\letterhat M \NC return  \NC \type {car_ret}      \NC\NR
-\NC  9 \NC \tttf \letterhat\letterhat @ \NC null    \NC \type {ignore}       \NC\NR
-\NC 10 \NC \tttf <space>                \NC space   \NC \type {spacer}       \NC\NR
-\NC 11 \NC {\tttf a} \endash\ {\tttf z} \NC         \NC \type {letter}       \NC\NR
-\NC 11 \NC {\tttf A} \endash\ {\tttf Z} \NC         \NC \type {letter}       \NC\NR
-\NC 12 \NC everything else              \NC         \NC \type {other}        \NC\NR
-\NC 14 \NC \tttf \letterpercent         \NC         \NC \type {comment}      \NC\NR
-\NC 15 \NC \tttf \letterhat\letterhat ? \NC delete  \NC \type {invalid_char} \NC\NR
+\starttabulate[|c|c|l|l|]
+\DB catcode \BC character               \BC equivalent \BC category          \NC \NR
+\TB[small,samepage]
+\NC  0 \NC \tttf \letterbackslash       \NC         \NC \type {escape}       \NC \NR
+\NC  5 \NC \tttf \letterhat\letterhat M \NC return  \NC \type {car_ret}      \NC \NR
+\NC  9 \NC \tttf \letterhat\letterhat @ \NC null    \NC \type {ignore}       \NC \NR
+\NC 10 \NC \tttf <space>                \NC space   \NC \type {spacer}       \NC \NR
+\NC 11 \NC {\tttf a} \endash\ {\tttf z} \NC         \NC \type {letter}       \NC \NR
+\NC 11 \NC {\tttf A} \endash\ {\tttf Z} \NC         \NC \type {letter}       \NC \NR
+\NC 12 \NC everything else              \NC         \NC \type {other}        \NC \NR
+\NC 14 \NC \tttf \letterpercent         \NC         \NC \type {comment}      \NC \NR
+\NC 15 \NC \tttf \letterhat\letterhat ? \NC delete  \NC \type {invalid_char} \NC \NR
 \stoptabulate
-
-The new catcode table is allocated globally: it will not go away after the
-current group has ended. If the supplied number is identical to the currently
-active table, an error is raised.
 
 \subsection{\type {\savecatcodetable}}
 
@@ -652,10 +653,13 @@ This primitive expands into a number. It is not a register so there is no need t
 prefix with \type {\number} (and using \type {\the} gives an error). The currently
 used font id is \fontid\font. Here are some more:
 
-\starttabulate[|l|c|]
-\NC \type {\bf} \NC \bf \fontid\font \NC \NR
-\NC \type {\it} \NC \it \fontid\font \NC \NR
-\NC \type {\bi} \NC \bi \fontid\font \NC \NR
+\starttabulate[|l|c|c|]
+\DB style \BC command \BC font id \NC \NR
+\TB[small,samepage]
+\NC normal      \NC \type {\tf} \NC \bf \fontid\font \NC \NR
+\NC bold        \NC \type {\bf} \NC \bf \fontid\font \NC \NR
+\NC italic      \NC \type {\it} \NC \it \fontid\font \NC \NR
+\NC bold italic \NC \type {\bi} \NC \bi \fontid\font \NC \NR
 \stoptabulate
 
 These numbers depend on the macro package used because each one has its own way
@@ -688,13 +692,13 @@ omit the kern and ligature tables, which has the same effect as the above.
 
 \subsection{\type{\nospaces}}
 
-This new primitive can be used to overrule the usual \type {\spaceskip}
-related heuristics when a space character is seen in a text flow. The
-value~\type{1} triggers no injection while \type{2} results in injection of
-a zero skip. Below we see the results for four characters separated by a
+This new primitive can be used to overrule the usual \type {\spaceskip} related
+heuristics when a space character is seen in a text flow. The value~\type{1}
+triggers no injection while \type{2} results in injection of a zero skip. In \in
+{figure} [fig:nospaces] we see the results for four characters separated by a
 space.
 
-\startlinecorrection
+\startplacefigure[reference=fig:nospaces,title={The \type {\nospaces} options.}]
 \startcombination[3*2]
     {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=0\relax x x x x \par}\hss}} {\type {0 / hsize 10mm}}
     {\ruledhbox to 5cm{\vtop{\hsize 10mm\nospaces=1\relax x x x x \par}\hss}} {\type {1 / hsize 10mm}}
@@ -703,7 +707,7 @@ space.
     {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=1\relax x x x x \par}\hss}} {\type {1 / hsize 1mm}}
     {\ruledhbox to 5cm{\vtop{\hsize  1mm\nospaces=2\relax x x x x \par}\hss}} {\type {2 / hsize 1mm}}
 \stopcombination
-\stoplinecorrection
+\stopplacefigure
 
 \section{Tokens, commands and strings}
 
@@ -820,7 +824,7 @@ required height. As alternative for the \type {to} keyword you can use \type
 {upto} to get a split of the given size but result has the natural dimensions
 then.
 
-\subsection{Images and Forms}
+\subsection[sec:imagedandforms]{Images and Forms}
 
 These two concepts are now core concepts and no longer whatsits. They are in fact
 now implemented as rules with special properties. Normal rules have subtype~0,
@@ -831,16 +835,17 @@ look at rule nodes, we automatically also deal with these two types.
 The syntax of the \type {\save...resource} is the same as in \PDFTEX\ but you
 should consider them to be backend specific. This means that a macro package
 should treat them as such and check for the current output mode if applicable.
-Here are the equivalents:
 
-\starttabulate[|l|l|]
-\NC \type {\saveboxresource}             \EQ \type {\pdfxform}           \NC \NR
-\NC \type {\saveimageresource}           \EQ \type {\pdfximage}          \NC \NR
-\NC \type {\useboxresource}              \EQ \type {\pdfrefxform}        \NC \NR
-\NC \type {\useimageresource}            \EQ \type {\pdfrefximage}       \NC \NR
-\NC \type {\lastsavedboxresourceindex}   \EQ \type {\pdflastxform}       \NC \NR
-\NC \type {\lastsavedimageresourceindex} \EQ \type {\pdflastximage}      \NC \NR
-\NC \type {\lastsavedimageresourcepages} \EQ \type {\pdflastximagepages} \NC \NR
+\starttabulate[|l|p|]
+\DB command \BC explanation \NC \NR
+\TB[small,samepage]
+\NC \type {\saveboxresource}             \NC save the box as an object to be included later \NC \NR
+\NC \type {\saveimageresource}           \NC save the image as an object to be includes later \NC \NR
+\NC \type {\useboxresource}              \NC include the saved box object here (by index) \NC \NR
+\NC \type {\useimageresource}            \NC include the saved image object here (by index) \NC \NR
+\NC \type {\lastsavedboxresourceindex}   \NC the index of the last saved box object \NC \NR
+\NC \type {\lastsavedimageresourceindex} \NC the index of the last saved image object \NC \NR
+\NC \type {\lastsavedimageresourcepages} \NC the number of pages in the last saved image object \NC \NR
 \stoptabulate
 
 \LUATEX\ accepts optional dimension parameters for \type {\use...resource} in the
@@ -914,6 +919,8 @@ the node number of the nodes.
 The \type {\outputmode} variable tells \LUATEX\ what it has to produce:
 
 \starttabulate[|l|l|]
+\DB value \BC output \NC \NR
+\TB[small,samepage]
 \NC \type {0} \NC \DVI\ code \NC \NR
 \NC \type {1} \NC \PDF\ code \NC \NR
 \stoptabulate
@@ -942,14 +949,16 @@ The \type {\tracingfonts} primitive that has been inherited from \PDFTEX\ has
 been adapted to support variants in reporting the font. The reason for this
 extension is that a csname not always makes sense. The zero case is the default.
 
-\starttabulate[|T||]
-\NC 0 \EQ \type{\foo xyz} \NC \NR
-\NC 1 \EQ \type{\foo (bar)} \NC \NR
-\NC 2 \EQ \type{<bar> xyz} \NC \NR
-\NC 3 \EQ \type{<bar @ ..pt> xyz} \NC \NR
-\NC 4 \EQ \type{<id>} \NC \NR
-\NC 5 \EQ \type{<id: bar>} \NC \NR
-\NC 6 \EQ \type{<id: bar @ ..pt> xyz} \NC \NR
+\starttabulate[|l|l|]
+\DB value \BC reported \NC \NR
+\TB[small,samepage]
+\NC \type{0} \NC \type{\foo xyz} \NC \NR
+\NC \type{1} \NC \type{\foo (bar)} \NC \NR
+\NC \type{2} \NC \type{<bar> xyz} \NC \NR
+\NC \type{3} \NC \type{<bar @ ..pt> xyz} \NC \NR
+\NC \type{4} \NC \type{<id>} \NC \NR
+\NC \type{5} \NC \type{<id: bar>} \NC \NR
+\NC \type{6} \NC \type{<id: bar @ ..pt> xyz} \NC \NR
 \stoptabulate
 
 \subsection{Writing to file}

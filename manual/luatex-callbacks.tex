@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-callbacks
 
@@ -309,11 +308,11 @@ The length of the \type {data}, in bytes.
 \stopitemize
 
 Return an empty string and zero if the file was found but there was a
-reading problem.
-
-The list of functions is as follows:
+reading problem. The list of functions is:
 
 \starttabulate[|l|p|]
+\DB function  \BC usage \NC \NR
+\TB[small,samepage]
 \NC \type{read_font_file}     \NC ofm or tfm files \NC \NR
 \NC \type{read_vf_file}       \NC virtual fonts \NC \NR
 \NC \type{read_map_file}      \NC map files \NC \NR
@@ -393,7 +392,8 @@ The string reports the group code. From this you can deduce from
 what list you can give a treat.
 
 \starttabulate[|l|p|]
-\BC value             \BC explanation                                  \NC \NR
+\DB value             \BC explanation                                  \NC \NR
+\TB[small,samepage]
 \NC \type{pre_box}    \NC interline material is being added            \NC \NR
 \NC \type{pre_adjust} \NC \type {\vadjust} material is being added     \NC \NR
 \NC \type{box}        \NC a typeset box is being added (always called) \NC \NR
@@ -416,7 +416,8 @@ state is with respect to the \quote {current page}. The possible values for the
 \type {buildpage_filter} callback are:
 
 \starttabulate[|l|p|]
-\BC value                  \BC explanation                               \NC \NR
+\DB value                  \BC explanation                               \NC \NR
+\TB[small,samepage]
 \NC \type{alignment}       \NC a (partial) alignment is being added      \NC \NR
 \NC \type{after_output}    \NC an output routine has just finished       \NC \NR
 \NC \type{new_graf}        \NC the beginning of a new paragraph          \NC \NR
@@ -445,7 +446,8 @@ end
 with
 
 \starttabulate[|l|p|]
-\BC value    \BC explanation             \NC \NR
+\DB value    \BC explanation             \NC \NR
+\TB[small,samepage]
 \NC \type{n} \NC the insert class        \NC \NR
 \NC \type{i} \NC the order of the insert \NC \NR
 \stoptabulate
@@ -474,7 +476,8 @@ for the \type {hpack_filter} and \type {vpack_filter} callbacks that will be
 explained in the next two paragraphs.
 
 \starttabulate[|l|p|]
-\BC value                \BC explanation                                     \NC \NR
+\DB value                \BC explanation                                     \NC \NR
+\TB[small,samepage]
 \NC \type{<empty>}       \NC main vertical list                              \NC \NR
 \NC \type{hbox}          \NC \type {\hbox} in horizontal mode                \NC \NR
 \NC \type{adjusted_hbox} \NC \type {\hbox} in vertical mode                  \NC \NR
@@ -842,7 +845,9 @@ end
 This callback replaces the code that prints \LUATEX's when a file is opened like
 \type {(filename} for regular files. The category is a number:
 
-\starttabulate[|||]
+\starttabulate[|c|l|]
+\DB value  \BC meaning \NC \NR
+\TB[small,samepage]
 \NC 1 \NC a normal data file, like a \TEX\ source \NC \NR
 \NC 2 \NC a font map coupling font names to resources \NC \NR
 \NC 3 \NC an image file (\type {png}, \type {pdf}, etc) \NC \NR

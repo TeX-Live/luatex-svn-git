@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-fonts
 
@@ -23,7 +22,8 @@ The column \quote {\VF} means that this key will be created by the \type
 The top|-|level keys in the table are as follows:
 
 \starttabulate[|l|c|c|c|l|pl|]
-\BC key                     \BC vf  \BC tfm \BC used \BC value type \BC description \NC \NR
+\DB key                     \BC vf  \BC tfm \BC used \BC value type \BC description \NC \NR
+\TB[small,samepage]
 \NC \type{name}             \NC yes \NC yes \NC yes  \NC string     \NC metric (file) name \NC \NR
 \NC \type{area}             \NC no  \NC yes \NC yes  \NC string     \NC (directory) location, typically empty \NC \NR
 \NC \type{used}             \NC no  \NC yes \NC yes  \NC boolean    \NC indicates usage (initial: false) \NC \NR
@@ -67,21 +67,33 @@ The top|-|level keys in the table are as follows:
                                                                         table reference, don't cache any \LUA\ data for this
                                                                         font while \type {renew} means: don't store the table
                                                                         reference, but save a reference to the table that is
-                                                                        created at the first access to one of its fields in font.
-                                                                        Note: the saved reference is thread|-|local, so be
-                                                                        careful when you are using coroutines: an error will be
-                                                                        thrown if the table has been cached in one thread, but
-                                                                        you reference it from another thread. \NC \NR
+                                                                        created at the first access to one of its fields in
+                                                                        font. \NC \NR
 \NC \type{nomath}           \NC no  \NC no  \NC yes  \NC boolean    \NC This key allows a minor speedup for text fonts. If it
                                                                         is present and true, then \LUATEX\ will not check the
                                                                         character entries for math|-|specific keys. \NC \NR
 \NC \type{oldmath}          \NC no  \NC no  \NC yes  \NC boolean    \NC This key flags a font as representing an old school \TEX\
                                                                         math font and disables the \OPENTYPE\ code path. \NC \NR
-\NC \type{slant}            \NC no  \NC no  \NC yes  \NC number     \NC This has the same semantics as the \type {SlantFont}
-                                                                        operator in font map files. \NC \NR
-\NC \type{extent}           \NC no  \NC no  \NC yes  \NC number     \NC This has the same semantics as the \type {ExtendFont}
-                                                                        operator in font map files. \NC \NR
+\NC \type{slant}            \NC no  \NC no  \NC yes  \NC number     \NC This parameter will tilt the font and
+                                                                        does the same as \type {SlantFont} in the map file for
+                                                                        \TYPEONE\ fonts. \NC \NR
+\NC \type{extend}           \NC no  \NC no  \NC yes  \NC number     \NC This parameter will scale the font horizontally and
+                                                                        does the same as \type {ExtendFont} in the map file for
+                                                                        \TYPEONE\ fonts. \NC \NR
+\NC \type{squeeze}          \NC no  \NC no  \NC yes  \NC number     \NC This parameter will scale the font vertically and has
+                                                                        no equivalent in the map file. \NC \NR
+\NC \type{width}            \NC no  \NC no  \NC yes  \NC number     \NC The backend will inject \PDF\ operators that set the
+                                                                        penwidth. The value is (as usual in \TEX) divided by 1000.
+                                                                        It works with the \type {mode} file. \NC \NR
+\NC \type{mode}             \NC no  \NC no  \NC yes  \NC number     \NC The backend will inject \PDF\ operators that relate to the
+                                                                        drawing mode with 0~being a fill, 1~being an outline,
+                                                                        2~both draw and fill and 3~no painting at all. \NC \NR
 \stoptabulate
+
+The saved reference in the \type {cache} option is thread|-|local, so be careful
+when you are using coroutines: an error will be thrown if the table has been
+cached in one thread, but you reference it from another thread.
+
 
 The key \type {name} is always required. The keys \type {stretch}, \type
 {shrink}, \type {step} only have meaning when used together: they can be used to
@@ -112,16 +124,13 @@ makes sure that the font's definition is written to the output file (\DVI\ or
 signalling the \quote {normal} direction for this font. There are sixteen
 possibilities:
 
-\starttabulate[|c|c|c|c|]
-\BC number   \BC meaning   \BC number    \BC meaning   \NC \NR
-\NC \type{0} \NC \type{LT} \NC \type {8} \NC \type{TT} \NC \NR
-\NC \type{1} \NC \type{LL} \NC \type {9} \NC \type{TL} \NC \NR
-\NC \type{2} \NC \type{LB} \NC \type{10} \NC \type{TB} \NC \NR
-\NC \type{3} \NC \type{LR} \NC \type{11} \NC \type{TR} \NC \NR
-\NC \type{4} \NC \type{RT} \NC \type{12} \NC \type{BT} \NC \NR
-\NC \type{5} \NC \type{RL} \NC \type{13} \NC \type{BL} \NC \NR
-\NC \type{6} \NC \type{RB} \NC \type{14} \NC \type{BB} \NC \NR
-\NC \type{7} \NC \type{RR} \NC \type{15} \NC \type{BR} \NC \NR
+\starttabulate[|Tc|c|Tc|c|Tc|c|Tc|c|]
+\DB \# \BC dir \BC \# \BC dir \BC \# \BC dir \BC \# \BC dir \NC \NR
+\TB[small,samepage]
+\NC  0 \NC LT  \NC  4 \NC RT  \NC  8 \NC TT  \NC 12 \NC BT  \NC \NR
+\NC  1 \NC LL  \NC  5 \NC RL  \NC  9 \NC TL  \NC 13 \NC BL  \NC \NR
+\NC  2 \NC LB  \NC  6 \NC RB  \NC 10 \NC TB  \NC 14 \NC BB  \NC \NR
+\NC  3 \NC LR  \NC  7 \NC RR  \NC 11 \NC TR  \NC 15 \NC BR  \NC \NR
 \stoptabulate
 
 These are \OMEGA|-|style direction abbreviations: the first character indicates
@@ -138,7 +147,8 @@ gives a nicer user interface.
 The names and their internal remapping are:
 
 \starttabulate[|l|c|]
-\BC name                  \BC remapping \NC \NR
+\DB name                  \BC remapping \NC \NR
+\TB[small,samepage]
 \NC \type {slant}         \NC 1 \NC \NR
 \NC \type {space}         \NC 2 \NC \NR
 \NC \type {space_stretch} \NC 3 \NC \NR
@@ -159,37 +169,27 @@ virtual character whose ligatures and kerns are used to handle word boundary
 processing. \type {right_boundary} is similar but not actually used for anything
 (yet).
 
-Other index keys are ignored.
-
 Each character hash itself is a hash. For example, here is the character \quote
-{f} (decimal 102) in the font \type {cmr10 at 10pt}:
+{f} (decimal 102) in the font \type {cmr10 at 10pt}. The numbers that represent
+dimensions are in scaled points.
 
 \starttyping
 [102] = {
-    ['width'] = 200250,
-    ['height'] = 455111,
-    ['depth'] = 0,
-    ['italic'] = 50973,
-    ['kerns'] = {
+    ["width"]  = 200250,
+    ["height"] = 455111,
+    ["depth"]  = 0,
+    ["italic"] = 50973,
+    ["kerns"]  = {
         [63] = 50973,
         [93] = 50973,
         [39] = 50973,
         [33] = 50973,
         [41] = 50973
     },
-    ['ligatures'] = {
-        [102] = {
-            ['char'] = 11,
-            ['type'] = 0
-        },
-        [108] = {
-            ['char'] = 13,
-            ['type'] = 0
-        },
-        [105] = {
-            ['char'] = 12,
-            ['type'] = 0
-        }
+    ["ligatures"] = {
+        [102] = { ["char"] = 11, ["type"] = 0 },
+        [108] = { ["char"] = 13, ["type"] = 0 },
+        [105] = { ["char"] = 12, ["type"] = 0 }
     }
 }
 \stoptyping
@@ -197,7 +197,8 @@ Each character hash itself is a hash. For example, here is the character \quote
 The following top|-|level keys can be present inside a character hash:
 
 \starttabulate[|l|c|c|c|l|p|]
-\BC key              \BC vf  \BC tfm \BC used  \BC type    \BC description \NC\NR
+\DB key                     \BC vf  \BC tfm \BC used  \BC type    \BC description \NC\NR
+\TB[small,samepage]
 \NC \type{width}            \NC yes \NC yes \NC yes   \NC number  \NC character's width, in sp (default 0) \NC\NR
 \NC \type{height}           \NC no  \NC yes \NC yes   \NC number  \NC character's height, in sp (default 0) \NC\NR
 \NC \type{depth}            \NC no  \NC yes \NC yes   \NC number  \NC character's depth, in sp (default 0) \NC\NR
@@ -217,17 +218,14 @@ The following top|-|level keys can be present inside a character hash:
 \NC \type{commands}         \NC yes \NC no  \NC yes   \NC array   \NC virtual font commands \NC\NR
 \NC \type{name}             \NC no  \NC no  \NC no    \NC string  \NC the character (\POSTSCRIPT) name \NC\NR
 \NC \type{index}            \NC no  \NC no  \NC yes   \NC number  \NC the (\OPENTYPE\ or \TRUETYPE) font glyph index \NC\NR
-\NC \type{used}             \NC no  \NC yes \NC yes   \NC boolean \NC typeset already (default: false)? \NC\NR
+\NC \type{used}             \NC no  \NC yes \NC yes   \NC boolean \NC typeset already (default: false) \NC\NR
 \NC \type{mathkern}         \NC no  \NC no  \NC yes   \NC table   \NC math cut-in specifications \NC\NR
 \stoptabulate
 
 The values of \type {top_accent}, \type {bot_accent} and \type {mathkern} are
 used only for math accent and superscript placement, see the \at {math chapter}
-[math] in this manual for details.
-
-The values of \type {left_protruding} and \type {right_protruding} are used only
-when \type {\protrudechars} is non-zero.
-
+[math] in this manual for details. The values of \type {left_protruding} and
+\type {right_protruding} are used only when \type {\protrudechars} is non-zero.
 Whether or not \type {expansion_factor} is used depends on the font's global
 expansion settings, as well as on the value of \type {\adjustspacing}.
 
@@ -245,13 +243,15 @@ enclosing angle brackets. For instance the \type {tounicode} for a \type {fi}
 ligature would be \type {00660069}. When you pass a number the conversion will be
 done for you.
 
-The presence of \type {extensible} will overrule \type {next}, if that is also
-present. It in in turn can be overruled by \type {vert_variants}.
-
-The \type {extensible} table is very simple:
+A math character can have a \type {next} field that points to a next larger
+shape. However, the presence of \type {extensible} will overrule \type {next}, if
+that is also present. The \type {extensible} field in turn can be overruled by
+\type {vert_variants}, the \OPENTYPE\ version. The \type {extensible} table is
+very simple:
 
 \starttabulate[|l|l|p|]
-\BC key        \BC type   \BC description                \NC\NR
+\DB key        \BC type   \BC description                \NC\NR
+\TB[small,samepage]
 \NC \type{top} \NC number \NC top character index        \NC\NR
 \NC \type{mid} \NC number \NC middle character index     \NC\NR
 \NC \type{bot} \NC number \NC bottom character index     \NC\NR
@@ -262,7 +262,8 @@ The \type {horiz_variants} and \type {vert_variants} are arrays of components.
 Each of those components is itself a hash of up to five keys:
 
 \starttabulate[|l|l|p|]
-\BC key             \BC type   \BC explanation \NC \NR
+\DB key             \BC type   \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{glyph}    \NC number \NC The character index. Note that this is an encoding number, not a name. \NC \NR
 \NC \type{extender} \NC number \NC One (1) if this part is repeatable, zero (0) otherwise. \NC \NR
 \NC \type{start}    \NC number \NC The maximum overlap at the starting side (in scaled points). \NC \NR
@@ -283,7 +284,8 @@ value \type {right_boundary}), with the values being yet another small hash, wit
 two fields:
 
 \starttabulate[|l|l|p|]
-\BC key         \BC type   \BC description \NC \NR
+\DB key         \BC type   \BC description \NC \NR
+\TB[small,samepage]
 \NC \type{type} \NC number \NC the type of this ligature command, default 0 \NC \NR
 \NC \type{char} \NC number \NC the character index of the resultant ligature \NC \NR
 \stoptabulate
@@ -299,7 +301,8 @@ forward one or two places. The glyph that ends up to the right of the insertion
 point will become the next \quote {left}.
 
 \starttabulate[|l|c|l|l|]
-\BC textual (Knuth)       \BC number \BC string        \BC result      \NC\NR
+\DB textual (Knuth)       \BC number \BC string        \BC result      \NC\NR
+\TB[small,samepage]
 \NC \type{l + r =: n}     \NC 0      \NC \type{=:}     \NC \type{|n}   \NC\NR
 \NC \type{l + r =:| n}    \NC 1      \NC \type{=:|}    \NC \type{|nr}  \NC\NR
 \NC \type{l + r |=: n}    \NC 2      \NC \type{|=:}    \NC \type{|ln}  \NC\NR
@@ -325,7 +328,8 @@ inclusion mechanism will attempt to add the needed font object definitions to th
 \PDF. Values for \type {type} are:
 
 \starttabulate[|l|p|]
-\BC value          \BC description            \NC\NR
+\DB value          \BC description            \NC\NR
+\TB[small,samepage]
 \NC \type{real}    \NC this is a base font    \NC\NR
 \NC \type{virtual} \NC this is a virtual font \NC\NR
 \stoptabulate
@@ -334,81 +338,81 @@ The actions to be taken depend on a number of different variables:
 
 \startitemize[packed]
 \startitem
-    Whether the used font fits in an 8-bit encoding scheme or not.
+    Whether the used font fits in an 8-bit encoding scheme or not. This is true for
+    traditional \TEX\ fonts that communicate via \TFM\ files.
 \stopitem
 \startitem
-    The type of the disk font file.
+    The type of the disk font file, for instance a bitmap file or an outline
+    \TYPEONE, \TRUETYPE\ or \OPENTYPE\ font.
 \stopitem
 \startitem
-    The level of embedding requested.
+    The level of embedding requested, although in most cases a subset of
+    characters is embedded. The times when nothing got embedded are (in our
+    opinion at least) basically gone.
 \stopitem
 \stopitemize
 
 A font that uses anything other than an 8-bit encoding vector has to be written
-to the \PDF\ in a different way.
+to the \PDF\ in a different way. When the font table has \type {encodingbytes}
+set to~2, then it is a wide font, in all other cases it isn't. The value~2 is the
+default for \OPENTYPE\ and \TRUETYPE\ fonts loaded via \LUA. For \TYPEONE\ fonts,
+you have to set \type {encodingbytes} to~2 explicitly. For \PK\ bitmap fonts,
+wide font encoding is not supported at all.
 
-The rule is: if the font table has \type {encodingbytes} set to~2, then this is a
-wide font, in all other cases it isn't. The value~2 is the default for \OPENTYPE\
-and \TRUETYPE\ fonts loaded via \LUA. For \TYPEONE\ fonts, you have to set \type
-{encodingbytes} to~2 explicitly. For \PK\ bitmap fonts, wide font encoding is not
-supported at all.
+If no special care is needed, \LUATEX\ falls back to the mapfile|-|based solution
+used by \PDFTEX\ and \DVIPS, so that legacy fonts are supported transparently. If
+a \quote {wide} font is used, the new subsystem kicks in, and some extra fields
+have to be present in the font structure. In this case, \LUATEX\ does not use a
+map file at all. These extra fields are: \type {format}, \type {embedding}, \type
+{fullname}, \type {cidinfo} (as explained above), \type {filename}, and the \type
+{index} key in the separate characters.
 
-If no special care is needed, \LUATEX\ currently falls back to the
-mapfile|-|based solution used by \PDFTEX\ and \DVIPS. This behaviour might
-silently be removed in the future, in which case the related primitives and \LUA\
-functions will become no|-|ops.
-
-If a \quote {wide} font is used, the new subsystem kicks in, and some
-extra fields have to be present in the font structure. In this case, \LUATEX\
-does not use a map file at all.
-
-The extra fields are: \type {format}, \type {embedding}, \type {fullname}, \type
-{cidinfo} (as explained above), \type {filename}, and the \type {index} key in
-the separate characters.
-
-Values for \type {format} are:
+The \type {format} variable can have the following values. \type {type3} fonts
+are provided for backward compatibility only, and do not support the new wide
+encoding options.
 
 \starttabulate[|l|p|]
-\BC value           \BC description                                               \NC \NR
+\DB value           \BC description                                               \NC \NR
+\TB[small,samepage]
 \NC \type{type1}    \NC this is a \POSTSCRIPT\ \TYPEONE\ font                     \NC \NR
 \NC \type{type3}    \NC this is a bitmapped (\PK) font                            \NC \NR
 \NC \type{truetype} \NC this is a \TRUETYPE\ or \TRUETYPE|-|based \OPENTYPE\ font \NC \NR
 \NC \type{opentype} \NC this is a \POSTSCRIPT|-|based \OPENTYPE\ font             \NC \NR
 \stoptabulate
 
-\type {type3} fonts are provided for backward compatibility only, and do not
-support the new wide encoding options.
-
-Values for \type {embedding} are:
+Valid values for the \type {embedding} variable are:
 
 \starttabulate[|l|p|]
-\BC value         \BC description                             \NC \NR
+\DB value         \BC description                             \NC \NR
+\TB[small,samepage]
 \NC \type{no}     \NC don't embed the font at all             \NC \NR
 \NC \type{subset} \NC include and atttempt to subset the font \NC \NR
 \NC \type{full}   \NC include this font in its entirety       \NC \NR
 \stoptabulate
 
-The other fields are used as follows: The \type {fullname} will be the
+The other fields are used as follows. The \type {fullname} will be the
 \POSTSCRIPT|/|\PDF\ font name. The \type {cidinfo} will be used as the character
-set (the CID \type {/Ordering} and \type {/Registry} keys). The \type {filename}
+set: the CID \type {/Ordering} and \type {/Registry} keys. The \type {filename}
 points to the actual font file. If you include the full path in the \type
 {filename} or if the file is in the local directory, \LUATEX\ will run a little
-bit more efficient because it will not have to re|-|run the \type {find_xxx_file}
+bit more efficient because it will not have to re|-|run the \type {find_*_file}
 callback in that case.
 
 Be careful: when mixing old and new fonts in one document, it is possible to
 create \POSTSCRIPT\ name clashes that can result in printing errors. When this
-happens, you have to change the \type {fullname} of the font.
+happens, you have to change the \type {fullname} of the font to a more unique
+one.
 
 Typeset strings are written out in a wide format using 2~bytes per glyph, using
 the \type {index} key in the character information as value. The overall effect
 is like having an encoding based on numbers instead of traditional (\POSTSCRIPT)
-name|-|based reencoding. The way to get the correct \type {index} numbers for
-\TYPEONE\ fonts is by loading the font via \type {fontloader.open} and use the table
-indices as \type {index} fields.
+name|-|based reencoding. One way to get the correct \type {index} numbers for
+\TYPEONE\ fonts is by loading the font via \type {fontloader.open} and use the
+table indices as \type {index} fields.
 
 In order to make sure that cut and paste of the final document works okay you can
-best make sure that there is a \type {tounicode} vector enforced.
+best make sure that there is a \type {tounicode} vector enforced. Not all \PDF\
+viewers handle this right so take \ACROBAT\ as reference.
 
 \section[virtualfonts]{Virtual fonts}
 
@@ -419,56 +423,58 @@ table from \type {define_font} as a virtual font:
 
 \startitemize[packed]
 \startitem
-    Set the top|-|level key \type {type} to \type {virtual}.
+    Set the top|-|level key \type {type} to \type {virtual}. I most cases it's
+    optional because we look at the \type {commands} entry anyway.
 \stopitem
 \startitem
-    Make sure there is at least one valid entry in \type {fonts} (see below).
+    Make sure there is at least one valid entry in \type {fonts} (see below),
+    although recent versions of \LUATEX\ add a default entry when this table is
+    missing.
 \stopitem
 \startitem
-    Give a \type {commands} array to every character (see below).
+    Add a \type {commands} array to those characters that matter. A virtual
+    character can itself point to virtual characters but be careful with nesting
+    as you can create loops and overflow the stack (which often indicates an
+    error anyway).
 \stopitem
 \stopitemize
 
 The presence of the toplevel \type {type} key with the specific value \type
 {virtual} will trigger handling of the rest of the special virtual font fields in
 the table, but the mere existence of 'type' is enough to prevent \LUATEX\ from
-looking for a virtual font on its own.
+looking for a virtual font on its own. This also works \quote {in reverse}: if
+you are absolutely certain that a font is not a virtual font, assigning the value
+\type {real} to \type {type} will inhibit \LUATEX\ from looking for a virtual
+font file, thereby saving you a disk search. This only matters when we load a
+\TFM\ file.
 
-Therefore, this also works \quote {in reverse}: if you are absolutely certain
-that a font is not a virtual font, assigning the value \type {base} or \type
-{real} to \type {type} will inhibit \LUATEX\ from looking for a virtual font
-file, thereby saving you a disk search.
-
-The \type {fonts} is another \LUA\ array. The values are one- or two|-|key
+The \type {fonts} is an (indexed) \LUA\ table. The values are one- or two|-|key
 hashes themselves, each entry indicating one of the base fonts in a virtual font.
 In case your font is referring to itself, you can use the \type {font.nextid()}
 function which returns the index of the next to be defined font which is probably
-the currently defined one.
-
-An example makes this easy to understand
+the currently defined one. So, a table looks like this:
 
 \starttyping
 fonts = {
-    { name = 'ptmr8a', size = 655360 },
-    { name = 'psyr', size = 600000 },
-    { id = 38 }
+  { name = "ptmr8a", size = 655360 },
+  { name = "psyr", size = 600000 },
+  { id = 38 }
 }
 \stoptyping
 
-says that the first referenced font (index 1) in this virtual font is \type
+The the first referenced font (at index~1) in this virtual font is \type
 {ptrmr8a} loaded at 10pt, and the second is \type {psyr} loaded at a little over
-9pt. The third one is previously defined font that is known to \LUATEX\ as font id
-\quote {38}.
-
-The array index numbers are used by the character command definitions that are
-part of each character.
+9pt. The third one is previously defined font that is known to \LUATEX\ as font
+id~38. The array index numbers are used by the character command definitions that
+are part of each character.
 
 The \type {commands} array is a hash where each item is another small array,
 with the first entry representing a command and the extra items being the
 parameters to that command. The allowed commands and their arguments are:
 
 \starttabulate[|l|l|l|p|]
-\BC command name   \BC arguments \BC type      \BC description \NC \NR
+\DB command        \BC arguments \BC type      \BC description \NC \NR
+\TB[small,samepage]
 \NC \type{font}    \NC 1         \NC number    \NC select a new font from the local \type {fonts} table \NC \NR
 \NC \type{char}    \NC 1         \NC number    \NC typeset this character number from the current font,
                                                    and move right by the character's width \NC \NR
@@ -485,14 +491,16 @@ parameters to that command. The allowed commands and their arguments are:
 \NC \type{pdf}     \NC 2         \NC 2 strings \NC output a \PDF\ literal, the first string is one of \type {origin},
                                                    \type {page}, \type {text}, \type {font}, \type {direct} or \type {raw}; if you
                                                    have one string only \type {origin} is assumed \NC \NR
-\NC \type{lua}     \NC 1         \NC string    \NC execute a \LUA\ script (at \type {\latelua} time) \NC \NR
+\NC \type{lua}     \NC 1         \NC string,
+                                     function  \NC execute a \LUA\ script when the glyph is embedded; in case of a
+                                                   function it gets the font id and character code passed \NC \NR
 \NC \type{image}   \NC 1         \NC image     \NC output an image (the argument can be either an \type
                                                    {<image>} variable or an \type {image_spec} table) \NC \NR
 \NC \type{comment} \NC any       \NC any       \NC the arguments of this command are ignored \NC \NR
 \stoptabulate
 
 When a font id is set to~0 then it will be replaced by the currently assigned
-font id. This prevents the need for hackery with future id's (normally one could
+font id. This prevents the need for hackery with future id's. Normally one could
 use \type {font.nextid} but when more complex fonts are built in the meantime
 other instances could have been loaded.
 
@@ -500,12 +508,12 @@ The \type {pdf} option also accepts a \type {mode} keyword in which case the
 third argument sets the mode. That option will change the mode in an efficient
 way (passing an empty string would result in an extra empty lines in the \PDF\
 file. This option only makes sense for virtual fonts. The \type {font} mode only
-makes sense in virtual fonts.
-
-These modes are somewhat fuzzy and partially inherited from \PDFTEX.
+makes sense in virtual fonts. Modes are somewhat fuzzy and partially inherited
+from \PDFTEX.
 
 \starttabulate[|l|p|]
-\BC mode           \BC description \NC \NR
+\DB mode           \BC description \NC \NR
+\TB[small,samepage]
 \NC \type {origin} \NC enter page mode and set the position \NC \NR
 \NC \type {page}   \NC enter page mode \NC \NR
 \NC \type {text}   \NC enter text mode \NC \NR
@@ -514,10 +522,9 @@ These modes are somewhat fuzzy and partially inherited from \PDFTEX.
 \NC \type {raw}    \NC finish the current string \NC \NR
 \stoptabulate
 
-You always need to check what \PDF\ code is generated because there can be all kind of
-interferences with optimizations in the backend and fonts are complicated anyway.
-
-Here is a rather elaborate glyph commands example:
+You always need to check what \PDF\ code is generated because there can be all
+kind of interferences with optimization in the backend and fonts are complicated
+anyway. Here is a rather elaborate glyph commands example using such keys:
 
 \starttyping
 ...
@@ -526,6 +533,7 @@ commands = {
     { "right", 5000 },              -- move right about 0.08pt
     { "font", 3 },                  -- select the fonts[3] entry
     { "char", 97 },                 -- place character 97 (ASCII 'a')
+ -- { "slot", 2, 97 },              -- an alternative for the previous two
     { "pop" },                      -- go all the way back
     { "down", -200000 },            -- move upwards by about 3pt
     { "special", "pdf: 1 0 0 rg" }  -- switch to red color
@@ -579,31 +587,31 @@ Finally, here is a plain \TEX\ input file with a virtual font demonstration:
   callback.register('define_font',
     function (name,size)
       if name == 'cmr10-red' then
-        f = font.read_tfm('cmr10',size)
-        f.name = 'cmr10-red'
-        f.type = 'virtual'
-        f.fonts = {{ name = 'cmr10', size = size }}
+        local f = font.read_tfm('cmr10',size)
+        f.name  = 'cmr10-red'
+        f.type  = 'virtual'
+        f.fonts = {
+          { name = 'cmr10', size = size }
+        }
         for i,v in pairs(f.characters) do
-          if (string.char(i)):find('[tacohanshartmut]') then
+          if string.char(i):find('[tacohanshartmut]') then
              v.commands = {
-               {'special','pdf: 1 0 0 rg'},
-               {'char',i},
-               {'special','pdf: 0 g'},
+               { "special", "pdf: 1 0 0 rg" },
+               { "char", i },
+               { "special", "pdf: 0 g" },
               }
-          else
-             v.commands = {{'char',i}}
           end
         end
+        return f
       else
-        f = font.read_tfm(name,size)
+        return font.read_tfm(name,size)
       end
-      return f
     end
   )
 }
 
-\font\myfont = cmr10-red at 10pt \myfont  This is a line of text \par
-\font\myfontx= cmr10     at 10pt \myfontx Here is another line of text \par
+\font\myfont  = cmr10-red at 10pt \myfont  This is a line of text \par
+\font\myfontx = cmr10     at 10pt \myfontx Here is another line of text \par
 \stopbuffer
 
 \typebuffer
@@ -629,8 +637,8 @@ library that will be discussed in the next section.
 
 \subsection{Loading a \TFM\ file}
 
-The behavior documented in this subsection is considered stable in the sense that
-there will not be backward-incompatible changes any more.
+The behaviour documented in this subsection is considered stable in the sense that
+there will not be backward|-|incompatible changes any more.
 
 \startfunctioncall
 <table> fnt =
@@ -663,7 +671,7 @@ there will not be backward-incompatible changes any more.
 \stopfunctioncall
 
 The meaning of the number \type {s} and the format of the returned table are
-similar to the ones in the \type {read_tfm()} function.
+similar to the ones in the \type {read_tfm} function.
 
 \subsection{The fonts array}
 

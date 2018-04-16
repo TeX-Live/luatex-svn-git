@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-lua
 
@@ -58,6 +57,8 @@ similar fashion as the other \TEX\ engines. Some options are accepted but have n
 consequence. The following command|-|line options are understood:
 
 \starttabulate[|l|p|]
+\DB commandline argument                \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{--credits}                    \NC display credits and exit \NC \NR
 \NC \type{--debug-format}               \NC enable format debugging \NC \NR
 \NC \type{--draftmode}                  \NC switch on draft mode i.e.\ generate no output in \PDF\ mode \NC \NR
@@ -145,8 +146,9 @@ in order.
     \LUA\ commands that can easily be abused by a malicious document. At the
     moment, \type {--safer} \type {nil}s the following functions:
 
-    \starttabulate[|l|l|]
-        \BC library      \BC functions \NC \NR
+    \starttabulate[|c|l|]
+        \DB library      \BC functions \NC \NR
+        \TB[small,samepage]
         \NC \type {os}   \NC \type {execute} \type {exec} \type {spawn} \type {setenv} \type {rename} \type {remove} \type {tmpdir} \NC \NR
         \NC \type {io}   \NC \type {popen} \type {output} \type {tmpfile} \NC \NR
         \NC \type {lfs}  \NC \type {rmdir} \type {mkdir} \type {chdir} \type {lock} \type {touch} \NC \NR

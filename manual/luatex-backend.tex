@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-backend
 
@@ -438,6 +437,8 @@ value.
 The list of possible operand types and associated \LUA\ value types is:
 
 \starttabulate[|l|c|]
+\DB types           \BC type      \NC \NR
+\TB[small,samepage]
 \NC \type{integer}  \NC <number>  \NC \NR
 \NC \type{real}     \NC <number>  \NC \NR
 \NC \type{boolean}  \NC <boolean> \NC \NR
@@ -465,12 +466,12 @@ In case of \type {array}, the table content is a list of \type {pop} return
 values and in case of \type {dict}, the table keys are \PDF\ name strings and the
 values are \type {pop} return values.
 
-\blank
-
 There are few more methods defined that you can ask \type {scanner}:
 
 \starttabulate[|l|p|]
-\NC \type{pop}       \NC as explained above \NC \NR
+\DB method           \BC explanation \NC \NR
+\TB[small,samepage]
+\NC \type{pop}       \NC see above \NC \NR
 \NC \type{popNumber} \NC return only the value of a \type {real} or \type {integer} \NC \NR
 \NC \type{popName}   \NC return only the value of a \type {name} \NC \NR
 \NC \type{popString} \NC return only the value of a \type {string} \NC \NR
@@ -748,7 +749,7 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <Object>  = <Object>:dictgetVal(<integer>)
 <Object>  = <Object>:dictgetValNF(<integer>)
 <boolean> = <Object>:streamIs(<string>)
-          = <Object>:streamReset()                    -- will go
+          = <Object>:streamReset()
 <integer> = <Object>:streamGetChar()
 <integer> = <Object>:streamLookChar()
 <integer> = <Object>:streamGetPos()
@@ -928,6 +929,8 @@ There is an experimental function \type {epdf.openMemStream} that takes three
 arguments:
 
 \starttabulate
+\DB value           \BC explanation      \NC \NR
+\TB[small,samepage]
 \NC \type {stream}  \NC this is a (in low level \LUA\ speak) light userdata
                         object, i.e.\ a pointer to a sequence of bytes \NC \NR
 \NC \type {length}  \NC this is the length of the stream in bytes \NC \NR

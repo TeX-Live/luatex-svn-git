@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-graphics
 
@@ -85,7 +84,8 @@ user-supplied and automatic ones.
 
 % hahe: i need to add r/w ro column...
 \starttabulate[|l|l|p|]
-\BC field name            \BC type     \BC description \NC \NR
+\DB field name            \BC type     \BC description \NC \NR
+\TB[small,samepage]
 \NC \type{attr}           \NC string   \NC the image attributes for \LUATEX \NC \NR
 \NC \type{bbox}           \NC table    \NC table with 4 boundingbox dimensions \type
                                            {llx}, \type {lly}, \type {urx} and \type
@@ -313,7 +313,8 @@ This creates the \type {mp} instance object. The argument hash can have a number
 of different fields, as follows:
 
 \starttabulate[|l|l|p|p|]
-\BC name               \BC type     \BC description              \BC default           \NC \NR
+\DB name               \BC type     \BC description              \BC default           \NC \NR
+\TB[small,samepage]
 \NC \type{error_line}  \NC number   \NC error line width         \NC 79                \NC \NR
 \NC \type{print_line}  \NC number   \NC line length in ps output \NC 100               \NC \NR
 \NC \type{random_seed} \NC number   \NC the initial random seed  \NC variable          \NC \NR
@@ -340,7 +341,8 @@ The \type {find_file} function should be of this form:
 with:
 
 \starttabulate[|l|p|]
-\BC name        \BC the requested file \NC \NR
+\DB name        \BC the requested file \NC \NR
+\TB[small,samepage]
 \NC \type{mode} \NC the file mode: \type {r} or \type {w} \NC \NR
 \NC \type{type} \NC the kind of file, one of: \type {mp}, \type {tfm}, \type {map},
                     \type {pfb}, \type {enc} \NC \NR
@@ -388,6 +390,8 @@ four fields, giving the maximum number of used items in each of four allocated
 object classes:
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{main_memory} \NC number \NC memory size \NC \NR
 \NC \type{hash_size}   \NC number \NC hash size\NC \NR
 \NC \type{param_size}  \NC number \NC simultaneous macro parameters\NC \NR
@@ -435,6 +439,8 @@ The return value of \type {mp:execute} and \type {mp:finish} is a table with a
 few possible keys (only \type {status} is always guaranteed to be present).
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{log}    \NC string \NC output to the \quote {log} stream \NC \NR
 \NC \type{term}   \NC string \NC output to the \quote {term} stream \NC \NR
 \NC \type{error}  \NC string \NC output to the \quote {error} stream
@@ -455,6 +461,8 @@ representing a figure object, and each of those has a number of object methods
 you can call:
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{boundingbox}  \NC function \NC returns the bounding box, as an array of 4
                                          values \NC \NR
 \NC \type{postscript}   \NC function \NC returns a string that is the ps output of the
@@ -504,6 +512,8 @@ point number, unless stated otherwise. Field values that are of type \type
 \subsubsection{fill}
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{path}       \NC table  \NC the list of knots \NC \NR
 \NC \type{htap}       \NC table  \NC the list of knots for the reversed trajectory \NC \NR
 \NC \type{pen}        \NC table  \NC knots of the pen \NC \NR
@@ -521,6 +531,8 @@ containing a bunch of vital characteristics of the used pen (all values are
 floats):
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{width} \NC number \NC width of the pen \NC \NR
 \NC \type{sx}    \NC number \NC $x$ scale        \NC \NR
 \NC \type{rx}    \NC number \NC $xy$ multiplier  \NC \NR
@@ -533,6 +545,8 @@ floats):
 \subsubsection{outline}
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{path}       \NC table  \NC the list of knots \NC \NR
 \NC \type{pen}        \NC table  \NC knots of the pen \NC \NR
 \NC \type{color}      \NC table  \NC the object's color \NC \NR
@@ -549,6 +563,8 @@ The entry \type {dash} is optional.
 \subsubsection{text}
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{text}       \NC string \NC the text \NC \NR
 \NC \type{font}       \NC string \NC font tfm name \NC \NR
 \NC \type{dsize}      \NC number \NC font size \NC \NR
@@ -564,12 +580,16 @@ The entry \type {dash} is optional.
 \subsubsection{special}
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{prescript} \NC string \NC special text \NC \NR
 \stoptabulate
 
 \subsubsection{start_bounds, start_clip}
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{path} \NC table \NC the list of knots \NC \NR
 \stoptabulate
 
@@ -586,6 +606,8 @@ concerned) are represented by an array where each entry is a table that
 represents a knot.
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{left_type}  \NC string \NC when present: endpoint, but usually absent \NC \NR
 \NC \type{right_type} \NC string \NC like \type {left_type} \NC \NR
 \NC \type{x_coord}    \NC number \NC X coordinate of this knot \NC \NR
@@ -605,6 +627,8 @@ array part containing the knot list.
 A color is an integer array with 0, 1, 3 or 4 values:
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{0} \NC marking only \NC no values                                                     \NC \NR
 \NC \type{1} \NC greyscale    \NC one value in the range $(0,1)$, \quote {black} is $0$         \NC \NR
 \NC \type{3} \NC \RGB         \NC three values in the range $(0,1)$, \quote {black} is $0,0,0$  \NC \NR
@@ -620,6 +644,8 @@ initialized to the values representing \quote {black} in the colorspace \type
 Each transform is a six|-|item array.
 
 \starttabulate[|l|l|p|]
+\DB index  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{1} \NC number \NC represents x  \NC \NR
 \NC \type{2} \NC number \NC represents y  \NC \NR
 \NC \type{3} \NC number \NC represents xx \NC \NR
@@ -638,6 +664,8 @@ representation of the dashlist. \type {dashes} is an array of \quote {on} and
 \quote {off}, values, and \type {offset} is the phase of the pattern.
 
 \starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB[small,samepage]
 \NC \type{dashes} \NC hash   \NC an array of on-off numbers \NC \NR
 \NC \type{offset} \NC number \NC the starting offset value  \NC \NR
 \stoptabulate

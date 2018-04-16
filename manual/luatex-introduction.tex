@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-introduction
 
@@ -48,7 +47,7 @@ The organization of the source code is adapted so that it can glue all these
 components together. We continue cleaning up side effects of the accumulated
 code in \TEX\ engines (especially code that is not needed any longer).
 
-\startitemize[packed]
+\startitemize % [packed]
     \startitem
         We started out with most of \PDFTEX\ version 1.40.9. The code base was
         converted to \CCODE\ and split in modules. Experimental features were
@@ -118,6 +117,11 @@ probably become a bit leaner and meaner. Some libraries might become external as
 we don't want to bloat the binary and also don't want to add more hard coded
 solutions. After all, with \LUA\ you can extend the core functionality. The less
 dependencies, the better.
+
+You might find \LUA\ helpers that are not yet documented. These are considered
+experimental, although when you encounter them in a \CONTEXT\ version that has
+been around for a while you can assume that they will stay. Of course it can just
+be that we forgot to document them yet.
 
 The \TEXLIVE\ version is to be considered the current stable version. Any version
 between the yearly \TEXLIVE\ releases are to be considered beta and in the
