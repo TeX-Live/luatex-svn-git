@@ -445,7 +445,6 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
     char *lua_id;
     char *s = NULL;
     int stacktop = lua_gettop(Luas);
-
     if (Luas == NULL) {
         luainterpreter();
     }
@@ -512,6 +511,65 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
             }
         }
         xfree(ls.s);
+    }
+    lua_settop(Luas,stacktop);
+    lua_active--;
+}
+
+@ @c
+void luacall_vf(int p, int f, int c)
+{
+    int i;
+    int stacktop = lua_gettop(Luas);
+    if (Luas == NULL) {
+        luainterpreter();
+    }
+    lua_active++;
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, p);
+    if (lua_isfunction(Luas,-1)) {
+        int base = lua_gettop(Luas);        /* function index */
+        lua_checkstack(Luas, 1);
+        lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
+        lua_insert(Luas, base);     /* put it under chunk  */
+        lua_pushinteger(Luas, f);
+        lua_pushinteger(Luas, c);
+        ++late_callback_count;
+        i = lua_pcall(Luas, 2, 0, base);
+        lua_remove(Luas, base);     /* remove traceback function */
+        if (i != 0) {
+            lua_gc(Luas, LUA_GCCOLLECT, 0);
+            Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
+        }
+    } else {
+        LoadS ls;
+        size_t ll = 0;
+        char *s = NULL;
+        const char *ss = NULL;
+        ss = lua_tolstring(Luas, -1, &ll);
+        s = xmalloc(ll+1);
+        memcpy(s,ss,ll+1);
+        lua_pop(Luas,1);
+        ls.s = s;
+        ls.size = ll;
+        if (ls.size > 0) {
+            i = Luas_load(Luas, getS, &ls, "=[vf command]");
+            if (i != 0) {
+                Luas = luatex_error(Luas, (i == LUA_ERRSYNTAX ? 0 : 1));
+            } else {
+                int base = lua_gettop(Luas);        /* function index */
+                lua_checkstack(Luas, 1);
+                lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
+                lua_insert(Luas, base);     /* put it under chunk  */
+                ++late_callback_count;
+                i = lua_pcall(Luas, 0, 0, base);
+                lua_remove(Luas, base);     /* remove traceback function */
+                if (i != 0) {
+                    lua_gc(Luas, LUA_GCCOLLECT, 0);
+                    Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
+                }
+            }
+            xfree(ls.s);
+        }
     }
     lua_settop(Luas,stacktop);
     lua_active--;

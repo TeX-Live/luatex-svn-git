@@ -22,6 +22,7 @@
 
 
 #include "ptexlib.h"
+#include "lua/luatex-api.h"
 
 @ Some macros for processing character packets.
 @c
@@ -265,16 +266,26 @@ void do_vf_packet(PDF pdf, internal_font_number vf_f, int c, int ex_glyph)
             pdf_literal(pdf, s, scan_special, false);
             flush_str(s);
             break;
+        /*
         case packet_lua_code:
             packet_number(k);
             vp->vflua = true;
-            /* todo: proper handling like other lua_pcalls */
             if (luaL_loadbuffer
                 (Luas, (const char *) vfp, (size_t) k, "packet_lua_code")
                 || lua_pcall(Luas, 0, LUA_MULTRET, 0))
                 lua_error(Luas);
             vp->vflua = false;
             vfp += k;
+            break;
+        */
+        case packet_lua_code:
+            packet_number(k);
+            vp->vflua = true;
+            luacall_vf(k, vf_f, c);
+            /* we don't release as we flush multipel times:
+                luaL_unref(Luas, LUA_REGISTRYINDEX, k);
+            */
+            vp->vflua = false;
             break;
         case packet_image_code:
             packet_number(k);

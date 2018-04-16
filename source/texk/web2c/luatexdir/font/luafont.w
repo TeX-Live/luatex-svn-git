@@ -649,7 +649,7 @@ static int count_char_packet_bytes(lua_State * L)
                     l++;
                 } else if (lua_key_eq(s, rule)) {
                     l += 9;
-                } else if (lua_key_eq(s, right) || lua_key_eq(s, node) || lua_key_eq(s, down) || lua_key_eq(s, image)) {
+                } else if (lua_key_eq(s, right) || lua_key_eq(s, node) || lua_key_eq(s, down) || lua_key_eq(s, image) || lua_key_eq(s, lua)) {
                     l += 5;
                 } else if (lua_key_eq(s, scale)) {
                     l += sizeof(float) + 1;
@@ -677,7 +677,7 @@ static int count_char_packet_bytes(lua_State * L)
                         normal_error("vf command","invalid packet pdf literal");
                     }
                     lua_pop(L, ts == 3 ? 2 : 1);
-                } else if (lua_key_eq(s, special) || lua_key_eq(s, lua)) {
+                } else if (lua_key_eq(s, special)) {
                     size_t len;
                     lua_rawgeti(L, -2, 2);
                     if (lua_type(L,-1) == LUA_TSTRING) {
@@ -900,7 +900,9 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                         lua_pop(L,ts == 3 ? 2 : 1);
                         break;
                     case packet_special_code:
+                    /*
                     case packet_lua_code:
+                    */
                         append_packet(cmd);
                         lua_rawgeti(L, -2, 2);
                         s = luaL_checklstring(L, -1, &l);
@@ -914,6 +916,12 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                             }
                         }
                         lua_pop(L, 1);
+                        break;
+                    case packet_lua_code:
+                        append_packet(cmd);
+                        lua_rawgeti(L, -2, 2);
+                        n = luaL_ref(L, LUA_REGISTRYINDEX);  /* ... */
+                        do_store_four(n);
                         break;
                     case packet_image_code:
                         append_packet(cmd);

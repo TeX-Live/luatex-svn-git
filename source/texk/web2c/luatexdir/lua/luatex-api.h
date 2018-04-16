@@ -123,6 +123,8 @@ extern int getreadfilecallbackid(int n);
 
 extern void lua_initialize(int ac, char **av);
 
+extern void luacall_vf(int p, int f, int c);
+
 extern int luaopen_kpse(lua_State * L);
 
 extern int luaopen_callback(lua_State * L);
