@@ -68,7 +68,7 @@ mind when preloading files into a bytecode register in \INITEX.
 \subsection{\LUA\ chunk name registers}
 
 There is an array of 65536 (0--65535) potential chunk names for use with the
-\type {\directlua} and \type {\latelua} primitives.
+\prm {directlua} and \lpr {latelua} primitives.
 
 \startfunctioncall
 lua.name[<number> n] = <string> s
@@ -98,7 +98,7 @@ The current list is:
 
 \starttabulate[|l|p|]
 \DB key                       \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{banner}             \NC terminal display banner \NC \NR
 \NC \type{best_page_break}    \NC the current best break (a node) \NR \NR
 \NC \type{buf_size}           \NC current allocated size of the line buffer \NC \NR
@@ -148,7 +148,7 @@ The current list is:
 \NC \type{node_mem_usage}     \NC a string giving insight into currently used nodes \NC \NR
 \NC \type{obj_ptr}            \NC max \PDF\ object pointer \NC \NR
 \NC \type{obj_tab_size}       \NC \PDF\ object table size \NC \NR
-\NC \type{output_active}      \NC \type {true} if the \type {\output} routine is active \NC \NR
+\NC \type{output_active}      \NC \type {true} if the \prm {output} routine is active \NC \NR
 \NC \type{output_file_name}   \NC name of the \PDF\ or \DVI\ file \NC \NR
 \NC \type{param_size}         \NC parameter stack size \NC \NR
 \NC \type{pdf_dest_names_ptr} \NC max \PDF\ destination pointer \NC \NR
@@ -174,6 +174,7 @@ The current list is:
 %NC \type{lc_monetary}        \NC the value of \type {LC_MONETARY} at startup time \NC \NR
 \NC \type{lc_numeric}         \NC the value of \type {LC_NUMERIC}  at startup time \NC \NR
 %NC \type{lc_time}            \NC the value of \type {LC_TIME}     at startup time (becomes \type {C} at startup) \NC \NR
+\LL
 \stoptabulate
 
 The error and warning messages can be wiped with the \type {resetmessages}
@@ -193,7 +194,7 @@ At the moment, it is possible to access almost every parameter that has these
 characteristics:
 
 \startitemize[packed]
-\item You can use it after \type {\the}
+\item You can use it after \prm {the}
 \item It is a single token.
 \item Some special others, see the list below
 \stopitemize
@@ -201,8 +202,8 @@ characteristics:
 This excludes parameters that need extra arguments, like \type {\the\scriptfont}.
 
 The subset comprising simple integer and dimension registers are
-writable as well as readable (stuff like \type {\tracingcommands} and
-\type {\parindent}).
+writable as well as readable (stuff like \prm {tracingcommands} and
+\prm {parindent}).
 
 \subsection{Internal parameter values}
 
@@ -478,7 +479,7 @@ tex.thinmuskip
 \subsubsection{Tokenlist parameters}
 
 The tokenlist parameters accept and return \LUA\ strings. \LUA\ strings are
-converted to and from token lists using \type {\the} \type {\toks} style expansion:
+converted to and from token lists using \prm {the} \prm {toks} style expansion:
 all category codes are either space (10) or other (12). It follows that assigning
 to some of these, like \quote {tex.output}, is actually useless, but it feels bad
 to make exceptions in view of a coming extension that will accept full|-|blown
@@ -558,8 +559,7 @@ tex.currentifbranch
 
 \subsection{Attribute, count, dimension, skip and token registers}
 
-\TEX's attributes (\type {\attribute}), counters (\type {\count}), dimensions (\type
-{\dimen}), skips (\type {\skip}) and token (\type {\toks}) registers can be accessed
+\TEX's attributes (\lpr {attribute}), counters (\prm {count}), dimensions (\prm {dimen}), skips (\prm {skip}) and token (\prm {toks}) registers can be accessed
 and written to using two times five virtual sub|-|tables of the \type {tex}
 table:
 
@@ -573,8 +573,8 @@ tex.toks
 \stoptyping
 \stopthreecolumns
 
-It is possible to use the names of relevant \type {\attributedef}, \type {\countdef},
-\type {\dimendef}, \type {\skipdef}, or \type {\toksdef} control sequences as indices
+It is possible to use the names of relevant \lpr {attributedef}, \prm {countdef},
+\prm {dimendef}, \prm {skipdef}, or \prm {toksdef} control sequences as indices
 to these tables:
 
 \starttyping
@@ -583,8 +583,7 @@ enormous = tex.dimen['maxdimen']
 \stoptyping
 
 In this case, \LUATEX\ looks up the value for you on the fly. You have to use a
-valid \type {\countdef} (or \type {\attributedef}, or \type {\dimendef}, or \type
-{\skipdef}, or \type {\toksdef}), anything else will generate an error (the intent
+valid \prm {countdef} (or \lpr {attributedef}, or \prm {dimendef}, or \prm {skipdef}, or \prm {toksdef}), anything else will generate an error (the intent
 is to eventually also allow \type {<chardef tokens>} and even macros that expand
 into a number).
 
@@ -595,14 +594,14 @@ an included absolute dimension; \type {em} and \type {ex} and \type {px} are
 forbidden). The result is always a number in scaled points.
 
 The token registers accept and return \LUA\ strings. \LUA\ strings are converted
-to and from token lists using \type {\the} \type {\toks} style expansion: all
+to and from token lists using \prm {the} \prm {toks} style expansion: all
 category codes are either space (10) or other (12).
 
 The skip registers accept and return \type {glue_spec} userdata node objects (see
 the description of the node interface elsewhere in this manual).
 
 As an alternative to array addressing, there are also accessor functions defined
-for all cases, for example, here is the set of possibilities for \type {\skip}
+for all cases, for example, here is the set of possibilities for \prm {skip}
 registers:
 
 \startfunctioncall
@@ -642,8 +641,7 @@ The other two are \type {tex.setmuglue} and \type {tex.getmuglue}.
 
 \subsection{Character code registers}
 
-\TEX's character code tables (\type {\lccode}, \type {\uccode}, \type {\sfcode}, \type
-{\catcode}, \type {\mathcode}, \type {\delcode}) can be accessed and written to using
+\TEX's character code tables (\prm {lccode}, \prm {uccode}, \prm {sfcode}, \prm {catcode}, \prm {mathcode}, \prm {delcode}) can be accessed and written to using
 six virtual subtables of the \type {tex} table
 
 \startthreecolumns
@@ -733,8 +731,8 @@ smallfam, smallchar, largefam, largechar =
 \stopfunctioncall
 
 Normally, the third and fourth values in a delimiter code assignment will be zero
-according to \type {\Udelcode} usage, but the returned table can have values there
-(if the delimiter code was set using \type {\delcode}, for example). Unset \type
+according to \lpr {Udelcode} usage, but the returned table can have values there
+(if the delimiter code was set using \prm {delcode}, for example). Unset \type
 {delcode}'s can be recognized because \type {dval[1]} is $-1$.
 
 \subsection{Box registers}
@@ -775,7 +773,7 @@ tex.box[0] = node.copy_list(tex.box[2])
 \stoptyping
 
 The following function will register a box for reuse (this is modelled after so
-called xforms in \PDF). You can (re)use the box with \type {\useboxresource} or
+called xforms in \PDF). You can (re)use the box with \lpr {useboxresource} or
 by creating a rule node with subtype~2.
 
 \starttyping
@@ -811,7 +809,7 @@ local vlist = tex.splitbox(n,height,mode)
 \stoptyping
 
 The remainder is kept in the original box and a packaged vlist is returned. This
-operation is comparable to the \type {\vsplit} operation. The mode can be \type
+operation is comparable to the \prm {vsplit} operation. The mode can be \type
 {additional} or \type {exactly} and concerns the split off box.
 
 \subsection{Math parameters}
@@ -885,17 +883,18 @@ keep track of building page lists.
 
 \starttabulate[|l|p|]
 \DB field                      \BC description \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{page_ins_head}       \NC circular list of pending insertions \NC \NR
 \NC \type{contrib_head}        \NC the recent contributions \NC \NR
 \NC \type{page_head}           \NC the current page content \NC \NR
 %NC \type{temp_head}           \NC \NC \NR
 \NC \type{hold_head}           \NC used for held-over items for next page \NC \NR
-\NC \type{adjust_head}         \NC head of the current \type {\vadjust} list \NC \NR
+\NC \type{adjust_head}         \NC head of the current \prm {vadjust} list \NC \NR
 \NC \type{pre_adjust_head}     \NC head of the current \type {\vadjust pre} list \NC \NR
 %NC \type{align_head}          \NC \NC \NR
 \NC \type{page_discards_head}  \NC head of the discarded items of a page break \NC \NR
 \NC \type{split_discards_head} \NC head of the discarded items in a vsplit \NC \NR
+\LL
 \stoptabulate
 
 \subsection{Semantic nest levels}
@@ -915,9 +914,9 @@ The known fields are:
 
 \starttabulate[|l|l|l|p|]
 \DB key                \BC type    \BC modes \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{mode}        \NC number  \NC all   \NC a number representing the main mode at this level:
-                                                 \type {0}    = no mode (this happens during \type {\write}),
+                                                 \type {0}    = no mode (this happens during \prm {write}),
                                                  \type {1}    = vertical,
                                                  \type {127}  = horizontal,
                                                  \type {253}  = display math,
@@ -933,12 +932,13 @@ The known fields are:
 \NC \type{spacefactor} \NC number  \NC hmode \NC the current space factor \NC \NR
 \NC \type{dirs}        \NC node    \NC hmode \NC used for temporary storage by the line break algorithm\NC \NR
 \NC \type{noad}        \NC node    \NC mmode \NC used for temporary storage of a pending fraction numerator,
-                                                 for \type {\over} etc. \NC \NR
+                                                 for \prm {over} etc. \NC \NR
 \NC \type{delimptr}    \NC node    \NC mmode \NC used for temporary storage of the previous math delimiter,
-                                                 for \type {\middle} \NC \NR
-\NC \type{mathdir}     \NC boolean \NC mmode \NC true when during math processing the \type {\mathdir} is not
-                                                 the same as the surrounding \type {\textdir} \NC \NR
-\NC \type{mathstyle}   \NC number  \NC mmode \NC the current \type {\mathstyle} \NC \NR
+                                                 for \prm {middle} \NC \NR
+\NC \type{mathdir}     \NC boolean \NC mmode \NC true when during math processing the \lpr {mathdir} is not
+                                                 the same as the surrounding \lpr {textdir} \NC \NR
+\NC \type{mathstyle}   \NC number  \NC mmode \NC the current \lpr {mathstyle} \NC \NR
+\LL
 \stoptabulate
 
 \subsection[sec:luaprint]{Print functions}
@@ -948,9 +948,9 @@ major interface from \LUA\ scripting to \TEX.
 
 The arguments to these three functions are all stored in an in|-|memory virtual
 file that is fed to the \TEX\ scanner as the result of the expansion of
-\type {\directlua}.
+\prm {directlua}.
 
-The total amount of returnable text from a \type {\directlua} command is only
+The total amount of returnable text from a \prm {directlua} command is only
 limited by available system \RAM. However, each separate printed string has to
 fit completely in \TEX's input buffer.
 
@@ -971,15 +971,14 @@ table argument instead of a list of strings, this has to be a consecutive array
 of strings to print (the first non-string value will stop the printing process).
 
 The optional parameter can be used to print the strings using the catcode regime
-defined by \type {\catcodetable}~\type {n}. If \type {n} is $-1$, the currently
+defined by \lpr {catcodetable}~\type {n}. If \type {n} is $-1$, the currently
 active catcode regime is used. If \type {n} is $-2$, the resulting catcodes are
-the result of \type {\the} \type {\toks}: all category codes are 12 (other) except for
+the result of \prm {the} \prm {toks}: all category codes are 12 (other) except for
 the space character, that has category code 10 (space). Otherwise, if \type {n}
 is not a valid catcode table, then it is ignored, and the currently active
 catcode regime is used instead.
 
-The very last string of the very last \type {tex.print()} command in a \type
-{\directlua} will not have the \type {\endlinechar} appended, all others do.
+The very last string of the very last \type {tex.print()} command in a \prm {directlua} will not have the \prm {endlinechar} appended, all others do.
 
 \subsubsection{\type {tex.sprint}}
 
@@ -999,7 +998,7 @@ makes it suitable for use as a partial line input mechanism:
     are not ignored.
 \stopitem
 \startitem
-    No \type {\endlinechar} is inserted.
+    No \prm {endlinechar} is inserted.
 \stopitem
 \startitem
     Trailing spaces are not removed.
@@ -1011,7 +1010,7 @@ makes it suitable for use as a partial line input mechanism:
 before\directlua{tex.sprint("\\relax")tex.sprint(" inbetween")}after
 \stoptyping
     the space before \type {in between} will be gobbled as a result of the \quote
-    {normal} scanning of \type {\relax}.
+    {normal} scanning of \prm {relax}.
 \stopitem
 \stopitemize
 
@@ -1060,7 +1059,7 @@ makes it suitable for use as a quick way to dump information:
 \startitemize
 \item All catcodes on that line are either \quote{space} (for '~') or
      \quote{character} (for all others).
-\item There is no \type {\endlinechar} appended.
+\item There is no \prm {endlinechar} appended.
 \stopitemize
 
 If there is a table argument instead of a list of strings, this has to be a
@@ -1161,8 +1160,7 @@ tex.error(<string> s)
 tex.error(<string> s, <table> help)
 \stopfunctioncall
 
-This creates an error somewhat like the combination of \type {\errhelp} and \type
-{\errmessage} would. During this error, deletions are disabled.
+This creates an error somewhat like the combination of \prm {errhelp} and \prm {errmessage} would. During this error, deletions are disabled.
 
 The array part of the \type {help} table has to contain strings, one for each
 line of error help.
@@ -1193,7 +1191,7 @@ This function accepts a prefix string and an array of primitive names.
 For each combination of \quote {prefix} and \quote {name}, the \type
 {tex.enableprimitives} first verifies that \quote {name} is an actual primitive
 (it must be returned by one of the \type {tex.extraprimitives()} calls explained
-below, or part of \TEX82, or \type {\directlua}). If it is not, \type
+below, or part of \TEX82, or \prm {directlua}). If it is not, \type
 {tex.enableprimitives} does nothing and skips to the next pair.
 
 But if it is, then it will construct a csname variable by concatenating the
@@ -1202,7 +1200,7 @@ actual prefix of \quote {name}. In the latter case, it will discard the \quote
 {prefix}, and just use \quote {name}.
 
 Then it will check for the existence of the constructed csname. If the csname is
-currently undefined (note: that is not the same as \type {\relax}), it will
+currently undefined (note: that is not the same as \prm {relax}), it will
 globally define the csname to have the meaning: run code belonging to the
 primitive \quote {name}. If for some reason the csname is already defined, it
 does nothing and tries the next pair.
@@ -1214,11 +1212,10 @@ An example:
 \stoptyping
 
 will define \type {\LuaTeXformatname} with the same intrinsic meaning as the
-documented primitive \type {\formatname}, provided that the control sequences \type
+documented primitive \lpr {formatname}, provided that the control sequences \type
 {\LuaTeXformatname} is currently undefined.
 
-When \LUATEX\ is run with \type {--ini} only the \TEX82 primitives and \type
-{\directlua} are available, so no extra primitives {\bf at all}.
+When \LUATEX\ is run with \type {--ini} only the \TEX82 primitives and \prm {directlua} are available, so no extra primitives {\bf at all}.
 
 If you want to have all the new functionality available using their default
 names, as it is now, you will have to add
@@ -1261,11 +1258,12 @@ end
 
 \starttabulate[|l|pl|]
 \DB name    \BC values \NC \NR
-\TB[small,samepage]
+\TB
 \NC tex     \NC \ctxlua{document.showprimitives('tex')    } \NC \NR
 \NC core    \NC \ctxlua{document.showprimitives('core')   } \NC \NR
 \NC etex    \NC \ctxlua{document.showprimitives('etex')   } \NC \NR
 \NC luatex  \NC \ctxlua{document.showprimitives('luatex') } \NC \NR
+\LL
 \stoptabulate
 
 Note that \type {luatex} does not contain \type {directlua}, as that is
@@ -1317,7 +1315,7 @@ The understood parameters are as follows:
 
 \starttabulate[|l|l|p|]
 \DB name                        \BC type            \BC description \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{pardir}               \NC string          \NC \NC \NR
 \NC \type{pretolerance}         \NC number          \NC \NC \NR
 \NC \type{tracingparagraphs}    \NC number          \NC \NC \NR
@@ -1333,9 +1331,9 @@ The understood parameters are as follows:
 \NC \type{doublehyphendemerits} \NC number          \NC \NC \NR
 \NC \type{finalhyphendemerits}  \NC number          \NC \NC \NR
 \NC \type{hangafter}            \NC number          \NC \NC \NR
-\NC \type{interlinepenalty}     \NC number or table \NC if a table, then it is an array like \type {\interlinepenalties} \NC \NR
-\NC \type{clubpenalty}          \NC number or table \NC if a table, then it is an array like \type {\clubpenalties} \NC \NR
-\NC \type{widowpenalty}         \NC number or table \NC if a table, then it is an array like \type {\widowpenalties} \NC \NR
+\NC \type{interlinepenalty}     \NC number or table \NC if a table, then it is an array like \prm {interlinepenalties} \NC \NR
+\NC \type{clubpenalty}          \NC number or table \NC if a table, then it is an array like \prm {clubpenalties} \NC \NR
+\NC \type{widowpenalty}         \NC number or table \NC if a table, then it is an array like \prm {widowpenalties} \NC \NR
 \NC \type{brokenpenalty}        \NC number          \NC \NC \NR
 \NC \type{emergencystretch}     \NC number          \NC in scaled points \NC \NR
 \NC \type{hangindent}           \NC number          \NC in scaled points \NC \NR
@@ -1343,9 +1341,10 @@ The understood parameters are as follows:
 \NC \type{leftskip}             \NC glue_spec node  \NC \NC \NR
 \NC \type{rightskip}            \NC glue_spec node  \NC \NC \NR
 \NC \type{parshape}             \NC table           \NC \NC \NR
+\LL
 \stoptabulate
 
-Note that there is no interface for \type {\displaywidowpenalties}, you have to
+Note that there is no interface for \prm {displaywidowpenalties}, you have to
 pass the right choice for \type {widowpenalties} yourself.
 
 It is your own job to make sure that \type {listhead} is a proper paragraph list:
@@ -1365,7 +1364,7 @@ horizontal mode):
     if the last node is not a glue)
 \stopitem
 \startitem
-    add a glue node for the \type {\parfillskip} after that penalty node
+    add a glue node for the \prm {parfillskip} after that penalty node
 \stopitem
 \startitem
     make sure all the \type {prev} pointers are OK
@@ -1373,7 +1372,7 @@ horizontal mode):
 \stopitemize
 
 The result is a node list, it still needs to be vpacked if you want to assign it
-to a \type {\vbox}.
+to a \prm {vbox}.
 
 The returned \type {info} table contains four values that are all numbers:
 
@@ -1382,6 +1381,7 @@ The returned \type {info} table contains four values that are all numbers:
 \NC prevgraf  \NC number of lines in the broken paragraph \NC \NR
 \NC looseness \NC the actual looseness value in the broken paragraph \NC \NR
 \NC demerits  \NC the total demerits of the chosen solution  \NC \NR
+\LL
 \stoptabulate
 
 Note there are a few things you cannot interface using this function: You cannot
@@ -1422,6 +1422,7 @@ plain and \LATEX, so after a decade users expect a certain behaviour.
 \NC \type{get_synctex_tag}      \NC get the currently set value of tag (file) \NC \NR
 \NC \type{get_synctex_line}     \NC get the currently set value of line \NC \NR
 \NC \type{set_synctex_no_files} \NC disable synctex file logging \NC \NR
+\LL
 \stoptabulate
 
 The last one is somewhat special. Due to the way files are registered in \SYNCTEX\ we need
@@ -1438,7 +1439,7 @@ the executable after loading and executing the startup file.
 
 \starttabulate[|l|l|l|p|]
 \DB key                   \BC type     \BC default \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{kpse_init}      \NC boolean  \NC true
 \NC
     \type {false} totally disables \KPATHSEA\ initialisation, and enables
@@ -1496,6 +1497,7 @@ the executable after loading and executing the startup file.
     if no input file name was given on the command line, this key will be tested
     first instead of simply giving up
 \NC \NR
+\LL
 \stoptabulate
 
 Note: the numeric values that match web2c parameters are only used if \type
@@ -1515,7 +1517,7 @@ texio.write(<string> s, ...)
 \stopfunctioncall
 
 Without the \type {target} argument, writes all given strings to the same
-location(s) \TEX\ writes messages to at this moment. If \type {\batchmode} is in
+location(s) \TEX\ writes messages to at this moment. If \prm {batchmode} is in
 effect, it writes only to the log, otherwise it writes to the log and the
 terminal. The optional \type {target} can be one of three possibilities: \type
 {term}, \type {log} or \type {term and log}.
@@ -1555,7 +1557,7 @@ minimal set of tools and no solutions. The functions provided in the \type
 
 \starttabulate[|l|l|p|]
 \DB function            \BC argument           \BC result \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{is_token}     \NC token              \NC checks if the given argument is a token userdatum \NC \NR
 \NC \type{get_next}     \NC                    \NC returns the next token in the input \NC \NR
 \NC \type{scan_keyword} \NC string             \NC returns true if the given keyword is gobbled \NC \NR
@@ -1569,6 +1571,7 @@ minimal set of tools and no solutions. The functions provided in the \type
 \NC \type{scan_csname}  \NC                    \NC returns \type {foo} after scanning \type {\foo} \NC \NR
 \NC \type{set_macro}    \NC see below          \NC assign a macro \NC \NR
 \NC \type{create}       \NC                    \NC returns a userdata token object of the given control sequence name (or character); this interface can change  \NC \NR
+\LL
 \stoptabulate
 
 The scanners can be considered stable apart from the one scanning for a token.
@@ -1600,11 +1603,12 @@ we get:
 \NC \type {\directlua{token.scan_string()}{foo}} \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")} {foo} \NC full expansion \NC \NR
 \NC \type {\directlua{token.scan_string()}foo}   \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")} foo   \NC letters and others \NC \NR
 \NC \type {\directlua{token.scan_string()}\foo}  \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")}\foo   \NC meaning \NC \NR
+\LL
 \stoptabulate
 
 The \type {\foo} case only gives the meaning, but one can pass an already
-expanded definition (\type {\edef}'d). In the case of the braced variant one can of
-course use the \type {\detokenize} and \type {\unexpanded} primitives as there we
+expanded definition (\prm {edef}'d). In the case of the braced variant one can of
+course use the \prm {detokenize} and \prm {unexpanded} primitives as there we
 do expand.
 
 The \type {scan_word} scanner can be used to implement for instance a number scanner:
@@ -1624,7 +1628,7 @@ The creator function can be used as follows:
 local t = token.create("relax")
 \stoptyping
 
-This gives back a token object that has the properties of the \type {\relax}
+This gives back a token object that has the properties of the \prm {relax}
 primitive. The possible properties of tokens are:
 
 \starttabulate[|l|p|]
@@ -1638,6 +1642,7 @@ primitive. The possible properties of tokens are:
 \NC \type{active}     \NC a boolean indicating the active state of the token \NC \NR
 \NC \type{expandable} \NC a boolean indicating if the token (macro) is expandable \NC \NR
 \NC \type{protected}  \NC a boolean indicating if the token (macro) is protected \NC \NR
+\LL
 \stoptabulate
 
 The numbers that represent a catcode are the same as in \TEX\ itself, so using
@@ -1729,7 +1734,7 @@ The \type {get_macro} function can be used to get the content of a macro while
 the \type {get_meaning} function gives the meaning including the argument
 specification (as usual in \TEX\ separated by \type {->}).
 
-The \type {set_char} function can be used to do a \type {\chardef} at the
+The \type {set_char} function can be used to do a \prm {chardef} at the
 \LUA\ end:
 
 \starttyping
@@ -2003,7 +2008,7 @@ The options match commandline arguments from \type {kpsewhich}:
 
 \starttabulate[|l|l|p|]
 \DB key              \BC type     \BC description \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{debug}     \NC number   \NC set debugging flags for this lookup\NC     \NR
 \NC \type{format}    \NC string   \NC use specific file type (see list above)\NC \NR
 \NC \type{dpi}       \NC number   \NC use this resolution for this lookup; default 600\NC \NR
@@ -2017,6 +2022,7 @@ The options match commandline arguments from \type {kpsewhich}:
 \NC \type{subdir}    \NC string
                          or table \NC only output matches whose directory part
                                       ends with the given string(s) \NC \NR
+\LL
 \stoptabulate
 
 \subsection{\type {init_prog}}

@@ -17,12 +17,12 @@ to the engine.
 
 \section{Math styles}
 
-\subsection{\type {\mathstyle}}
+\subsection{\lpr {mathstyle}}
 
 It is possible to discover the math style that will be used for a formula in an
 expandable fashion (while the math list is still being read). To make this
-possible, \LUATEX\ adds the new primitive: \type {\mathstyle}. This is a \quote
-{convert command} like e.g. \type {\romannumeral}: its value can only be read,
+possible, \LUATEX\ adds the new primitive: \lpr {mathstyle}. This is a \quote
+{convert command} like e.g. \prm {romannumeral}: its value can only be read,
 not set.
 
 The returned value is between 0 and 7 (in math mode), or $-1$ (all other modes).
@@ -47,11 +47,10 @@ thereby reusing numbers) because the number that got used is stored and used in
 the second pass (so changing \type {\fam 12} mid|-|formula spoils over to
 preceding use of that family).
 
-The style switching primitives like \type {\textstyle} are turned into nodes so
-the styles set there are frozen. The \type {\mathchoice} primitive results in
+The style switching primitives like \prm {textstyle} are turned into nodes so
+the styles set there are frozen. The \prm {mathchoice} primitive results in
 four lists being constructed of which one is used in the second pass. The fact
-that some automatic styles are not yet known also means that the \type
-{\mathstyle} primitive expands to the current style which can of course be
+that some automatic styles are not yet known also means that the \lpr {mathstyle} primitive expands to the current style which can of course be
 different from the one really used. It's a snapshot of the first pass state. As a
 consequence in the following example you get a style number (first pass) typeset
 that can actually differ from the used style (second pass). In the case of a math
@@ -119,30 +118,30 @@ This gives:
 \blank $\displaystyle \getbuffer[1]$ \blank
 \blank $\textstyle    \getbuffer[1]$ \blank
 
-Using \type {\begingroup} \unknown\ \type {\endgroup} instead gives:
+Using \prm {begingroup} \unknown\ \prm {endgroup} instead gives:
 
 \blank $\displaystyle \getbuffer[2]$ \blank
 \blank $\textstyle    \getbuffer[2]$ \blank
 
-This might look wrong but it's just a side effect of \type {\mathstyle} expanding
+This might look wrong but it's just a side effect of \lpr {mathstyle} expanding
 to the current (first pass) style and the number being injected in the list that
 gets converted in the second pass. It all makes sense and it illustrates the
 importance of grouping. In fact, the math choice style being effective afterwards
 has advantages. It would be hard to get it otherwise.
 
-\subsection{\type {\Ustack}}
+\subsection{\lpr {Ustack}}
 
 There are a few math commands in \TEX\ where the style that will be used is not
-known straight from the start. These commands (\type {\over}, \type {\atop},
-\type {\overwithdelims}, \type {\atopwithdelims}) would therefore normally return
-wrong values for \type {\mathstyle}. To fix this, \LUATEX\ introduces a special
-prefix command: \type {\Ustack}:
+known straight from the start. These commands (\prm {over}, \prm {atop},
+\prm {overwithdelims}, \prm {atopwithdelims}) would therefore normally return
+wrong values for \lpr {mathstyle}. To fix this, \LUATEX\ introduces a special
+prefix command: \lpr {Ustack}:
 
 \starttyping
 $\Ustack {a \over b}$
 \stoptyping
 
-The \type {\Ustack} command will scan the next brace and start a new math group
+The \lpr {Ustack} command will scan the next brace and start a new math group
 with the correct (numerator) math style.
 
 \section{Unicode math characters}
@@ -168,25 +167,27 @@ The altered \TEX82 primitives are:
 
 \starttabulate[|l|l|r|c|l|r|]
 \DB primitive         \BC min \BC max    \BC \kern 2em \BC min \BC max    \NC \NR
-\TB[small,samepage]
-\NC \type {\mathcode} \NC 0   \NC 10FFFF \NC =         \NC 0   \NC 8000   \NC \NR
-\NC \type {\delcode}  \NC 0   \NC 10FFFF \NC =         \NC 0   \NC FFFFFF \NC \NR
+\TB
+\NC \prm {mathcode} \NC 0   \NC 10FFFF \NC =         \NC 0   \NC 8000   \NC \NR
+\NC \prm {delcode}  \NC 0   \NC 10FFFF \NC =         \NC 0   \NC FFFFFF \NC \NR
+\LL
 \stoptabulate
 
 The unaltered ones are:
 
 \starttabulate[|l|l|r|]
 \DB primitive            \BC min \BC max     \NC \NR
-\TB[small,samepage]
-\NC \type {\mathchardef} \NC 0   \NC    8000 \NC \NR
-\NC \type {\mathchar}    \NC 0   \NC    7FFF \NC \NR
-\NC \type {\mathaccent}  \NC 0   \NC    7FFF \NC \NR
-\NC \type {\delimiter}   \NC 0   \NC 7FFFFFF \NC \NR
-\NC \type {\radical}     \NC 0   \NC 7FFFFFF \NC \NR
+\TB
+\NC \prm {mathchardef} \NC 0   \NC    8000 \NC \NR
+\NC \prm {mathchar}    \NC 0   \NC    7FFF \NC \NR
+\NC \prm {mathaccent}  \NC 0   \NC    7FFF \NC \NR
+\NC \prm {delimiter}   \NC 0   \NC 7FFFFFF \NC \NR
+\NC \prm {radical}     \NC 0   \NC 7FFFFFF \NC \NR
+\LL
 \stoptabulate
 
-For practical reasons \type {\mathchardef} will silently accept values larger
-that \type {0x8000} and interpret it as \type {\Umathcharnumdef}. This is needed
+For practical reasons \prm {mathchardef} will silently accept values larger
+that \type {0x8000} and interpret it as \lpr {Umathcharnumdef}. This is needed
 to satisfy older macro packages.
 
 The following new primitives are compatible with \XETEX:
@@ -195,18 +196,19 @@ The following new primitives are compatible with \XETEX:
 
 \starttabulate[|l|l|r|c|l|r|]
 \DB primitive                               \BC min       \BC max         \BC \kern 2em \BC min       \BC max         \NC \NR
-\TB[small,samepage]
-\NC \type {\Umathchardef}                   \NC 0+0+0     \NC 7+FF+10FFFF \NC           \NC           \NC             \NC \NR
-\NC \type {\Umathcharnumdef}\rlap{\high{5}} \NC -80000000 \NC    7FFFFFFF \NC           \NC           \NC             \NC \NR
-\NC \type {\Umathcode}                      \NC 0         \NC      10FFFF \NC =         \NC 0+0+0     \NC 7+FF+10FFFF \NC \NR
-\NC \type {\Udelcode}                       \NC 0         \NC      10FFFF \NC =         \NC 0+0       \NC   FF+10FFFF \NC \NR
-\NC \type {\Umathchar}                      \NC 0+0+0     \NC 7+FF+10FFFF \NC           \NC           \NC             \NC \NR
-\NC \type {\Umathaccent}                    \NC 0+0+0     \NC 7+FF+10FFFF \NC           \NC           \NC             \NC \NR
-\NC \type {\Udelimiter}                     \NC 0+0+0     \NC 7+FF+10FFFF \NC           \NC           \NC             \NC \NR
-\NC \type {\Uradical}                       \NC 0+0       \NC   FF+10FFFF \NC           \NC           \NC             \NC \NR
-\NC \type {\Umathcharnum}                   \NC -80000000 \NC    7FFFFFFF \NC           \NC           \NC             \NC \NR
-\NC \type {\Umathcodenum}                   \NC 0         \NC      10FFFF \NC =         \NC -80000000 \NC    7FFFFFFF \NC \NR
-\NC \type {\Udelcodenum}                    \NC 0         \NC      10FFFF \NC =         \NC -80000000 \NC    7FFFFFFF \NC \NR
+\TB
+\NC \lpr {Umathchardef}                   \NC 0+0+0     \NC 7+FF+10FFFF \NC           \NC           \NC             \NC \NR
+\NC \lpr {Umathcharnumdef}\rlap{\high{5}} \NC -80000000 \NC    7FFFFFFF \NC           \NC           \NC             \NC \NR
+\NC \lpr {Umathcode}                      \NC 0         \NC      10FFFF \NC =         \NC 0+0+0     \NC 7+FF+10FFFF \NC \NR
+\NC \lpr {Udelcode}                       \NC 0         \NC      10FFFF \NC =         \NC 0+0       \NC   FF+10FFFF \NC \NR
+\NC \lpr {Umathchar}                      \NC 0+0+0     \NC 7+FF+10FFFF \NC           \NC           \NC             \NC \NR
+\NC \lpr {Umathaccent}                    \NC 0+0+0     \NC 7+FF+10FFFF \NC           \NC           \NC             \NC \NR
+\NC \lpr {Udelimiter}                     \NC 0+0+0     \NC 7+FF+10FFFF \NC           \NC           \NC             \NC \NR
+\NC \lpr {Uradical}                       \NC 0+0       \NC   FF+10FFFF \NC           \NC           \NC             \NC \NR
+\NC \lpr {Umathcharnum}                   \NC -80000000 \NC    7FFFFFFF \NC           \NC           \NC             \NC \NR
+\NC \lpr {Umathcodenum}                   \NC 0         \NC      10FFFF \NC =         \NC -80000000 \NC    7FFFFFFF \NC \NR
+\NC \lpr {Udelcodenum}                    \NC 0         \NC      10FFFF \NC =         \NC -80000000 \NC    7FFFFFFF \NC \NR
+\LL
 \stoptabulate
 
 Specifications typically look like:
@@ -218,21 +220,21 @@ Specifications typically look like:
 
 The new primitives that deal with delimiter|-|style objects do not set up a
 \quote {large family}. Selecting a suitable size for display purposes is expected
-to be dealt with by the font via the \type {\Umathoperatorsize} parameter (more
+to be dealt with by the font via the \lpr {Umathoperatorsize} parameter (more
 information can be found in a following section).
 
 For some of these primitives, all information is packed into a single signed
-integer. For the first two (\type {\Umathcharnum} and \type {\Umathcodenum}), the
+integer. For the first two (\lpr {Umathcharnum} and \lpr {Umathcodenum}), the
 lowest 21 bits are the character code, the 3 bits above that represent the math
 class, and the family data is kept in the topmost bits This means that the values
-for math families 128--255 are actually negative. For \type {\Udelcodenum} there
+for math families 128--255 are actually negative. For \lpr {Udelcodenum} there
 is no math class. The math family information is stored in the bits directly on
 top of the character code. Using these three commands is not as natural as using
 the two- and three|-|value commands, so unless you know exactly what you are
 doing and absolutely require the speedup resulting from the faster input
 scanning, it is better to use the verbose commands instead.
 
-The \type {\Umathaccent} command accepts optional keywords to control various
+The \lpr {Umathaccent} command accepts optional keywords to control various
 details regarding math accents. See \in {section} [mathacc] below for details.
 
 There are more new primitives and all of these will be explained in following
@@ -240,12 +242,13 @@ sections:
 
 \starttabulate[|l|l|]
 \DB primitive                \BC value range (in hex) \NC \NR
-\TB[small,samepage]
-\NC \type {\Uroot}           \NC 0 + 0--FF + 10FFFF   \NC \NR
-\NC \type {\Uoverdelimiter}  \NC 0 + 0--FF + 10FFFF   \NC \NR
-\NC \type {\Uunderdelimiter} \NC 0 + 0--FF + 10FFFF   \NC \NR
-\NC \type {\Udelimiterover}  \NC 0 + 0--FF + 10FFFF   \NC \NR
-\NC \type {\Udelimiterunder} \NC 0 + 0--FF + 10FFFF   \NC \NR
+\TB
+\NC \lpr {Uroot}           \NC 0 + 0--FF + 10FFFF   \NC \NR
+\NC \lpr {Uoverdelimiter}  \NC 0 + 0--FF + 10FFFF   \NC \NR
+\NC \lpr {Uunderdelimiter} \NC 0 + 0--FF + 10FFFF   \NC \NR
+\NC \lpr {Udelimiterover}  \NC 0 + 0--FF + 10FFFF   \NC \NR
+\NC \lpr {Udelimiterunder} \NC 0 + 0--FF + 10FFFF   \NC \NR
+\LL
 \stoptabulate
 
 \section{Cramped math styles}
@@ -283,22 +286,23 @@ are described as follows:
     style if the original style was cramped.
 \stopitem
 \startitem
-    Formulas under a \type {\sqrt} or \type {\overline} are in cramped style.
+    Formulas under a \type {\sqrt} or \prm {overline} are in cramped style.
 \stopitem
 \stopitemize
 
 In \LUATEX\ one can set the styles in more detail which means that you sometimes
 have to set both normal and cramped styles to get the effect you want. If we
-force styles in the script using \type {\scriptstyle} and \type {\crampedscriptstyle}
+force styles in the script using \prm {scriptstyle} and \lpr {crampedscriptstyle}
 we get this:
 
 \startbuffer[demo]
 \starttabulate
 \DB style         \BC example \NC \NR
-\TB[small,samepage]
+\TB
 \NC default       \NC $b_{x=xx}^{x=xx}$ \NC \NR
 \NC script        \NC $b_{\scriptstyle x=xx}^{\scriptstyle x=xx}$ \NC \NR
 \NC crampedscript \NC $b_{\crampedscriptstyle x=xx}^{\crampedscriptstyle x=xx}$ \NC \NR
+\LL
 \stoptabulate
 \stopbuffer
 
@@ -340,62 +344,63 @@ has resulted in many more parameters than were accessible before.
 
 \starttabulate
 \DB primitive name                   \BC description \NC \NR
-\TB[small,samepage]
-\NC \type {\Umathquad}               \NC the width of 18 mu's \NC \NR
-\NC \type {\Umathaxis}               \NC height of the vertical center axis of
+\TB
+\NC \lpr {Umathquad}               \NC the width of 18 mu's \NC \NR
+\NC \lpr {Umathaxis}               \NC height of the vertical center axis of
                                          the math formula above the baseline \NC \NR
-\NC \type {\Umathoperatorsize}       \NC minimum size of large operators in display mode \NC \NR
-\NC \type {\Umathoverbarkern}        \NC vertical clearance above the rule \NC \NR
-\NC \type {\Umathoverbarrule}        \NC the width of the rule \NC \NR
-\NC \type {\Umathoverbarvgap}        \NC vertical clearance below the rule \NC \NR
-\NC \type {\Umathunderbarkern}       \NC vertical clearance below the rule \NC \NR
-\NC \type {\Umathunderbarrule}       \NC the width of the rule \NC \NR
-\NC \type {\Umathunderbarvgap}       \NC vertical clearance above the rule \NC \NR
-\NC \type {\Umathradicalkern}        \NC vertical clearance above the rule \NC \NR
-\NC \type {\Umathradicalrule}        \NC the width of the rule \NC \NR
-\NC \type {\Umathradicalvgap}        \NC vertical clearance below the rule \NC \NR
-\NC \type {\Umathradicaldegreebefore}\NC the forward kern that takes place before placement of
+\NC \lpr {Umathoperatorsize}       \NC minimum size of large operators in display mode \NC \NR
+\NC \lpr {Umathoverbarkern}        \NC vertical clearance above the rule \NC \NR
+\NC \lpr {Umathoverbarrule}        \NC the width of the rule \NC \NR
+\NC \lpr {Umathoverbarvgap}        \NC vertical clearance below the rule \NC \NR
+\NC \lpr {Umathunderbarkern}       \NC vertical clearance below the rule \NC \NR
+\NC \lpr {Umathunderbarrule}       \NC the width of the rule \NC \NR
+\NC \lpr {Umathunderbarvgap}       \NC vertical clearance above the rule \NC \NR
+\NC \lpr {Umathradicalkern}        \NC vertical clearance above the rule \NC \NR
+\NC \lpr {Umathradicalrule}        \NC the width of the rule \NC \NR
+\NC \lpr {Umathradicalvgap}        \NC vertical clearance below the rule \NC \NR
+\NC \lpr {Umathradicaldegreebefore}\NC the forward kern that takes place before placement of
                                          the radical degree \NC \NR
-\NC \type {\Umathradicaldegreeafter} \NC the backward kern that takes place after placement of
+\NC \lpr {Umathradicaldegreeafter} \NC the backward kern that takes place after placement of
                                          the radical degree \NC \NR
-\NC \type {\Umathradicaldegreeraise} \NC this is the percentage of the total height and depth of
+\NC \lpr {Umathradicaldegreeraise} \NC this is the percentage of the total height and depth of
                                          the radical sign that the degree is raised by; it is
                                          expressed in \type {percents}, so 60\% is expressed as the
                                          integer $60$ \NC \NR
-\NC \type {\Umathstackvgap}          \NC vertical clearance between the two
-                                         elements in a \type {\atop} stack \NC \NR
-\NC \type {\Umathstacknumup}         \NC numerator shift upward in \type {\atop} stack \NC \NR
-\NC \type {\Umathstackdenomdown}     \NC denominator shift downward in \type {\atop} stack \NC \NR
-\NC \type {\Umathfractionrule}       \NC the width of the rule in a \type {\over} \NC \NR
-\NC \type {\Umathfractionnumvgap}    \NC vertical clearance between the numerator and the rule \NC \NR
-\NC \type {\Umathfractionnumup}      \NC numerator shift upward in \type {\over} \NC \NR
-\NC \type {\Umathfractiondenomvgap}  \NC vertical clearance between the denominator and the rule \NC \NR
-\NC \type {\Umathfractiondenomdown}  \NC denominator shift downward in \type {\over} \NC \NR
-\NC \type {\Umathfractiondelsize}    \NC minimum delimiter size for \type {\...withdelims} \NC \NR
-\NC \type {\Umathlimitabovevgap}     \NC vertical clearance for limits above operators \NC \NR
-\NC \type {\Umathlimitabovebgap}     \NC vertical baseline clearance for limits above operators \NC \NR
-\NC \type {\Umathlimitabovekern}     \NC space reserved at the top of the limit \NC \NR
-\NC \type {\Umathlimitbelowvgap}     \NC vertical clearance for limits below operators \NC \NR
-\NC \type {\Umathlimitbelowbgap}     \NC vertical baseline clearance for limits below operators \NC \NR
-\NC \type {\Umathlimitbelowkern}     \NC space reserved at the bottom of the limit \NC \NR
-\NC \type {\Umathoverdelimitervgap}  \NC vertical clearance for limits above delimiters \NC \NR
-\NC \type {\Umathoverdelimiterbgap}  \NC vertical baseline clearance for limits above delimiters \NC \NR
-\NC \type {\Umathunderdelimitervgap} \NC vertical clearance for limits below delimiters \NC \NR
-\NC \type {\Umathunderdelimiterbgap} \NC vertical baseline clearance for limits below delimiters \NC \NR
-\NC \type {\Umathsubshiftdrop}       \NC subscript drop for boxes and subformulas \NC \NR
-\NC \type {\Umathsubshiftdown}       \NC subscript drop for characters \NC \NR
-\NC \type {\Umathsupshiftdrop}       \NC superscript drop (raise, actually) for boxes and subformulas \NC \NR
-\NC \type {\Umathsupshiftup}         \NC superscript raise for characters \NC \NR
-\NC \type {\Umathsubsupshiftdown}    \NC subscript drop in the presence of a superscript \NC \NR
-\NC \type {\Umathsubtopmax}          \NC the top of standalone subscripts cannot be higher than this
+\NC \lpr {Umathstackvgap}          \NC vertical clearance between the two
+                                         elements in a \prm {atop} stack \NC \NR
+\NC \lpr {Umathstacknumup}         \NC numerator shift upward in \prm {atop} stack \NC \NR
+\NC \lpr {Umathstackdenomdown}     \NC denominator shift downward in \prm {atop} stack \NC \NR
+\NC \lpr {Umathfractionrule}       \NC the width of the rule in a \prm {over} \NC \NR
+\NC \lpr {Umathfractionnumvgap}    \NC vertical clearance between the numerator and the rule \NC \NR
+\NC \lpr {Umathfractionnumup}      \NC numerator shift upward in \prm {over} \NC \NR
+\NC \lpr {Umathfractiondenomvgap}  \NC vertical clearance between the denominator and the rule \NC \NR
+\NC \lpr {Umathfractiondenomdown}  \NC denominator shift downward in \prm {over} \NC \NR
+\NC \lpr {Umathfractiondelsize}    \NC minimum delimiter size for \type {\...withdelims} \NC \NR
+\NC \lpr {Umathlimitabovevgap}     \NC vertical clearance for limits above operators \NC \NR
+\NC \lpr {Umathlimitabovebgap}     \NC vertical baseline clearance for limits above operators \NC \NR
+\NC \lpr {Umathlimitabovekern}     \NC space reserved at the top of the limit \NC \NR
+\NC \lpr {Umathlimitbelowvgap}     \NC vertical clearance for limits below operators \NC \NR
+\NC \lpr {Umathlimitbelowbgap}     \NC vertical baseline clearance for limits below operators \NC \NR
+\NC \lpr {Umathlimitbelowkern}     \NC space reserved at the bottom of the limit \NC \NR
+\NC \lpr {Umathoverdelimitervgap}  \NC vertical clearance for limits above delimiters \NC \NR
+\NC \lpr {Umathoverdelimiterbgap}  \NC vertical baseline clearance for limits above delimiters \NC \NR
+\NC \lpr {Umathunderdelimitervgap} \NC vertical clearance for limits below delimiters \NC \NR
+\NC \lpr {Umathunderdelimiterbgap} \NC vertical baseline clearance for limits below delimiters \NC \NR
+\NC \lpr {Umathsubshiftdrop}       \NC subscript drop for boxes and subformulas \NC \NR
+\NC \lpr {Umathsubshiftdown}       \NC subscript drop for characters \NC \NR
+\NC \lpr {Umathsupshiftdrop}       \NC superscript drop (raise, actually) for boxes and subformulas \NC \NR
+\NC \lpr {Umathsupshiftup}         \NC superscript raise for characters \NC \NR
+\NC \lpr {Umathsubsupshiftdown}    \NC subscript drop in the presence of a superscript \NC \NR
+\NC \lpr {Umathsubtopmax}          \NC the top of standalone subscripts cannot be higher than this
                                          above the baseline \NC \NR
-\NC \type {\Umathsupbottommin}       \NC the bottom of standalone superscripts cannot be less than
+\NC \lpr {Umathsupbottommin}       \NC the bottom of standalone superscripts cannot be less than
                                          this above the baseline \NC \NR
-\NC \type {\Umathsupsubbottommax}    \NC the bottom of the superscript of a combined super- and subscript
+\NC \lpr {Umathsupsubbottommax}    \NC the bottom of the superscript of a combined super- and subscript
                                          be at least as high as this above the baseline \NC \NR
-\NC \type {\Umathsubsupvgap}         \NC vertical clearance between super- and subscript \NC \NR
-\NC \type {\Umathspaceafterscript}   \NC additional space added after a super- or subscript \NC \NR
-\NC \type {\Umathconnectoroverlapmin}\NC minimum overlap between parts in an extensible recipe \NC \NR
+\NC \lpr {Umathsubsupvgap}         \NC vertical clearance between super- and subscript \NC \NR
+\NC \lpr {Umathspaceafterscript}   \NC additional space added after a super- or subscript \NC \NR
+\NC \lpr {Umathconnectoroverlapmin}\NC minimum overlap between parts in an extensible recipe \NC \NR
+\LL
 \stoptabulate
 
 Each of the parameters in this section can be set by a command like this:
@@ -409,19 +414,19 @@ needed.
 
 \section{Skips around display math}
 
-The injection of \type {\abovedisplayskip} and \type {\belowdisplayskip} is not
+The injection of \prm {abovedisplayskip} and \prm {belowdisplayskip} is not
 symmetrical. An above one is always inserted, also when zero, but the below is
 only inserted when larger than zero. Especially the later makes it sometimes hard
-to fully control spacing. Therefore \LUATEX\ comes with a new directive: \type
-{\mathdisplayskipmode}. The following values apply:
+to fully control spacing. Therefore \LUATEX\ comes with a new directive: \lpr {mathdisplayskipmode}. The following values apply:
 
 \starttabulate[|c|l|]
 \DB value  \BC meaning \NC \NR
-\TB[small,samepage]
+\TB
 \NC 0 \NC normal \TEX\ behaviour \NC \NR
 \NC 1 \NC always (same as 0) \NC \NR
 \NC 2 \NC only when not zero \NC \NR
 \NC 3 \NC never, not even when not zero \NC \NR
+\LL
 \stoptabulate
 
 \section{Font-based Math Parameters}
@@ -438,9 +443,8 @@ case no attention is paid to which family is being assigned to: the \type
 {MathConstants} tables in the last assigned family sets all parameters.
 
 In the table below, the one|-|letter style abbreviations and symbolic tfm font
-dimension names match those using in the \TeX book. Assignments to \type
-{\textfont} set the values for the cramped and uncramped display and text styles,
-\type {\scriptfont} sets the script styles, and \type {\scriptscriptfont} sets
+dimension names match those using in the \TeX book. Assignments to \prm {textfont} set the values for the cramped and uncramped display and text styles,
+\prm {scriptfont} sets the script styles, and \prm {scriptscriptfont} sets
 the scriptscript styles, so we have eight parameters for three font sizes. In the
 \TFM\ case, assignments only happen in family~2 and family~3 (and of course only
 for the parameters for which there are font dimensions).
@@ -449,7 +453,7 @@ Besides the parameters below, \LUATEX\ also looks at the \quote {space} font
 dimension parameter. For math fonts, this should be set to zero.
 
 \def\MathLine#1#2#3#4#5%
-  {\TB[small,samepage]
+  {\TB
    \NC \llap{\high{\tx #2\enspace}}\ttbf \string #1 \NC \tt #5 \NC \NR
    \NC \tx #3 \NC \tt #4 \NC \NR}
 
@@ -513,41 +517,39 @@ dimension parameter. For math fonts, this should be set to zero.
 \MathLine{\Umathunderbarrule}       {}   {}                     {UnderbarRuleThickness}                   {default_rule_thickness}
 \MathLine{\Umathunderbarvgap}       {}   {}                     {UnderbarVerticalGap}                     {3*default_rule_thickness}
 \MathLine{\Umathconnectoroverlapmin}{5}  {}                     {MinConnectorOverlap}                     {0}
+\LL
 \stoptabulate
 
-Note 1: \OPENTYPE\ fonts set \type {\Umathlimitabovekern} and \type
-{\Umathlimitbelowkern} to zero and set \type {\Umathquad} to the font size of the
+Note 1: \OPENTYPE\ fonts set \lpr {Umathlimitabovekern} and \lpr {Umathlimitbelowkern} to zero and set \lpr {Umathquad} to the font size of the
 used font, because these are not supported in the \type {MATH} table,
 
-Note 2: Traditional \TFM\ fonts do not set \type {\Umathradicalrule} because
+Note 2: Traditional \TFM\ fonts do not set \lpr {Umathradicalrule} because
 \TEX82\ uses the height of the radical instead. When this parameter is indeed not
 set when \LUATEX\ has to typeset a radical, a backward compatibility mode will
 kick in that assumes that an oldstyle \TEX\ font is used. Also, they do not set
-\type {\Umathradicaldegreebefore}, \type {\Umathradicaldegreeafter}, and \type
-{\Umathradicaldegreeraise}. These are then automatically initialized to
+\lpr {Umathradicaldegreebefore}, \lpr {Umathradicaldegreeafter}, and \lpr {Umathradicaldegreeraise}. These are then automatically initialized to
 $5/18$quad, $-10/18$quad, and 60.
 
-Note 3: If \TFM\ fonts are used, then the \type {\Umathradicalvgap} is not set
+Note 3: If \TFM\ fonts are used, then the \lpr {Umathradicalvgap} is not set
 until the first time \LUATEX\ has to typeset a formula because this needs
 parameters from both family~2 and family~3. This provides a partial backward
-compatibility with \TEX82, but that compatibility is only partial: once the \type
-{\Umathradicalvgap} is set, it will not be recalculated any more.
+compatibility with \TEX82, but that compatibility is only partial: once the \lpr {Umathradicalvgap} is set, it will not be recalculated any more.
 
 Note 4: When \TFM\ fonts are used a similar situation arises with respect to
-\type {\Umathspaceafterscript}: it is not set until the first time \LUATEX\ has
+\lpr {Umathspaceafterscript}: it is not set until the first time \LUATEX\ has
 to typeset a formula. This provides some backward compatibility with \TEX82. But
-once the \type {\Umathspaceafterscript} is set, \type {\scriptspace} will never
+once the \lpr {Umathspaceafterscript} is set, \prm {scriptspace} will never
 be looked at again.
 
-Note 5: Traditional \TFM\ fonts set \type {\Umathconnectoroverlapmin} to zero
+Note 5: Traditional \TFM\ fonts set \lpr {Umathconnectoroverlapmin} to zero
 because \TEX82\ always stacks extensibles without any overlap.
 
-Note 6: The \type {\Umathoperatorsize} is only used in \type {\displaystyle}, and
+Note 6: The \lpr {Umathoperatorsize} is only used in \prm {displaystyle}, and
 is only set in \OPENTYPE\ fonts. In \TFM\ font mode, it is artificially set to
 one scaled point more than the initial attempt's size, so that always the \quote
 {first next} will be tried, just like in \TEX82.
 
-Note 7: The \type {\Umathradicaldegreeraise} is a special case because it is the
+Note 7: The \lpr {Umathradicaldegreeraise} is a special case because it is the
 only parameter that is expressed in a percentage instead of as a number of scaled
 points.
 
@@ -561,10 +563,9 @@ math font Cambria, but were useful enough to be added.
 
 \section{Nolimit correction}
 
-There are two extra math parameters \type {\Umathnolimitsupfactor} and \type
-{\Umathnolimitsubfactor} that were added to provide some control over how limits
+There are two extra math parameters \lpr {Umathnolimitsupfactor} and \lpr {Umathnolimitsubfactor} that were added to provide some control over how limits
 are spaced (for example the position of super and subscripts after integral
-operators). They relate to an extra parameter \type {\mathnolimitsmode}. The half
+operators). They relate to an extra parameter \lpr {mathnolimitsmode}. The half
 corrections are what happens when scripts are placed on above and below. The
 problem with italic corrections is that officially that correction italic is used
 for above|/|below placement while advanced kerns are used for placement at the
@@ -611,13 +612,13 @@ When the mode is set to one, the math parameters are used. This way a macro
 package writer can decide what looks best. Given the current state of fonts in
 \CONTEXT\ we currently use mode 1 with factor 0 for the superscript and 750 for
 the subscripts. Positive values are used for both parameters but the subscript
-shifts to the left. A \type {\mathnolimitsmode} larger that 15 is considered to
+shifts to the left. A \lpr {mathnolimitsmode} larger that 15 is considered to
 be a factor for the subscript correction. This feature can be handy when
 experimenting.
 
 \section{Math italic mess}
 
-The \type {\mathitalicsmode} parameter can be set to~1 to force italic correction
+The \lpr {mathitalicsmode} parameter can be set to~1 to force italic correction
 before noads that represent some more complex structure (read: everything
 that is not an ord, bin, rel, open, close, punct or inner). We show a Cambria
 example.
@@ -648,17 +649,17 @@ math is bound to fuzzy rules. So, control is the solution.
 If you want typeset text in math macro packages often provide something \type
 {\text} which obeys the script sizes. As the definition can be anything there is
 a good change that the kerning doesn't come out well when used in a script. Given
-that the first glyph ends up in an \type {\hbox} we have some control over this.
-And, as a bonus we also added control over the normal sublist kerning. The \type
-{\mathscriptboxmode} parameter defaults to~1.
+that the first glyph ends up in an \prm {hbox} we have some control over this.
+And, as a bonus we also added control over the normal sublist kerning. The \lpr {mathscriptboxmode} parameter defaults to~1.
 
 \starttabulate[|c|l|]
 \DB value  \BC meaning \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type {0} \NC forget about kerning \NC \NR
 \NC \type {1} \NC kern math sub lists with a valid glyph \NC \NR
 \NC \type {2} \NC also kern math sub boxes that have a valid glyph \NC \NR
 \NC \type {2} \NC only kern math sub boxes with a boundary node present\NC \NR
+\LL
 \stoptabulate
 
 Here we show some examples. Of course this doesn't solve all our problems, if
@@ -694,7 +695,7 @@ italics, while other fonts can lack kerns.
     \NC dejavu   \NC \Show{1}{0}{dejavu}   \NC\Show{1}{1}{dejavu}   \NC \Show{2}{1}{dejavu}   \NC \Show{2}{2}{dejavu}   \NC \Show{3}{3}{dejavu}   \NC \NR
 \stoptabulate
 
-Kerning between a character subscript is controlled by \type {\mathscriptcharmode}
+Kerning between a character subscript is controlled by \lpr {mathscriptcharmode}
 which also defaults to~1.
 
 Here is another example. Internally we tag kerns as italic kerns or font kerns
@@ -729,13 +730,13 @@ control over what one can turn on and off.
 
 \section{Unscaled fences}
 
-The \type {\mathdelimitersmode} primitive is experimental and deals with the
+The \lpr {mathdelimitersmode} primitive is experimental and deals with the
 following (potential) problems. Three bits can be set. The first bit prevents
 an unwanted shift when the fence symbol is not scaled (a cambria side effect). The
 second bit forces italic correction between a preceding character ordinal and
 the fenced subformula, while the third bit turns that subformula into a ordinary
 so that the same spacing applies as with unfenced variants. Here we show Cambria
-(with \type {\mathitalicsmode} enabled).
+(with \lpr {mathitalicsmode} enabled).
 
 \starttexdefinition Whatever #1
     \NC \type{\mathdelimitersmode = #1}
@@ -753,19 +754,19 @@ so that the same spacing applies as with unfenced variants. Here we show Cambria
 \stop
 
 So, when set to 7 fenced subformulas with unscaled delimiters come out the same
-as unfenced ones. This can be handy for cases where one is forced to use \type
-{\left} and \type {\right} always because of unpredictable content. As said, it's
+as unfenced ones. This can be handy for cases where one is forced to use \prm {left} and \prm {right} always because of unpredictable content. As said, it's
 an experimental features (which somehow fits in the exceptional way fences are
 dealt with in the engine). The full list of flags is given in the next table:
 
 \starttabulate[|c|l|]
 \DB value  \BC meaning \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{"01} \NC don't apply the usual shift \NC \NR
 \NC \type{"02} \NC apply italic correction when possible \NC \NR
 \NC \type{"04} \NC force a ordinary subformula \NC \NR
 \NC \type{"08} \NC no shift when a base character \NC \NR
 \NC \type{"10} \NC only shift when an extensible \NC \NR
+\LL
 \stoptabulate
 
 The effect can depend on the font (and for Cambria one can use for instance \type
@@ -847,7 +848,7 @@ types, but for completeness' sake, here is the whole list:
 \stoptyping
 \stoptwocolumns
 
-These parameters are of type \type {\muskip}, so setting a parameter can be done
+These parameters are of type \prm {muskip}, so setting a parameter can be done
 like this:
 
 \starttyping
@@ -857,10 +858,9 @@ like this:
 They are all initialized by \type {initex} to the values mentioned in the table
 in Chapter~18 of the \TEX book.
 
-Note 1: for ease of use as well as for backward compatibility, \type
-{\thinmuskip}, \type {\medmuskip} and \type {\thickmuskip} are treated
+Note 1: for ease of use as well as for backward compatibility, \prm {thinmuskip}, \prm {medmuskip} and \prm {thickmuskip} are treated
 especially. In their case a pointer to the corresponding internal parameter is
-saved, not the actual \type {\muskip} value. This means that any later changes to
+saved, not the actual \prm {muskip} value. This means that any later changes to
 one of these three parameters will be taken into account.
 
 Note 2: Careful readers will realise that there are also primitives for the items
@@ -873,9 +873,9 @@ orthogonality. They are initialized to zero.
 \LUATEX\ supports both top accents and bottom accents in math mode, and math
 accents stretch automatically (if this is supported by the font the accent comes
 from, of course). Bottom and combined accents as well as fixed-width math accents
-are controlled by optional keywords following \type {\Umathaccent}.
+are controlled by optional keywords following \lpr {Umathaccent}.
 
-The keyword \type {bottom} after \type {\Umathaccent} signals that a bottom accent
+The keyword \type {bottom} after \lpr {Umathaccent} signals that a bottom accent
 is needed, and the keyword \type {both} signals that both a top and a bottom
 accent are needed (in this case two accents need to be specified, of course).
 
@@ -891,7 +891,7 @@ A simple example:
 
 If a math top accent has to be placed and the accentee is a character and has a
 non-zero \type {top_accent} value, then this value will be used to place the
-accent instead of the \type {\skewchar} kern used by \TEX82.
+accent instead of the \prm {skewchar} kern used by \TEX82.
 
 The \type {top_accent} value represents a vertical line somewhere in the
 accentee. The accent will be shifted horizontally such that its own \type
@@ -917,18 +917,15 @@ concerns the width.
 
 \section{Math root extension}
 
-The new primitive \type {\Uroot} allows the construction of a radical noad
-including a degree field. Its syntax is an extension of \type {\Uradical}:
+The new primitive \lpr {Uroot} allows the construction of a radical noad
+including a degree field. Its syntax is an extension of \lpr {Uradical}:
 
 \starttyping
 \Uradical <fam integer> <char integer> <radicand>
 \Uroot    <fam integer> <char integer> <degree> <radicand>
 \stoptyping
 
-The placement of the degree is controlled by the math parameters \type
-{\Umathradicaldegreebefore}, \type {\Umathradicaldegreeafter}, and \type
-{\Umathradicaldegreeraise}. The degree will be typeset in \type
-{\scriptscriptstyle}.
+The placement of the degree is controlled by the math parameters \lpr {Umathradicaldegreebefore}, \lpr {Umathradicaldegreeafter}, and \lpr {Umathradicaldegreeraise}. The degree will be typeset in \prm {scriptscriptstyle}.
 
 \section{Math kerning in super- and subscripts}
 
@@ -991,9 +988,9 @@ pairs at all).
 
 \section{Scripts on horizontally extensible items like arrows}
 
-The primitives \type {\Uunderdelimiter} and \type {\Uoverdelimiter} allow the
+The primitives \lpr {Uunderdelimiter} and \lpr {Uoverdelimiter} allow the
 placement of a subscript or superscript on an automatically extensible item and
-\type {\Udelimiterunder} and \type {\Udelimiterover} allow the placement of an
+\lpr {Udelimiterunder} and \lpr {Udelimiterover} allow the placement of an
 automatically extensible item as a subscript or superscript on a nucleus. The
 input:
 
@@ -1011,18 +1008,16 @@ $\Udelimiterunder 0 "2194 {\hbox{\strut delimiterunder}}$
 
 \blank \startnarrower \getbuffer \stopnarrower \blank
 
-The vertical placements are controlled by \type {\Umathunderdelimiterbgap}, \type
-{\Umathunderdelimitervgap}, \type {\Umathoverdelimiterbgap}, and \type
-{\Umathoverdelimitervgap} in a similar way as limit placements on large operators.
-The superscript in \type {\Uoverdelimiter} is typeset in a suitable scripted style,
-the subscript in \type {\Uunderdelimiter} is cramped as well.
+The vertical placements are controlled by \lpr {Umathunderdelimiterbgap}, \lpr {Umathunderdelimitervgap}, \lpr {Umathoverdelimiterbgap}, and \lpr {Umathoverdelimitervgap} in a similar way as limit placements on large operators.
+The superscript in \lpr {Uoverdelimiter} is typeset in a suitable scripted style,
+the subscript in \lpr {Uunderdelimiter} is cramped as well.
 
 These primitives accepts an option \type {width} specification. When used the
 also optional keywords \type {left}, \type {middle} and \type {right} will
 determine what happens when a requested size can't be met (which can happen when
 we step to successive larger variants).
 
-An extra primitive \type {\Uhextensible} is available that can be used like this:
+An extra primitive \lpr {Uhextensible} is available that can be used like this:
 
 \startbuffer
 $\Uhextensible width 10cm 0 "2194$
@@ -1078,7 +1073,7 @@ do the following:
 
 \section{fractions}
 
-The \type {\abovewithdelims} command accepts a keyword \type {exact}. When issued
+The \prm {abovewithdelims} command accepts a keyword \type {exact}. When issued
 the extra space relative to the rule thickness is not added. One can of course
 use the \type {\Umathfraction..gap} commands to influence the spacing. Also the
 rule is still positioned around the math axis.
@@ -1092,7 +1087,7 @@ vertical gap for skewed fractions. Of course some guessing is needed in order to
 implement something that uses them. And so we now provide a primitive similar to the
 other fraction related ones but with a few options so that one can influence the
 rendering. Of course a user can also mess around a bit with the parameters
-\type {\Umathskewedfractionhgap} and \type {\Umathskewedfractionvgap}.
+\lpr {Umathskewedfractionhgap} and \lpr {Umathskewedfractionvgap}.
 
 The syntax used here is:
 
@@ -1169,24 +1164,25 @@ get the length of the last line, the following will often work too:
 
 \starttabulate[|l|l|]
 \DB primitive                  \BC explanation \NC \NR
-\TB[small,samepage]
-\NC \type {\Usuperscript}      \NC duplicates the functionality of \type {^} \NC \NR
-\NC \type {\Usubscript}        \NC duplicates the functionality of \type {_} \NC \NR
-\NC \type {\Ustartmath}        \NC duplicates the functionality of \type {$}, % $
+\TB
+\NC \lpr {Usuperscript}      \NC duplicates the functionality of \type {^} \NC \NR
+\NC \lpr {Usubscript}        \NC duplicates the functionality of \type {_} \NC \NR
+\NC \lpr {Ustartmath}        \NC duplicates the functionality of \type {$}, % $
                                    when used in non-math mode. \NC \NR
-\NC \type {\Ustopmath}         \NC duplicates the functionality of \type {$}, % $
+\NC \lpr {Ustopmath}         \NC duplicates the functionality of \type {$}, % $
                                    when used in inline math mode. \NC \NR
-\NC \type {\Ustartdisplaymath} \NC duplicates the functionality of \type {$$}, % $$
+\NC \lpr {Ustartdisplaymath} \NC duplicates the functionality of \type {$$}, % $$
                                    when used in non-math mode. \NC \NR
-\NC \type {\Ustopdisplaymath}  \NC duplicates the functionality of \type {$$}, % $$
+\NC \lpr {Ustopdisplaymath}  \NC duplicates the functionality of \type {$$}, % $$
                                    when used in display math mode. \NC \NR
+\LL
 \stoptabulate
 
-The \type {\Ustopmath} and \type {\Ustopdisplaymath} primitives check if the current
+The \lpr {Ustopmath} and \lpr {Ustopdisplaymath} primitives check if the current
 math mode is the correct one (inline vs.\ displayed), but you can freely intermix
 the four mathon|/|mathoff commands with explicit dollar sign(s).
 
-\subsection{Script commands \type {\Unosuperscript} and \type {\Unosubscript}}
+\subsection{Script commands \lpr {Unosuperscript} and \lpr {Unosubscript}}
 
 These two commands result in super- and subscripts but with the current style (at the
 time of rendering). So,
@@ -1207,19 +1203,18 @@ results in \inlinebuffer[script].
 
 \subsection{Allowed math commands in non-math modes}
 
-The commands \type {\mathchar}, and \type {\Umathchar} and control sequences that
-are the result of \type {\mathchardef} or \type {\Umathchardef} are also
-acceptable in the horizontal and vertical modes. In those cases, the \type
-{\textfont} from the requested math family is used.
+The commands \prm {mathchar}, and \lpr {Umathchar} and control sequences that
+are the result of \prm {mathchardef} or \lpr {Umathchardef} are also
+acceptable in the horizontal and vertical modes. In those cases, the \prm {textfont} from the requested math family is used.
 
 \section{Math surrounding skips}
 
-Inline math is surrounded by (optional) \type {\mathsurround} spacing but that is fixed
-dimension. There is now an additional parameter \type {\mathsurroundskip}. When set to a
+Inline math is surrounded by (optional) \prm {mathsurround} spacing but that is fixed
+dimension. There is now an additional parameter \lpr {mathsurroundskip}. When set to a
 non|-|zero value (or zero with some stretch or shrink) this parameter will replace
-\type {\mathsurround}. By using an additional parameter instead of changing the nature
-of \type {\mathsurround}, we can remain compatible. In the meantime a bit more
-control has been added via \type {\mathsurroundmode}. This directive can take 6 values
+\prm {mathsurround}. By using an additional parameter instead of changing the nature
+of \prm {mathsurround}, we can remain compatible. In the meantime a bit more
+control has been added via \lpr {mathsurroundmode}. This directive can take 6 values
 with zero being the default behaviour.
 
 \start
@@ -1240,15 +1235,16 @@ with zero being the default behaviour.
 
 \starttabulate[|c|c|c|pl|]
 \DB mode \BC x\$x\$x \BC x \$x\$ x \BC effect \NC \NR
-\TB[small,samepage]
-\OneLiner{0}{obey \type {\mathsurround} when \type {\mathsurroundskip} is 0pt}
+\TB
+\OneLiner{0}{obey \prm {mathsurround} when \lpr {mathsurroundskip} is 0pt}
 \OneLiner{1}{only add skip to the left}
 \OneLiner{2}{only add skip to the right}
 \OneLiner{3}{add skip to the left and right}
-\OneLiner{4}{ignore the skip setting, obey \type {\mathsurround}}
+\OneLiner{4}{ignore the skip setting, obey \prm {mathsurround}}
 \OneLiner{5}{disable all spacing around math}
-\OneLiner{6}{only apply \type {\mathsurroundskip} when also spacing}
-\OneLiner{7}{only apply \type {\mathsurroundskip} when no spacing}
+\OneLiner{6}{only apply \lpr {mathsurroundskip} when also spacing}
+\OneLiner{7}{only apply \lpr {mathsurroundskip} when no spacing}
+\LL
 \stoptabulate
 
 \stop
@@ -1288,7 +1284,7 @@ fields in a node when applicable in the first occasion that checks them
 % \stopitem
 % \stopitemize
 
-\subsection {Delimiters: \type{\Uleft}, \type {\Umiddle} and \type {\Uright}}
+\subsection {Delimiters: \type{\Uleft}, \prm {Umiddle} and \prm {Uright}}
 
 Normally you will force delimiters to certain sizes by putting an empty box or
 rule next to it. The resulting delimiter will either be a character from the
@@ -1331,13 +1327,15 @@ influence the spacing. The numbers are the same as for character classes.
 
 We have three parameters that are used for this fixed anchoring:
 
-\starttabulate[|l|l|]
-\NC $d$ \NC \type {\Umathsubshiftdown}    \NC \NR
-\NC $u$ \NC \type {\Umathsupshiftup}      \NC \NR
-\NC $s$ \NC \type {\Umathsubsupshiftdown} \NC \NR
+\starttabulate[|c|l|]
+\DB parameter \BC register \NC \NR
+\NC $d$ \NC \lpr {Umathsubshiftdown}    \NC \NR
+\NC $u$ \NC \lpr {Umathsupshiftup}      \NC \NR
+\NC $s$ \NC \lpr {Umathsubsupshiftdown} \NC \NR
+\LL
 \stoptabulate
 
-When we set \type {\mathscriptsmode} to a value other than zero these are used
+When we set \lpr {mathscriptsmode} to a value other than zero these are used
 for calculating fixed positions. This is something that is needed for instance
 for chemistry. You can manipulate the mentioned variables to achive different
 effects.
@@ -1347,13 +1345,14 @@ effects.
 
 \starttabulate[|c|c|c|p|]
 \DB mode \BC down          \BC up            \BC example        \NC \NR
-\TB[small,samepage]
+\TB
 \NC 0    \NC dynamic       \NC dynamic       \NC \SampleMath{0} \NC \NR
 \NC 1    \NC $d$           \NC $u$           \NC \SampleMath{1} \NC \NR
 \NC 2    \NC $s$           \NC $u$           \NC \SampleMath{2} \NC \NR
 \NC 3    \NC $s$           \NC $u + s - d$   \NC \SampleMath{3} \NC \NR
 \NC 4    \NC $d + (s-d)/2$ \NC $u + (s-d)/2$ \NC \SampleMath{4} \NC \NR
 \NC 5    \NC $d$           \NC $u + s - d$   \NC \SampleMath{5} \NC \NR
+\LL
 \stoptabulate
 
 The value of this parameter obeys grouping but applies to the whole current
@@ -1361,7 +1360,7 @@ formula.
 
 % if needed we can put the value in stylenodes but maybe more should go there
 
-\subsection{Penalties: \type {\mathpenaltiesmode}}
+\subsection{Penalties: \lpr {mathpenaltiesmode}}
 
 Only in inline math penalties will be added in a math list. You can force
 penalties (also in display math) by setting:
@@ -1383,7 +1382,7 @@ makes sense. As a bonus we also provide two extra penalties:
 They default to inifinite which signals that they don't need to be inserted. When
 set they are injected before a binop or rel noad. This is an experimental feature.
 
-\subsection{Equation spacing: \type {\matheqnogapstep}}
+\subsection{Equation spacing: \lpr {matheqnogapstep}}
 
 By default \TEX\ will add one quad between the equation and the number. This is
 hard coded. A new primitive can control this:
@@ -1408,7 +1407,7 @@ to limit tracing. Only when \type {tracingassigns} and|/|or \type
 The logic in the math engine is rather complex and there are often no universal
 solutions (read: what works out well for one font, fails for another). Therefore
 some variations in the implementation will be driven by options for which a new
-primitive \type {\mathoption} has been introduced (so that we don't end up with
+primitive \lpr {mathoption} has been introduced (so that we don't end up with
 many new commands). The approach of options also permits us to see what effect a
 specific solution has.
 

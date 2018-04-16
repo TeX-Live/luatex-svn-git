@@ -8,8 +8,8 @@
 
 \section{The \type {img} library}
 
-The \type {img} library can be used as an alternative to \type {\pdfximage} and
-\type {\pdfrefximage}, and the associated \quote {satellite} commands like \type
+The \type {img} library can be used as an alternative to \orm {pdfximage} and
+\orm {pdfrefximage}, and the associated \quote {satellite} commands like \type
 {\pdfximagebbox}. Image objects can also be used within virtual fonts via the
 \type {image} command listed in~\in {section} [virtualfonts].
 
@@ -66,8 +66,7 @@ Once the image is scanned, all the values in the \type {<image>} except \type
 {width}, \type {height} and \type {depth}, become frozen, and you cannot change
 them any more.
 
-You can use \type {pdf.setignoreunknownimages(1)} (or at the \TEX\ end the \type
-{\pdfvariable} \type {ignoreunknownimages}) to get around a quit when no known
+You can use \type {pdf.setignoreunknownimages(1)} (or at the \TEX\ end the \lpr {pdfvariable} \type {ignoreunknownimages}) to get around a quit when no known
 image type is found (based on name or preamble). Beware: this will not catch
 invalid images and we cannot guarantee side effects. A zero dimension image is
 still included when requested. No special flags are set. A proper workflow will
@@ -85,7 +84,7 @@ user-supplied and automatic ones.
 % hahe: i need to add r/w ro column...
 \starttabulate[|l|l|p|]
 \DB field name            \BC type     \BC description \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{attr}           \NC string   \NC the image attributes for \LUATEX \NC \NR
 \NC \type{bbox}           \NC table    \NC table with 4 boundingbox dimensions \type
                                            {llx}, \type {lly}, \type {urx} and \type
@@ -123,6 +122,7 @@ user-supplied and automatic ones.
                                            an empty string is assigned nothing is written
                                            to file; otherwise the natural filename is
                                            taken \NC \NR
+\LL
 \stoptabulate
 
 A running (undefined) dimension in \type {width}, \type {height}, or \type
@@ -239,7 +239,7 @@ processing.
 
 By \type {img.immediatewrite(a)} a \PDF\ object number is allocated, and the
 image file for image \type {a} is written out immediately into the \PDF\ file as
-an image stream object (like with \type {\immediate}\type {\pdfximage}). The object
+an image stream object (like with \prm {immediate}\orm {pdfximage}). The object
 number of the image stream dictionary is then available by the \type {objnum}
 key. No \type {pdf_refximage} whatsit node is generated. You will need an
 \type {img.write(a)} or \type {img.node(a)} call to let the image appear on the
@@ -314,7 +314,7 @@ of different fields, as follows:
 
 \starttabulate[|l|l|p|p|]
 \DB name               \BC type     \BC description              \BC default           \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{error_line}  \NC number   \NC error line width         \NC 79                \NC \NR
 \NC \type{print_line}  \NC number   \NC line length in ps output \NC 100               \NC \NR
 \NC \type{random_seed} \NC number   \NC the initial random seed  \NC variable          \NC \NR
@@ -330,6 +330,7 @@ of different fields, as follows:
                                         \type {errorstop}        \NC \type {errorstop} \NC \NR
 \NC \type{job_name}    \NC string   \NC \type {--jobname}        \NC \type {mpout}     \NC \NR
 \NC \type{find_file}   \NC function \NC a function to find files \NC only local files  \NC \NR
+\LL
 \stoptabulate
 
 The \type {find_file} function should be of this form:
@@ -342,10 +343,11 @@ with:
 
 \starttabulate[|l|p|]
 \DB name        \BC the requested file \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{mode} \NC the file mode: \type {r} or \type {w} \NC \NR
 \NC \type{type} \NC the kind of file, one of: \type {mp}, \type {tfm}, \type {map},
                     \type {pfb}, \type {enc} \NC \NR
+\LL
 \stoptabulate
 
 Return either the full path name of the found file, or \type {nil} if the file
@@ -361,8 +363,8 @@ closed. This means that when you have thousands of images on one page, your
 operating system might decide to abort the run. When you include more than one
 page from a \PDF\ file you can set the \type {keepopen} flag when you allocate an
 image object, or pass the \type {keepopen} directive when you refer to the image
-with \type {\useimageresource} This only makes sense when you embed many pages.
-An \type {\immediate} applied to \type {\saveimageresource} will also force a
+with \lpr {useimageresource} This only makes sense when you embed many pages.
+An \prm {immediate} applied to \lpr {saveimageresource} will also force a
 close after inclusion.
 
 \starttyping
@@ -391,11 +393,12 @@ object classes:
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{main_memory} \NC number \NC memory size \NC \NR
 \NC \type{hash_size}   \NC number \NC hash size\NC \NR
 \NC \type{param_size}  \NC number \NC simultaneous macro parameters\NC \NR
 \NC \type{max_in_open} \NC number \NC input file nesting levels\NC \NR
+\LL
 \stoptabulate
 
 Note that in the new version of \MPLIB, this is informational only. The objects
@@ -440,7 +443,7 @@ few possible keys (only \type {status} is always guaranteed to be present).
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{log}    \NC string \NC output to the \quote {log} stream \NC \NR
 \NC \type{term}   \NC string \NC output to the \quote {term} stream \NC \NR
 \NC \type{error}  \NC string \NC output to the \quote {error} stream
@@ -451,6 +454,7 @@ few possible keys (only \type {status} is always guaranteed to be present).
                                  \type {2} = errors,
                                  \type {3} = fatal error \NC \NR
 \NC \type{fig}    \NC table  \NC an array of generated figures (if any) \NC \NR
+\LL
 \stoptabulate
 
 When \type {status} equals~3, you should stop using this \MPLIB\ instance
@@ -462,7 +466,7 @@ you can call:
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{boundingbox}  \NC function \NC returns the bounding box, as an array of 4
                                          values \NC \NR
 \NC \type{postscript}   \NC function \NC returns a string that is the ps output of the
@@ -486,6 +490,7 @@ you can call:
 \NC \type{depth}        \NC function \NC the \type {fontchardp} value \NC \NR
 \NC \type{italcorr}     \NC function \NC the \type {fontcharit} value \NC \NR
 \NC \type{charcode}     \NC function \NC the (rounded) \type {charcode} value \NC \NR
+\LL
 \stoptabulate
 
 Note: you can call \type {fig:objects()} only once for any one \type {fig}
@@ -513,7 +518,7 @@ point number, unless stated otherwise. Field values that are of type \type
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{path}       \NC table  \NC the list of knots \NC \NR
 \NC \type{htap}       \NC table  \NC the list of knots for the reversed trajectory \NC \NR
 \NC \type{pen}        \NC table  \NC knots of the pen \NC \NR
@@ -522,6 +527,7 @@ point number, unless stated otherwise. Field values that are of type \type
 \NC \type{miterlimit} \NC number \NC miterlimit\NC \NR
 \NC \type{prescript}  \NC string \NC the prescript text \NC \NR
 \NC \type{postscript} \NC string \NC the postscript text \NC \NR
+\LL
 \stoptabulate
 
 The entries \type {htap} and \type {pen} are optional.
@@ -532,7 +538,7 @@ floats):
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{width} \NC number \NC width of the pen \NC \NR
 \NC \type{sx}    \NC number \NC $x$ scale        \NC \NR
 \NC \type{rx}    \NC number \NC $xy$ multiplier  \NC \NR
@@ -540,13 +546,14 @@ floats):
 \NC \type{sy}    \NC number \NC $y$ scale        \NC \NR
 \NC \type{tx}    \NC number \NC $x$ offset       \NC \NR
 \NC \type{ty}    \NC number \NC $y$ offset       \NC \NR
+\LL
 \stoptabulate
 
 \subsubsection{outline}
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{path}       \NC table  \NC the list of knots \NC \NR
 \NC \type{pen}        \NC table  \NC knots of the pen \NC \NR
 \NC \type{color}      \NC table  \NC the object's color \NC \NR
@@ -556,6 +563,7 @@ floats):
 \NC \type{dash}       \NC table  \NC representation of a dash list \NC \NR
 \NC \type{prescript}  \NC string \NC the prescript text \NC \NR
 \NC \type{postscript} \NC string \NC the postscript text \NC \NR
+\LL
 \stoptabulate
 
 The entry \type {dash} is optional.
@@ -564,7 +572,7 @@ The entry \type {dash} is optional.
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{text}       \NC string \NC the text \NC \NR
 \NC \type{font}       \NC string \NC font tfm name \NC \NR
 \NC \type{dsize}      \NC number \NC font size \NC \NR
@@ -575,22 +583,25 @@ The entry \type {dash} is optional.
 \NC \type{transform}  \NC table  \NC a text transformation \NC \NR
 \NC \type{prescript}  \NC string \NC the prescript text \NC \NR
 \NC \type{postscript} \NC string \NC the postscript text \NC \NR
+\LL
 \stoptabulate
 
 \subsubsection{special}
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{prescript} \NC string \NC special text \NC \NR
+\LL
 \stoptabulate
 
 \subsubsection{start_bounds, start_clip}
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{path} \NC table \NC the list of knots \NC \NR
+\LL
 \stoptabulate
 
 \subsubsection{stop_bounds, stop_clip}
@@ -607,7 +618,7 @@ represents a knot.
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{left_type}  \NC string \NC when present: endpoint, but usually absent \NC \NR
 \NC \type{right_type} \NC string \NC like \type {left_type} \NC \NR
 \NC \type{x_coord}    \NC number \NC X coordinate of this knot \NC \NR
@@ -616,6 +627,7 @@ represents a knot.
 \NC \type{left_y}     \NC number \NC Y coordinate of the precontrol point of this knot \NC \NR
 \NC \type{right_x}    \NC number \NC X coordinate of the postcontrol point of this knot \NC \NR
 \NC \type{right_y}    \NC number \NC Y coordinate of the postcontrol point of this knot \NC \NR
+\LL
 \stoptabulate
 
 There is one special case: pens that are (possibly transformed) ellipses have an
@@ -628,11 +640,12 @@ A color is an integer array with 0, 1, 3 or 4 values:
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{0} \NC marking only \NC no values                                                     \NC \NR
 \NC \type{1} \NC greyscale    \NC one value in the range $(0,1)$, \quote {black} is $0$         \NC \NR
 \NC \type{3} \NC \RGB         \NC three values in the range $(0,1)$, \quote {black} is $0,0,0$  \NC \NR
 \NC \type{4} \NC \CMYK        \NC four values in the range $(0,1)$, \quote {black} is $0,0,0,1$ \NC \NR
+\LL
 \stoptabulate
 
 If the color model of the internal object was \type {uninitialized}, then it was
@@ -645,13 +658,14 @@ Each transform is a six|-|item array.
 
 \starttabulate[|l|l|p|]
 \DB index  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{1} \NC number \NC represents x  \NC \NR
 \NC \type{2} \NC number \NC represents y  \NC \NR
 \NC \type{3} \NC number \NC represents xx \NC \NR
 \NC \type{4} \NC number \NC represents yx \NC \NR
 \NC \type{5} \NC number \NC represents xy \NC \NR
 \NC \type{6} \NC number \NC represents yy \NC \NR
+\LL
 \stoptabulate
 
 Note that the translation (index 1 and 2) comes first. This differs from the
@@ -665,9 +679,10 @@ representation of the dashlist. \type {dashes} is an array of \quote {on} and
 
 \starttabulate[|l|l|p|]
 \DB field  \BC type \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{dashes} \NC hash   \NC an array of on-off numbers \NC \NR
 \NC \type{offset} \NC number \NC the starting offset value  \NC \NR
+\LL
 \stoptabulate
 
 \subsection{Character size information}

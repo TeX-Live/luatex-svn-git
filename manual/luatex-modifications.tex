@@ -62,21 +62,21 @@ most still comes from the original. But we divert a bit.
 \stopitem
 
 \startitem
-    The upper limit to \type {\endlinechar} and \type {\newlinechar} is 127.
+    The upper limit to \prm {endlinechar} and \prm {newlinechar} is 127.
 \stopitem
 
 \startitem
-    Magnification (\type {\mag}) is only supported in \DVI\ output mode. You can
+    Magnification (\prm {mag}) is only supported in \DVI\ output mode. You can
     set this parameter and it even works with \type {true} units till you switch
     to \PDF\ output mode. When you use \PDF\ output you can best not touch the
-    \type {\mag} variable. This fuzzy behaviour is not much different from using
+    \prm {mag} variable. This fuzzy behaviour is not much different from using
     \PDF\ backend related functionality while eventually \DVI\ output is
     required.
 
     After the output mode has been frozen (normally that happens when the first
     page is shipped out) or when \PDF\ output is enabled, the \type {true}
     specification is ignored. When you preload a plain format adapted to
-    \LUATEX\ it can be that the \type {\mag} parameter already has been set.
+    \LUATEX\ it can be that the \prm {mag} parameter already has been set.
 \stopitem
 
 \stopitemize
@@ -103,8 +103,7 @@ functionality, but with a few small adaptations.
 \stopitem
 
 \startitem
-    Some of the tracing information that is output by \ETEX's \type
-    {\tracingassigns} and \type {\tracingrestores} is not there.
+    Some of the tracing information that is output by \ETEX's \prm {tracingassigns} and \prm {tracingrestores} is not there.
 \stopitem
 
 \startitem
@@ -134,8 +133,8 @@ which in turn triggered renaming primitives.
 
 For compatibility reasons we still refer to \type {\pdf...} commands but \LUATEX\
 has a different backend interface. Instead of these primitives there are three
-interfacing primitives: \type {\pdfextension}, \type {\pdfvariable} and
-\type {\pdffeedback} that take keywords and optional further arguments. This way
+interfacing primitives: \lpr {pdfextension}, \lpr {pdfvariable} and
+\lpr {pdffeedback} that take keywords and optional further arguments. This way
 we can extend the features when needed but don't need to adapt the core engine.
 The front- and backend are decoupled as much as possible.
 
@@ -169,20 +168,18 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    The version related primitives \type {\pdftexbanner}, \type {\pdftexversion}
-    and \type {\pdftexrevision} are no longer present as there is no longer a
+    The version related primitives \orm {pdftexbanner}, \orm {pdftexversion}
+    and \orm {pdftexrevision} are no longer present as there is no longer a
     relationship with \PDFTEX\ development.
 \stopitem
 
 \startitem
     The experimental snapper mechanism has been removed and therefore also the
-    primitives \type {\pdfignoreddimen}, \type {\pdffirstlineheight}, \type
-    {\pdfeachlineheight}, \type {\pdfeachlinedepth} and \type {\pdflastlinedepth}
+    primitives \orm {pdfignoreddimen}, \orm {pdffirstlineheight}, \orm {pdfeachlineheight}, \orm {pdfeachlinedepth} and \orm {pdflastlinedepth}
 \stopitem
 
 \startitem
-    The experimental primitives \type {\primitive}, \type {\ifprimitive}, \type
-    {\ifabsnum} and \type {\ifabsdim} are promoted to core primitives. The \type
+    The experimental primitives \lpr {primitive}, \lpr {ifprimitive}, \lpr {ifabsnum} and \lpr {ifabsdim} are promoted to core primitives. The \type
     {\pdf*} prefixed originals are not available.
 \stopitem
 
@@ -193,8 +190,7 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    Two extra token lists are provides, \type {\pdfxformresources} and \type
-    {\pdfxformattr}, as an alternative to \type {\pdfxform} keywords.
+    Two extra token lists are provides, \orm {pdfxformresources} and \orm {pdfxformattr}, as an alternative to \orm {pdfxform} keywords.
 \stopitem
 
 \startitem
@@ -205,27 +201,25 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    The primitives \type {\pdfpagewidth} and \type {\pdfpageheight} have been removed
-    because \type {\pagewidth} and \type {\pageheight} have that purpose.
+    The primitives \orm {pdfpagewidth} and \orm {pdfpageheight} have been removed
+    because \lpr {pagewidth} and \lpr {pageheight} have that purpose.
 \stopitem
 
 \startitem
-    The primitives \type {\pdfnormaldeviate}, \type {\pdfuniformdeviate}, \type
-    {\pdfsetrandomseed} and \type {\pdfrandomseed} have been promoted to core
+    The primitives \orm {pdfnormaldeviate}, \orm {pdfuniformdeviate}, \orm {pdfsetrandomseed} and \orm {pdfrandomseed} have been promoted to core
     primitives without \type {pdf} prefix so the original commands are no longer
     recognized.
 \stopitem
 
 \startitem
-    The primitives \type {\ifincsname}, \type {\expanded} and \type {\quitvmode}
+    The primitives \lpr {ifincsname}, \lpr {expanded} and \lpr {quitvmode}
     are now core primitives.
 \stopitem
 
 \startitem
     As the hz and protrusion mechanism are part of the core the related
-    primitives \type {\lpcode}, \type {\rpcode}, \type {\efcode}, \type
-    {\leftmarginkern}, \type {\rightmarginkern} are promoted to core primitives. The
-    two commands \type {\protrudechars} and \type {\adjustspacing} replace their
+    primitives \lpr {lpcode}, \lpr {rpcode}, \lpr {efcode}, \lpr {leftmarginkern}, \lpr {rightmarginkern} are promoted to core primitives. The
+    two commands \lpr {protrudechars} and \lpr {adjustspacing} replace their
     prefixed with \type {\pdf} originals.
 \stopitem
 
@@ -236,35 +230,34 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    When \type {\adjustspacing} has value~2, hz optimization will be applied to
+    When \lpr {adjustspacing} has value~2, hz optimization will be applied to
     glyphs and kerns. When the value is~3, only glyphs will be treated. A value
     smaller than~2 disables this feature.
 \stopitem
 
 \startitem
-    The \type {\tagcode} primitive is promoted to core primitive.
+    The \lpr {tagcode} primitive is promoted to core primitive.
 \stopitem
 
 \startitem
-    The \type {\letterspacefont} feature is now part of the core but will not be
+    The \lpr {letterspacefont} feature is now part of the core but will not be
     changed (improved). We just provide it for legacy use.
 \stopitem
 
 \startitem
-    The \type {\pdfnoligatures} primitive is now \type {\ignoreligaturesinfont}.
+    The \orm {pdfnoligatures} primitive is now \lpr {ignoreligaturesinfont}.
 \stopitem
 
 \startitem
-    The \type {\pdfcopyfont} primitive is now \type {\copyfont}.
+    The \orm {pdfcopyfont} primitive is now \lpr {copyfont}.
 \stopitem
 
 \startitem
-    The \type {\pdffontexpand} primitive is now \type {\expandglyphsinfont}.
+    The \orm {pdffontexpand} primitive is now \lpr {expandglyphsinfont}.
 \stopitem
 
 \startitem
-    Because position tracking is also available in \DVI\ mode the \type
-    {\savepos}, \type {\lastxpos} and \type {\lastypos} commands now replace
+    Because position tracking is also available in \DVI\ mode the \lpr {savepos}, \lpr {lastxpos} and \lpr {lastypos} commands now replace
     their \type {pdf} prefixed originals.
 \stopitem
 
@@ -275,27 +268,27 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    The initializers \type {\pdfoutput} has been replaced by \type {\outputmode} and
-    \type {\pdfdraftmode} is now \type {\draftmode}.
+    The initializers \orm {pdfoutput} has been replaced by \lpr {outputmode} and
+    \orm {pdfdraftmode} is now \lpr {draftmode}.
 \stopitem
 
 \startitem
-    The pixel multiplier dimension \type {\pdfpxdimen} lost its prefix and is now calles
-    \type {\pxdimen}.
+    The pixel multiplier dimension \orm {pdfpxdimen} lost its prefix and is now calles
+    \lpr {pxdimen}.
 \stopitem
 
 \startitem
-    An extra \type {\pdfimageaddfilename} option has been added that can be used to block
+    An extra \orm {pdfimageaddfilename} option has been added that can be used to block
     writing the filename to the \PDF\ file.
 \stopitem
 
 \startitem
-    The primitive \type {\pdftracingfonts} is now \type {\tracingfonts} as it
+    The primitive \orm {pdftracingfonts} is now \lpr {tracingfonts} as it
     doesn't relate to the backend.
 \stopitem
 
 \startitem
-    The experimental primitive \type {\pdfinsertht} is kept as \type {\insertht}.
+    The experimental primitive \orm {pdfinsertht} is kept as \lpr {insertht}.
 \stopitem
 
 \startitem
@@ -323,17 +316,18 @@ images are also common. As already mentioned in \in {section}
 
 \starttabulate[|l|l|]
 \DB \LUATEX \BC \PDFTEX \NC \NR
-\TB[small,samepage]
-\NC \type {\saveboxresource}             \NC \type {\pdfxform}           \NC \NR
-\NC \type {\saveimageresource}           \NC \type {\pdfximage}          \NC \NR
-\NC \type {\useboxresource}              \NC \type {\pdfrefxform}        \NC \NR
-\NC \type {\useimageresource}            \NC \type {\pdfrefximage}       \NC \NR
-\NC \type {\lastsavedboxresourceindex}   \NC \type {\pdflastxform}       \NC \NR
-\NC \type {\lastsavedimageresourceindex} \NC \type {\pdflastximage}      \NC \NR
-\NC \type {\lastsavedimageresourcepages} \NC \type {\pdflastximagepages} \NC \NR
+\TB
+\NC \lpr {saveboxresource}             \NC \orm {pdfxform}           \NC \NR
+\NC \lpr {saveimageresource}           \NC \orm {pdfximage}          \NC \NR
+\NC \lpr {useboxresource}              \NC \orm {pdfrefxform}        \NC \NR
+\NC \lpr {useimageresource}            \NC \orm {pdfrefximage}       \NC \NR
+\NC \lpr {lastsavedboxresourceindex}   \NC \orm {pdflastxform}       \NC \NR
+\NC \lpr {lastsavedimageresourceindex} \NC \orm {pdflastximage}      \NC \NR
+\NC \lpr {lastsavedimageresourcepages} \NC \orm {pdflastximagepages} \NC \NR
+\LL
 \stoptabulate
 
-There are a few \type {\pdffeedback} features that relate to this but these are
+There are a few \lpr {pdffeedback} features that relate to this but these are
 typical backend specific ones. The index that gets returned is to be considered
 as \quote {just a number} and although it still has the same meaning (object
 related) as before, you should not depend on that.
@@ -440,9 +434,8 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    The page dimension related primitives \type {\pagewidth} and \type
-    {\pageheight} have been promoted to core primitives. The \type {\hoffset} and
-    \type {\voffset} primitives have been fixed.
+    The page dimension related primitives \lpr {pagewidth} and \lpr {pageheight} have been promoted to core primitives. The \prm {hoffset} and
+    \prm {voffset} primitives have been fixed.
 \stopitem
 
 \startitem
@@ -452,13 +445,11 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    The two dimension registers \type {\pagerightoffset} and \type
-    {\pagebottomoffset} are now core primitives.
+    The two dimension registers \lpr {pagerightoffset} and \lpr {pagebottomoffset} are now core primitives.
 \stopitem
 
 \startitem
-    The direction related primitives \type {\pagedir}, \type {\bodydir}, \type
-    {\pardir}, \type {\textdir}, \type {\mathdir} and \type {\boxdir} are now
+    The direction related primitives \lpr {pagedir}, \lpr {bodydir}, \lpr {pardir}, \lpr {textdir}, \lpr {mathdir} and \lpr {boxdir} are now
     core primitives.
 \stopitem
 
@@ -501,7 +492,7 @@ different:
 \stopitem
 
 \startitem
-    The \type {\openout} whatsits are not written to the log file.
+    The \prm {openout} whatsits are not written to the log file.
 \stopitem
 
 \startitem
@@ -652,7 +643,7 @@ macro:->[internal backend integer]
 macro:->[internal backend tokenlist]
 \stoptyping
 
-The \type {\edef} can also be an \type {\def} but it's a bit more efficient
+The \prm {edef} can also be an \prm {def} but it's a bit more efficient
 to expand the lookup related register beforehand. After that you can adapt
 the defaults; these are:
 
@@ -1026,7 +1017,7 @@ It gets typeset as:
 We could define the two helpers to look back, pick up a skip, remove it and
 inject it after the dir node. But that way we loose the subtype information that
 for some applications can be handy to be kept as|-|is. This is why we now have a
-variant of \type {\textdir} which injects the balanced node before the skip.
+variant of \lpr {textdir} which injects the balanced node before the skip.
 Instead of the previous definition we can use:
 
 \startbuffer[def]
@@ -1055,11 +1046,11 @@ comes out as a properly spaced:
 
 Anything more complex that this, like combination of skips and penalties, or
 kerns, should be handled in the input or macro package because there is no way we
-can predict the expected behaviour. In fact, the \type {\linedir} is just a
+can predict the expected behaviour. In fact, the \lpr {linedir} is just a
 convenience extra which could also have been implemented using node list parsing.
 
 Glue after a dir node is ignored in the linebreak decision but you can bypass that
-by setting \type {\breakafterdirmode} to~\type {1}. The following table shows the
+by setting \lpr {breakafterdirmode} to~\type {1}. The following table shows the
 difference. Watch your spaces.
 
 \def\ShowSome#1{%
@@ -1078,29 +1069,31 @@ difference. Watch your spaces.
     \BC \type{1}
     \NC
     \NC \NR
-    \TB[small,samepage]
+    \TB
     \ShowSome{pre {\textdir TLT xxx} post}
     \ShowSome{pre {\textdir TLT xxx }post}
     \ShowSome{pre{ \textdir TLT xxx} post}
     \ShowSome{pre{ \textdir TLT xxx }post}
     \ShowSome{pre { \textdir TLT xxx } post}
     \ShowSome{pre {\textdir TLT\relax\space xxx} post}
+    \LL
 \stoptabulate
 
 Another adaptation to the \ALEPH\ directional model is control over shapes driven
-by \type {\hangindent} and \type {\parshape}. This is controlled by a new parameter
-\type {\shapemode}:
+by \prm {hangindent} and \prm {parshape}. This is controlled by a new parameter
+\lpr {shapemode}:
 
 \starttabulate[|c|l|l|]
-\DB value    \BC \type {\hangindent} \BC \type {\parshape} \NC \NR
-\TB[small,samepage]
+\DB value    \BC \prm {hangindent} \BC \prm {parshape} \NC \NR
+\TB
 \BC \type{0} \NC  normal             \NC normal            \NC \NR
 \BC \type{1} \NC  mirrored           \NC normal            \NC \NR
 \BC \type{2} \NC  normal             \NC mirrored          \NC \NR
 \BC \type{3} \NC  mirrored           \NC mirrored          \NC \NR
+\LL
 \stoptabulate
 
-The value is reset to zero (like \type {\hangindent} and \type {\parshape})
+The value is reset to zero (like \prm {hangindent} and \prm {parshape})
 after the paragraph is done with. You can use negative values to prevent
 this. In \in {figure} [fig:shapemode] a few examples are given.
 
@@ -1190,19 +1183,16 @@ ignored.
 
 \startsubsection[title=Sparse arrays]
 
-The \type {\mathcode}, \type {\delcode}, \type {\catcode}, \type {\sfcode}, \type
-{\lccode} and \type {\uccode} (and the new \type {\hjcode}) tables are now sparse
+The \prm {mathcode}, \prm {delcode}, \prm {catcode}, \prm {sfcode}, \prm {lccode} and \prm {uccode} (and the new \lpr {hjcode}) tables are now sparse
 arrays that are implemented in~\CCODE. They are no longer part of the \TEX\
 \quote {equivalence table} and because each had 1.1 million entries with a few
 memory words each, this makes a major difference in memory usage. Performance is
 not really hurt by this.
 
-The \type {\catcode}, \type {\sfcode}, \type {\lccode}, \type {\uccode} and \type
-{\hjcode} assignments don't show up when using the \ETEX\ tracing routines \type
-{\tracingassigns} and \type {\tracingrestores} but we don't see that as a real
+The \prm {catcode}, \prm {sfcode}, \prm {lccode}, \prm {uccode} and \lpr {hjcode} assignments don't show up when using the \ETEX\ tracing routines \prm {tracingassigns} and \prm {tracingrestores} but we don't see that as a real
 limitation.
 
-A side|-|effect of the current implementation is that \type {\global} is now more
+A side|-|effect of the current implementation is that \prm {global} is now more
 expensive in terms of processing than non|-|global assignments but not many users
 will notice that.
 

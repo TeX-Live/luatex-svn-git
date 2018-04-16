@@ -81,13 +81,13 @@ Arguments:
 
 \sym{id_number}
 
-This number is zero for the log or \type {\input} files. For \TEX's \type {\read}
-or \type {\write} the number is incremented by one, so \type {\read0} becomes~1.
+This number is zero for the log or \prm {input} files. For \TEX's \prm {read}
+or \prm {write} the number is incremented by one, so \type {\read0} becomes~1.
 
 \sym{asked_name}
 
-This is the user|-|supplied filename, as found by \type {\input}, \type {\openin}
-or \type {\openout}.
+This is the user|-|supplied filename, as found by \prm {input}, \prm {openin}
+or \prm {openout}.
 
 \stopitemize
 
@@ -312,7 +312,7 @@ reading problem. The list of functions is:
 
 \starttabulate[|l|p|]
 \DB function  \BC usage \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{read_font_file}     \NC ofm or tfm files \NC \NR
 \NC \type{read_vf_file}       \NC virtual fonts \NC \NR
 \NC \type{read_map_file}      \NC map files \NC \NR
@@ -322,6 +322,7 @@ reading problem. The list of functions is:
 \NC \type{read_truetype_file} \NC \TRUETYPE\ font files \NC \NR
 \NC \type{read_type1_file}    \NC \TYPEONE\ font files \NC \NR
 \NC \type{read_opentype_file} \NC \OPENTYPE\ font files \NC \NR
+\LL
 \stoptabulate
 
 \section{Data processing callbacks}
@@ -344,8 +345,7 @@ does not replace any internal code.
 \subsection{\type {process_output_buffer}}
 
 This callback allows you to change the contents of the line output buffer just
-before \LUATEX\ actually starts writing it to a file as the result of a \type
-{\write} command. It is only called for output to an actual file (that is,
+before \LUATEX\ actually starts writing it to a file as the result of a \prm {write} command. It is only called for output to an actual file (that is,
 excluding the log, the terminal, and \type {\write18} calls).
 
 \startfunctioncall
@@ -360,7 +360,7 @@ does not replace any internal code.
 
 \subsection{\type {process_jobname}}
 
-This callback allows you to change the jobname given by \type {\jobname} in \TEX\
+This callback allows you to change the jobname given by \prm {jobname} in \TEX\
 and \type {tex.jobname} in Lua. It does not affect the internal job name or the
 name of the output or log files.
 
@@ -393,11 +393,12 @@ what list you can give a treat.
 
 \starttabulate[|l|p|]
 \DB value             \BC explanation                                  \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{pre_box}    \NC interline material is being added            \NC \NR
-\NC \type{pre_adjust} \NC \type {\vadjust} material is being added     \NC \NR
+\NC \type{pre_adjust} \NC \prm {vadjust} material is being added     \NC \NR
 \NC \type{box}        \NC a typeset box is being added (always called) \NC \NR
-\NC \type{adjust}     \NC \type {\vadjust} material is being added     \NC \NR
+\NC \type{adjust}     \NC \prm {vadjust} material is being added     \NC \NR
+\LL
 \stoptabulate
 
 \subsection{\type {buildpage_filter}}
@@ -417,17 +418,18 @@ state is with respect to the \quote {current page}. The possible values for the
 
 \starttabulate[|l|p|]
 \DB value                  \BC explanation                               \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{alignment}       \NC a (partial) alignment is being added      \NC \NR
 \NC \type{after_output}    \NC an output routine has just finished       \NC \NR
 \NC \type{new_graf}        \NC the beginning of a new paragraph          \NC \NR
-\NC \type{vmode_par}       \NC \type {\par} was found in vertical mode   \NC \NR
-\NC \type{hmode_par}       \NC \type {\par} was found in horizontal mode \NC \NR
+\NC \type{vmode_par}       \NC \prm {par} was found in vertical mode   \NC \NR
+\NC \type{hmode_par}       \NC \prm {par} was found in horizontal mode \NC \NR
 \NC \type{insert}          \NC an insert is added                        \NC \NR
 \NC \type{penalty}         \NC a penalty (in vertical mode)              \NC \NR
 \NC \type{before_display}  \NC immediately before a display starts       \NC \NR
 \NC \type{after_display}   \NC a display is finished                     \NC \NR
 \NC \type{end}             \NC \LUATEX\ is terminating (it's all over)   \NC \NR
+\LL
 \stoptabulate
 
 \subsection{\type {build_page_insert}}
@@ -447,9 +449,10 @@ with
 
 \starttabulate[|l|p|]
 \DB value    \BC explanation             \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{n} \NC the insert class        \NC \NR
 \NC \type{i} \NC the order of the insert \NC \NR
+\LL
 \stoptabulate
 
 The return value is a number indicating the skip register to use for the
@@ -461,7 +464,7 @@ afterwards.
 \subsection{\type {pre_linebreak_filter}}
 
 This callback is called just before \LUATEX\ starts converting a list of nodes
-into a stack of \type {\hbox}es, after the addition of \type {\parfillskip}.
+into a stack of \prm {hbox}es, after the addition of \prm {parfillskip}.
 
 \startfunctioncall
 function(<node> head, <string> groupcode)
@@ -477,21 +480,22 @@ explained in the next two paragraphs.
 
 \starttabulate[|l|p|]
 \DB value                \BC explanation                                     \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{<empty>}       \NC main vertical list                              \NC \NR
-\NC \type{hbox}          \NC \type {\hbox} in horizontal mode                \NC \NR
-\NC \type{adjusted_hbox} \NC \type {\hbox} in vertical mode                  \NC \NR
-\NC \type{vbox}          \NC \type {\vbox}                                   \NC \NR
-\NC \type{vtop}          \NC \type {\vtop}                                   \NC \NR
-\NC \type{align}         \NC \type {\halign} or \type {\valign}              \NC \NR
+\NC \type{hbox}          \NC \prm {hbox} in horizontal mode                \NC \NR
+\NC \type{adjusted_hbox} \NC \prm {hbox} in vertical mode                  \NC \NR
+\NC \type{vbox}          \NC \prm {vbox}                                   \NC \NR
+\NC \type{vtop}          \NC \prm {vtop}                                   \NC \NR
+\NC \type{align}         \NC \prm {halign} or \prm {valign}              \NC \NR
 \NC \type{disc}          \NC discretionaries                                 \NC \NR
 \NC \type{insert}        \NC packaging an insert                             \NC \NR
-\NC \type{vcenter}       \NC \type {\vcenter}                                \NC \NR
-\NC \type{local_box}     \NC \type {\localleftbox} or \type {\localrightbox} \NC \NR
-\NC \type{split_off}     \NC top of a \type {\vsplit}                        \NC \NR
-\NC \type{split_keep}    \NC remainder of a \type {\vsplit}                  \NC \NR
+\NC \type{vcenter}       \NC \prm {vcenter}                                \NC \NR
+\NC \type{local_box}     \NC \lpr {localleftbox} or \lpr {localrightbox} \NC \NR
+\NC \type{split_off}     \NC top of a \prm {vsplit}                        \NC \NR
+\NC \type{split_keep}    \NC remainder of a \prm {vsplit}                  \NC \NR
 \NC \type{align_set}     \NC alignment cell                                  \NC \NR
 \NC \type{fin_row}       \NC alignment row                                   \NC \NR
+\LL
 \stoptabulate
 
 As for all the callbacks that deal with nodes, the return value can be one of
@@ -555,7 +559,7 @@ with it yourself. The prevdepth is also optional. Locations are \type {box},
 \subsection{\type {post_linebreak_filter}}
 
 This callback is called just after \LUATEX\ has converted a list of nodes into a
-stack of \type {\hbox}es.
+stack of \prm {hbox}es.
 
 \startfunctioncall
 function(<node> head, <string> groupcode)
@@ -594,7 +598,7 @@ material. Math displays are ignored at the moment.
 
 This function is very similar to the \type {hpack_filter}. Besides the fact
 that it is called at different moments, there is an extra variable that matches
-\TEX's \type {\maxdepth} setting.
+\TEX's \prm {maxdepth} setting.
 
 \startfunctioncall
 function(<node> head, <string> groupcode, <number> size, <string> packtype,
@@ -650,8 +654,7 @@ file but beware of not messing up the final result. No checking is done.
 
 \subsection{\type {pre_output_filter}}
 
-This callback is called when \TEX\ is ready to start boxing the box 255 for \type
-{\output}.
+This callback is called when \TEX\ is ready to start boxing the box 255 for \prm {output}.
 
 \startfunctioncall
 function(<node> head, <string> groupcode, <number> size, <string> packtype,
@@ -792,8 +795,8 @@ end
 \stopfunctioncall
 
 Replaces the code that prints the \type {[} and the page number at the begin of
-\type {\shipout}. This callback will also override the printing of box information
-that normally takes place when \type {\tracingoutput} is positive.
+\prm {shipout}. This callback will also override the printing of box information
+that normally takes place when \prm {tracingoutput} is positive.
 
 \subsection{\type {stop_page_number}}
 
@@ -802,7 +805,7 @@ function()
 end
 \stopfunctioncall
 
-Replaces the code that prints the \type {]} at the end of \type {\shipout}.
+Replaces the code that prints the \type {]} at the end of \prm {shipout}.
 
 \subsection{\type {show_error_hook}}
 
@@ -847,12 +850,13 @@ This callback replaces the code that prints \LUATEX's when a file is opened like
 
 \starttabulate[|c|l|]
 \DB value  \BC meaning \NC \NR
-\TB[small,samepage]
+\TB
 \NC 1 \NC a normal data file, like a \TEX\ source \NC \NR
 \NC 2 \NC a font map coupling font names to resources \NC \NR
 \NC 3 \NC an image file (\type {png}, \type {pdf}, etc) \NC \NR
 \NC 4 \NC an embedded font subset \NC \NR
 \NC 5 \NC a fully embedded font \NC \NR
+\LL
 \stoptabulate
 
 \subsection{\type {stop_file}}

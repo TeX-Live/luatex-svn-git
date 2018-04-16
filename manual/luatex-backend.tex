@@ -19,8 +19,8 @@ pdf.mapfile(<string> map file)
 pdf.mapline(<string> map line)
 \stopfunctioncall
 
-These two functions can be used to replace primitives \type {\pdfmapfile} and
-\type {\pdfmapline} inherited from \PDFTEX. They expect a string as only
+These two functions can be used to replace primitives \orm {pdfmapfile} and
+\orm {pdfmapline} inherited from \PDFTEX. They expect a string as only
 parameter and have no return value. The first character in a map line can be
 \type {-}, \type {+} or \type {=} which means as much as remove, add or replace
 this line.
@@ -160,8 +160,7 @@ end
 
 \subsection {\type {print}}
 
-You can print string to the \PDF\ document from within a within a \type
-{\latelua} call. This function is not to be used inside \type {\directlua} unless
+You can print string to the \PDF\ document from within a within a \lpr {latelua} call. This function is not to be used inside \prm {directlua} unless
 you know {\it exactly} what you are doing.
 
 \startfunctioncall
@@ -175,7 +174,7 @@ The optional parameter can be used to mimic the behavior of \PDF\ literals: the
 \subsection {\type {immediateobj}}
 
 This function creates a \PDF\ object and immediately writes it to the \PDF\ file.
-It is modelled after \PDFTEX's \type {\immediate} \type {\pdfobj} primitives. All
+It is modelled after \PDFTEX's \prm {immediate} \orm {pdfobj} primitives. All
 function variants return the object number of the newly generated object.
 
 \startfunctioncall
@@ -221,7 +220,7 @@ when referenced, e.g., by \type {refobj()}.
 
 All function variants return the object number of the newly generated object, and
 there are two separate calling modes. The first mode is modelled after \PDFTEX's
-\type {\pdfobj} primitive.
+\orm {pdfobj} primitive.
 
 \startfunctioncall
 <number> n =
@@ -272,18 +271,18 @@ can't have both \type {string} and \type {file} at the same time.
 
 \subsection {\type {refobj}}
 
-This function, the \LUA\ version of the \type {\pdfrefobj} primitive, references an
+This function, the \LUA\ version of the \orm {pdfrefobj} primitive, references an
 object by its object number, so that the object will be written out.
 
 \startfunctioncall
 pdf.refobj(<integer> n)
 \stopfunctioncall
 
-This function works in both the \type {\directlua} and \type {\latelua} environment.
-Inside \type {\directlua} a new whatsit node \quote {pdf_refobj} is created, which
+This function works in both the \prm {directlua} and \lpr {latelua} environment.
+Inside \prm {directlua} a new whatsit node \quote {pdf_refobj} is created, which
 will be marked for flushing during page output and the object is then written
 directly after the page, when also the resources objects are written out. Inside
-\type {\latelua} the object will be marked for flushing.
+\lpr {latelua} the object will be marked for flushing.
 
 This function has no return values.
 
@@ -300,7 +299,7 @@ This function creates an empty \PDF\ object and returns its number.
 
 This function adds an object number to the \type {/Annots} array for the current
 page without doing anything else. This function can only be used from within
-\type {\latelua}.
+\lpr {latelua}.
 
 \startfunctioncall
 pdf.registerannot (<number> objnum)
@@ -438,7 +437,7 @@ The list of possible operand types and associated \LUA\ value types is:
 
 \starttabulate[|l|c|]
 \DB types           \BC type      \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{integer}  \NC <number>  \NC \NR
 \NC \type{real}     \NC <number>  \NC \NR
 \NC \type{boolean}  \NC <boolean> \NC \NR
@@ -447,6 +446,7 @@ The list of possible operand types and associated \LUA\ value types is:
 \NC \type{string}   \NC <string>  \NC \NR
 \NC \type{array}    \NC <table>   \NC \NR
 \NC \type{dict}     \NC <table>   \NC \NR
+\LL
 \stoptabulate
 
 In case of \type {integer} or \type {real}, the value is always a \LUA\ (floating
@@ -470,7 +470,7 @@ There are few more methods defined that you can ask \type {scanner}:
 
 \starttabulate[|l|p|]
 \DB method           \BC explanation \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type{pop}       \NC see above \NC \NR
 \NC \type{popNumber} \NC return only the value of a \type {real} or \type {integer} \NC \NR
 \NC \type{popName}   \NC return only the value of a \type {name} \NC \NR
@@ -479,6 +479,7 @@ There are few more methods defined that you can ask \type {scanner}:
 \NC \type{popDict}   \NC return only the value of a \type {dict} \NC \NR
 \NC \type{popBool}   \NC return only the value of a \type {boolean} \NC \NR
 \NC \type{done}      \NC abort further processing of this \type {scan()} call \NC \NR
+\LL
 \stoptabulate
 
 The \type {popXXX} are convenience functions, and come in handy when you know the
@@ -930,12 +931,13 @@ arguments:
 
 \starttabulate
 \DB value           \BC explanation      \NC \NR
-\TB[small,samepage]
+\TB
 \NC \type {stream}  \NC this is a (in low level \LUA\ speak) light userdata
                         object, i.e.\ a pointer to a sequence of bytes \NC \NR
 \NC \type {length}  \NC this is the length of the stream in bytes \NC \NR
 \NC \type {name}    \NC this is a unique identifier that is used for hashing the
                         stream, so that multiple doesn't use more memory \NC \NR
+\LL
 \stoptabulate
 
 Instead of a light userdata stream you can also pass a \LUA\ string, in which

@@ -43,7 +43,10 @@
   [medium]
 
 \setuptabulate
-  [headstyle=bold,
+  [blank={small,samepage},
+   headstyle=bold,
+   rulecolor=maincolor,
+   rulethickness=1pt,
    foregroundcolor=white,
    foregroundstyle=\ss\bfx\WORD,
    backgroundcolor=maincolor]
@@ -380,5 +383,12 @@
 \dontcomplain
 
 \environment luatex-logos
+
+\defineregister[topicindex]
+\defineregister[primitiveindex]
+
+\unexpanded\def\lpr#1{\primitiveindex[#1]{\bf\tex{#1}}\tex{#1}}
+\unexpanded\def\prm#1{\primitiveindex[#1]{\tex{#1}}\tex{#1}}
+\unexpanded\def\orm#1{\primitiveindex[#1]{\tex{#1}}\tex{#1}}
 
 \stopenvironment
