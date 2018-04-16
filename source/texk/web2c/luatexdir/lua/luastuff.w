@@ -301,10 +301,6 @@ void luainterpreter(void)
     open_strlibext(L);
 
     /*
-        open_lfslibext(L);
-    */
-
-    /*
         The socket and mime libraries are a bit tricky to open because they use a load-time
         dependency that has to be worked around for luatex, where the C module is loaded
         way before the lua module.

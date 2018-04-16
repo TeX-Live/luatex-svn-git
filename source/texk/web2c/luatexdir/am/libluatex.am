@@ -271,7 +271,6 @@ dist_libluatex_sources += \
 	luatexdir/lua/lkpselib.c \
 	luatexdir/lua/llanglib.c \
 	luatexdir/lua/llualib.c \
-	luatexdir/lua/llfslibext.c \
 	luatexdir/lua/lnodelib.c \
 	luatexdir/lua/liolibext.c \
 	luatexdir/lua/loslibext.c \
