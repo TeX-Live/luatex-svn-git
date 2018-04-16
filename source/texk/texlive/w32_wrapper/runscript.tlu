@@ -1,7 +1,7 @@
 
 
-local svnrevision = string.match("$Revision: 46914 $", "%d+") or "0"
-local svndate     = string.match("$Date: 2018-03-10 04:48:22 +0100 (Sat, 10 Mar 2018) $", "[-%d]+") or "2009-12-04"
+local svnrevision = string.match("$Revision: 47389 $", "%d+") or "0"
+local svndate     = string.match("$Date: 2018-04-09 01:11:53 +0200 (Mon, 09 Apr 2018) $", "[-%d]+") or "2009-12-04"
 local bannerstr   = "runscript wrapper utility (rev. " ..
                     svnrevision .. ", " .. svndate .. ")\n" .. 
                     "usage:   runscript script-name [arguments]\n" ..
@@ -262,6 +262,11 @@ local docstr = [[
     2017/05/06
         - introduce sys_user_progs, make checks for updmap/fmtutil
           use sys_user_progs instead, add kanji-config-updmap
+    2018/03/12
+        - introduce a new function gettexmfdist() for security.
+    2018/04/06
+        - introduce a new function is_64bit_windows_os() to
+          check Windows OS.
 ]]
 
 -- HELPER SUBROUTINES --
@@ -386,6 +391,66 @@ local function mkdir_plus(dir)
   end
 end
 
+--
+-- return the TEXMFDIST directory in TeX Live
+--
+local function gettexmfdist()
+  local ffi = require("ffi")
+  ffi.cdef[[
+  typedef void*  HANDLE;
+  typedef char*  LPCSTR;
+  int GetModuleFileNameA(HANDLE h, LPCSTR l, int i);
+  HANDLE GetModuleHandleA(const char *a);
+  ]]
+  local buffer = ffi.new("char[?]", 512)
+  local runscripthandle = ffi.C.GetModuleHandleA("runscript.dll")
+  if runscripthandle == nil then
+    return nil
+  end
+  local err = ffi.C.GetModuleFileNameA(runscripthandle, buffer, 256)
+  if err == 0 then
+    return nil
+  end
+  local str = ffi.string(buffer)
+  str = string.gsub(str, "\\","/")
+  str = string.reverse(str)
+  local a, b
+-- remove /runscript.dll
+  a, b = string.find(str, '/', 1, true)
+  str = string.sub(str,a+1)
+-- remove /win32
+  a, b = string.find(str, '/', 1, true)
+  str = string.sub(str,a+1)
+-- remove /bin
+  a, b = string.find(str, '/', 1, true)
+  str = string.sub(str,a+1)
+  str = string.reverse(str)
+  str = str .. '/texmf-dist'
+  return str
+end
+
+--
+-- Is the Windows OS 64bit?
+--
+local function is_64bit_windows_os()
+  local return_val = false
+  -- 32 bit binaries always work, thus the default is false
+  local architecture = os.getenv('PROCESSOR_ARCHITECTURE')
+  if architecture ~= nil then
+    if architecture == 'x86' then
+      local is_wow64 = os.getenv('PROCESSOR_ARCHITEW6432')
+      if is_wow64 == nil then
+        return_val = false
+      else
+        return_val = true
+      end
+    else
+      return_val = true
+    end
+  end
+  return return_val
+end
+
 -- MAIN_CHUNK -- encapsulated in a function for more robust execution with pcall
 
 local function MAIN_CHUNK()
@@ -472,7 +537,12 @@ kpse.set_program_name(lua_binary, progname)
 
 -- various dir-vars
 local TEXDIR = kpse.var_value('SELFAUTOPARENT')
-local TEXMFDIST = kpse.var_value('TEXMFDIST')
+-- local TEXMFDIST = kpse.var_value('TEXMFDIST')
+-- use a new function to obtain TEXMFDIST
+local TEXMFDIST = gettexmfdist()
+if TEXMFDIST == nil then
+  TEXMFDIST = kpse.var_value('TEXMFDIST')
+end
 local BINDIR = kpse.var_value('SELFAUTOLOC')
 local PATH = os.getenv('PATH') or ''
 
@@ -623,10 +693,17 @@ elseif contains(sys_user_progs, progname) then
   elseif userprog then
     argline = ' --user ' .. argline
   end
+  -- do not guess input encoding in format creation for ptex
+  -- and friends since guessing is not complete
+  os.setenv('GUESS_INPUT_KANJI_ENCODING', '0')
 elseif progname == 'asy' then
   os.setenv('ASYMPTOTE_GS', GSEXE)
   os.setenv('CYGWIN', 'nodosfilewarning')
-  ARGV = {[0]=TEXDIR..'/tlpkg/asymptote/asy.exe', 'asy'}
+  if is_64bit_windows_os() then
+    ARGV = {[0]=TEXDIR..'/tlpkg/asymptote64/asy.exe', 'asy'}
+  else
+    ARGV = {[0]=TEXDIR..'/tlpkg/asymptote/asy.exe', 'asy'}
+  end
 elseif progname == 'dviout' then
   local fontsdir = kpse.var_value('TEXMFVAR') .. '/fonts'
   if (lfs.attributes(fontsdir, 'mode') ~= 'directory') then 
