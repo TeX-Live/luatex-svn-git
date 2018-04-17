@@ -10,6 +10,9 @@
 
 \startsubsection[title=The need for change]
 
+\topicindex {engines}
+\topicindex {history}
+
 The first version of \LUATEX\ only had a few extra primitives and it was largely
 the same as \PDFTEX. Then we merged substantial parts of \ALEPH\ into the code
 and got more primitives. When we got more stable the decision was made to clean
@@ -27,6 +30,8 @@ the internal interfaces. These will also be mentioned.
 \stopsubsection
 
 \startsubsection[title=Changes from \TEX\ 3.1415926]
+
+\topicindex {\TEX}
 
 Of course it all starts with traditional \TEX. Even if we started with \PDFTEX,
 most still comes from the original. But we divert a bit.
@@ -85,6 +90,8 @@ most still comes from the original. But we divert a bit.
 
 \startsubsection[title=Changes from \ETEX\ 2.2]
 
+\topicindex {\ETEX}
+
 Being the de factor standard extension of course we provide the \ETEX\
 functionality, but with a few small adaptations.
 
@@ -103,7 +110,8 @@ functionality, but with a few small adaptations.
 \stopitem
 
 \startitem
-    Some of the tracing information that is output by \ETEX's \prm {tracingassigns} and \prm {tracingrestores} is not there.
+    Some of the tracing information that is output by \ETEX's \prm
+    {tracingassigns} and \prm {tracingrestores} is not there.
 \stopitem
 
 \startitem
@@ -125,6 +133,8 @@ functionality, but with a few small adaptations.
 \stopsubsection
 
 \startsubsection[title=Changes from \PDFTEX\ 1.40]
+
+\topicindex {\PDFTEX}
 
 Because we want to produce \PDF\ the most natural starting point was the popular
 \PDFTEX\ program. We inherit the stable features, dropped most of the
@@ -175,11 +185,13 @@ The front- and backend are decoupled as much as possible.
 
 \startitem
     The experimental snapper mechanism has been removed and therefore also the
-    primitives \orm {pdfignoreddimen}, \orm {pdffirstlineheight}, \orm {pdfeachlineheight}, \orm {pdfeachlinedepth} and \orm {pdflastlinedepth}
+    primitives \orm {pdfignoreddimen}, \orm {pdffirstlineheight}, \orm
+    {pdfeachlineheight}, \orm {pdfeachlinedepth} and \orm {pdflastlinedepth}
 \stopitem
 
 \startitem
-    The experimental primitives \lpr {primitive}, \lpr {ifprimitive}, \lpr {ifabsnum} and \lpr {ifabsdim} are promoted to core primitives. The \type
+    The experimental primitives \lpr {primitive}, \lpr {ifprimitive}, \lpr
+    {ifabsnum} and \lpr {ifabsdim} are promoted to core primitives. The \type
     {\pdf*} prefixed originals are not available.
 \stopitem
 
@@ -190,7 +202,8 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    Two extra token lists are provides, \orm {pdfxformresources} and \orm {pdfxformattr}, as an alternative to \orm {pdfxform} keywords.
+    Two extra token lists are provides, \orm {pdfxformresources} and \orm
+    {pdfxformattr}, as an alternative to \orm {pdfxform} keywords.
 \stopitem
 
 \startitem
@@ -206,7 +219,8 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    The primitives \orm {pdfnormaldeviate}, \orm {pdfuniformdeviate}, \orm {pdfsetrandomseed} and \orm {pdfrandomseed} have been promoted to core
+    The primitives \orm {pdfnormaldeviate}, \orm {pdfuniformdeviate}, \orm
+    {pdfsetrandomseed} and \orm {pdfrandomseed} have been promoted to core
     primitives without \type {pdf} prefix so the original commands are no longer
     recognized.
 \stopitem
@@ -218,7 +232,8 @@ The front- and backend are decoupled as much as possible.
 
 \startitem
     As the hz and protrusion mechanism are part of the core the related
-    primitives \lpr {lpcode}, \lpr {rpcode}, \lpr {efcode}, \lpr {leftmarginkern}, \lpr {rightmarginkern} are promoted to core primitives. The
+    primitives \lpr {lpcode}, \lpr {rpcode}, \lpr {efcode}, \lpr
+    {leftmarginkern}, \lpr {rightmarginkern} are promoted to core primitives. The
     two commands \lpr {protrudechars} and \lpr {adjustspacing} replace their
     prefixed with \type {\pdf} originals.
 \stopitem
@@ -257,8 +272,9 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    Because position tracking is also available in \DVI\ mode the \lpr {savepos}, \lpr {lastxpos} and \lpr {lastypos} commands now replace
-    their \type {pdf} prefixed originals.
+    Because position tracking is also available in \DVI\ mode the \lpr {savepos},
+    \lpr {lastxpos} and \lpr {lastypos} commands now replace their \type {pdf}
+    prefixed originals.
 \stopitem
 
 \startitem
@@ -273,13 +289,13 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    The pixel multiplier dimension \orm {pdfpxdimen} lost its prefix and is now calles
-    \lpr {pxdimen}.
+    The pixel multiplier dimension \orm {pdfpxdimen} lost its prefix and is now
+    called \lpr {pxdimen}.
 \stopitem
 
 \startitem
-    An extra \orm {pdfimageaddfilename} option has been added that can be used to block
-    writing the filename to the \PDF\ file.
+    An extra \orm {pdfimageaddfilename} option has been added that can be used to
+    block writing the filename to the \PDF\ file.
 \stopitem
 
 \startitem
@@ -365,6 +381,8 @@ instance content moved into the margin:
 
 \startsubsection[title=Changes from \ALEPH\ RC4]
 
+\topicindex {\ALEPH}
+
 Because we wanted proper directional typesetting the \ALEPH\ mechanisms looked
 most attractive. These are rather close to the ones provided by \OMEGA, so what
 we say next applies to both these programs.
@@ -404,8 +422,8 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    Several bugs have been fixed an confusing implementation details have been sorted
-    out.
+    Several bugs have been fixed an confusing implementation details have been
+    sorted out.
 \stopitem
 
 \startitem
@@ -414,13 +432,13 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    The \type {^^} notation has been extended: after \type {^^^^} four hexadecimal
-    characters are expected and after \type {^^^^^^} six hexadecimal characters
-    have to be given. The original \TEX\ interpretation is still valid for the
-    \type {^^} case but the four and six variants do no backtracking, i.e.\ when
-    they are not followed by the right number of hexadecimal digits they issue an
-    error message. Because \type{^^^} is a normal \TEX\ case, we don't support the
-    odd number of \type {^^^^^} either.
+    The \type {^^} notation has been extended: after \type {^^^^} four
+    hexadecimal characters are expected and after \type {^^^^^^} six hexadecimal
+    characters have to be given. The original \TEX\ interpretation is still valid
+    for the \type {^^} case but the four and six variants do no backtracking,
+    i.e.\ when they are not followed by the right number of hexadecimal digits
+    they issue an error message. Because \type{^^^} is a normal \TEX\ case, we
+    don't support the odd number of \type {^^^^^} either.
 \stopitem
 
 \startitem
@@ -434,8 +452,9 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    The page dimension related primitives \lpr {pagewidth} and \lpr {pageheight} have been promoted to core primitives. The \prm {hoffset} and
-    \prm {voffset} primitives have been fixed.
+    The page dimension related primitives \lpr {pagewidth} and \lpr {pageheight}
+    have been promoted to core primitives. The \prm {hoffset} and \prm {voffset}
+    primitives have been fixed.
 \stopitem
 
 \startitem
@@ -445,12 +464,14 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    The two dimension registers \lpr {pagerightoffset} and \lpr {pagebottomoffset} are now core primitives.
+    The two dimension registers \lpr {pagerightoffset} and \lpr
+    {pagebottomoffset} are now core primitives.
 \stopitem
 
 \startitem
-    The direction related primitives \lpr {pagedir}, \lpr {bodydir}, \lpr {pardir}, \lpr {textdir}, \lpr {mathdir} and \lpr {boxdir} are now
-    core primitives.
+    The direction related primitives \lpr {pagedir}, \lpr {bodydir}, \lpr
+    {pardir}, \lpr {textdir}, \lpr {mathdir} and \lpr {boxdir} are now core
+    primitives.
 \stopitem
 
 \startitem
@@ -469,6 +490,8 @@ opened it up.
 \stopsubsection
 
 \startsubsection[title=Changes from standard \WEBC]
+
+\topicindex {\WEBC}
 
 The compilation framework is \WEBC\ and we keep using that but without the
 \PASCAL\ to \CCODE\ step. This framework also provides some common features that
@@ -515,6 +538,9 @@ different:
 \stopsection
 
 \startsection[reference=backendprimitives,title=The backend primitives \type {\pdf*}]
+
+\topicindex {backend}
+\topicindex {\PDF+backend}
 
 In a previous section we mentioned that some \PDFTEX\ primitives were removed and
 others promoted to core \LUATEX\ primitives. That is only part of the story. In
@@ -918,6 +944,10 @@ that can be passed to the extensions.
 
 \startsection[title=Directions]
 
+\topicindex {\OMEGA}
+\topicindex {\ALEPH}
+\topicindex {directions}
+
 The directional model in \LUATEX\ is inherited from \OMEGA|/|\ALEPH\ but we tried
 to improve it a bit. At some point we played with recovery of modes but that was
 disabled later on when we found that it interfered with nested directions. That
@@ -1146,6 +1176,8 @@ this. In \in {figure} [fig:shapemode] a few examples are given.
 
 \startsubsection[title=Memory allocation]
 
+\topicindex {memory}
+
 The single internal memory heap that traditional \TEX\ used for tokens and nodes
 is split into two separate arrays. Each of these will grow dynamically when
 needed.
@@ -1183,13 +1215,16 @@ ignored.
 
 \startsubsection[title=Sparse arrays]
 
-The \prm {mathcode}, \prm {delcode}, \prm {catcode}, \prm {sfcode}, \prm {lccode} and \prm {uccode} (and the new \lpr {hjcode}) tables are now sparse
-arrays that are implemented in~\CCODE. They are no longer part of the \TEX\
-\quote {equivalence table} and because each had 1.1 million entries with a few
-memory words each, this makes a major difference in memory usage. Performance is
-not really hurt by this.
+The \prm {mathcode}, \prm {delcode}, \prm {catcode}, \prm {sfcode}, \prm {lccode}
+and \prm {uccode} (and the new \lpr {hjcode}) tables are now sparse arrays that
+are implemented in~\CCODE. They are no longer part of the \TEX\ \quote
+{equivalence table} and because each had 1.1 million entries with a few memory
+words each, this makes a major difference in memory usage. Performance is not
+really hurt by this.
 
-The \prm {catcode}, \prm {sfcode}, \prm {lccode}, \prm {uccode} and \lpr {hjcode} assignments don't show up when using the \ETEX\ tracing routines \prm {tracingassigns} and \prm {tracingrestores} but we don't see that as a real
+The \prm {catcode}, \prm {sfcode}, \prm {lccode}, \prm {uccode} and \lpr {hjcode}
+assignments don't show up when using the \ETEX\ tracing routines \prm
+{tracingassigns} and \prm {tracingrestores} but we don't see that as a real
 limitation.
 
 A side|-|effect of the current implementation is that \prm {global} is now more
@@ -1202,7 +1237,9 @@ users will not notice this.
 
 \stopsubsection
 
-\startsubsection[title=Simple single-character csnames]
+\startsubsection[title=Simple single|-|character csnames]
+
+\topicindex {csnames}
 
 Single|-|character commands are no longer treated specially in the internals,
 they are stored in the hash just like the multiletter csnames.
@@ -1217,6 +1254,8 @@ control sequences that uses a prefix that is otherwise impossible to obtain.
 
 \startsubsection[title=Compressed format]
 
+\topicindex {format}
+
 The format is passed through \type {zlib}, allowing it to shrink to roughly half
 of the size it would have had in uncompressed form. This takes a bit more \CPU\
 cycles but much less disk \IO, so it should still be faster.
@@ -1224,6 +1263,8 @@ cycles but much less disk \IO, so it should still be faster.
 \stopsubsection
 
 \startsubsection[title=Binary file reading]
+
+\topicindex {files+binary}
 
 All of the internal code is changed in such a way that if one of the \type
 {read_xxx_file} callbacks is not set, then the file is read by a \CCODE\ function
@@ -1235,6 +1276,9 @@ previous code (that mostly used \type {getc} calls), it can be quite a bit faste
 \stopsubsection
 
 \startsubsection[title=Tabs and spaces]
+
+\topicindex {space}
+\topicindex {newline}
 
 We conform to the way other \TEX\ engines handle trailing tabs and spaces. For
 decades trailing tabs and spaces (before a newline) were removed from the input

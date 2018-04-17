@@ -33,6 +33,10 @@
   [each]
   [packed]
 
+\definesymbol[1][\Uchar"2023]
+\definesymbol[2][\endash]
+\definesymbol[3][\wait]      % we want to catch it
+
 \setupitemize
   [each]
   [headcolor=maincolor,
@@ -133,6 +137,10 @@
 
 \setupheadertexts
   []
+
+% \setuplayout
+%   [style=bold,
+%    color=maincolor]
 
 \definemixedcolumns
   [twocolumns]
@@ -252,12 +260,14 @@
   \setlayerframed
     [page]
     [preset=rightbottom,x=2.5cm,y=\measure{banneroffset}]
-    [frame=off,height=1cm,width=1cm,offset=overlay]
+    [frame=off,height=1cm,width=1cm,offset=overlay,
+     foregroundstyle=bold,foregroundcolor=maincolor]
     {\strut\pagenumber}
   \setlayerframed
     [page]
     [preset=rightbottom,x=3.5cm,y=\measure{banneroffset}]
-    [frame=off,height=1cm,offset=overlay]
+    [frame=off,height=1cm,offset=overlay,
+     foregroundstyle=bold,foregroundcolor=maincolor]
     {\strut\getmarking[chapter]}
 \stopsetups
 
@@ -265,12 +275,14 @@
   \setlayerframed
     [page]
     [preset=leftbottom,x=3.5cm,y=\measure{banneroffset}]
-    [frame=off,height=1cm,offset=overlay]
+    [frame=off,height=1cm,offset=overlay,
+     foregroundstyle=bold,foregroundcolor=maincolor]
     {\strut\getmarking[chapter]}
   \setlayerframed
     [page]
     [preset=leftbottom,x=2.5cm,y=\measure{banneroffset}]
-    [frame=off,height=1cm,width=1cm,offset=overlay]
+    [frame=off,height=1cm,width=1cm,offset=overlay,
+     foregroundstyle=bold,foregroundcolor=maincolor]
     {\strut\pagenumber}
   \setlayerframed
     [page]
@@ -302,13 +314,15 @@
   {\par
    \tt
    \startnarrower
-   \maincolor #1
+ % \maincolor
+   #1
    \stopnarrower
    \par}
 
 \unexpanded\def\syntaxbody#1%
   {\begingroup
-   \maincolor \tt #1%
+ % \maincolor
+   \tt #1%
    \endgroup}
 
 \bgroup \catcodetable\syntaxcodetable
@@ -320,7 +334,7 @@
 
 \definetyping
   [texsyntax]
-  [color=maincolor]
+% [color=maincolor]
 
 % end of wave
 
@@ -386,9 +400,15 @@
 
 \defineregister[topicindex]
 \defineregister[primitiveindex]
+\defineregister[callbackindex]
+\defineregister[nodeindex]
 
-\unexpanded\def\lpr#1{\primitiveindex[#1]{\bf\tex{#1}}\tex{#1}}
-\unexpanded\def\prm#1{\primitiveindex[#1]{\tex{#1}}\tex{#1}}
-\unexpanded\def\orm#1{\primitiveindex[#1]{\tex{#1}}\tex{#1}}
+\unexpanded\def\lpr#1{\primitiveindex[#1]{\bf\tex {#1}}\tex {#1}}
+\unexpanded\def\prm#1{\primitiveindex[#1]{\tex    {#1}}\tex {#1}}
+\unexpanded\def\orm#1{\primitiveindex[#1]{\tex    {#1}}\tex {#1}}
+\unexpanded\def\cbk#1{\callbackindex [#1]{\type   {#1}}\type{#1}}
+\unexpanded\def\nod#1{\nodeindex     [#1]{\bf\type{#1}}\type{#1}}
+\unexpanded\def\whs#1{\nodeindex     [#1]{\type   {#1}}\type{#1}}
+\unexpanded\def\noa#1{\nodeindex     [#1]{\type   {#1}}\type{#1}}
 
 \stopenvironment

@@ -8,11 +8,17 @@
 
 \section{The \type {pdf} library}
 
+\topicindex{backend}
+\topicindex{\PDF}
+
 This library contains variables and functions that are related to the \PDF\
 backend. You can find more details about the expected values to setters in \in
 {section} [backendprimitives].
 
 \subsection{\type {mapfile}, \type {mapline}}
+
+\topicindex{map files}
+\topicindex{files+map}
 
 \startfunctioncall
 pdf.mapfile(<string> map file)
@@ -27,11 +33,18 @@ this line.
 
 \subsection {\type {[set|get][catalog|info|names|trailer]}}
 
+\topicindex{\PDF+trailer}
+\topicindex{\PDF+catalog}
+\topicindex{\PDF+info}
+
 These functions complement the corresponding \PDF\ backend token lists dealing
 with metadata. The value types are strings and they are written out to the \PDF\
 file directly after the token registers.
 
 \subsection {\type {[set|get][pageattributes|pageresources|pagesattributes]}}
+
+\topicindex{\PDF+page attributes}
+\topicindex{\PDF+page resources}
 
 These functions complement the corresponding \PDF\ backend token lists dealing
 with page resources. The variables have no interaction with the corresponding \PDF\
@@ -40,6 +53,9 @@ token registers.
 
 \subsection{\type {[set|get][xformattributes|xformresources]}}
 
+\topicindex{\PDF+xform attributes}
+\topicindex{\PDF+xform resources}
+
 These functions complement the corresponding \PDF\ backend token lists dealing
 with reuseable boxes and images. The variables have no interaction with the
 corresponding \PDF\ backend token register. They are written out to the \PDF\
@@ -47,59 +63,84 @@ file directly after the token registers.
 
 \subsection{\type {getversion} and \type {[set|get]minorversion}}
 
+\topicindex{\PDF+version}
+
 The version is frozen in the binary but you can set the minor version. What minor
 version you set depends on what \PDF\ features you use. This is out of control
 of \LUATEX.
 
 \subsection{\type {getcreationdate}}
 
+\topicindex{\PDF+date}
+
 This function returns a string with the date in the format that ends up in the
 \PDF\ file, in this case it's: {\tttf \cldcontext{pdf.getcreationdate()}}.
 
 \subsection{\type {[set|get]inclusionerrorlevel}, \type {[set|get]ignoreunknownimages}}
+
+\topicindex{\PDF+options}
 
 These variable control how error in included image are treated. They are modeled
 after the \PDFTEX\ equivalents.
 
 \subsection{\type {[set|get]suppressoptionalinfo}}
 
-This bitset determnines what kind of info gets flushes. By default we flush all.
+\topicindex{\PDF+options}
+
+This bitset determines what kind of info gets flushes. By default we flush all.
 
 \subsection{\type {[set|get]trailerid}}
+
+\topicindex{\PDF+trailer}
 
 You can set your own trailer id. This has to be a valid array string
 with checksums.
 
 \subsection{\type {[set|get]compresslevel}}
 
+\topicindex{\PDF+compression}
+
 These two functions set the level of compression. The minimum value is~0,
 the maximum is~9.
 
 \subsection{\type {[set|get]objcompresslevel}}
+
+\topicindex{\PDF+compression}
 
 These two functions set the level of compression. The minimum value is~0,
 the maximum is~9.
 
 \subsection{\type {[set|get]gentounicode}}
 
+\topicindex{\PDF+unicode}
+
 This flag enables tounicode generation (like in \PDFTEX).
 
 \subsection{\type {[set|get]omitcidset}}
+
+\topicindex{\PDF+options}
 
 This flag disables inclusion of a so called CIDSet which can be handy when aiming
 at some of the many \PDF\ substandards.
 
 \subsection{\type {[set|get]decimaldigits}}
 
+\topicindex{\PDF+precision}
+
 These two functions set the accuracy of floats written to the \PDF file. You can
 set any value but the backend will not go below~3 and above~6.
 
 \subsection{\type {[set|get]pkresolution}}
 
+\topicindex{\PDF+resolution}
+
 These setter takes two arguments: the resolution and an optional zero or one that
 indicates if this is a fixed one. The getter returns these two values.
 
 \subsection{\type {getlast[obj|link|annot]} and \type {getretval}}
+
+\topicindex{\PDF+objects}
+\topicindex{\PDF+annotations}
 
 These status variables are similar to the ones traditionally used in the backend
 interface at the \TEX\ end.
@@ -114,6 +155,8 @@ information about a (to be) embedded font.
 
 \subsection{\type {[set|get]origin}}
 
+\topicindex{\PDF+positioning}
+
 This one is used to set the horizonal and|/|or vertical offset, a traditional
 backend property.
 
@@ -127,15 +170,21 @@ The counterpart of this function returns two values.
 
 \subsection{\type {[set|get]imageresolution}}
 
+\topicindex{\PDF+resolution}
+
 These two functions relate to the imageresolution that is used when the image
 itself doesn't provide a non|-|zero x or y resolution.
 
 \subsection {\type {[set|get][link|dest|thread|xform]margin}}
 
+\topicindex{\PDF+margins}
+
 These functions can be used to set and retrieve the margins that are added to the
 natural bounding boxes of the respective objects.
 
 \subsection {\type {get[pos|hpos|vpos]}}
+
+\topicindex{\PDF+positions}
 
 These function get current location on the output page, measured from its lower
 left corner. The values return scaled points as units.
@@ -145,6 +194,8 @@ local h, v = pdf.getpos()
 \stoptyping
 
 \subsection {\type {[has|get]matrix}}
+
+\topicindex{\PDF+matrix}
 
 The current matrix transformation is available via the \type {getmatrix} command,
 which returns 6 values: \type {sx}, \type {rx}, \type {ry}, \type {sy}, \type
@@ -160,8 +211,11 @@ end
 
 \subsection {\type {print}}
 
-You can print string to the \PDF\ document from within a within a \lpr {latelua} call. This function is not to be used inside \prm {directlua} unless
-you know {\it exactly} what you are doing.
+\topicindex{\PDF+print to}
+
+You can print string to the \PDF\ document from within a within a \lpr {latelua}
+call. This function is not to be used inside \prm {directlua} unless you know
+{\it exactly} what you are doing.
 
 \startfunctioncall
 pdf.print(<string> s)
@@ -172,6 +226,8 @@ The optional parameter can be used to mimic the behavior of \PDF\ literals: the
 \type {type} is \type {direct} or \type {page}.
 
 \subsection {\type {immediateobj}}
+
+\topicindex{\PDF+objects}
 
 This function creates a \PDF\ object and immediately writes it to the \PDF\ file.
 It is modelled after \PDFTEX's \prm {immediate} \orm {pdfobj} primitives. All
@@ -214,6 +270,8 @@ reserved \PDF\ object.
 \stopfunctioncall
 
 \subsection{\type{obj}}
+
+\topicindex{\PDF+objects}
 
 This function creates a \PDF\ object, which is written to the \PDF\ file only
 when referenced, e.g., by \type {refobj()}.
@@ -271,6 +329,8 @@ can't have both \type {string} and \type {file} at the same time.
 
 \subsection {\type {refobj}}
 
+\topicindex{\PDF+objects}
+
 This function, the \LUA\ version of the \orm {pdfrefobj} primitive, references an
 object by its object number, so that the object will be written out.
 
@@ -287,6 +347,8 @@ directly after the page, when also the resources objects are written out. Inside
 This function has no return values.
 
 \subsection {\type {reserveobj}}
+
+\topicindex{\PDF+objects}
 
 This function creates an empty \PDF\ object and returns its number.
 
@@ -307,6 +369,8 @@ pdf.registerannot (<number> objnum)
 
 \subsection {\type {newcolorstack}}
 
+\topicindex{\PDF+color stack}
+
 This function allocates a new color stack and returns it's id. The arguments
 are the same as for the similar backend extension primitive.
 
@@ -316,6 +380,8 @@ pdf.newcolorstack("0 g","page",true) -- page|direct|origin
 
 \subsection {\type {setfontattributes}}
 
+\topicindex{\PDF+fonts}
+
 This function will force some additional code into the font resource. It can for
 instance be used to add a custom \type {ToUnicode} vector to a bitmap file.
 
@@ -324,6 +390,8 @@ pdf.setfontattributes(<number> font id, <string> pdf code)
 \stopfunctioncall
 
 \section {The \type {pdfscanner} library}
+
+\topicindex{\PDF+scanner}
 
 The \type {pdfscanner} library allows interpretation of \PDF\ content streams and
 \type {/ToUnicode} (cmap) streams. You can get those streams from the \type
@@ -450,9 +518,7 @@ The list of possible operand types and associated \LUA\ value types is:
 \stoptabulate
 
 In case of \type {integer} or \type {real}, the value is always a \LUA\ (floating
-point) number.
-
-In case of \type {name}, the leading slash is always stripped.
+point) number. In case of \type {name}, the leading slash is always stripped.
 
 In case of \type {string}, please bear in mind that \PDF\ actually supports
 different types of strings (with different encodings) in different parts of the
@@ -495,6 +561,9 @@ interested in. Without \type {done}, processing only end at the end of the
 stream, possibly wasting \CPU\ cycles.
 
 \section{The \type {epdf} library}
+
+\topicindex{\PDF+analyze}
+\topicindex{\PDF+\type{epdf}}
 
 The \type {epdf} library provides \LUA\ bindings to many \PDF\ access functions
 that are defined by the poppler \PDF\ viewer library (written in C$+{}+$ by
@@ -565,7 +634,6 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 {AttributeOwner_Type} return a hash table \type {{<string>,<integer>}}.
 
 \type {Annot} methods:
-
 
 \startfunctioncall
 <boolean>     = <Annot>:isOK()
@@ -925,6 +993,8 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <integer>  = <XRef>:getSize()
 <Object>   = <XRef>:getTrailerDict()
 \stopfunctioncall
+
+\topicindex{\PDF+memory streams}
 
 There is an experimental function \type {epdf.openMemStream} that takes three
 arguments:

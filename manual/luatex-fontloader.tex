@@ -6,6 +6,8 @@
 
 \startchapter[reference=fontloader,title={The fontloader}]
 
+\topicindex {fonts+loading}
+
 The fontloader library is sort of independent of the rest in the sense that it
 can load font into a \LUA\ table that then can be converted into a table suitable
 for \TEX. The library is an adapted subset of \FONTFORGE\ and as such gives a
@@ -16,6 +18,8 @@ standard. We have no plans to extend the loader (it may even become an external
 module at some time).
 
 \section{Getting quick information on a font}
+
+\topicindex {fonts+information}
 
 When you want to locate font by name you need some basic information that is
 hidden in the font files. For that reason we provide an efficient helper that
@@ -51,6 +55,9 @@ loading the font properly, and is therefore handy when you want to create a
 dictionary of available fonts based on a directory contents.
 
 \section{Loading an \OPENTYPE\ or \TRUETYPE\ file}
+
+\topicindex {\OPENTYPE}
+\topicindex {\TRUETYPE}
 
 If you want to use an \OPENTYPE\ font, you have to get the metric information
 from somewhere. Using the \type {fontloader} library, the simplest way to get
@@ -171,6 +178,8 @@ returned.
 
 \section{Applying an \quote{\AFM\ file}}
 
+\topicindex {\TYPEONE}
+
 You can apply an \quote {\AFM\ file} to a loaded font:
 
 \startfunctioncall
@@ -195,6 +204,8 @@ If the function fails, the return value is a table containing any errors reporte
 by fontloader while applying the AFM file. On success, \type {nil} is returned.
 
 \section[fontloadertables]{Fontloader font tables}
+
+\topicindex {fontloader+tables}
 
 As mentioned earlier, the return value of \type {fontloader.open()} is a userdata
 object. One way to have access to the actual metrics is to call \type
@@ -309,7 +320,7 @@ the documentation are not yet finished):
 \NC \type{use_typo_metrics}             \NC number   \NC \NC \NR
 \NC \type{weight_width_slope_only}      \NC number   \NC \NC \NR
 \NC \type{head_optimized_for_cleartype} \NC number   \NC \NC \NR
-\NC \type{uni_interp}                   \NC enum     \NC \type {unset}, \type {none}, \type {adobe},
+\NC \type{uni_interp}                   \NC enum     \NC \nod {unset}, \type {none}, \type {adobe},
                                                          \type {greek}, \type {japanese}, \type {trad_chinese},
                                                          \type {simp_chinese}, \type {korean}, \type {ams}\NC \NR
 \NC \type{origname}                     \NC string   \NC the file name, as supplied by the user\NC \NR
@@ -425,12 +436,13 @@ the value of each key inside that a linear array of small hashes:
 \TB
 \NC \type{type}          \NC enum \NC \type {position}, \type {pair}, \type
                                       {substitution}, \type {alternate}, \type
-                                      {multiple}, \type {ligature}, \type {lcaret},
-                                      \type {kerning}, \type {vkerning}, \type
-                                      {anchors}, \type {contextpos}, \type
+                                      {multiple}, \type {ligature}, \type
+                                      {lcaret}, \cbk {kerning}, \type {vkerning},
+                                      \type {anchors}, \type {contextpos}, \type
                                       {contextsub}, \type {chainpos}, \type
-                                      {chainsub}, \type {reversesub}, \type {max},
-                                      \type {kernback}, \type {vkernback} \NC \NR
+                                      {chainsub}, \type {reversesub}, \type
+                                      {max}, \type {kernback}, \type {vkernback}
+                                      \NC \NR
 \NC \type{specification} \NC table \NC extra data \NC \NR
 \LL
 \stoptabulate
@@ -443,8 +455,7 @@ sub|-|information, stored in the sub-table \type {specification}:
 \TB
 \NC \type{position}     \NC table    \NC a table of the \type {offset_specs} type \NC \NR
 \NC \type{pair}         \NC table    \NC one string: \type {paired}, and an array of one
-                                         or two \type {offset_specs} tables: \type
-                                         {offsets} \NC \NR
+                                         or two \type {offset_specs} tables: \type {offsets} \NC \NR
 \NC \type{substitution} \NC table    \NC one string: \type {variant} \NC \NR
 \NC \type{alternate}    \NC table    \NC one string: \type {components} \NC \NR
 \NC \type{multiple}     \NC table    \NC one string: \type {components} \NC \NR
@@ -707,7 +718,7 @@ The anchor_classes classes:
 \TB
 \NC \type{name}   \NC string \NC a descriptive id of this anchor class\NC \NR
 \NC \type{lookup} \NC string \NC \NC \NR
-\NC \type{type}   \NC string \NC one of \type {mark}, \type {mkmk}, \type {curs}, \type {mklg} \NC \NR
+\NC \type{type}   \NC string \NC one of \nod {mark}, \type {mkmk}, \type {curs}, \type {mklg} \NC \NR
 \LL
 \stoptabulate
 
@@ -724,9 +735,7 @@ prefix is somewhat redundant.)
 \TB
 \NC \type{type}      \NC string \NC one of \type {gpos_single}, \type {gpos_pair},
                                     \type {gpos_cursive}, \type {gpos_mark2base},\crlf
-                                    \type {gpos_mark2ligature}, \type
-                                    {gpos_mark2mark}, \type {gpos_context},\crlf \type
-                                    {gpos_contextchain} \NC \NR
+                                    \type {gpos_mark2ligature}, \type {gpos_mark2mark}, \type {gpos_context},\crlf \type {gpos_contextchain} \NC \NR
 \NC \type{flags}     \NC table  \NC \NC \NR
 \NC \type{name}      \NC string \NC \NC \NR
 \NC \type{features}  \NC array  \NC \NC \NR
@@ -806,10 +815,9 @@ type:
 \DB key         \BC type   \BC explanation \NC \NR
 \TB
 \NC \type{type} \NC string \NC one of \type {gsub_single}, \type {gsub_multiple},
-                               \type {gsub_alternate}, \type
-                               {gsub_ligature},\crlf \type {gsub_context}, \type
-                               {gsub_contextchain}, \type
-                               {gsub_reversecontextchain} \NC \NR
+                               \type {gsub_alternate}, \type {gsub_ligature},\crlf
+                               \type {gsub_context}, \type {gsub_contextchain},
+                               \type {gsub_reversecontextchain} \NC \NR
 \LL
 \stoptabulate
 
@@ -894,10 +902,7 @@ math: \type {ScriptPercentScaleDown}, \type {ScriptScriptPercentScaleDown}, \typ
 
 \subsection{validation_state table}
 
-This is just a bonus table with keys: \type {bad_ps_fontname}, \type
-{bad_glyph_table}, \type {bad_cff_table}, \type {bad_metrics_table}, \type
-{bad_cmap_table}, \type {bad_bitmaps_table}, \type {bad_gx_table}, \type
-{bad_ot_table}, \type {bad_os2_version} and \type {bad_sfnt_header}.
+This is just a bonus table with keys: \type {bad_ps_fontname}, \type {bad_glyph_table}, \type {bad_cff_table}, \type {bad_metrics_table}, \type {bad_cmap_table}, \type {bad_bitmaps_table}, \type {bad_gx_table}, \type {bad_ot_table}, \type {bad_os2_version} and \type {bad_sfnt_header}.
 
 \subsection{horiz_base and vert_base table}
 
@@ -1007,7 +1012,7 @@ Substructure is identical to the per|-|glyph subtable.
 \starttabulate[|l|l|p|]
 \DB key           \BC type   \BC explanation \NC \NR
 \TB
-\NC \type{type}   \NC string \NC \type {unset}, \type {text}, \type {math}, \type {mathext} \NC \NR
+\NC \type{type}   \NC string \NC \nod {unset}, \type {text}, \nod {math}, \type {mathext} \NC \NR
 \NC \type{params} \NC array  \NC 22 font numeric parameters \NC \NR
 \LL
 \stoptabulate
@@ -1022,7 +1027,8 @@ dictionary tables.
 \DB key                  \BC type   \BC explanation \NC \NR
 \TB
 \NC \type{type}          \NC string \NC \NC \NR
-\NC \type{format}        \NC enum   \NC one of \type {glyphs}, \type {class}, \type {coverage}, \type {reversecoverage} \NC \NR
+\NC \type{format}        \NC enum   \NC one of \type {glyphs}, \type {class}, \type {coverage},
+                                        \type {reversecoverage} \NC \NR
 \NC \type{tag}           \NC string \NC \NC \NR
 \NC \type{current_class} \NC array  \NC \NC \NR
 \NC \type{before_class}  \NC array  \NC \NC \NR
@@ -1036,11 +1042,11 @@ Rule items have one common item and one specialized item:
 \starttabulate[|l|l|p|]
 \DB key                    \BC type  \BC explanation \NC \NR
 \TB
-\NC \type{lookups}         \NC array \NC a linear array of lookup names\NC \NR
-\NC \type{glyphs}          \NC array \NC only if the parent's format is \type {glyphs}\NC \NR
-\NC \type{class}           \NC array \NC only if the parent's format is \type {class}\NC \NR
-\NC \type{coverage}        \NC array \NC only if the parent's format is \type {coverage}\NC \NR
-\NC \type{reversecoverage} \NC array \NC only if the parent's format is \type {reversecoverage}\NC \NR
+\NC \type{lookups}         \NC array \NC a linear array of lookup names                         \NC \NR
+\NC \type{glyphs}          \NC array \NC only if the parent's format is \type {glyphs}          \NC \NR
+\NC \type{class}           \NC array \NC only if the parent's format is \type {class}           \NC \NR
+\NC \type{coverage}        \NC array \NC only if the parent's format is \type {coverage}        \NC \NR
+\NC \type{reversecoverage} \NC array \NC only if the parent's format is \type {reversecoverage} \NC \NR
 \LL
 \stoptabulate
 
@@ -1060,32 +1066,32 @@ A class table is:
 \starttabulate[|l|l|p|]
 \DB key            \BC type  \BC explanation \NC \NR
 \TB
-\NC \type{current} \NC array \NC of numbers \NC \NR
+\NC \type{current} \NC array \NC of numbers  \NC \NR
 \NC \type{before}  \NC array \NC of numbers  \NC \NR
 \NC \type{after}   \NC array \NC of numbers  \NC \NR
 \LL
 \stoptabulate
 
-coverage:
+for coverage:
 
 \starttabulate[|l|l|p|]
 \DB key            \BC type  \BC explanation \NC \NR
 \TB
 \NC \type{current} \NC array \NC of strings \NC \NR
-\NC \type{before}  \NC array \NC of strings\NC \NR
+\NC \type{before}  \NC array \NC of strings \NC \NR
 \NC \type{after}   \NC array \NC of strings \NC \NR
 \LL
 \stoptabulate
 
-reversecoverage:
+and for reversecoverage:
 
 \starttabulate[|l|l|p|]
 \DB key                 \BC type   \BC explanation \NC \NR
 \TB
-\NC \type{current}      \NC array  \NC of strings \NC \NR
-\NC \type{before}       \NC array  \NC of strings\NC \NR
-\NC \type{after}        \NC array  \NC of strings \NC \NR
-\NC \type{replacements} \NC string \NC \NC \NR
+\NC \type{current}      \NC array  \NC of strings  \NC \NR
+\NC \type{before}       \NC array  \NC of strings  \NC \NR
+\NC \type{after}        \NC array  \NC of strings  \NC \NR
+\NC \type{replacements} \NC string \NC             \NC \NR
 \LL
 \stoptabulate
 

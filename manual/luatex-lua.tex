@@ -10,6 +10,9 @@
 
 \subsection{\LUATEX\ as a \LUA\ interpreter}
 
+\topicindex {initialization}
+\topicindex {\LUA+interpreter}
+
 There are some situations that make \LUATEX\ behave like a standalone \LUA\
 interpreter:
 
@@ -36,6 +39,8 @@ preloaded libraries.
 
 \subsection{\LUATEX\ as a \LUA\ byte compiler}
 
+\topicindex {\LUA+byte code}
+
 There are two situations that make \LUATEX\ behave like the \LUA\ byte compiler:
 
 \startitemize[packed]
@@ -50,6 +55,8 @@ can dump bytecode using \type {string.dump} so we might decide to drop this
 version if \LUATEX.
 
 \subsection{Other commandline processing}
+
+\topicindex {command line}
 
 When the \LUATEX\ executable starts, it looks for the \type {--lua} command line
 option. If there is no \type {--lua} option, the command line is interpreted in a
@@ -68,27 +75,33 @@ consequence. The following command|-|line options are understood:
 \NC \type{--halt-on-error}              \NC stop processing at the first error\NC \NR
 \NC \type{--help}                       \NC display help and exit \NC\NR
 \NC \type{--ini}                        \NC be \type {iniluatex}, for dumping formats \NC\NR
-\NC \type{--interaction=STRING}         \NC set interaction mode: \type {batchmode}, \type {nonstopmode}, \type {scrollmode} or \type {errorstopmode} \NC \NR
+\NC \type{--interaction=STRING}         \NC set interaction mode: \type {batchmode}, \type {nonstopmode},
+                                            \type {scrollmode} or \type {errorstopmode} \NC \NR
 \NC \type{--jobname=STRING}             \NC set the job name to \type {STRING} \NC \NR
-\NC \type{--kpathsea-debug=NUMBER}      \NC set path searching debugging flags according to the bits of \type {NUMBER} \NC \NR
+\NC \type{--kpathsea-debug=NUMBER}      \NC set path searching debugging flags according to the bits of
+                                           \type {NUMBER} \NC \NR
 \NC \type{--lua=FILE}                   \NC load and execute a \LUA\ initialization script \NC\NR
-\NC \type{--[no-]mktex=FMT}             \NC disable/enable \type {mktexFMT} generation with \type {FMT} is \type {tex} or \type {tfm} \NC \NR
+\NC \type{--[no-]mktex=FMT}             \NC disable/enable \type {mktexFMT} generation with \type {FMT} is
+                                            \type {tex} or \type {tfm} \NC \NR
 \NC \type{--nosocket}                   \NC disable the \LUA\ socket library \NC\NR
-\NC \type{--output-comment=STRING}      \NC use \type {STRING} for \DVI\ file comment instead of date (no effect for \PDF) \NC \NR
+\NC \type{--output-comment=STRING}      \NC use \type {STRING} for \DVI\ file comment instead of date (no
+                                            effect for \PDF) \NC \NR
 \NC \type{--output-directory=DIR}       \NC use \type {DIR} as the directory to write files to \NC \NR
-\NC \type{--output-format=FORMAT}       \NC use \type {FORMAT} for job output; \type {FORMAT} is \type {dvi} or \type {pdf} \NC \NR
+\NC \type{--output-format=FORMAT}       \NC use \type {FORMAT} for job output; \type {FORMAT} is \type {dvi}
+                                            or \type {pdf} \NC \NR
 \NC \type{--progname=STRING}            \NC set the program name to \type {STRING} \NC \NR
 \NC \type{--recorder}                   \NC enable filename recorder \NC \NR
 \NC \type{--safer}                      \NC disable easily exploitable \LUA\ commands \NC\NR
 \NC \type{--[no-]shell-escape}          \NC disable/enable system calls \NC \NR
-\NC \type{--shell-restricted}           \NC restrict system calls to a list of commands given in \type {texmf.cnf} \NC \NR
+\NC \type{--shell-restricted}           \NC restrict system calls to a list of commands given in \type
+                                            {texmf.cnf} \NC \NR
 \NC \type{--synctex=NUMBER}             \NC enable \type {synctex} \NC \NR
 \NC \type{--utc}                        \NC use utc times when applicable \NC \NR
 \NC \type{--version}                    \NC display version and exit \NC \NR
 \LL
 \stoptabulate
 
-We don't support \type {\write18} because \type {os.execute} can do the same. It
+We don't support \prm {write} 18 because \type {os.execute} can do the same. It
 simplifies the code and makes more write targets possible.
 
 The value to use for \prm {jobname} is decided as follows:
@@ -148,11 +161,13 @@ in order.
     moment, \type {--safer} \type {nil}s the following functions:
 
     \starttabulate[|c|l|]
-        \DB library      \BC functions \NC \NR
+        \DB library     \BC functions \NC \NR
         \TB
-        \NC \type {os}   \NC \type {execute} \type {exec} \type {spawn} \type {setenv} \type {rename} \type {remove} \type {tmpdir} \NC \NR
-        \NC \type {io}   \NC \type {popen} \type {output} \type {tmpfile} \NC \NR
-        \NC \type {lfs}  \NC \type {rmdir} \type {mkdir} \type {chdir} \type {lock} \type {touch} \NC \NR
+        \NC \type {os}  \NC \type {execute} \type {exec} \type {spawn} \type {setenv}
+                            \type {rename} \type {remove} \type {tmpdir} \NC \NR
+        \NC \type {io}  \NC \type {popen} \type {output} \type {tmpfile} \NC \NR
+        \NC \type {lfs} \NC \type {rmdir} \type {mkdir} \type {chdir} \type {lock}
+                            \type {touch} \NC \NR
         \LL
     \stoptabulate
 
@@ -222,6 +237,9 @@ check \type {--progname}, or \type {--ini} and \type {--fmt}, if \type
 {--progname} is missing.
 
 \section{\LUA\ behaviour}
+
+\topicindex {\LUA+libraries}
+\topicindex {\LUA+extensions}
 
 \LUA s \type {tostring} function (and \type {string.format} may return values in
 scientific notation, thereby confusing the \TEX\ end of things when it is used as
@@ -514,6 +532,9 @@ LC_NUMERIC=C
 
 \section {\LUA\ modules}
 
+\topicindex {\LUA+libraries}
+\topicindex {\LUA+modules}
+
 Some modules that are normally external to \LUA\ are statically linked in with
 \LUATEX, because they offer useful functionality:
 
@@ -573,6 +594,9 @@ Some modules that are normally external to \LUA\ are statically linked in with
 \stopitemize
 
 \section{Testing}
+
+\topicindex {testing}
+\topicindex {\PDF+date}
 
 For development reasons you can influence the used startup date and time. This can
 be done in two ways.

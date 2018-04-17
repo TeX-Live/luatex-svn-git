@@ -66,7 +66,7 @@ const char *node_fields_list[] = {
     "glue_set", "head", NULL
 };
 const char *node_fields_rule[] = {
-    "attr", "width", "depth", "height", "dir", "index", NULL
+    "attr", "width", "depth", "height", "dir", "index", "left", "right", NULL
 };
 const char *node_fields_insert[] = {
     "attr", "cost", "depth", "height", "spec", "head", NULL

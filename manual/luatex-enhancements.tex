@@ -51,14 +51,21 @@ chapters on fonts and math we discuss a few more new ones.
 
 \subsection {\lpr {luatexbanner}, \lpr {luatexversion} and \lpr {luatexrevision}}
 
+\topicindex{version}
+\topicindex{banner}
+
 There are three new primitives to test the version of \LUATEX:
 
-\starttabulate[|l|pl|pl|]
-\DB primitive               \BC explanation                               \BC value              \NC \NR
+\starttabulate[|l|l|pl|]
+\DB primitive             \BC value
+                          \BC explanation \NC \NR
 \TB
-\NC \lpr {luatexbanner}   \NC the banner reported on the command line   \NC \luatexbanner      \NC \NR
-\NC \lpr {luatexversion}  \NC a combination of major and minor number   \NC \the\luatexversion \NC \NR
-\NC \lpr {luatexrevision} \NC the revision number, the current value is \NC \luatexrevision    \NC \NR
+\NC \lpr {luatexbanner}   \NC \cldcontext{string.match("\luatexbanner","(.+)\letterpercent(")}
+                          \NC the banner reported on the command line \NC \NR
+\NC \lpr {luatexversion}  \NC \the\luatexversion
+                          \NC a combination of major and minor number \NC \NR
+\NC \lpr {luatexrevision} \NC \luatexrevision
+                          \NC the revision number, the current value is \NC \NR
 \LL
 \stoptabulate
 
@@ -85,6 +92,8 @@ The official \LUATEX\ version is defined as follows:
 
 \subsection{\lpr {formatname}}
 
+\topicindex{format}
+
 The \lpr {formatname} syntax is identical to \prm {jobname}. In \INITEX, the
 expansion is empty. Otherwise, the expansion is the value that \prm {jobname} had
 during the \INITEX\ run that dumped the currently loaded format. You can use this
@@ -93,6 +102,8 @@ token list to provide your own version info.
 \section{\UNICODE\ text support}
 
 \subsection {Extended ranges}
+
+\topicindex{\UNICODE}
 
 Text input and output is now considered to be \UNICODE\ text, so input characters
 can use the full range of \UNICODE\ ($2^{20}+2^{16}-1 = \hbox{0x10FFFF}$). Later
@@ -106,12 +117,14 @@ changed in \LUA\ it is up to the user: subtypes larger than 255 indicate that
 font processing has happened.
 
 A few primitives are affected by this, all in a similar fashion: each of them has
-to accommodate for a larger range of acceptable numbers. For instance, \prm {char} now accepts values between~0 and $1{,}114{,}111$. This should not be a
+to accommodate for a larger range of acceptable numbers. For instance, \prm
+{char} now accepts values between~0 and $1{,}114{,}111$. This should not be a
 problem for well|-|behaved input files, but it could create incompatibilities for
 input that would have generated an error when processed by older \TEX|-|based
 engines. The affected commands with an altered initial (left of the equals sign)
-or secondary (right of the equals sign) value are: \prm {char}, \prm {lccode}, \prm {uccode}, \lpr {hjcode}, \prm {catcode}, \prm {sfcode},
-\lpr {efcode}, \lpr {lpcode}, \lpr {rpcode}, \prm {chardef}.
+or secondary (right of the equals sign) value are: \prm {char}, \prm {lccode},
+\prm {uccode}, \lpr {hjcode}, \prm {catcode}, \prm {sfcode}, \lpr {efcode}, \lpr
+{lpcode}, \lpr {rpcode}, \prm {chardef}.
 
 As far as the core engine is concerned, all input and output to text files is
 \UTF-8 encoded. Input files can be pre|-|processed using the \type {reader}
@@ -130,8 +143,9 @@ are considered \quote {safe} and therefore printed as|-|is. You can disable
 escaping with \type {texio.setescape(false)} in which case you get the normal
 characters on the console.
 
-
 \subsection{\lpr {Uchar}}
+
+\topicindex{\UNICODE}
 
 The expandable command \lpr {Uchar} reads a number between~0 and $1{,}114{,}111$
 and expands to the associated \UNICODE\ character.
@@ -142,31 +156,31 @@ All traditional \TEX\ and \ETEX\ registers can be 16-bit numbers. The affected
 commands are:
 
 \startfourcolumns
-\starttyping
-\count
-\dimen
-\skip
-\muskip
-\marks
-\toks
-\countdef
-\dimendef
-\skipdef
-\muskipdef
-\toksdef
-\insert
-\box
-\unhbox
-\unvbox
-\copy
-\unhcopy
-\unvcopy
-\wd
-\ht
-\dp
-\setbox
-\vsplit
-\stoptyping
+\startlines
+\prm {count}
+\prm {dimen}
+\prm {skip}
+\prm {muskip}
+\prm {marks}
+\prm {toks}
+\prm {countdef}
+\prm {dimendef}
+\prm {skipdef}
+\prm {muskipdef}
+\prm {toksdef}
+\prm {insert}
+\prm {box}
+\prm {unhbox}
+\prm {unvbox}
+\prm {copy}
+\prm {unhcopy}
+\prm {unvcopy}
+\prm {wd}
+\prm {ht}
+\prm {dp}
+\prm {setbox}
+\prm {vsplit}
+\stoplines
 \stopfourcolumns
 
 Because font memory management has been rewritten, character properties in fonts
@@ -176,6 +190,8 @@ file.
 \section{Attributes}
 
 \subsection{Attribute registers}
+
+\topicindex {attributes}
 
 Attributes are a completely new concept in \LUATEX. Syntactically, they behave a
 lot like counters: attributes obey \TEX's nesting stack and can be used after
@@ -205,33 +221,38 @@ possible. This permits efficient testing and updating.
 
 \subsection{Nodes}
 
+\topicindex {nodes}
+
 When \TEX\ reads input it will interpret the stream according to the properties
 of the characters. Some signal a macro name and trigger expansion, others open
 and close groups, trigger math mode, etc. What's left over becomes the typeset
-text. Internally we get linked list of nodes. Characters become \type {glyph}
+text. Internally we get linked list of nodes. Characters become \nod {glyph}
 nodes that have for instance a \type {font} and \type {char} property and \typ
-{\kern 10pt} becomes a \type {kern} node with a \type {width} property. Spaces
-are alien to \TEX\ as they are turned into \type {glue} nodes. So, a simple
-paragraph is mostly a mix of sequences of \type {glyph} nodes (words) and \type
-{glue} nodes (spaces).
+{\kern 10pt} becomes a \nod {kern} node with a \type {width} property. Spaces are
+alien to \TEX\ as they are turned into \nod {glue} nodes. So, a simple paragraph
+is mostly a mix of sequences of \nod {glyph} nodes (words) and \nod {glue} nodes
+(spaces).
 
-The sequences of characters at some point are extended with \type {disc} nodes
+The sequences of characters at some point are extended with \nod {disc} nodes
 that relate to hyphenation. After that font logic can be applied and we get a
 list where some characters can be replaced, for instance multiple characters can
 become one ligature, and font kerns can be injected. This is driven by the
 font properties.
 
-Boxes (like \prm {hbox} and \prm {vbox}) become \type {hlist} or \type
-{vlist} nodes with \type {width}, \type {height}, \type {depth} and \type {shift}
+Boxes (like \prm {hbox} and \prm {vbox}) become \nod {hlist} or \nod {vlist}
+nodes with \type {width}, \type {height}, \type {depth} and \type {shift}
 properties and a pointer \type {list} to its actual content. Boxes can be
 constructed explicitly or can be the result of subprocesses. For instance, when
-lines are broken into paragraphs, the lines are a linked list of \type {hlist}
+lines are broken into paragraphs, the lines are a linked list of \nod {hlist}
 nodes.
 
 We will see more of these nodes later on but for now that should be enough to be
 able to follow the rest oof this chapter.
 
 \subsection{Box attributes}
+
+\topicindex {attributes}
+\topicindex {boxes}
 
 Nodes typically receive the list of attributes that is in effect when they are
 created. This moment can be quite asynchronous. For example: in paragraph
@@ -290,7 +311,7 @@ code:
 \typebuffer[lua]
 
 Later we will see that you can access properties of a node. The boxes here are so
-called \type {hlist} nodes that have a field \type {list} that points to the
+called \nod {hlist} nodes that have a field \type {list} that points to the
 content. Because the attributes are a list themselves you can access them by
 indexing the node (here we do that with \type {[a]}. Running this snippet gives:
 
@@ -320,10 +341,10 @@ syntax is
 The \syntax {<general text>} is expanded fully, and then fed into the \LUA\
 interpreter. After reading and expansion has been applied to the \syntax
 {<general text>}, the resulting token list is converted to a string as if it was
-displayed using \type {\the\toks}. On the \LUA\ side, each \prm {directlua}
-block is treated as a separate chunk. In such a chunk you can use the \type
-{local} directive to keep your variables from interfering with those used by the
-macro package.
+displayed using \type {\the\toks}. On the \LUA\ side, each \prm {directlua} block
+is treated as a separate chunk. In such a chunk you can use the \type {local}
+directive to keep your variables from interfering with those used by the macro
+package.
 
 The conversion to and from a token list means that you normally can not use \LUA\
 line comments (starting with \type {--}) within the argument. As there typically
@@ -420,6 +441,8 @@ they do for \prm {directlua}
 
 \subsection{\lpr {luaescapestring}}
 
+\topicindex {escaping}
+
 This primitive converts a \TEX\ token sequence so that it can be safely used as
 the contents of a \LUA\ string: embedded backslashes, double and single quotes,
 and newlines and carriage returns are escaped. This is done by prepending an
@@ -447,7 +470,8 @@ The \prm {directlua} commands involves tokenization of its argument (after
 picking up an optional name or number specification). The tokenlist is then
 converted into a string and given to \LUA\ to turn into a function that is
 called. The overhead is rather small but when you have millions of calls it can
-have some impact. For this reason there is a variant call available: \lpr {luafunction}. This command is used as follows:
+have some impact. For this reason there is a variant call available: \lpr
+{luafunction}. This command is used as follows:
 
 \starttyping
 \directlua {
@@ -473,22 +497,20 @@ in the following example the number \type {8} gets typeset.
 }
 \stoptyping
 
-The \lpr {luafunctioncall} primitive does the same but is unexpandable, for instance
-in an \prm {edef}.
+The \lpr {luafunctioncall} primitive does the same but is unexpandable, for
+instance in an \prm {edef}.
 
 \section {Alignments}
 
-\subsection{\tex {alignmark}}
+\subsection{\lpr {alignmark} and \lpr {aligntab}}
 
-This primitive duplicates the functionality of \type {#} inside alignment
-preambles.
-
-\subsection{\tex {aligntab}}
-
-This primitive duplicates the functionality of \type {&} inside alignments and
-preambles.
+The primitive \lpr {alignmark} duplicates the functionality of \type {#} inside
+alignment preambles, while \lpr {aligntab} duplicates the functionality of \type
+{&}.
 
 \section{Catcode tables}
+
+\topicindex {catcodes}
 
 Catcode tables are a new feature that allows you to switch to a predefined
 catcode regime in a single statement. You can have a practically unlimited number
@@ -553,9 +575,12 @@ raised.
 
 \subsection{\lpr {suppressfontnotfounderror}}
 
+\topicindex {errors}
+
 If this integer parameter is non|-|zero, then \LUATEX\ will not complain about
 font metrics that are not found. Instead it will silently skip the font
-assignment, making the requested csname for the font \prm {ifx} equal to \prm {nullfont}, so that it can be tested against that without bothering the user.
+assignment, making the requested csname for the font \prm {ifx} equal to \prm
+{nullfont}, so that it can be tested against that without bothering the user.
 
 \startsyntax
 \suppressfontnotfounderror = 1
@@ -563,15 +588,19 @@ assignment, making the requested csname for the font \prm {ifx} equal to \prm {n
 
 \subsection{\lpr {suppresslongerror}}
 
+\topicindex {errors}
+
 If this integer parameter is non|-|zero, then \LUATEX\ will not complain about
 \prm {par} commands encountered in contexts where that is normally prohibited
-(most prominently in the arguments of non-long macros).
+(most prominently in the arguments of macros not defined as \prm {long}).
 
 \startsyntax
 \suppresslongerror = 1
 \stopsyntax
 
 \subsection{\lpr {suppressifcsnameerror}}
+
+\topicindex {errors}
 
 If this integer parameter is non|-|zero, then \LUATEX\ will not complain about
 non-expandable commands appearing in the middle of a \prm {ifcsname} expansion.
@@ -586,6 +615,8 @@ indefinitely.
 
 \subsection{\lpr {suppressoutererror}}
 
+\topicindex {errors}
+
 If this new integer parameter is non|-|zero, then \LUATEX\ will not complain
 about \prm {outer} commands encountered in contexts where that is normally
 prohibited.
@@ -595,6 +626,9 @@ prohibited.
 \stopsyntax
 
 \subsection{\lpr {suppressmathparerror}}
+
+\topicindex {errors}
+\topicindex {math}
 
 The following setting will permit \prm {par} tokens in a math formula:
 
@@ -612,6 +646,9 @@ a $
 
 \subsection{\lpr {suppressprimitiveerror}}
 
+\topicindex {errors}
+\topicindex {primitives}
+
 When set to a non|-|zero value the following command will not issue an error:
 
 \startsyntax
@@ -621,6 +658,8 @@ When set to a non|-|zero value the following command will not issue an error:
 \stopsyntax
 
 \section {Math}
+
+\topicindex {math}
 
 We will cover math extensions in its own chapter because not only the font
 subsystem and spacing model have been enhanced (thereby introducing many new
@@ -632,6 +671,8 @@ functionality. Much of this relates to the differences approaches of traditional
 
 \subsection{Font syntax}
 
+\topicindex {fonts}
+
 \LUATEX\ will accept a braced argument as a font name:
 
 \starttyping
@@ -641,7 +682,7 @@ functionality. Much of this relates to the differences approaches of traditional
 This allows for embedded spaces, without the need for double quotes. Macro
 expansion takes place inside the argument.
 
-\subsection{\lpr {fontid}}
+\subsection{\lpr {fontid} and \lpr {setfontid}}
 
 \startsyntax
 \fontid\font
@@ -667,12 +708,13 @@ order of loading fonts. For instance, when in \CONTEXT\ virtual math \UNICODE\
 fonts are used, we can easily get over a hundred ids in use. Not all ids have to
 be bound to a real font, after all it's just a number.
 
-\subsection{\lpr {setfontid}}
-
-The primitive \lpr {setfontid} can be used to enable a font with the given id
-(which of course needs to be a valid one).
+The primitive \lpr {setfontid} can be used to enable a font with the given id,
+which of course needs to be a valid one.
 
 \subsection{\lpr {noligs} and \lpr {nokerns}}
+
+\topicindex {ligatures+suppress}
+\topicindex {kerns+suppress}
 
 These primitives prohibit ligature and kerning insertion at the time when the
 initial node list is built by \LUATEX's main control loop. You can enable these
@@ -690,6 +732,8 @@ callbacks. Keep in mind that when you define a font (using \LUA) you can also
 omit the kern and ligature tables, which has the same effect as the above.
 
 \subsection{\type{\nospaces}}
+
+\topicindex {spaces+suppress}
 
 This new primitive can be used to overrule the usual \prm {spaceskip} related
 heuristics when a space character is seen in a text flow. The value~\type{1}
@@ -711,6 +755,8 @@ space.
 \section{Tokens, commands and strings}
 
 \subsection{\lpr {scantextokens}}
+
+\topicindex {tokens+scanning}
 
 The syntax of \lpr {scantextokens} is identical to \prm {scantokens}. This
 primitive is a slightly adapted version of \ETEX's \prm {scantokens}. The
@@ -780,6 +826,8 @@ that it saves a few tokens and can make code a bit more more readable.
 
 \subsection{\lpr {clearmarks}}
 
+\topicindex {marks}
+
 This primitive complements the \ETEX\ mark primitives and clears a mark class
 completely, resetting all three connected mark texts to empty. It is an
 immediate command.
@@ -803,6 +851,8 @@ This can be a bit nicer that using the uppercase tricks (using the property of
 
 \subsection{\lpr {outputbox}}
 
+\topicindex {output}
+
 This integer parameter allows you to alter the number of the box that will be
 used to store the page sent to the output routine. Its default value is 255, and
 the acceptable range is from 0 to 65535.
@@ -818,18 +868,19 @@ but don't apply the related callbacks.
 
 \subsection{\prm {vsplit}}
 
-The \prm {vsplit} primitive has to be followed by a specification of the
-required height. As alternative for the \type {to} keyword you can use \type
-{upto} to get a split of the given size but result has the natural dimensions
-then.
+\topicindex {splitting}
+
+The \prm {vsplit} primitive has to be followed by a specification of the required
+height. As alternative for the \type {to} keyword you can use \type {upto} to get
+a split of the given size but result has the natural dimensions then.
 
 \subsection[sec:imagedandforms]{Images and Forms}
 
 These two concepts are now core concepts and no longer whatsits. They are in fact
 now implemented as rules with special properties. Normal rules have subtype~0,
 saved boxes have subtype~1 and images have subtype~2. This has the positive side
-effect that whenever we need to take content with dimensions into account, when we
-look at rule nodes, we automatically also deal with these two types.
+effect that whenever we need to take content with dimensions into account, when
+we look at rule nodes, we automatically also deal with these two types.
 
 The syntax of the \type {\save...resource} is the same as in \PDFTEX\ but you
 should consider them to be backend specific. This means that a macro package
@@ -868,12 +919,16 @@ a \type {/Matrix}.
 
 \subsection{\lpr {nohrule} and \lpr {novrule}}
 
+\topicindex {rules}
+
 Because introducing a new keyword can cause incompatibilities, two new primitives
 were introduced: \lpr {nohrule} and \lpr {novrule}. These can be used to
 reserve space. This is often more efficient than creating an empty box with fake
 dimensions).
 
 \subsection{\lpr {gleaders}}
+
+\topicindex {leaders}
 
 This type of leaders is anchored to the origin of the box to be shipped out. So
 they are like normal \prm {leaders} in that they align nicely, except that the
@@ -884,6 +939,9 @@ smallest\/}. The \type {g} stresses this global nature.
 
 \subsection{\lpr {hyphenationmin}}
 
+\topicindex {languages}
+\topicindex {hyphenation}
+
 This primitive can be used to set the minimal word length, so setting it to a value
 of~$5$ means that only words of 6 characters and more will be hyphenated, of course
 within the constraints of the \prm {lefthyphenmin} and \prm {righthyphenmin}
@@ -893,7 +951,7 @@ the value with the language.
 \subsection{\prm {boundary}, \prm {noboundary}, \prm {protrusionboundary} and \prm {wordboundary}}
 
 The \prm {noboundary} commands used to inject a whatsit node but now injects a normal
-node with type \type {boundary} and subtype~0. In addition you can say:
+node with type \nod {boundary} and subtype~0. In addition you can say:
 
 \starttyping
 x\boundary 123\relax y
@@ -910,10 +968,15 @@ related primitives.
 
 \subsection {Tracing}
 
+\topicindex {tracing}
+
 If \prm {tracingonline} is larger than~2, the node list display will also print
 the node number of the nodes.
 
 \subsection{\lpr {outputmode}}
+
+\topicindex {output}
+\topicindex {backend}
 
 The \lpr {outputmode} variable tells \LUATEX\ what it has to produce:
 
@@ -934,6 +997,8 @@ ignores the value.
 \section {Files}
 
 \subsection{File syntax}
+
+\topicindex {files+names}
 
 \LUATEX\ will accept a braced argument as a file name:
 
@@ -963,6 +1028,8 @@ extension is that a csname not always makes sense. The zero case is the default.
 \stoptabulate
 
 \subsection{Writing to file}
+
+\topicindex {files+writing}
 
 You can now open upto 127 files with \prm {openout}. When no file is open
 writes will go to the console and log. As a consequence a system command is

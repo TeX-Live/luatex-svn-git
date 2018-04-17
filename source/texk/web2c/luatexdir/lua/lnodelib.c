@@ -4272,6 +4272,10 @@ static int lua_nodelib_fast_getfield(lua_State * L)
             lua_pushinteger(L, height(n));
         } else if (lua_key_eq(s, depth)) {
             lua_pushinteger(L, depth(n));
+        } else if (lua_key_eq(s, left)) {
+            lua_pushinteger(L,rule_left(n));
+        } else if (lua_key_eq(s, right)) {
+            lua_pushinteger(L,rule_right(n));
         } else if (lua_key_eq(s, direction)) {
             lua_pushinteger(L, rule_dir(n));
         } else if (lua_key_eq(s, dir)) {
@@ -5045,6 +5049,10 @@ static int lua_nodelib_direct_getfield(lua_State * L)
             lua_pushinteger(L, height(n));
         } else if (lua_key_eq(s, depth)) {
             lua_pushinteger(L, depth(n));
+        } else if (lua_key_eq(s, left)) {
+            lua_pushinteger(L,rule_left(n));
+        } else if (lua_key_eq(s, right)) {
+            lua_pushinteger(L,rule_right(n));
         } else if (lua_key_eq(s, direction)) {
             lua_pushinteger(L, rule_dir(n));
         } else if (lua_key_eq(s, dir)) {
@@ -6423,6 +6431,10 @@ static int lua_nodelib_fast_setfield(lua_State * L)
             height(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, depth)) {
             depth(n) = (halfword) lua_roundnumber(L, 3);
+        } else if (lua_key_eq(s, left)) {
+            rule_left(n) = (halfword) lua_roundnumber(L, 3);
+        } else if (lua_key_eq(s, right)) {
+            rule_right(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, direction)) {
             rule_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {
@@ -7289,6 +7301,10 @@ static int lua_nodelib_direct_setfield(lua_State * L)
             height(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, depth)) {
             depth(n) = (halfword) lua_roundnumber(L, 3);
+        } else if (lua_key_eq(s, left)) {
+            rule_left(n) = (halfword) lua_roundnumber(L, 3);
+        } else if (lua_key_eq(s, right)) {
+            rule_right(n) = (halfword) lua_roundnumber(L, 3);
         } else if (lua_key_eq(s, direction)) {
             rule_dir(n) = nodelib_getdirection(L, 3);
         } else if (lua_key_eq(s, dir)) {

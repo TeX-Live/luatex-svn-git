@@ -8,18 +8,20 @@
 
 \section {The font tables}
 
+\topicindex {fonts}
+\topicindex {fonts+tables}
+
 All \TEX\ fonts are represented to \LUA\ code as tables, and internally as
 \CCODE~structures. All keys in the table below are saved in the internal font
-structure if they are present in the table returned by the \type {define_font}
+structure if they are present in the table returned by the \cbk {define_font}
 callback, or if they result from the normal \TFM|/|\VF\ reading routines if there
-is no \type {define_font} callback defined.
+is no \cbk {define_font} callback defined.
 
 The column \quote {\VF} means that this key will be created by the \type
 {font.read_vf()} routine, \quote {\TFM} means that the key will be created by the
-\type {font.read_tfm()} routine, and \quote{used} means whether or not the
-\LUATEX\ engine itself will do something with the key.
-
-The top|-|level keys in the table are as follows:
+\type {font.read_tfm()} routine, and \quote {used} means whether or not the
+\LUATEX\ engine itself will do something with the key. The top|-|level keys in
+the table are as follows:
 
 \starttabulate[|l|c|c|c|l|pl|]
 \DB key                     \BC vf  \BC tfm \BC used \BC value type \BC description \NC \NR
@@ -92,12 +94,11 @@ The saved reference in the \type {cache} option is thread|-|local, so be careful
 when you are using coroutines: an error will be thrown if the table has been
 cached in one thread, but you reference it from another thread.
 
-
 The key \type {name} is always required. The keys \type {stretch}, \type
 {shrink}, \type {step} only have meaning when used together: they can be used to
 replace a post|-|loading \lpr {expandglyphsinfont} command. The \type
-{auto_expand} option is not supported in \LUATEX. In fact, the primitives
-that create expanded or protruding copies are probably only useful when used with
+{auto_expand} option is not supported in \LUATEX. In fact, the primitives that
+create expanded or protruding copies are probably only useful when used with
 traditional fonts because all these extra \OPENTYPE\ properties are kept out of
 the picture. The \type {expansion_factor} is value that can be present inside a
 font in \type {font.fonts}. It is the actual expansion factor (a value between
@@ -230,14 +231,11 @@ used only for math accent and superscript placement, see the \at {math chapter}
 Whether or not \type {expansion_factor} is used depends on the font's global
 expansion settings, as well as on the value of \lpr {adjustspacing}.
 
-The usage of \type {tounicode} is this: if this font specifies a \type
-{tounicode=1} at the top level, then \LUATEX\ will construct a \type {/ToUnicode}
-entry for the \PDF\ font (or font subset) based on the character|-|level \type
-{tounicode} strings, where they are available. If a character does not have a
+The usage of \type {tounicode} is this: if this font specifies a \type {tounicode=1} at the top level, then \LUATEX\ will construct a \type {/ToUnicode}
+entry for the \PDF\ font (or font subset) based on the character|-|level \type {tounicode} strings, where they are available. If a character does not have a
 sensible \UNICODE\ equivalent, do not provide a string either (no empty strings).
 
-If the font level \type {tounicode} is not set, then \LUATEX\ will build up \type
-{/ToUnicode} based on the \TEX\ code points you used, and any character-level
+If the font level \type {tounicode} is not set, then \LUATEX\ will build up \type {/ToUnicode} based on the \TEX\ code points you used, and any character-level
 \type {tounicodes} will be ignored. The string format is exactly the format that
 is expected by Adobe \CMAP\ files (\UTF-16BE in hexadecimal encoding), minus the
 enclosing angle brackets. For instance the \type {tounicode} for a \type {fi}
@@ -294,15 +292,14 @@ two fields:
 \LL
 \stoptabulate
 
-The \type {char} field in a ligature is required.
-
-The \type {type} field inside a ligature is the numerical or string value of one
-of the eight possible ligature types supported by \TEX. When \TEX\ inserts a new
-ligature, it puts the new glyph in the middle of the left and right glyphs. The
-original left and right glyphs can optionally be retained, and when at least one
-of them is kept, it is also possible to move the new \quote {insertion point}
-forward one or two places. The glyph that ends up to the right of the insertion
-point will become the next \quote {left}.
+The \type {char} field in a ligature is required. The \type {type} field inside a
+ligature is the numerical or string value of one of the eight possible ligature
+types supported by \TEX. When \TEX\ inserts a new ligature, it puts the new glyph
+in the middle of the left and right glyphs. The original left and right glyphs
+can optionally be retained, and when at least one of them is kept, it is also
+possible to move the new \quote {insertion point} forward one or two places. The
+glyph that ends up to the right of the insertion point will become the next
+\quote {left}.
 
 \starttabulate[|l|c|l|l|]
 \DB textual (Knuth)       \BC number \BC string        \BC result      \NC\NR
@@ -325,6 +322,9 @@ indicates the final insertion point.
 The \type {commands} array is explained below.
 
 \section {Real fonts}
+
+\topicindex {fonts+real}
+\topicindex {fonts+virtual}
 
 Whether or not a \TEX\ font is a \quote {real} font that should be written to the
 \PDF\ document is decided by the \type {type} value in the top|-|level font
@@ -369,9 +369,7 @@ If no special care is needed, \LUATEX\ falls back to the mapfile|-|based solutio
 used by \PDFTEX\ and \DVIPS, so that legacy fonts are supported transparently. If
 a \quote {wide} font is used, the new subsystem kicks in, and some extra fields
 have to be present in the font structure. In this case, \LUATEX\ does not use a
-map file at all. These extra fields are: \type {format}, \type {embedding}, \type
-{fullname}, \type {cidinfo} (as explained above), \type {filename}, and the \type
-{index} key in the separate characters.
+map file at all. These extra fields are: \type {format}, \type {embedding}, \type {fullname}, \type {cidinfo} (as explained above), \type {filename}, and the \type {index} key in the separate characters.
 
 The \type {format} variable can have the following values. \type {type3} fonts
 are provided for backward compatibility only, and do not support the new wide
@@ -401,8 +399,7 @@ Valid values for the \type {embedding} variable are:
 The other fields are used as follows. The \type {fullname} will be the
 \POSTSCRIPT|/|\PDF\ font name. The \type {cidinfo} will be used as the character
 set: the CID \type {/Ordering} and \type {/Registry} keys. The \type {filename}
-points to the actual font file. If you include the full path in the \type
-{filename} or if the file is in the local directory, \LUATEX\ will run a little
+points to the actual font file. If you include the full path in the \type {filename} or if the file is in the local directory, \LUATEX\ will run a little
 bit more efficient because it will not have to re|-|run the \type {find_*_file}
 callback in that case.
 
@@ -426,8 +423,10 @@ viewers handle this right so take \ACROBAT\ as reference.
 
 \subsection{The structure}
 
+\topicindex {fonts+virtual}
+
 You have to take the following steps if you want \LUATEX\ to treat the returned
-table from \type {define_font} as a virtual font:
+table from \cbk {define_font} as a virtual font:
 
 \startitemize[packed]
 \startitem
@@ -502,8 +501,7 @@ parameters to that command. The allowed commands and their arguments are:
 \NC \type{lua}     \NC 1         \NC string,
                                      function  \NC execute a \LUA\ script when the glyph is embedded; in case of a
                                                    function it gets the font id and character code passed \NC \NR
-\NC \type{image}   \NC 1         \NC image     \NC output an image (the argument can be either an \type
-                                                   {<image>} variable or an \type {image_spec} table) \NC \NR
+\NC \type{image}   \NC 1         \NC image     \NC output an image (the argument can be either an \type {<image>} variable or an \type {image_spec} table) \NC \NR
 \NC \type{comment} \NC any       \NC any       \NC the arguments of this command are ignored \NC \NR
 \LL
 \stoptabulate
@@ -590,6 +588,8 @@ characters that are already present cannot be altered).
 
 \subsection{Example virtual font}
 
+\topicindex {fonts+virtual}
+
 Finally, here is a plain \TEX\ input file with a virtual font demonstration:
 
 \startbuffer
@@ -631,14 +631,15 @@ Finally, here is a plain \TEX\ input file with a virtual font demonstration:
 The \type {vf} library can be used when \LUA\ code, as defined in the \type
 {commands} of the font, is executed. The functions provided are similar as the
 commands: \type {char}, \type {down}, \type {fontid}, \type {image}, \type
-{node}, \type {nop}, \type {pop}, \type {push}, \type {right}, \type {rule},
-\type {special} and \type {pdf}. This library has been present for a while but
-not been advertised and tested much, if only because it's easy to define an
-invalid font (or mess up the \PDF\ stream). Keep in mind that the \LUA\ snippets
-are executed each time when a character is output.
-
+{node}, \type {nop}, \type {pop}, \type {push}, \type {right}, \nod {rule}, \type
+{special} and \type {pdf}. This library has been present for a while but not been
+advertised and tested much, if only because it's easy to define an invalid font
+(or mess up the \PDF\ stream). Keep in mind that the \LUA\ snippets are executed
+each time when a character is output.
 
 \section{The \type {font} library}
+
+\topicindex {fonts+library}
 
 The font library provides the interface into the internals of the font system,
 and also it contains helper functions to load traditional \TEX\ font metrics
@@ -646,6 +647,8 @@ formats. Other font loading functionality is provided by the \type {fontloader}
 library that will be discussed in the next section.
 
 \subsection{Loading a \TFM\ file}
+
+\topicindex {fonts+tfm}
 
 The behaviour documented in this subsection is considered stable in the sense that
 there will not be backward|-|incompatible changes any more.
@@ -672,6 +675,8 @@ The internal structure of the metrics font table that is returned is explained i
 
 \subsection{Loading a \VF\ file}
 
+\topicindex {fonts+vf}
+
 The behavior documented in this subsection is considered stable in the sense that
 there will not be backward-incompatible changes any more.
 
@@ -685,6 +690,8 @@ similar to the ones in the \type {read_tfm} function.
 
 \subsection{The fonts array}
 
+\topicindex {fonts+virtual}
+
 The whole table of \TEX\ fonts is accessible from \LUA\ using a virtual array.
 
 \starttyping
@@ -693,8 +700,7 @@ font.fonts[n] = { ... }
 \stoptyping
 
 See \in {chapter} [fonts] for the structure of the tables. Because this is a
-virtual array, you cannot call \type {pairs} on it, but see below for the \type
-{font.each} iterator.
+virtual array, you cannot call \type {pairs} on it, but see below for the \type {font.each} iterator.
 
 The two metatable functions implementing the virtual array are:
 
@@ -703,8 +709,7 @@ The two metatable functions implementing the virtual array are:
 font.setfont(<number> n, <table> f)
 \stopfunctioncall
 
-Note that at the moment, each access to the \type {font.fonts} or call to \type
-{font.getfont} creates a \LUA\ table for the whole font. This process can be quite
+Note that at the moment, each access to the \type {font.fonts} or call to \type {font.getfont} creates a \LUA\ table for the whole font. This process can be quite
 slow. In a later version of \LUATEX, this interface will change (it will start
 using userdata objects instead of actual tables).
 
@@ -727,6 +732,8 @@ changed) or \type {nil} (not a valid font at all).
 
 \subsection{Defining a font directly}
 
+\topicindex {fonts+define}
+
 You can define your own font into \type {font.fonts} by calling this function:
 
 \startfunctioncall
@@ -748,6 +755,8 @@ Where the first argument is a reserved font id (see below).
 
 \subsection{Extending a font}
 
+\topicindex {fonts+extend}
+
 Within reasonable bounds you can extend a font after it has been defined. Because
 some properties are best left unchanged this is limited to adding characters.
 
@@ -765,6 +774,8 @@ a more drastic replacer.)
 
 \subsection{Projected next font id}
 
+\topicindex {fonts+id}
+
 \startfunctioncall
 <number> i =
     font.nextid()
@@ -781,26 +792,18 @@ This can be handy when you create complex virtual fonts.
     font.nextid(true)
 \stopfunctioncall
 
-\subsection{Font id}
+\subsection{Font ids}
+
+\topicindex {fonts+id}
+\topicindex {fonts+current}
 
 \startfunctioncall
 <number> i =
     font.id(<string> csname)
 \stopfunctioncall
 
-This returns the font id associated with \type {csname} string, or $-1$ if \type
+This returns the font id associated with \type {csname}, or $-1$ if \type
 {csname} is not defined.
-
-\subsection{Currently active font}
-
-\startfunctioncall
-<number> i = font.current()
-font.current(<number> i)
-\stopfunctioncall
-
-This gets or sets the currently used font number.
-
-\subsection{Maximum font id}
 
 \startfunctioncall
 <number> i =
@@ -809,7 +812,16 @@ This gets or sets the currently used font number.
 
 This is the largest used index in \type {font.fonts}.
 
+\startfunctioncall
+<number> i = font.current()
+font.current(<number> i)
+\stopfunctioncall
+
+This gets or sets the currently used font number.
+
 \subsection{Iterating over all fonts}
+
+\topicindex {fonts+iterate}
 
 \startfunctioncall
 for i,v in font.each() do

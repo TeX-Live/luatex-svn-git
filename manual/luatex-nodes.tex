@@ -8,6 +8,8 @@
 
 \section{\LUA\ node representation}
 
+\topicindex {nodes}
+
 \TEX's nodes are represented in \LUA\ as userdata object with a variable set of
 fields. In the following syntax tables, such the type of such a userdata object
 is represented as \syntax {<node>}.
@@ -35,13 +37,15 @@ and for valid subtypes with \type {node.subtypes} (which takes a string because
 eventually we might support more used enumerations).
 
 The \type {node.values} function reports some used values. Valid arguments are
-\type {dir}, \type {direction}, \type {glue}, \type {pdf_literal}, \type
-{pdf_action}, \type {pdf_window} and \type {color_stack}. Keep in mind that the
+\nod {dir}, \type {direction}, \nod {glue}, \whs {pdf_literal}, \whs
+{pdf_action}, \whs {pdf_window} and \whs {color_stack}. Keep in mind that the
 setters normally expect a number, but this helper gives you a list of what
 numbers matter. For practical reason the \type {pagestate} values are also
 reported with this helper.
 
 \subsection{Attributes}
+
+\topicindex {attributes}
 
 The newly introduced attribute registers are non|-|trivial, because the value
 that is attached to a node is essentially a sparse array of key|-|value pairs. It
@@ -51,7 +55,9 @@ the low|-|level interface.
 
 \subsubsection{attribute_list nodes}
 
-An \type {attribute_list} item is used as a head pointer for a list of attribute
+\topicindex {nodes+attributes}
+
+An \nod {attribute_list} item is used as a head pointer for a list of attribute
 items. It has only one user-visible field:
 
 \starttabulate[|l|l|p|]
@@ -61,9 +67,9 @@ items. It has only one user-visible field:
 \LL
 \stoptabulate
 
-\subsubsection{attribute nodes}
+\subsubsection{\nod {attr} nodes}
 
-A normal node's attribute field will point to an item of type \type
+A normal node's attribute field will point to an item of type \nod
 {attribute_list}, and the \type {next} field in that item will point to the first
 defined \quote {attribute} item, whose \type {next} will point to the second
 \quote {attribute} item, etc.
@@ -82,6 +88,8 @@ fields directly. For instance the \type {prev} field is used for other purposes
 and there is no double linked list.
 
 \subsection{Main text nodes}
+
+\topicindex {nodes+text}
 
 These are the nodes that comprise actual typesetting commands. A few fields are
 present in all nodes regardless of their type, these are:
@@ -106,9 +114,9 @@ but only initialized on explicit request: when the function \type {node.slide()}
 is called, it will set up the \type {prev} fields to be a backwards pointer in
 the argument node list. By now most of \TEX's node processing makes sure that the
 \type {prev} nodes are valid but there can be exceptions, especially when the
-internal magic uses a leading \type {temp} nodes to temporarily store a state.
+internal magic uses a leading \nod {temp} nodes to temporarily store a state.
 
-\subsubsection{hlist nodes}
+\subsubsection{\nod {hlist} nodes}
 
 \starttabulate[|l|l|p|]
 \DB field             \BC type   \BC explanation \NC \NR
@@ -118,14 +126,20 @@ internal magic uses a leading \type {temp} nodes to temporarily store a state.
 \NC \type{width}      \NC number \NC the width of the box \NC \NR
 \NC \type{height}     \NC number \NC the height of the box \NC \NR
 \NC \type{depth}      \NC number \NC the depth of the box \NC \NR
-\NC \type{shift}      \NC number \NC a displacement perpendicular to the character progression direction \NC \NR
-\NC \type{glue_order} \NC number \NC a number in the range $[0,4]$, indicating the glue order \NC \NR
+\NC \type{shift}      \NC number \NC a displacement perpendicular to the character
+                                     progression direction \NC \NR
+\NC \type{glue_order} \NC number \NC a number in the range $[0,4]$, indicating the
+                                     glue order \NC \NR
 \NC \type{glue_set}   \NC number \NC the calculated glue ratio \NC \NR
-\NC \type{glue_sign}  \NC number \NC 0 = \type {normal}, 1 = \type {stretching}, 2 = \type {shrinking} \NC \NR
+\NC \type{glue_sign}  \NC number \NC 0 = \type {normal}, 1 = \type {stretching}, 2 =
+                                     \type {shrinking} \NC \NR
 \NC \type{head/list}  \NC node   \NC the first node of the body of this list \NC \NR
-\NC \type{dir}        \NC string \NC the direction of this box, see~\in[dirnodes] \NC \NR
+\NC \type{dir}        \NC string \NC the direction of this box, see~\in [dirnodes] \NC \NR
 \LL
 \stoptabulate
+
+\topicindex {nodes+lists}
+\topicindex {lists}
 
 A warning: never assign a node list to the \type {head} field unless you are sure
 its internal link structure is correct, otherwise an error may result.
@@ -134,32 +148,58 @@ Note: the field name \type {head} and \type {list} are both valid. Sometimes it
 makes more sense to refer to a list by \type {head}, sometimes \type {list} makes
 more sense.
 
-\subsubsection{vlist nodes}
+\subsubsection{\nod {vlist} nodes}
 
-This node is similar to \type {hlist}, except that \quote {shift} is a displacement
+\topicindex {nodes+lists}
+\topicindex {lists}
+
+This node is similar to \nod {hlist}, except that \quote {shift} is a displacement
 perpendicular to the line progression direction, and \quote {subtype} only has
 the values 0, 4, and~5.
 
-\subsubsection{rule nodes}
+\subsubsection{\nod {rule} nodes}
 
-Contrary to traditional \TEX, \LUATEX\ has more subtypes because we also use
-rules to store reuseable objects and images. User nodes are invisible and can be
-intercepted by a callback.
+\topicindex {nodes+rules}
+\topicindex {rules}
+
+Contrary to traditional \TEX, \LUATEX\ has more \prm {rule} subtypes because we
+also use rules to store reuseable objects and images. User nodes are invisible
+and can be intercepted by a callback.
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type   \BC explanation \NC \NR
 \TB
-\NC \type{subtype} \NC number \NC \showsubtypes{rule} \NC \NR
+\NC \type{subtype} \NC number \NC \showsubtypes {rule} \NC \NR
 \NC \type{attr}    \NC node   \NC list of attributes \NC \NR
-\NC \type{width}   \NC number \NC the width of the rule where the special value $-1073741824$ is used for \quote {running} glue dimensions \NC \NR
+\NC \type{width}   \NC number \NC the width of the rule where the special value
+                                  $-1073741824$ is used for \quote {running} glue dimensions \NC \NR
 \NC \type{height}  \NC number \NC the height of the rule (can be negative) \NC \NR
 \NC \type{depth}   \NC number \NC the depth of the rule (can be negative) \NC \NR
+\NC \type{left}    \NC number \NC shift at the left end (also subtracted from width) \NC \NR
+\NC \type{right}   \NC number \NC (subtracted from width) \NC \NR
 \NC \type{dir}     \NC string \NC the direction of this rule, see~\in[dirnodes] \NC \NR
 \NC \type{index}   \NC number \NC an optional index that can be referred to \NC \NR
 \LL
 \stoptabulate
 
-\subsubsection{ins nodes}
+The \type {left} and type {right} keys are somewhat special (and experimental).
+When rules are auto adapting to the surrounding box width you can enforce a shift
+to the right by setting \type {left}. The value is also subtracted from the width
+which can be a value set by the engine itself and is not entirely under user
+control. The \type {right} is also subtracted from the width. It all happens in
+the backend so these are not affecting the calculations in the frontend (actually
+the auto settings also happen in the backend). For a vertical rule \type {left}
+affects the height and \type {right} affects the depth. There is no matching
+interface at the \TEX\ end (although we can have more keywords for rules it would
+complicate matters and introduce a speed penalty.) However, you can just
+construct a rule node with \LUA\ and write it to the \TEX\ input.
+
+\subsubsection{\nod {ins} nodes}
+
+\topicindex {nodes+insertions}
+\topicindex {insertions}
+
+This node relates to the \prm {insert} primitive.
 
 \starttabulate[|l|l|p|]
 \DB field            \BC type   \BC explanation \NC \NR
@@ -182,7 +222,12 @@ its internal link structure is correct, otherwise an error may be result. You ca
 \type {list} instead (often in functions you want to use local variable swith similar
 names and both names are equally sensible).
 
-\subsubsection{mark nodes}
+\subsubsection{\nod {mark} nodes}
+
+\topicindex {nodes+marks}
+\topicindex {marks}
+
+This one relates to the \prm {mark} primitive.
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type   \BC explanation \NC \NR
@@ -194,7 +239,12 @@ names and both names are equally sensible).
 \LL
 \stoptabulate
 
-\subsubsection{adjust nodes}
+\subsubsection{\nod {adjust} nodes}
+
+\topicindex {nodes+adjust}
+\topicindex {adjust}
+
+This node comes from \prm {vadjust} primitive.
 
 \starttabulate[|l|l|p|]
 \DB field            \BC type   \BC explanation \NC \NR
@@ -208,7 +258,13 @@ names and both names are equally sensible).
 A warning: never assign a node list to the \type {head} field unless you are sure
 its internal link structure is correct, otherwise an error may be result.
 
-\subsubsection{disc nodes}
+\subsubsection{\nod {disc} nodes}
+
+\topicindex {nodes+discretionaries}
+\topicindex {discretionaries}
+
+The \prm {discretionary} and \prm {-}, the \type {-} character but also the
+hyphenation mechanism produces these nodes.
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type   \BC explanation \NC \NR
@@ -218,19 +274,20 @@ its internal link structure is correct, otherwise an error may be result.
 \NC \type{pre}     \NC node   \NC pointer to the pre|-|break text \NC \NR
 \NC \type{post}    \NC node   \NC pointer to the post|-|break text \NC \NR
 \NC \type{replace} \NC node   \NC pointer to the no|-|break text \NC \NR
-\NC \type{penalty} \NC number \NC the penalty associated with the break, normally \prm {hyphenpenalty} or \prm {exhyphenpenalty} \NC \NR
+\NC \type{penalty} \NC number \NC the penalty associated with the break, normally
+                                  \prm {hyphenpenalty} or \prm {exhyphenpenalty} \NC \NR
 \LL
 \stoptabulate
 
 The subtype numbers~4 and~5 belong to the \quote {of-f-ice} explanation given
-elsewhere.
+elsewhere. These disc nodes are kind of special as at some point they also keep
+information about breakpoints and nested ligatures.
 
-These disc nodes are kind of special as at some point they also keep information
-about breakpoints and nested ligatures. The \type {pre}, \type {post} and \type
-{replace} fields at the \LUA\ end are in fact indirectly accessed and have a
-\type {prev} pointer that is not \type {nil}. This means that when you mess
-around with the head of these (three) lists, you also need to reassign them
-because that will restore the proper \type {prev} pointer, so:
+The \type {pre}, \type {post} and \type {replace} fields at the \LUA\ end are in
+fact indirectly accessed and have a \type {prev} pointer that is not \type {nil}.
+This means that when you mess around with the head of these (three) lists, you
+also need to reassign them because that will restore the proper \type {prev}
+pointer, so:
 
 \starttyping
 pre = d.pre
@@ -245,7 +302,13 @@ And you definitely must not mess with the node that \type {prev} points to, if
 only because it is not really an node but part of the disc data structure (so
 freeing it again might crash \LUATEX).
 
-\subsubsection{math nodes}
+\subsubsection{\nod {math} nodes}
+
+\topicindex {nodes+math}
+\topicindex {math+nodes}
+
+Math nodes represent the boundaries of a math formula, normally wrapped into
+\type {$} signs.
 
 \starttabulate[|l|l|p|]
 \DB field           \BC type   \BC explanation \NC \NR
@@ -260,11 +323,16 @@ There is a set of extra fields that concern the associated glue: \type {width},
 \type {stretch}, \type {stretch_order}, \type {shrink} and \type {shrink_order}.
 These are all numbers.
 
-\subsubsection{glue nodes}
+\subsubsection{\nod {glue} nodes}
+
+\topicindex {nodes+glue}
+\topicindex {glue}
 
 Skips are about the only type of data objects in traditional \TEX\ that are not a
-simple value. The structure that represents the glue components of a skip is
-called a \type {glue_spec}, and it has the following accessible fields:
+simple value. They are inserted when \TEX\ sees a space in the text flow but also
+by \prm {hskip} and \prm {vskip}. The structure that represents the glue
+components of a skip is called a \nod {glue_spec}, and it has the following
+accessible fields:
 
 \starttabulate[|l|l|p|]
 \DB field                \BC type   \BC explanation \NC \NR
@@ -284,10 +352,10 @@ the content fit in the available space. The \type {effective_glue} function that
 takes a glue node and a parent (hlist or vlist) returns the effective width of
 that glue item.
 
-A gluespec node is a special kind of node that is used for storing a set of glue
-values in registers. Originally they were also used to store properties of glue
-nodes (using a system of reference counts) but we now keep these properties in
-the glue nodes themselves, which gives a cleaner interface to \LUA.
+A \nod {glue_spec} node is a special kind of node that is used for storing a set
+of glue values in registers. Originally they were also used to store properties
+of glue nodes (using a system of reference counts) but we now keep these
+properties in the glue nodes themselves, which gives a cleaner interface to \LUA.
 
 The indirect spec approach was in fact an optimization in the original \TEX\
 code. First of all it can save quite some memory because all these spaces that
@@ -318,7 +386,13 @@ so we decided to stick to that naming.
 A regular word space also results in a \type {spaceskip} subtype (this used to be
 a \type {userskip} with subtype zero).
 
-\subsubsection{kern nodes}
+\subsubsection{\nod {kern} nodes}
+
+\topicindex {nodes+kerns}
+\topicindex {kerns}
+
+The \prm {kern} command creates such nodes but for instance the font and math
+machinery can also add them.
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type   \BC explanation \NC \NR
@@ -329,7 +403,12 @@ a \type {userskip} with subtype zero).
 \LL
 \stoptabulate
 
-\subsubsection{penalty nodes}
+\subsubsection{\nod {penalty} nodes}
+
+\topicindex {nodes+penalty}
+\topicindex {penalty}
+
+The \prm {penalty} command is one that generates these nodes.
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type   \BC explanation \NC \NR
@@ -344,7 +423,14 @@ The subtypes are just informative and \TEX\ itself doesn't use them. When you
 run into an \type {linebreakpenalty} you need to keep in mind that it's a
 accumulation of \type {club}, \type{widow} and other relevant penalties.
 
-\subsubsection[glyphnodes]{glyph nodes}
+\subsubsection[glyphnodes]{\nod {glyph} nodes}
+
+\topicindex {nodes+glyph}
+\topicindex {glyph}
+
+These are probably the mostly used nodes and although you can push on tin the
+list with for instance \prm {char} \TEX\ will normally do it for you when it
+considers some input to be text.
 
 \starttabulate[|l|l|p|]
 \DB field                   \BC type    \BC explanation \NC \NR
@@ -409,7 +495,13 @@ helpers are not always faster than separate calls but they sometimes permit
 making more readable tests. The \type {uses_font} helpers takes a node
 and font id and returns true when a glyph or disc node references that font.
 
-\subsubsection{boundary nodes}
+\subsubsection{\nod {boundary} nodes}
+
+\topicindex {nodes+boundary}
+\topicindex {boundary}
+
+This node relates to the \prm {noboundary}, \prm {boundary}, \prm
+{protrusionboundary} and \prm {wordboundary} primitives.
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type   \BC explanation \NC \NR
@@ -420,9 +512,13 @@ and font id and returns true when a glyph or disc node references that font.
 \LL
 \stoptabulate
 
-This node relates to the \prm {noboundary}, \prm {boundary}, \prm {protrusionboundary} and \prm {wordboundary} primitives.
+\subsubsection{\nod {local_par} nodes}
 
-\subsubsection{local_par nodes}
+\topicindex {nodes+paragraphs}
+\topicindex {paragraphs}
+
+This node in inserted a the start of a paragraph. You should not mess
+too much with this one.
 
 \starttabulate[|l|l|p|]
 \DB field                  \BC type   \BC explanation \NC \NR
@@ -442,7 +538,13 @@ A warning: never assign a node list to the \type {box_left} or \type {box_right}
 field unless you are sure its internal link structure is correct, otherwise an
 error may be result.
 
-\subsubsection[dirnodes]{dir nodes}
+\subsubsection[dirnodes]{\nod {dir} nodes}
+
+\topicindex {nodes+direction}
+\topicindex {directions}
+
+Direction nodes mark parts of the running text that need a change of direction and \
+the \prm {textdir} command generates them.
 
 \starttabulate[|l|l|p|]
 \DB field        \BC type   \BC explanation \NC \NR
@@ -453,10 +555,8 @@ error may be result.
 \LL
 \stoptabulate
 
-A note on \type {dir} strings. Direction specifiers are three|-|letter
-combinations of \type {T}, \type {B}, \type {R}, and \type {L}.
-
-These are built up out of three separate items:
+Direction specifiers are three|-|letter combinations of \type {T}, \type {B},
+\type {R}, and \type {L}. These are built up out of three separate items:
 
 \startitemize[packed]
 \startitem
@@ -471,14 +571,18 @@ These are built up out of three separate items:
 \stopitemize
 
 However, only four combinations are accepted: \type {TLT}, \type {TRT}, \type
-{RTT}, and \type {LTL}.
+{RTT}, and \type {LTL}. Inside actual \nod {dir} nodes, the representation of
+\nod {dir} is not a three|-|letter but a combination of numbers. When printed the
+direction is indicated by a \type {+} or \type {-}, indicating whether the value
+is pushed or popped from the direction stack.
 
-Inside actual \type {dir} whatsit nodes, the representation of \type {dir} is not
-a three-letter but a four|-|letter combination. The first character in this case
-is always either \type {+} or \type {-}, indicating whether the value is pushed
-or popped from the direction stack.
+\subsubsection{\nod {margin_kern} nodes}
 
-\subsubsection{margin_kern nodes}
+\topicindex {nodes+paragraphs}
+\topicindex {paragraphs}
+\topicindex {protrusion}
+
+Margin kerns result from protrusion.
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type   \BC explanation \NC \NR
@@ -490,7 +594,10 @@ or popped from the direction stack.
 \LL
 \stoptabulate
 
-\subsection{Math nodes}
+\subsection{Math noads}
+
+\topicindex {nodes+math}
+\topicindex {math+nodes}
 
 These are the so||called \quote {noad}s and the nodes that are specifically
 associated with math processing. Most of these nodes contain subnodes so that the
@@ -505,7 +612,7 @@ these cases (in the following node descriptions these are indicated by the word
 
 The \type {next} and \type {prev} fields for these subnodes are unused.
 
-\subsubsubsection{math_char and math_text_char subnodes}
+\subsubsubsection{\nod {math_char} and \nod {math_text_char} subnodes}
 
 \starttabulate[|l|l|p|]
 \DB field       \BC type   \BC explanation \NC \NR
@@ -516,12 +623,12 @@ The \type {next} and \type {prev} fields for these subnodes are unused.
 \LL
 \stoptabulate
 
-The \type {math_char} is the simplest subnode field, it contains the character
-and family for a single glyph object. The \type {math_text_char} is a special
+The \nod {math_char} is the simplest subnode field, it contains the character
+and family for a single glyph object. The \nod {math_text_char} is a special
 case that you will not normally encounter, it arises temporarily during math list
 conversion (its sole function is to suppress a following italic correction).
 
-\subsubsubsection{sub_box and sub_mlist subnodes}
+\subsubsubsection{\nod {sub_box} and \nod {sub_mlist} subnodes}
 
 \starttabulate[|l|l|p|]
 \DB field            \BC type \BC explanation \NC \NR
@@ -531,19 +638,17 @@ conversion (its sole function is to suppress a following italic correction).
 \LL
 \stoptabulate
 
-These two subnode types are used for subsidiary list items. For \type {sub_box},
-the \type {head} points to a \quote {normal} vbox or hbox. For \type {sub_mlist},
+These two subnode types are used for subsidiary list items. For \nod {sub_box},
+the \type {head} points to a \quote {normal} vbox or hbox. For \nod {sub_mlist},
 the \type {head} points to a math list that is yet to be converted.
 
 A warning: never assign a node list to the \type {head} field unless you are sure
 its internal link structure is correct, otherwise an error may be result.
 
-\subsubsection{Math delimiter subnode}
+\subsubsubsection{\nod {delim} subnodes}
 
 There is a fifth subnode type that is used exclusively for delimiter fields. As
 before, the \type {next} and \type {prev} fields are unused.
-
-\subsubsubsection{delim subnodes}
 
 \starttabulate[|l|l|p|]
 \DB field             \BC type   \BC explanation \NC \NR
@@ -587,7 +692,7 @@ Some noads have an option field. The values in this bitset are common:
 \LL
 \stoptabulate
 
-\subsubsubsection{simple nodes}
+\subsubsubsection{simple \nod {noad} nodes}
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type        \BC explanation \NC \NR
@@ -601,7 +706,7 @@ Some noads have an option field. The values in this bitset are common:
 \LL
 \stoptabulate
 
-\subsubsubsection{accent nodes}
+\subsubsubsection{\nod {accent} nodes}
 
 \starttabulate[|l|l|p|]
 \DB field             \BC type        \BC explanation \NC \NR
@@ -616,7 +721,7 @@ Some noads have an option field. The values in this bitset are common:
 \LL
 \stoptabulate
 
-\subsubsubsection{style nodes}
+\subsubsubsection{\nod {style} nodes}
 
 \starttabulate[|l|l|p|]
 \DB field        \BC type   \BC explanation    \NC \NR
@@ -629,7 +734,7 @@ There are eight possibilities for the string value: one of \type {display},
 \type {text}, \type {script}, or \type {scriptscript}. Each of these can have
 be prefixed by \type {cramped}.
 
-\subsubsubsection{choice nodes}
+\subsubsubsection{\nod {choice} nodes}
 
 \starttabulate[|l|l|p|]
 \DB field               \BC type \BC explanation \NC \NR
@@ -646,7 +751,7 @@ Warning: never assign a node list to the \type {display}, \type {text}, \type
 {script}, or \type {scriptscript} field unless you are sure its internal link
 structure is correct, otherwise an error may be result.
 
-\subsubsubsection{radical nodes}
+\subsubsubsection{\nod {radical} nodes}
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type           \BC explanation \NC \NR
@@ -667,7 +772,7 @@ Warning: never assign a node list to the \type {nucleus}, \type {sub}, \type
 {sup}, \type {left}, or \type {degree} field unless you are sure its internal
 link structure is correct, otherwise an error may be result.
 
-\subsubsubsection{fraction nodes}
+\subsubsubsection{\nod {fraction} nodes}
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type           \BC explanation \NC \NR
@@ -687,7 +792,7 @@ Warning: never assign a node list to the \type {num}, or \type {denom} field
 unless you are sure its internal link structure is correct, otherwise an error
 may be result.
 
-\subsubsubsection{fence nodes}
+\subsubsubsection{\nod {fence} nodes}
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type           \BC explanation \NC \NR
@@ -722,7 +827,7 @@ Whatsit nodes come in many subtypes that you can ask for by running
 
 \subsubsection{front|-|end whatsits}
 
-\subsubsubsection{open whatsits}
+\subsubsubsection{\whs {open}}
 
 \starttabulate[|l|l|p|]
 \DB field         \BC type   \BC explanation \NC \NR
@@ -735,7 +840,7 @@ Whatsit nodes come in many subtypes that you can ask for by running
 \LL
 \stoptabulate
 
-\subsubsubsection{write whatsits}
+\subsubsubsection{\whs {write}}
 
 \starttabulate[|l|l|p|]
 \DB field         \BC type   \BC explanation \NC \NR
@@ -746,7 +851,7 @@ Whatsit nodes come in many subtypes that you can ask for by running
 \LL
 \stoptabulate
 
-\subsubsubsection{close whatsits}
+\subsubsubsection{\whs {close}}
 
 \starttabulate[|l|l|p|]
 \DB field         \BC type   \BC explanation \NC \NR
@@ -756,7 +861,7 @@ Whatsit nodes come in many subtypes that you can ask for by running
 \LL
 \stoptabulate
 
-\subsubsubsection{user_defined whatsits}
+\subsubsubsection{\whs {user_defined}}
 
 User|-|defined whatsit nodes can only be created and handled from \LUA\ code. In
 effect, they are an extension to the extension mechanism. The \LUATEX\ engine
@@ -791,7 +896,7 @@ instead of \type {108}).
 \LL
 \stoptabulate
 
-\subsubsubsection{save_pos whatsits}
+\subsubsubsection{\whs {save_pos}}
 
 \starttabulate[|l|l|p|]
 \DB field       \BC type \BC explanation \NC \NR
@@ -800,7 +905,7 @@ instead of \type {108}).
 \LL
 \stoptabulate
 
-\subsubsubsection{late_lua whatsits}
+\subsubsubsection{\whs {late_lua}}
 
 \starttabulate[|l|l|p|]
 \DB field         \BC type     \BC explanation \NC \NR
@@ -818,7 +923,7 @@ The difference between \type {data} and \type {string} is that on assignment, th
 
 \subsubsection{\DVI\ backend whatsits}
 
-\subsubsection{special whatsits}
+\subsubsection{\whs {special}}
 
 \starttabulate[|l|l|p|]
 \DB field       \BC type   \BC explanation \NC \NR
@@ -830,7 +935,7 @@ The difference between \type {data} and \type {string} is that on assignment, th
 
 \subsubsection{\PDF\ backend whatsits}
 
-\subsubsubsection{pdf_literal whatsits}
+\subsubsubsection{\whs {pdf_literal}}
 
 \starttabulate[|l|l|p|]
 \DB field       \BC type   \BC explanation \NC \NR
@@ -858,7 +963,7 @@ The higher the number, the less checking and the more you can run into troubles.
 Especially the \type {raw} variant can produce bad \PDF\ so you can best check
 what you generate.
 
-\subsubsubsection{pdf_refobj whatsits}
+\subsubsubsection{\whs {pdf_refobj}}
 
 \starttabulate[|l|l|p|]
 \DB field         \BC type   \BC explanation \NC \NR
@@ -868,7 +973,7 @@ what you generate.
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_annot whatsits}
+\subsubsubsection{\whs {pdf_annot}}
 
 \starttabulate[|l|l|p|]
 \DB field         \BC type   \BC explanation \NC \NR
@@ -882,7 +987,7 @@ what you generate.
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_start_link whatsits}
+\subsubsubsection{\whs {pdf_start_link}}
 
 \starttabulate[|l|l|p|]
 \DB field            \BC type   \BC explanation \NC \NR
@@ -897,7 +1002,7 @@ what you generate.
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_end_link whatsits}
+\subsubsubsection{\whs {pdf_end_link}}
 
 \starttabulate[|l|l|p|]
 \DB field       \BC type \BC explanation \NC \NR
@@ -906,7 +1011,7 @@ what you generate.
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_dest whatsits}
+\subsubsubsection{\whs {pdf_dest}}
 
 \starttabulate[|l|l|p|]
 \DB field              \BC type     \BC explanation \NC \NR
@@ -924,7 +1029,7 @@ what you generate.
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_action whatsits}
+\subsubsubsection{\whs {pdf_action}}
 
 These are a special kind of item that only appears inside \PDF\ start link
 objects.
@@ -964,7 +1069,7 @@ Valid window types are:
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_thread whatsits}
+\subsubsubsection{\whs {pdf_thread}}
 
 \starttabulate[|l|l|p|]
 \DB field              \BC type   \BC explanation \NC \NR
@@ -980,7 +1085,7 @@ Valid window types are:
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_start_thread whatsits}
+\subsubsubsection{\whs {pdf_start_thread}}
 
 \starttabulate[|l|l|p|]
 \DB field              \BC type   \BC explanation \NC \NR
@@ -996,7 +1101,7 @@ Valid window types are:
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_end_thread whatsits}
+\subsubsubsection{\whs {pdf_end_thread}}
 
 \starttabulate[|l|l|p|]
 \DB field       \BC type \BC explanation \NC \NR
@@ -1005,7 +1110,7 @@ Valid window types are:
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_colorstack whatsits}
+\subsubsubsection{\whs {pdf_colorstack}}
 
 \starttabulate[|l|l|p|]
 \DB field          \BC type   \BC explanation \NC \NR
@@ -1017,7 +1122,7 @@ Valid window types are:
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_setmatrix whatsits}
+\subsubsubsection{\whs {pdf_setmatrix}}
 
 \starttabulate[|l|l|p|]
 \DB field       \BC type   \BC explanation \NC \NR
@@ -1027,7 +1132,7 @@ Valid window types are:
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_save whatsits}
+\subsubsubsection{\whs {pdf_save}}
 
 \starttabulate[|l|l|p|]
 \DB field       \BC type \BC explanation \NC \NR
@@ -1036,7 +1141,7 @@ Valid window types are:
 \LL
 \stoptabulate
 
-\subsubsubsection{pdf_restore whatsits}
+\subsubsubsection{\whs {pdf_restore}}
 
 \starttabulate[|l|l|p|]
 \DB field       \BC type \BC explanation \NC \NR
@@ -1055,8 +1160,7 @@ insert \LUATEX\ node objects, the core objects within the typesetter.
 \type {luatex.node}. The various parts within a node can be accessed using
 named fields.
 
-Each node has at least the three fields \type {next}, \type {id}, and \type
-{subtype}:
+Each node has at least the three fields \type {next}, \type {id}, and \type {subtype}:
 
 \startitemize[intro]
 
@@ -1084,7 +1188,7 @@ The other available fields depend on the \type {id} (and for \quote {whatsits},
 the \type {subtype}) of the node. Further details on the various fields and their
 meanings are given in~\in{chapter}[nodes].
 
-Support for \type {unset} (alignment) nodes is partial: they can be queried and
+Support for \nod {unset} (alignment) nodes is partial: they can be queried and
 modified from \LUA\ code, but not created.
 
 Nodes can be compared to each other, but: you are actually comparing indices into
@@ -1107,6 +1211,8 @@ can be handy for tracing.
 \subsection{Node handling functions}
 
 \subsubsection{\type {node.is_node}}
+
+\topicindex {nodes+functions}
 
 \startfunctioncall
 <boolean> t =
@@ -1133,7 +1239,7 @@ providing an overview of the possible top|-|level \type {id} types.
     node.whatsits()
 \stopfunctioncall
 
-\TEX's \quote{whatsits} all have the same \type {id}. The various subtypes are
+\TEX's \quote {whatsits} all have the same \type {id}. The various subtypes are
 defined by their \type {subtype} fields. The function is much like \type
 {node.types}, except that it provides an array of \type {subtype} mappings.
 
@@ -1336,8 +1442,8 @@ This function creates a new hlist by packaging the list that begins at node \typ
 {n} into a horizontal box. With only a single argument, this box is created using
 the natural width of its components. In the three argument form, \type {info}
 must be either \type {additional} or \type {exactly}, and \type {w} is the
-additional (\type {\hbox spread}) or exact (\type {\hbox to}) width to be used. The
-second return value is the badness of the generated box.
+additional (\type {\hbox spread}) or exact (\type {\hbox to}) width to be used.
+The second return value is the badness of the generated box.
 
 Caveat: at this moment, there can be unexpected side|-|effects to this function,
 like updating some of the \prm {marks} and \type {\inserts}. Also note that the
@@ -1441,7 +1547,7 @@ cases:
 
 This runs the internal mlist to hlist conversion, converting the math list in
 \type {n} into the horizontal list \type {h}. The interface is exactly the same
-as for the callback \type {mlist_to_hlist}.
+as for the callback \cbk {mlist_to_hlist}.
 
 \subsubsection{\type {node.slide}}
 
@@ -1918,6 +2024,9 @@ some assumptions (heuristics).
 
 \section{Two access models}
 
+\topicindex{nodes+direct}
+\topicindex{direct nodes}
+
 Deep down in \TEX\ a node has a number which is an numeric entry in a memory
 table. In fact, this model, where \TEX\ manages memory is real fast and one of
 the reasons why plugging in callbacks that operate on nodes is quite fast too.
@@ -2027,8 +2136,6 @@ for good reason it assumes single nodes). For rarely used fields no helpers are
 provided and there are a few that probably are used seldom too but were added for
 consistency. You can of course always define additional accessor using \type
 {getfield} and \type {setfield} with little overhead.
-
-% \startcolumns[balance=yes]
 
 \def\yes{$+$} \def\nop{$-$}
 
@@ -2161,8 +2268,6 @@ consistency. You can of course always define additional accessor using \type
 \NC \type {get_synctex_fields}   \NC \yes \NC \yes  \NC \NR
 \LL
 \stoptabulate
-
-% \stopcolumns
 
 The \type {node.next} and \type {node.prev} functions will stay but for
 consistency there are variants called \type {getnext} and \type {getprev}. We had

@@ -2,15 +2,36 @@
 
 \startcomponent luatex-registers
 
+\startchapter[title=Topics]
+
+    \placeregister[topicindex]
+
+\stopchapter
+
 \startchapter[title=Primitives]
+
+    This register contains the primitives that are mentioned in the manual. There
+    are of course many more primitives. The \LUATEX\ primitives are typeset in
+    bold. The primitives from \PDFTEX\ are not supported that way but mentioned
+    anyway.
 
     \placeregister[primitiveindex][indicator=no]
 
 \stopchapter
 
-\startchapter[title=Topics]
+\startchapter[title=Callbacks]
 
-    \placeregister[topicindex]
+    \placeregister[callbackindex]
+
+\stopchapter
+
+\startchapter[title=Nodes]
+
+    This register contains the nodes that are known to \LUATEX. The primary nodes
+    are in bold, whatsits that are determined by their subtype are normal. The
+    names prefixed by \type {pdf_} are backend specific.
+
+    \placeregister[nodeindex]
 
 \stopchapter
 

@@ -312,6 +312,7 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     int save_loc = 0;           /* DVI! \.{DVI} byte location upon entry */
     scaledpos save_dvi = { 0, 0 };      /* DVI! what |dvi| should pop to */
     int synctex = synctex_par ;
+    scaled rleft, rright;
 
     g_order = glue_order(this_box);
     g_sign = glue_sign(this_box);
@@ -474,6 +475,8 @@ cur.h += x_advance(p);
                         if (type(leader_box) == rule_node) {
                             rule.ht = height(leader_box);
                             rule.dp = depth(leader_box);
+                            rleft = 0;
+                            rright = 0;
                             goto FIN_RULE;
                         }
                         if (textdir_parallel(box_dir(leader_box), localpos.dir))
@@ -598,6 +601,8 @@ cur.h += x_advance(p);
                         rule.dp = width(p) / 2;
                         rule.wd = height(p) + depth(p);
                     }
+                    rleft = rule_left(p);
+                    rright = rule_right(p);
                     goto FIN_RULE;
                     break;
                 case dir_node:
@@ -670,10 +675,19 @@ cur.h += x_advance(p);
             goto NEXTP;
           FIN_RULE:
             /* output a rule in an hlist */
-            if (is_running(rule.ht))
+            if (is_running(rule.ht)) {
                 rule.ht = height(this_box);
-            if (is_running(rule.dp))
+                if (rleft != 0) {
+                    rule.ht -= rleft;
+                    pos_down(-rleft);
+                }
+            }
+            if (is_running(rule.dp)) {
                 rule.dp = depth(this_box);
+                if (rright != 0) {
+                    rule.dp -= rright;
+                }
+            }
             /* we don't output empty rules */
             if ((rule.ht + rule.dp) > 0 && rule.wd > 0) {
                 switch (localpos.dir) {
@@ -768,6 +782,7 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     int save_loc = 0;              /* DVI byte location upon entry */
     scaledpos save_dvi = { 0, 0 }; /* DVI! what |dvi| should pop to */
     int synctex = synctex_par ;
+    int rleft, rright;
 
     g_order = (glue_ord) glue_order(this_box);
     g_sign = glue_sign(this_box);
@@ -875,6 +890,8 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                     rule.dp = width(p) / 2;
                     rule.wd = height(p) + depth(p);
                 }
+                rleft = rule_left(p);
+                rright = rule_right(p);
                 goto FIN_RULE;
                 break;
             case glue_node:
@@ -901,6 +918,8 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                     if (type(leader_box) == rule_node) {
                         rule.wd = width(leader_box);
                         rule.dp = 0;
+                        rleft = 0;
+                        rright = 0;
                         goto FIN_RULE;
                     }
                     leader_ht = height(leader_box) + depth(leader_box);
@@ -1014,8 +1033,16 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
         goto NEXTP;
       FIN_RULE:
         /* output a rule in a vlist, |goto next_p| */
-        if (is_running(rule.wd))
+        if (is_running(rule.wd)) {
             rule.wd = width(this_box);
+        }
+if (rleft != 0) {
+    rule.wd -= rleft;
+    pos_left(-rleft);
+}
+if (rright != 0) {
+    rule.wd -= rright;
+}
         /* we don't output empty rules */
         if ((rule.ht + rule.dp) > 0 && rule.wd > 0) {
             switch (localpos.dir) {

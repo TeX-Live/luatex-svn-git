@@ -8,6 +8,10 @@
 
 \section{The \type {img} library}
 
+\topicindex {images}
+\topicindex {images+library}
+\topicindex {graphics}
+
 The \type {img} library can be used as an alternative to \orm {pdfximage} and
 \orm {pdfrefximage}, and the associated \quote {satellite} commands like \type
 {\pdfximagebbox}. Image objects can also be used within virtual fonts via the
@@ -66,7 +70,8 @@ Once the image is scanned, all the values in the \type {<image>} except \type
 {width}, \type {height} and \type {depth}, become frozen, and you cannot change
 them any more.
 
-You can use \type {pdf.setignoreunknownimages(1)} (or at the \TEX\ end the \lpr {pdfvariable} \type {ignoreunknownimages}) to get around a quit when no known
+You can use \type {pdf.setignoreunknownimages(1)} (or at the \TEX\ end the \lpr
+{pdfvariable} \type {ignoreunknownimages}) to get around a quit when no known
 image type is found (based on name or preamble). Beware: this will not catch
 invalid images and we cannot guarantee side effects. A zero dimension image is
 still included when requested. No special flags are set. A proper workflow will
@@ -81,7 +86,6 @@ not rely in such a catch but make sure that images are valid.
 This function returns a list of all the possible \type {image_spec} keys, both
 user-supplied and automatic ones.
 
-% hahe: i need to add r/w ro column...
 \starttabulate[|l|l|p|]
 \DB field name            \BC type     \BC description \NC \NR
 \TB
@@ -109,7 +113,8 @@ user-supplied and automatic ones.
 \NC \type{stream}         \NC string   \NC the raw stream data for an \type {/Xobject}
                                            \type {/Form} object\NC \NR
 \NC \type{transform}      \NC number   \NC the image transform, integer number 0..7 \NC \NR
-\NC \type{orientation}    \NC number   \NC the (jpeg) image orientation, integer number 1..8 (0 for unset) \NC \NR
+\NC \type{orientation}    \NC number   \NC the (jpeg) image orientation, integer number 1..8
+                                           (0 for unset) \NC \NR
 \NC \type{width}          \NC number   \NC the image width for \LUATEX \NC \NR
 \NC \type{xres}           \NC number   \NC the horizontal natural image resolution
                                            (in \DPI) \NC \NR
@@ -232,6 +237,8 @@ processing.
 
 \subsection{\type {immediatewrite}}
 
+\topicindex {images+immediate}
+
 \startfunctioncall
 <image> var = img.immediatewrite(<image> var)
 <image> var = img.immediatewrite(<table> image_spec)
@@ -278,6 +285,8 @@ node.write(img.node{filename="foo.png"})
 
 \subsection{\type {types}}
 
+\topicindex {images+types}
+
 \startfunctioncall
 <table> types = img.types()
 \stopfunctioncall
@@ -297,6 +306,11 @@ these are \type {media}, \type {crop}, \type {bleed}, \type {trim}, and \type
 {art}, all in lowercase letters.
 
 \section{The \type {mplib} library}
+
+\topicindex {\METAPOST}
+\topicindex {\METAPOST+mplib}
+\topicindex {images+mplib}
+\topicindex {images+\METAPOST}
 
 The \MP\ library interface registers itself in the table \type {mplib}. It is
 based on \MPLIB\ version \ctxlua {context(mplib.version())}.
