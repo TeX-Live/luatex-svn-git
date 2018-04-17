@@ -403,12 +403,12 @@
 \defineregister[callbackindex]
 \defineregister[nodeindex]
 
-\unexpanded\def\lpr#1{\primitiveindex[#1]{\bf\tex {#1}}\tex {#1}}
-\unexpanded\def\prm#1{\primitiveindex[#1]{\tex    {#1}}\tex {#1}}
-\unexpanded\def\orm#1{\primitiveindex[#1]{\tex    {#1}}\tex {#1}}
-\unexpanded\def\cbk#1{\callbackindex [#1]{\type   {#1}}\type{#1}}
-\unexpanded\def\nod#1{\nodeindex     [#1]{\bf\type{#1}}\type{#1}}
-\unexpanded\def\whs#1{\nodeindex     [#1]{\type   {#1}}\type{#1}}
-\unexpanded\def\noa#1{\nodeindex     [#1]{\type   {#1}}\type{#1}}
+\unexpanded\def\lpr#1{\doifmode{*bodypart}{\primitiveindex[#1]{\bf\tex {#1}}}\tex {#1}}
+\unexpanded\def\prm#1{\doifmode{*bodypart}{\primitiveindex[#1]{\tex    {#1}}}\tex {#1}}
+\unexpanded\def\orm#1{\doifmode{*bodypart}{\primitiveindex[#1]{\tex    {#1}}}\tex {#1}}
+\unexpanded\def\cbk#1{\doifmode{*bodypart}{\callbackindex [#1]{\type   {#1}}}\type{#1}}
+\unexpanded\def\nod#1{\doifmode{*bodypart}{\nodeindex     [#1]{\bf\type{#1}}}\type{#1}}
+\unexpanded\def\whs#1{\doifmode{*bodypart}{\nodeindex     [#1]{\type   {#1}}}\type{#1}}
+\unexpanded\def\noa#1{\doifmode{*bodypart}{\nodeindex     [#1]{\type   {#1}}}\type{#1}}
 
 \stopenvironment
