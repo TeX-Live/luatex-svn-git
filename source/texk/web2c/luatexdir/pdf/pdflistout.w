@@ -677,16 +677,16 @@ cur.h += x_advance(p);
             /* output a rule in an hlist */
             if (is_running(rule.ht)) {
                 rule.ht = height(this_box);
-                if (rleft != 0) {
-                    rule.ht -= rleft;
-                    pos_down(-rleft);
-                }
+            }
+            if (rleft != 0) {
+                rule.ht -= rleft;
+                pos_down(-rleft);
             }
             if (is_running(rule.dp)) {
                 rule.dp = depth(this_box);
-                if (rright != 0) {
-                    rule.dp -= rright;
-                }
+            }
+            if (rright != 0) {
+                rule.dp -= rright;
             }
             /* we don't output empty rules */
             if ((rule.ht + rule.dp) > 0 && rule.wd > 0) {
@@ -1036,13 +1036,13 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
         if (is_running(rule.wd)) {
             rule.wd = width(this_box);
         }
-if (rleft != 0) {
-    rule.wd -= rleft;
-    pos_left(-rleft);
-}
-if (rright != 0) {
-    rule.wd -= rright;
-}
+        if (rleft != 0) {
+            rule.wd -= rleft;
+            pos_left(-rleft);
+        }
+        if (rright != 0) {
+            rule.wd -= rright;
+        }
         /* we don't output empty rules */
         if ((rule.ht + rule.dp) > 0 && rule.wd > 0) {
             switch (localpos.dir) {
