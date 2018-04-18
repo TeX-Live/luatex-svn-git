@@ -292,15 +292,19 @@ the |number_regs| \.{\\dimen} registers.
 #  define automatic_hyphen_penalty_code 101
 #  define explicit_hyphen_penalty_code 102
 #  define automatic_hyphen_mode_code 103
-#  define break_after_dir_mode_code 104
+#  define compound_hyphen_mode_code 104
+#  define break_after_dir_mode_code 105
+#  define exception_penalty_code 106
 
-#  define pre_bin_op_penalty_code 105
-#  define pre_rel_penalty_code 106
-#  define math_penalties_mode_code 107
-#  define math_delimiters_mode_code 108
-#  define math_script_box_mode_code 109
+#  define pre_bin_op_penalty_code 107
+#  define pre_rel_penalty_code 108
+#  define math_penalties_mode_code 109
+#  define math_delimiters_mode_code 110
+#  define math_script_box_mode_code 111
+#  define math_script_char_mode_code 112
+#  define math_rule_thickness_mode_code 113
 
-#  define suppress_primitive_error_code 110
+#  define suppress_primitive_error_code 114
 
 #  define math_option_code (suppress_primitive_error_code+1)
 
@@ -525,7 +529,7 @@ typedef enum {
     cramped_script_script_style, /* |subtype| for \.{\\crampedscriptscriptstyle} */
 } math_style_subtypes;
 
-typedef enum {
+typedef enum { /* this could move to directions.h */
     dir_TLT = 0,
     dir_TRT,
     dir_LTL,
@@ -663,6 +667,8 @@ extern halfword last_cs_name;
 #define math_penalties_mode_par            int_par(math_penalties_mode_code)
 #define math_delimiters_mode_par           int_par(math_delimiters_mode_code)
 #define math_script_box_mode_par           int_par(math_script_box_mode_code)
+#define math_script_char_mode_par          int_par(math_script_char_mode_code)
+#define math_rule_thickness_mode_par       int_par(math_rule_thickness_mode_code)
 #define null_delimiter_space_par           dimen_par(null_delimiter_space_code)
 #define disable_lig_par                    int_par(disable_lig_code)
 #define disable_kern_par                   int_par(disable_kern_code)
@@ -790,7 +796,9 @@ extern halfword last_cs_name;
 #define automatic_hyphen_penalty_par       int_par(automatic_hyphen_penalty_code)
 #define explicit_hyphen_penalty_par        int_par(explicit_hyphen_penalty_code)
 #define automatic_hyphen_mode_par          int_par(automatic_hyphen_mode_code)
+#define compound_hyphen_mode_par           int_par(compound_hyphen_mode_code)
 #define break_after_dir_mode_par           int_par(break_after_dir_mode_code)
+#define exception_penalty_par              int_par(exception_penalty_code)
 
 #define cur_lang_par                       int_par(cur_lang_code)
 #define cur_font_par                       equiv(cur_font_loc)

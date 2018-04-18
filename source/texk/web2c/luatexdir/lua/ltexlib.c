@@ -2112,6 +2112,7 @@ static int gettex(lua_State * L)
             case assign_int_cmd:
             case assign_attr_cmd:
             case assign_dir_cmd:
+            case assign_direction_cmd:
             case assign_dimen_cmd:
             case set_aux_cmd:
             case set_prev_graf_cmd:
@@ -2859,7 +2860,7 @@ static int tex_run_linebreak(lua_State * L)
     }
     lua_key_rawgeti(pardir);
     if (lua_type(L, -1) == LUA_TSTRING) {
-        paragraph_dir = nodelib_getdir(L, -1, 1);
+        paragraph_dir = nodelib_getdir(L, -1);
     }
     lua_pop(L, 1);
 
@@ -3235,6 +3236,12 @@ static int tex_build_page(lua_State * L)
     return 0;
 }
 
+static int lua_get_page_state(lua_State * L)
+{
+    lua_pushinteger(L,page_contents);
+    return 1;
+}
+
 /* synctex */
 
 static int lua_set_synctex_mode(lua_State * L)
@@ -3397,6 +3404,7 @@ static const struct luaL_Reg texlib[] = {
     { "getboxresourcedimensions", tex_get_box_resource_dimensions },
     /* just for testing: it will probably stay but maybe with options */
     { "triggerbuildpage", tex_build_page },
+    { "getpagestate", lua_get_page_state },
     /* not the best place but better than in node */
     { "set_synctex_mode", lua_set_synctex_mode },
     { "get_synctex_mode", lua_get_synctex_mode },

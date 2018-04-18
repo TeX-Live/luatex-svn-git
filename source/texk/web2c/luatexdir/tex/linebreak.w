@@ -1828,7 +1828,7 @@ void ext_do_line_break(int paragraph_dir,
                     active_width[1] += width(cur_p);
                     break;
                 case dir_node: /* DIR: Adjust the dir stack for the |line_break| routine; */
-                    if (dir_dir(cur_p) >= 0) {
+                    if (subtype(cur_p) == normal_dir) {
                         line_break_dir = dir_dir(cur_p);
                         push_dir_node(dir_ptr,cur_p);   /* adds to |dir_ptr| */
                     } else {

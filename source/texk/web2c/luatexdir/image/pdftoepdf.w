@@ -893,12 +893,37 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
 
         unrefPdfDocument(img_filepath(idict));
     */
-
-if (! img_keepopen(idict)) {
-    unrefPdfDocument(img_filepath(idict));
+    if (! img_keepopen(idict)) {
+        unrefPdfDocument(img_filepath(idict));
+    }
 }
 
-
+int write_epdf_object(PDF pdf, image_dict * idict, int n)
+{
+    PdfDocument *pdf_doc = NULL;
+    PDFDoc *doc = NULL;
+    Object obj;
+    int num;
+    if (img_type(idict) == IMG_TYPE_PDF) {
+        pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
+    } else {
+        normal_error("pdf inclusion","unknown document");
+    }
+    doc = pdf_doc->doc;
+    num = pdf->obj_count++;
+    obj = doc->getXRef()->fetch(n, 0);
+    if (obj.isStream()) {
+        pdf_begin_obj(pdf, num, OBJSTM_NEVER);
+    } else {
+        pdf_begin_obj(pdf, num, 2);
+    }
+    copyObject(pdf, pdf_doc, &obj);
+    pdf_end_obj(pdf);
+    writeRefs(pdf, pdf_doc);
+    if (! img_keepopen(idict)) {
+        unrefPdfDocument(img_filepath(idict));
+    }
+    return num;
 }
 
 /* Deallocate a PdfDocument with all its resources. */

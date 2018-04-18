@@ -124,6 +124,7 @@ void luafunctioncall(int slot)
         lua_pushinteger(Luas, slot);
         lua_pushcfunction(Luas, lua_traceback); /* push traceback function */
         lua_insert(Luas, base); /* put it under chunk  */
+        ++function_callback_count;
         i = lua_pcall(Luas, 1, 0, base);
         lua_remove(Luas, base); /* remove traceback function */
         if (i != 0) {
@@ -298,7 +299,6 @@ void luainterpreter(void)
 
     open_oslibext(L);
     open_strlibext(L);
-    open_lfslibext(L);
 
     /*
         The socket and mime libraries are a bit tricky to open because they use a load-time
@@ -440,7 +440,7 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
     size_t ll = 0;
     char *lua_id;
     char *s = NULL;
-
+    int stacktop = lua_gettop(Luas);
     if (Luas == NULL) {
         luainterpreter();
     }
@@ -453,12 +453,14 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
             lua_checkstack(Luas, 1);
             lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
             lua_insert(Luas, base);     /* put it under chunk  */
+            ++late_callback_count;
             i = lua_pcall(Luas, 0, 0, base);
             lua_remove(Luas, base);     /* remove traceback function */
             if (i != 0) {
                 lua_gc(Luas, LUA_GCCOLLECT, 0);
                 Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
             }
+            lua_settop(Luas,stacktop);
             lua_active--;
             return ;
         }
@@ -496,6 +498,7 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
             lua_checkstack(Luas, 1);
             lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
             lua_insert(Luas, base);     /* put it under chunk  */
+            ++late_callback_count;
             i = lua_pcall(Luas, 0, 0, base);
             lua_remove(Luas, base);     /* remove traceback function */
             if (i != 0) {
@@ -505,6 +508,66 @@ static void luacall(int p, int nameptr, boolean is_string) /* hh-ls: optimized l
         }
         xfree(ls.s);
     }
+    lua_settop(Luas,stacktop);
+    lua_active--;
+}
+
+@ @c
+void luacall_vf(int p, int f, int c)
+{
+    int i;
+    int stacktop = lua_gettop(Luas);
+    if (Luas == NULL) {
+        luainterpreter();
+    }
+    lua_active++;
+    lua_rawgeti(Luas, LUA_REGISTRYINDEX, p);
+    if (lua_isfunction(Luas,-1)) {
+        int base = lua_gettop(Luas);        /* function index */
+        lua_checkstack(Luas, 1);
+        lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
+        lua_insert(Luas, base);     /* put it under chunk  */
+        lua_pushinteger(Luas, f);
+        lua_pushinteger(Luas, c);
+        ++late_callback_count;
+        i = lua_pcall(Luas, 2, 0, base);
+        lua_remove(Luas, base);     /* remove traceback function */
+        if (i != 0) {
+            lua_gc(Luas, LUA_GCCOLLECT, 0);
+            Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
+        }
+    } else {
+        LoadS ls;
+        size_t ll = 0;
+        char *s = NULL;
+        const char *ss = NULL;
+        ss = lua_tolstring(Luas, -1, &ll);
+        s = xmalloc(ll+1);
+        memcpy(s,ss,ll+1);
+        lua_pop(Luas,1);
+        ls.s = s;
+        ls.size = ll;
+        if (ls.size > 0) {
+            i = Luas_load(Luas, getS, &ls, "=[vf command]");
+            if (i != 0) {
+                Luas = luatex_error(Luas, (i == LUA_ERRSYNTAX ? 0 : 1));
+            } else {
+                int base = lua_gettop(Luas);        /* function index */
+                lua_checkstack(Luas, 1);
+                lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
+                lua_insert(Luas, base);     /* put it under chunk  */
+                ++late_callback_count;
+                i = lua_pcall(Luas, 0, 0, base);
+                lua_remove(Luas, base);     /* remove traceback function */
+                if (i != 0) {
+                    lua_gc(Luas, LUA_GCCOLLECT, 0);
+                    Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
+                }
+            }
+            xfree(ls.s);
+        }
+    }
+    lua_settop(Luas,stacktop);
     lua_active--;
 }
 
@@ -525,11 +588,11 @@ void late_lua(PDF pdf, halfword p)
 void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
 {
     LoadS ls;
-    int i, l;
+    int i;
+    int l = 0;
     char *s = NULL;
     char *lua_id;
-    assert(Luas);
-    l = 0;
+    int stacktop = lua_gettop(Luas);
     lua_active++;
     s = tokenlist_to_cstring(p, 1, &l);
     ls.s = s;
@@ -557,6 +620,7 @@ void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
             lua_checkstack(Luas, 1);
             lua_pushcfunction(Luas, lua_traceback);     /* push traceback function */
             lua_insert(Luas, base);     /* put it under chunk  */
+            ++direct_callback_count;
             i = lua_pcall(Luas, 0, 0, base);
             lua_remove(Luas, base);     /* remove traceback function */
             if (i != 0) {
@@ -565,6 +629,7 @@ void luatokencall(int p, int nameptr) /* hh-ls: optimized lua_id resolving */
             }
         }
     }
+    lua_settop(Luas,stacktop);
     lua_active--;
 }
 

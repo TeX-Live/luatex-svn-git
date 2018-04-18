@@ -1,5 +1,4 @@
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-titlepage
 
@@ -8,7 +7,7 @@
     \switchtobodyfont
       [mainfacemedium]
 
-    \definedfont[Bold*default at \the\dimexpr.08\paperheight\relax] \setupinterlinespace
+    \definedfont[Bold*default at \the\dimexpr.06\paperheight\relax] \setupinterlinespace
 
     \setlayer
       [page]
@@ -16,55 +15,39 @@
 
     \setlayerframed
       [page]
-      [preset=middletop,
-       voffset=.05\paperheight]
+      [preset=righttop,
+       location=middletop,
+       hoffset=.500\measured{paperwidth},
+       voffset=.175\measured{paperheight}]
       [align=middle,
-       foregroundcolor=blue,
+       foregroundcolor=white,
        frame=off]
-      {Lua\TeX\\Reference Manual}
+      {Lua\TeX\crlf Reference\crlf Manual}
 
-    \definedfont[Bold*default at 18pt] \setupinterlinespace
+    \definedfont[Bold*default at 14pt] \setupinterlinespace
 
     \setlayerframed
       [page]
       [preset=rightbottom,
-       offset=.01\paperheight]
+       offset=.025\measured{paperheight}]
       [align=flushright,
-       foregroundcolor=blue,
+       foregroundcolor=white,
        frame=off]
       {\doifsomething{\documentvariable{status}}{\documentvariable{status}\par}
        \currentdate[month,space,year]\par
        Version \documentvariable{version}}
 
-\stopstandardmakeup
-
-\startstandardmakeup
-
-    \start
-        \raggedleft
-        \definedfont[Bold*default at 48pt]
-        \setupinterlinespace
-        \blue Lua\TeX \endgraf Reference \endgraf Manual \endgraf
-    \stop
-
-    \vfill
-
-    \definedfont[Bold*default at 12pt]
-
-    \starttabulate[|l|l|]
-        \NC copyright \EQ Lua\TeX\ development team \NC \NR
-        \NC more info \EQ www.luatex.org \NC \NR
-        \NC version   \EQ \currentdate \doifsomething{\documentvariable{snapshot}}{(snapshot \documentvariable{snapshot})} \NC \NR
-    \stoptabulate
+    \setlayerframed
+      [page]
+      [preset=middle,
+       hoffset=-.5\dimexpr\measured{paperwidth}-\measured{spinewidth}\relax]
+      [width=.7\measured{paperwidth},
+       align=normal,
+       foregroundstyle=\bf,
+       foregroundcolor=white,
+       frame=off]
+      {\getbuffer[backpage]}
 
 \stopstandardmakeup
-
-\setupbackgrounds
-  [leftpage]
-  [setups=pagenumber:left]
-
-\setupbackgrounds
-  [rightpage]
-  [setups=pagenumber:right]
 
 \stopcomponent

@@ -1,7 +1,6 @@
 % language=uk
 
 \environment luatex-style
-\environment luatex-logos
 
 \startcomponent luatex-backend
 
@@ -9,30 +8,43 @@
 
 \section{The \type {pdf} library}
 
+\topicindex{backend}
+\topicindex{\PDF}
+
 This library contains variables and functions that are related to the \PDF\
 backend. You can find more details about the expected values to setters in \in
 {section} [backendprimitives].
 
 \subsection{\type {mapfile}, \type {mapline}}
 
+\topicindex{map files}
+\topicindex{files+map}
+
 \startfunctioncall
 pdf.mapfile(<string> map file)
 pdf.mapline(<string> map line)
 \stopfunctioncall
 
-These two functions can be used to replace primitives \type {\pdfmapfile} and
-\type {\pdfmapline} inherited from \PDFTEX. They expect a string as only
+These two functions can be used to replace primitives \orm {pdfmapfile} and
+\orm {pdfmapline} inherited from \PDFTEX. They expect a string as only
 parameter and have no return value. The first character in a map line can be
 \type {-}, \type {+} or \type {=} which means as much as remove, add or replace
 this line.
 
 \subsection {\type {[set|get][catalog|info|names|trailer]}}
 
+\topicindex{\PDF+trailer}
+\topicindex{\PDF+catalog}
+\topicindex{\PDF+info}
+
 These functions complement the corresponding \PDF\ backend token lists dealing
 with metadata. The value types are strings and they are written out to the \PDF\
 file directly after the token registers.
 
 \subsection {\type {[set|get][pageattributes|pageresources|pagesattributes]}}
+
+\topicindex{\PDF+page attributes}
+\topicindex{\PDF+page resources}
 
 These functions complement the corresponding \PDF\ backend token lists dealing
 with page resources. The variables have no interaction with the corresponding \PDF\
@@ -41,6 +53,9 @@ token registers.
 
 \subsection{\type {[set|get][xformattributes|xformresources]}}
 
+\topicindex{\PDF+xform attributes}
+\topicindex{\PDF+xform resources}
+
 These functions complement the corresponding \PDF\ backend token lists dealing
 with reuseable boxes and images. The variables have no interaction with the
 corresponding \PDF\ backend token register. They are written out to the \PDF\
@@ -48,59 +63,84 @@ file directly after the token registers.
 
 \subsection{\type {getversion} and \type {[set|get]minorversion}}
 
+\topicindex{\PDF+version}
+
 The version is frozen in the binary but you can set the minor version. What minor
 version you set depends on what \PDF\ features you use. This is out of control
 of \LUATEX.
 
 \subsection{\type {getcreationdate}}
 
+\topicindex{\PDF+date}
+
 This function returns a string with the date in the format that ends up in the
 \PDF\ file, in this case it's: {\tttf \cldcontext{pdf.getcreationdate()}}.
 
 \subsection{\type {[set|get]inclusionerrorlevel}, \type {[set|get]ignoreunknownimages}}
+
+\topicindex{\PDF+options}
 
 These variable control how error in included image are treated. They are modeled
 after the \PDFTEX\ equivalents.
 
 \subsection{\type {[set|get]suppressoptionalinfo}}
 
-This bitset determnines what kind of info gets flushes. By default we flush all.
+\topicindex{\PDF+options}
+
+This bitset determines what kind of info gets flushes. By default we flush all.
 
 \subsection{\type {[set|get]trailerid}}
+
+\topicindex{\PDF+trailer}
 
 You can set your own trailer id. This has to be a valid array string
 with checksums.
 
 \subsection{\type {[set|get]compresslevel}}
 
+\topicindex{\PDF+compression}
+
 These two functions set the level of compression. The minimum value is~0,
 the maximum is~9.
 
 \subsection{\type {[set|get]objcompresslevel}}
+
+\topicindex{\PDF+compression}
 
 These two functions set the level of compression. The minimum value is~0,
 the maximum is~9.
 
 \subsection{\type {[set|get]gentounicode}}
 
+\topicindex{\PDF+unicode}
+
 This flag enables tounicode generation (like in \PDFTEX).
 
 \subsection{\type {[set|get]omitcidset}}
+
+\topicindex{\PDF+options}
 
 This flag disables inclusion of a so called CIDSet which can be handy when aiming
 at some of the many \PDF\ substandards.
 
 \subsection{\type {[set|get]decimaldigits}}
 
+\topicindex{\PDF+precision}
+
 These two functions set the accuracy of floats written to the \PDF file. You can
 set any value but the backend will not go below~3 and above~6.
 
 \subsection{\type {[set|get]pkresolution}}
 
+\topicindex{\PDF+resolution}
+
 These setter takes two arguments: the resolution and an optional zero or one that
 indicates if this is a fixed one. The getter returns these two values.
 
 \subsection{\type {getlast[obj|link|annot]} and \type {getretval}}
+
+\topicindex{\PDF+objects}
+\topicindex{\PDF+annotations}
 
 These status variables are similar to the ones traditionally used in the backend
 interface at the \TEX\ end.
@@ -115,6 +155,8 @@ information about a (to be) embedded font.
 
 \subsection{\type {[set|get]origin}}
 
+\topicindex{\PDF+positioning}
+
 This one is used to set the horizonal and|/|or vertical offset, a traditional
 backend property.
 
@@ -128,15 +170,21 @@ The counterpart of this function returns two values.
 
 \subsection{\type {[set|get]imageresolution}}
 
+\topicindex{\PDF+resolution}
+
 These two functions relate to the imageresolution that is used when the image
 itself doesn't provide a non|-|zero x or y resolution.
 
 \subsection {\type {[set|get][link|dest|thread|xform]margin}}
 
+\topicindex{\PDF+margins}
+
 These functions can be used to set and retrieve the margins that are added to the
 natural bounding boxes of the respective objects.
 
 \subsection {\type {get[pos|hpos|vpos]}}
+
+\topicindex{\PDF+positions}
 
 These function get current location on the output page, measured from its lower
 left corner. The values return scaled points as units.
@@ -146,6 +194,8 @@ local h, v = pdf.getpos()
 \stoptyping
 
 \subsection {\type {[has|get]matrix}}
+
+\topicindex{\PDF+matrix}
 
 The current matrix transformation is available via the \type {getmatrix} command,
 which returns 6 values: \type {sx}, \type {rx}, \type {ry}, \type {sy}, \type
@@ -161,9 +211,11 @@ end
 
 \subsection {\type {print}}
 
-You can print string to the \PDF\ document from within a within a \type
-{\latelua} call. This function is not to be used inside \type {\directlua} unless
-you know {\it exactly} what you are doing.
+\topicindex{\PDF+print to}
+
+You can print string to the \PDF\ document from within a within a \lpr {latelua}
+call. This function is not to be used inside \prm {directlua} unless you know
+{\it exactly} what you are doing.
 
 \startfunctioncall
 pdf.print(<string> s)
@@ -175,8 +227,10 @@ The optional parameter can be used to mimic the behavior of \PDF\ literals: the
 
 \subsection {\type {immediateobj}}
 
+\topicindex{\PDF+objects}
+
 This function creates a \PDF\ object and immediately writes it to the \PDF\ file.
-It is modelled after \PDFTEX's \type {\immediate} \type {\pdfobj} primitives. All
+It is modelled after \PDFTEX's \prm {immediate} \orm {pdfobj} primitives. All
 function variants return the object number of the newly generated object.
 
 \startfunctioncall
@@ -217,12 +271,14 @@ reserved \PDF\ object.
 
 \subsection{\type{obj}}
 
+\topicindex{\PDF+objects}
+
 This function creates a \PDF\ object, which is written to the \PDF\ file only
 when referenced, e.g., by \type {refobj()}.
 
 All function variants return the object number of the newly generated object, and
 there are two separate calling modes. The first mode is modelled after \PDFTEX's
-\type {\pdfobj} primitive.
+\orm {pdfobj} primitive.
 
 \startfunctioncall
 <number> n =
@@ -273,22 +329,26 @@ can't have both \type {string} and \type {file} at the same time.
 
 \subsection {\type {refobj}}
 
-This function, the \LUA\ version of the \type {\pdfrefobj} primitive, references an
+\topicindex{\PDF+objects}
+
+This function, the \LUA\ version of the \orm {pdfrefobj} primitive, references an
 object by its object number, so that the object will be written out.
 
 \startfunctioncall
 pdf.refobj(<integer> n)
 \stopfunctioncall
 
-This function works in both the \type {\directlua} and \type {\latelua} environment.
-Inside \type {\directlua} a new whatsit node \quote {pdf_refobj} is created, which
+This function works in both the \prm {directlua} and \lpr {latelua} environment.
+Inside \prm {directlua} a new whatsit node \quote {pdf_refobj} is created, which
 will be marked for flushing during page output and the object is then written
 directly after the page, when also the resources objects are written out. Inside
-\type {\latelua} the object will be marked for flushing.
+\lpr {latelua} the object will be marked for flushing.
 
 This function has no return values.
 
 \subsection {\type {reserveobj}}
+
+\topicindex{\PDF+objects}
 
 This function creates an empty \PDF\ object and returns its number.
 
@@ -301,13 +361,15 @@ This function creates an empty \PDF\ object and returns its number.
 
 This function adds an object number to the \type {/Annots} array for the current
 page without doing anything else. This function can only be used from within
-\type {\latelua}.
+\lpr {latelua}.
 
 \startfunctioncall
 pdf.registerannot (<number> objnum)
 \stopfunctioncall
 
 \subsection {\type {newcolorstack}}
+
+\topicindex{\PDF+color stack}
 
 This function allocates a new color stack and returns it's id. The arguments
 are the same as for the similar backend extension primitive.
@@ -318,6 +380,8 @@ pdf.newcolorstack("0 g","page",true) -- page|direct|origin
 
 \subsection {\type {setfontattributes}}
 
+\topicindex{\PDF+fonts}
+
 This function will force some additional code into the font resource. It can for
 instance be used to add a custom \type {ToUnicode} vector to a bitmap file.
 
@@ -326,6 +390,8 @@ pdf.setfontattributes(<number> font id, <string> pdf code)
 \stopfunctioncall
 
 \section {The \type {pdfscanner} library}
+
+\topicindex{\PDF+scanner}
 
 The \type {pdfscanner} library allows interpretation of \PDF\ content streams and
 \type {/ToUnicode} (cmap) streams. You can get those streams from the \type
@@ -438,6 +504,8 @@ value.
 The list of possible operand types and associated \LUA\ value types is:
 
 \starttabulate[|l|c|]
+\DB types           \BC type      \NC \NR
+\TB
 \NC \type{integer}  \NC <number>  \NC \NR
 \NC \type{real}     \NC <number>  \NC \NR
 \NC \type{boolean}  \NC <boolean> \NC \NR
@@ -446,12 +514,11 @@ The list of possible operand types and associated \LUA\ value types is:
 \NC \type{string}   \NC <string>  \NC \NR
 \NC \type{array}    \NC <table>   \NC \NR
 \NC \type{dict}     \NC <table>   \NC \NR
+\LL
 \stoptabulate
 
 In case of \type {integer} or \type {real}, the value is always a \LUA\ (floating
-point) number.
-
-In case of \type {name}, the leading slash is always stripped.
+point) number. In case of \type {name}, the leading slash is always stripped.
 
 In case of \type {string}, please bear in mind that \PDF\ actually supports
 different types of strings (with different encodings) in different parts of the
@@ -465,12 +532,12 @@ In case of \type {array}, the table content is a list of \type {pop} return
 values and in case of \type {dict}, the table keys are \PDF\ name strings and the
 values are \type {pop} return values.
 
-\blank
-
 There are few more methods defined that you can ask \type {scanner}:
 
 \starttabulate[|l|p|]
-\NC \type{pop}       \NC as explained above \NC \NR
+\DB method           \BC explanation \NC \NR
+\TB
+\NC \type{pop}       \NC see above \NC \NR
 \NC \type{popNumber} \NC return only the value of a \type {real} or \type {integer} \NC \NR
 \NC \type{popName}   \NC return only the value of a \type {name} \NC \NR
 \NC \type{popString} \NC return only the value of a \type {string} \NC \NR
@@ -478,6 +545,7 @@ There are few more methods defined that you can ask \type {scanner}:
 \NC \type{popDict}   \NC return only the value of a \type {dict} \NC \NR
 \NC \type{popBool}   \NC return only the value of a \type {boolean} \NC \NR
 \NC \type{done}      \NC abort further processing of this \type {scan()} call \NC \NR
+\LL
 \stoptabulate
 
 The \type {popXXX} are convenience functions, and come in handy when you know the
@@ -494,6 +562,9 @@ stream, possibly wasting \CPU\ cycles.
 
 \section{The \type {epdf} library}
 
+\topicindex{\PDF+analyze}
+\topicindex{\PDF+\type{epdf}}
+
 The \type {epdf} library provides \LUA\ bindings to many \PDF\ access functions
 that are defined by the poppler \PDF\ viewer library (written in C$+{}+$ by
 Kristian H\o gsberg, based on xpdf by Derek Noonburg). Within \LUATEX\ xpdf
@@ -503,52 +574,6 @@ its document structure: catalog, cross|-|reference table, individual pages,
 objects, annotations, info, and metadata. The \type {epdf} library only provides
 read|-|only access. At some point we might decide to limit the interface to a
 reasonable subset.
-
-\start \em
-
-The following functions will be removed in a next version. This is partly due to
-a change in the api of the used library and partly due to the fact that write
-access is not needed at all.
-
-\starttabulate[|T|T||]
-\NC Annot            \NC  getAppearance     \NC gone    \NC \NR
-\NC                  \NC  getBorder         \NC gone    \NC \NR
-\NC AnnotBorderStyle \NC  getWidth          \NC gone    \NC \NR
-\NC Array            \NC  incRef            \NC gone    \NC \NR
-\NC                  \NC  decRef            \NC gone    \NC \NR
-\NC                  \NC  add               \NC will go \NC \NR
-\NC Attribute        \NC  setRevision       \NC will go \NC \NR
-\NC                  \NC  setHidden         \NC will go \NC \NR
-\NC                  \NC  setFormattedValue \NC will go \NC \NR
-\NC EmbFile          \NC  save              \NC will go \NC \NR
-\NC Dict             \NC  incRef            \NC gone    \NC \NR
-\NC                  \NC  decRef            \NC gone    \NC \NR
-\NC                  \NC  add               \NC will go \NC \NR
-\NC                  \NC  set               \NC will go \NC \NR
-\NC                  \NC  remove            \NC will go \NC \NR
-\NC Object           \NC  initBool          \NC will go \NC \NR
-\NC                  \NC  initInt           \NC will go \NC \NR
-\NC                  \NC  initReal          \NC will go \NC \NR
-\NC                  \NC  initString        \NC will go \NC \NR
-\NC                  \NC  initName          \NC will go \NC \NR
-\NC                  \NC  initNull          \NC will go \NC \NR
-\NC                  \NC  initArray         \NC will go \NC \NR
-\NC                  \NC  initDict          \NC will go \NC \NR
-\NC                  \NC  initStream        \NC will go \NC \NR
-\NC                  \NC  initRef           \NC will go \NC \NR
-\NC                  \NC  initCmd           \NC will go \NC \NR
-\NC                  \NC  initError         \NC will go \NC \NR
-\NC                  \NC  initEOF           \NC will go \NC \NR
-\NC                  \NC  dictAdd           \NC will go \NC \NR
-\NC                  \NC  dictSet           \NC will go \NC \NR
-\NC                  \NC  streamReset       \NC will go \NC \NR
-\NC StructElement    \NC  setRevision       \NC will go \NC \NR
-\NC                  \NC  appendChild       \NC will go \NC \NR
-\NC                  \NC  appendAttribute   \NC will go \NC \NR
-\NC StructTreeRoot   \NC  appendChild       \NC will go \NC \NR
-\stoptabulate
-
-\stop
 
 For a start, a \PDF\ file is opened by \type {epdf.open()} with file name, e.g.:
 
@@ -602,25 +627,13 @@ These are the object constructors:
 
 \startfunctioncall
 <PDFDoc>       = epdf.open(<string> PDF filename)
-<Annot>        = epdf.Annot(<XRef>, <Dict>, <Catalog>, <Ref>)
-<Annots>       = epdf.Annots(<XRef>, <Catalog>, <Object>)
-<Array>        = epdf.Array(<XRef>)
-<Attribute>    = epdf.Attribute(<Type>,<Object>)| epdf.Attribute(<string>, <int>, <Object>)
-<Dict>         = epdf.Dict(<XRef>)
-<Object>       = epdf.Object()|epdf.Object(<Type>)|epdf.Object(<Object_Type>,<string>)|
-<PDFRectangle> = epdf.PDFRectangle()
+<PDFDoc>       = epdf.openMemStream(<string> PDF code)
 \stopfunctioncall
 
-There is a new API for the \type {Object} constructors: the old \type {init<ObjType>} constructors
-are still present but they are deprecated. They will disappear after the next \TeX Live.
-The functions \type {StructElement_Type}, \type {Object_Type}, \type {Attribute_Type} and \type
+The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 {AttributeOwner_Type} return a hash table \type {{<string>,<integer>}}.
-The hash table \type {Object_Type} is useful for the
-\type {epdf.Object(<Object_Type>,<string>)} \type {Object} constructor, where \type {<Object_Type>} is an
-integer.
 
 \type {Annot} methods:
-
 
 \startfunctioncall
 <boolean>     = <Annot>:isOK()
@@ -645,9 +658,6 @@ integer.
 \type {Array} methods:
 
 \startfunctioncall
-            <Array>:incRef()      -- gone
-            <Array>:decRef()      -- gone
-            <Array>:add(<Object>) -- will go
 <integer> = <Array>:getLength()
 <Object>  = <Array>:get(<integer>)
 <Object>  = <Array>:getNF(<integer>)
@@ -666,11 +676,8 @@ integer.
 <Object>   = <Attribute>:getDefaultValue
 <string>   = <Attribute>:getName()
 <integer>  = <Attribute>:getRevision()
-             <Attribute>:setRevision(<unsigned integer>) -- will go
 <boolean>  = <Attribute>:isHidden()
-             <Attribute>:setHidden(<boolean>)            -- will go
 <string>   = <Attribute>:getFormattedValue()
-<string>   = <Attribute>:setFormattedValue(<string>)     -- will go
 \stopfunctioncall
 
 \type {Catalog} methods:
@@ -722,11 +729,6 @@ integer.
 \type {Dict} methods:
 
 \startfunctioncall
-            <Dict>:incRef()                -- will go
-            <Dict>:decRef()                -- will go
-            <Dict>:add(<string>, <Object>) -- will go
-            <Dict>:set(<string>, <Object>) -- will go
-            <Dict>:remove(<string>)        -- will go
 <integer> = <Dict>:getLength()
 <boolean> = <Dict>:is(<string>)
 <Object>  = <Dict>:lookup(<string>)
@@ -775,20 +777,6 @@ integer.
 \type {Object} methods:
 
 \startfunctioncall
-            <Object>:initBool(<boolean>)              -- will go
-            <Object>:initInt(<integer>)               -- will go
-            <Object>:initReal(<number>)               -- will go
-            <Object>:initString(<string>)             -- will go
-            <Object>:initName(<string>)               -- will go
-            <Object>:initNull()                       -- will go
-            <Object>:initArray(<XRef>)                -- will go
-            <Object>:initDict(<XRef>)                 -- will go
-            <Object>:initStream(<Stream>)             -- will go
-            <Object>:initRef(<integer> object number,
-                <integer> object generation)          -- will go
-            <Object>:initCmd(<string>)                -- will go
-            <Object>:initError()                      -- will go
-            <Object>:initEOF()                        -- will go
 <Object>  = <Object>:fetch(<XRef>)
 <integer> = <Object>:getType()
 <string>  = <Object>:getTypeName()
@@ -821,19 +809,16 @@ integer.
 <integer> = <Object>:getRefGen()
 <string>  = <Object>:getCmd()
 <integer> = <Object>:arrayGetLength()
-          = <Object>:arrayAdd(<Object>)               -- will go
 <Object>  = <Object>:arrayGet(<integer>)
 <Object>  = <Object>:arrayGetNF(<integer>)
 <integer> = <Object>:dictGetLength(<integer>)
-          = <Object>:dictAdd(<string>, <Object>)      -- will go
-          = <Object>:dictSet(<string>, <Object>)      -- will go
 <Object>  = <Object>:dictLookup(<string>)
 <Object>  = <Object>:dictLookupNF(<string>)
 <string>  = <Object>:dictgetKey(<integer>)
 <Object>  = <Object>:dictgetVal(<integer>)
 <Object>  = <Object>:dictgetValNF(<integer>)
 <boolean> = <Object>:streamIs(<string>)
-          = <Object>:streamReset()                    -- will go
+          = <Object>:streamReset()
 <integer> = <Object>:streamGetChar()
 <integer> = <Object>:streamLookChar()
 <integer> = <Object>:streamGetPos()
@@ -950,12 +935,10 @@ integer.
 <string>         = <StructElement>:getID()
 <string>         = <StructElement>:getLanguage()
 <integer>        = <StructElement>:getRevision()
-                   <StructElement>:setRevision(<unsigned integer>)   -- will go
 <string>         = <StructElement>:getTitle()
 <string>         = <StructElement>:getExpandedAbbr()
 <integer>        = <StructElement>:getNumChildren()
 <StructElement>  = <StructElement>:getChild()
-                 = <StructElement>:appendChild<StructElement>)       -- will go
 <integer>        = <StructElement>:getNumAttributes()
 <Attribute>      = <StructElement>:getAttribute(<integer>)
 <string>         = <StructElement>:appendAttribute(<Attribute>)      -- will go
@@ -976,7 +959,6 @@ integer.
 <Dict>          = <StructTreeRoot>:getClassMap
 <integer>       = <StructTreeRoot>:getNumChildren
 <StructElement> = <StructTreeRoot>:getChild
-                  <StructTreeRoot>:appendChild       -- will go
 <StructElement> = <StructTreeRoot>:findParentElement
 \stopfunctioncall
 
@@ -1012,15 +994,20 @@ integer.
 <Object>   = <XRef>:getTrailerDict()
 \stopfunctioncall
 
+\topicindex{\PDF+memory streams}
+
 There is an experimental function \type {epdf.openMemStream} that takes three
 arguments:
 
 \starttabulate
+\DB value           \BC explanation      \NC \NR
+\TB
 \NC \type {stream}  \NC this is a (in low level \LUA\ speak) light userdata
                         object, i.e.\ a pointer to a sequence of bytes \NC \NR
 \NC \type {length}  \NC this is the length of the stream in bytes \NC \NR
 \NC \type {name}    \NC this is a unique identifier that is used for hashing the
                         stream, so that multiple doesn't use more memory \NC \NR
+\LL
 \stoptabulate
 
 Instead of a light userdata stream you can also pass a \LUA\ string, in which

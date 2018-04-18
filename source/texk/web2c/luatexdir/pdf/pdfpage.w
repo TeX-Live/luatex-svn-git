@@ -61,6 +61,8 @@ void init_pdf_pagecalculations(PDF pdf)
     p->ishex = 0;
     p->need_tf = false;
     p->need_tm = false;
+    p->done_width = false;
+    p->done_mode = false;
     p->k1 = ten_pow[p->pdf.h.e] / by_one_bp;
 }
 
@@ -201,6 +203,8 @@ static void begin_text(PDF pdf)
     pdf_puts(pdf, "BT\n");
     p->mode = PMODE_TEXT;
     p->need_tf = true;
+    p->need_width = 0;
+    p->need_mode = 0;
 }
 
 static void end_text(PDF pdf)
@@ -208,6 +212,16 @@ static void end_text(PDF pdf)
     pdfstructure *p = pdf->pstruct;
     if (!is_textmode(p))
         normal_error("pdf backend","text mode expected in end_text");
+
+    if (p->done_width != 0) {
+        pdf_puts(pdf, "0 w\n");
+        p->done_width = 0;
+    }
+    if (p->done_mode != 0) {
+        pdf_puts(pdf, "0 Tr\n");
+        p->done_mode = 0;
+    }
+
     pdf_puts(pdf, "ET\n");
     p->pdf = p->pdf_bt_pos;
     p->mode = PMODE_PAGE;

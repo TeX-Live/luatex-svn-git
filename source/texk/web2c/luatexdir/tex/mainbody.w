@@ -530,8 +530,8 @@ void close_files_and_terminate(void)
             run_callback(callback_id, "->");
         }
     }
-    free_text_codes();
-    free_math_codes();
+ /* free_text_codes(); */
+ /* free_math_codes(); */
     if (log_opened_global) {
         wlog_cr();
         selector = selector - 2;
@@ -543,6 +543,12 @@ void close_files_and_terminate(void)
         }
         lua_a_close_out(log_file);
     }
+    callback_id = callback_defined(wrapup_run_callback);
+    if (callback_id > 0) {
+        run_callback(callback_id, "->");
+    }
+    free_text_codes();
+    free_math_codes();
 }
 
 

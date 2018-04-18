@@ -189,12 +189,15 @@ others are \.{\\vcenter}, \.{\\valign}, and \.{\\halign}).
 
 /* scans a box specification and left brace */
 
+#define first_char_is(a,A) (cur_cs == 0 && (cur_chr == a || cur_chr == A))
+
 void scan_full_spec(group_code c, int spec_direction, int just_pack)
 {
     int s, i, v, spec_code;
     boolean done = false ;
     halfword attr_list;
     boolean attr_done = false ;
+    boolean dir_done = false ;
     if (attr_list_cache == cache_disabled)
         update_attribute_cache();
     attr_list = attr_list_cache;
@@ -219,6 +222,7 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         }
     }
   KEYWORDS:
+    /* multiple attr keys possible (before or after dir) */
     if (scan_keyword("attr")) {
         scan_register_num();
         i = cur_val;
@@ -232,11 +236,23 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
         attr_list = do_set_attribute(attr_list, i, v);
         goto CONTINUE;
     }
-    if (scan_keyword("dir")) {
-        scan_direction();
-        spec_direction = cur_val;
-        goto CONTINUE;
+    /* we only permit one (b)dir directive */
+    if (! dir_done) {
+        if (scan_keyword("bdir")) {
+            scan_int();
+            check_dir_value(cur_val);
+            spec_direction = cur_val;
+            dir_done = true;
+            goto CONTINUE;
+        }
+        if (scan_keyword("dir")) {
+            scan_direction();
+            spec_direction = cur_val;
+            dir_done = true;
+            goto CONTINUE;
+        }
     }
+    /* only one to or spread key possible and it comes last */
     if (scan_keyword("to")) {
         spec_code = exactly;
     } else if (scan_keyword("spread")) {
@@ -275,7 +291,6 @@ void scan_full_spec(group_code c, int spec_direction, int just_pack)
     eq_word_define(int_base + par_direction_code, spec_direction);
     eq_word_define(int_base + text_direction_code, spec_direction);
 }
-
 
 @ To figure out the glue setting, |hpack| and |vpack| determine how much
 stretchability and shrinkability are present, considering all four orders of
@@ -827,7 +842,8 @@ halfword hpack(halfword p, scaled w, int m, int pack_direction)
                     break;
                 case dir_node:
                     /* Adjust the dir stack for the |hpack| routine */
-                    if (dir_dir(p) >= 0) {
+                    /* if (dir_dir(p) >= 0) { */
+                    if (subtype(p) == normal_dir) {
                         hpack_dir = dir_dir(p);
                         push_dir_node(dir_ptr1,p);
                     } else {

@@ -47,7 +47,7 @@ void pdf_print_charwidth(PDF pdf, internal_font_number f, int i)
 @ @c
 static void setup_fontparameters(PDF pdf, internal_font_number f, int ex_glyph)
 {
-    float slant, extend, expand, scale = 1.0;
+    float slant, extend, squeeze, expand, scale = 1.0;
     float u = 1.0;
     pdfstructure *p = pdf->pstruct;
     /* fix mantis bug \# 0000200 (acroread "feature") */
@@ -58,6 +58,7 @@ static void setup_fontparameters(PDF pdf, internal_font_number f, int ex_glyph)
     p->fs.m = i64round(font_size(f) / u / by_one_bp * ten_pow[p->fs.e]);
     slant = font_slant(f) / 1000.0;
     extend = font_extend(f) / 1000.0;
+    squeeze = font_squeeze(f) / 1000.0;
     expand = 1.0 + (ex_glyph/1) / 1000.0;
     p->tj_delta.e = p->cw.e - 1;        /* "- 1" makes less corrections inside []TJ */
     /* no need to be more precise than TeX (1sp) */
@@ -65,9 +66,11 @@ static void setup_fontparameters(PDF pdf, internal_font_number f, int ex_glyph)
         p->tj_delta.e--;        /* happens for very tiny fonts */
     p->tm[0].m = i64round(scale * expand * extend * ten_pow[p->tm[0].e]);
     p->tm[2].m = i64round(slant * ten_pow[p->tm[2].e]);
-    p->tm[3].m = i64round(scale * ten_pow[p->tm[3].e]);
+    p->tm[3].m = i64round(scale * squeeze * ten_pow[p->tm[3].e]);
     p->k2 = ten_pow[e_tj + p->cw.e] * scale / (ten_pow[p->pdf.h.e] * pdf2double(p->fs) * pdf2double(p->tm[0]));
     p->cur_ex = ex_glyph ;  /* we keep track of the state of ex */
+    p->need_width = font_width(f);
+    p->need_mode = font_mode(f);
 }
 
 
@@ -75,6 +78,22 @@ static void setup_fontparameters(PDF pdf, internal_font_number f, int ex_glyph)
 static void set_font(PDF pdf)
 {
     pdfstructure *p = pdf->pstruct;
+
+    if (p->need_width != 0) {
+        pdf_printf(pdf, "%0.3f w\n",((7227.0/7200.0)/1000.0) * p->need_width );
+        p->done_width = 1;
+    } else if (p->done_width) {
+        pdf_puts(pdf, "0 w\n");
+        p->done_width = 0;
+    }
+    if (p->need_mode != 0) {
+        pdf_printf(pdf, "%d Tr\n", (int) p->need_mode);
+        p->done_mode = 1;
+    } else if (p->done_mode) {
+        pdf_puts(pdf, "0 Tr\n");
+        p->done_mode = 0;
+    }
+
     pdf_printf(pdf, "/F%d", (int) p->f_pdf);
     pdf_print_resname_prefix(pdf);
     pdf_out(pdf, ' ');

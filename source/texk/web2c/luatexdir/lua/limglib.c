@@ -243,6 +243,26 @@ static void write_image_or_node(lua_State * L, wrtype_e writetype)
         img_state(ad) = DICT_REFERED;
 }
 
+static int write_image_object(lua_State * L, wrtype_e writetype)
+{
+    image *a, **aa;
+    image_dict *ad;
+    int num;
+    if (lua_gettop(L) != 2)
+        luaL_error(L, "%s expects two argument", wrtype_s[writetype]);
+    aa = (image **) luaL_checkudata(L, 1, TYPE_IMG);
+    a = *aa;
+    ad = img_dict(a);
+
+    read_img(ad);
+
+    /*   setup_image(static_pdf, a, writetype); */
+    num = (int) lua_tointeger(L, 2);
+    num = write_img_object(static_pdf, ad, num);
+    lua_pushinteger(L,num);
+    return 1;
+}
+
 static int l_write_image(lua_State * L)
 {
     write_image_or_node(L, WR_WRITE);
@@ -256,6 +276,17 @@ static int l_immediatewrite_image(lua_State * L)
         luaL_error(L, "img.immediatewrite can not be used with \\latelua");
     } else {
         write_image_or_node(L, WR_IMMEDIATEWRITE);
+    }
+    return 1;
+}
+
+static int l_immediatewrite_image_object(lua_State * L)
+{
+    check_o_mode(static_pdf, "img.immediatewriteobject", 1 << OMODE_PDF, true);
+    if (global_shipping_mode != NOT_SHIPPING) {
+        luaL_error(L, "img.immediatewriteobject can not be used with \\latelua");
+    } else {
+        write_image_object(L, WR_IMMEDIATEWRITE);
     }
     return 1;
 }
@@ -287,6 +318,7 @@ static const struct luaL_Reg imglib_f[] = {
     { "scan", l_scan_image },
     { "write", l_write_image },
     { "immediatewrite", l_immediatewrite_image },
+    { "immediatewriteobject", l_immediatewrite_image_object },
     { "node", l_image_node },
     { "keys", l_image_keys },
     { "types", l_image_types },

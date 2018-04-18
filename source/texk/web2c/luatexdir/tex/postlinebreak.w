@@ -136,16 +136,16 @@ void ext_post_line_break(int paragraph_dir,
 #endif
 
         /* DIR: Insert dir nodes at the beginning of the current line; */
-        for (q = dir_ptr; q != null; q = vlink(q)) {
-            halfword tmp = new_dir(dir_dir(q));
-            halfword nxt = vlink(temp_head);
-            delete_attribute_ref(node_attr(tmp));
-            node_attr(tmp) = node_attr(temp_head);
-            add_node_attr_ref(node_attr(tmp));
-            couple_nodes(temp_head, tmp);
-            try_couple_nodes(tmp, nxt); /* \.{\\break}\.{\\par} */
-        }
         if (dir_ptr != null) {
+            for (q = dir_ptr; q != null; q = vlink(q)) {
+                halfword tmp = new_dir(dir_dir(q));
+                halfword nxt = vlink(temp_head);
+                delete_attribute_ref(node_attr(tmp));
+                node_attr(tmp) = node_attr(temp_head);
+                add_node_attr_ref(node_attr(tmp));
+                couple_nodes(temp_head, tmp);
+                try_couple_nodes(tmp, nxt); /* \.{\\break}\.{\\par} */
+            }
             flush_node_list(dir_ptr);
             dir_ptr = null;
         }
@@ -159,24 +159,24 @@ void ext_post_line_break(int paragraph_dir,
 
         /* begin mathskip code */
         if (temp_head != null) {
-                q = temp_head;
-                while(q != null) {
-                    if (type(q) == math_node) {
-                        surround(q) = 0 ;
-                        reset_glue_to_zero(q);
-                        break;
-                    } else if ((type(q) == hlist_node) && (subtype(q) == indent_list)) {
-                        /* go on */
-                    } else if (is_char_node(q)) {
-                        break;
-                    } else if (non_discardable(q)) {
-                        break;
-                    } else if (type(q) == kern_node && subtype(q) != explicit_kern && subtype(q) != italic_kern) {
-                        break;
-                    }
-                    q = vlink(q);
+            q = temp_head;
+            while(q != null) {
+                if (type(q) == math_node) {
+                    surround(q) = 0 ;
+                    reset_glue_to_zero(q);
+                    break;
+                } else if ((type(q) == hlist_node) && (subtype(q) == indent_list)) {
+                    /* go on */
+                } else if (is_char_node(q)) {
+                    break;
+                } else if (non_discardable(q)) {
+                    break;
+                } else if (type(q) == kern_node && subtype(q) != explicit_kern && subtype(q) != italic_kern) {
+                    break;
                 }
+                q = vlink(q);
             }
+        }
         /* end mathskip code */
 
         r = cur_break(cur_p);
@@ -281,9 +281,9 @@ void ext_post_line_break(int paragraph_dir,
             halfword p;
             for (e = vlink(temp_head); e != null && e != cur_break(cur_p); e = vlink(e)) {
                 if (type(e) == dir_node) {
-                    if (dir_dir(e) >= 0) {
+                    if (subtype(e) == normal_dir) {
                         dir_ptr = do_push_dir_node(dir_ptr, e);
-                    } else if (dir_ptr != null && dir_dir(dir_ptr) == (dir_dir(e) + dir_swap)) {
+                    } else if (dir_ptr != null && dir_dir(dir_ptr) == dir_dir(e)) {
                         dir_ptr = do_pop_dir_node(dir_ptr);
                     }
                 }
@@ -293,7 +293,8 @@ void ext_post_line_break(int paragraph_dir,
             /* DIR: Insert dir nodes at the end of the current line; */
             e = vlink(r);
             for (p = dir_ptr; p != null; p = vlink(p)) {
-                halfword s = new_dir(dir_dir(p) - dir_swap);
+                halfword s = new_dir(dir_dir(p));
+                subtype(s) = cancel_dir;
                 delete_attribute_ref(node_attr(s));
                 node_attr(s) = node_attr(r);
                 add_node_attr_ref(node_attr(s));

@@ -339,7 +339,7 @@ void print_save_stack(void)
             case saved_textdir:
             case saved_boxdir:
                 tprint(", ");
-                print_dir(dir_dir(save_value(i)));
+                print_dir_text(save_value(i));
                 break;
             case saved_boxattr:
             case saved_boxpack:
@@ -1046,7 +1046,7 @@ void show_eqtb(halfword n)
         } else if (n < count_base) {
             print_cmd_chr(assign_dir_cmd, n);
             print_char(' ');
-            print_dir(eqtb[n].cint);
+            print_dir_par(eqtb[n].cint);
         } else if (n < attribute_base) {
             tprint_esc("count");
             print_int(n - count_base);

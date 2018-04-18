@@ -209,6 +209,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         scanned_result(eqtb[m].cint, int_val_level);
         break;
     case assign_dir_cmd:
+    case assign_direction_cmd:
         if (m == (int_base + line_direction_code)) {
             m = int_base + text_direction_code;
         }
@@ -1689,7 +1690,7 @@ halfword the_toks(void)
             print_int(cur_val);
             break;
         case dir_val_level:
-            print_dir(cur_val);
+            print_dir_par(cur_val);
             break;
         case dimen_val_level:
             print_scaled(cur_val);
@@ -1735,7 +1736,7 @@ str_number the_scanned_result(void)
             print_int(cur_val);
             break;
         case dir_val_level:
-            print_dir(cur_val);
+            print_dir_par(cur_val);
             break;
         case dimen_val_level:
             print_scaled(cur_val);

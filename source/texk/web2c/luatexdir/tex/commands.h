@@ -134,6 +134,7 @@ typedef enum {
     normal_cmd,                           /* general extensions to \TeX\ that don't fit into a category */
     extension_cmd,                        /* extensions to \TeX\ ( \.{\\write}, \.{\\special}, etc.~) */
     option_cmd,
+    lua_function_call_cmd,
     in_stream_cmd,                        /* files for reading ( \.{\\openin}, \.{\\closein} ) */
     begin_group_cmd,                      /* begin local grouping ( \.{\\begingroup} ) */
     end_group_cmd,                        /* end local grouping ( \.{\\endgroup} ) */
@@ -179,7 +180,9 @@ typedef enum {
     set_font_cmd,                         /* set current font ( font identifiers ) */
     def_font_cmd,                         /* define a font file ( \.{\\font} ) */
     register_cmd,                         /* internal register ( \.{\\count}, \.{\\dimen}, etc.~) */
+    assign_box_direction_cmd,             /* (\.{\\boxdirection}) */
     assign_box_dir_cmd,                   /* (\.{\\boxdir}) */
+    assign_direction_cmd,                 /* (\.{\\pagedirection}, \.{\\textdirection}) */
     assign_dir_cmd,                       /* (\.{\\pagedir}, \.{\\textdir}) */
 # define max_internal_cmd assign_dir_cmd  /* the largest code that can follow \.{\\the} */
     advance_cmd,                          /* advance a register or parameter ( \.{\\advance} ) */

@@ -66,7 +66,7 @@ const char *node_fields_list[] = {
     "glue_set", "head", NULL
 };
 const char *node_fields_rule[] = {
-    "attr", "width", "depth", "height", "dir", "index", NULL
+    "attr", "width", "depth", "height", "dir", "index", "left", "right", NULL
 };
 const char *node_fields_insert[] = {
     "attr", "cost", "depth", "height", "spec", "head", NULL
@@ -146,7 +146,7 @@ const char *node_fields_radical[] = {
     "attr", "nucleus", "sub", "sup", "left", "degree", "width", "options", NULL
 };
 const char *node_fields_fraction[] = {
-    "attr", "width", "num", "denom", "left", "right", "middle", "options", NULL
+    "attr", "width", "num", "denom", "left", "right", "middle", "fam", "options", NULL
 };
 const char *node_fields_accent[] = {
     "attr", "nucleus", "sub", "sup", "accent", "bot_accent", "top_accent",
@@ -241,8 +241,37 @@ const char *node_fields_whatsit_pdf_restore[] = {
     "attr", NULL
 };
 
+/* values */
+
+const char *node_values_dir[] = {
+    "TLT", "TRT", "LTL", "RTT", NULL
+};
+
+const char *node_values_glue[] = {
+    "normal", "fi", "fil", "fill", "filll", NULL
+};
+
+const char *node_values_pdf_literal[] = {
+    "origin", "page", "always", "raw", "text", "font", "special", NULL
+};
+
+const char *node_values_pdf_action[] = {
+    "page", "goto", "thread", "user", NULL
+};
+
+const char *node_values_pdf_window[] = {
+    "unset", "new","nonew", NULL
+};
+
+const char *node_values_color_stack[] = {
+    "set", "push", "pop", "current", NULL
+};
+
 /* subtypes */
 
+const char *node_subtypes_dir[] = {
+    "normal", "cancel", NULL
+};
 const char *node_subtypes_glue[] = {
     "userskip", "lineskip", "baselineskip", "parskip", "abovedisplayskip", "belowdisplayskip",
     "abovedisplayshortskip", "belowdisplayshortskip", "leftskip", "rightskip", "topskip",
@@ -301,8 +330,15 @@ const char *node_subtypes_accent[] = {
     "bothflexible", "fixedtop", "fixedbottom", "fixedboth", NULL,
 };
 const char *node_subtypes_fence[] = {
-    "unset", "left", "middle", "right", NULL
+    "unset", "left", "middle", "right", "no", NULL
 };
+
+/* states */
+
+const char *other_values_page_states[] = {
+    "empty", "box_there", "inserts_only", NULL
+};
+
 
 node_info node_data[] = { /* the last entry in a row is the etex number */
     { hlist_node,          box_node_size,         node_fields_list,                          "hlist",           1 },
@@ -953,6 +989,12 @@ halfword new_node(int i, int j)
               (void) memset((void *) (varmem + n + 1), 0, (sizeof(memory_word) * ((unsigned) j - 1)));
             }
             break;
+        case fraction_noad:
+            fraction_fam(n) = -1;
+            break;
+        case simple_noad:
+            noad_fam(n) = -1;
+            break;
         default:
             break;
     }
@@ -1511,10 +1553,6 @@ void flush_node(halfword p)
             break;
         case glue_spec_node:
             /* this allows free-ing of lua-allocated glue specs */
-//if (valid_node(p)) {
-//    free_node(p, subtype(p));
-//}
-//            return ;
             break ;
         case dir_node:
         case local_par_node:
@@ -3028,7 +3066,7 @@ void show_node_list(int p)
                         print_scaled(shift_amount(p));
                     }
                     tprint(", direction ");
-                    print_dir(box_dir(p));
+                    print_dir_par(box_dir(p));
                 }
                 node_list_display(list_ptr(p)); /* recursive call */
                 break;
@@ -3066,15 +3104,13 @@ void show_node_list(int p)
                 node_list_display(ins_ptr(p));  /* recursive call */
                 break;
             case dir_node:
-                if (dir_dir(p) < 0) {
+                if (subtype(p) == cancel_dir) {
                     tprint_esc("enddir");
-                    print_char(' ');
-                    print_dir(dir_dir(p) + dir_swap);
                 } else {
                     tprint_esc("begindir");
-                    print_char(' ');
-                    print_dir(dir_dir(p));
                 }
+                print_char(' ');
+                print_dir_par(dir_dir(p));
                 break;
             case local_par_node:
                 tprint_esc("localpar");

@@ -266,12 +266,14 @@ typedef enum {
     math_radical_rule,
 } rule_subtypes;
 
-#  define rule_node_size       8
+#  define rule_node_size       9
 #  define rule_dir(a)          vlink((a)+5)
 #  define rule_index(a)        vinfo((a)+6)
 #  define rule_transform(a)    vlink((a)+6)
-#  define synctex_tag_rule(a)  vinfo((a)+7)
-#  define synctex_line_rule(a) vlink((a)+7)
+#  define rule_left(a)         vinfo((a)+7)
+#  define rule_right(a)        vlink((a)+7)
+#  define synctex_tag_rule(a)  vinfo((a)+8)
+#  define synctex_line_rule(a) vlink((a)+8)
 
 #  define rule_math_size       rule_index
 #  define rule_math_font       rule_transform
@@ -487,6 +489,8 @@ typedef enum {
 #  define noadextra3(a)  vlink((a)+7) /* see (!) below */
 #  define noadextra4(a)  vinfo((a)+7) /* used to store samesize */
 
+#  define noad_fam(a)    vlink((a)+6) /* noadextra1 */
+
 /* accent noads */
 
 #  define accent_noad_size      8
@@ -540,11 +544,15 @@ typedef enum {
     noad_delimiter_mode_noshift = 0x01,
     noad_delimiter_mode_italics = 0x02,
     noad_delimiter_mode_ordinal = 0x04,
+    noad_delimiter_mode_samenos = 0x08,
+    noad_delimiter_mode_charnos = 0x10,
 } delimiter_modes ;
 
 #  define delimitermodenoshift ((math_delimiters_mode_par & noad_delimiter_mode_noshift) == noad_delimiter_mode_noshift)
 #  define delimitermodeitalics ((math_delimiters_mode_par & noad_delimiter_mode_italics) == noad_delimiter_mode_italics)
 #  define delimitermodeordinal ((math_delimiters_mode_par & noad_delimiter_mode_ordinal) == noad_delimiter_mode_ordinal)
+#  define delimitermodesamenos ((math_delimiters_mode_par & noad_delimiter_mode_samenos) == noad_delimiter_mode_samenos)
+#  define delimitermodecharnos ((math_delimiters_mode_par & noad_delimiter_mode_charnos) == noad_delimiter_mode_charnos)
 
 /* subtype of fence noads */
 
@@ -555,7 +563,7 @@ typedef enum {
 
 /* fraction noads */
 
-#  define fraction_noad_size  7
+#  define fraction_noad_size  8
 #  define thickness(a)        vlink((a)+2) /* |thickness| field in a fraction noad */
 #  define numerator(a)        vlink((a)+3) /* |numerator| field in a fraction noad */
 #  define denominator(a)      vinfo((a)+3) /* |denominator| field in a fraction noad */
@@ -563,6 +571,7 @@ typedef enum {
 #  define right_delimiter(a)  vinfo((a)+5) /* second delimiter field of a fraction noad */
 #  define middle_delimiter(a) vlink((a)+6)
 #  define fractionoptions(a)  vinfo((a)+6)
+#  define fraction_fam(a)     vlink((a)+7)
 
 #  define fractionoptionset(a) ((fractionoptions(a) & noad_option_set    ) == noad_option_set    )
 #  define fractionexact(a)     ((fractionoptions(a) & noad_option_exact  ) == noad_option_exact  )
@@ -697,6 +706,11 @@ typedef enum {
 #  define boundary_value(a) vinfo((a)+2)
 
 #  define special_node_size 3
+
+typedef enum {
+    normal_dir = 0,
+    cancel_dir,
+} dir_subtypes ;
 
 #  define dir_node_size 5
 #  define dir_dir(a)       vinfo((a)+2)
@@ -912,6 +926,7 @@ typedef struct _node_info {
 extern node_info node_data[];
 extern node_info whatsit_node_data[];
 
+extern const char *node_subtypes_dir[];
 extern const char *node_subtypes_glue[];
 extern const char *node_subtypes_mathglue[];
 extern const char *node_subtypes_leader[];
@@ -933,6 +948,15 @@ extern const char *node_subtypes_fence[];
 
 extern const char *node_subtypes_pdf_destination[];
 extern const char *node_subtypes_pdf_literal[];
+
+extern const char *node_values_dir[];
+extern const char *node_values_glue[];
+extern const char *node_values_pdf_literal[];
+extern const char *node_values_pdf_action[];
+extern const char *node_values_pdf_window[];
+extern const char *node_values_color_stack[];
+
+extern const char *other_values_page_states[];
 
 extern halfword new_node(int i, int j);
 extern void flush_node_list(halfword);

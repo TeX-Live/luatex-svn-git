@@ -296,6 +296,22 @@ static int run_scan_keyword(lua_State * L)
     return 1;
 }
 
+static int run_scan_keyword_cs(lua_State * L)
+{
+    saved_tex_scanner texstate;
+    const char *s = luaL_checkstring(L, -1);
+    int v = 0;
+    if (s) {
+        save_tex_scanner(texstate);
+        if (scan_keyword_case_sensitive(s)) {
+            v = 1;
+        }
+        unsave_tex_scanner(texstate);
+    }
+    lua_pushboolean(L,v);
+    return 1;
+}
+
 static int run_scan_csname(lua_State * L)
 {
     unsigned char *s;
@@ -415,25 +431,73 @@ static int run_scan_string(lua_State * L) /* HH */
     } else if (cur_cmd == call_cmd) {
         t = token_link(cur_chr);
         tokenlist_to_luastring(L,t);
-    } else {
-        if (cur_cmd == 11 || cur_cmd == 12 ) {
-            char * str ;
-            luaL_Buffer b ;
-            luaL_buffinit(L,&b) ;
-            while (1) {
-                str = (char *) uni2str(cur_chr);
-                luaL_addstring(&b,(char *) str);
-                get_x_token();
-                if (cur_cmd != 11 && cur_cmd != 12 ) {
-                    break ;
-                }
+    } else if (cur_cmd == 11 || cur_cmd == 12 ) {
+        char * str ;
+        luaL_Buffer b ;
+        luaL_buffinit(L,&b) ;
+        while (1) {
+            str = (char *) uni2str(cur_chr);
+            luaL_addstring(&b,(char *) str);
+            get_x_token();
+            if (cur_cmd != 11 && cur_cmd != 12 ) {
+                break ;
             }
-            back_input();
-            luaL_pushresult(&b);
-        } else {
-            back_input();
-            lua_pushnil(L);
         }
+        back_input();
+        luaL_pushresult(&b);
+    } else {
+        back_input();
+        lua_pushnil(L);
+    }
+    unsave_tex_scanner(texstate);
+    return 1;
+}
+
+static int run_scan_argument(lua_State * L) /* HH */
+{   /* can be simplified, no need for intermediate list */
+    saved_tex_scanner texstate;
+    halfword t, saved_defref;
+    save_tex_scanner(texstate);
+    do {
+        get_token();
+    } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+    if (cur_cmd == left_brace_cmd) {
+        back_input();
+        saved_defref = def_ref;
+        (void) scan_toks(false, true);
+        t = def_ref;
+        def_ref = saved_defref;
+        tokenlist_to_luastring(L,t);
+    } else if (cur_cmd == call_cmd) {
+        halfword saved_cur_tok = cur_tok;
+        cur_tok = right_brace_token + '}';
+        back_input();
+        cur_tok = saved_cur_tok;
+        back_input();
+        cur_tok = left_brace_token + '{';
+        back_input();
+        saved_defref = def_ref;
+        (void) scan_toks(false, true);
+        t = def_ref;
+        def_ref = saved_defref;
+        tokenlist_to_luastring(L,t);
+    } else if (cur_cmd == 11 || cur_cmd == 12 ) {
+        char * str ;
+        luaL_Buffer b ;
+        luaL_buffinit(L,&b) ;
+        while (1) {
+            str = (char *) uni2str(cur_chr);
+            luaL_addstring(&b,(char *) str);
+            get_x_token();
+            if (cur_cmd != 11 && cur_cmd != 12 ) {
+                break ;
+            }
+        }
+        back_input();
+        luaL_pushresult(&b);
+    } else {
+        back_input();
+        lua_pushnil(L);
     }
     unsave_tex_scanner(texstate);
     return 1;
@@ -963,6 +1027,35 @@ static int set_macro(lua_State * L)
     return 0;
 }
 
+static int set_char(lua_State * L)
+{
+    const char *name = null;
+    const char *s  = null;
+    size_t lname = 0;
+    int cs, value;
+    int n = lua_gettop(L);
+    int a = 0 ; /* global state */
+    int nncs = no_new_control_sequence;
+    if (n < 2)
+        return 0;
+    name = lua_tolstring(L, 1, &lname);
+    if (name == null)
+        return 0;
+    value = lua_tointeger(L, 2);
+    if (value < 0)
+        return 0;
+    if (n > 2)
+        s = lua_tostring(L, 3);
+    if (s && (lua_key_eq(s, global))) {
+        a = 4;
+    }
+    no_new_control_sequence = false ;
+    cs = string_lookup(name, lname);
+    no_new_control_sequence = nncs;
+    define(cs, char_given_cmd, value);
+    return 0;
+}
+
 static const struct luaL_Reg tokenlib[] = {
     { "type", lua_tokenlib_type },
     { "create", run_build },
@@ -971,12 +1064,14 @@ static const struct luaL_Reg tokenlib[] = {
     { "get_next", run_get_next },
     { "put_next", run_put_next },
     { "scan_keyword", run_scan_keyword },
+    { "scan_keyword_cs", run_scan_keyword_cs },
     { "scan_int", run_scan_int },
     { "scan_dimen", run_scan_dimen },
     { "scan_glue", run_scan_glue },
     { "scan_toks", run_scan_toks },
     { "scan_code", run_scan_code },
     { "scan_string", run_scan_string },
+    { "scan_argument", run_scan_argument },
     { "scan_word", run_scan_word },
     { "scan_csname", run_scan_csname },
     { "scan_token", run_scan_token }, /* expands next token if needed */
@@ -999,6 +1094,7 @@ static const struct luaL_Reg tokenlib[] = {
     { "set_macro", set_macro },
     { "get_macro", get_macro },
     { "get_meaning", get_meaning },
+    { "set_char", set_char },
     /* probably never */
  /* {"expand", run_expand},               */ /* does not work yet! */
  /* {"csname_id", run_get_csname_id},     */ /* yes or no */

@@ -372,6 +372,16 @@ static void run_box_dir (void) {
         box_dir(cur_box) = cur_val;
 }
 
+static void run_box_direction (void) {
+    scan_register_num();
+    cur_box = box(cur_val);
+    scan_optional_equals();
+    scan_int();
+    check_dir_value(cur_val);
+    if (cur_box != null)
+        box_dir(cur_box) = cur_val;
+}
+
 @ There is a really small patch to add a new primitive called
 \.{\\quitvmode}. In vertical modes, it is identical to \.{\\indent},
 but in horizontal and math modes it is really a no-op (as opposed to
@@ -651,6 +661,20 @@ static void run_option(void) {
     }
 }
 
+static void lua_function_call(void) {
+    scan_int();
+    if (cur_val <= 0) {
+        normal_error("luafunctioncall", "invalid number");
+    } else {
+        str_number u = save_cur_string();
+        luacstrings = 0;
+        luafunctioncall(cur_val);
+        restore_cur_string(u);
+        if (luacstrings > 0)
+            lua_string_start();
+    }
+}
+
 @ For mode-independent commands, the following macro is useful.
 
 Also, there is a list of cases where the user has probably gotten into or out of math
@@ -749,6 +773,7 @@ static void init_main_control (void) {
     any_mode(leader_ship_cmd, run_leader_ship);
     any_mode(make_box_cmd, run_make_box);
     any_mode(assign_box_dir_cmd, run_box_dir);
+    any_mode(assign_box_direction_cmd, run_box_direction);
     jump_table[vmode + start_par_cmd] = run_start_par_vmode;
     jump_table[hmode + start_par_cmd] = run_start_par;
     jump_table[mmode + start_par_cmd] = run_start_par;
@@ -835,6 +860,7 @@ static void init_main_control (void) {
     any_mode(assign_int_cmd, prefixed_command);
     any_mode(assign_attr_cmd, prefixed_command);
     any_mode(assign_dir_cmd, prefixed_command);
+    any_mode(assign_direction_cmd, prefixed_command);
     any_mode(assign_dimen_cmd, prefixed_command);
     any_mode(assign_glue_cmd, prefixed_command);
     any_mode(assign_mu_glue_cmd, prefixed_command);
@@ -879,6 +905,8 @@ static void init_main_control (void) {
     any_mode(normal_cmd, run_normal);
     any_mode(extension_cmd, run_extension);
     any_mode(option_cmd, run_option);
+
+    any_mode(lua_function_call_cmd, lua_function_call);
 }
 
 @ And here is |main_control| itself.  It is quite short nowadays.
@@ -2446,9 +2474,18 @@ void prefixed_command(void)
             attr_list_cache = cache_disabled;
             word_define(p, cur_val);
             break;
+        case assign_direction_cmd:
         case assign_dir_cmd:
             /* DIR: Assign direction codes */
-            scan_direction();
+            if (cur_cmd == assign_direction_cmd) {
+                p = cur_chr;
+                scan_optional_equals();
+                scan_int();
+                check_dir_value(cur_val);
+                cur_chr = p;
+            } else {
+                scan_direction();
+            }
             switch (cur_chr) {
                 case int_base + page_direction_code:
                     eq_word_define(int_base + page_direction_code, cur_val);
@@ -2490,11 +2527,13 @@ void prefixed_command(void)
                             /* tail is non zero but we test anyway */
                             if (check_glue && (tail != null && type(tail) == glue_node))  {
                                 halfword prev = alink(tail);
-                                halfword dirn = new_dir(text_direction_par - dir_swap);
+                                halfword dirn = new_dir(text_direction_par);
+                                subtype(dirn) = cancel_dir;
                                 couple_nodes(prev,dirn);
                                 couple_nodes(dirn,tail);
                             } else {
-                                tail_append(new_dir(text_direction_par - dir_swap));
+                                tail_append(new_dir(text_direction_par));
+                                subtype(tail) = cancel_dir;
                             }
                         } else {
                             /* what is the use of nolocaldirs .. maybe we should get rid of it */
@@ -2505,19 +2544,6 @@ void prefixed_command(void)
                     } else {
                         update_text_dir_ptr(cur_val);
                     }
-                    /*  original:
-
-                        // if ((no_local_dirs_par > 0) && (abs(mode) == hmode)) {
-                        //  // tail_append(new_dir(text_direction_par)              // kind of wrong
-                        //     tail_append(new_dir(text_direction_par - dir_swap)); // better
-                        // }
-
-                        update_text_dir_ptr(cur_val);
-                        if (abs(mode) == hmode) {
-                            tail_append(new_dir(cur_val));
-                            dir_level(tail) = cur_level;
-                        }
-                    */
                     eq_word_define(int_base + text_direction_code, cur_val);
                     eq_word_define(int_base + no_local_dirs_code, no_local_dirs_par + 1);
                     break;
@@ -2848,7 +2874,8 @@ void fixup_directions(void)
         if (temp_no_dirs != 0) {
             /* DIR: Add local dir node */
             tail_append(new_dir(text_direction_par));
-            dir_dir(tail) = temporary_dir - dir_swap;
+            dir_dir(tail) = temporary_dir;
+            subtype(tail) = cancel_dir;
         }
         if (temp_no_whatsits != 0) {
             /* LOCAL: Add local paragraph node */
@@ -3629,7 +3656,9 @@ void initialize(void)
         math_pre_display_gap_factor_par = 2000;
         pre_bin_op_penalty_par = inf_penalty;
         math_script_box_mode_par = 1;
+        math_script_char_mode_par = 1;
         pre_rel_penalty_par = inf_penalty;
+        compound_hyphen_mode_par = 1;
         escape_char_par = '\\';
         end_line_char_par = carriage_return;
         set_del_code('.', 0, 0, 0, 0, level_one); /* this null delimiter is used in error recovery */

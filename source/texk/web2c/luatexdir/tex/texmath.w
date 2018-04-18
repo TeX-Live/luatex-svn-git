@@ -2494,7 +2494,8 @@ void after_math(void)
             tail = vlink(tail);
         }
         if (dir_math_save) {
-            tail_append(new_dir(math_direction_par - dir_swap));
+            tail_append(new_dir(math_direction_par));
+            subtype(tail) = cancel_dir;
         }
         dir_math_save = false;
         tail_append(new_math(math_surround_par, after));

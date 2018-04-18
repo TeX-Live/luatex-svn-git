@@ -341,7 +341,7 @@ static void parse_options(int ac, char **av)
             lua_offset = optind;
             luainit = 1;
         } else if (ARGUMENT_IS("lua")) {
-            startup_filename = xstrdup(optarg);
+            startup_filename = optarg;
             lua_offset = (optind - 1);
             luainit = 1;
 #ifdef LuajitTeX
@@ -780,7 +780,8 @@ int l_group_code_index      [GROUP_CODE_SIZE];
 int l_local_par_index       [LOCAL_PAR_SIZE];
 int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
 int l_dir_par_index         [DIR_PAR_SIZE];
-int l_dir_text_index        [DIR_TEXT_SIZE];
+int l_dir_text_index_normal [DIR_TEXT_SIZE];
+int l_dir_text_index_cancel [DIR_TEXT_SIZE];
 
 int img_parms               [img_parms_max];
 int img_pageboxes           [img_pageboxes_max];

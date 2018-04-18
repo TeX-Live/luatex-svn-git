@@ -53,6 +53,8 @@ void initialize_commands(void)
     primitive_luatex("mathsurroundskip", assign_glue_cmd, glue_base + math_skip_code, glue_base);
     primitive_luatex("mathsurroundmode", assign_int_cmd, int_base + math_skip_mode_code, int_base);
     primitive_luatex("mathscriptboxmode", assign_int_cmd, int_base + math_script_box_mode_code, int_base);
+    primitive_luatex("mathscriptcharmode", assign_int_cmd, int_base + math_script_char_mode_code, int_base);
+    primitive_luatex("mathrulethicknessmode", assign_int_cmd, int_base + math_rule_thickness_mode_code, int_base);
     primitive_tex("output", assign_toks_cmd, output_routine_loc, local_base);
     primitive_tex("everypar", assign_toks_cmd, every_par_loc, local_base);
     primitive_tex("everymath", assign_toks_cmd, every_math_loc, local_base);
@@ -166,7 +168,9 @@ void initialize_commands(void)
     primitive_luatex("automatichyphenpenalty", assign_int_cmd, int_base + automatic_hyphen_penalty_code, int_base);
     primitive_luatex("explicithyphenpenalty", assign_int_cmd, int_base + explicit_hyphen_penalty_code, int_base);
     primitive_luatex("automatichyphenmode", assign_int_cmd, int_base + automatic_hyphen_mode_code, int_base);
+    primitive_luatex("compoundhyphenmode", assign_int_cmd, int_base + compound_hyphen_mode_code, int_base);
     primitive_luatex("breakafterdirmode", assign_int_cmd, int_base + break_after_dir_mode_code, int_base);
+    primitive_luatex("exceptionpenalty", assign_int_cmd, int_base + exception_penalty_code, int_base);
 
     /* Many of \TeX's primitives need no |equiv|, since they are identifiable
        by their |eq_type| alone. These primitives are loaded into the hash table
@@ -249,6 +253,7 @@ void initialize_commands(void)
     primitive_tex("vcenter", vcenter_cmd, 0, 0);
     primitive_tex("vrule", vrule_cmd, 0, 0);
     primitive_luatex("novrule", no_vrule_cmd, 0, 0);
+    primitive_luatex("luafunctioncall", lua_function_call_cmd, 0, 0);
     primitive_tex("par", par_end_cmd, too_big_char, too_big_char);      /* cf.\ |scan_file_name| */
     par_loc = cur_val;
     par_token = cs_token_flag + par_loc;
@@ -441,6 +446,7 @@ void initialize_commands(void)
     primitive_tex("xleaders", leader_ship_cmd, x_leaders, 0);
     primitive_luatex("gleaders", leader_ship_cmd, g_leaders, 0);
     primitive_luatex("boxdir", assign_box_dir_cmd, 0, 0);
+    primitive_luatex("boxdirection", assign_box_direction_cmd, 0, 0);
     primitive_tex("indent", start_par_cmd, 1, 0);
     primitive_tex("noindent", start_par_cmd, 0, 0);
     primitive_luatex("quitvmode", start_par_cmd, 2, 0);
@@ -728,6 +734,13 @@ void initialize_commands(void)
     primitive_luatex("pdffeedback", feedback_cmd, pdf_feedback_code, 0);
     primitive_luatex("pdfvariable", variable_cmd, pdf_variable_code, 0);
     primitive_luatex("mathoption", option_cmd, math_option_code, 0);
+
+    primitive_luatex("pagedirection", assign_direction_cmd, int_base + page_direction_code, dir_base);
+    primitive_luatex("bodydirection", assign_direction_cmd, int_base + body_direction_code, dir_base);
+    primitive_luatex("pardirection",  assign_direction_cmd, int_base + par_direction_code,  dir_base);
+    primitive_luatex("textdirection", assign_direction_cmd, int_base + text_direction_code, dir_base);
+    primitive_luatex("mathdirection", assign_direction_cmd, int_base + math_direction_code, dir_base);
+    primitive_luatex("linedirection", assign_direction_cmd, int_base + line_direction_code, dir_base);
 
     /*
         some of the internal integer parameters are not associated with actual

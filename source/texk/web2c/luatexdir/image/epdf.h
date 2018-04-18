@@ -124,6 +124,7 @@ extern "C" {
     extern void read_pdf_info(image_dict *);
     extern void flush_pdf_info(image_dict *);
     extern void write_epdf(PDF, image_dict *, int suppress_optional_info);
+    extern int write_epdf_object(PDF, image_dict *, int n);
     extern void unrefPdfDocument(char *);
     extern void unrefMemStreamPdfDocument(char *);
     extern void epdf_free(void);

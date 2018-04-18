@@ -76,6 +76,8 @@ extern int luaopen_pdf(lua_State * L);
 extern int luaopen_texio(lua_State * L);
 extern int luaopen_lang(lua_State * L);
 
+extern int luapdfprint(lua_State * L);
+
 #  define LUA_TEXFILEHANDLE "TEXFILE*"
 
 extern lua_State *luatex_error(lua_State * L, int fatal);
@@ -108,7 +110,6 @@ extern int luaopen_fio(lua_State * L);
 
 extern void open_oslibext(lua_State * L);
 extern void open_strlibext(lua_State * L);
-extern void open_lfslibext(lua_State * L);
 
 extern void initfilecallbackids(int max);
 extern void setinputfilecallbackid(int n, int i);
@@ -117,6 +118,8 @@ extern int getinputfilecallbackid(int n);
 extern int getreadfilecallbackid(int n);
 
 extern void lua_initialize(int ac, char **av);
+
+extern void luacall_vf(int p, int f, int c);
 
 extern int luaopen_kpse(lua_State * L);
 
@@ -138,7 +141,7 @@ extern void tokenlist_to_luastring(lua_State * L, int p);
 extern int tokenlist_from_lua(lua_State * L);
 
 extern void lua_nodelib_push(lua_State * L);
-extern int nodelib_getdir(lua_State * L, int n, int absolute_only);
+extern int nodelib_getdir(lua_State * L, int n);
 extern int nodelib_getlist(lua_State * L, int n);
 
 extern int luaopen_node(lua_State * L);
@@ -193,6 +196,9 @@ extern int luastate_bytes;
 
 extern int callback_count;
 extern int saved_callback_count;
+extern int direct_callback_count;
+extern int late_callback_count;
+extern int function_callback_count;
 
 extern const char *luatex_banner;
 extern const char *engine_name;
@@ -342,22 +348,31 @@ preassign these at startup time. */
 #define LOCAL_PAR_SIZE        5
 #define MATH_STYLE_NAME_SIZE  8
 #define APPEND_LIST_SIZE      5
-#define DIR_PAR_SIZE          8
-#define DIR_TEXT_SIZE         8
+#define DIR_PAR_SIZE          4
+#define DIR_TEXT_SIZE         4
 
 extern int l_pack_type_index       [PACK_TYPE_SIZE];
 extern int l_group_code_index      [GROUP_CODE_SIZE];
 extern int l_local_par_index       [LOCAL_PAR_SIZE];
 extern int l_math_style_name_index [MATH_STYLE_NAME_SIZE];
 extern int l_dir_par_index         [DIR_PAR_SIZE];
-extern int l_dir_text_index        [DIR_TEXT_SIZE];
+extern int l_dir_text_index_normal [DIR_TEXT_SIZE];
+extern int l_dir_text_index_cancel [DIR_TEXT_SIZE];
 
 #define lua_push_pack_type(L,pack_type)        lua_rawgeti(L, LUA_REGISTRYINDEX, l_pack_type_index[pack_type] );
 #define lua_push_group_code(L,group_code)      lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index[group_code]);
 #define lua_push_local_par_mode(L,par_mode)    lua_rawgeti(L, LUA_REGISTRYINDEX, l_local_par_index[par_mode]);
 #define lua_push_math_style_name(L,style_name) lua_rawgeti(L, LUA_REGISTRYINDEX, l_math_style_name_index[style_name]);
-#define lua_push_dir_par(L,dir)                lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir+dir_swap])
-#define lua_push_dir_text(L,dir)               lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index[dir+dir_swap])
+#define lua_push_dir_par(L,dir)                lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir])
+#define lua_push_dir_text_normal(L,dir)        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_normal[dir])
+#define lua_push_dir_text_cancel(L,dir)        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_cancel[dir])
+
+#define lua_push_dir_text(L,dir,sub) \
+    if (sub == cancel_dir) \
+        lua_push_dir_text_cancel(L, dir); \
+    else \
+        lua_push_dir_text_normal(L, dir);
+
 
 #define lua_push_string_by_index(L,index)      lua_rawgeti(L, LUA_REGISTRYINDEX, index)
 #define lua_push_string_by_name(L,index)       lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(index))
@@ -414,21 +429,17 @@ l_math_style_name_index[cramped_script_script_style] = lua_key_index(crampedscri
 l_dir_par_index[dir_TLT]   = lua_key_index(TLT);\
 l_dir_par_index[dir_TRT]   = lua_key_index(TRT);\
 l_dir_par_index[dir_LTL]   = lua_key_index(LTL);\
-l_dir_par_index[dir_RTT]   = lua_key_index(RTT);\
-l_dir_par_index[dir_TLT+4] = lua_key_index(TLT);\
-l_dir_par_index[dir_TRT+4] = lua_key_index(TRT);\
-l_dir_par_index[dir_LTL+4] = lua_key_index(LTL);\
-l_dir_par_index[dir_RTT+4] = lua_key_index(RTT);\
+l_dir_par_index[dir_RTT]   = lua_key_index(RTT);
 
 #define set_l_dir_text_index \
-l_dir_text_index[dir_TLT]   = lua_key_index(mTLT);\
-l_dir_text_index[dir_TRT]   = lua_key_index(mTRT);\
-l_dir_text_index[dir_LTL]   = lua_key_index(mLTL);\
-l_dir_text_index[dir_RTT]   = lua_key_index(mRTT);\
-l_dir_text_index[dir_TLT+4] = lua_key_index(pTLT);\
-l_dir_text_index[dir_TRT+4] = lua_key_index(pTRT);\
-l_dir_text_index[dir_LTL+4] = lua_key_index(pLTL);\
-l_dir_text_index[dir_RTT+4] = lua_key_index(pRTT);\
+l_dir_text_index_normal[dir_TLT] = lua_key_index(pTLT);\
+l_dir_text_index_normal[dir_TRT] = lua_key_index(pTRT);\
+l_dir_text_index_normal[dir_LTL] = lua_key_index(pLTL);\
+l_dir_text_index_normal[dir_RTT] = lua_key_index(pRTT);\
+l_dir_text_index_cancel[dir_TLT] = lua_key_index(mTLT);\
+l_dir_text_index_cancel[dir_TRT] = lua_key_index(mTRT);\
+l_dir_text_index_cancel[dir_LTL] = lua_key_index(mLTL);\
+l_dir_text_index_cancel[dir_RTT] = lua_key_index(mRTT);
 
 #define img_parms_max     25
 #define img_pageboxes_max  6
@@ -537,6 +548,7 @@ make_lua_key(class);\
 make_lua_key(clubpenalty);\
 make_lua_key(colordepth);\
 make_lua_key(colorspace);\
+make_lua_key(color_stack);\
 make_lua_key(command);\
 make_lua_key(commands);\
 make_lua_key(comment);\
@@ -711,6 +723,7 @@ make_lua_key(pages);\
 make_lua_key(page_discards_head);\
 make_lua_key(page_head);\
 make_lua_key(page_ins_head);\
+make_lua_key(pagestate);\
 make_lua_key(pageattributes);\
 make_lua_key(pagebox);\
 make_lua_key(pageresources);\
@@ -719,9 +732,11 @@ make_lua_key(parameters);\
 make_lua_key(pardir);\
 make_lua_key(parshape);\
 make_lua_key(pdf);\
+make_lua_key(pdf_action);\
 make_lua_key(pdf_data);\
 make_lua_key(pdf_destination);\
 make_lua_key(pdf_literal);\
+make_lua_key(pdf_window);\
 make_lua_key(pen_broken);\
 make_lua_key(pen_inter);\
 make_lua_key(penalty);\
@@ -780,6 +795,7 @@ make_lua_key(special);\
 make_lua_key(split_discards_head);\
 make_lua_key(split_keep);\
 make_lua_key(split_off);\
+make_lua_key(squeeze);\
 make_lua_key(stack);\
 make_lua_key(start);\
 make_lua_key(step);\
@@ -909,6 +925,7 @@ init_lua_key(class);\
 init_lua_key(clubpenalty);\
 init_lua_key(colordepth);\
 init_lua_key(colorspace);\
+init_lua_key(color_stack);\
 init_lua_key(command);\
 init_lua_key(commands);\
 init_lua_key(comment);\
@@ -1074,6 +1091,7 @@ init_lua_key(pages);\
 init_lua_key(page_discards_head);\
 init_lua_key(page_head);\
 init_lua_key(page_ins_head);\
+init_lua_key(pagestate);\
 init_lua_key(pageattributes);\
 init_lua_key(pagebox);\
 init_lua_key(pageresources);\
@@ -1081,8 +1099,10 @@ init_lua_key(pagesattributes);\
 init_lua_key(parameters);\
 init_lua_key(pardir);\
 init_lua_key(parshape);\
+init_lua_key(pdf_action);\
 init_lua_key(pdf_destination);\
 init_lua_key(pdf_literal);\
+init_lua_key(pdf_window);\
 init_lua_key(pen_broken);\
 init_lua_key(pen_inter);\
 init_lua_key(penalty);\
@@ -1141,6 +1161,7 @@ init_lua_key(special);\
 init_lua_key(split_discards_head);\
 init_lua_key(split_keep);\
 init_lua_key(split_off);\
+init_lua_key(squeeze);\
 init_lua_key(stack);\
 init_lua_key(start);\
 init_lua_key(step);\
@@ -1328,6 +1349,7 @@ use_lua_key(class);
 use_lua_key(clubpenalty);
 use_lua_key(colordepth);
 use_lua_key(colorspace);
+use_lua_key(color_stack);
 use_lua_key(command);
 use_lua_key(commands);
 use_lua_key(comment);
@@ -1502,6 +1524,7 @@ use_lua_key(pages);
 use_lua_key(page_discards_head);
 use_lua_key(page_head);
 use_lua_key(page_ins_head);
+use_lua_key(pagestate);
 use_lua_key(pagebox);
 use_lua_key(pageattributes);
 use_lua_key(pageresources);
@@ -1510,9 +1533,11 @@ use_lua_key(parameters);
 use_lua_key(pardir);
 use_lua_key(parshape);
 use_lua_key(pdf);
+use_lua_key(pdf_action);
 use_lua_key(pdf_data);
 use_lua_key(pdf_destination);
 use_lua_key(pdf_literal);
+use_lua_key(pdf_window);
 use_lua_key(pen_broken);
 use_lua_key(pen_inter);
 use_lua_key(penalty);
@@ -1571,6 +1596,7 @@ use_lua_key(special);
 use_lua_key(split_discards_head);
 use_lua_key(split_keep);
 use_lua_key(split_off);
+use_lua_key(squeeze);
 use_lua_key(stack);
 use_lua_key(start);
 use_lua_key(step);

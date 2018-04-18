@@ -446,6 +446,9 @@ int font_to_lua(lua_State * L, int f)
     dump_intfield(L,checksum,font_checksum(f));
     dump_intfield(L,slant,font_slant(f));
     dump_intfield(L,extend,font_extend(f));
+    dump_intfield(L,squeeze,font_squeeze(f));
+    dump_intfield(L,mode,font_mode(f));
+    dump_intfield(L,width,font_width(f));
     dump_intfield(L,direction,font_natural_dir(f));
     dump_intfield(L,encodingbytes,font_encodingbytes(f));
     dump_booleanfield(L,oldmath,font_oldmath(f));
@@ -646,7 +649,7 @@ static int count_char_packet_bytes(lua_State * L)
                     l++;
                 } else if (lua_key_eq(s, rule)) {
                     l += 9;
-                } else if (lua_key_eq(s, right) || lua_key_eq(s, node) || lua_key_eq(s, down) || lua_key_eq(s, image)) {
+                } else if (lua_key_eq(s, right) || lua_key_eq(s, node) || lua_key_eq(s, down) || lua_key_eq(s, image) || lua_key_eq(s, lua)) {
                     l += 5;
                 } else if (lua_key_eq(s, scale)) {
                     l += sizeof(float) + 1;
@@ -674,7 +677,7 @@ static int count_char_packet_bytes(lua_State * L)
                         normal_error("vf command","invalid packet pdf literal");
                     }
                     lua_pop(L, ts == 3 ? 2 : 1);
-                } else if (lua_key_eq(s, special) || lua_key_eq(s, lua)) {
+                } else if (lua_key_eq(s, special)) {
                     size_t len;
                     lua_rawgeti(L, -2, 2);
                     if (lua_type(L,-1) == LUA_TSTRING) {
@@ -897,7 +900,9 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                         lua_pop(L,ts == 3 ? 2 : 1);
                         break;
                     case packet_special_code:
+                    /*
                     case packet_lua_code:
+                    */
                         append_packet(cmd);
                         lua_rawgeti(L, -2, 2);
                         s = luaL_checklstring(L, -1, &l);
@@ -911,6 +916,12 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                             }
                         }
                         lua_pop(L, 1);
+                        break;
+                    case packet_lua_code:
+                        append_packet(cmd);
+                        lua_rawgeti(L, -2, 2);
+                        n = luaL_ref(L, LUA_REGISTRYINDEX);  /* ... */
+                        do_store_four(n);
                         break;
                     case packet_image_code:
                         append_packet(cmd);
@@ -1470,18 +1481,40 @@ int font_from_lua(lua_State * L, int f)
     i = lua_numeric_field_by_index(L,lua_key_index(tounicode), 0);
     set_font_tounicode(f, (char) i);
 
-    i = lua_numeric_field_by_index(L,lua_key_index(extend), 1000);
-    if (i < FONT_EXTEND_MIN)
-        i = FONT_EXTEND_MIN;
-    if (i > FONT_EXTEND_MAX)
-        i = FONT_EXTEND_MAX;
-    set_font_extend(f, i);
     i = lua_numeric_field_by_index(L,lua_key_index(slant), 0);
     if (i < FONT_SLANT_MIN)
         i = FONT_SLANT_MIN;
     if (i > FONT_SLANT_MAX)
         i = FONT_SLANT_MAX;
     set_font_slant(f, i);
+
+    i = lua_numeric_field_by_index(L,lua_key_index(extend), 1000);
+    if (i < FONT_EXTEND_MIN)
+        i = FONT_EXTEND_MIN;
+    if (i > FONT_EXTEND_MAX)
+        i = FONT_EXTEND_MAX;
+    set_font_extend(f, i);
+
+    i = lua_numeric_field_by_index(L,lua_key_index(squeeze), 1000);
+    if (i < FONT_SQUEEZE_MIN)
+        i = FONT_SQUEEZE_MIN;
+    if (i > FONT_SQUEEZE_MAX)
+        i = FONT_SQUEEZE_MAX;
+    set_font_squeeze(f, i);
+
+    i = lua_numeric_field_by_index(L,lua_key_index(width), 0);
+    if (i < FONT_WIDTH_MIN)
+        i = FONT_WIDTH_MIN;
+    if (i > FONT_WIDTH_MAX)
+        i = FONT_WIDTH_MAX;
+    set_font_width(f, i);
+
+    i = lua_numeric_field_by_index(L,lua_key_index(mode), 0);
+    if (i < FONT_MODE_MIN)
+        i = FONT_MODE_MIN;
+    if (i > FONT_MODE_MAX)
+        i = FONT_MODE_MAX;
+    set_font_mode(f, i);
 
     i = lua_numeric_field_by_index(L,lua_key_index(hyphenchar), default_hyphen_char_par);
     set_hyphen_char(f, i);
@@ -1552,8 +1585,16 @@ int font_from_lua(lua_State * L, int f)
             lua_pop(L, 1); /* pop list entry */
         }
         lua_pop(L, 1); /* pop font table */
+    /*
+        // we no longer do this check ... //
+
     } else if (font_type(f) == virtual_font_type) {
+
         formatted_error("font","invalid local fonts in lua-loaded font '%s' (2)", font_name(f));
+
+        // ... but are nice and just create an entry //
+
+    */
     } else {
         l_fonts = xmalloc(3 * sizeof(int));
         l_fonts[0] = 0;
@@ -1600,6 +1641,7 @@ int font_from_lua(lua_State * L, int f)
             lua_pop(L, 1);
         }
         if (bc != -1) {
+   	    int fstep;
             font_malloc_charinfo(f, num);
             set_font_bc(f, bc);
             set_font_ec(f, ec);
@@ -1628,31 +1670,31 @@ int font_from_lua(lua_State * L, int f)
                 and that needs to know |bc| and |ec|.
             */
 
-            if (font_type(f) != virtual_font_type) {
-                int fstep = lua_numeric_field_by_index(L, lua_key_index(step), 0);
-                if (fstep < 0)
-                    fstep = 0;
-                if (fstep > 100)
-                    fstep = 100;
-                if (fstep != 0) {
-                    int fshrink = lua_numeric_field_by_index(L, lua_key_index(shrink), 0);
-                    int fstretch =lua_numeric_field_by_index(L, lua_key_index(stretch), 0);
-                    if (fshrink < 0)
-                        fshrink = 0;
-                    if (fshrink > 500)
-                        fshrink = 500;
-                    fshrink -= (fshrink % fstep);
-                    if (fshrink < 0)
-                        fshrink = 0;
-                    if (fstretch < 0)
-                        fstretch = 0;
-                    if (fstretch > 1000)
-                        fstretch = 1000;
-                    fstretch -= (fstretch % fstep);
-                    if (fstretch < 0)
-                        fstretch = 0;
-                    set_expand_params(f, fstretch, fshrink, fstep);
-                }
+            /* we permits virtual fonts to use expansion .. one can always turn it off */
+
+            fstep = lua_numeric_field_by_index(L, lua_key_index(step), 0);
+            if (fstep < 0)
+                fstep = 0;
+            if (fstep > 100)
+                fstep = 100;
+            if (fstep != 0) {
+                int fshrink = lua_numeric_field_by_index(L, lua_key_index(shrink), 0);
+                int fstretch= lua_numeric_field_by_index(L, lua_key_index(stretch), 0);
+                if (fshrink < 0)
+                    fshrink = 0;
+                if (fshrink > 500)
+                    fshrink = 500;
+                fshrink -= (fshrink % fstep);
+                if (fshrink < 0)
+                    fshrink = 0;
+                if (fstretch < 0)
+                    fstretch = 0;
+                if (fstretch > 1000)
+                    fstretch = 1000;
+                fstretch -= (fstretch % fstep);
+                if (fstretch < 0)
+                    fstretch = 0;
+                set_expand_params(f, fstretch, fshrink, fstep);
             }
 
         } else {
@@ -2374,12 +2416,15 @@ static halfword run_lua_ligkern_callback(halfword head, halfword tail, int callb
     int i;
     int top = lua_gettop(Luas);
     if (!get_callback(Luas, callback_id)) {
-        lua_pop(Luas, 2);
+/*      lua_pop(Luas, 2); */
+        lua_settop(Luas, top);
         return tail;
     }
     nodelist_to_lua(Luas, head);
     nodelist_to_lua(Luas, tail);
     if ((i=lua_pcall(Luas, 2, 0, 0)) != 0) {
+        formatted_warning("ligkern","error: %s",lua_tostring(Luas, -1));
+        lua_settop(Luas, top);
         luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
         return tail;
     }
