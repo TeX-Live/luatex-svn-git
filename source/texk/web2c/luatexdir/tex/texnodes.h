@@ -921,6 +921,7 @@ typedef struct _node_info {
     const char **fields;
     const char *name;
     int etex;
+    int lua;
 } node_info;
 
 extern node_info node_data[];
@@ -1060,6 +1061,9 @@ extern int synctex_get_tag(void);
 extern void synctex_set_no_files(int flag);
 extern int synctex_get_no_files(void);
 extern int synctex_get_line(void);
+
+extern void l_set_node_data(void) ;
+extern void l_set_whatsit_data(void) ;
 
 #endif
 

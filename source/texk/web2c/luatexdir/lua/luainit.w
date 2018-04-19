@@ -998,6 +998,9 @@ void lua_initialize(int ac, char **av)
     set_l_dir_par_index;
     set_l_dir_text_index;
 
+    l_set_node_data();
+    l_set_whatsit_data();
+
     set_l_img_keys_index;
     set_l_img_pageboxes_index;
 

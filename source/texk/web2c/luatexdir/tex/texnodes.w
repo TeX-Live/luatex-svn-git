@@ -24,6 +24,9 @@
 
 /* we can consider less mode sizes: 2 4 6 8 */
 
+/* hh: todo, also field listgs as lua indexed */
+
+
 @
 This module started out using NDEBUG to trigger checking invalid node usage,
 something that is needed because users can mess up nodes in Lua. At some point
@@ -339,60 +342,112 @@ const char *other_values_page_states[] = {
     "empty", "box_there", "inserts_only", NULL
 };
 
-
-node_info node_data[] = { /* the last entry in a row is the etex number */
-    { hlist_node,          box_node_size,         node_fields_list,                          "hlist",           1 },
-    { vlist_node,          box_node_size,         node_fields_list,                          "vlist",           2 },
-    { rule_node,           rule_node_size,        node_fields_rule,                          "rule",            3 },
-    { ins_node,            ins_node_size,         node_fields_insert,                        "ins",             4 },
-    { mark_node,           mark_node_size,        node_fields_mark,                          "mark",            5 },
-    { adjust_node,         adjust_node_size,      node_fields_adjust,                        "adjust",          6 },
-    { boundary_node,       boundary_node_size,    node_fields_boundary,                      "boundary",       -1 },
-    { disc_node,           disc_node_size,        node_fields_disc,                          "disc",            8 },
-    { whatsit_node,        -1,                    NULL,                                      "whatsit",         9 },
-    { local_par_node,      local_par_size,        node_fields_local_par,                     "local_par",      -1 },
-    { dir_node,            dir_node_size,         node_fields_dir,                           "dir",            -1 },
-    { math_node,           math_node_size,        node_fields_math,                          "math",           10 },
-    { glue_node,           glue_node_size,        node_fields_glue,                          "glue",           11 },
-    { kern_node,           kern_node_size,        node_fields_kern,                          "kern",           12 },
-    { penalty_node,        penalty_node_size,     node_fields_penalty,                       "penalty",        13 },
-    { unset_node,          box_node_size,         node_fields_unset,                         "unset",          14 },
-    { style_node,          style_node_size,       node_fields_style,                         "style",          15 },
-    { choice_node,         style_node_size,       node_fields_choice,                        "choice",         15 },
-    { simple_noad,         noad_size,             node_fields_noad,                          "noad",           15 },
-    { radical_noad,        radical_noad_size,     node_fields_radical,                       "radical",        15 },
-    { fraction_noad,       fraction_noad_size,    node_fields_fraction,                      "fraction",       15 },
-    { accent_noad,         accent_noad_size,      node_fields_accent,                        "accent",         15 },
-    { fence_noad,          fence_noad_size,       node_fields_fence,                         "fence",          15 },
-    { math_char_node,      math_kernel_node_size, node_fields_math_char,                     "math_char",      15 },
-    { sub_box_node,        math_kernel_node_size, node_fields_sub_box,                       "sub_box",        15 },
-    { sub_mlist_node,      math_kernel_node_size, node_fields_sub_mlist,                     "sub_mlist",      15 },
-    { math_text_char_node, math_kernel_node_size, node_fields_math_text_char,                "math_text_char", 15 },
-    { delim_node,          math_shield_node_size, node_fields_delim,                         "delim",          15 },
-    { margin_kern_node,    margin_kern_node_size, node_fields_margin_kern,                   "margin_kern",    -1 },
-    { glyph_node,          glyph_node_size,       node_fields_glyph,                         "glyph",           0 },
-    { align_record_node,   box_node_size,         NULL,                                      "align_record",   -1 },
-    { pseudo_file_node,    pseudo_file_node_size, NULL,                                      "pseudo_file",    -1 },
-    { pseudo_line_node,    variable_node_size,    NULL,                                      "pseudo_line",    -1 },
-    { inserting_node,      page_ins_node_size,    node_fields_inserting,                     "page_insert",    -1 },
-    { split_up_node,       page_ins_node_size,    node_fields_splitup,                       "split_insert",   -1 },
-    { expr_node,           expr_node_size,        NULL,                                      "expr_stack",     -1 },
-    { nesting_node,        nesting_node_size,     NULL,                                      "nested_list",    -1 },
-    { span_node,           span_node_size,        NULL,                                      "span",           -1 },
-    { attribute_node,      attribute_node_size,   node_fields_attribute,                     "attribute",      -1 },
-    { glue_spec_node,      glue_spec_size,        node_fields_glue_spec,                     "glue_spec",      -1 },
-    { attribute_list_node, attribute_node_size,   node_fields_attribute_list,                "attribute_list", -1 },
-    { temp_node,           temp_node_size,        NULL,                                      "temp",           -1 },
-    { align_stack_node,    align_stack_node_size, NULL,                                      "align_stack",    -1 },
-    { movement_node,       movement_node_size,    NULL,                                      "movement_stack", -1 },
-    { if_node,             if_node_size,          NULL,                                      "if_stack",       -1 },
-    { unhyphenated_node,   active_node_size,      NULL,                                      "unhyphenated",   -1 },
-    { hyphenated_node,     active_node_size,      NULL,                                      "hyphenated",     -1 },
-    { delta_node,          delta_node_size,       NULL,                                      "delta",          -1 },
-    { passive_node,        passive_node_size,     NULL,                                      "passive",        -1 },
-    { shape_node,          variable_node_size,    NULL,                                      "shape",          -1 },
-    { -1,                 -1,                     NULL,                                      NULL,             -1 },
+node_info node_data[] = {
+    { hlist_node,          box_node_size,         node_fields_list,                          NULL,  1, 0 },
+    { vlist_node,          box_node_size,         node_fields_list,                          NULL,  2, 0 },
+    { rule_node,           rule_node_size,        node_fields_rule,                          NULL,  3, 0 },
+    { ins_node,            ins_node_size,         node_fields_insert,                        NULL,  4, 0 },
+    { mark_node,           mark_node_size,        node_fields_mark,                          NULL,  5, 0 },
+    { adjust_node,         adjust_node_size,      node_fields_adjust,                        NULL,  6, 0 },
+    { boundary_node,       boundary_node_size,    node_fields_boundary,                      NULL, -1, 0 },
+    { disc_node,           disc_node_size,        node_fields_disc,                          NULL,  8, 0 },
+    { whatsit_node,        -1,                    NULL,                                      NULL,  9, 0 },
+    { local_par_node,      local_par_size,        node_fields_local_par,                     NULL, -1, 0 },
+    { dir_node,            dir_node_size,         node_fields_dir,                           NULL, -1, 0 },
+    { math_node,           math_node_size,        node_fields_math,                          NULL, 10, 0 },
+    { glue_node,           glue_node_size,        node_fields_glue,                          NULL, 11, 0 },
+    { kern_node,           kern_node_size,        node_fields_kern,                          NULL, 12, 0 },
+    { penalty_node,        penalty_node_size,     node_fields_penalty,                       NULL, 13, 0 },
+    { unset_node,          box_node_size,         node_fields_unset,                         NULL, 14, 0 },
+    { style_node,          style_node_size,       node_fields_style,                         NULL, 15, 0 },
+    { choice_node,         style_node_size,       node_fields_choice,                        NULL, 15, 0 },
+    { simple_noad,         noad_size,             node_fields_noad,                          NULL, 15, 0 },
+    { radical_noad,        radical_noad_size,     node_fields_radical,                       NULL, 15, 0 },
+    { fraction_noad,       fraction_noad_size,    node_fields_fraction,                      NULL, 15, 0 },
+    { accent_noad,         accent_noad_size,      node_fields_accent,                        NULL, 15, 0 },
+    { fence_noad,          fence_noad_size,       node_fields_fence,                         NULL, 15, 0 },
+    { math_char_node,      math_kernel_node_size, node_fields_math_char,                     NULL, 15, 0 },
+    { sub_box_node,        math_kernel_node_size, node_fields_sub_box,                       NULL, 15, 0 },
+    { sub_mlist_node,      math_kernel_node_size, node_fields_sub_mlist,                     NULL, 15, 0 },
+    { math_text_char_node, math_kernel_node_size, node_fields_math_text_char,                NULL, 15, 0 },
+    { delim_node,          math_shield_node_size, node_fields_delim,                         NULL, 15, 0 },
+    { margin_kern_node,    margin_kern_node_size, node_fields_margin_kern,                   NULL, -1, 0 },
+    { glyph_node,          glyph_node_size,       node_fields_glyph,                         NULL,  0, 0 },
+    { align_record_node,   box_node_size,         NULL,                                      NULL, -1, 0 },
+    { pseudo_file_node,    pseudo_file_node_size, NULL,                                      NULL, -1, 0 },
+    { pseudo_line_node,    variable_node_size,    NULL,                                      NULL, -1, 0 },
+    { inserting_node,      page_ins_node_size,    node_fields_inserting,                     NULL, -1, 0 },
+    { split_up_node,       page_ins_node_size,    node_fields_splitup,                       NULL, -1, 0 },
+    { expr_node,           expr_node_size,        NULL,                                      NULL, -1, 0 },
+    { nesting_node,        nesting_node_size,     NULL,                                      NULL, -1, 0 },
+    { span_node,           span_node_size,        NULL,                                      NULL, -1, 0 },
+    { attribute_node,      attribute_node_size,   node_fields_attribute,                     NULL, -1, 0 },
+    { glue_spec_node,      glue_spec_size,        node_fields_glue_spec,                     NULL, -1, 0 },
+    { attribute_list_node, attribute_node_size,   node_fields_attribute_list,                NULL, -1, 0 },
+    { temp_node,           temp_node_size,        NULL,                                      NULL, -1, 0 },
+    { align_stack_node,    align_stack_node_size, NULL,                                      NULL, -1, 0 },
+    { movement_node,       movement_node_size,    NULL,                                      NULL, -1, 0 },
+    { if_node,             if_node_size,          NULL,                                      NULL, -1, 0 },
+    { unhyphenated_node,   active_node_size,      NULL,                                      NULL, -1, 0 },
+    { hyphenated_node,     active_node_size,      NULL,                                      NULL, -1, 0 },
+    { delta_node,          delta_node_size,       NULL,                                      NULL, -1, 0 },
+    { passive_node,        passive_node_size,     NULL,                                      NULL, -1, 0 },
+    { shape_node,          variable_node_size,    NULL,                                      NULL, -1, 0 },
+    { -1,                 -1,                     NULL,                                      NULL, -1, 0 }
 };
+
+void l_set_node_data(void) {
+    node_data[hlist_node].lua          = lua_key_index(hlist) ;           node_data[hlist_node].name          = lua_key(hlist) ;
+    node_data[vlist_node].lua          = lua_key_index(vlist) ;           node_data[vlist_node].name          = lua_key(vlist) ;
+    node_data[rule_node].lua           = lua_key_index(rule) ;            node_data[rule_node].name           = lua_key(rule) ;
+    node_data[ins_node].lua            = lua_key_index(ins) ;             node_data[ins_node].name            = lua_key(ins) ;
+    node_data[mark_node].lua           = lua_key_index(mark) ;            node_data[mark_node].name           = lua_key(mark) ;
+    node_data[adjust_node].lua         = lua_key_index(adjust) ;          node_data[adjust_node].name         = lua_key(adjust) ;
+    node_data[boundary_node].lua       = lua_key_index(boundary) ;        node_data[boundary_node].name       = lua_key(boundary) ;
+    node_data[disc_node].lua           = lua_key_index(disc) ;            node_data[disc_node].name           = lua_key(disc) ;
+    node_data[whatsit_node].lua        = lua_key_index(whatsit) ;         node_data[whatsit_node].name        = lua_key(whatsit) ;
+    node_data[local_par_node].lua      = lua_key_index(local_par) ;       node_data[local_par_node].name      = lua_key(local_par) ;
+    node_data[dir_node].lua            = lua_key_index(dir) ;             node_data[dir_node].name            = lua_key(dir) ;
+    node_data[math_node].lua           = lua_key_index(math) ;            node_data[math_node].name           = lua_key(math) ;
+    node_data[glue_node].lua           = lua_key_index(glue) ;            node_data[glue_node].name           = lua_key(glue) ;
+    node_data[kern_node].lua           = lua_key_index(kern) ;            node_data[kern_node].name           = lua_key(kern) ;
+    node_data[penalty_node].lua        = lua_key_index(penalty) ;         node_data[penalty_node].name        = lua_key(penalty) ;
+    node_data[unset_node].lua          = lua_key_index(unset) ;           node_data[unset_node].name          = lua_key(unset) ;
+    node_data[style_node].lua          = lua_key_index(style) ;           node_data[style_node].name          = lua_key(style) ;
+    node_data[choice_node].lua         = lua_key_index(choice) ;          node_data[choice_node].name         = lua_key(choice) ;
+    node_data[simple_noad].lua         = lua_key_index(noad) ;            node_data[simple_noad].name         = lua_key(noad) ;
+    node_data[radical_noad].lua        = lua_key_index(radical) ;         node_data[radical_noad].name        = lua_key(radical) ;
+    node_data[fraction_noad].lua       = lua_key_index(fraction) ;        node_data[fraction_noad].name       = lua_key(fraction) ;
+    node_data[accent_noad].lua         = lua_key_index(accent) ;          node_data[accent_noad].name         = lua_key(accent) ;
+    node_data[fence_noad].lua          = lua_key_index(fence) ;           node_data[fence_noad].name          = lua_key(fence) ;
+    node_data[math_char_node].lua      = lua_key_index(math_char) ;       node_data[math_char_node].name      = lua_key(math_char) ;
+    node_data[sub_box_node].lua        = lua_key_index(sub_box) ;         node_data[sub_box_node].name        = lua_key(sub_box) ;
+    node_data[sub_mlist_node].lua      = lua_key_index(sub_mlist) ;       node_data[sub_mlist_node].name      = lua_key(sub_mlist) ;
+    node_data[math_text_char_node].lua = lua_key_index(math_text_char) ;  node_data[math_text_char_node].name = lua_key(math_text_char) ;
+    node_data[delim_node].lua          = lua_key_index(delim) ;           node_data[delim_node].name          = lua_key(delim) ;
+    node_data[margin_kern_node].lua    = lua_key_index(margin_kern) ;     node_data[margin_kern_node].name    = lua_key(margin_kern) ;
+    node_data[glyph_node].lua          = lua_key_index(glyph) ;           node_data[glyph_node].name          = lua_key(glyph) ;
+    node_data[align_record_node].lua   = lua_key_index(align_record) ;    node_data[align_record_node].name   = lua_key(align_record) ;
+    node_data[pseudo_file_node].lua    = lua_key_index(pseudo_file) ;     node_data[pseudo_file_node].name    = lua_key(pseudo_file) ;
+    node_data[pseudo_line_node].lua    = lua_key_index(pseudo_line) ;     node_data[pseudo_line_node].name    = lua_key(pseudo_line) ;
+    node_data[inserting_node].lua      = lua_key_index(page_insert) ;     node_data[inserting_node].name      = lua_key(page_insert) ;
+    node_data[split_up_node].lua       = lua_key_index(split_insert) ;    node_data[split_up_node].name       = lua_key(split_insert) ;
+    node_data[expr_node].lua           = lua_key_index(expr_stack) ;      node_data[expr_node].name           = lua_key(expr_stack) ;
+    node_data[nesting_node].lua        = lua_key_index(nested_list) ;     node_data[nesting_node].name        = lua_key(nested_list) ;
+    node_data[span_node].lua           = lua_key_index(span) ;            node_data[span_node].name           = lua_key(span) ;
+    node_data[attribute_node].lua      = lua_key_index(attribute) ;       node_data[attribute_node].name      = lua_key(attribute) ;
+    node_data[glue_spec_node].lua      = lua_key_index(glue_spec) ;       node_data[glue_spec_node].name      = lua_key(glue_spec) ;
+    node_data[attribute_list_node].lua = lua_key_index(attribute_list) ;  node_data[attribute_list_node].name = lua_key(attribute_list) ;
+    node_data[temp_node].lua           = lua_key_index(temp) ;            node_data[temp_node].name           = lua_key(temp) ;
+    node_data[align_stack_node].lua    = lua_key_index(align_stack) ;     node_data[align_stack_node].name    = lua_key(align_stack) ;
+    node_data[movement_node].lua       = lua_key_index(movement_stack) ;  node_data[movement_node].name       = lua_key(movement_stack) ;
+    node_data[if_node].lua             = lua_key_index(if_stack) ;        node_data[if_node].name             = lua_key(if_stack) ;
+    node_data[unhyphenated_node].lua   = lua_key_index(unhyphenated) ;    node_data[unhyphenated_node].name   = lua_key(unhyphenated) ;
+    node_data[hyphenated_node].lua     = lua_key_index(hyphenated) ;      node_data[hyphenated_node].name     = lua_key(hyphenated) ;
+    node_data[delta_node].lua          = lua_key_index(delta) ;           node_data[delta_node].name          = lua_key(delta) ;
+    node_data[passive_node].lua        = lua_key_index(passive) ;         node_data[passive_node].name        = lua_key(passive) ;
+    node_data[shape_node].lua          = lua_key_index(shape) ;           node_data[shape_node].name          = lua_key(shape) ;
+}
 
 const char *node_subtypes_pdf_destination[] = {
     "xyz", "fit", "fith", "fitv", "fitb", "fitbh", "fitbv", "fitr", NULL
@@ -402,44 +457,70 @@ const char *node_subtypes_pdf_literal[] = {
 };
 
 node_info whatsit_node_data[] = {
-    { open_node,         open_node_size,               node_fields_whatsit_open,             "open",             -1 },
-    { write_node,        write_node_size,              node_fields_whatsit_write,            "write",            -1 },
-    { close_node,        close_node_size,              node_fields_whatsit_close,            "close",            -1 },
-    { special_node,      special_node_size,            node_fields_whatsit_special,          "special",          -1 },
-    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
-    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
-    { save_pos_node,     save_pos_node_size,           node_fields_whatsit_save_pos,         "save_pos",         -1 },
-    { late_lua_node,     late_lua_node_size,           node_fields_whatsit_late_lua,         "late_lua",         -1 },
-    { user_defined_node, user_defined_node_size,       node_fields_whatsit_user_defined,     "user_defined",     -1 },
-    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
-    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
-    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
-    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
-    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
-    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
-    { fake_node,         fake_node_size,               NULL,                                 fake_node_name,     -1 },
+    { open_node,             open_node_size,           node_fields_whatsit_open,             NULL, -1, 0 },
+    { write_node,            write_node_size,          node_fields_whatsit_write,            NULL, -1, 0 },
+    { close_node,            close_node_size,          node_fields_whatsit_close,            NULL, -1, 0 },
+    { special_node,          special_node_size,        node_fields_whatsit_special,          NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
+    { save_pos_node,         save_pos_node_size,       node_fields_whatsit_save_pos,         NULL, -1, 0 },
+    { late_lua_node,         late_lua_node_size,       node_fields_whatsit_late_lua,         NULL, -1, 0 },
+    { user_defined_node,     user_defined_node_size,   node_fields_whatsit_user_defined,     NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
     /* here starts the dvi backend section, todo: a separate list  */
     /* nothing for dvi */
     /* here starts the pdf backend section, todo: a separate list  */
-    { pdf_literal_node,      write_node_size,          node_fields_whatsit_pdf_literal,      "pdf_literal",      -1 },
-    { pdf_refobj_node,       pdf_refobj_node_size,     node_fields_whatsit_pdf_refobj,       "pdf_refobj",       -1 },
-    { pdf_annot_node,        pdf_annot_node_size,      node_fields_whatsit_pdf_annot,        "pdf_annot",        -1 },
-    { pdf_start_link_node,   pdf_annot_node_size,      node_fields_whatsit_pdf_start_link,   "pdf_start_link",   -1 },
-    { pdf_end_link_node,     pdf_end_link_node_size,   node_fields_whatsit_pdf_end_link,     "pdf_end_link",     -1 },
-    { pdf_dest_node,         pdf_dest_node_size,       node_fields_whatsit_pdf_dest,         "pdf_dest",         -1 },
-    { pdf_action_node,       pdf_action_size,          node_fields_whatsit_pdf_action,       "pdf_action",       -1 },
-    { pdf_thread_node,       pdf_thread_node_size,     node_fields_whatsit_pdf_thread,       "pdf_thread",       -1 },
-    { pdf_start_thread_node, pdf_thread_node_size,     node_fields_whatsit_pdf_start_thread, "pdf_start_thread", -1 },
-    { pdf_end_thread_node,   pdf_end_thread_node_size, node_fields_whatsit_pdf_end_thread,   "pdf_end_thread",   -1 },
-    { pdf_thread_data_node,  pdf_thread_node_size,     NULL,                                 "pdf_thread_data",  -1 },
-    { pdf_link_data_node,    pdf_annot_node_size,      NULL,                                 "pdf_link_data",    -1 },
-    { pdf_colorstack_node,   pdf_colorstack_node_size, node_fields_whatsit_pdf_colorstack,   "pdf_colorstack",   -1 },
-    { pdf_setmatrix_node,    pdf_setmatrix_node_size,  node_fields_whatsit_pdf_setmatrix,    "pdf_setmatrix",    -1 },
-    { pdf_save_node,         pdf_save_node_size,       node_fields_whatsit_pdf_save,         "pdf_save",         -1 },
-    { pdf_restore_node,      pdf_restore_node_size,    node_fields_whatsit_pdf_restore,      "pdf_restore",      -1 },
+    { pdf_literal_node,      write_node_size,          node_fields_whatsit_pdf_literal,      NULL, -1, 0 },
+    { pdf_refobj_node,       pdf_refobj_node_size,     node_fields_whatsit_pdf_refobj,       NULL, -1, 0 },
+    { pdf_annot_node,        pdf_annot_node_size,      node_fields_whatsit_pdf_annot,        NULL, -1, 0 },
+    { pdf_start_link_node,   pdf_annot_node_size,      node_fields_whatsit_pdf_start_link,   NULL, -1, 0 },
+    { pdf_end_link_node,     pdf_end_link_node_size,   node_fields_whatsit_pdf_end_link,     NULL, -1, 0 },
+    { pdf_dest_node,         pdf_dest_node_size,       node_fields_whatsit_pdf_dest,         NULL, -1, 0 },
+    { pdf_action_node,       pdf_action_size,          node_fields_whatsit_pdf_action,       NULL, -1, 0 },
+    { pdf_thread_node,       pdf_thread_node_size,     node_fields_whatsit_pdf_thread,       NULL, -1, 0 },
+    { pdf_start_thread_node, pdf_thread_node_size,     node_fields_whatsit_pdf_start_thread, NULL, -1, 0 },
+    { pdf_end_thread_node,   pdf_end_thread_node_size, node_fields_whatsit_pdf_end_thread,   NULL, -1, 0 },
+    { pdf_thread_data_node,  pdf_thread_node_size,     NULL,                                 NULL, -1, 0 },
+    { pdf_link_data_node,    pdf_annot_node_size,      NULL,                                 NULL, -1, 0 },
+    { pdf_colorstack_node,   pdf_colorstack_node_size, node_fields_whatsit_pdf_colorstack,   NULL, -1, 0 },
+    { pdf_setmatrix_node,    pdf_setmatrix_node_size,  node_fields_whatsit_pdf_setmatrix,    NULL, -1, 0 },
+    { pdf_save_node,         pdf_save_node_size,       node_fields_whatsit_pdf_save,         NULL, -1, 0 },
+    { pdf_restore_node,      pdf_restore_node_size,    node_fields_whatsit_pdf_restore,      NULL, -1, 0 },
     /* done */
-    { -1,                    -1,                       NULL,                                 NULL,               -1 },
+    { -1,                    -1,                       NULL,                                 NULL, -1, 0 },
 };
+
+void l_set_whatsit_data(void) {
+    whatsit_node_data[open_node].lua             = lua_key_index(open);              whatsit_node_data[open_node].name             = lua_key(open);
+    whatsit_node_data[write_node].lua            = lua_key_index(write);             whatsit_node_data[write_node].name            = lua_key(write);
+    whatsit_node_data[close_node].lua            = lua_key_index(close);             whatsit_node_data[close_node].name            = lua_key(close);
+    whatsit_node_data[special_node].lua          = lua_key_index(special);           whatsit_node_data[special_node].name          = lua_key(special);
+    whatsit_node_data[save_pos_node].lua         = lua_key_index(save_pos);          whatsit_node_data[save_pos_node].name         = lua_key(save_pos);
+    whatsit_node_data[late_lua_node].lua         = lua_key_index(late_lua);          whatsit_node_data[late_lua_node].name         = lua_key(late_lua);
+    whatsit_node_data[user_defined_node].lua     = lua_key_index(user_defined);      whatsit_node_data[user_defined_node].name     = lua_key(user_defined);
+    whatsit_node_data[pdf_literal_node].lua      = lua_key_index(pdf_literal);       whatsit_node_data[pdf_literal_node].name      = lua_key(pdf_literal);
+    whatsit_node_data[pdf_refobj_node].lua       = lua_key_index(pdf_refobj);        whatsit_node_data[pdf_refobj_node].name       = lua_key(pdf_refobj);
+    whatsit_node_data[pdf_annot_node].lua        = lua_key_index(pdf_annot);         whatsit_node_data[pdf_annot_node].name        = lua_key(pdf_annot);
+    whatsit_node_data[pdf_start_link_node].lua   = lua_key_index(pdf_start_link);    whatsit_node_data[pdf_start_link_node].name   = lua_key(pdf_start_link);
+    whatsit_node_data[pdf_end_link_node].lua     = lua_key_index(pdf_end_link);      whatsit_node_data[pdf_end_link_node].name     = lua_key(pdf_end_link);
+    whatsit_node_data[pdf_dest_node].lua         = lua_key_index(pdf_dest);          whatsit_node_data[pdf_dest_node].name         = lua_key(pdf_dest);
+    whatsit_node_data[pdf_action_node].lua       = lua_key_index(pdf_action);        whatsit_node_data[pdf_action_node].name       = lua_key(pdf_action);
+    whatsit_node_data[pdf_thread_node].lua       = lua_key_index(pdf_thread);        whatsit_node_data[pdf_thread_node].name       = lua_key(pdf_thread);
+    whatsit_node_data[pdf_start_thread_node].lua = lua_key_index(pdf_start_thread);  whatsit_node_data[pdf_start_thread_node].name = lua_key(pdf_start_thread);
+    whatsit_node_data[pdf_end_thread_node].lua   = lua_key_index(pdf_end_thread);    whatsit_node_data[pdf_end_thread_node].name   = lua_key(pdf_end_thread);
+    whatsit_node_data[pdf_thread_data_node].lua  = lua_key_index(pdf_thread_data);   whatsit_node_data[pdf_thread_data_node].name  = lua_key(pdf_thread_data);
+    whatsit_node_data[pdf_link_data_node].lua    = lua_key_index(pdf_link_data);     whatsit_node_data[pdf_link_data_node].name    = lua_key(pdf_link_data);
+    whatsit_node_data[pdf_colorstack_node].lua   = lua_key_index(pdf_colorstack);    whatsit_node_data[pdf_colorstack_node].name   = lua_key(pdf_colorstack);
+    whatsit_node_data[pdf_setmatrix_node].lua    = lua_key_index(pdf_setmatrix);     whatsit_node_data[pdf_setmatrix_node].name    = lua_key(pdf_setmatrix);
+    whatsit_node_data[pdf_save_node].lua         = lua_key_index(pdf_save);          whatsit_node_data[pdf_save_node].name         = lua_key(pdf_save);
+    whatsit_node_data[pdf_restore_node].lua      = lua_key_index(pdf_restore);       whatsit_node_data[pdf_restore_node].name      = lua_key(pdf_restore);
+}
 
 #define last_whatsit_node pdf_restore_node
 
