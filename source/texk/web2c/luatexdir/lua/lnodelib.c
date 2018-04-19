@@ -8228,7 +8228,7 @@ static int lua_nodelib_flatten_discretionaries(lua_State * L)
                     try_couple_nodes(alink(current),h);
                 }
                 vlink(n) = null ;
-              /*tlink(n) = null;*/
+              /*tlink(n) = null; */
             } else {
                 if (current == head) {
                     head = next;
@@ -8331,75 +8331,75 @@ static int lua_nodelib_prepend_prevdepth(lua_State * L)
 {
     halfword *a;
     halfword p;
-    halfword d = 0;
     halfword n = *check_isnode(L, 1);
     if (type(n) == hlist_node || type(n) == vlist_node) {
         lua_pushnil(L);
         return 1;
-    } else {
-        boolean mirrored = (type(n) == hlist_node) && is_mirrored(box_dir(n)) ;
-        if (prev_depth_par > ignore_depth) {
-            if (mirrored) {
-                d = width(baseline_skip_par) - prev_depth_par - depth(n);
-            } else {
-                d = width(baseline_skip_par) - prev_depth_par - height(n);
-            }
-            if (d < line_skip_limit_par) {
-                p = new_param_glue(line_skip_code);
-            } else {
-                p = new_skip_param(baseline_skip_code);
-                width(p) = d;
-            }
-            couple_nodes(p,n);
-            fast_metatable_or_nil(p); /* glue */
-        } else {
-            fast_metatable_or_nil(n); /* node */
-        }
-        if (mirrored) {
-            prev_depth_par = height(n);
-        } else {
-            prev_depth_par = depth(n);
-        }
-        lua_pushinteger(L,d); /* delta */
-        return 2;
     }
+    halfword prevdepth = lua_tointeger(L,2);
+    boolean mirrored = (type(n) == hlist_node) && is_mirrored(box_dir(n)) ;
+    if (prevdepth > ignore_depth) {
+        halfword d;
+        if (mirrored) {
+            d = width(baseline_skip_par) - prevdepth - depth(n);
+        } else {
+            d = width(baseline_skip_par) - prevdepth - height(n);
+        }
+        if (d < line_skip_limit_par) {
+            p = new_param_glue(line_skip_code);
+        } else {
+            p = new_skip_param(baseline_skip_code);
+            width(p) = d;
+        }
+        couple_nodes(p,n);
+        fast_metatable_or_nil(p); /* glue */
+    } else {
+        fast_metatable_or_nil(n); /* node */
+    }
+    if (mirrored) {
+        prevdepth = height(n);
+    } else {
+        prevdepth = depth(n);
+    }
+    lua_pushinteger(L,prevdepth); /* new prevdepth */
+    return 2;
 }
 
 static int lua_nodelib_direct_prepend_prevdepth(lua_State * L)
 {
     halfword p;
-    halfword d = 0;
     halfword n = lua_tointeger(L, 1);
     if (type(n) == hlist_node || type(n) == vlist_node) {
         lua_pushnil(L);
         return 1;
-    } else {
-        boolean mirrored = (type(n) == hlist_node) && is_mirrored(box_dir(n)) ;
-        if (prev_depth_par > ignore_depth) {
-            if (mirrored) {
-                d = width(baseline_skip_par) - prev_depth_par - depth(n);
-            } else {
-                d = width(baseline_skip_par) - prev_depth_par - height(n);
-            }
-            if (d < line_skip_limit_par) {
-                p = new_param_glue(line_skip_code);
-            } else {
-                p = new_skip_param(baseline_skip_code);
-                width(p) = d;
-            }
-            couple_nodes(p,n);
-            lua_pushinteger(L,p); /* glue */
-        } else {
-            lua_pushinteger(L,n); /* node */
-        }
-        if (mirrored) {
-            prev_depth_par = height(n);
-        } else {
-            prev_depth_par = depth(n);
-        }
-        lua_pushinteger(L,d); /* delta */
-        return 2;
     }
+    halfword prevdepth = lua_tointeger(L,2);
+    boolean mirrored = (type(n) == hlist_node) && is_mirrored(box_dir(n)) ;
+    if (prevdepth > ignore_depth) {
+        halfword d;
+        if (mirrored) {
+            d = width(baseline_skip_par) - prevdepth - depth(n);
+        } else {
+            d = width(baseline_skip_par) - prevdepth - height(n);
+        }
+        if (d < line_skip_limit_par) {
+            p = new_param_glue(line_skip_code);
+        } else {
+            p = new_skip_param(baseline_skip_code);
+            width(p) = d;
+        }
+        couple_nodes(p,n);
+        lua_pushinteger(L,p); /* glue */
+    } else {
+        lua_pushinteger(L,n); /* node */
+    }
+    if (mirrored) {
+        prevdepth = height(n);
+    } else {
+        prevdepth = depth(n);
+    }
+    lua_pushinteger(L,prevdepth); /* new prevdepth */
+    return 2;
 }
 
 /* done */

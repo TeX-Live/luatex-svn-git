@@ -1309,13 +1309,11 @@ actually a node, and it has the field.
     node.new(<number> id, <number> subtype)
 \stopfunctioncall
 
-Creates a new node. All of the new node's fields are initialized to either zero
-or \type {nil} except for \type {id} and \type {subtype} (if supplied). If you
-want to create a new whatsit, then the second argument is required, otherwise it
-need not be present. As with all node functions, this function creates a node on
-the \TEX\ level.
-
-This function accepts string \type {id} and \type {subtype} values as well.
+The \type {new} function creates a new node. All its fields are initialized to
+either zero or \type {nil} except for \type {id} and \type {subtype}. Instead of
+numbers you can also use strings (names). If you create a new \nod {whatsit} node
+the second argument is required. As with all node functions, this function
+creates a node at the \TEX\ level.
 
 \subsubsection{\type {node.free} and \type {node.flush_node}}
 
@@ -1674,13 +1672,26 @@ See the previous section for details. The change is in the local function \type
 
 \subsubsection{\type {node.traverse_char}}
 
-This iterators loops over the glyph nodes in a list. Only nodes with a subtype
+This iterator loops over the \node {glyph} nodes in a list. Only nodes with a subtype
 less than 256 are seen.
 
 \startfunctioncall
 <node> n =
     node.traverse_char(<node> n)
 \stopfunctioncall
+
+\subsubsection{\type {node.traverse_list}}
+
+This iterator loops over the \nod {hlist} and \nod {vlist} nodes in a list.
+
+\startfunctioncall
+<node> n, id, subtype, list =
+    node.traverse_list(<node> n)
+\stopfunctioncall
+
+The four return values can save some time compared to fetching these fields but
+in practice you seldom need them all. So consider it a (side effect of
+experimental) convenience.
 
 \subsubsection{\type {node.has_glyph}}
 
