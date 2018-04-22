@@ -3507,55 +3507,11 @@ static int nodelib_aux_nil(lua_State * L)
     return 1;
 }
 
-/* node.direct.traverse_id */
 /* node.direct.traverse */
+/* node.direct.traverse_id */
 /* node.direct.traverse_char */
 /* node.direct.traverse_glyph */
 /* node.direct.traverse_list */
-
-static int nodelib_direct_aux_next_filtered(lua_State * L)
-{
-    halfword t;        /* traverser */
-    int i = (int) lua_tointeger(L, lua_upvalueindex(1));
-    if (lua_isnil(L, 2)) {      /* first call */
-        t = lua_tointeger(L,1) ;
-        lua_settop(L,1);
-    } else {
-        t = lua_tointeger(L,2) ;
-        t = vlink(t);
-        lua_settop(L,2);
-    }
-    while (1) {
-        if (t == null) {
-            break;
-        } else if (type(t) == i) {
-            lua_pushinteger(L,t);
-            lua_pushinteger(L,subtype(t));
-            return 2;
-        } else {
-            t = vlink(t);
-        }
-    }
-    lua_pushnil(L);
-    return 1;
-}
-
-static int lua_nodelib_direct_traverse_filtered(lua_State * L)
-{
-    halfword n;
-    if (lua_isnil(L, 2)) {
-        lua_pushcclosure(L, nodelib_aux_nil, 0);
-        return 1;
-    }
-    n = (halfword) lua_tointeger(L, 2);
-    if (n == null)
-        return 0;
-    lua_pop(L, 1);
-    lua_pushcclosure(L, nodelib_direct_aux_next_filtered, 1);
-    lua_pushinteger(L,n);
-    lua_pushnil(L);
-    return 3;
-}
 
 static int nodelib_direct_aux_next(lua_State * L)
 {
@@ -3597,6 +3553,48 @@ static int lua_nodelib_direct_traverse(lua_State * L)
     return 3;
 }
 
+static int nodelib_direct_aux_next_filtered(lua_State * L)
+{
+    halfword t;        /* traverser */
+    int i = (int) lua_tointeger(L, lua_upvalueindex(1));
+    if (lua_isnil(L, 2)) {      /* first call */
+        t = lua_tointeger(L,1) ;
+        lua_settop(L,1);
+    } else {
+        t = lua_tointeger(L,2) ;
+        t = vlink(t);
+        lua_settop(L,2);
+    }
+    while (t != null && type(t) != i) {
+        t = vlink(t);
+    }
+    if (t == null) {
+        lua_pushnil(L);
+        return 1;
+    } else {
+        lua_pushinteger(L,t);
+        lua_pushinteger(L,subtype(t));
+        return 2;
+    }
+}
+
+static int lua_nodelib_direct_traverse_filtered(lua_State * L)
+{
+    halfword n;
+    if (lua_isnil(L, 2)) {
+        lua_pushcclosure(L, nodelib_aux_nil, 0);
+        return 1;
+    }
+    n = (halfword) lua_tointeger(L, 2);
+    if (n == null)
+        return 0;
+    lua_pop(L, 1);
+    lua_pushcclosure(L, nodelib_direct_aux_next_filtered, 1);
+    lua_pushinteger(L,n);
+    lua_pushnil(L);
+    return 3;
+}
+
 static int nodelib_direct_aux_next_char(lua_State * L)
 {
     halfword t;            /* traverser */
@@ -3608,20 +3606,18 @@ static int nodelib_direct_aux_next_char(lua_State * L)
         t = vlink(t);
         lua_settop(L,2);
     }
-    while (1) {
-        if (t == null) {
-            break;
-        } else if ((type(t) == glyph_node) && (subtype(t) < 256)){
-            lua_pushinteger(L,t);
-            lua_pushinteger(L,character(t));
-            lua_pushinteger(L,font(t));
-            return 3;
-        } else {
-            t = vlink(t);
-        }
+    while (! ((t == null) || (type(t) == glyph_node && subtype(t) < 256))) {
+        t = vlink(t);
     }
-    lua_pushnil(L);
-    return 1;
+    if (t == null) {
+        lua_pushnil(L);
+        return 1;
+    } else {
+        lua_pushinteger(L,t);
+        lua_pushinteger(L,character(t));
+        lua_pushinteger(L,font(t));
+        return 3;
+    }
 }
 
 static int lua_nodelib_direct_traverse_char(lua_State * L)
@@ -3653,20 +3649,18 @@ static int nodelib_direct_aux_next_glyph(lua_State * L)
         t = vlink(t);
         lua_settop(L,2);
     }
-    while (1) {
-        if (t == null) {
-            break;
-        } else if (type(t) == glyph_node) {
-            lua_pushinteger(L,t);
-            lua_pushinteger(L,character(t));
-            lua_pushinteger(L,font(t));
-            return 3;
-        } else {
-            t = vlink(t);
-        }
+    while (t != null && type(t) != glyph_node) {
+        t = vlink(t);
     }
-    lua_pushnil(L);
-    return 1;
+    if (t == null) {
+        lua_pushnil(L);
+        return 1;
+    } else {
+        lua_pushinteger(L,t);
+        lua_pushinteger(L,character(t));
+        lua_pushinteger(L,font(t));
+        return 3;
+    }
 }
 
 static int lua_nodelib_direct_traverse_glyph(lua_State * L)
@@ -3708,11 +3702,7 @@ static int nodelib_direct_aux_next_list(lua_State * L)
         lua_pushinteger(L,t);
         lua_pushinteger(L,type(t));
         lua_pushinteger(L,subtype(t));
-        if (list_ptr(t) == null) {
-            lua_pushnil(L);
-        } else {
-            lua_pushinteger(L,list_ptr(t));
-        }
+        nodelib_pushdirect_or_nil(list_ptr(t));
         return 4;
     }
 }
@@ -3722,25 +3712,61 @@ static int lua_nodelib_direct_traverse_list(lua_State * L)
     halfword n;
     if (lua_isnil(L, 1)) {
         lua_pushcclosure(L, nodelib_aux_nil, 0);
-        return 3;
+        return 1;
     }
     n = (halfword) lua_tointeger(L, 1);
     if (n == null) {
         lua_pushcclosure(L, nodelib_aux_nil, 0);
         return 1;
     }
-    lua_pop(L, 1);
     lua_pushcclosure(L, nodelib_direct_aux_next_list, 1);
     lua_pushinteger(L, n);
     lua_pushnil(L);
     return 3;
 }
 
-/* node.traverse_id */
 /* node.traverse */
+/* node.traverse_id */
 /* node.traverse_char */
 /* node.traverse_glyph */
 /* node.traverse_list */
+
+static int nodelib_aux_next(lua_State * L)
+{
+    halfword t;
+    halfword *a;
+    if (lua_isnil(L, 2)) {
+        t = *check_isnode(L, 1);
+        lua_settop(L,1);
+    } else {
+        t = *check_isnode(L, 2);
+        t = vlink(t);
+        lua_settop(L,2);
+    }
+    if (t == null) {
+        lua_pushnil(L);
+        return 1;
+    } else {
+        fast_metatable_top(t);
+        lua_pushinteger(L,type(t));
+        lua_pushinteger(L,subtype(t));
+        return 3;
+    }
+}
+
+static int lua_nodelib_traverse(lua_State * L)
+{
+    halfword n;
+    if (lua_isnil(L, 1)) {
+        lua_pushcclosure(L, nodelib_aux_nil, 0);
+        return 1;
+    }
+    n = *check_isnode(L, 1);
+    lua_pushcclosure(L, nodelib_aux_next, 0);
+    lua_nodelib_push_fast(L, n);
+    lua_pushnil(L);
+    return 3;
+}
 
 static int nodelib_aux_next_filtered(lua_State * L)
 {
@@ -3783,43 +3809,6 @@ static int lua_nodelib_traverse_filtered(lua_State * L)
     return 3;
 }
 
-static int nodelib_aux_next(lua_State * L)
-{
-    halfword t;
-    halfword *a;
-    if (lua_isnil(L, 2)) {
-        t = *check_isnode(L, 1);
-        lua_settop(L,1);
-    } else {
-        t = *check_isnode(L, 2);
-        t = vlink(t);
-        lua_settop(L,2);
-    }
-    if (t == null) {
-        lua_pushnil(L);
-        return 1;
-    } else {
-        fast_metatable_top(t);
-        lua_pushinteger(L,type(t));
-        lua_pushinteger(L,subtype(t));
-        return 3;
-    }
-}
-
-static int lua_nodelib_traverse(lua_State * L)
-{
-    halfword n;
-    if (lua_isnil(L, 1)) {
-        lua_pushcclosure(L, nodelib_aux_nil, 0);
-        return 1;
-    }
-    n = *check_isnode(L, 1);
-    lua_pushcclosure(L, nodelib_aux_next, 0);
-    lua_nodelib_push_fast(L, n);
-    lua_pushnil(L);
-    return 3;
-}
-
 static int nodelib_aux_next_char(lua_State * L)
 {
     halfword t;            /* traverser */
@@ -3832,19 +3821,18 @@ static int nodelib_aux_next_char(lua_State * L)
         t = vlink(t);
         lua_settop(L,2);
     }
-    while (1) {
-        if (t == null) {
-            break;
-        } else if ((type(t) == glyph_node) && (subtype(t) < 256)){
-            fast_metatable_top(t);
-            lua_pushinteger(L,character(t));
-            lua_pushinteger(L,font(t));
-            return 3;
-        } else {
-            t = vlink(t);
-        }
+    while (! ((t == null) || (type(t) == glyph_node && subtype(t) < 256))) {
+        t = vlink(t);
     }
-    return 1;
+    if (t == null) {
+        lua_pushnil(L);
+        return 1;
+    } else {
+        fast_metatable_top(t);
+        lua_pushinteger(L,character(t));
+        lua_pushinteger(L,font(t));
+        return 3;
+    }
 }
 
 static int lua_nodelib_traverse_char(lua_State * L)
@@ -3873,19 +3861,18 @@ static int nodelib_aux_next_glyph(lua_State * L)
         t = vlink(t);
         lua_settop(L,2);
     }
-    while (1) {
-        if (t == null) {
-            break;
-        } else if (type(t) == glyph_node) {
-            fast_metatable_top(t);
-            lua_pushinteger(L,character(t));
-            lua_pushinteger(L,font(t));
-            return 3;
-        } else {
-            t = vlink(t);
-        }
+    while (t != null && type(t) != glyph_node) {
+        t = vlink(t);
     }
-    return 1;
+    if (t == null) {
+        lua_pushnil(L);
+        return 1;
+    } else {
+        fast_metatable_top(t);
+        lua_pushinteger(L,character(t));
+        lua_pushinteger(L,font(t));
+        return 3;
+    }
 }
 
 static int lua_nodelib_traverse_glyph(lua_State * L)
@@ -3924,11 +3911,7 @@ static int nodelib_aux_next_list(lua_State * L)
         fast_metatable_top(t);
         lua_pushinteger(L,type(t));
         lua_pushinteger(L,subtype(t));
-        if (list_ptr(t) == null) {
-            lua_pushnil(L);
-        } else {
-            fast_metatable_top(list_ptr(t));
-        }
+        fast_metatable_or_nil(list_ptr(t));
         return 4;
     }
 }
@@ -3938,10 +3921,9 @@ static int lua_nodelib_traverse_list(lua_State * L)
     halfword n;
     if (lua_isnil(L, 1)) {
         lua_pushcclosure(L, nodelib_aux_nil, 0);
-        return 3;
+        return 1;
     }
     n = *check_isnode(L, 1);
-    lua_pop(L, 1);
     lua_pushcclosure(L, nodelib_aux_next_list, 1);
     lua_nodelib_push_fast(L, n);
     lua_pushnil(L);
