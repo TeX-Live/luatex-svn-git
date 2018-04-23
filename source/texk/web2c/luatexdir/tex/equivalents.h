@@ -445,7 +445,8 @@ We use the notation |saved(k)| to stand for an item that appears in location
 #  define saved_boxspec 14
 #  define saved_boxdir 15
 #  define saved_boxattr 16
-#  define saved_boxpack 18
+#  define saved_boxpack 17
+#  define saved_attrlist 18
 #  define saved_eqtb 19
 
 extern void print_save_stack(void);

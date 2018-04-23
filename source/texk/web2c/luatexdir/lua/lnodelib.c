@@ -291,7 +291,7 @@ int nodelib_getdir(lua_State * L, int n) /* the api public one */
 */
 
 /* s = lua_tostring(L, 2); */
-/* if (lua_key_eq(s, id)) { */
+/* if (lua_key_eq(s, id)) {*/
 
 static int get_node_type_id_from_name(lua_State * L, int n, node_info * data)
 {

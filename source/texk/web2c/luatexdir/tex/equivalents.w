@@ -218,6 +218,13 @@ void new_save_level(group_code c)
         group_trace(false);
     incr(cur_level);
     incr(save_ptr);
+
+set_saved_record(0, saved_attrlist, 0, attr_list_cache);
+incr(save_ptr);
+if (attr_list_cache != cache_disabled) {
+    attr_list_ref(attr_list_cache)++;
+}
+
 }
 
 @ @c
@@ -243,6 +250,7 @@ static const char *save_stack_type(int v)
         case saved_boxdir:      s = "saved_boxdir";      break;
         case saved_boxattr:     s = "saved_boxattr";     break;
         case saved_boxpack:     s = "saved_boxpack";     break;
+        case saved_attrlist:    s = "saved_attrlist";    break;
         case saved_eqtb:        s = "saved_eqtb";        break;
         default: break;
     }
@@ -343,6 +351,7 @@ void print_save_stack(void)
                 break;
             case saved_boxattr:
             case saved_boxpack:
+            case saved_attrlist:
                 tprint(", ");
                 print_int(save_value(i));
                 break;
@@ -740,6 +749,13 @@ void unsave(void)
             if (save_type(save_ptr) == insert_token) {
                 reinsert_token(a, p);
                 a = true; /* always ... always etex now */
+
+} else if (save_type(save_ptr) == saved_attrlist) {
+    attr_list_cache = save_value(save_ptr);
+    if (attr_list_cache != cache_disabled) {
+        attr_list_ref(attr_list_cache)--;
+    }
+
             } else {
                 if (save_type(save_ptr) == restore_old_value) {
                     l = save_level(save_ptr);
@@ -776,6 +792,7 @@ void unsave(void)
                 }
             }
         }
+
         if (tracing_groups_par > 0)
             group_trace(true);
         if (grp_stack[in_open] == cur_boundary)
@@ -786,7 +803,9 @@ void unsave(void)
     } else {
         confusion("curlevel");  /* |unsave| is not used when |cur_group=bottom_level| */
     }
-    attr_list_cache = cache_disabled;
+/*    attr_list_cache = cache_disabled; */
+
+
 }
 
 @ Most of the parameters kept in |eqtb| can be changed freely, but there's
