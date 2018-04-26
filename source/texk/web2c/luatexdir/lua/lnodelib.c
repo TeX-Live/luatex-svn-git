@@ -291,7 +291,7 @@ int nodelib_getdir(lua_State * L, int n) /* the api public one */
 */
 
 /* s = lua_tostring(L, 2); */
-/* if (lua_key_eq(s, id)) {*/
+/* if (lua_key_eq(s, id)) { */
 
 static int get_node_type_id_from_name(lua_State * L, int n, node_info * data)
 {
@@ -3276,6 +3276,8 @@ static int lua_nodelib_direct_getheight(lua_State * L)
             lua_pushinteger(L, char_height(font(n),character(n)));
         } else if (t == unset_node || t == ins_node) {
             lua_pushinteger(L,height(n));
+        } else if (t == fence_noad) {
+            lua_pushinteger(L,delimiterheight(n));
         } else {
             lua_pushnil(L);
         }
@@ -3290,12 +3292,14 @@ static int lua_nodelib_direct_setheight(lua_State * L)
     halfword n = lua_tointeger(L, 1);
     if (n) {
         halfword t = type(n);
+        halfword h = 0;
+        if (lua_type(L, 2) == LUA_TNUMBER) {
+            h = lua_roundnumber(L,2);
+        }
         if (t == hlist_node || t == vlist_node || t == rule_node || t == unset_node) {
-            if (lua_type(L, 2) == LUA_TNUMBER) {
-                height(n) = lua_roundnumber(L,2);
-            } else {
-                height(n) = 0;
-            }
+            height(n) = h;
+        } else if (t == fence_noad) {
+            delimiterheight(n) = h;
         }
     }
     return 0;
@@ -3312,6 +3316,8 @@ static int lua_nodelib_direct_getdepth(lua_State * L)
             lua_pushinteger(L, char_depth(font(n),character(n)));
         } else if (t == unset_node || t == ins_node) {
             lua_pushinteger(L,depth(n));
+        } else if (t == fence_noad) {
+            lua_pushinteger(L,delimiterdepth(n));
         } else {
             lua_pushnil(L);
         }
@@ -3326,12 +3332,14 @@ static int lua_nodelib_direct_setdepth(lua_State * L)
     halfword n = lua_tointeger(L, 1);
     if (n) {
         halfword t = type(n);
+        halfword d = 0;
+        if (lua_type(L, 2) == LUA_TNUMBER) {
+            d = lua_roundnumber(L,2);
+        }
         if (t == hlist_node || t == vlist_node || t == rule_node || t == unset_node) {
-            if (lua_type(L, 2) == LUA_TNUMBER) {
-                depth(n) = lua_roundnumber(L,2);
-            } else {
-                depth(n) = 0;
-            }
+            depth(n) = d;
+        } else if (t == fence_noad) {
+            delimiterdepth(n) = d;
         }
     }
     return 0;
