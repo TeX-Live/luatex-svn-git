@@ -3121,12 +3121,10 @@ static void make_ord(pointer q)
                         default:
                             try_couple_nodes(q,vlink(p));
                             math_character(nucleus(q)) = lig_replacement(lig); /* \.{=:} */
-                            s = math_clone(subscr(p));
-                            subscr(q) = s;
-                            s = math_clone(supscr(p));
-                            supscr(q) = s;
-                            math_reset(subscr(p)); /* just in case */
-                            math_reset(supscr(p));
+                            subscr(q) = subscr(p);
+                            supscr(q) = supscr(p);
+                            subscr(p) = null ; 
+                            supscr(p) = null ; 
                             flush_node(p);
                             break;
                         }
