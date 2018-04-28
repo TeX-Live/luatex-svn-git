@@ -219,11 +219,15 @@ void new_save_level(group_code c)
     incr(cur_level);
     incr(save_ptr);
 
-set_saved_record(0, saved_attrlist, 0, attr_list_cache);
-incr(save_ptr);
-if (attr_list_cache != cache_disabled) {
-    attr_list_ref(attr_list_cache)++;
-}
+    /* alas ... we run into issues with global assignments
+
+        set_saved_record(0, saved_attrlist, 0, attr_list_cache);
+        incr(save_ptr);
+        if (attr_list_cache != cache_disabled) {
+            attr_list_ref(attr_list_cache)++;
+        }
+
+    */
 
 }
 
@@ -750,11 +754,15 @@ void unsave(void)
                 reinsert_token(a, p);
                 a = true; /* always ... always etex now */
 
-} else if (save_type(save_ptr) == saved_attrlist) {
-    attr_list_cache = save_value(save_ptr);
-    if (attr_list_cache != cache_disabled) {
-        attr_list_ref(attr_list_cache)--;
-    }
+            /* (!) alas ... we run into issues with global assignments
+
+            } else if (save_type(save_ptr) == saved_attrlist) {
+                attr_list_cache = save_value(save_ptr);
+                if (attr_list_cache != cache_disabled) {
+                    attr_list_ref(attr_list_cache)--;
+                }
+
+            */
 
             } else {
                 if (save_type(save_ptr) == restore_old_value) {
@@ -803,8 +811,12 @@ void unsave(void)
     } else {
         confusion("curlevel");  /* |unsave| is not used when |cur_group=bottom_level| */
     }
-/*    attr_list_cache = cache_disabled; */
 
+    /* (!) alas ... we run into issues with global assignments */
+
+    attr_list_cache = cache_disabled;
+
+    /* (!) */
 
 }
 
