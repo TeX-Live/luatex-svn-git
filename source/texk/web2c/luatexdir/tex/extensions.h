@@ -141,4 +141,6 @@ typedef enum {
     pdf_extension_code,
 } extension_codes ;
 
+extern void wrapup_leader(halfword p);
+
 #endif

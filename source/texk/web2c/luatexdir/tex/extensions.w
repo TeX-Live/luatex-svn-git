@@ -365,7 +365,8 @@ void do_extension(int immediate)
             open_area(tail) = cur_area;
             open_ext(tail) = cur_ext;
             if (immediate) {
-                out_what(static_pdf, tail);
+                wrapup_leader(tail);
+             // out_what(static_pdf, tail);
                 flush_node_list(tail);
                 tail = p;
                 vlink(p) = null;
@@ -383,7 +384,8 @@ void do_extension(int immediate)
             scan_toks(false, false);
             write_tokens(tail) = def_ref;
             if (immediate) {
-                out_what(static_pdf, tail);
+                wrapup_leader(tail);
+             // out_what(static_pdf, tail);
                 flush_node_list(tail);
                 tail = p;
                 vlink(p) = null;
@@ -394,7 +396,8 @@ void do_extension(int immediate)
             new_write_whatsit(close_node_size,1);
             write_tokens(tail) = null;
             if (immediate) {
-                out_what(static_pdf, tail);
+                wrapup_leader(tail);
+             // out_what(static_pdf, tail);
                 flush_node_list(tail);
                 tail = p;
                 vlink(p) = null;
@@ -1209,3 +1212,28 @@ char *output_comment;
 
 @c
 boolean debug_format_file;
+
+void wrapup_leader(halfword p)
+{
+    /* do some work that has been queued up for \.{\\write} */
+    if (!doing_leaders) {
+        int j = write_stream(p);
+        if (subtype(p) == write_node) {
+            write_out(p);
+        } else if (subtype(p) == close_node) {
+            close_write_file(j);
+        } else if (valid_write_file(j)) {
+            char *fn;
+            close_write_file(j);
+            cur_name = open_name(p);
+            cur_area = open_area(p);
+            cur_ext = open_ext(p);
+            if (cur_ext == get_nullstr())
+                cur_ext = maketexstring(".tex");
+            fn = pack_file_name(cur_name, cur_area, cur_ext);
+            while (! open_write_file(j,fn)) {
+                fn = prompt_file_name("output file name", ".tex");
+            }
+        }
+    }
+}

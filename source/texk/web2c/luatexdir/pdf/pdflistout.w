@@ -238,53 +238,38 @@ implementations, due to machine-dependent rounding in the glue calculations.)
 @^leaders@>
 
 @c
-void out_what(PDF pdf, halfword p)
-{
-    switch (subtype(p)) {
-        case special_node:         /* |pdf_special(pdf, p)|; */
-        case late_lua_node:        /* |late_lua(pdf, p)|; */
-        case pdf_save_node:        /* |pdf_out_save(pdf, p)|; */
-        case pdf_restore_node:     /* |pdf_out_restore(pdf, p)|; */
-        case pdf_end_link_node:    /* |end_link(pdf, p)|; */
-        case pdf_end_thread_node:  /* |end_thread(pdf, p)|; */
-        case pdf_literal_node:     /* |pdf_out_literal(pdf, p)|; */
-        case pdf_colorstack_node:  /* |pdf_out_colorstack(pdf, p)|; */
-        case pdf_setmatrix_node:   /* |pdf_out_setmatrix(pdf, p)|; */
-        case pdf_refobj_node:      /* |pdf_ref_obj(pdf, p)| */
-            backend_out_whatsit[subtype(p)] (pdf, p);
-            break;
-        case open_node:
-        case write_node:
-        case close_node:
-            /* do some work that has been queued up for \.{\\write} */
-            if (!doing_leaders) {
-                int j = write_stream(p);
-                if (subtype(p) == write_node) {
-                    write_out(p);
-                } else if (subtype(p) == close_node) {
-                    close_write_file(j);
-                } else if (valid_write_file(j)) {
-                    char *fn;
-                    close_write_file(j);
-                    cur_name = open_name(p);
-                    cur_area = open_area(p);
-                    cur_ext = open_ext(p);
-                    if (cur_ext == get_nullstr())
-                        cur_ext = maketexstring(".tex");
-                    fn = pack_file_name(cur_name, cur_area, cur_ext);
-                    while (! open_write_file(j,fn)) {
-                        fn = prompt_file_name("output file name", ".tex");
-                    }
-                }
-            }
-            break;
-        case user_defined_node:
-            break;
-        default:
-            /* this should give an error about missing whatsit backend function */
-            backend_out_whatsit[subtype(p)] (pdf, p);
-    }
-}
+// static void out_what(PDF pdf, halfword p, halfword this_box, scaledpos cur)
+// {
+//     switch (subtype(p)) {
+//      // case special_node:         /* |pdf_special(pdf, p)|; */
+//      // case late_lua_node:        /* |late_lua(pdf, p)|; */
+//         case pdf_save_node:        /* |pdf_out_save(pdf, p)|; */
+//         case pdf_restore_node:     /* |pdf_out_restore(pdf, p)|; */
+//         case pdf_start_link_node:
+//         case pdf_end_link_node:    /* |end_link(pdf, p)|; */
+//         case pdf_thread_node:
+//         case pdf_start_thread_node:
+//         case pdf_end_thread_node:  /* |end_thread(pdf, p)|; */
+//         case pdf_literal_node:     /* |pdf_out_literal(pdf, p)|; */
+//         case pdf_colorstack_node:  /* |pdf_out_colorstack(pdf, p)|; */
+//         case pdf_setmatrix_node:   /* |pdf_out_setmatrix(pdf, p)|; */
+//         case pdf_annot_node:
+//         case pdf_dest_node:
+//         case pdf_refobj_node:      /* |pdf_ref_obj(pdf, p)| */
+//             backend_out_whatsit[subtype(p)] (pdf, p);
+//             break;
+//      // case open_node:
+//      // case write_node:
+//      // case close_node:
+//      //     wrapup_leader(p);
+//      //     break;
+//      // case user_defined_node:
+//      //     break;
+//         default:
+//             /* this should give an error about missing whatsit backend function */
+//             backend_out_whatsit[subtype(p)] (pdf, p);
+//     }
+// }
 
 @ @c
 void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
@@ -655,15 +640,27 @@ cur.h += x_advance(p);
                             pos_info.boxdim.ht = height(this_box);
                             pos_info.boxdim.dp = depth(this_box);
                             break;
-                        case pdf_annot_node:
-                        case pdf_start_link_node:
-                        case pdf_dest_node:
-                        case pdf_start_thread_node:
-                        case pdf_thread_node:
-                            backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
+                        case user_defined_node:
                             break;
+                        case open_node:
+                        case write_node:
+                        case close_node:
+                            wrapup_leader(p);
+                            break;
+                        case special_node:         /* |pdf_special(pdf, p)|; */
+                        case late_lua_node:        /* |late_lua(pdf, p)|; */
+                            backend_out_whatsit[subtype(p)] (pdf, p);
+                            break;
+                      //  case pdf_annot_node:
+                      //  case pdf_start_link_node:
+                      //  case pdf_dest_node:
+                      //  case pdf_start_thread_node:
+                      //  case pdf_thread_node:
+                      //      backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
+                      //      break;
                         default:
-                            out_what(pdf, p);
+                         // out_what(pdf, p, this_box, cur);
+                            backend_out_whatsit[subtype(p)] (pdf, p);
                     }
                     break;
                 case margin_kern_node:
@@ -1012,15 +1009,27 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                         pos_info.boxdim.ht = height(this_box);
                         pos_info.boxdim.dp = depth(this_box);
                         break;
-                    case pdf_annot_node:
-                    case pdf_start_link_node:
-                    case pdf_dest_node:
-                    case pdf_start_thread_node:
-                    case pdf_thread_node:
-                        backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
+                    case user_defined_node:
                         break;
+                    case open_node:
+                    case write_node:
+                    case close_node:
+                        wrapup_leader(p);
+                        break;
+                    case special_node:         /* |pdf_special(pdf, p)|; */
+                    case late_lua_node:        /* |late_lua(pdf, p)|; */
+                        backend_out_whatsit[subtype(p)] (pdf, p);
+                        break;
+                 // case pdf_annot_node:
+                 // case pdf_start_link_node:
+                 // case pdf_dest_node:
+                 // case pdf_start_thread_node:
+                 // case pdf_thread_node:
+                 //     backend_out_whatsit[subtype(p)] (pdf, p, this_box, cur);
+                 //     break;
                     default:
-                        out_what(pdf, p);
+                     // out_what(pdf, p, this_box, cur);
+                        backend_out_whatsit[subtype(p)] (pdf, p);
                 }
                 break;
             case glyph_node:

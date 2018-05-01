@@ -8389,13 +8389,15 @@ static int lua_nodelib_prepend_prevdepth(lua_State * L)
 {
     halfword *a;
     halfword p;
+    halfword prevdepth;
+    boolean mirrored;
     halfword n = *check_isnode(L, 1);
     if (type(n) == hlist_node || type(n) == vlist_node) {
         lua_pushnil(L);
         return 1;
     }
-    halfword prevdepth = lua_tointeger(L,2);
-    boolean mirrored = (type(n) == hlist_node) && is_mirrored(box_dir(n)) ;
+    prevdepth = lua_tointeger(L,2);
+    mirrored = (type(n) == hlist_node) && is_mirrored(box_dir(n)) ;
     if (prevdepth > ignore_depth) {
         halfword d;
         if (mirrored) {
@@ -8426,13 +8428,15 @@ static int lua_nodelib_prepend_prevdepth(lua_State * L)
 static int lua_nodelib_direct_prepend_prevdepth(lua_State * L)
 {
     halfword p;
+    halfword prevdepth;
+    boolean mirrored;
     halfword n = lua_tointeger(L, 1);
     if (type(n) == hlist_node || type(n) == vlist_node) {
         lua_pushnil(L);
         return 1;
     }
-    halfword prevdepth = lua_tointeger(L,2);
-    boolean mirrored = (type(n) == hlist_node) && is_mirrored(box_dir(n)) ;
+    prevdepth = lua_tointeger(L,2);
+    mirrored = (type(n) == hlist_node) && is_mirrored(box_dir(n)) ;
     if (prevdepth > ignore_depth) {
         halfword d;
         if (mirrored) {
