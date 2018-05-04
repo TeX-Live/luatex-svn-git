@@ -675,6 +675,20 @@ static void lua_function_call(void) {
     }
 }
 
+static void lua_bytecode_call(void) {
+    scan_int();
+    if (cur_val < 0 || cur_val > 65535) {
+        normal_error("luabytecodecall", "invalid number");
+    } else {
+        str_number u = save_cur_string();
+        luacstrings = 0;
+        luabytecodecall(cur_val);
+        restore_cur_string(u);
+        if (luacstrings > 0)
+            lua_string_start();
+    }
+}
+
 @ For mode-independent commands, the following macro is useful.
 
 Also, there is a list of cases where the user has probably gotten into or out of math
@@ -907,6 +921,7 @@ static void init_main_control (void) {
     any_mode(option_cmd, run_option);
 
     any_mode(lua_function_call_cmd, lua_function_call);
+    any_mode(lua_bytecode_call_cmd, lua_bytecode_call);
 }
 
 @ And here is |main_control| itself.  It is quite short nowadays.

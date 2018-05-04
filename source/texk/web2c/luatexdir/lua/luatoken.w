@@ -89,6 +89,7 @@ command_item command_names[] = {
     {"extension", extension_cmd, NULL},
     {"option", option_cmd, NULL},
     {"lua_function_call",lua_function_call_cmd,NULL},
+    {"lua_bytecode_call",lua_bytecode_call_cmd,NULL},
     {"in_stream", in_stream_cmd, NULL},
     {"begin_group", begin_group_cmd, NULL},
     {"end_group", end_group_cmd, NULL},

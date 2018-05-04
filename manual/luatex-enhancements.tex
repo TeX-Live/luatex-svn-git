@@ -503,6 +503,33 @@ in the following example the number \type {8} gets typeset.
 The \lpr {luafunctioncall} primitive does the same but is unexpandable, for
 instance in an \prm {edef}.
 
+\subsection{\lpr {luabytecode} and \lpr {luabytecodecall}}
+
+Analogue to the function callers discussed in the previous section we have byte
+code callers. Again the call variant is unexpandable.
+
+\starttyping
+\directlua {
+    lua.bytecode[9998] = function(s)
+        tex.sprint(s*token.scan_int())
+    end
+    lua.bytecode[5555] = function(s)
+        tex.sprint(s*token.scan_dimen())
+    end
+}
+\stoptyping
+
+This works with:
+
+\starttyping
+\luabytecode    9998 5  \luabytecode    5555 5sp
+\luabytecodecall9998 5  \luabytecodecall5555 5sp
+\stoptyping
+
+The variable \type {s} in the code is the number of the byte code register that
+can be used for diagnostic purposes. The advantage of bytecode registers over
+function calls is that they are stored in the format (but without upvalues).
+
 \section {Alignments}
 
 \subsection{\lpr {alignmark} and \lpr {aligntab}}

@@ -27,9 +27,9 @@ This returns the \LUA\ version identifier string. The value is currently
 \topicindex{bytecodes}
 \topicindex{registers+bytecodes}
 
-\LUA\ registers can be used to communicate \LUA\ functions across \LUA\ chunks.
-The accepted values for assignments are functions and \type {nil}. Likewise, the
-retrieved value is either a function or \type {nil}.
+\LUA\ registers can be used to store \LUA\ code chunks. The accepted values for
+assignments are functions and \type {nil}. Likewise, the retrieved value is
+either a function or \type {nil}.
 
 \starttyping
 lua.bytecode[<number> n] = <function> f
@@ -37,13 +37,8 @@ lua.bytecode[<number> n]()
 \stoptyping
 
 The contents of the \type {lua.bytecode} array is stored inside the format file
-as actual \LUA\ bytecode, so it can also be used to preload \LUA\ code.
-
-Note: The function must not contain any upvalues. Currently, functions containing
-upvalues can be stored (and their upvalues are set to \type {nil}), but this is
-an artifact of the current \LUA\ implementation and thus subject to change.
-
-The associated function calls are
+as actual \LUA\ bytecode, so it can also be used to preload \LUA\ code. The
+function must not contain any upvalues. The associated function calls are:
 
 \startfunctioncall
 <function> f = lua.getbytecode(<number> n)
@@ -70,6 +65,8 @@ stack backtraces and therefore dumped into the format file if the above code is
 used in \INITEX. If it contains private information, i.e. the user name, this
 information is then contained in the format file as well. This should be kept in
 mind when preloading files into a bytecode register in \INITEX.
+
+
 
 \subsection{\LUA\ chunk name registers}
 

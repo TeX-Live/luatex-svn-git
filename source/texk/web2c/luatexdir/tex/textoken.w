@@ -2537,7 +2537,20 @@ void conv_toks(void)
                 if (luacstrings > 0)
                     lua_string_start();
             }
-            /* no further action */
+            return;
+            break;
+        case lua_bytecode_code:
+            scan_int();
+            if (cur_val < 0 || cur_val > 65535) {
+                normal_error("luabytecode", "invalid number");
+            } else {
+                u = save_cur_string();
+                luacstrings = 0;
+                luabytecodecall(cur_val);
+                restore_cur_string(u);
+                if (luacstrings > 0)
+                    lua_string_start();
+            }
             return;
             break;
         case lua_code:

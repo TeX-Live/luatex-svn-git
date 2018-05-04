@@ -135,6 +135,7 @@ typedef enum {
     extension_cmd,                        /* extensions to \TeX\ ( \.{\\write}, \.{\\special}, etc.~) */
     option_cmd,
     lua_function_call_cmd,
+    lua_bytecode_call_cmd,
     in_stream_cmd,                        /* files for reading ( \.{\\openin}, \.{\\closein} ) */
     begin_group_cmd,                      /* begin local grouping ( \.{\\begingroup} ) */
     end_group_cmd,                        /* end local grouping ( \.{\\endgroup} ) */
@@ -239,8 +240,9 @@ typedef enum {
 
 typedef enum {
     number_code = 0,            /* command code for \.{\\number} */
-    lua_function_code,          /* command code for \.{\\luafunction} */
     lua_code,                   /* command code for \.{\\directlua} */
+    lua_function_code,          /* command code for \.{\\luafunction} */
+    lua_bytecode_code,          /* command code for \.{\\luabytecode} */
     expanded_code,              /* command code for \.{\\expanded} */
     immediate_assignment_code,  /* command code for \.{\\immediateassignment} */
     math_style_code,            /* command code for \.{\\mathstyle} */
