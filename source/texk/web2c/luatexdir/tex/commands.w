@@ -363,7 +363,7 @@ void initialize_commands(void)
 
     primitive_tex("ifhbox", if_test_cmd, if_hbox_code, 0);
     primitive_tex("ifvbox", if_test_cmd, if_vbox_code, 0);
-    primitive_tex("ifx", if_test_cmd, ifx_code, 0);
+    primitive_tex("ifx", if_test_cmd, if_x_code, 0);
     primitive_tex("ifeof", if_test_cmd, if_eof_code, 0);
     primitive_tex("iftrue", if_test_cmd, if_true_code, 0);
     primitive_tex("iffalse", if_test_cmd, if_false_code, 0);

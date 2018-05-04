@@ -340,22 +340,6 @@ void conditional(void)
         case if_inner_code:
             b = (cur_list.mode_field < 0);
             break;
-        /*
-        case if_void_code:
-        case if_hbox_code:
-        case if_vbox_code:
-            scan_register_num();
-            p = box(cur_val);
-            if (this_if == if_void_code)
-                b = (p == null);
-            else if (p == null)
-                b = false;
-            else if (this_if == if_hbox_code)
-                b = (type(p) == hlist_node);
-            else
-                b = (type(p) == vlist_node);
-            break;
-        */
         case if_void_code:
             scan_register_num();
             p = box(cur_val);
@@ -371,7 +355,7 @@ void conditional(void)
             p = box(cur_val);
             b = (p != null) && (type(p) == vlist_node);
             break;
-        case ifx_code:
+        case if_x_code:
             /*
                 Test if two tokens match
 
