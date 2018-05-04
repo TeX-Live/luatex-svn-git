@@ -2574,6 +2574,33 @@ void conv_toks(void)
             /* no further action */
             return;
             break;
+        case immediate_assignment_code:
+            /*
+                This is on-the-road-to-bachotex brain-wave but it needs a bit
+                more testing. A first variant did more in sequence till a
+                relax of spacer was seen (like do_assignments). It permits
+                for instance setting counters in full expansion.
+            */
+            save_scanner_status = scanner_status;
+            save_warning_index = warning_index;
+            save_def_ref = def_ref;
+            u = save_cur_string();
+            /* one-step do_assignment */
+            do {
+                get_x_token();
+            } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+            if (cur_cmd > max_non_prefixed_command) {
+                set_box_allowed = false;
+                prefixed_command();
+                set_box_allowed = true;
+            }
+            /* done */
+            warning_index = save_warning_index;
+            scanner_status = save_scanner_status;
+            def_ref = save_def_ref;
+            restore_cur_string(u);
+            return;
+            break;
         case math_style_code:
             push_selector;
             print_math_style();

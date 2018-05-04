@@ -242,6 +242,7 @@ typedef enum {
     lua_function_code,          /* command code for \.{\\luafunction} */
     lua_code,                   /* command code for \.{\\directlua} */
     expanded_code,              /* command code for \.{\\expanded} */
+    immediate_assignment_code,  /* command code for \.{\\immediateassignment} */
     math_style_code,            /* command code for \.{\\mathstyle} */
     string_code,                /* command code for \.{\\string} */
     cs_string_code,             /* command code for \.{\\csstring} */

@@ -56,11 +56,14 @@ chapters on fonts and math we discuss a few more new ones.
 
 There are three new primitives to test the version of \LUATEX:
 
+\unexpanded\def\VersionHack#1% otherwise different luatex and luajittex runs
+  {\cldcontext{(string.gsub(string.match("\luatexbanner","(.+)\letterpercent("),"jit",""))}}
+
 \starttabulate[|l|l|pl|]
 \DB primitive             \BC value
                           \BC explanation \NC \NR
 \TB
-\NC \lpr {luatexbanner}   \NC \cldcontext{string.match("\luatexbanner","(.+)\letterpercent(")}
+\NC \lpr {luatexbanner}   \NC \VersionHack{\luatexbanner}
                           \NC the banner reported on the command line \NC \NR
 \NC \lpr {luatexversion}  \NC \the\luatexversion
                           \NC a combination of major and minor number \NC \NR
@@ -1034,6 +1037,82 @@ extension is that a csname not always makes sense. The zero case is the default.
 You can now open upto 127 files with \prm {openout}. When no file is open
 writes will go to the console and log. As a consequence a system command is
 no longer possible but one can use \type {os.execute} to do the same.
+
+\subsection{\lpr {expanded} and \lpr {immediateassignment}}
+
+\topicindex {expansion}
+
+The \lpr {expansion} primitive takes a token list and expands it content which
+can come in handy: it avoids a tricky mix of \prm {expandafter} and \prm
+{noexpand}. But it still doesn't expand some primitive operations.
+
+\startbuffer
+\newcount\NumberOfCalls
+
+\def\TestMe{\advance\NumberOfCalls1 }
+
+\edef\Tested{\TestMe foo:\the\NumberOfCalls}
+\edef\Tested{\TestMe foo:\the\NumberOfCalls}
+\edef\Tested{\TestMe foo:\the\NumberOfCalls}
+
+\meaning\Tested
+\stopbuffer
+
+\typebuffer
+
+The result is a macro that has the not expanded code in its body:
+
+\getbuffer
+
+Instead we can define \tex {TestMe} in a way that expands the assignment
+immediately. You need of course to be aware of preventing look ahead interference
+by using a space or \tex {relax} (often an expression works better as it doesn't
+leave an \tex {relax}).
+
+\startbuffer
+\def\TestMe{\immediateassignment\advance\NumberOfCalls1 }
+
+\edef\Tested{\TestMe foo:\the\NumberOfCalls}
+\edef\Tested{\TestMe foo:\the\NumberOfCalls}
+\edef\Tested{\TestMe foo:\the\NumberOfCalls}
+
+\meaning\Tested
+\stopbuffer
+
+\typebuffer
+
+This time the counter gets updates and we don't see interference in the
+resulting \tex {Tested} macro:
+
+\getbuffer
+
+Here is a somewhat silly example of expanded comparison:
+
+\startbuffer
+\def\expandeddoifelse#1#2#3#4%
+  {\immediateassignment\edef\tempa{#1}%
+   \immediateassignment\edef\tempb{#2}%
+   \ifx\tempa\tempb
+     \immediateassignment\def\next{#3}%
+   \else
+     \immediateassignment\def\next{#4}%
+   \fi
+   \next}
+
+\edef\Tested
+  {(\expandeddoifelse{abc}{def}{yes}{nop}/%
+    \expandeddoifelse{abc}{abc}{yes}{nop})}
+
+\meaning\Tested
+\stopbuffer
+
+\typebuffer
+
+It gives:
+
+\getbuffer
+
+\stopsection
 
 \stopchapter
 
