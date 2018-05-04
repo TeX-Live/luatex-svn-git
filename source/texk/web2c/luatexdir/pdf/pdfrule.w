@@ -79,11 +79,25 @@ void pdf_place_rule(PDF pdf, halfword q, scaledpos size, int callback_id)
             pdf_puts(pdf, " l S\n");
         } else {
             pdf_set_pos_temp(pdf, pos);
+            if (s == outline_rule) {
+                pdf_puts(pdf, "[]0 d 10 J ");
+                if (rule_transform(q) > 0) {
+                    pdfpos temp ;
+                    temp.h.m = i64round(rule_transform(q) * p->k1);
+                    temp.h.e = p->pdf.h.e;
+                    print_pdffloat(pdf, temp.h);
+                    pdf_puts(pdf, " w ");
+                }
+            }
             pdf_puts(pdf, "0 0 ");
             print_pdffloat(pdf, dim.h);
             pdf_out(pdf, ' ');
             print_pdffloat(pdf, dim.v);
-            pdf_puts(pdf, " re f\n");
+            if (s == outline_rule) {
+                pdf_puts(pdf, " re S\n");
+            } else {
+                pdf_puts(pdf, " re f\n");
+            }
         }
         pdf_puts(pdf, "Q\n");
     }

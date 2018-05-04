@@ -167,18 +167,19 @@ also use rules to store reuseable objects and images. User nodes are invisible
 and can be intercepted by a callback.
 
 \starttabulate[|l|l|p|]
-\DB field          \BC type   \BC explanation \NC \NR
+\DB field            \BC type   \BC explanation \NC \NR
 \TB
-\NC \type{subtype} \NC number \NC \showsubtypes {rule} \NC \NR
-\NC \type{attr}    \NC node   \NC list of attributes \NC \NR
-\NC \type{width}   \NC number \NC the width of the rule where the special value
-                                  $-1073741824$ is used for \quote {running} glue dimensions \NC \NR
-\NC \type{height}  \NC number \NC the height of the rule (can be negative) \NC \NR
-\NC \type{depth}   \NC number \NC the depth of the rule (can be negative) \NC \NR
-\NC \type{left}    \NC number \NC shift at the left end (also subtracted from width) \NC \NR
-\NC \type{right}   \NC number \NC (subtracted from width) \NC \NR
-\NC \type{dir}     \NC string \NC the direction of this rule, see~\in[dirnodes] \NC \NR
-\NC \type{index}   \NC number \NC an optional index that can be referred to \NC \NR
+\NC \type{subtype}   \NC number \NC \showsubtypes {rule} \NC \NR
+\NC \type{attr}      \NC node   \NC list of attributes \NC \NR
+\NC \type{width}     \NC number \NC the width of the rule where the special value
+                                    $-1073741824$ is used for \quote {running} glue dimensions \NC \NR
+\NC \type{height}    \NC number \NC the height of the rule (can be negative) \NC \NR
+\NC \type{depth}     \NC number \NC the depth of the rule (can be negative) \NC \NR
+\NC \type{left}      \NC number \NC shift at the left end (also subtracted from width) \NC \NR
+\NC \type{right}     \NC number \NC (subtracted from width) \NC \NR
+\NC \type{dir}       \NC string \NC the direction of this rule, see~\in[dirnodes] \NC \NR
+\NC \type{index}     \NC number \NC an optional index that can be referred to \NC \NR
+\NC \type{transform} \NC number \NC an private variable (also used to specify outline width) \NC \NR
 \LL
 \stoptabulate
 
@@ -192,7 +193,9 @@ the auto settings also happen in the backend). For a vertical rule \type {left}
 affects the height and \type {right} affects the depth. There is no matching
 interface at the \TEX\ end (although we can have more keywords for rules it would
 complicate matters and introduce a speed penalty.) However, you can just
-construct a rule node with \LUA\ and write it to the \TEX\ input.
+construct a rule node with \LUA\ and write it to the \TEX\ input. The \type
+{outline} subtype is just a convenient variant and the \type {transform} field
+specifies the width of the outline.
 
 \subsubsection{\nod {ins} nodes}
 
@@ -455,7 +458,7 @@ considers some input to be text.
 \stoptabulate
 
 The \type {width}, \type {height} and \type {depth} values are read|-|only. The
-\type {expansion_factor} is assigned in the parbuilder and used in the backend.
+\type {expansion_factor} is assigned in the par builder and used in the backend.
 
 A warning: never assign a node list to the components field unless you are sure
 its internal link structure is correct, otherwise an error may be result. Valid
@@ -1599,7 +1602,7 @@ This function also accept string \type {id}'s.
 \subsubsection{\type {node.traverse}}
 
 \startfunctioncall
-<node> t =
+<node> t, id, subtype =
     node.traverse(<node> n)
 \stopfunctioncall
 
@@ -1645,7 +1648,7 @@ If the above is unclear to you, see the section \quote {For Statement} in the
 \subsubsection{\type {node.traverse_id}}
 
 \startfunctioncall
-<node> t =
+<node> t, subtype =
     node.traverse_id(<number> id, <node> n)
 \stopfunctioncall
 
@@ -1672,12 +1675,21 @@ See the previous section for details. The change is in the local function \type
 
 \subsubsection{\type {node.traverse_char}}
 
-This iterator loops over the \node {glyph} nodes in a list. Only nodes with a subtype
-less than 256 are seen.
+This iterator loops over the \node {glyph} nodes in a list. Only nodes with a
+subtype less than 256 are seen.
 
 \startfunctioncall
-<node> n =
+<node> n, font, char =
     node.traverse_char(<node> n)
+\stopfunctioncall
+
+\subsubsection{\type {node.traverse_glyph}}
+
+This iterator loops over a list and returns the list and filters all glyphs:
+
+\startfunctioncall
+<node> n, font, char =
+    node.traverse_glyph(<node> n)
 \stopfunctioncall
 
 \subsubsection{\type {node.traverse_list}}

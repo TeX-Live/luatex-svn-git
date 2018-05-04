@@ -301,7 +301,7 @@ const char *node_subtypes_kern[] = {
     "fontkern", "userkern", "accentkern", "italiccorrection", NULL
 };
 const char *node_subtypes_rule[] = {
-    "normal", "box", "image", "empty", "user", "over", "under", "fraction", "radical", NULL
+    "normal", "box", "image", "empty", "user", "over", "under", "fraction", "radical", "outline", NULL
 };
 const char *node_subtypes_glyph[] = {
     "character", "glyph", "ligature", "ghost", "left", "right", NULL

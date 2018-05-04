@@ -264,6 +264,7 @@ typedef enum {
     math_under_rule,
     math_fraction_rule,
     math_radical_rule,
+    outline_rule,
 } rule_subtypes;
 
 #  define rule_node_size       9
