@@ -360,7 +360,6 @@ void initialize_commands(void)
     primitive_tex("ifmmode", if_test_cmd, if_mmode_code, 0);
     primitive_tex("ifinner", if_test_cmd, if_inner_code, 0);
     primitive_tex("ifvoid", if_test_cmd, if_void_code, 0);
-
     primitive_tex("ifhbox", if_test_cmd, if_hbox_code, 0);
     primitive_tex("ifvbox", if_test_cmd, if_vbox_code, 0);
     primitive_tex("ifx", if_test_cmd, if_x_code, 0);
@@ -369,6 +368,7 @@ void initialize_commands(void)
     primitive_tex("iffalse", if_test_cmd, if_false_code, 0);
     primitive_tex("ifcase", if_test_cmd, if_case_code, 0);
     primitive_luatex("ifprimitive", if_test_cmd, if_primitive_code, 0);
+    primitive_luatex("ifcondition", if_test_cmd, if_condition_code, 0);
     primitive_tex("fi", fi_or_else_cmd, fi_code, 0);
     cs_text(frozen_fi) = maketexstring("fi");
     eqtb[frozen_fi] = eqtb[cur_val];

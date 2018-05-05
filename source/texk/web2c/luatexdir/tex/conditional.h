@@ -48,6 +48,7 @@ typedef enum {
     if_primitive_code  = 21, /* \.{\\ifprimitive} */
     if_abs_num_code    = 22, /* \.{\\ifabsnum}    */
     if_abs_dim_code    = 23, /* \.{\\ifabsdim}    */
+    if_condition_code  = 24, /* \.{\\ifcondition} */
 } if_type_codes;
 
 #  define if_limit_subtype(A) subtype((A)+1)

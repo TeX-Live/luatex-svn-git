@@ -239,6 +239,17 @@ void expand(void)
             combine_the_toks(cur_chr);
             break;
         case if_test_cmd:
+
+/* experiment */
+            if (cur_chr == if_condition_code) {
+            /*
+                get_token();
+                goto RESWITCH;
+            */
+                break;
+            }
+/* end of experiment */
+
             conditional();      /* this procedure is discussed in Part 28 below */
             break;
         case fi_or_else_cmd:
