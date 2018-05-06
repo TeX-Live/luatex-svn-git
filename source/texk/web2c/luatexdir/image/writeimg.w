@@ -662,10 +662,10 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     pdf_dict_add_int(pdf, "FormType", 1);
     pdf_add_name(pdf, "BBox");
     pdf_begin_array(pdf);
-    copyReal(pdf, sp2bp(img_bbox(idict)[0]));
-    copyReal(pdf, sp2bp(img_bbox(idict)[1]));
-    copyReal(pdf, sp2bp(img_bbox(idict)[2]));
-    copyReal(pdf, sp2bp(img_bbox(idict)[3]));
+    pdf_add_real(pdf, sp2bp(img_bbox(idict)[0]));
+    pdf_add_real(pdf, sp2bp(img_bbox(idict)[1]));
+    pdf_add_real(pdf, sp2bp(img_bbox(idict)[2]));
+    pdf_add_real(pdf, sp2bp(img_bbox(idict)[3]));
     pdf_end_array(pdf);
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);

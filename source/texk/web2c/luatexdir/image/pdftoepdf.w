@@ -332,34 +332,7 @@ static int addInObj(PDF pdf, PdfDocument * pdf_doc, Ref ref)
     return n->num;
 }
 
-/*
-    Function converts double to pdffloat; very small and very large numbers
-    are NOT converted to scientific notation. Here n must be a number or real
-    conforming to the implementation limits of PDF as specified in appendix C.1
-    of the PDF Ref. These are:
-
-    maximum value of ints is +2^32
-    maximum value of reals is +2^15
-    smalles values of reals is 1/(2^16)
-*/
-
-static pdffloat conv_double_to_pdffloat(double n)
-{
-    pdffloat a;
-    a.e = 6;
-    a.m = i64round(n * ten_pow[a.e]);
-    return a;
-}
-
 static void copyObject(PDF, PdfDocument *, Object *);
-
-void copyReal(PDF pdf, double d)
-{
-    if (pdf->cave)
-        pdf_out(pdf, ' ');
-    print_pdffloat(pdf, conv_double_to_pdffloat(d));
-    pdf->cave = true;
-}
 
 static void copyString(PDF pdf, GooString * string)
 {
@@ -464,7 +437,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
         pdf_add_int(pdf, obj->getInt());
         break;
     case objReal:
-        copyReal(pdf, obj->getReal());
+        pdf_add_real(pdf, obj->getReal());
         break;
     /*
     case objNum:
@@ -527,26 +500,60 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
 
 /* get the pagebox coordinates according to the pagebox_spec */
 
-static PDFRectangle *get_pagebox(Page * page, int pagebox_spec)
+struct rectangle {
+    double x1;
+    double y1;
+    double x2;
+    double y2;
+} ;
+
+static void somebox(Dict *dict, const char * key, rectangle * box)
 {
+    Object a, n;
+
+    a = dict->lookup(key);
+    if (a.isArray() && a.arrayGetLength() == 4) {
+        n = a.arrayGet(0);
+        if (n.isNum()) {
+            box->x1 = n.getNum();
+        }
+        n = a.arrayGet(1);
+        if (n.isNum()) {
+            box->y1 = n.getNum();
+        }
+        n = a.arrayGet(2);
+        if (n.isNum()) {
+            box->x2 = n.getNum();
+        }
+        n = a.arrayGet(3);
+        if (n.isNum()) {
+            box->y2 = n.getNum();
+        }
+    }
+}
+
+static void get_pagebox(Dict * page, int pagebox_spec, rectangle * box)
+{
+    box->x1 = box->x2 = box->y1 = box->y2 = 0;
+    somebox(page,"MediaBox",box);
+    if (pagebox_spec == PDF_BOX_SPEC_MEDIA) {
+        return;
+    }
+    somebox(page,"CropBox",box);
+    if (pagebox_spec == PDF_BOX_SPEC_CROP) {
+        return;
+    }
     switch (pagebox_spec) {
-        case PDF_BOX_SPEC_MEDIA:
-            return page->getMediaBox();
-            break;
-        case PDF_BOX_SPEC_CROP:
-            return page->getCropBox();
-            break;
         case PDF_BOX_SPEC_BLEED:
-            return page->getBleedBox();
+            somebox(page,"BleedBox",box);
             break;
         case PDF_BOX_SPEC_TRIM:
-            return page->getTrimBox();
+            somebox(page,"TrimBox",box);
             break;
         case PDF_BOX_SPEC_ART:
-            return page->getArtBox();
+            somebox(page,"ArtBox",box);
             break;
         default:
-            return page->getMediaBox();
             break;
     }
 }
@@ -558,33 +565,16 @@ static PDFRectangle *get_pagebox(Page * page, int pagebox_spec)
     page_num. Returns the page number.
 */
 
-void flush_pdf_info(image_dict * idict)
-{
-    if (img_keepopen(idict)) {
-        unrefPdfDocument(img_filepath(idict));
-    }
-}
-
-/*
-    void flush_pdfstream_info(image_dict * idict)
-    {
-        if (img_pdfstream_ptr(idict) != NULL) {
-            xfree(img_pdfstream_stream(idict));
-            xfree(img_pdfstream_ptr(idict));
-            img_pdfstream_stream(idict) = NULL;
-            img_pdfstream_ptr(idict) = NULL;
-        }
-    }
-*/
-
 void read_pdf_info(image_dict * idict)
 {
     PdfDocument *pdf_doc = NULL;
     PDFDoc *doc = NULL;
     Catalog *catalog;
-    Page *page;
-    int rotate;
-    PDFRectangle *pagebox;
+    Ref *pageref;
+    Dict *pageDict;
+    Object pageobj, obj;
+    rectangle pagebox;
+    int rotate = 0;
     int pdf_major_version_found, pdf_minor_version_found;
     float xsize, ysize, xorig, yorig;
     if (isInit == gFalse) {
@@ -624,7 +614,9 @@ void read_pdf_info(image_dict * idict)
     }
     img_totalpages(idict) = catalog->getNumPages();
     if (img_pagename(idict)) {
-        /* get page by name */
+        /*
+            get page by name. this will become obsolete
+        */
         GooString name(img_pagename(idict));
         LinkDest *link = doc->findDest(&name);
         if (link == NULL || !link->isOk())
@@ -635,38 +627,52 @@ void read_pdf_info(image_dict * idict)
             formatted_error("pdf inclusion","destination is not a page '%s'",img_pagename(idict));
         delete link;
     } else {
-        /* get page by number */
+        /*
+            get page by number
+        */
         if (img_pagenum(idict) <= 0
             || img_pagenum(idict) > img_totalpages(idict))
             formatted_error("pdf inclusion","required page '%i' does not exist",(int) img_pagenum(idict));
     }
-    /* get the required page */
-    page = catalog->getPage(img_pagenum(idict));
-    /* get the pagebox coordinates (media, crop,...) to use. */
-    pagebox = get_pagebox(page, img_pagebox(idict));
-    if (pagebox->x2 > pagebox->x1) {
-        xorig = pagebox->x1;
-        xsize = pagebox->x2 - pagebox->x1;
+    /*
+        get the required page
+    */
+    pageref = catalog->getPageRef(img_pagenum(idict));
+    pageobj = doc->getXRef()->fetch(pageref->num, pageref->gen);
+    pageDict = pageobj.getDict();
+    /*
+        get the pagebox coordinates (media, crop,...) to use
+    */
+    get_pagebox(pageDict, img_pagebox(idict), &pagebox);
+    if (pagebox.x2 > pagebox.x1) {
+        xorig = pagebox.x1;
+        xsize = pagebox.x2 - pagebox.x1;
     } else {
-        xorig = pagebox->x2;
-        xsize = pagebox->x1 - pagebox->x2;
+        xorig = pagebox.x2;
+        xsize = pagebox.x1 - pagebox.x2;
     }
-    if (pagebox->y2 > pagebox->y1) {
-        yorig = pagebox->y1;
-        ysize = pagebox->y2 - pagebox->y1;
+    if (pagebox.y2 > pagebox.y1) {
+        yorig = pagebox.y1;
+        ysize = pagebox.y2 - pagebox.y1;
     } else {
-        yorig = pagebox->y2;
-        ysize = pagebox->y1 - pagebox->y2;
+        yorig = pagebox.y2;
+        ysize = pagebox.y1 - pagebox.y2;
     }
-    /* The following 4 parameters are raw. Do _not_ modify by /Rotate! */
+    /*
+        The following 4 parameters are raw. Do _not_ modify by /Rotate!
+    */
     img_xsize(idict) = bp2sp(xsize);
     img_ysize(idict) = bp2sp(ysize);
     img_xorig(idict) = bp2sp(xorig);
     img_yorig(idict) = bp2sp(yorig);
     /*
         Handle /Rotate parameter. Only multiples of 90 deg. are allowed (PDF Ref. v1.3,
-        p. 78). We also accept negative angles. Beware: PDF counts clockwise! */
-    rotate = page->getRotate();
+        p. 78). We also accept negative angles. Beware: PDF counts clockwise!
+    */
+    obj = pageDict->lookup("Rotate");
+    if (obj.isInt()) {
+        rotate = obj.getInt();
+    }
     switch (((rotate % 360) + 360) % 360) {
         case 0:
             img_rotation(idict) = 0;
@@ -683,9 +689,13 @@ void read_pdf_info(image_dict * idict)
         default:
             formatted_warning("pdf inclusion","/Rotate parameter in PDF file not multiple of 90 degrees");
     }
-    /* currently unused info whether PDF contains a /Group */
-    if (page->getGroup() != NULL)
+    /*
+        urrently unused info whether PDF contains a /Group
+    */
+    obj = pageDict->lookup("Group");
+    if (obj.isDict()) {
         img_set_group(idict);
+    }
     /*
         LuaTeX pre 0.85 versions did this:
 
@@ -707,6 +717,26 @@ void read_pdf_info(image_dict * idict)
     }
 }
 
+void flush_pdf_info(image_dict * idict)
+{
+    if (img_keepopen(idict)) {
+        unrefPdfDocument(img_filepath(idict));
+    }
+}
+
+/*
+    void flush_pdfstream_info(image_dict * idict)
+    {
+        if (img_pdfstream_ptr(idict) != NULL) {
+            xfree(img_pdfstream_stream(idict));
+            xfree(img_pdfstream_ptr(idict));
+            img_pdfstream_stream(idict) = NULL;
+            img_pdfstream_ptr(idict) = NULL;
+        }
+    }
+*/
+
+
 /*
     Write the current epf_doc. Here the included PDF is copied, so most errors
     that can happen during PDF inclusion will arise here.
@@ -717,18 +747,18 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     PdfDocument *pdf_doc = NULL;
     PDFDoc *doc = NULL;
     Catalog *catalog;
-    Page *page;
     Ref *pageref;
     Dict *pageDict;
     Object obj1, contents, pageobj, pagesobj1, pagesobj2, *op1, *op2, *optmp;
-    PDFRectangle *pagebox;
+    rectangle pagebox;
     int i, l;
     double bbox[4];
-    /* char s[256]; */
     const char *pagedictkeys[] = {
         "Group", "LastModified", "Metadata", "PieceInfo", "Resources", "SeparationInfo", NULL
     };
-    /* open PDF file */
+    /*
+        open PDF file
+    */
     if (img_type(idict) == IMG_TYPE_PDF) {
         pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
     } else if (img_type(idict) == IMG_TYPE_PDFMEMSTREAM) {
@@ -739,11 +769,12 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     }
     doc = pdf_doc->doc;
     catalog = doc->getCatalog();
-    page = catalog->getPage(img_pagenum(idict));
     pageref = catalog->getPageRef(img_pagenum(idict));
     pageobj = doc->getXRef()->fetch(pageref->num, pageref->gen);
     pageDict = pageobj.getDict();
-    /* write the Page header */
+    /*
+        write the Page header
+    */
     pdf_begin_obj(pdf, img_objnum(idict), OBJSTM_NEVER);
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "XObject");
@@ -752,7 +783,9 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         pdf_printf(pdf, "\n%s\n", img_attr(idict));
     }
     pdf_dict_add_int(pdf, "FormType", 1);
-    /* write additional information */
+    /*
+        write additional information
+    */
     pdf_dict_add_img_filename(pdf, idict);
     if ((suppress_optional_info & 4) == 0) {
         pdf_dict_add_int(pdf, "PTEX.PageNumber", (int) img_pagenum(idict));
@@ -760,7 +793,9 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     if ((suppress_optional_info & 8) == 0) {
         obj1 = doc->getDocInfoNF();
         if (obj1.isRef()) {
-            /* the info dict must be indirect (PDF Ref p. 61) */
+            /*
+                the info dict must be indirect (PDF Ref p. 61)
+            */
             pdf_dict_add_ref(pdf, "PTEX.InfoDict", addInObj(pdf, pdf_doc, obj1.getRef()));
         }
     }
@@ -770,19 +805,21 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         bbox[2] = sp2bp(img_bbox(idict)[2]);
         bbox[3] = sp2bp(img_bbox(idict)[3]);
     } else {
-        /* get the pagebox coordinates (media, crop,...) to use. */
-        pagebox = get_pagebox(page, img_pagebox(idict));
-        bbox[0] = pagebox->x1;
-        bbox[1] = pagebox->y1;
-        bbox[2] = pagebox->x2;
-        bbox[3] = pagebox->y2;
+        /*
+            get the pagebox coordinates (media, crop,...) to use.
+        */
+        get_pagebox(pageDict, img_pagebox(idict), &pagebox);
+        bbox[0] = pagebox.x1;
+        bbox[1] = pagebox.y1;
+        bbox[2] = pagebox.x2;
+        bbox[3] = pagebox.y2;
     }
     pdf_add_name(pdf, "BBox");
     pdf_begin_array(pdf);
-    copyReal(pdf, bbox[0]);
-    copyReal(pdf, bbox[1]);
-    copyReal(pdf, bbox[2]);
-    copyReal(pdf, bbox[3]);
+    pdf_add_real(pdf, bbox[0]);
+    pdf_add_real(pdf, bbox[1]);
+    pdf_add_real(pdf, bbox[2]);
+    pdf_add_real(pdf, bbox[3]);
     pdf_end_array(pdf);
     /*
         Now all relevant parts of the Page dictionary are copied. Metadata validity
@@ -791,12 +828,16 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     obj1 = pageDict->lookupNF("Metadata");
     if (!obj1.isNull() && !obj1.isRef())
         formatted_warning("pdf inclusion","/Metadata must be indirect object");
-    /* copy selected items in Page dictionary */
+    /*
+        copy selected items in Page dictionary
+    */
     for (i = 0; pagedictkeys[i] != NULL; i++) {
         obj1 = pageDict->lookupNF(pagedictkeys[i]);
         if (!obj1.isNull()) {
             pdf_add_name(pdf, pagedictkeys[i]);
-            /* preserves indirection */
+            /*
+                preserves indirection
+            */
             copyObject(pdf, pdf_doc, &obj1);
         }
     }
@@ -826,8 +867,13 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         if (!op1->isDict())
             formatted_warning("pdf inclusion","Page /Resources missing");
     }
-    /* Write the Page contents. */
-    contents = page->getContents();
+    /*
+        Write the Page contents.
+    */
+    contents = pageDict->lookupNF("Contents");
+    if (!obj1.isNull()) {
+        contents = contents.fetch(doc->getXRef());
+    }
     if (contents.isStream()) {
         /*
             Variant A: get stream and recompress under control of \pdfcompresslevel
@@ -878,14 +924,18 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);
     } else {
-        /* the contents are optional, but we need to include an empty stream */
+        /*
+            the contents are optional, but we need to include an empty stream
+        */
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);
     }
-    /* write out all indirect objects */
+    /*
+        write out all indirect objects
+    */
     writeRefs(pdf, pdf_doc);
     /*
         unrefPdfDocument() must come after contents.free() and pageobj.free()!
@@ -897,6 +947,8 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         unrefPdfDocument(img_filepath(idict));
     }
 }
+
+/* a special simple case of inclusion, e.g. an appearance stream */
 
 int write_epdf_object(PDF pdf, image_dict * idict, int n)
 {

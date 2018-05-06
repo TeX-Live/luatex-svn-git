@@ -2521,3 +2521,32 @@ void scan_pdfcatalog(PDF pdf)
         }
     }
 }
+
+@ @c
+/*
+    Function converts double to pdffloat; very small and very large numbers
+    are NOT converted to scientific notation. Here n must be a number or real
+    conforming to the implementation limits of PDF as specified in appendix C.1
+    of the PDF Ref. These are:
+
+    maximum value of ints is +2^32
+    maximum value of reals is +2^15
+    smalles values of reals is 1/(2^16)
+*/
+
+static pdffloat conv_double_to_pdffloat(double n)
+{
+    pdffloat a;
+    a.e = 6;
+    a.m = i64round(n * ten_pow[a.e]);
+    return a;
+}
+
+void pdf_add_real(PDF pdf, double d)
+{
+    if (pdf->cave)
+        pdf_out(pdf, ' ');
+    print_pdffloat(pdf, conv_double_to_pdffloat(d));
+    pdf->cave = true;
+}
+
