@@ -97,7 +97,6 @@ extern void get_lua_boolean(const char *table, const char *name, boolean * targe
 extern void get_lua_number(const char *table, const char *name, int *target);
 extern void get_lua_string(const char *table, const char *name, char **target);
 
-extern int lua_reader_callback(int callback_id, pointer *buffloc);
 
 extern char *get_lua_name(int i);
 

@@ -293,6 +293,7 @@ void flush_loggable_info(void);
 
 /* lua/luastuff.w  */
 void luafunctioncall(int slot);
+void luabytecodecall(int slot);
 
 /* lua/luastuff.c */
 void luatokencall(int p, int nameptr);
