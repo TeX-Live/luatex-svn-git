@@ -617,25 +617,55 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
             if (vlink(t) == r)
                 break;
             if (repl > 0) {
+                /*
+                    we're before the injection and need to replace the replace match and as there can be disc
+                    nodes we just skip repl nodes ... if that gives a weird result so be it ... we cannot catch
+                    abuse
+                */
                 if (type(t) == glyph_node) {
                     halfword q = t;
-                    replace = vlink(q);
-                    while (repl > 0 && q != null) {
-                        q = vlink(q);
-                        if (type(q) == glyph_node) {
-                            repl--;
+                    halfword old = vlink(q);
+                    halfword tail = null;
+                    halfword temp;
+                    int j;
+                    for (j=0;j<repl;j++) {
+                        temp = copy_node(t);
+                        if (tail == null) {
+                            replace = temp;
+                            tail = temp;
+                            character(temp) = uword[i-repl+j];
                         } else {
-                            /* printf("WEIRD 1 %i\n",type(q)); */
+                            try_couple_nodes(tail, temp);
+                            tail = temp;
                         }
                     }
-                    try_couple_nodes(t, vlink(q));
-                    vlink(q) = null;
+                    while (repl > 0 && q != null) {
+                        q = vlink(q);
+                        repl--;
+                    }
+                    if (q == null) {
+                        /*
+                            we ran out of nodes which is bad and shouldn't happen but one should use a sane
+                            pattern anyway so ...
+                        */
+                    } else {
+                        try_couple_nodes(t, vlink(q));
+                    }
+                    /*
+                        as we can have some mix we just get rid of it
+                    */
+                    if (old != null) {
+                        vlink(q) = null;
+                        flush_list(old);
+                    }
                 } else {
-                    /* printf("WEIRD 2 %i\n",type(t)); */
+                    /*
+                        we're not at a glyph which is somewhat weird
+                    */
                     break;
                 }
             }
-            if (uword[i+1] == '[' && uword[i+2] >= '0' && uword[i+2] <= '9' && uword[i+3] == ']') {
+            if (((i+3) < len) && uword[i+1] == '[' && uword[i+2] >= '0' && uword[i+2] <= '9' && uword[i+3] == ']') {
                 if (exception_penalty_par > 0) {
                     if (exception_penalty_par > 100000) {
                         pen = (uword[i+2] - '0') * exception_penalty_par ;
