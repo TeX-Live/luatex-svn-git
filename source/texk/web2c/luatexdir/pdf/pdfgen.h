@@ -125,11 +125,11 @@ extern void pdf_print_str(PDF, const char *);
 extern void pdf_add_null(PDF);
 extern void pdf_add_bool(PDF, int i);
 extern void pdf_add_int(PDF, int i);
+extern void pdf_add_real(PDF, double d);
 extern void pdf_add_longint(PDF, longinteger n);
 extern void pdf_add_ref(PDF, int num);
 extern void pdf_add_string(PDF, const char *s);
 extern void pdf_add_name(PDF, const char *name);
-extern void pdf_add_real(PDF, double d);
 
 extern void pdf_dict_add_bool(PDF, const char *key, int i);
 extern void pdf_dict_add_int(PDF, const char *key, int i);

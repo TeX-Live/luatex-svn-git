@@ -469,7 +469,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, Object * obj)
     case objError:
     case objEOF:
     case objNone:
-        formatted_error("pdf inclusion","type '%s' cannot be copied", obj->getTypeName());
+        formatted_error("pdf inclusion","type '%i' cannot be copied", obj->getType());
         break;
     default:
         /* poppler doesn't have any other types */
@@ -486,7 +486,7 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
     xref = doc->getXRef();
     for (r = pdf_doc->inObjList; r != NULL;) {
         obj1 = xref->fetch(r->ref.num, r->ref.gen);
-        if (obj1.isStream())
+        if (obj1.getType() == objStream)
             pdf_begin_obj(pdf, r->num, OBJSTM_NEVER);
         else
             pdf_begin_obj(pdf, r->num, 2);
@@ -512,22 +512,30 @@ static void somebox(Dict *dict, const char * key, rectangle * box)
     Object a, n;
 
     a = dict->lookup(key);
-    if (a.isArray() && a.arrayGetLength() == 4) {
+    if (a.getType() == objArray && a.arrayGetLength() == 4) {
         n = a.arrayGet(0);
-        if (n.isNum()) {
-            box->x1 = n.getNum();
+        if (n.getType() == objInt) {
+            box->x1 = (double) n.getInt();
+        } else if (n.getType() == objReal) {
+            box->x1 = n.getReal();
         }
         n = a.arrayGet(1);
-        if (n.isNum()) {
-            box->y1 = n.getNum();
+        if (n.getType() == objInt) {
+            box->y1 = (double) n.getInt();
+        } else if (n.getType() == objReal) {
+            box->y1 = n.getReal();
         }
         n = a.arrayGet(2);
-        if (n.isNum()) {
-            box->x2 = n.getNum();
+        if (n.getType() == objInt) {
+            box->x2 = (double) n.getInt();
+        } else if (n.getType() == objReal) {
+            box->x2 = n.getReal();
         }
         n = a.arrayGet(3);
-        if (n.isNum()) {
-            box->y2 = n.getNum();
+        if (n.getType() == objInt) {
+            box->y2 = (double) n.getInt();
+        } else if (n.getType() == objReal) {
+            box->y2 = n.getReal();
         }
     }
 }
@@ -670,7 +678,7 @@ void read_pdf_info(image_dict * idict)
         p. 78). We also accept negative angles. Beware: PDF counts clockwise!
     */
     obj = pageDict->lookup("Rotate");
-    if (obj.isInt()) {
+    if (obj.getType() == objInt) {
         rotate = obj.getInt();
     }
     switch (((rotate % 360) + 360) % 360) {
@@ -693,7 +701,7 @@ void read_pdf_info(image_dict * idict)
         urrently unused info whether PDF contains a /Group
     */
     obj = pageDict->lookup("Group");
-    if (obj.isDict()) {
+    if (obj.getType() == objDict) {
         img_set_group(idict);
     }
     /*
@@ -792,7 +800,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     }
     if ((suppress_optional_info & 8) == 0) {
         obj1 = doc->getDocInfoNF();
-        if (obj1.isRef()) {
+        if (obj1.getType() == objRef) {
             /*
                 the info dict must be indirect (PDF Ref p. 61)
             */
@@ -826,14 +834,14 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         check is needed(as a stream it must be indirect).
     */
     obj1 = pageDict->lookupNF("Metadata");
-    if (!obj1.isNull() && !obj1.isRef())
+    if (obj1.getType() != objNull && obj1.getType() != objRef)
         formatted_warning("pdf inclusion","/Metadata must be indirect object");
     /*
         copy selected items in Page dictionary
     */
     for (i = 0; pagedictkeys[i] != NULL; i++) {
         obj1 = pageDict->lookupNF(pagedictkeys[i]);
-        if (!obj1.isNull()) {
+        if (obj1.getType() != objNull) {
             pdf_add_name(pdf, pagedictkeys[i]);
             /*
                 preserves indirection
@@ -848,13 +856,13 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         (This fixes a problem with Scribus 1.3.3.14.)
     */
     obj1 = pageDict->lookupNF("Resources");
-    if (obj1.isNull()) {
+    if (obj1.getType() == objNull) {
         op1 = &pagesobj1;
         op2 = &pagesobj2;
         *op1 = pageDict->lookup("Parent");
-        while (op1->isDict()) {
+        while (op1->getType() == objDict) {
             obj1 = op1->dictLookupNF("Resources");
-            if (!obj1.isNull()) {
+            if (obj1.getType() != objNull) {
                 pdf_add_name(pdf, "Resources");
                 copyObject(pdf, pdf_doc, &obj1);
                 break;
@@ -864,17 +872,17 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
             op1 = op2;
             op2 = optmp;
         };
-        if (!op1->isDict())
+        if (op1->getType() != objDict)
             formatted_warning("pdf inclusion","Page /Resources missing");
     }
     /*
         Write the Page contents.
     */
     contents = pageDict->lookupNF("Contents");
-    if (!obj1.isNull()) {
+    if (obj1.getType() != objNull) {
         contents = contents.fetch(doc->getXRef());
     }
-    if (contents.isStream()) {
+    if (contents.getType() == objStream) {
         /*
             Variant A: get stream and recompress under control of \pdfcompresslevel
 
@@ -885,18 +893,18 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
             Variant B: copy stream without recompressing
         */
         obj1 = contents.streamGetDict()->lookup("F");
-        if (!obj1.isNull()) {
+        if (obj1.getType() != objNull) {
             normal_error("pdf inclusion","unsupported external stream");
         }
         obj1 = contents.streamGetDict()->lookup("Length");
         pdf_add_name(pdf, "Length");
         copyObject(pdf, pdf_doc, &obj1);
         obj1 = contents.streamGetDict()->lookup("Filter");
-        if (!obj1.isNull()) {
+        if (obj1.getType() != objNull) {
             pdf_add_name(pdf, "Filter");
             copyObject(pdf, pdf_doc, &obj1);
             obj1 = contents.streamGetDict()->lookup("DecodeParms");
-            if (!obj1.isNull()) {
+            if (obj1.getType() != objNull) {
                 pdf_add_name(pdf, "DecodeParms");
                 copyObject(pdf, pdf_doc, &obj1);
             }
@@ -906,7 +914,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         copyStreamStream(pdf, contents.getStream()->getUndecodedStream());
         pdf_end_stream(pdf);
         pdf_end_obj(pdf);
-    } else if (contents.isArray()) {
+    } else if (contents.getType() == objArray) {
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
@@ -964,7 +972,7 @@ int write_epdf_object(PDF pdf, image_dict * idict, int n)
     doc = pdf_doc->doc;
     num = pdf->obj_count++;
     obj = doc->getXRef()->fetch(n, 0);
-    if (obj.isStream()) {
+    if (obj.getType() == objStream) {
         pdf_begin_obj(pdf, num, OBJSTM_NEVER);
     } else {
         pdf_begin_obj(pdf, num, 2);

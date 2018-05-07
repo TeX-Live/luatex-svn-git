@@ -85,6 +85,7 @@ extern "C" {
 #  include "lauxlib.h"
 
     /* pdfgen.w */
+
     extern int ten_pow[10];
     __attribute__ ((format(printf, 2, 3)))
     extern void pdf_printf(PDF, const char *fmt, ...);
@@ -116,9 +117,11 @@ extern "C" {
 #  define pdf_puts(pdf, s) pdf_out_block((pdf), (s), strlen(s))
 
     /* pdfpage.w */
+
     extern void print_pdffloat(PDF pdf, pdffloat f);
 
     /* pdftables.w */
+
     extern int pdf_create_obj(PDF pdf, int t, int i);
 
     /* pdftoepdf.cc */
@@ -135,12 +138,15 @@ extern "C" {
     extern void epdf_free(void);
 
     /* writeimg.w */
+
     extern void pdf_dict_add_img_filename(PDF pdf, image_dict * idict);
 
     /* utils.w */
+
     extern char *convertStringToPDFString(char *in, int len);
 
     /* lepdflib.w */
+
     int luaopen_epdf(lua_State * L);
 
 #  include "luatex-common.h"

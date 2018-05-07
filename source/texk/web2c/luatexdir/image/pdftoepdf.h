@@ -31,7 +31,6 @@ void unrefPdfDocument(char *);
 void unrefMemStreamPdfDocument(char *);
 void write_epdf(PDF, image_dict *, int suppress_optional_info);
 int write_epdf_object(PDF, image_dict *, int n);
-void epdf_check_mem(void);
 
 /* epdf.c --- this should go in an own header file */
 
