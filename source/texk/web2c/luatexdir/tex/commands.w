@@ -342,6 +342,7 @@ void initialize_commands(void)
     primitive_luatex("mathstyle", convert_cmd, math_style_code, 0);
     primitive_luatex("expanded", convert_cmd, expanded_code, 0);
     primitive_luatex("immediateassignment", convert_cmd, immediate_assignment_code, 0);
+    primitive_luatex("immediateassigned", convert_cmd, immediate_assigned_code, 0);
     primitive_tex("jobname", convert_cmd, job_name_code, 0);
     primitive_luatex("formatname", convert_cmd, format_name_code, 0);
     primitive_luatex("Uchar", convert_cmd, uchar_code, 0);

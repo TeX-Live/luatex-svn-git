@@ -245,6 +245,7 @@ typedef enum {
     lua_bytecode_code,          /* command code for \.{\\luabytecode} */
     expanded_code,              /* command code for \.{\\expanded} */
     immediate_assignment_code,  /* command code for \.{\\immediateassignment} */
+    immediate_assigned_code,    /* command code for \.{\\assigned} */
     math_style_code,            /* command code for \.{\\mathstyle} */
     string_code,                /* command code for \.{\\string} */
     cs_string_code,             /* command code for \.{\\csstring} */

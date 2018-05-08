@@ -2706,8 +2706,9 @@ void prefixed_command(void)
                 scan_box(n);
             } else {
                 print_err("Improper \\setbox");
-                help2("Sorry, \\setbox is not allowed after \\halign in a display,",
-                      "or between \\accent and an accented character.");
+                help3("Sorry, \\setbox is not allowed after \\halign in a display,",
+                      "between \\accent and an accented character, or in immediate",
+                      "assignments.");
                 error();
             }
             break;

@@ -2588,6 +2588,7 @@ void conv_toks(void)
             return;
             break;
         case immediate_assignment_code:
+        case immediate_assigned_code:
             /*
                 This is on-the-road-to-bachotex brain-wave but it needs a bit
                 more testing. A first variant did more in sequence till a
@@ -2598,16 +2599,35 @@ void conv_toks(void)
             save_warning_index = warning_index;
             save_def_ref = def_ref;
             u = save_cur_string();
-            /* one-step do_assignment */
             do {
                 get_x_token();
             } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
-            if (cur_cmd > max_non_prefixed_command) {
-                set_box_allowed = false;
-                prefixed_command();
-                set_box_allowed = true;
+            if (c == immediate_assignment_code) {
+                /* one-step do_assignment */
+                if (cur_cmd > max_non_prefixed_command) {
+                    set_box_allowed = false;
+                    prefixed_command();
+                    set_box_allowed = true;
+                }
+                /* done */
+            } else {
+                /* pseudo token list do_assignment */
+                if (cur_cmd == left_brace_cmd) {
+                    while (1) {
+                        do {
+                            get_x_token();
+                        } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
+                        if (cur_cmd == right_brace_cmd) {
+                            break;
+                        } else {
+                            set_box_allowed = false;
+                            prefixed_command();
+                            set_box_allowed = true;
+                        }
+                    }
+                }
+                /* done */
             }
-            /* done */
             warning_index = save_warning_index;
             scanner_status = save_scanner_status;
             def_ref = save_def_ref;
