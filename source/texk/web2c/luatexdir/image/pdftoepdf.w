@@ -998,7 +998,8 @@ static void deletePdfDocumentPdfDoc(PdfDocument * pdf_doc)
     }
     delete pdf_doc->doc;
     pdf_doc->doc = NULL;
-    pdf_doc->pc++;
+ /* pdf_doc->pc++; */
+    pdf_doc->pc = 0;
 }
 
 static void destroyPdfDocument(void *pa, void * /*pb */ )
@@ -1016,7 +1017,9 @@ static void destroyPdfDocument(void *pa, void * /*pb */ )
 void unrefPdfDocument(char *file_path)
 {
     PdfDocument *pdf_doc = findPdfDocument(file_path);
-    if (pdf_doc->occurences > 0) {
+    if (pdf_doc == NULL) {
+        /* we're ok */
+    } else if (pdf_doc->occurences > 0) {
         pdf_doc->occurences--;
         if (pdf_doc->occurences == 0) {
             deletePdfDocumentPdfDoc(pdf_doc);
