@@ -555,14 +555,14 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         print_hex(chr_code);
         break;
     case math_given_cmd:
-        if (math_umathcode_meaning_par == 1) {
-            tprint_esc("Umathchar");
-            show_mathcode_value(mathchar_from_integer(chr_code, tex_mathcode));
-        } else {
+     /* if (math_umathcode_meaning_par == 1) { */
+     /*     tprint_esc("Umathchar"); */
+     /*     show_mathcode_value(mathchar_from_integer(chr_code, tex_mathcode)); */
+     /* } else { */
             /* better for old macro packages that mess with meaning */
             tprint_esc("mathchar");
             show_mathcode_value_old(chr_code);
-        }
+     /* } */
         break;
     case xmath_given_cmd:
         tprint_esc("Umathchar");

@@ -565,17 +565,19 @@ stream, possibly wasting \CPU\ cycles.
 \topicindex{\PDF+analyze}
 \topicindex{\PDF+\type{epdf}}
 
-The \type {epdf} library provides \LUA\ bindings to many \PDF\ access functions
-that are defined by the poppler \PDF\ viewer library (written in C$+{}+$ by
-Kristian H\o gsberg, based on xpdf by Derek Noonburg). Within \LUATEX\ xpdf
-functionality is being used since long time to embed \PDF\ files. The \type
-{epdf} library allows to scrutinize an external \PDF\ file. It gives access to
-its document structure: catalog, cross|-|reference table, individual pages,
-objects, annotations, info, and metadata. The \type {epdf} library only provides
-read|-|only access. At some point we might decide to limit the interface to a
-reasonable subset.
+When a (page from a) \PDF\ file is included, that file is opened for inspection.
+The library that is used here is also available via the \LUA\ \type {epdf}
+library. In versions upto 1.07 we use the poppler \PDF\ viewer library (written
+in C$+{}+$ by Kristian H\o gsberg, based on xpdf by Derek Noonburg). Because the
+low level accessors are not considered to be part fo that library we decided that
+from version 1.10 onwards we will use a lightweight dedicated library instead.
+The backend only needs a small subset of accessors but we provide enough in the
+library to investigate a file.
 
-For a start, a \PDF\ file is opened by \type {epdf.open()} with file name, e.g.:
+{\em The text below still describes the current library but be aware of upcoming
+changes. More might disappear during the transition!}
+
+A \PDF\ file is opened by \type {epdf.open()} with file name, as in:
 
 \starttyping
 doc = epdf.open("foo.pdf")
@@ -594,12 +596,9 @@ source file \type {lepdflib.cc}. For using the \type {epdf} library, knowledge o
 the \PDF\ file architecture is indispensable.
 
 There are many different userdata types defined by the \type {epdf} library,
-currently these are \type {AnnotBorderStyle}, \type {AnnotBorder}, \type
-{Annots}, \type {Annot}, \type {Array}, \type {Attribute}, \type {Catalog}, \type
-{Dict}, \type {EmbFile}, \type {GString}, \type {LinkDest}, \type {Links}, \type
-{Link}, \type {ObjectStream}, \type {Object}, \type {PDFDoc}, \type
-{PDFRectangle}, \type {Page}, \type {Ref}, \type {Stream}, \type {StructElement},
-\type {StructTreeRoot} \type {TextSpan}, \type {XRefEntry} and \type {XRef}.
+currently these are \type {Array}, \type {Catalog}, \type {Dict}, \type
+{ObjectStream}, \type {Object}, \type {PDFDoc}, \type {Stream},
+\type {XRefEntry} and \type {XRef}.
 
 All these userdata names and the \LUA\ access functions closely resemble the
 classes naming from the poppler header files, including the choice of mixed upper
@@ -613,12 +612,11 @@ pageobj = doc:getXRef():fetch(pageref.num, pageref.gen)
 
 But writing such chained calls is risky, as an intermediate function may return
 \type {nil} on error. Therefore between function calls there should be \LUA\ type
-checks (e.g., against \type {nil}) done. If a non|-|object item is requested (for
-instance a \type {Dict} item by calling \type {page:getPieceInfo()}, cf.~\type
-{Page.h}) but not available, the \LUA\ functions return \type {nil} (without
-error). If a function should return an \type {Object}, but it's not existing, a
-\type {Null} object is returned instead, also without error. This is in|-|line
-with poppler behavior.
+checks (e.g., against \type {nil}) done. If a non|-|object item is requested,
+cf.~\type {Page.h}) but not available, the \LUA\ functions return \type {nil}
+(without error). If a function should return an \type {Object}, but it's not
+existing, a \type {Null} object is returned instead, also without error. This is
+in|-|line with poppler behavior.
 
 All library objects have a \type {__gc} metamethod for garbage collection. The
 \type {__tostring} metamethod gives the type name for each object.
@@ -630,148 +628,33 @@ These are the object constructors:
 <PDFDoc>       = epdf.openMemStream(<string> PDF code)
 \stopfunctioncall
 
-The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
-{AttributeOwner_Type} return a hash table \type {{<string>,<integer>}}.
-
-\type {Annot} methods:
-
-\startfunctioncall
-<boolean>     = <Annot>:isOK()
-<boolean>     = <Annot>:match(<Ref>)
-<Object>      = <Annot>:getAppearance() -- gone
-<AnnotBorder> = <Annot>:getBorder()     -- gone
-\stopfunctioncall
-
-\type {AnnotBorderStyle} methods (gone):
-
-\startfunctioncall
-<number> = <AnnotBorderStyle>:getWidth() -- gone
-\stopfunctioncall
-
-\type {Annots} methods:
-
-\startfunctioncall
-<integer> = <Annots>:getNumAnnots()
-<Annot>   = <Annots>:getAnnot(<integer>)
-\stopfunctioncall
-
 \type {Array} methods:
 
 \startfunctioncall
 <integer> = <Array>:getLength()
 <Object>  = <Array>:get(<integer>)
 <Object>  = <Array>:getNF(<integer>)
-<string>  = <Array>:getString(<integer>)
-\stopfunctioncall
-
-\type {Attribute} methods:
-
-\startfunctioncall
-<boolean>  = <Attribute>:isOk()
-<integer>  = <Attribute>:getType()
-<integer>  = <Attribute>:getOwner()
-<string>   = <Attribute>:getTypeName()
-<string>   = <Attribute>:getOwnerName()
-<Object>   = <Attribute>:getValue()
-<Object>   = <Attribute>:getDefaultValue
-<string>   = <Attribute>:getName()
-<integer>  = <Attribute>:getRevision()
-<boolean>  = <Attribute>:isHidden()
-<string>   = <Attribute>:getFormattedValue()
 \stopfunctioncall
 
 \type {Catalog} methods:
 
 \startfunctioncall
-<boolean>  = <Catalog>:isOK()
 <integer>  = <Catalog>:getNumPages()
 <Page>     = <Catalog>:getPage(<integer>)
 <Ref>      = <Catalog>:getPageRef(<integer>)
-<string>   = <Catalog>:getBaseURI()
-<string>   = <Catalog>:readMetadata()
-<Object>   = <Catalog>:getStructTreeRoot()
 <integer>  = <Catalog>:findPage(<integer> object number, <integer> object generation)
-<LinkDest> = <Catalog>:findDest(<string> name)
-<Object>   = <Catalog>:getDests()
-<integer>  = <Catalog>:numEmbeddedFiles()
-<EmbFile>  = <Catalog>:embeddedFile(<integer>)
-<integer>  = <Catalog>:numJS()
-<string>   = <Catalog>:getJS(<integer>)
-<Object>   = <Catalog>:getOutline()
-<Object>   = <Catalog>:getAcroForm()
-\stopfunctioncall
-
-\type {EmbFile} methods:
-
-\startfunctioncall
-<integer>  = <EmbFile>:size()
-<string>   = <EmbFile>:modDate()
-<string>   = <EmbFile>:createDate()
-<string>   = <EmbFile>:checksum()
-<string>   = <EmbFile>:mimeType()
-<boolean>  = <EmbFile>:isOk()
-<string>   = <EmbFile>:name()         -- not (yet) implemented
-<string>   = <EmbFile>:description()  -- not (yet) implemented
-<Object>   = <EmbFile>:streamObject() -- not (yet) implemented
-<boolean>  = <EmbFile>:save()         -- will go
-\stopfunctioncall
-
-\type {FileSpec} methods:
-
-\startfunctioncall
-<boolean> = <FileSpec>:isOk()
-<string>  = <FileSpec>:getFileName()
-<string>  = <FileSpec>:getFileNameForPlatform()
-<string>  = <FileSpec>:getDescription()
-<EmbFile> = <FileSpec>:getEmbeddedFile()
 \stopfunctioncall
 
 \type {Dict} methods:
 
 \startfunctioncall
 <integer> = <Dict>:getLength()
-<boolean> = <Dict>:is(<string>)
 <Object>  = <Dict>:lookup(<string>)
 <Object>  = <Dict>:lookupNF(<string>)
-<integer> = <Dict>:lookupInt(<string>, <string>)
 <string>  = <Dict>:getKey(<integer>)
 <Object>  = <Dict>:getVal(<integer>)
 <Object>  = <Dict>:getValNF(<integer>)
 <boolean> = <Dict>:hasKey(<string>)
-\stopfunctioncall
-
-% \type {Link} methods:
-
-% \startfunctioncall
-% <boolean>  = <Link>:isOK()
-% <boolean>  = <Link>:inRect(<number>, <number>)
-% \stopfunctioncall
-
-\type {LinkDest} methods:
-
-\startfunctioncall
-<boolean>  = <LinkDest>:isOK()
-<integer>  = <LinkDest>:getKind()
-<string>   = <LinkDest>:getKindName()
-<boolean>  = <LinkDest>:isPageRef()
-<integer>  = <LinkDest>:getPageNum()
-<Ref>      = <LinkDest>:getPageRef()
-<number>   = <LinkDest>:getLeft()
-<number>   = <LinkDest>:getBottom()
-<number>   = <LinkDest>:getRight()
-<number>   = <LinkDest>:getTop()
-<number>   = <LinkDest>:getZoom()
-<boolean>  = <LinkDest>:getChangeLeft()
-<boolean>  = <LinkDest>:getChangeTop()
-<boolean>  = <LinkDest>:getChangeZoom()
-\stopfunctioncall
-
-\type {Links} methods:
-
-% <Link>     = <Links>:getLink(<integer>)
-
-\startfunctioncall
-<integer>  = <Links>:getNumLinks()
 \stopfunctioncall
 
 \type {Object} methods:
@@ -780,25 +663,9 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <Object>  = <Object>:fetch(<XRef>)
 <integer> = <Object>:getType()
 <string>  = <Object>:getTypeName()
-<boolean> = <Object>:isBool()
-<boolean> = <Object>:isInt()
-<boolean> = <Object>:isReal()
-<boolean> = <Object>:isNum()
-<boolean> = <Object>:isString()
-<boolean> = <Object>:isName()
-<boolean> = <Object>:isNull()
-<boolean> = <Object>:isArray()
-<boolean> = <Object>:isDict()
-<boolean> = <Object>:isStream()
-<boolean> = <Object>:isRef()
-<boolean> = <Object>:isCmd()
-<boolean> = <Object>:isError()
-<boolean> = <Object>:isEOF()
-<boolean> = <Object>:isNone()
 <boolean> = <Object>:getBool()
 <integer> = <Object>:getInt()
 <number>  = <Object>:getReal()
-<number>  = <Object>:getNum()
 <string>  = <Object>:getString()
 <string>  = <Object>:getName()
 <Array>   = <Object>:getArray()
@@ -817,7 +684,6 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <string>  = <Object>:dictgetKey(<integer>)
 <Object>  = <Object>:dictgetVal(<integer>)
 <Object>  = <Object>:dictgetValNF(<integer>)
-<boolean> = <Object>:streamIs(<string>)
           = <Object>:streamReset()
 <integer> = <Object>:streamGetChar()
 <integer> = <Object>:streamLookChar()
@@ -826,76 +692,21 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <Dict>    = <Object>:streamGetDict()
 \stopfunctioncall
 
-\type {Page} methods:
-
-\startfunctioncall
-<boolean>      = <Page>:isOk()
-<integer>      = <Page>:getNum()
-<PDFRectangle> = <Page>:getMediaBox()
-<PDFRectangle> = <Page>:getCropBox()
-<boolean>      = <Page>:isCropped()
-<number>       = <Page>:getMediaWidth()
-<number>       = <Page>:getMediaHeight()
-<number>       = <Page>:getCropWidth()
-<number>       = <Page>:getCropHeight()
-<PDFRectangle> = <Page>:getBleedBox()
-<PDFRectangle> = <Page>:getTrimBox()
-<PDFRectangle> = <Page>:getArtBox()
-<integer>      = <Page>:getRotate()
-<string>       = <Page>:getLastModified()
-<Dict>         = <Page>:getBoxColorInfo()
-<Dict>         = <Page>:getGroup()
-<Stream>       = <Page>:getMetadata()
-<Dict>         = <Page>:getPieceInfo()
-<Dict>         = <Page>:getSeparationInfo()
-<Dict>         = <Page>:getResourceDict()
-<Object>       = <Page>:getAnnots()
-<Links>        = <Page>:getLinks(<Catalog>)
-<Object>       = <Page>:getContents()
-\stopfunctioncall
-
 \type {PDFDoc} methods:
 
 \startfunctioncall
 <boolean>  = <PDFDoc>:isOk()
-<integer>  = <PDFDoc>:getErrorCode()
-<string>   = <PDFDoc>:getErrorCodeName()
 <string>   = <PDFDoc>:getFileName()
 <XRef>     = <PDFDoc>:getXRef()
 <Catalog>  = <PDFDoc>:getCatalog()
-<number>   = <PDFDoc>:getPageMediaWidth()
-<number>   = <PDFDoc>:getPageMediaHeight()
-<number>   = <PDFDoc>:getPageCropWidth()
-<number>   = <PDFDoc>:getPageCropHeight()
 <integer>  = <PDFDoc>:getNumPages()
-<string>   = <PDFDoc>:readMetadata()
-<Object>   = <PDFDoc>:getStructTreeRoot()
 <integer>  = <PDFDoc>:findPage(<integer> object number,
                 <integer> object generation)
-<Links>    = <PDFDoc>:getLinks(<integer>)
-<LinkDest> = <PDFDoc>:findDest(<string>)
-<boolean>  = <PDFDoc>:isEncrypted()
-<boolean>  = <PDFDoc>:okToPrint()
-<boolean>  = <PDFDoc>:okToChange()
-<boolean>  = <PDFDoc>:okToCopy()
-<boolean>  = <PDFDoc>:okToAddNotes()
-<boolean>  = <PDFDoc>:isLinearized()
 <Object>   = <PDFDoc>:getDocInfo()
 <Object>   = <PDFDoc>:getDocInfoNF()
 <integer>  = <PDFDoc>:getPDFMajorVersion()
 <integer>  = <PDFDoc>:getPDFMinorVersion()
 \stopfunctioncall
-
-\type {PDFRectangle} methods:
-
-\startfunctioncall
-<boolean>  = <PDFRectangle>:isValid() -- setindex/newindex will go
-\stopfunctioncall
-
-%\type {Ref} methods:
-%
-%\startfunctioncall
-%\stopfunctioncall
 
 \type {Stream} methods:
 
@@ -915,73 +726,9 @@ The functions \type {StructElement_Type}, \type {Attribute_Type} and \type
 <Dict>     = <Stream>:getDict()
 \stopfunctioncall
 
-\type {StructElement} methods:
-
-\startfunctioncall
-<string>         = <StructElement>:getTypeName()
-<integer>        = <StructElement>:getType()
-<boolean>        = <StructElement>:isOk()
-<boolean>        = <StructElement>:isBlock()
-<boolean>        = <StructElement>:isInline()
-<boolean>        = <StructElement>:isGrouping()
-<boolean>        = <StructElement>:isContent()
-<boolean>        = <StructElement>:isObjectRef()
-<integer>        = <StructElement>:getMCID()
-<Ref>            = <StructElement>:getObjectRef()
-<Ref>            = <StructElement>:getParentRef()
-<boolean>        = <StructElement>:hasPageRef()
-<Ref>            = <StructElement>:getPageRef()
-<StructTreeRoot> = <StructElement>:getStructTreeRoot()
-<string>         = <StructElement>:getID()
-<string>         = <StructElement>:getLanguage()
-<integer>        = <StructElement>:getRevision()
-<string>         = <StructElement>:getTitle()
-<string>         = <StructElement>:getExpandedAbbr()
-<integer>        = <StructElement>:getNumChildren()
-<StructElement>  = <StructElement>:getChild()
-<integer>        = <StructElement>:getNumAttributes()
-<Attribute>      = <StructElement>:getAttribute(<integer>)
-<string>         = <StructElement>:appendAttribute(<Attribute>)      -- will go
-<Attribute>      = <StructElement>:findAttribute(<Attribute::Type>,
-                        boolean,Attribute::Owner)
-<string>         = <StructElement>:getAltText()
-<string>         = <StructElement>:getActualText()
-<string>         = <StructElement>:getText(<boolean>)
-<table>          = <StructElement>:getTextSpans()
-\stopfunctioncall
-
-\type {StructTreeRoot} methods:
-
-\startfunctioncall
-<StructElement> = <StructTreeRoot>:findParentElement
-<PDFDoc>        = <StructTreeRoot>:getDoc
-<Dict>          = <StructTreeRoot>:getRoleMap
-<Dict>          = <StructTreeRoot>:getClassMap
-<integer>       = <StructTreeRoot>:getNumChildren
-<StructElement> = <StructTreeRoot>:getChild
-<StructElement> = <StructTreeRoot>:findParentElement
-\stopfunctioncall
-
-\type {TextSpan} han only one method:
-
-\startfunctioncall
-<string> = <TestSpan>:getText()
-\stopfunctioncall
-
 \type {XRef} methods:
 
 \startfunctioncall
-<boolean>  = <XRef>:isOk()
-<integer>  = <XRef>:getErrorCode()
-<boolean>  = <XRef>:isEncrypted()
-<boolean>  = <XRef>:okToPrint()
-<boolean>  = <XRef>:okToPrintHighRes()
-<boolean>  = <XRef>:okToChange()
-<boolean>  = <XRef>:okToCopy()
-<boolean>  = <XRef>:okToAddNotes()
-<boolean>  = <XRef>:okToFillForm()
-<boolean>  = <XRef>:okToAccessibility()
-<boolean>  = <XRef>:okToAssemble()
 <Object>   = <XRef>:getCatalog()
 <Object>   = <XRef>:fetch(<integer> object number,
                 <integer> object generation)

@@ -2716,11 +2716,7 @@ static void make_fraction(pointer q, int cur_style)
         point to it
     */
     if (do_new_math(cur_f)) {
-        if (math_use_old_fraction_scaling_par) {
-            delta = fraction_del_size_old(cur_style);
-        } else {
-            delta = fraction_del_size_new(cur_style);
-        }
+        delta = fraction_del_size_new(cur_style);
         if (delta == undefined_math_parameter) {
             delta = get_delimiter_height(depth(v), height(v), true);
         }
@@ -2904,38 +2900,35 @@ static scaled make_op(pointer q, int cur_style)
         reset_attributes(v, node_attr(q));
         type(v) = vlist_node;
         if (do_new_math(cur_f)) {
-            n = null;
-            if (! math_no_italic_compensation_par) {
-                n = nucleus(q);
-                if (n != null) {
-                    if ((type(n) == sub_mlist_node) || (type(n) == sub_box_node)) {
-                        n = math_list(n);
-                        if (n != null) {
-                            if (type(n) == hlist_node) {
-                                n = list_ptr(n); /* just a not scaled char */
-                                while (n != null) {
-                                    if (type(n) == glyph_node) {
-                                        delta = char_italic(font(n),character(n));
-                                    }
-                                    n = vlink(n);
+            n = nucleus(q);
+            if (n != null) {
+                if ((type(n) == sub_mlist_node) || (type(n) == sub_box_node)) {
+                    n = math_list(n);
+                    if (n != null) {
+                        if (type(n) == hlist_node) {
+                            n = list_ptr(n); /* just a not scaled char */
+                            while (n != null) {
+                                if (type(n) == glyph_node) {
+                                    delta = char_italic(font(n),character(n));
                                 }
-                            } else {
-                                while (n != null) {
-                                    if (type(n) == fence_noad) {
-                                        if (delimiteritalic(n) > delta) {
-                                            /* we can have dummies, the period ones */
-                                            delta = delimiteritalic(n);
-                                        }
+                                n = vlink(n);
+                            }
+                        } else {
+                            while (n != null) {
+                                if (type(n) == fence_noad) {
+                                    if (delimiteritalic(n) > delta) {
+                                        /* we can have dummies, the period ones */
+                                        delta = delimiteritalic(n);
                                     }
-                                    n = vlink(n);
                                 }
+                                n = vlink(n);
                             }
                         }
-                    } else {
-                        n = nucleus(q);
-                        if (type(n) == math_char_node) {
-                            delta = char_italic(fam_fnt(math_fam(n),cur_size),math_character(n));
-                        }
+                    }
+                } else {
+                    n = nucleus(q);
+                    if (type(n) == math_char_node) {
+                        delta = char_italic(fam_fnt(math_fam(n),cur_size),math_character(n));
                     }
                 }
             }
@@ -3123,8 +3116,8 @@ static void make_ord(pointer q)
                             math_character(nucleus(q)) = lig_replacement(lig); /* \.{=:} */
                             subscr(q) = subscr(p);
                             supscr(q) = supscr(p);
-                            subscr(p) = null ; 
-                            supscr(p) = null ; 
+                            subscr(p) = null ;
+                            supscr(p) = null ;
                             flush_node(p);
                             break;
                         }
@@ -3998,9 +3991,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_styl
                 p = new_glyph(cur_f, cur_c);
                 reset_attributes(p, node_attr(nucleus(q)));
                 if (do_new_math(cur_f)) {
-                    if (! math_no_char_italic_par) {
-                        /* keep italic, but bad with two successive letters */
-                    } else if (get_char_cat_code(cur_c) == 11) {
+                    if (get_char_cat_code(cur_c) == 11) {
                         /* no italic correction in mid-word of text font */
                         *delta = 0;
                     }

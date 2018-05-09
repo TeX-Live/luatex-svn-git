@@ -643,14 +643,10 @@ static void run_option(void) {
         case math_option_code:
             if (scan_keyword("old")) {
                 mathoption_set_int(c_mathoption_old_code);
-            } else if (scan_keyword("noitaliccompensation")) {
-                mathoption_set_int(c_mathoption_no_italic_compensation_code);
-            } else if (scan_keyword("nocharitalic")) {
-                mathoption_set_int(c_mathoption_no_char_italic_code);
-            } else if (scan_keyword("useoldfractionscaling")) {
-                mathoption_set_int(c_mathoption_use_old_fraction_scaling_code);
+            /*
             } else if (scan_keyword("umathcodemeaning")) {
                 mathoption_set_int(c_mathoption_umathcode_meaning_code);
+            */
             } else {
                 normal_warning("mathoption","unknown key");
             }
@@ -2341,7 +2337,7 @@ void prefixed_command(void)
                while scanning the definition will simply stop the scanning instead of
                producing an ``undefined control sequence'' error or expanding the
                previous meaning.  This allows, for instance, `\.{\\chardef\\foo=123\\foo}'.
-             */
+            */
             n = cur_chr;
             get_r_token();
             p = cur_cs;
@@ -2354,13 +2350,13 @@ void prefixed_command(void)
                 break;
             case math_char_def_code:
                 mval = scan_mathchar(tex_mathcode);
-                if (math_umathcode_meaning_par == 1) {
-                    cur_val = (mval.class_value + (8 * mval.family_value)) * (65536 * 32) + mval.character_value;
-                    define(p, xmath_given_cmd, cur_val);
-                } else {
+             /* if (math_umathcode_meaning_par == 1) { */
+             /*     cur_val = (mval.class_value + (8 * mval.family_value)) * (65536 * 32) + mval.character_value; */
+             /*     define(p, xmath_given_cmd, cur_val); */
+             /* } else { */
                     cur_val = (mval.class_value * 16 + mval.family_value) * 256 + mval.character_value;
                     define(p, math_given_cmd, cur_val);
-                }
+             /* } */
                 break;
             case xmath_char_def_code:
                 mval = scan_mathchar(umath_mathcode);

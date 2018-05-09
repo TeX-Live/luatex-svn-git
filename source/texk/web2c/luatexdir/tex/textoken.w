@@ -2953,31 +2953,6 @@ void do_variable(void)
     }
 }
 
-/*
-    The following code is not used as we can only set math options and not query them. If
-    an option is really important we will provide a proper variable. Most options are not
-    meant for users anyway but for development.
-*/
-
-/*
-
-#define do_mathoption_int(i) \
-    cur_cmd = assign_int_cmd; \
-    cur_val = mathoption_int_base + i; \
-    cur_tok = token_val(cur_cmd, cur_val); \
-    back_input();
-
-void do_mathoption(void)
-{
-         if (scan_keyword("old"))                    { do_mathoption_int(c_mathoption_no_italic_compensation_code); }
-         if (scan_keyword("noitaliccompensation"))   { do_mathoption_int(c_mathoption_no_char_italic_code); }
-    else if (scan_keyword("nocharitalic"))           { do_mathoption_int(c_mathoption_use_old_fraction_scaling_code); }
-    else if (scan_keyword("useoldfractionscaling"))  { do_mathoption_int(c_mathoption_old_code); }
-    else if (scan_keyword("umathcodemeaning"))       { do_mathoption_int(c_mathoption_umathcode_meaning_code); }
-}
-
-*/
-
 @ This boolean is keeping track of the lua string escape state
 @c
 boolean in_lua_escape;

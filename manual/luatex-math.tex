@@ -1479,10 +1479,8 @@ to limit tracing. Only when \type {tracingassigns} and|/|or \type
 
 The logic in the math engine is rather complex and there are often no universal
 solutions (read: what works out well for one font, fails for another). Therefore
-some variations in the implementation will be driven by options for which a new
-primitive \lpr {mathoption} has been introduced (so that we don't end up with
-many new commands). The approach of options also permits us to see what effect a
-specific solution has.
+some variations in the implementation are driven by parameters (modes). In addition
+there is a new primitive \lpr {mathoption} which will be used for testing.
 
 \subsubsection {\type {\mathoption old}}
 
@@ -1497,71 +1495,83 @@ properties.
 \stopbuffer
 
 The \type {oldmath} boolean flag in the \LUA\ font table is the official way to
-force old treatment as it's bound to fonts.
+force old treatment as it's bound to fonts. Like with all options we may
+temporarily introduce with this command this feature is not meant for production.
 
-\subsubsection {\type {\mathoption noitaliccompensation}}
+\subsubsection {Obsolete options}
 
-This option compensates placement for characters with a built|-|in italic
-correction.
+The following options are gone: \typ {noitaliccompensation}, \typ {nocharitalic},
+\typ {useoldfractionscaling}, and \typ {umathcodemeaning}.
 
-\startbuffer
-{\showboxes\int}\quad
-{\showboxes\int_{|}^{|}}\quad
-{\showboxes\int\limits_{|}^{|}}
-\stopbuffer
+% % obsolete:
+%
+% \subsubsection {\type {\mathoption noitaliccompensation}}
+%
+% This option compensates placement for characters with a built|-|in italic
+% correction.
+%
+% \startbuffer
+% {\showboxes\int}\quad
+% {\showboxes\int_{|}^{|}}\quad
+% {\showboxes\int\limits_{|}^{|}}
+% \stopbuffer
+%
+% \typebuffer
+%
+% Gives (with computer modern that has such italics):
+%
+% \startlinecorrection[blank]
+%     \switchtobodyfont[modern]
+%     \startcombination[nx=2,ny=2,distance=5em]
+%         {\mathoption noitaliccompensation 0\relax \mathematics{\getbuffer}}
+%             {\nohyphens\type{0:inline}}
+%         {\mathoption noitaliccompensation 0\relax \mathematics{\displaymath\getbuffer}}
+%             {\nohyphens\type{0:display}}
+%         {\mathoption noitaliccompensation 1\relax \mathematics{\getbuffer}}
+%             {\nohyphens\type{1:inline}}
+%         {\mathoption noitaliccompensation 1\relax \mathematics{\displaymath\getbuffer}}
+%             {\nohyphens\type{1:display}}
+%     \stopcombination
+% \stoplinecorrection
 
-\typebuffer
+% % obsolete:
+%
+% \subsubsection {\type {\mathoption nocharitalic}}
+%
+% When two characters follow each other italic correction can interfere. The
+% following example shows what this option does:
+%
+% \startbuffer
+% \catcode"1D443=11
+% \catcode"1D444=11
+% \catcode"1D445=11
+% P( PP PQR
+% \stopbuffer
+%
+% \typebuffer
+%
+% Gives (with computer modern that has such italics):
+%
+% \startlinecorrection[blank]
+%     \switchtobodyfont[modern]
+%     \startcombination[nx=2,ny=2,distance=5em]
+%         {\mathoption nocharitalic 0\relax \mathematics{\getbuffer}}
+%             {\nohyphens\type{0:inline}}
+%         {\mathoption nocharitalic 0\relax \mathematics{\displaymath\getbuffer}}
+%             {\nohyphens\type{0:display}}
+%         {\mathoption nocharitalic 1\relax \mathematics{\getbuffer}}
+%             {\nohyphens\type{1:inline}}
+%         {\mathoption nocharitalic 1\relax \mathematics{\displaymath\getbuffer}}
+%             {\nohyphens\type{1:display}}
+%     \stopcombination
+% \stoplinecorrection
 
-Gives (with computer modern that has such italics):
-
-\startlinecorrection[blank]
-    \switchtobodyfont[modern]
-    \startcombination[nx=2,ny=2,distance=5em]
-        {\mathoption noitaliccompensation 0\relax \mathematics{\getbuffer}}
-            {\nohyphens\type{0:inline}}
-        {\mathoption noitaliccompensation 0\relax \mathematics{\displaymath\getbuffer}}
-            {\nohyphens\type{0:display}}
-        {\mathoption noitaliccompensation 1\relax \mathematics{\getbuffer}}
-            {\nohyphens\type{1:inline}}
-        {\mathoption noitaliccompensation 1\relax \mathematics{\displaymath\getbuffer}}
-            {\nohyphens\type{1:display}}
-    \stopcombination
-\stoplinecorrection
-
-\subsubsection {\type {\mathoption nocharitalic}}
-
-When two characters follow each other italic correction can interfere. The
-following example shows what this option does:
-
-\startbuffer
-\catcode"1D443=11
-\catcode"1D444=11
-\catcode"1D445=11
-P( PP PQR
-\stopbuffer
-
-\typebuffer
-
-Gives (with computer modern that has such italics):
-
-\startlinecorrection[blank]
-    \switchtobodyfont[modern]
-    \startcombination[nx=2,ny=2,distance=5em]
-        {\mathoption nocharitalic 0\relax \mathematics{\getbuffer}}
-            {\nohyphens\type{0:inline}}
-        {\mathoption nocharitalic 0\relax \mathematics{\displaymath\getbuffer}}
-            {\nohyphens\type{0:display}}
-        {\mathoption nocharitalic 1\relax \mathematics{\getbuffer}}
-            {\nohyphens\type{1:inline}}
-        {\mathoption nocharitalic 1\relax \mathematics{\displaymath\getbuffer}}
-            {\nohyphens\type{1:display}}
-    \stopcombination
-\stoplinecorrection
-
-\subsubsection {\type {\mathoption useoldfractionscaling}}
-
-This option has been introduced as solution for tracker item 604 for fuzzy cases
-around either or not present fraction related settings for new fonts.
+% % obsolete:
+%
+% \subsubsection {\type {\mathoption useoldfractionscaling}}
+%
+% This option has been introduced as solution for tracker item 604 for fuzzy cases
+% around either or not present fraction related settings for new fonts.
 
 \stopchapter
 

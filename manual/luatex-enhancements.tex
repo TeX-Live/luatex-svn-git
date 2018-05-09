@@ -1065,13 +1065,14 @@ You can now open upto 127 files with \prm {openout}. When no file is open
 writes will go to the console and log. As a consequence a system command is
 no longer possible but one can use \type {os.execute} to do the same.
 
-\subsection{\lpr {expanded} and \lpr {immediateassignment}}
+\subsection{\lpr {expanded}, \lpr {immediateassignment}, \lpr {immediateassigned}}
 
 \topicindex {expansion}
 
-The \lpr {expansion} primitive takes a token list and expands it content which
-can come in handy: it avoids a tricky mix of \prm {expandafter} and \prm
-{noexpand}. But it still doesn't expand some primitive operations.
+The \lpr {expanded} primitive takes a token list and expands it content which can
+come in handy: it avoids a tricky mix of \prm {expandafter} and \prm {noexpand}.
+You can compare it with what happens inside the body of an \prm {edef}. But this
+kind of expansion it still doesn't expand some primitive operations.
 
 \startbuffer
 \newcount\NumberOfCalls
@@ -1138,6 +1139,60 @@ Here is a somewhat silly example of expanded comparison:
 It gives:
 
 \getbuffer
+
+A variant is:
+
+\starttyping
+\def\expandeddoifelse#1#2#3#4%
+  {\immediateassigned{
+     \edef\tempa{#1}%
+     \edef\tempb{#2}%
+   }%
+   \ifx\tempa\tempb
+     \immediateassignment\def\next{#3}%
+   \else
+     \immediateassignment\def\next{#4}%
+   \fi
+   \next}
+\stoptyping
+
+The possible error messages are the same as using assignments in preambles of
+alignments and after the \prm {accent} command. The supported assignments are the
+so called prefixed commands (except box assignments).
+
+\subsection{\lpr {ifcondition}}
+
+\topicindex {conditions}
+
+This is a somewhat special one. When you write macros conditions need to be
+properly balanced in order to let \TEX's fast branch skipping work well. This new
+primitive is basically a no||op flagged as a condition so that the scanner can
+recognize it as an if|-|test. However, when a real test takes place the work is
+done by what follows, in the next example \tex {something}.
+
+\starttyping
+\unexpanded\def\something#1#2%
+  {\edef\tempa{#1}%
+   \edef\tempb{#2}
+   \ifx\tempa\tempb}
+
+\ifcondition\something{a}{b}%
+    \ifcondition\something{a}{a}%
+        true 1
+    \else
+        false 1
+    \fi
+\else
+    \ifcondition\something{a}{a}%
+        true 2
+    \else
+        false 2
+    \fi
+\fi
+\stoptyping
+
+If you are familiar with \METAPOST, this is a bit like \type {vardef} where the macro
+has a return value. Here the return value is a test.
 
 \stopsection
 

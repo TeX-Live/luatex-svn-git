@@ -458,10 +458,9 @@ extern void print_save_stack(void);
 
 typedef enum {
     c_mathoption_old_code = 0,                  /* this one is stable */
-    c_mathoption_no_italic_compensation_code,   /* just for tracing, can change */
-    c_mathoption_no_char_italic_code,           /* just for tracing, can change */
-    c_mathoption_use_old_fraction_scaling_code, /* just for tracing, can change */
-    c_mathoption_umathcode_meaning_code,        /* this one is stable */
+    /*
+    c_mathoption_umathcode_meaning_code,
+    */
 } math_option_codes ;
 
 #  define mathoption_int_par(A) eqtb[mathoption_int_base+(A)].cint
@@ -766,10 +765,10 @@ extern halfword last_cs_name;
 #define error_context_lines_par            int_par(error_context_lines_code)
 
 #define math_old_par                       mathoption_int_par(c_mathoption_old_code)
-#define math_no_italic_compensation_par    mathoption_int_par(c_mathoption_no_italic_compensation_code)
-#define math_no_char_italic_par            mathoption_int_par(c_mathoption_no_char_italic_code)
-#define math_use_old_fraction_scaling_par  mathoption_int_par(c_mathoption_use_old_fraction_scaling_code)
+
+/*
 #define math_umathcode_meaning_par         mathoption_int_par(c_mathoption_umathcode_meaning_code)
+*/
 
 #define math_pre_display_gap_factor_par    int_par(math_pre_display_gap_factor_code)
 
