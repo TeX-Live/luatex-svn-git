@@ -942,17 +942,14 @@ static int m_Object_streamGetChar(lua_State * L)
 
 static int m_Object_streamGetAll(lua_State * L)
 {
-    char c;
+    int c;
     udstruct *uin;
     uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
     Object * o = (Object *) uin->d ;
     luaL_Buffer buf;
     luaL_buffinit(L, &buf);
- /* if (((Object *) uin->d)->isStream()) { */
     if (o->isStream()) {
         while(1) {
-         /* c = ((Stream *) uin->d)->getChar() ; */
-         /* c = ((Object *) uin->d)->streamGetChar(); */
             c = o->streamGetChar();
             if (c == EOF) {
                 break;
@@ -965,6 +962,33 @@ static int m_Object_streamGetAll(lua_State * L)
     }
     return 1;
 }
+
+/*
+static int m_Object_streamGetAll(lua_State * L)
+{
+    int c;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    Object * o = (Object *) uin->d ;
+    luaL_Buffer buf;
+    luaL_buffinit(L, &buf);
+    if (o->isStream()) {
+        Stream * stream = o->getStream();
+        stream->reset();
+        while(1) {
+            c = stream->getChar() ;
+            if (c == EOF) {
+                break;
+            }
+            luaL_addchar(&buf, c);
+        }
+        luaL_pushresult(&buf);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+*/
 
 static int m_Object_streamLookChar(lua_State * L)
 {
