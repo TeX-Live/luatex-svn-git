@@ -982,15 +982,15 @@ static int lua_nodelib_direct_getdirection(lua_State * L)
     if (n) {
         halfword t = type(n);
         if (t == dir_node) {
-            lua_pushinteger(L, dir_dir(n));
+            lua_push_direction(L, dir_dir(n));
             lua_pushboolean(L, subtype(n));
             return 2;
         } else if (t == hlist_node || t == vlist_node) {
-            lua_pushinteger(L, box_dir(n));
+            lua_push_direction(L, box_dir(n));
         } else if (t == rule_node) {
-            lua_pushinteger(L, rule_dir(n));
+            lua_push_direction(L, rule_dir(n));
         } else if (t == local_par_node) {
-            lua_pushinteger(L, local_par_dir(n));
+            lua_push_direction(L, local_par_dir(n));
         } else {
             lua_pushnil(L);
         }

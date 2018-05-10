@@ -360,16 +360,41 @@ extern int l_dir_text_index_cancel [DIR_TEXT_SIZE];
 #define lua_push_group_code(L,group_code)      lua_rawgeti(L, LUA_REGISTRYINDEX, l_group_code_index[group_code]);
 #define lua_push_local_par_mode(L,par_mode)    lua_rawgeti(L, LUA_REGISTRYINDEX, l_local_par_index[par_mode]);
 #define lua_push_math_style_name(L,style_name) lua_rawgeti(L, LUA_REGISTRYINDEX, l_math_style_name_index[style_name]);
-#define lua_push_dir_par(L,dir)                lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir])
-#define lua_push_dir_text_normal(L,dir)        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_normal[dir])
-#define lua_push_dir_text_cancel(L,dir)        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_cancel[dir])
+
+#define lua_push_direction(L,direction) \
+    if (direction < 0) { \
+        lua_pushnil(L); \
+    } else { \
+        lua_pushinteger(L,direction); \
+    }
+
+#define lua_push_dir_par(L,dir) \
+    if (dir < 0) { \
+        lua_pushnil(L); \
+    } else { \
+        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_par_index[dir]); \
+    }
+
+#define lua_push_dir_text_normal(L,dir) \
+    if (dir < 0) { \
+        lua_pushnil(L); \
+    } else { \
+        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_normal[dir]); \
+    }
+
+#define lua_push_dir_text_cancel(L,dir) \
+    if (dir < 0) { \
+        lua_pushnil(L); \
+    } else { \
+        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_cancel[dir]); \
+    }
 
 #define lua_push_dir_text(L,dir,sub) \
-    if (sub == cancel_dir) \
-        lua_push_dir_text_cancel(L, dir); \
-    else \
-        lua_push_dir_text_normal(L, dir);
-
+    if (dir < 0) { \
+        lua_pushnil(L); \
+    } else { \
+        lua_push_dir_text_normal(L, dir); \
+    }
 
 #define lua_push_string_by_index(L,index)      lua_rawgeti(L, LUA_REGISTRYINDEX, index)
 #define lua_push_string_by_name(L,index)       lua_rawgeti(L, LUA_REGISTRYINDEX, lua_key_index(index))

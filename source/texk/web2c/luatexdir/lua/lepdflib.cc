@@ -940,6 +940,32 @@ static int m_Object_streamGetChar(lua_State * L)
     return 1;
 }
 
+static int m_Object_streamGetAll(lua_State * L)
+{
+    char c;
+    udstruct *uin;
+    uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
+    Object * o = (Object *) uin->d ;
+    luaL_Buffer buf;
+    luaL_buffinit(L, &buf);
+ /* if (((Object *) uin->d)->isStream()) { */
+    if (o->isStream()) {
+        while(1) {
+         /* c = ((Stream *) uin->d)->getChar() ; */
+         /* c = ((Object *) uin->d)->streamGetChar(); */
+            c = o->streamGetChar();
+            if (c == EOF) {
+                break;
+            }
+            luaL_addchar(&buf, c);
+        }
+        luaL_pushresult(&buf);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
 static int m_Object_streamLookChar(lua_State * L)
 {
     int i;
@@ -1033,6 +1059,7 @@ static const struct luaL_Reg Object_m[] = {
     {"dictGetValNF", m_Object_dictGetValNF},
     {"streamReset", m_Object_streamReset},
     {"streamGetChar", m_Object_streamGetChar},
+    {"streamGetAll", m_Object_streamGetAll},
     {"streamLookChar", m_Object_streamLookChar},
     {"streamGetPos", m_Object_streamGetPos},
     {"streamSetPos", m_Object_streamSetPos},
