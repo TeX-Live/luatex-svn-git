@@ -10,8 +10,8 @@
 
 \topicindex {nodes}
 
-\TEX's nodes are represented in \LUA\ as userdata object with a variable set of
-fields. In the following syntax tables, such the type of such a userdata object
+\TEX's nodes are represented in \LUA\ as userdata objects with a variable set of
+fields. In the following syntax tables, such as the type of such a userdata object
 is represented as \syntax {<node>}.
 
 The current return value of \type {node.types()} is:
@@ -103,10 +103,10 @@ present in all nodes regardless of their type, these are:
 \LL
 \stoptabulate
 
-The \type {subtype} is sometimes just a stub entry. Not all nodes actually use
-the \type {subtype}, but this way you can be sure that all nodes accept it as a
-valid field name, and that is often handy in node list traversal. In the
-following tables \type {next} and \type {id} are not explicitly mentioned.
+The \type {subtype} is sometimes just a dummy entry because not all nodes
+actually use the \type {subtype}, but this way you can be sure that all nodes
+accept it as a valid field name, and that is often handy in node list traversal.
+In the following tables \type {next} and \type {id} are not explicitly mentioned.
 
 Besides these three fields, almost all nodes also have an \type {attr} field, and
 there is a also a field called \type {prev}. That last field is always present,
@@ -221,8 +221,8 @@ There is a set of extra fields that concern the associated glue: \type {width},
 These are all numbers.
 
 A warning: never assign a node list to the \type {head} field unless you are sure
-its internal link structure is correct, otherwise an error may be result. You can use
-\type {list} instead (often in functions you want to use local variable swith similar
+its internal link structure is correct, otherwise an error may result. You can use
+\type {list} instead (often in functions you want to use local variable with similar
 names and both names are equally sensible).
 
 \subsubsection{\nod {mark} nodes}
@@ -259,7 +259,7 @@ This node comes from \prm {vadjust} primitive.
 \stoptabulate
 
 A warning: never assign a node list to the \type {head} field unless you are sure
-its internal link structure is correct, otherwise an error may be result.
+its internal link structure is correct, otherwise an error may be the result.
 
 \subsubsection{\nod {disc} nodes}
 
@@ -302,7 +302,7 @@ Otherwise you can end up with an invalid internal perception of reality and
 \LUATEX\ might even decide to crash on you. It also means that running forward
 over for instance \type {pre} is ok but backward you need to stop at \type {pre}.
 And you definitely must not mess with the node that \type {prev} points to, if
-only because it is not really an node but part of the disc data structure (so
+only because it is not really a node but part of the disc data structure (so
 freeing it again might crash \LUATEX).
 
 \subsubsection{\nod {math} nodes}
@@ -350,7 +350,7 @@ accessible fields:
 
 The effective width of some glue subtypes depends on the stretch or shrink needed
 to make the encapsulating box fit its dimensions. For instance, in a paragraph
-lines normally have glue representing spaces and these stretch of shrink to make
+lines normally have glue representing spaces and these stretch or shrink to make
 the content fit in the available space. The \type {effective_glue} function that
 takes a glue node and a parent (hlist or vlist) returns the effective width of
 that glue item.
@@ -429,18 +429,18 @@ accumulation of \type {club}, \type{widow} and other relevant penalties.
 \subsubsection[glyphnodes]{\nod {glyph} nodes}
 
 \topicindex {nodes+glyph}
-\topicindex {glyph}
+\topicindex {glyphs}
 
-These are probably the mostly used nodes and although you can push on tin the
-list with for instance \prm {char} \TEX\ will normally do it for you when it
-considers some input to be text.
+These are probably the mostly used nodes and although you can push them in the
+current list with for instance \prm {char} \TEX\ will normally do it for you when
+it considers some input to be text.
 
 \starttabulate[|l|l|p|]
 \DB field                   \BC type    \BC explanation \NC \NR
 \TB
-\NC \type{subtype}          \NC number  \NC bitfield \NC \NR
+\NC \type{subtype}          \NC number  \NC bit field \NC \NR
 \NC \type{attr}             \NC node    \NC list of attributes \NC \NR
-\NC \type{char}             \NC number  \NC the chatacter index in the font \NC \NR
+\NC \type{char}             \NC number  \NC the character index in the font \NC \NR
 \NC \type{font}             \NC number  \NC the font identifier \NC \NR
 \NC \type{lang}             \NC number  \NC the language identifier \NC \NR
 \NC \type{left}             \NC number  \NC the frozen \type {\lefthyphenmnin} value \NC \NR
@@ -520,7 +520,7 @@ This node relates to the \prm {noboundary}, \prm {boundary}, \prm
 \topicindex {nodes+paragraphs}
 \topicindex {paragraphs}
 
-This node in inserted a the start of a paragraph. You should not mess
+This node is inserted at the start of a paragraph. You should not mess
 too much with this one.
 
 \starttabulate[|l|l|p|]
@@ -539,7 +539,7 @@ too much with this one.
 
 A warning: never assign a node list to the \type {box_left} or \type {box_right}
 field unless you are sure its internal link structure is correct, otherwise an
-error may be result.
+error may result.
 
 \subsubsection[dirnodes]{\nod {dir} nodes}
 
@@ -563,13 +563,13 @@ Direction specifiers are three|-|letter combinations of \type {T}, \type {B},
 
 \startitemize[packed]
 \startitem
-    the first  is the direction of the \quote{top}   of paragraphs.
+    the first  is the direction of the \quote{top}   of paragraphs
 \stopitem
 \startitem
-    the second is the direction of the \quote{start} of lines.
+    the second is the direction of the \quote{start} of lines
 \stopitem
 \startitem
-    the third  is the direction of the \quote{top}   of glyphs.
+    the third  is the direction of the \quote{top}   of glyphs
 \stopitem
 \stopitemize
 
@@ -646,7 +646,7 @@ the \type {head} points to a \quote {normal} vbox or hbox. For \nod {sub_mlist},
 the \type {head} points to a math list that is yet to be converted.
 
 A warning: never assign a node list to the \type {head} field unless you are sure
-its internal link structure is correct, otherwise an error may be result.
+its internal link structure is correct, otherwise an error is triggered.
 
 \subsubsubsection{\nod {delim} subnodes}
 
@@ -665,12 +665,12 @@ before, the \type {next} and \type {prev} fields are unused.
 \stoptabulate
 
 The fields \type {large_char} and \type {large_fam} can be zero, in that case the
-font that is sed for the \type {small_fam} is expected to provide the large
+font that is set for the \type {small_fam} is expected to provide the large
 version as an extension to the \type {small_char}.
 
 \subsubsection{Math core nodes}
 
-First, there are the objects (the \TEX book calls then \quote {atoms}) that are
+First, there are the objects (the \TEX book calls them \quote {atoms}) that are
 associated with the simple math objects: ord, op, bin, rel, open, close, punct,
 inner, over, under, vcent. These all have the same fields, and they are combined
 into a single node type with separate subtypes for differentiation.
@@ -752,7 +752,7 @@ be prefixed by \type {cramped}.
 
 Warning: never assign a node list to the \type {display}, \type {text}, \type
 {script}, or \type {scriptscript} field unless you are sure its internal link
-structure is correct, otherwise an error may be result.
+structure is correct, otherwise an error can occur.
 
 \subsubsubsection{\nod {radical} nodes}
 
@@ -773,7 +773,7 @@ structure is correct, otherwise an error may be result.
 
 Warning: never assign a node list to the \type {nucleus}, \type {sub}, \type
 {sup}, \type {left}, or \type {degree} field unless you are sure its internal
-link structure is correct, otherwise an error may be result.
+link structure is correct, otherwise an error can be triggered.
 
 \subsubsubsection{\nod {fraction} nodes}
 
@@ -793,7 +793,7 @@ link structure is correct, otherwise an error may be result.
 
 Warning: never assign a node list to the \type {num}, or \type {denom} field
 unless you are sure its internal link structure is correct, otherwise an error
-may be result.
+can result.
 
 \subsubsubsection{\nod {fence} nodes}
 
@@ -816,7 +816,7 @@ the process.
 
 \subsection{whatsit nodes}
 
-Whatsit nodes come in many subtypes that you can ask for by running
+Whatsit nodes come in many subtypes that you can ask for them by running
 \type {node.whatsits()}:
 \startluacode
     for id, name in table.sortedpairs(node.whatsits()) do
@@ -884,7 +884,7 @@ will simply step over such whatsits without ever looking at the contents.
 \stoptabulate
 
 The \type {type} can have one of six distinct values. The number is the \ASCII\
-value if the first character if the type name (so you can use string.byte("l")
+value if the first character of the type name (so you can use string.byte("l")
 instead of \type {108}).
 
 \starttabulate[|r|c|p|]
@@ -962,7 +962,7 @@ Possible mode values are:
 \LL
 \stoptabulate
 
-The higher the number, the less checking and the more you can run into troubles.
+The higher the number, the less checking and the more you can run into trouble.
 Especially the \type {raw} variant can produce bad \PDF\ so you can best check
 what you generate.
 
@@ -1034,7 +1034,7 @@ what you generate.
 
 \subsubsubsection{\whs {pdf_action}}
 
-These are a special kind of item that only appears inside \PDF\ start link
+These are a special kind of items that only appear inside \PDF\ start link
 objects.
 
 \starttabulate[|l|l|p|]
@@ -1188,8 +1188,7 @@ Each node has at least the three fields \type {next}, \type {id}, and \type {sub
 \stopitemize
 
 The other available fields depend on the \type {id} (and for \quote {whatsits},
-the \type {subtype}) of the node. Further details on the various fields and their
-meanings are given in~\in{chapter}[nodes].
+the \type {subtype}) of the node.
 
 Support for \nod {unset} (alignment) nodes is partial: they can be queried and
 modified from \LUA\ code, but not created.
@@ -1206,7 +1205,8 @@ call the node freeing functions yourself when you are no longer in need of a nod
 (list). Nodes form linked lists without reference counting, so you have to be
 careful that when control returns back to \LUATEX\ itself, you have not deleted
 nodes that are still referenced from a \type {next} pointer elsewhere, and that
-you did not create nodes that are referenced more than once.
+you did not create nodes that are referenced more than once. Normally the setters
+and getters handle this for you.
 
 There are statistics available with regards to the allocated node memory, which
 can be handy for tracing.
@@ -1675,7 +1675,7 @@ See the previous section for details. The change is in the local function \type
 
 \subsubsection{\type {node.traverse_char}}
 
-This iterator loops over the \node {glyph} nodes in a list. Only nodes with a
+This iterator loops over the \nod {glyph} nodes in a list. Only nodes with a
 subtype less than 256 are seen.
 
 \startfunctioncall
@@ -1722,8 +1722,8 @@ This function returns the first glyph or disc node in the given list:
 \stopfunctioncall
 
 Looks for and returns the next \type {math_node} following the \type {start}. If
-the given node is a math endnode this helper return that node, else it follows
-the list and return the next math endnote. If no such node is found nil is
+the given node is a math end node this helper returns that node, else it follows
+the list and returns the next math endnote. If no such node is found nil is
 returned.
 
 \subsubsection{\type {node.remove}}
@@ -1819,7 +1819,7 @@ node.unprotect_glyphs(<node> n,[<node> n])
 
 Subtracts 256 from all glyph node subtypes. This and the next function are
 helpers to convert from \type {characters} to \type {glyphs} during node
-processing. The second argument is option and indicates the end of a range.
+processing. The second argument is optional and indicates the end of a range.
 
 \subsubsection{\type {node.protect_glyphs} and \type {node.protect_glyph}}
 
@@ -1832,7 +1832,7 @@ Adds 256 to all glyph node subtypes in the node list starting at \type {n},
 except that if the value is 1, it adds only 255. The special handling of 1 means
 that \type {characters} will become \type {glyphs} after subtraction of 256. A
 single character can be marked by the singular call. The second argument is
-option and indicates the end of a range.
+optional and indicates the end of a range.
 
 \subsubsection{\type {node.last_node}}
 
@@ -1850,9 +1850,9 @@ that node, or \type {nil} if the current list is empty.
 node.write(<node> n)
 \stopfunctioncall
 
-This is an experimental function that will append a node list to \TEX's \quote
-{current list} The node list is not deep|-|copied! There is no error checking
-either!
+This function that will append a node list to \TEX's \quote {current list}. The
+node list is not deep|-|copied! There is no error checking either! You mignt need
+to enforce horizontal mode in order for this to work as expected.
 
 \subsubsection{\type {node.protrusion_skippable}}
 
@@ -1888,7 +1888,7 @@ When a list node is passed, you set the glue, order and sign instead.
 
 \subsubsection{\type {node.getglue}}
 
-The next call will return 5 values (or northing when no glue is passed).
+The next call will return 5 values or nothing when no glue is passed.
 
 \startfunctioncall
 <integer> width, <integer> stretch, <integer> shrink, <integer> stretch_order,
@@ -1997,7 +1997,7 @@ usage.
 When you fool around with disc nodes you need to be aware of the fact that they
 have a special internal data structure. As long as you reassign the fields when
 you have extended the lists it's ok because then the tail pointers get updated,
-but when you add to list without reassigning you might end up in troubles when
+but when you add to list without reassigning you might end up in trouble when
 the linebreak routien kicks in. You can call this function to check the list for
 issues with disc nodes.
 
@@ -2020,9 +2020,10 @@ field when set.
 
 \subsubsection{\type {node.family_font}}
 
-When you pass it a proper family identifier the next helper will return the font
-currently associated with it. You can normally also access the font with the normal
-font field or getter because it will resolve the family automatically for noads.
+When you pass a proper family identifier the next helper will return the font
+currently associated with it. You can normally also access the font with the
+normal font field or getter because it will resolve the family automatically for
+noads.
 
 \startfunctioncall
 <integer> id =
@@ -2033,7 +2034,7 @@ font field or getter because it will resolve the family automatically for noads.
 
 You can set and query the synctex fields, a file number aka tag and a line
 number, for a glue, kern, hlist, vlist, rule and math nodes as well as glyph
-nodes (although this last one are not used in native synctex).
+nodes (although this last one is not used in native synctex).
 
 \startfunctioncall
 node.set_synctex_fields(<integer> f, <integer> l)
@@ -2050,15 +2051,15 @@ some assumptions (heuristics).
 \topicindex{nodes+direct}
 \topicindex{direct nodes}
 
-Deep down in \TEX\ a node has a number which is an numeric entry in a memory
+Deep down in \TEX\ a node has a number which is a numeric entry in a memory
 table. In fact, this model, where \TEX\ manages memory is real fast and one of
 the reasons why plugging in callbacks that operate on nodes is quite fast too.
 Each node gets a number that is in fact an index in the memory table and that
-number often gets reported when you print node related information.
+number often is reported when you print node related information.
 
 There are two access models, a robust one using a so called user data object that
 provides a virtual interface to the internal nodes, and a more direct access which
-uses the node numbers directly. The first model provide key based access while
+uses the node numbers directly. The first model provides key based access while
 the second always accesses fields via functions:
 
 \starttyping
@@ -2067,19 +2068,19 @@ getfield(nodenumber,"char")
 \stoptyping
 
 If you use the direct model, even if you know that you deal with numbers, you
-should not depend on that property but treat it an abstraction just like
+should not depend on that property but treat it as an abstraction just like
 traditional nodes. In fact, the fact that we use a simple basic datatype has the
 penalty that less checking can be done, but less checking is also the reason why
 it's somewhat faster. An important aspect is that one cannot mix both methods,
 but you can cast both models. So, multiplying a node number makes no sense.
 
 So our advice is: use the indexed (table) approach when possible and investigate
-the direct one when speed might be an real issue. For that reason we also provide
-the \type {get*} and \type {set*} functions in the top level node namespace.
-There is a limited set of getters. When implementing this direct approach the
-regular index by key variant was also optimized, so direct access only makes
-sense when we're accessing nodes millions of times (which happens in some font
-processing for instance).
+the direct one when speed might be a real issue. For that reason \LUATEX\ also
+provide the \type {get*} and \type {set*} functions in the top level node
+namespace. There is a limited set of getters. When implementing this direct
+approach the regular index by key variant was also optimized, so direct access
+only makes sense when nodes are accessed millions of times (which happens in some
+font processing for instance).
 
 We're talking mostly of getters because setters are less important. Documents
 have not that many content related nodes and setting many thousands of properties
@@ -2120,7 +2121,7 @@ Some accessors are used frequently and for these we provide more efficient helpe
 \DB function          \BC explanation \NC \NR
 \TB
 \NC \type{getnext}    \NC parsing nodelist always involves this one \NC \NR
-\NC \type{getprev}    \NC used less but is logical companion to \type {getnext} \NC \NR
+\NC \type{getprev}    \NC used less but a logical companion to \type {getnext} \NC \NR
 \NC \type{getboth}    \NC returns the next and prev pointer of a node \NC \NR
 \NC \type{getid}      \NC consulted a lot \NC \NR
 \NC \type{getsubtype} \NC consulted less but also a topper \NC \NR
@@ -2129,7 +2130,7 @@ Some accessors are used frequently and for these we provide more efficient helpe
 \NC \type{getwhd}     \NC returns the \type {width}, \type {height} and \type {depth} of a list, rule or
                           (unexpanded) glyph as well as glue (its spec is looked at) and unset nodes\NC \NR
 \NC \type{getdisc}    \NC returns the \type {pre}, \type {post} and \type {replace} fields and
-                          optionally when true is passed also the tail fields. \NC \NR
+                          optionally when true is passed also the tail fields \NC \NR
 \NC \type{getlist}    \NC we often parse nested lists so this is a convenient one too \NC \NR
 \NC \type{getleader}  \NC comparable to list, seldom used in \TEX\ (but needs frequent consulting
                           like lists; leaders could have been made a dedicated node type) \NC \NR
@@ -2157,7 +2158,7 @@ directmode setter \type {setlink} takes a list of nodes and will link them,
 thereby ignoring \type {nil} entries. The first valid node is returned (beware:
 for good reason it assumes single nodes). For rarely used fields no helpers are
 provided and there are a few that probably are used seldom too but were added for
-consistency. You can of course always define additional accessor using \type
+consistency. You can of course always define additional accessors using \type
 {getfield} and \type {setfield} with little overhead.
 
 \def\yes{$+$} \def\nop{$-$}

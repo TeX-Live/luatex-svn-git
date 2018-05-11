@@ -370,7 +370,7 @@ the documentation are not yet finished):
 \subsection{Glyph items}
 
 The \type {glyphs} is an array containing the per|-|character
-information (quite a few of these are only present if nonzero).
+information (quite a few of these are only present if non|-|zero).
 
 \starttabulate[|l|l|p|]
 \DB key                      \BC type     \BC explanation \NC \NR
@@ -380,8 +380,8 @@ information (quite a few of these are only present if nonzero).
 \NC \type{boundingbox}       \NC array    \NC array of four numbers, see note below \NC \NR
 \NC \type{width}             \NC number   \NC only for horizontal fonts \NC \NR
 \NC \type{vwidth}            \NC number   \NC only for vertical fonts \NC \NR
-\NC \type{tsidebearing}      \NC number   \NC only for vertical ttf/otf fonts, and only if nonzero \NC \NR
-\NC \type{lsidebearing}      \NC number   \NC only if nonzero and not equal to boundingbox[1] \NC \NR
+\NC \type{tsidebearing}      \NC number   \NC only for vertical ttf/otf fonts, and only if non|-|zero \NC \NR
+\NC \type{lsidebearing}      \NC number   \NC only if non|-|zero and not equal to boundingbox[1] \NC \NR
 \NC \type{class}             \NC string   \NC one of "none", "base", "ligature", "mark", "component"
                                               (if not present, the glyph class is \quote {automatic}) \NC \NR
 \NC \type{kerns}             \NC array    \NC only for horizontal fonts, if set \NC \NR
@@ -482,7 +482,7 @@ The \type {ligatures} is a linear array of small hashes:
 \stoptabulate
 
 The \type {anchor} table is indexed by a string signifying the anchor type, which
-is one of
+is one of:
 
 \starttabulate[|l|l|p|]
 \DB key             \BC type  \BC explanation \NC \NR
@@ -576,15 +576,15 @@ The \type {enc} table is a bit more verbose:
 \NC \type{only_1byte}       \NC number \NC \NC \NR
 \NC \type{has_1byte}        \NC number \NC \NC \NR
 \NC \type{has_2byte}        \NC number \NC \NC \NR
-\NC \type{is_unicodebmp}    \NC number \NC only if nonzero\NC \NR
-\NC \type{is_unicodefull}   \NC number \NC only if nonzero\NC \NR
-\NC \type{is_custom}        \NC number \NC only if nonzero\NC \NR
-\NC \type{is_original}      \NC number \NC only if nonzero\NC \NR
-\NC \type{is_compact}       \NC number \NC only if nonzero\NC \NR
-\NC \type{is_japanese}      \NC number \NC only if nonzero\NC \NR
-\NC \type{is_korean}        \NC number \NC only if nonzero\NC \NR
-\NC \type{is_tradchinese}   \NC number \NC only if nonzero [name?]\NC \NR
-\NC \type{is_simplechinese} \NC number \NC only if nonzero\NC \NR
+\NC \type{is_unicodebmp}    \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_unicodefull}   \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_custom}        \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_original}      \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_compact}       \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_japanese}      \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_korean}        \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_tradchinese}   \NC number \NC only if non|-|zero [name?]\NC \NR
+\NC \type{is_simplechinese} \NC number \NC only if non|-|zero\NC \NR
 \NC \type{low_page}         \NC number \NC \NC \NR
 \NC \type{high_page}        \NC number \NC \NC \NR
 \NC \type{iconv_name}       \NC string \NC \NC \NR

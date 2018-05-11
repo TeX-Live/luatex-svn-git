@@ -63,7 +63,7 @@ indicating whether this ligature was the result of a word boundary, and it was
 stored in the same place as other nodes like boxes and kerns and glues.
 
 In \LUATEX, these two types are merged into one, somewhat larger structure called
-a \nod {glyph} nodes. Besides having the old character, font, and component
+a \nod {glyph} node. Besides having the old character, font, and component
 fields there are a few more, like \quote {attr} that we will see in \in {section}
 [glyphnodes], these nodes also contain a subtype, that codes four main types and
 two additional ghost types. For ligatures, multiple bits can be set at the same
@@ -79,25 +79,25 @@ time (in case of a single|-|glyph word).
         not set.
     \stopitem
     \startitem
-        \type {ligature}, for constructed ligatures bit 1 is set
+        \type {ligature}, for constructed ligatures bit 1 is set.
     \stopitem
     \startitem
-        \type {ghost}, for so called \quote {ghost objects} bit 2 is set
+        \type {ghost}, for so called \quote {ghost objects} bit 2 is set.
     \stopitem
     \startitem
         \type {left}, for ligatures created from a left word boundary and for
-        ghosts created from \lpr {leftghost} bit 3 gets set
+        ghosts created from \lpr {leftghost} bit 3 gets set.
     \stopitem
     \startitem
         \type {right}, for ligatures created from a right word boundary and
-        for ghosts created from \lpr {rightghost} bit 4 is set
+        for ghosts created from \lpr {rightghost} bit 4 is set.
     \stopitem
 \stopitemize
 
 The \nod {glyph} nodes also contain language data, split into four items that
-were current when the node was created: the \prm {setlanguage} (15 bits), \prm
-{lefthyphenmin} (8 bits), \prm {righthyphenmin} (8 bits), and \prm {uchyph} (1
-bit).
+were current when the node was created: the \prm {setlanguage} (15~bits), \prm
+{lefthyphenmin} (8~bits), \prm {righthyphenmin} (8~bits), and \prm {uchyph}
+(1~bit).
 
 Incidentally, \LUATEX\ allows 16383 separate languages, and words can be 256
 characters long. The language is stored with each character. You can set
@@ -105,7 +105,7 @@ characters long. The language is stored with each character. You can set
 an ignored hyphenation language.
 
 The new primitive \lpr {hyphenationmin} can be used to signal the minimal length
-of a word. This value stored with the (current) language.
+of a word. This value is stored with the (current) language.
 
 Because the \prm {uchyph} value is saved in the actual nodes, its handling is
 subtly different from \TEX82: changes to \prm {uchyph} become effective
@@ -155,7 +155,7 @@ Here are some examples (we assume that French patterns are used):
 \stoptabulate
 
 Carrying all this information with each glyph would give too much overhead and
-also make the process of setting up thee codes more complex. A solution with
+also make the process of setting up these codes more complex. A solution with
 \type {hjcode} sets was considered but rejected because in practice the current
 approach is sufficient and it would not be compatible anyway.
 
@@ -164,7 +164,7 @@ of \prm {savinghyphcodes} at the moment the format is dumped.
 
 A boundary node normally would mark the end of a word which interferes with for
 instance discretionary injection. For this you can use the \prm {wordboundary}
-as trigger. Here are a few examples of usage:
+as a trigger. Here are a few examples of usage:
 
 \startbuffer
     discrete---discrete
@@ -188,17 +188,17 @@ as trigger. Here are a few examples of usage:
 \typebuffer \startnarrower \dontcomplain \hsize 1pt \getbuffer \par \stopnarrower
 
 We only accept an explicit hyphen when there is a preceding glyph and we skip a
-sequence of explicit hyphens as that normally indicates a \type {--} or \type
+sequence of explicit hyphens since that normally indicates a \type {--} or \type
 {---} ligature in which case we can in a worse case usage get bad node lists
 later on due to messed up ligature building as these dashes are ligatures in base
-fonts. This is a side effect of the separating the hyphenation, ligaturing and
+fonts. This is a side effect of separating the hyphenation, ligaturing and
 kerning steps.
 
-The start and end of a characters is signalled by a \nod {glue}, \nod {penalty},
-\nod {kern} or \nod {boundary} node. But by default also a \nod {hlist}, \nod
-{vlist}, \nod {rule}, \nod {dir}, \nod {whatsit}, \nod {ins}, and \nod {adjust}
-node indicate a start or end. You can omit the last set from the test by setting
-\lpr {hyphenationbounds} to a non|-|zero value:
+The start and end of a sequence of characters is signalled by a \nod {glue}, \nod
+{penalty}, \nod {kern} or \nod {boundary} node. But by default also a \nod
+{hlist}, \nod {vlist}, \nod {rule}, \nod {dir}, \nod {whatsit}, \nod {ins}, and
+\nod {adjust} node indicate a start or end. You can omit the last set from the
+test by setting \lpr {hyphenationbounds} to a non|-|zero value:
 
 \starttabulate[|c|l|]
 \DB value    \BC behaviour \NC \NR
@@ -396,7 +396,7 @@ there are a few exceptions.
 \startitemize[n]
 
 \startitem
-    The \prm {accent} primitives creates nodes with subtype \quote {glyph}
+    The \prm {accent} primitive creates nodes with subtype \quote {glyph}
     instead of \quote {character}: one for the actual accent and one for the
     accentee. The primary reason for this is that \prm {accent} in \TEX82 is
     explicitly dependent on the current font encoding, so it would not make much
@@ -534,22 +534,24 @@ different from the one in \TEX82.
 
 After expansion, the argument for \prm {patterns} has to be proper \UTF8 with
 individual patterns separated by spaces, no \prm {char} or \prm {chardef}d
-commands are allowed. The current implementation quite strict and will reject all
-non|-|\UNICODE\ characters. Likewise, the expanded argument for \prm
+commands are allowed. The current implementation is quite strict and will reject
+all non|-|\UNICODE\ characters. Likewise, the expanded argument for \prm
 {hyphenation} also has to be proper \UTF8, but here a bit of extra syntax is
 provided:
 
 \startitemize[n]
 \startitem
-    Three sets of arguments in curly braces (\type {{}{}{}}) indicates a desired
+    Three sets of arguments in curly braces (\type {{}{}{}}) indicate a desired
     complex discretionary, with arguments as in \prm {discretionary}'s command in
     normal document input.
 \stopitem
 \startitem
-    A \type {-} indicates a desired simple discretionary, cf.\ \type {\-} and \type {\discretionary{-}{}{}} in normal document input.
+    A \type {-} indicates a desired simple discretionary, cf.\ \type {\-} and
+    \type {\discretionary{-}{}{}} in normal document input.
 \stopitem
 \startitem
-    Internal command names are ignored. This rule is provided especially for \prm {discretionary}, but it also helps to deal with \prm {relax} commands that
+    Internal command names are ignored. This rule is provided especially for \prm
+    {discretionary}, but it also helps to deal with \prm {relax} commands that
     may sneak in.
 \stopitem
 \startitem
@@ -647,7 +649,7 @@ words is very different from the ones in \TEX82, and that means there are some
 noticeable differences in handling as well.
 
 First and foremost, there is no \quote {compressed trie} involved in hyphenation.
-The algorithm still reads \PATGEN-generated pattern files, but \LUATEX\ uses a
+The algorithm still reads pattern files generated by \PATGEN, but \LUATEX\ uses a
 finite state hash to match the patterns against the word to be hyphenated. This
 algorithm is based on the \quote {libhnj} library used by \OPENOFFICE, which in
 turn is inspired by \TEX.
@@ -803,6 +805,8 @@ the top-level discretionary that resulted from the first hyphenation point.
 
 Here is that nested solution again, in a different representation:
 
+\testpage[4]
+
 \starttabulate[|l|c|c|c|c|c|c|]
 \DB         \BC pre           \BC     \BC post      \BC       \BC replace       \BC       \NC \NR
 \TB
@@ -834,9 +838,9 @@ the first node).
 
 One can observe that the \type {of-f-ice} and \type {off-ice} cases both end with
 the same actual post replacement list (\type {i}), and that this would be the
-case even if that \type {i} was the first item of a potential following ligature
-like \type {ic}. This allows \LUATEX\ to do away with one of the fields, and thus
-make the whole stuff fit into just two discretionary nodes.
+case even if \type {i} was the first item of a potential following ligature like
+\type {ic}. This allows \LUATEX\ to do away with one of the fields, and thus make
+the whole stuff fit into just two discretionary nodes.
 
 The mapping of the seven list fields to the six fields in this discretionary node
 pair is as follows:
@@ -881,7 +885,7 @@ approach.
 
 \section{Breaking paragraphs into lines}
 
-\topicindex {line breaks}
+\topicindex {linebreaks}
 \topicindex {paragraphs}
 \topicindex {discretionaries}
 
@@ -889,7 +893,7 @@ This code is almost unchanged, but because of the above|-|mentioned changes
 with respect to discretionaries and ligatures, line breaking will potentially be
 different from traditional \TEX. The actual line breaking code is still based on
 the \TEX82 algorithms, and it does not expect there to be discretionaries inside
-of discretionaries. But, as patterns evolve and fonts handling can influence
+of discretionaries. But, as patterns evolve and font handling can influence
 discretionaries, you need to be aware of the fact that long term consistency is not
 an engine matter only.
 

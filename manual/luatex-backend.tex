@@ -38,8 +38,8 @@ this line.
 \topicindex{\PDF+info}
 
 These functions complement the corresponding \PDF\ backend token lists dealing
-with metadata. The value types are strings and they are written out to the \PDF\
-file directly after the token registers.
+with metadata. The value types are strings and they are written to the \PDF\
+file directly after the token registers set at the \TEX\ end are written.
 
 \subsection {\type {[set|get][pageattributes|pageresources|pagesattributes]}}
 
@@ -48,8 +48,8 @@ file directly after the token registers.
 
 These functions complement the corresponding \PDF\ backend token lists dealing
 with page resources. The variables have no interaction with the corresponding \PDF\
-backend token register. They are written out to the \PDF\ file directly after the
-token registers.
+backend token register. They are written to the \PDF\ file directly after the
+token registers set at the \TEX\ end are written.
 
 \subsection{\type {[set|get][xformattributes|xformresources]}}
 
@@ -58,8 +58,8 @@ token registers.
 
 These functions complement the corresponding \PDF\ backend token lists dealing
 with reuseable boxes and images. The variables have no interaction with the
-corresponding \PDF\ backend token register. They are written out to the \PDF\
-file directly after the token registers.
+corresponding \PDF\ backend token register. They are written to the \PDF\
+file directly after the token registers set at the \TEX\ end are written.
 
 \subsection{\type {getversion} and \type {[set|get]minorversion}}
 
@@ -87,7 +87,7 @@ after the \PDFTEX\ equivalents.
 
 \topicindex{\PDF+options}
 
-This bitset determines what kind of info gets flushes. By default we flush all.
+This bitset determines what kind of info gets flushed. By default we flush all.
 
 \subsection{\type {[set|get]trailerid}}
 
@@ -148,7 +148,7 @@ interface at the \TEX\ end.
 \subsection{\type {maxobjnum} and \type {objtype}, \type {fontname}, \type {fontobjnum},
 \type {fontsize}, \type {xformname}}.
 
-These (and some other) introspective helpers were moved from the the \type {tex}
+These (and some other) introspective helpers were moved from the \type {tex}
 namespace to the \type {pdf} namespace but kept their original names. They are
 mostly used when you construct \PDF\ objects yourself and need for instance
 information about a (to be) embedded font.
@@ -186,7 +186,7 @@ natural bounding boxes of the respective objects.
 
 \topicindex{\PDF+positions}
 
-These function get current location on the output page, measured from its lower
+These functions get current location on the output page, measured from its lower
 left corner. The values return scaled points as units.
 
 \starttyping
@@ -213,9 +213,9 @@ end
 
 \topicindex{\PDF+print to}
 
-You can print string to the \PDF\ document from within a within a \lpr {latelua}
-call. This function is not to be used inside \prm {directlua} unless you know
-{\it exactly} what you are doing.
+You can print a string to the \PDF\ document from within a \lpr {latelua} call.
+This function is not to be used inside \prm {directlua} unless you know {\it
+exactly} what you are doing.
 
 \startfunctioncall
 pdf.print(<string> s)
@@ -246,7 +246,7 @@ function variants return the object number of the newly generated object.
 
 The first version puts the \type {objtext} raw into an object. Only the object
 wrapper is automatically generated, but any internal structure (like \type {<<
->>} dictionary markers) needs to provided by the user. The second version with
+>>} dictionary markers) needs to be provided by the user. The second version with
 keyword \type {file} as first argument puts the contents of the file with name
 \type {filename} raw into the object. The third version with keyword \type
 {stream} creates a stream object and puts the \type {streamtext} raw into the
@@ -332,7 +332,7 @@ can't have both \type {string} and \type {file} at the same time.
 \topicindex{\PDF+objects}
 
 This function, the \LUA\ version of the \orm {pdfrefobj} primitive, references an
-object by its object number, so that the object will be written out.
+object by its object number, so that the object will be written to the \PDF\ file.
 
 \startfunctioncall
 pdf.refobj(<integer> n)
@@ -341,8 +341,8 @@ pdf.refobj(<integer> n)
 This function works in both the \prm {directlua} and \lpr {latelua} environment.
 Inside \prm {directlua} a new whatsit node \quote {pdf_refobj} is created, which
 will be marked for flushing during page output and the object is then written
-directly after the page, when also the resources objects are written out. Inside
-\lpr {latelua} the object will be marked for flushing.
+directly after the page, when also the resources objects are written to the \PDF\
+file. Inside \lpr {latelua} the object will be marked for flushing.
 
 This function has no return values.
 
@@ -490,11 +490,11 @@ The function \type {Do} prints the name of the current \type {XObject}, and then
 starts a new scanner for that object's content stream, under the condition that
 the \type {XObject} is in fact a \type {/Form}. That nested scanner is called
 with new \type {info} argument with an updated \type {space} value so that the
-indentation of the output nicely nests, and with an new \type {resources} field
+indentation of the output nicely nests, and with a new \type {resources} field
 to help the next iteration down to properly process any other, embedded \type
 {XObject}s.
 
-Of course, this is not a very useful example in practise, but for the purpose of
+Of course, this is not a very useful example in practice, but for the purpose of
 demonstrating \type {pdfscanner}, it is just long enough. It makes use of only
 one \type {scanner} method: \type {scanner:pop()}. That function pops the top
 operand of the internal stack, and returns a \LUA\ table where the object at index
@@ -503,7 +503,7 @@ value.
 
 The list of possible operand types and associated \LUA\ value types is:
 
-\starttabulate[|l|c|]
+\starttabulate[|l|l|]
 \DB types           \BC type      \NC \NR
 \TB
 \NC \type{integer}  \NC <number>  \NC \NR
@@ -522,7 +522,7 @@ point) number. In case of \type {name}, the leading slash is always stripped.
 
 In case of \type {string}, please bear in mind that \PDF\ actually supports
 different types of strings (with different encodings) in different parts of the
-\PDF\ document, so may need to reencode some of the results; \type {pdfscanner}
+\PDF\ document, so you may need to reencode some of the results; \type {pdfscanner}
 always outputs the byte stream without reencoding anything. \type {pdfscanner}
 does not differentiate between literal strings and hexadecimal strings (the
 hexadecimal values are decoded), and it treats the stream data for inline images
@@ -532,7 +532,7 @@ In case of \type {array}, the table content is a list of \type {pop} return
 values and in case of \type {dict}, the table keys are \PDF\ name strings and the
 values are \type {pop} return values.
 
-There are few more methods defined that you can ask \type {scanner}:
+There are a few more methods defined that you can ask \type {scanner}:
 
 \starttabulate[|l|p|]
 \DB method           \BC explanation \NC \NR
@@ -557,7 +557,7 @@ name object.
 The \type {done} function allows you to abort processing of a stream once you
 have learned everything you want to learn. This comes in handy while parsing
 \type {/ToUnicode}, because there usually is trailing garbage that you are not
-interested in. Without \type {done}, processing only end at the end of the
+interested in. Without \type {done}, processing only ends at the end of the
 stream, possibly wasting \CPU\ cycles.
 
 \section{The \type {epdf} library}
@@ -760,7 +760,7 @@ arguments:
 Instead of a light userdata stream you can also pass a \LUA\ string, in which
 case the given length is (at most) the string length.
 
-The function returns a \type{epdf} object and a string. The string can be used in
+The function returns an \type {epdf} object and a string. The string can be used in
 the \type {img} library instead of a filename. You need to prevent garbage
 collection of the object when you use it as image (for instance by storing it
 somewhere).

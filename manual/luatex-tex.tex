@@ -105,7 +105,7 @@ The current list is:
 \DB key                       \BC explanation \NC \NR
 \TB
 \NC \type{banner}             \NC terminal display banner \NC \NR
-\NC \type{best_page_break}    \NC the current best break (a node) \NR \NR
+\NC \type{best_page_break}    \NC the current best break (a node) \NC \NR
 \NC \type{buf_size}           \NC current allocated size of the line buffer \NC \NR
 \NC \type{callbacks}          \NC total number of executed callbacks so far \NC \NR
 \NC \type{cs_count}           \NC number of control sequences \NC \NR
@@ -124,7 +124,7 @@ The current list is:
 \NC \type{ini_version}        \NC \type {true} if this is an \INITEX\ run \NC \NR
 \NC \type{init_pool_ptr}      \NC \INITEX\ string pool index \NC \NR
 \NC \type{init_str_ptr}       \NC number of \INITEX\ strings \NC \NR
-\NC \type{input_ptr}          \NC th elevel of input we're at \NC \NR
+\NC \type{input_ptr}          \NC the level of input we're at \NC \NR
 \NC \type{inputid}            \NC numeric id of the current input \NC \NR
 \NC \type{largest_used_mark}  \NC max referenced marks class \NC \NR
 \NC \type{lasterrorcontext}   \NC last error context string (with newlines) \NC \NR
@@ -140,9 +140,8 @@ The current list is:
 \NC \type{luatex_engine}      \NC the \LUATEX\ engine identifier \NC \NR
 \NC \type{luatex_hashchars}   \NC length to which \LUA\ hashes strings ($2^n$) \NC \NR
 \NC \type{luatex_hashtype}    \NC the hash method used (in \LUAJITTEX) \NC \NR
-\NC \type{luatex_revision}    \NC the \LUATEX\ revision string \NC \NR
-\NC \type{luatex_revision}    \NC the \LUATEX\ revision string \NC \NR
 \NC \type{luatex_version}     \NC the \LUATEX\ version number \NC \NR
+\NC \type{luatex_revision}    \NC the \LUATEX\ revision string \NC \NR
 \NC \type{max_buf_stack}      \NC max used buffer position \NC \NR
 \NC \type{max_in_stack}       \NC max used input stack entries \NC \NR
 \NC \type{max_nest_stack}     \NC max used nesting stack entries \NC \NR
@@ -197,20 +196,11 @@ in \LUA, but are only front\-ends that are handled by a metatable that operates
 on the actual \TEX\ values. As a result, most of the \LUA\ table operators (like
 \type {pairs} and \type {#}) do not work on such items.
 
-At the moment, it is possible to access almost every parameter that has these
-characteristics:
-
-\startitemize[packed]
-\item You can use it after \prm {the}
-\item It is a single token.
-\item Some special others, see the list below
-\stopitemize
-
-This excludes parameters that need extra arguments, like \type {\the\scriptfont}.
-
-The subset comprising simple integer and dimension registers are
-writable as well as readable (stuff like \prm {tracingcommands} and
-\prm {parindent}).
+At the moment, it is possible to access almost every parameter that you can use
+after \prm {the}, is a single tokens or is sort of special in \TEX. This excludes
+parameters that need extra arguments, like \type {\the\scriptfont}. The subset
+comprising simple integer and dimension registers are writable as well as
+readable (like \prm {tracingcommands} and \prm {parindent}).
 
 \subsection{Internal parameter values}
 
@@ -231,7 +221,7 @@ tex.set (["global",] <string> n, ...)
 \stopfunctioncall
 
 Glue is kind of special because there are five values involved. The return value
-is a \nod {glue_spec} node btu when you pass \type {false} as last argument to
+is a \nod {glue_spec} node but when you pass \type {false} as last argument to
 \type {tex.get} you get the width of the glue and when you pass \type {true} you
 get all five values. Otherwise you get a node which is a copy of the internal
 value so you are responsible for its freeing at the \LUA\ end. When you set a
@@ -252,7 +242,8 @@ if tex.isdimen("bar") then
 end
 \stopfunctioncall
 
-There are such helpers for \type {dimen}, \type {count}, \type {skip}, \type {box} and \nod {attribute} registers.
+There are such helpers for \type {dimen}, \type {count}, \type {skip}, \type
+{box} and \nod {attribute} registers.
 
 \subsubsection{Integer parameters}
 
@@ -402,7 +393,8 @@ tex.pagetotal
 \stoptyping
 \stopthreecolumns
 
-Beware: as with all \LUA\ tables you can add values to them. So, the following is valid:
+Beware: as with all \LUA\ tables you can add values to them. So, the following is
+valid:
 
 \starttyping
 tex.foo = 123
@@ -431,7 +423,8 @@ tex.spacefactor = s
 Keep in mind that when you mess with node lists directly at the \LUA\ end you
 might need to update the top of the nesting stack's \type {prevdepth} explicitly
 as there is no way \LUATEX\ can guess your intentions. By using the accessor in
-the \type {tex} tables, you get and set the values atthe top of the nest stack.
+the \type {tex} tables, you get and set the values at the top of the nesting
+stack.
 
 \subsubsection{Direction parameters}
 
@@ -532,19 +525,16 @@ tex.fontidentifier(number)
 
 If you are wondering why this list looks haphazard; these are all the cases of
 the \quote {convert} internal command that do not require an argument, as well as
-the ones that require only a simple numeric value.
-
-The special (lua-only) case of \type {tex.fontidentifier} returns the \type {csname} string that matches a font id number (if there is one).
-
-if these are really needed in a macro package.
+the ones that require only a simple numeric value. The special (\LUA|-|only) case
+of \type {tex.fontidentifier} returns the \type {csname} string that matches a
+font id number (if there is one).
 
 \subsection{Last item commands}
 
 \topicindex{last items}
 
-All \quote {last item} commands are read|-|only and return a number.
-
-The supported commands at this moment are:
+All \quote {last item} commands are read|-|only and return a number. The
+supported commands at this moment are:
 
 \startthreecolumns
 \starttyping
@@ -572,7 +562,8 @@ tex.currentifbranch
 \topicindex{attributes}
 \topicindex{registers}
 
-\TEX's attributes (\lpr {attribute}), counters (\prm {count}), dimensions (\prm {dimen}), skips (\prm {skip}) and token (\prm {toks}) registers can be accessed
+\TEX's attributes (\lpr {attribute}), counters (\prm {count}), dimensions (\prm
+{dimen}), skips (\prm {skip}) and token (\prm {toks}) registers can be accessed
 and written to using two times five virtual sub|-|tables of the \type {tex}
 table:
 
@@ -596,7 +587,8 @@ enormous = tex.dimen['maxdimen']
 \stoptyping
 
 In this case, \LUATEX\ looks up the value for you on the fly. You have to use a
-valid \prm {countdef} (or \lpr {attributedef}, or \prm {dimendef}, or \prm {skipdef}, or \prm {toksdef}), anything else will generate an error (the intent
+valid \prm {countdef} (or \lpr {attributedef}, or \prm {dimendef}, or \prm
+{skipdef}, or \prm {toksdef}), anything else will generate an error (the intent
 is to eventually also allow \type {<chardef tokens>} and even macros that expand
 into a number).
 
@@ -748,7 +740,8 @@ smallfam, smallchar, largefam, largechar =
 
 Normally, the third and fourth values in a delimiter code assignment will be zero
 according to \lpr {Udelcode} usage, but the returned table can have values there
-(if the delimiter code was set using \prm {delcode}, for example). Unset \type {delcode}'s can be recognized because \type {dval[1]} is $-1$.
+(if the delimiter code was set using \prm {delcode}, for example). Unset \type
+{delcode}'s can be recognized because \type {dval[1]} is $-1$.
 
 \subsection{Box registers}
 
@@ -784,7 +777,8 @@ tex.box[0] = tex.box[2]
 
 does not copy the node list, it just duplicates a node pointer. If \type {\box2}
 will be cleared by \TEX\ commands later on, the contents of \type {\box0} becomes
-invalid as well. To prevent this from happening, always use \type {node.copy_list()} unless you are assigning to a temporary variable:
+invalid as well. To prevent this from happening, always use \type
+{node.copy_list()} unless you are assigning to a temporary variable:
 
 \starttyping
 tex.box[0] = node.copy_list(tex.box[2])
@@ -827,7 +821,8 @@ local vlist = tex.splitbox(n,height,mode)
 \stoptyping
 
 The remainder is kept in the original box and a packaged vlist is returned. This
-operation is comparable to the \prm {vsplit} operation. The mode can be \type {additional} or \type {exactly} and concerns the split off box.
+operation is comparable to the \prm {vsplit} operation. The mode can be \type
+{additional} or \type {exactly} and concerns the split off box.
 
 \subsection{Math parameters}
 
@@ -883,7 +878,7 @@ innerordspacing     inneropspacing      innerbinspacing   innerrelspacing
 inneropenspacing    innerclosespacing   innerpunctspacing innerinnerspacing
 \stoptyping
 
-The values for the style parameter name are:
+The values for the style parameter are:
 
 \starttyping
 display       crampeddisplay
@@ -904,7 +899,7 @@ The virtual table \type {tex.lists} contains the set of internal registers that
 keep track of building page lists.
 
 \starttabulate[|l|p|]
-\DB field                      \BC description \NC \NR
+\DB field                      \BC explanation \NC \NR
 \TB
 \NC \type{page_ins_head}       \NC circular list of pending insertions \NC \NR
 \NC \type{contrib_head}        \NC the recent contributions \NC \NR
@@ -1049,7 +1044,8 @@ The optional argument sets the catcode regime, as with \type {tex.print()}.
 tex.tprint({<number> n, <string> s, ...}, {...})
 \stopfunctioncall
 
-This function is basically a shortcut for repeated calls to \type {tex.sprint(<number> n, <string> s, ...)}, once for each of the supplied argument
+This function is basically a shortcut for repeated calls to \type
+{tex.sprint(<number> n, <string> s, ...)}, once for each of the supplied argument
 tables.
 
 \subsubsection{\type {tex.cprint}}
@@ -1100,7 +1096,7 @@ printing process).
 
 Rounds \LUA\ number \type {o}, and returns a number that is in the range of a
 valid \TEX\ register value. If the number starts out of range, it generates a
-\quote {number to big} error as well.
+\quote {number too big} error as well.
 
 \subsubsection{\type {tex.scale}}
 
@@ -1113,7 +1109,7 @@ Multiplies the \LUA\ numbers \type {o} and \nod {delta}, and returns a rounded
 number that is in the range of a valid \TEX\ register value. In the table
 version, it creates a copy of the table with all numeric top||level values scaled
 in that manner. If the multiplied number(s) are of range, it generates
-\quote{number to big} error(s) as well.
+\quote{number too big} error(s) as well.
 
 Note: the precision of the output of this function will depend on your computer's
 architecture and operating system, so use with care! An interface to \LUATEX's
@@ -1188,7 +1184,8 @@ tex.error(<string> s)
 tex.error(<string> s, <table> help)
 \stopfunctioncall
 
-This creates an error somewhat like the combination of \prm {errhelp} and \prm {errmessage} would. During this error, deletions are disabled.
+This creates an error somewhat like the combination of \prm {errhelp} and \prm
+{errmessage} would. During this error, deletions are disabled.
 
 The array part of the \type {help} table has to contain strings, one for each
 line of error help.
@@ -1203,8 +1200,10 @@ for i,v in pairs (tex.hashtokens()) do ... end
 
 Returns a list of names. This can be useful for debugging, but note that this
 also reports control sequences that may be unreachable at this moment due to
-local redefinitions: it is strictly a dump of the hash table. You can use \type {token.create} to inspect properties, for instance when the \type {command} key
-in a created table equals \type {123}, you have the \type {cmdname} value \type {undefined_cs}.
+local redefinitions: it is strictly a dump of the hash table. You can use \type
+{token.create} to inspect properties, for instance when the \type {command} key
+in a created table equals \type {123}, you have the \type {cmdname} value \type
+{undefined_cs}.
 
 \subsection[luaprimitives]{Functions for dealing with primitives}
 
@@ -1322,7 +1321,8 @@ This function returns a list of all primitives that \LUATEX\ knows about.
 <number> b = tex.badness(<number> t, <number> s)
 \stopfunctioncall
 
-This helper function is useful during linebreak calculations. \type {t} and \type {s} are scaled values; the function returns the badness for when total \type {t}
+This helper function is useful during linebreak calculations. \type {t} and \type
+{s} are scaled values; the function returns the badness for when total \type {t}
 is supposed to be made from amounts that sum to \type {s}. The returned number is
 a reasonable approximation of $100(t/s)^3$;
 
@@ -1345,7 +1345,7 @@ local <node> nodelist, <table> info =
 The understood parameters are as follows:
 
 \starttabulate[|l|l|p|]
-\DB name                        \BC type            \BC description \NC \NR
+\DB name                        \BC type            \BC explanation \NC \NR
 \TB
 \NC \type{pardir}               \NC string          \NC \NC \NR
 \NC \type{pretolerance}         \NC number          \NC \NC \NR
@@ -1407,6 +1407,8 @@ to a \prm {vbox}. The returned \type {info} table contains four values that are
 all numbers:
 
 \starttabulate[|l|p|]
+\DB name      \BC explanation \NC \NR
+\TB
 \NC prevdepth \NC depth of the last line in the broken paragraph \NC \NR
 \NC prevgraf  \NC number of lines in the broken paragraph \NC \NR
 \NC looseness \NC the actual looseness value in the broken paragraph \NC \NR
@@ -1446,6 +1448,8 @@ mind that the library used in editors assumes a certain logic and is geared for
 plain and \LATEX, so after a decade users expect a certain behaviour.
 
 \starttabulate[|l|p|]
+\DB name                        \BC explanation \NC \NR
+\TB
 \NC \type{set_synctex_mode}     \NC \type {0} is the default and used normal synctex
                                     logic, \type {1} uses the values set by the next
                                     helpers while \type {2} also sets these for glyph
@@ -1487,9 +1491,9 @@ the executable after loading and executing the startup file.
     this if you implement {\it all\/} file find callbacks!)
 \NC \NR
 \NC
-    \type{shell_escape}   \NC string   \NC \type {'f'} \NC
-    Use \type {'y'} or \type {'t'} or \type {'1'} to enable \type {\write18}
-    unconditionally, \type {'p'} to enable the commands that are listed in \type {shell_escape_commands}
+    \type{shell_escape} \NC string \NC \type {'f'} \NC Use \type {'y'} or \type
+    {'t'} or \type {'1'} to enable \type {\write18} unconditionally, \type {'p'}
+    to enable the commands that are listed in \type {shell_escape_commands}
 \NC \NR
 \NC
     shell_escape_commands \NC string \NC \NC Comma-separated list of command
@@ -1539,7 +1543,8 @@ the executable after loading and executing the startup file.
 \LL
 \stoptabulate
 
-Note: the numeric values that match web2c parameters are only used if \type {kpse_init} is explicitly set to \type {false}. In all other cases, the normal
+Note: the numeric values that match web2c parameters are only used if \type
+{kpse_init} is explicitly set to \type {false}. In all other cases, the normal
 values from \type {texmf.cnf} are used.
 
 \section{The \type {texio} library}
@@ -1560,7 +1565,8 @@ texio.write(<string> s, ...)
 Without the \type {target} argument, writes all given strings to the same
 location(s) \TEX\ writes messages to at this moment. If \prm {batchmode} is in
 effect, it writes only to the log, otherwise it writes to the log and the
-terminal. The optional \type {target} can be one of three possibilities: \type {term}, \type {log} or \type {term and log}.
+terminal. The optional \type {target} can be one of three possibilities: \type
+{term}, \type {log} or \type {term and log}.
 
 Note: If several strings are given, and if the first of these strings is or might
 be one of the targets above, the \type {target} must be specified explicitly to
@@ -1592,7 +1598,7 @@ zero.
 The token library provides means to intercept the input and deal with it at the
 \LUA\ level. The library provides a basic scanner infrastructure that can be used
 to write macros that accept a wide range of arguments. This interface is on
-purpose kept general and as performance is quite ok one can build additional
+purpose kept general and as performance is quite ok. One can build additional
 parsers without too much overhead. It's up to macro package writers to see how
 they can benefit from this as the main principle behind \LUATEX\ is to provide a
 minimal set of tools and no solutions. The functions provided in the \type
@@ -1601,13 +1607,13 @@ minimal set of tools and no solutions. The functions provided in the \type
 \starttabulate[|l|l|p|]
 \DB function            \BC argument           \BC result \NC \NR
 \TB
-\NC \type{is_token}     \NC token              \NC checks if the given argument is a token userdatum \NC \NR
+\NC \type{is_token}     \NC token              \NC checks if the given argument is a token \NC \NR
 \NC \type{get_next}     \NC                    \NC returns the next token in the input \NC \NR
 \NC \type{scan_keyword} \NC string             \NC returns true if the given keyword is gobbled \NC \NR
 \NC \type{scan_int}     \NC                    \NC returns a number \NC \NR
 \NC \type{scan_dimen}   \NC infinity, mu-units \NC returns a number representing a dimension and or two numbers being the filler and order \NC \NR
 \NC \type{scan_glue}    \NC mu-units           \NC returns a glue spec node \NC \NR
-\NC \type{scan_toks}    \NC definer, expand    \NC returns a table of tokens token list (this can become a linked list in later releases) \NC \NR
+\NC \type{scan_toks}    \NC definer, expand    \NC returns a table of tokens tokens \NC \NR
 \NC \type{scan_code}    \NC bitset             \NC returns a character if its category is in the given bitset (representing catcodes) \NC \NR
 \NC \type{scan_string}  \NC                    \NC returns a string given between \type {{}}, as \type {\macro} or as sequence of characters with catcode 11 or 12 \NC \NR
 \NC \type{scan_word}    \NC                    \NC returns a sequence of characters with catcode 11 or 12 as string \NC \NR
@@ -1618,14 +1624,13 @@ minimal set of tools and no solutions. The functions provided in the \type
 \stoptabulate
 
 The scanners can be considered stable apart from the one scanning for a token.
-This is because futures releases can return a linked list instead of a table (as
-with nodes). The \type {scan_code} function takes an optional number, the \type {keyword} function a normal \LUA\ string. The \type {infinity} boolean signals
-that we also permit \type {fill} as dimension and the \type {mu-units} flags the
-scanner that we expect math units. When scanning tokens we can indicate that we
-are defining a macro, in which case the result will also provide information
-about what arguments are expected and in the result this is separated from the
-meaning by a separator token. The \type {expand} flag determines if the list will
-be expanded.
+The \type {scan_code} function takes an optional number, the \type {keyword}
+function a normal \LUA\ string. The \type {infinity} boolean signals that we also
+permit \type {fill} as dimension and the \type {mu-units} flags the scanner that
+we expect math units. When scanning tokens we can indicate that we are defining a
+macro, in which case the result will also provide information about what
+arguments are expected and in the result this is separated from the meaning by a
+separator token. The \type {expand} flag determines if the list will be expanded.
 
 The string scanner scans for something between curly braces and expands on the
 way, or when it sees a control sequence it will return its meaning. Otherwise it
@@ -1642,6 +1647,8 @@ following definition:
 we get:
 
 \starttabulate[|l|Tl|l|]
+\DB name \BC result \NC \NR
+\TB
 \NC \type {\directlua{token.scan_string()}{foo}} \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")} {foo} \NC full expansion \NC \NR
 \NC \type {\directlua{token.scan_string()}foo}   \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")} foo   \NC letters and others \NC \NR
 \NC \type {\directlua{token.scan_string()}\foo}  \NC \directlua{context("{\\red\\type {"..token.scan_string().."}}")}\foo   \NC meaning \NC \NR
@@ -1650,7 +1657,7 @@ we get:
 
 The \type {\foo} case only gives the meaning, but one can pass an already
 expanded definition (\prm {edef}'d). In the case of the braced variant one can of
-course use the \prm {detokenize} and \prm {unexpanded} primitives as there we
+course use the \prm {detokenize} and \prm {unexpanded} primitives since there we
 do expand.
 
 The \type {scan_word} scanner can be used to implement for instance a number scanner:
@@ -1674,6 +1681,8 @@ This gives back a token object that has the properties of the \prm {relax}
 primitive. The possible properties of tokens are:
 
 \starttabulate[|l|p|]
+\DB name \BC explanation \NC \NR
+\TB
 \NC \type {command}    \NC a number representing the internal command number \NC \NR
 \NC \type {cmdname}    \NC the type of the command (for instance the catcode in case of a
                            character or the classifier that determines the internal
@@ -1737,13 +1746,13 @@ argument(s). For the second method you need to look at the \LUA\ code to see wha
 gets picked up. Instead of passing from \TEX\ to \LUA\ we let \LUA\ fetch from
 the input stream.
 
-In the first case the input is tokenized and then turned into a string when it's
-passed to \LUA\ where it gets interpreted. In the second case only a function
+In the first case the input is tokenized and then turned into a string, then it
+is passed to \LUA\ where it gets interpreted. In the second case only a function
 call gets interpreted but then the input is picked up by explicitly calling the
 scanner functions. These return proper \LUA\ variables so no further conversion
 has to be done. This is more efficient but in practice (given what \TEX\ has to
-do) this effect should not be overestimated. For numbers and dimensions it saves a
-bit but for passing strings conversion to and from tokens has to be done anyway
+do) this effect should not be overestimated. For numbers and dimensions it saves
+a bit but for passing strings conversion to and from tokens has to be done anyway
 (although we can probably speed up the process in later versions if needed).
 
 \subsection{Macros}
@@ -1936,7 +1945,7 @@ local kpathsea = kpse.new(<string> name, <string> progname)
 Apart from these two functions, the calling conventions of the interfaces are
 identical. Depending on the chosen interface, you either call \type
 {kpse.find_file()} or \type {kpathsea:find_file()}, with identical arguments and
-return vales.
+return values.
 
 \subsection{\type {find_file}}
 
@@ -2054,7 +2063,7 @@ It returns a string for each found file.
 The options match commandline arguments from \type {kpsewhich}:
 
 \starttabulate[|l|l|p|]
-\DB key              \BC type     \BC description \NC \NR
+\DB key              \BC type     \BC explanation \NC \NR
 \TB
 \NC \type{debug}     \NC number   \NC set debugging flags for this lookup\NC     \NR
 \NC \type{format}    \NC string   \NC use specific file type (see list above)\NC \NR

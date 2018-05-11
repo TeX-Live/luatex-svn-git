@@ -52,7 +52,7 @@ In this mode, \LUATEX\ is exactly like \type {luac} from the stand alone \LUA\
 distribution, except that it does not have the \type {-l} switch, and that it
 accepts (but ignores) the \type {--luaconly} switch. The current version of \LUA\
 can dump bytecode using \type {string.dump} so we might decide to drop this
-version if \LUATEX.
+version of \LUATEX.
 
 \subsection{Other commandline processing}
 
@@ -136,7 +136,7 @@ any other \WEBC|-|based typesetting engine, except that \LUATEX\ has a few extra
 switches and lacks some others. Also, if the \type {--lua} option is present,
 \LUATEX\ will enter an alternative mode of command line processing in comparison
 to the standard \WEBC\ programs. In this mode, a small series of actions is taken
-in order.
+in the following order:
 
 \startitemize[n]
 
@@ -160,6 +160,8 @@ in order.
     \LUA\ commands that can easily be abused by a malicious document. At the
     moment, \type {--safer} \type {nil}s the following functions:
 
+    \blank
+
     \starttabulate[|c|l|]
         \DB library     \BC functions \NC \NR
         \TB
@@ -171,18 +173,20 @@ in order.
         \LL
     \stoptabulate
 
+    \blank
+
     Furthermore, it disables loading of compiled \LUA\ libraries and it makes
     \type {io.open()} fail on files that are opened for anything besides reading.
 \stopitem
 
 \startitem
-    When \LUATEX\ starts it set the locale to a neutral value. If for some reason
-    you use \type {os.locale}, you need to make sure you \type {nil} it
-    afterwards because otherwise it can interfere with code that for instance
-    generates dates. You can nil the locale with
+    When \LUATEX\ starts it sets the \type {locale} to a neutral value. If for
+    some reason you use \type {os.locale}, you need to make sure you \type {nil}
+    it afterwards because otherwise it can interfere with code that for instance
+    generates dates. You can ignore the \type {locale} with:
 
     \starttyping
-    os.setlocale(nil.nil)
+    os.setlocale(nil,nil)
     \stoptyping
 
     The \type {--nosocket} option makes the socket library unavailable, so that \LUA\
@@ -296,19 +300,19 @@ the command line option \type {--luaonly} was not given), it will only run the
 four functions above if the matching \type {texmf.cnf} variable(s) or their \type
 {texconfig} (see \in {section} [texconfig]) counterparts allow execution of the
 requested system command. In \quote {script interpreter} runs of \LUATEX, these
-settings have no effect, and all four functions function as normal.
+settings have no effect, and all four functions have their original meaning.
 
-Some libraries have a few more functions, either coded in \CCODE\ or in \LUA.
-For instance, when we started with \LUATEX\ we added some helpers to the \type
+Some libraries have a few more functions, either coded in \CCODE\ or in \LUA. For
+instance, when we started with \LUATEX\ we added some helpers to the \type
 {luafilesystem} namespace \type {lfs}. The two boolean functions \type
 {lfs.isdir} and \type {lfs.isfile} were speedy and better variants of what could
 be done with \type {lfs.attributes}. The additional function \type
 {lfs.shortname} takes a file name and returns its short name on \type {win32}
 platforms. Finally, for non|-|\type {win32} platforms only, we provided \type
 {lfs.readlink} that takes an existing symbolic link as argument and returns its
-name. However, the \type library evolved sop now we dropped these in favour of
-pure \LUA\ variants. The \type {shortname} helper is considered obsolete and now
-just returns the name.
+name. However, the \type library evolved so we have dropped these in favour of
+pure \LUA\ variants. The \type {shortname} helper is obsolete and now just
+returns the name.
 
 The \type {string} library has a few extra functions like \type
 {string.explode(s[,m])}. This function returns an array containing the string
@@ -514,7 +518,7 @@ The \type {os} library has a few extra functions and variables:
 \startitem
     \type {os.uname()} returns a table with specific operating system
     information acquired at runtime. The keys in the returned table are all
-    string valued, and their names are: \type {sysname}, \type {machine}, \type
+    string values, and their names are: \type {sysname}, \type {machine}, \type
     {release}, \type {version}, and \type {nodename}.
 \stopitem
 
@@ -627,7 +631,7 @@ complementary entry \type {use_utc_time} in the \type {texconfig} table.
 
 There is some control possible, for instance prevent filename to be written to
 the \PDF\ file. This is discussed elsewhere. In \CONTEXT\ we provide the command
-line argument \type {--nodates} that does bit more disabling of dates.
+line argument \type {--nodates} that does a bit more disabling of dates.
 
 \stopchapter
 

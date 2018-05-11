@@ -16,7 +16,7 @@ It took about a decade to reach stable version 1.0, but for good reason.
 Successive versions brought new functionality, more control, some cleanup of
 internals. Experimental features evolved into stable ones or were dropped.
 Already quite early \LUATEX\ could be used for production and it was used on a
-daily basis by the authors. Successive versions sometimes demanded a adaption to
+daily basis by the authors. Successive versions sometimes demanded an adaption to
 the \LUA\ interfacing, but the concepts were unchanged. The current version can
 be considered stable in functionality and there will be no fundamental changes.
 Of course we then can decide to move towards version 2.00 with different
@@ -51,13 +51,13 @@ code in \TEX\ engines (especially code that is not needed any longer).
     \startitem
         We started out with most of \PDFTEX\ version 1.40.9. The code base was
         converted to \CCODE\ and split in modules. Experimental features were
-        been removed and utility macros are not inherited because their
-        functionality can be programmed in \LUA. The number of backend interface
-        commands has been reduced to a few. The so called extensions are
-        separated from the core (which we try to keep close to the original \TEX\
-        core). Some mechanisms like expansion and protrusion can behave different
-        from the original due to some cleanup and optimization. Some whatsit
-        based functionality (image support and reusable content) is now core
+        removed and utility macros are not inherited because their functionality
+        can be programmed in \LUA. The number of backend interface commands has
+        been reduced to a few. The so called extensions are separated from the
+        core (which we try to keep close to the original \TEX\ core). Some
+        mechanisms like expansion and protrusion can behave different from the
+        original due to some cleanup and optimization. Some whatsit based
+        functionality (image support and reusable content) is now core
         functionality. We don't stay in sync with \PDFTEX\ development.
     \stopitem
     \startitem
@@ -111,7 +111,7 @@ code in \TEX\ engines (especially code that is not needed any longer).
 \stopitemize
 
 We try to keep upcoming versions compatible but intermediate releases can contain
-experimental features. A general rule is that versions that end up on \TEX live
+experimental features. A general rule is that versions that end up on \TEXLIVE\
 and|/|or are released around \CONTEXT\ meetings are stable. Future versions will
 probably become a bit leaner and meaner. Some libraries might become external as
 we don't want to bloat the binary and also don't want to add more hard coded

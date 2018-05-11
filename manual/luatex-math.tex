@@ -30,7 +30,7 @@ possible, \LUATEX\ adds the new primitive: \lpr {mathstyle}. This is a \quote
 not set.
 
 The returned value is between 0 and 7 (in math mode), or $-1$ (all other modes).
-For easy testing, the eight math style commands have been altered so that the can
+For easy testing, the eight math style commands have been altered so that they can
 be used as numeric values, so you can write code like this:
 
 \starttyping
@@ -164,7 +164,7 @@ two now allow for a 21-bit character argument on the left hand side of the equal
 sign.
 
 Some of the new \LUATEX\ primitives read more than one separate value. This is
-shown in the tables below by a plus sign in the second column.
+shown in the tables below by a plus sign.
 
 The input for such primitives would look like this:
 
@@ -229,13 +229,12 @@ Specifications typically look like:
 
 The new primitives that deal with delimiter|-|style objects do not set up a
 \quote {large family}. Selecting a suitable size for display purposes is expected
-to be dealt with by the font via the \lpr {Umathoperatorsize} parameter (more
-information can be found in a following section).
+to be dealt with by the font via the \lpr {Umathoperatorsize} parameter.
 
 For some of these primitives, all information is packed into a single signed
 integer. For the first two (\lpr {Umathcharnum} and \lpr {Umathcodenum}), the
 lowest 21 bits are the character code, the 3 bits above that represent the math
-class, and the family data is kept in the topmost bits This means that the values
+class, and the family data is kept in the topmost bits. This means that the values
 for math families 128--255 are actually negative. For \lpr {Udelcodenum} there
 is no math class. The math family information is stored in the bits directly on
 top of the character code. Using these three commands is not as natural as using
@@ -304,9 +303,9 @@ are described as follows:
 \stopitemize
 
 In \LUATEX\ one can set the styles in more detail which means that you sometimes
-have to set both normal and cramped styles to get the effect you want. If we
-force styles in the script using \prm {scriptstyle} and \lpr {crampedscriptstyle}
-we get this:
+have to set both normal and cramped styles to get the effect you want. (Even) if
+we force styles in the script using \prm {scriptstyle} and \lpr
+{crampedscriptstyle} we get this:
 
 \startbuffer[demo]
 \starttabulate
@@ -330,7 +329,7 @@ Now we set the following parameters
 
 \typebuffer[setup]
 
-This gives:
+This gives a different result:
 
 \start\getbuffer[setup,demo]\stop
 
@@ -355,7 +354,7 @@ Now we get:
 
 In \LUATEX, the font dimension parameters that \TEX\ used in math typesetting are
 now accessible via primitive commands. In fact, refactoring of the math engine
-has resulted in many more parameters than were accessible before.
+has resulted in many more parameters than were not accessible before.
 
 \starttabulate
 \DB primitive name                   \BC description \NC \NR
@@ -433,7 +432,7 @@ needed.
 
 The injection of \prm {abovedisplayskip} and \prm {belowdisplayskip} is not
 symmetrical. An above one is always inserted, also when zero, but the below is
-only inserted when larger than zero. Especially the later makes it sometimes hard
+only inserted when larger than zero. Especially the latter makes it sometimes hard
 to fully control spacing. Therefore \LUATEX\ comes with a new directive: \lpr
 {mathdisplayskipmode}. The following values apply:
 
@@ -463,7 +462,7 @@ case no attention is paid to which family is being assigned to: the \type
 {MathConstants} tables in the last assigned family sets all parameters.
 
 In the table below, the one|-|letter style abbreviations and symbolic tfm font
-dimension names match those using in the \TeX book. Assignments to \prm
+dimension names match those used in the \TeX book. Assignments to \prm
 {textfont} set the values for the cramped and uncramped display and text styles,
 \prm {scriptfont} sets the script styles, and \prm {scriptscriptfont} sets the
 scriptscript styles, so we have eight parameters for three font sizes. In the
@@ -574,7 +573,7 @@ scaled point more than the initial attempt's size, so that always the \quote
 {first next} will be tried, just like in \TEX82.
 
 Note 7: The \lpr {Umathradicaldegreeraise} is a special case because it is the
-only parameter that is expressed in a percentage instead of as a number of scaled
+only parameter that is expressed in a percentage instead of a number of scaled
 points.
 
 Note 8: \type {SubscriptShiftDownWithSuperscript} does not actually exist in the
@@ -593,10 +592,10 @@ There are two extra math parameters \lpr {Umathnolimitsupfactor} and \lpr
 {Umathnolimitsubfactor} that were added to provide some control over how limits
 are spaced (for example the position of super and subscripts after integral
 operators). They relate to an extra parameter \lpr {mathnolimitsmode}. The half
-corrections are what happens when scripts are placed on above and below. The
+corrections are what happens when scripts are placed above and below. The
 problem with italic corrections is that officially that correction italic is used
 for above|/|below placement while advanced kerns are used for placement at the
-right end. The question is: how often is this implemented, and if so, does the
+right end. The question is: how often is this implemented, and if so, do the
 kerns assume correction too. Anyway, with this parameter one can control it.
 
 \starttabulate[|l|ck1|ck1|ck1|ck1|ck1|ck1|]
@@ -678,10 +677,10 @@ math is bound to fuzzy rules. So, control is the solution.
 \topicindex {math+kerning}
 \topicindex {math+scripts}
 
-If you want typeset text in math macro packages often provide something \type
+If you want to typeset text in math macro packages often provide something \type
 {\text} which obeys the script sizes. As the definition can be anything there is
-a good change that the kerning doesn't come out well when used in a script. Given
-that the first glyph ends up in an \prm {hbox} we have some control over this.
+a good chance that the kerning doesn't come out well when used in a script. Given
+that the first glyph ends up in a \prm {hbox} we have some control over this.
 And, as a bonus we also added control over the normal sublist kerning. The \lpr
 {mathscriptboxmode} parameter defaults to~1.
 
@@ -769,7 +768,7 @@ The \lpr {mathdelimitersmode} primitive is experimental and deals with the
 following (potential) problems. Three bits can be set. The first bit prevents an
 unwanted shift when the fence symbol is not scaled (a cambria side effect). The
 second bit forces italic correction between a preceding character ordinal and the
-fenced subformula, while the third bit turns that subformula into a ordinary so
+fenced subformula, while the third bit turns that subformula into an ordinary so
 that the same spacing applies as with unfenced variants. Here we show Cambria
 (with \lpr {mathitalicsmode} enabled).
 
@@ -791,7 +790,7 @@ that the same spacing applies as with unfenced variants. Here we show Cambria
 So, when set to 7 fenced subformulas with unscaled delimiters come out the same
 as unfenced ones. This can be handy for cases where one is forced to use \prm
 {left} and \prm {right} always because of unpredictable content. As said, it's an
-experimental features (which somehow fits in the exceptional way fences are dealt
+experimental feature (which somehow fits in the exceptional way fences are dealt
 with in the engine). The full list of flags is given in the next table:
 
 \starttabulate[|c|l|]
@@ -799,7 +798,7 @@ with in the engine). The full list of flags is given in the next table:
 \TB
 \NC \type{"01} \NC don't apply the usual shift \NC \NR
 \NC \type{"02} \NC apply italic correction when possible \NC \NR
-\NC \type{"04} \NC force a ordinary subformula \NC \NR
+\NC \type{"04} \NC force an ordinary subformula \NC \NR
 \NC \type{"08} \NC no shift when a base character \NC \NR
 \NC \type{"10} \NC only shift when an extensible \NC \NR
 \LL
@@ -896,7 +895,7 @@ They are all initialized by \type {initex} to the values mentioned in the table
 in Chapter~18 of the \TEX book.
 
 Note 1: for ease of use as well as for backward compatibility, \prm {thinmuskip},
-\prm {medmuskip} and \prm {thickmuskip} are treated especially. In their case a
+\prm {medmuskip} and \prm {thickmuskip} are treated specially. In their case a
 pointer to the corresponding internal parameter is saved, not the actual \prm
 {muskip} value. This means that any later changes to one of these three
 parameters will be taken into account.
@@ -940,7 +939,7 @@ accentee. The accent will be shifted horizontally such that its own \type
 followed by its italic correction is used instead.
 
 The vertical placement of a top accent depends on the \type {x_height} of the
-font of the accentee (as explained in the \TEX book), but if value that turns out
+font of the accentee (as explained in the \TEX book), but if a value turns out
 to be zero and the font had a \type {MathConstants} table, then \type
 {AccentBaseHeight} is used instead.
 
@@ -1115,7 +1114,7 @@ will return:
 [2] [3] [4]
 \stoptyping
 
-These commands are provides as convenience. Before they came available you could
+These commands are provides as convenience. Before they come available you could
 do the following:
 
 \starttyping
@@ -1153,7 +1152,7 @@ The syntax used here is:
 
 where the options can be \type {noaxis} and \type {exact}. By default we add half
 the axis to the shifts and by default we zero the width of the middle character.
-For Latin Modern The result looks as follows:
+For Latin Modern the result looks as follows:
 
 \def\ShowA#1#2#3{$x + { {#1} \Uskewed           /    #3 {#2} } + x$}
 \def\ShowB#1#2#3{$x + { {#1} \Uskewedwithdelims / () #3 {#2} } + x$}
@@ -1276,7 +1275,7 @@ requested math family is used.
 
 \topicindex {math+spacing}
 
-Inline math is surrounded by (optional) \prm {mathsurround} spacing but that is fixed
+Inline math is surrounded by (optional) \prm {mathsurround} spacing but that is a fixed
 dimension. There is now an additional parameter \lpr {mathsurroundskip}. When set to a
 non|-|zero value (or zero with some stretch or shrink) this parameter will replace
 \prm {mathsurround}. By using an additional parameter instead of changing the nature
@@ -1358,11 +1357,11 @@ fields in a node when applicable in the first occasion that checks them
 Normally you will force delimiters to certain sizes by putting an empty box or
 rule next to it. The resulting delimiter will either be a character from the
 stepwise size range or an extensible. The latter can be quite differently
-positioned that the characters as it depends on the fit as well as the fact if
+positioned than the characters as it depends on the fit as well as the fact if
 the used characters in the font have depth or height. Commands like (plain \TEX
 s) \type {\big} need use this feature. In \LUATEX\ we provide a bit more control
-by three variants that supporting optional parameters \type {height}, \type
-{depth} and \type {axis}. The following example uses this:
+by three variants that support optional parameters \type {height}, \type {depth}
+and \type {axis}. The following example uses this:
 
 \startbuffer
 \Uleft   height 30pt depth 10pt      \Udelimiter "0 "0 "000028
@@ -1406,7 +1405,7 @@ We have three parameters that are used for this fixed anchoring:
 
 When we set \lpr {mathscriptsmode} to a value other than zero these are used
 for calculating fixed positions. This is something that is needed for instance
-for chemistry. You can manipulate the mentioned variables to achive different
+for chemistry. You can manipulate the mentioned variables to achieve different
 effects.
 
 \def\SampleMath#1%
@@ -1487,7 +1486,7 @@ there is a new primitive \lpr {mathoption} which will be used for testing.
 This option was introduced for testing purposes when the math engine got split
 code paths and it forces the engine to treat new fonts as old ones with respect
 to italic correction etc. There are no guarantees given with respect to the final
-result and unexpected side effects are not seens as bugs as they relate to font
+result and unexpected side effects are not seen as bugs as they relate to font
 properties.
 
 \startbuffer

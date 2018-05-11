@@ -81,10 +81,10 @@ The official \LUATEX\ version is defined as follows:
     its use with \prm {the} depending on the context.
 \stopitem
 \startitem
-    The minor version is the two-digit result of \lpr {luatexversion} modulo 100.
+    The minor version is the two|-|digit result of \lpr {luatexversion} modulo 100.
 \stopitem
 \startitem
-    The revision is the given by \lpr {luatexrevision}. This primitive expands to
+    The revision is reported by \lpr {luatexrevision}. This primitive expands to
     a positive integer.
 \stopitem
 \startitem
@@ -116,7 +116,7 @@ always converted to a suitable graphic representation of that character in a
 specific font. However, while processing a list of to|-|be|-|typeset nodes, its
 contents may still be seen as a character. Inside \LUATEX\ there is no clear
 separation between the two concepts. Because the subtype of a glyph node can be
-changed in \LUA\ it is up to the user: subtypes larger than 255 indicate that
+changed in \LUA\ it is up to the user. Subtypes larger than 255 indicate that
 font processing has happened.
 
 A few primitives are affected by this, all in a similar fashion: each of them has
@@ -124,15 +124,15 @@ to accommodate for a larger range of acceptable numbers. For instance, \prm
 {char} now accepts values between~0 and $1{,}114{,}111$. This should not be a
 problem for well|-|behaved input files, but it could create incompatibilities for
 input that would have generated an error when processed by older \TEX|-|based
-engines. The affected commands with an altered initial (left of the equals sign)
-or secondary (right of the equals sign) value are: \prm {char}, \prm {lccode},
+engines. The affected commands with an altered initial (left of the equal sign)
+or secondary (right of the equal sign) value are: \prm {char}, \prm {lccode},
 \prm {uccode}, \lpr {hjcode}, \prm {catcode}, \prm {sfcode}, \lpr {efcode}, \lpr
 {lpcode}, \lpr {rpcode}, \prm {chardef}.
 
 As far as the core engine is concerned, all input and output to text files is
 \UTF-8 encoded. Input files can be pre|-|processed using the \type {reader}
 callback. This will be explained in \in {section} [iocallback]. Normalization of
-the \UNICODE\ input is on purpose not built|-|in can be handled by a macro
+the \UNICODE\ input is on purpose not built|-|in and can be handled by a macro
 package during callback processing.
 
 Output in byte|-|sized chunks can be achieved by using characters just outside of
@@ -187,7 +187,7 @@ commands are:
 \stopfourcolumns
 
 Because font memory management has been rewritten, character properties in fonts
-are no longer shared among fonts instances that originate from the same metric
+are no longer shared among font instances that originate from the same metric
 file.
 
 \section{Attributes}
@@ -250,7 +250,7 @@ lines are broken into paragraphs, the lines are a linked list of \nod {hlist}
 nodes.
 
 We will see more of these nodes later on but for now that should be enough to be
-able to follow the rest oof this chapter.
+able to follow the rest of this chapter.
 
 \subsection{Box attributes}
 
@@ -458,10 +458,9 @@ sequence is fully expanded.
 \stopsyntax
 
 Most often, this command is not actually the best way to deal with the
-differences between the \TEX\ and \LUA. In very short bits of \LUA\
-code it is often not needed, and for longer stretches of \LUA\ code it
-is easier to keep the code in a separate file and load it using \LUA's
-\type {dofile}:
+differences between \TEX\ and \LUA. In very short bits of \LUA\ code it is often
+not needed, and for longer stretches of \LUA\ code it is easier to keep the code
+in a separate file and load it using \LUA's \type {dofile}:
 
 \starttyping
 \directlua { dofile('mysetups.lua') }
@@ -547,8 +546,8 @@ catcode regime in a single statement. You can have a practically unlimited numbe
 of different tables. This subsystem is backward compatible: if you never use the
 following commands, your document will not notice any difference in behaviour
 compared to traditional \TEX. The contents of each catcode table is independent
-from any other catcode tables, and their contents is stored and retrieved from
-the format file.
+from any other catcode table, and its contents is stored and retrieved from the
+format file.
 
 \subsection{\lpr {catcodetable}}
 
@@ -694,7 +693,7 @@ When set to a non|-|zero value the following command will not issue an error:
 We will cover math extensions in its own chapter because not only the font
 subsystem and spacing model have been enhanced (thereby introducing many new
 primitives) but also because some more control has been added to existing
-functionality. Much of this relates to the differences approaches of traditional
+functionality. Much of this relates to the different approaches of traditional
 \TEX\ fonts and \OPENTYPE\ math.
 
 \section{Fonts}
@@ -829,7 +828,7 @@ expand the passed general text.
 
 These are somewhat special. The \prm {csstring} primitive is like
 \prm {string} but it omits the leading escape character. This can be
-somewhat more efficient that stripping it of afterwards.
+somewhat more efficient than stripping it afterwards.
 
 The \lpr {begincsname} primitive is like \prm {csname} but doesn't create
 a relaxed equivalent when there is no such name. It is equivalent to
@@ -852,7 +851,7 @@ is one that should be used with care. The above example could be written as:
 
 This is slightly more efficient than constructing the string twice (deep down in
 \LUATEX\ this also involves some \UTF8 juggling), but probably more relevant is
-that it saves a few tokens and can make code a bit more more readable.
+that it saves a few tokens and can make code a bit more readable.
 
 \subsection{\lpr {clearmarks}}
 
@@ -874,7 +873,7 @@ This primitive can be used to assign a meaning to an active character, as in:
 \def\foo{bar} \letcharcode123=\foo
 \stoptyping
 
-This can be a bit nicer that using the uppercase tricks (using the property of
+This can be a bit nicer than using the uppercase tricks (using the property of
 \prm {uppercase} that it treats active characters special).
 
 \section{Boxes, rules and leaders}
@@ -904,7 +903,7 @@ The \prm {vsplit} primitive has to be followed by a specification of the require
 height. As alternative for the \type {to} keyword you can use \type {upto} to get
 a split of the given size but result has the natural dimensions then.
 
-\subsection[sec:imagedandforms]{Images and Forms}
+\subsection[sec:imagedandforms]{Images and reused box objects}
 
 These two concepts are now core concepts and no longer whatsits. They are in fact
 now implemented as rules with special properties. Normal rules have subtype~0,
@@ -920,7 +919,7 @@ should treat them as such and check for the current output mode if applicable.
 \DB command \BC explanation \NC \NR
 \TB
 \NC \lpr {saveboxresource}             \NC save the box as an object to be included later \NC \NR
-\NC \lpr {saveimageresource}           \NC save the image as an object to be includes later \NC \NR
+\NC \lpr {saveimageresource}           \NC save the image as an object to be included later \NC \NR
 \NC \lpr {useboxresource}              \NC include the saved box object here (by index) \NC \NR
 \NC \lpr {useimageresource}            \NC include the saved image object here (by index) \NC \NR
 \NC \lpr {lastsavedboxresourceindex}   \NC the index of the last saved box object \NC \NR
@@ -954,7 +953,7 @@ a \type {/Matrix}.
 Because introducing a new keyword can cause incompatibilities, two new primitives
 were introduced: \lpr {nohrule} and \lpr {novrule}. These can be used to
 reserve space. This is often more efficient than creating an empty box with fake
-dimensions).
+dimensions.
 
 \subsection{\lpr {gleaders}}
 
@@ -980,7 +979,7 @@ the value with the language.
 
 \subsection{\prm {boundary}, \prm {noboundary}, \prm {protrusionboundary} and \prm {wordboundary}}
 
-The \prm {noboundary} commands used to inject a whatsit node but now injects a normal
+The \prm {noboundary} command is used to inject a whatsit node but now injects a normal
 node with type \nod {boundary} and subtype~0. In addition you can say:
 
 \starttyping

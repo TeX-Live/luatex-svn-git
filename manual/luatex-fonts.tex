@@ -46,7 +46,7 @@ the table are as follows:
 \NC \type{header}           \NC yes \NC no  \NC no   \NC string     \NC header comments, if any \NC \NR
 \NC \type{hyphenchar}       \NC no  \NC no  \NC yes  \NC number     \NC default: \TEX's \prm {hyphenchar} \NC \NR
 \NC \type{parameters}       \NC no  \NC yes \NC yes  \NC hash       \NC default: 7 parameters, all zero \NC \NR
-\NC \type{size}             \NC no  \NC yes \NC yes  \NC number     \NC loaded (at) size. (default: same as designsize) \NC \NR
+\NC \type{size}             \NC no  \NC yes \NC yes  \NC number     \NC the required scaling (by default the same as designsize) \NC \NR
 \NC \type{skewchar}         \NC no  \NC no  \NC yes  \NC number     \NC default: \TEX's \prm {skewchar} \NC \NR
 \NC \type{type}             \NC yes \NC no  \NC yes  \NC string     \NC basic type of this font \NC \NR
 \NC \type{format}           \NC no  \NC no  \NC yes  \NC string     \NC disk format type \NC \NR
@@ -62,11 +62,11 @@ the table are as follows:
 \NC \type{cache}            \NC no  \NC no  \NC yes  \NC string     \NC This key controls caching of the \LUA\ table on the
                                                                         \TEX\ end where \type {yes} means: use a reference to
                                                                         the table that is passed to \LUATEX\ (this is the
-                                                                        default), and no \type {no} means: don't store the
+                                                                        default), and \type {no} means: don't store the
                                                                         table reference, don't cache any \LUA\ data for this
                                                                         font while \type {renew} means: don't store the table
                                                                         reference, but save a reference to the table that is
-                                                                        created at the first access to one of its fields in
+                                                                        created at the first access to one of its fields in the
                                                                         font. \NC \NR
 \NC \type{nomath}           \NC no  \NC no  \NC yes  \NC boolean    \NC This key allows a minor speedup for text fonts. If it
                                                                         is present and true, then \LUATEX\ will not check the
@@ -225,17 +225,20 @@ The following top|-|level keys can be present inside a character hash:
 \stoptabulate
 
 The values of \type {top_accent}, \type {bot_accent} and \type {mathkern} are
-used only for math accent and superscript placement, see the \at {math chapter}
-[math] in this manual for details. The values of \type {left_protruding} and
-\type {right_protruding} are used only when \lpr {protrudechars} is non-zero.
-Whether or not \type {expansion_factor} is used depends on the font's global
-expansion settings, as well as on the value of \lpr {adjustspacing}.
+used only for math accent and superscript placement, see \at {page} [math] in
+this manual for details. The values of \type {left_protruding} and \type
+{right_protruding} are used only when \lpr {protrudechars} is non-zero. Whether
+or not \type {expansion_factor} is used depends on the font's global expansion
+settings, as well as on the value of \lpr {adjustspacing}.
 
-The usage of \type {tounicode} is this: if this font specifies a \type {tounicode=1} at the top level, then \LUATEX\ will construct a \type {/ToUnicode}
-entry for the \PDF\ font (or font subset) based on the character|-|level \type {tounicode} strings, where they are available. If a character does not have a
+The usage of \type {tounicode} is this: if this font specifies a \type
+{tounicode=1} at the top level, then \LUATEX\ will construct a \type {/ToUnicode}
+entry for the \PDF\ font (or font subset) based on the character|-|level \type
+{tounicode} strings, where they are available. If a character does not have a
 sensible \UNICODE\ equivalent, do not provide a string either (no empty strings).
 
-If the font level \type {tounicode} is not set, then \LUATEX\ will build up \type {/ToUnicode} based on the \TEX\ code points you used, and any character-level
+If the font level \type {tounicode} is not set, then \LUATEX\ will build up \type
+{/ToUnicode} based on the \TEX\ code points you used, and any character-level
 \type {tounicodes} will be ignored. The string format is exactly the format that
 is expected by Adobe \CMAP\ files (\UTF-16BE in hexadecimal encoding), minus the
 enclosing angle brackets. For instance the \type {tounicode} for a \type {fi}
@@ -276,7 +279,7 @@ Each of those components is itself a hash of up to five keys:
 
 The \type {kerns} table is a hash indexed by character index (and \quote
 {character index} is defined as either a non|-|negative integer or the string
-value \type {right_boundary}), with the values the kerning to be applied, in
+value \type {right_boundary}), with the values of the kerning to be applied, in
 scaled points.
 
 The \type {ligatures} table is a hash indexed by character index (and \quote
@@ -369,7 +372,9 @@ If no special care is needed, \LUATEX\ falls back to the mapfile|-|based solutio
 used by \PDFTEX\ and \DVIPS, so that legacy fonts are supported transparently. If
 a \quote {wide} font is used, the new subsystem kicks in, and some extra fields
 have to be present in the font structure. In this case, \LUATEX\ does not use a
-map file at all. These extra fields are: \type {format}, \type {embedding}, \type {fullname}, \type {cidinfo} (as explained above), \type {filename}, and the \type {index} key in the separate characters.
+map file at all. These extra fields are: \type {format}, \type {embedding}, \type
+{fullname}, \type {cidinfo} (as explained above), \type {filename}, and the \type
+{index} key in the separate characters.
 
 The \type {format} variable can have the following values. \type {type3} fonts
 are provided for backward compatibility only, and do not support the new wide
@@ -399,7 +404,8 @@ Valid values for the \type {embedding} variable are:
 The other fields are used as follows. The \type {fullname} will be the
 \POSTSCRIPT|/|\PDF\ font name. The \type {cidinfo} will be used as the character
 set: the CID \type {/Ordering} and \type {/Registry} keys. The \type {filename}
-points to the actual font file. If you include the full path in the \type {filename} or if the file is in the local directory, \LUATEX\ will run a little
+points to the actual font file. If you include the full path in the \type
+{filename} or if the file is in the local directory, \LUATEX\ will run a little
 bit more efficient because it will not have to re|-|run the \type {find_*_file}
 callback in that case.
 
@@ -430,7 +436,7 @@ table from \cbk {define_font} as a virtual font:
 
 \startitemize[packed]
 \startitem
-    Set the top|-|level key \type {type} to \type {virtual}. I most cases it's
+    Set the top|-|level key \type {type} to \type {virtual}. In most cases it's
     optional because we look at the \type {commands} entry anyway.
 \stopitem
 \startitem
@@ -469,11 +475,11 @@ fonts = {
 }
 \stoptyping
 
-The the first referenced font (at index~1) in this virtual font is \type
-{ptrmr8a} loaded at 10pt, and the second is \type {psyr} loaded at a little over
-9pt. The third one is previously defined font that is known to \LUATEX\ as font
-id~38. The array index numbers are used by the character command definitions that
-are part of each character.
+The first referenced font (at index~1) in this virtual font is \type {ptrmr8a}
+loaded at 10pt, and the second is \type {psyr} loaded at a little over 9pt. The
+third one is a previously defined font that is known to \LUATEX\ as font id~38.
+The array index numbers are used by the character command definitions that are
+part of each character.
 
 The \type {commands} array is a hash where each item is another small array,
 with the first entry representing a command and the extra items being the
@@ -555,7 +561,7 @@ commands = {
 
 The default value for \type {font} is always~1 at the start of the
 \type {commands} array. Therefore, if the virtual font is essentially only a
-re|-|encoding, then you do usually not have create an explicit \quote {font}
+re|-|encoding, then you do usually not have created an explicit \quote {font}
 command in the array.
 
 Rules inside of \type {commands} arrays are built up using only two dimensions:
@@ -642,7 +648,7 @@ each time when a character is output.
 \topicindex {fonts+library}
 
 The font library provides the interface into the internals of the font system,
-and also it contains helper functions to load traditional \TEX\ font metrics
+and it also contains helper functions to load traditional \TEX\ font metrics
 formats. Other font loading functionality is provided by the \type {fontloader}
 library that will be discussed in the next section.
 
@@ -670,9 +676,6 @@ The number is a bit special:
 \stopitem
 \stopitemize
 
-The internal structure of the metrics font table that is returned is explained in
-\in {chapter} [fonts].
-
 \subsection{Loading a \VF\ file}
 
 \topicindex {fonts+vf}
@@ -699,8 +702,8 @@ font.fonts[n] = { ... }
 <table> f = font.fonts[n]
 \stoptyping
 
-See \in {chapter} [fonts] for the structure of the tables. Because this is a
-virtual array, you cannot call \type {pairs} on it, but see below for the \type {font.each} iterator.
+Because this is a virtual array, you cannot call \type {pairs} on it, but see
+below for the \type {font.each} iterator.
 
 The two metatable functions implementing the virtual array are:
 
@@ -709,9 +712,10 @@ The two metatable functions implementing the virtual array are:
 font.setfont(<number> n, <table> f)
 \stopfunctioncall
 
-Note that at the moment, each access to the \type {font.fonts} or call to \type {font.getfont} creates a \LUA\ table for the whole font. This process can be quite
-slow. In a later version of \LUATEX, this interface will change (it will start
-using userdata objects instead of actual tables).
+Note that at the moment, each access to the \type {font.fonts} or call to \type
+{font.getfont} creates a \LUA\ table for the whole font. This process can be
+quite slow. In a later version of \LUATEX, this interface will change (it will
+start using userdata objects instead of actual tables).
 
 Also note the following: assignments can only be made to fonts that have already
 been defined in \TEX, but have not been accessed {\it at all\/} since that
@@ -742,9 +746,8 @@ You can define your own font into \type {font.fonts} by calling this function:
 \stopfunctioncall
 
 The return value is the internal id number of the defined font (the index into
-\type {font.fonts}). If the font creation fails, an error is raised. The table
-is a font structure, as explained in \in {chapter} [fonts]. An alternative call
-is:
+\type {font.fonts}). If the font creation fails, an error is raised. The table is
+a font structure. An alternative call is:
 
 \startfunctioncall
 <number> i =

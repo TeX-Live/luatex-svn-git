@@ -206,7 +206,7 @@ the PDF, and the used memory will be cleaned up automatically.
 \stopfunctioncall
 
 If you say \type {a = b}, then both variables point to the same \type {<image>}
-object. if you want to write out an image with different sizes, you can do a
+object. if you want to write out an image with different sizes, you can do
 \type {b = img.copy(a)}.
 
 Afterwards, \type {a} and \type {b} still reference the same actual image
@@ -303,7 +303,7 @@ these are \type {pdf}, \type {png}, \type {jpg}, \type {jp2} (JPEG~2000), and
 
 This function returns a list with the supported \PDF\ page box names, currently
 these are \type {media}, \type {crop}, \type {bleed}, \type {trim}, and \type
-{art}, all in lowercase letters.
+{art}, all in lowercase.
 
 \section{The \type {mplib} library}
 
@@ -326,7 +326,7 @@ To create a new \METAPOST\ instance, call
 This creates the \type {mp} instance object. The argument hash can have a number
 of different fields, as follows:
 
-\starttabulate[|l|l|p|p|]
+\starttabulate[|l|l|pl|pl|]
 \DB name               \BC type     \BC description              \BC default           \NC \NR
 \TB
 \NC \type{error_line}  \NC number   \NC error line width         \NC 79                \NC \NR
@@ -377,7 +377,7 @@ closed. This means that when you have thousands of images on one page, your
 operating system might decide to abort the run. When you include more than one
 page from a \PDF\ file you can set the \type {keepopen} flag when you allocate an
 image object, or pass the \type {keepopen} directive when you refer to the image
-with \lpr {useimageresource} This only makes sense when you embed many pages.
+with \lpr {useimageresource}. This only makes sense when you embed many pages.
 An \prm {immediate} applied to \lpr {saveimageresource} will also force a
 close after inclusion.
 
@@ -518,7 +518,7 @@ accessible values. The types are: \type {fill}, \type {outline}, \type {text},
 \type {start_clip}, \type {stop_clip}, \type {start_bounds}, \type {stop_bounds},
 \type {special}.
 
-There is helper function (\type {mplib.fields(obj)}) to get the list of
+There is a helper function (\type {mplib.fields(obj)}) to get the list of
 accessible values for a particular object, but you can just as easily use the
 tables given below.
 

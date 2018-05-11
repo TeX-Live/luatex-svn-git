@@ -1,4 +1,4 @@
-% language=uk
+4% language=uk
 
 \environment luatex-style
 
@@ -24,7 +24,7 @@ most of the adapted ones.
 
 Besides the expected changes caused by new functionality, there are a number of
 not|-|so|-|expected changes. These are sometimes a side|-|effect of a new
-(conflicting) feature, or, more often than not, a change neccessary to clean up
+(conflicting) feature, or, more often than not, a change necessary to clean up
 the internal interfaces. These will also be mentioned.
 
 \stopsubsection
@@ -42,7 +42,7 @@ most still comes from the original. But we divert a bit.
     The current code base is written in \CCODE, not \PASCAL. We use \CWEB\ when
     possible. As a consequence instead of one large file plus change files, we
     now have multiple files organized in categories like \type {tex}, \type
-    {pdf}, \type {lang}, \type {font}, \type {lua}, etc. There are some artefacts
+    {pdf}, \type {lang}, \type {font}, \type {lua}, etc. There are some artifacts
     of the conversion to \CCODE, but in due time we will clean up the source code
     and make sure that the documentation is done right. Many files are in the
     \CWEB\ format, but others, like those interfacing to \LUA, are \CCODE\ files.
@@ -143,38 +143,38 @@ which in turn triggered renaming primitives.
 
 For compatibility reasons we still refer to \type {\pdf...} commands but \LUATEX\
 has a different backend interface. Instead of these primitives there are three
-interfacing primitives: \lpr {pdfextension}, \lpr {pdfvariable} and
-\lpr {pdffeedback} that take keywords and optional further arguments. This way
-we can extend the features when needed but don't need to adapt the core engine.
-The front- and backend are decoupled as much as possible.
+interfacing primitives: \lpr {pdfextension}, \lpr {pdfvariable} and \lpr
+{pdffeedback} that take keywords and optional further arguments (below we will
+still use the \tex {pdf} prefix names as reference). This way we can extend the
+features when needed but don't need to adapt the core engine. The front- and
+backend are decoupled as much as possible.
 
 \startitemize
 
 \startitem
     The (experimental) support for snap nodes has been removed, because it is
     much more natural to build this functionality on top of node processing and
-    attributes. The associated primitives that are gone are: \type
-    {\pdfsnaprefpoint}, \type {\pdfsnapy}, and \type {\pdfsnapycomp}.
+    attributes. The associated primitives that are gone are: \orm
+    {pdfsnaprefpoint}, \orm {pdfsnapy}, and \orm {pdfsnapycomp}.
 \stopitem
 
 \startitem
     The (experimental) support for specialized spacing around nodes has also been
-    removed. The associated primitives that are gone are: \type
-    {\pdfadjustinterwordglue}, \type {\pdfprependkern}, and \type
-    {\pdfappendkern}, as well as the five supporting primitives \type
-    {\knbscode}, \type {\stbscode}, \type {\shbscode}, \type {\knbccode}, and
-    \type {\knaccode}.
+    removed. The associated primitives that are gone are: \orm
+    {pdfadjustinterwordglue}, \orm {pdfprependkern}, and \orm {pdfappendkern}, as
+    well as the five supporting primitives \orm {knbscode}, \orm {stbscode}, \orm
+    {shbscode}, \orm {knbccode}, and \orm {knaccode}.
 \stopitem
 
 \startitem
     A number of \quote {\PDFTEX\ primitives} have been removed as they can be
-    implemented using \LUA: \type {\pdfelapsedtime}, \type {\pdfescapehex}, \type
-    {\pdfescapename}, \type {\pdfescapestring}, \type {\pdffiledump}, \type
-    {\pdffilemoddate}, \type {\pdffilesize}, \type {\pdfforcepagebox}, \type
-    {\pdflastmatch}, \type {\pdfmatch}, \type {\pdfmdfivesum}, \type
-    {\pdfmovechars}, \type {\pdfoptionalwaysusepdfpagebox}, \type
-    {\pdfoptionpdfinclusionerrorlevel}, \type {\pdfresettimer}, \type
-    {\pdfshellescape}, \type {\pdfstrcmp} and \type {\pdfunescapehex}
+    implemented using \LUA: \orm {pdfelapsedtime}, \orm {pdfescapehex}, \orm
+    {pdfescapename}, \orm {pdfescapestring}, \orm {pdffiledump}, \orm
+    {pdffilemoddate}, \orm {pdffilesize}, \orm {pdfforcepagebox}, \orm
+    {pdflastmatch}, \orm {pdfmatch}, \orm {pdfmdfivesum}, \orm {pdfmovechars},
+    \orm {pdfoptionalwaysusepdfpagebox}, \orm {pdfoptionpdfinclusionerrorlevel},
+    \orm {pdfresettimer}, \orm {pdfshellescape}, \orm {pdfstrcmp} and \orm
+    {pdfunescapehex}.
 \stopitem
 
 \startitem
@@ -186,7 +186,7 @@ The front- and backend are decoupled as much as possible.
 \startitem
     The experimental snapper mechanism has been removed and therefore also the
     primitives \orm {pdfignoreddimen}, \orm {pdffirstlineheight}, \orm
-    {pdfeachlineheight}, \orm {pdfeachlinedepth} and \orm {pdflastlinedepth}
+    {pdfeachlineheight}, \orm {pdfeachlinedepth} and \orm {pdflastlinedepth}.
 \stopitem
 
 \startitem
@@ -202,7 +202,7 @@ The front- and backend are decoupled as much as possible.
 \stopitem
 
 \startitem
-    Two extra token lists are provides, \orm {pdfxformresources} and \orm
+    Two extra token lists are provided, \orm {pdfxformresources} and \orm
     {pdfxformattr}, as an alternative to \orm {pdfxform} keywords.
 \stopitem
 
@@ -390,39 +390,39 @@ we say next applies to both these programs.
 \startitemize
 
 \startitem
-    The extended 16-bit math primitives (\type {\omathcode} etc.) have been
+    The extended 16-bit math primitives (\orm {omathcode} etc.) have been
     removed.
 \stopitem
 
 \startitem
     The \OCP\ processing has been removed completely and as a consequence, the
-    following primitives have been removed: \type {\ocp}, \type {\externalocp},
-    \type {\ocplist}, \type {\pushocplist}, \type {\popocplist}, \type
-    {\clearocplists}, \type {\addbeforeocplist}, \type {\addafterocplist}, \type
-    {\removebeforeocplist}, \type {\removeafterocplist} and \type
-    {\ocptracelevel}.
+    following primitives have been removed: \orm {ocp}, \orm {externalocp}, \orm
+    {ocplist}, \orm {pushocplist}, \orm {popocplist}, \orm {clearocplists}, \orm
+    {addbeforeocplist}, \orm {addafterocplist}, \orm {removebeforeocplist}, \orm
+    {removeafterocplist} and \orm {ocptracelevel}.
 \stopitem
 
 \startitem
-    \LUATEX\ only understands 4~of the 16~direction specifiers of \ALEPH: \type
-    {TLT} (latin), \type {TRT} (arabic), \type {RTT} (cjk), \type {LTL}
-    (mongolian). All other direction specifiers generate an error.
+    \LUATEX\ only understands 4~of the 16~direction specifiers of \ALEPH: \orm
+    {TLT} (latin), \orm {TRT} (arabic), \orm {RTT} (cjk), \orm {LTL} (mongolian).
+    All other direction specifiers generate an error. In addition to a keyword
+    driven model we also provide an integer driven one.
 \stopitem
 
 \startitem
     The input translations from \ALEPH\ are not implemented, the related
-    primitives are not available: \type {\DefaultInputMode}, \type
-    {\noDefaultInputMode}, \type {\noInputMode}, \type {\InputMode}, \type
-    {\DefaultOutputMode}, \type {\noDefaultOutputMode}, \type {\noOutputMode},
-    \type {\OutputMode}, \type {\DefaultInputTranslation}, \type
-    {\noDefaultInputTranslation}, \type {\noInputTranslation}, \type
-    {\InputTranslation}, \type {\DefaultOutputTranslation}, \type
-    {\noDefaultOutputTranslation}, \type {\noOutputTranslation} and \type
-    {\OutputTranslation}.
+    primitives are not available: \orm {DefaultInputMode}, \orm
+    {noDefaultInputMode}, \orm {noInputMode}, \orm {InputMode}, \orm
+    {DefaultOutputMode}, \orm {noDefaultOutputMode}, \orm {noOutputMode}, \orm
+    {OutputMode}, \orm {DefaultInputTranslation}, \orm
+    {noDefaultInputTranslation}, \orm {noInputTranslation}, \orm
+    {InputTranslation}, \orm {DefaultOutputTranslation}, \orm
+    {noDefaultOutputTranslation}, \orm {noOutputTranslation} and \orm
+    {OutputTranslation}.
 \stopitem
 
 \startitem
-    Several bugs have been fixed an confusing implementation details have been
+    Several bugs have been fixed and confusing implementation details have been
     sorted out.
 \stopitem
 
@@ -475,7 +475,7 @@ we say next applies to both these programs.
 \stopitem
 
 \startitem
-    The promotion of primitives to core primitives as well as the removed of all
+    The promotion of primitives to core primitives as well as removing of all
     others means that the initialization namespace \type {aleph} that early
     versions of \LUATEX\ provided is gone.
 \stopitem
@@ -548,7 +548,7 @@ order to separate the backend specific primitives in de code these commands are
 now replaced by only a few. In traditional \TEX\ we only had the \DVI\ backend
 but now we have two: \DVI\ and \PDF. Additional functionality is implemented as
 \quote {extensions} in \TEX\ speak. By separating more strickly we are able to
-keep the core (fontend) clean and stable and isolate these extensions. If for
+keep the core (frontend) clean and stable and isolate these extensions. If for
 some reason an extra backend option is needed, it can be implemented without
 touching the core. The three \PDF\ backend related primitives are:
 
@@ -563,7 +563,7 @@ a (kind of) register and can be read and written, while a feedback is reporting
 something (as it comes from the backend it's normally a sequence of tokens).
 
 In order for \LUATEX\ to be more than just \TEX\ you need to enable primitives. That
-has already be the case right from the start. If you want the traditional \PDFTEX\
+has already been the case right from the start. If you want the traditional \PDFTEX\
 primitives (for as far their functionality is still around) you now can do this:
 
 \starttyping
@@ -669,7 +669,7 @@ macro:->[internal backend integer]
 macro:->[internal backend tokenlist]
 \stoptyping
 
-The \prm {edef} can also be an \prm {def} but it's a bit more efficient
+The \prm {edef} can also be a \prm {def} but it's a bit more efficient
 to expand the lookup related register beforehand. After that you can adapt
 the defaults; these are:
 
@@ -1199,13 +1199,8 @@ structures, some of the macros have been duplicated. For instance, there are now
 {token_info}. All access to the variable memory array is now hidden behind a
 macro called \type {vmem}. We mention this because using the \TEX book as
 reference is still quite valid but not for memory related details. Another
-significate detail is that we have double linked node lists and that most nodes
+significant detail is that we have double linked node lists and that most nodes
 carry more data.
-
-The implementation of the growth of two arrays (via reallocation) introduces a
-potential pitfall: the memory arrays should never be used as the left hand side
-of a statement that can modify the array in question. Details like this are
-of no concern to users.
 
 The input line buffer and pool size are now also reallocated when needed, and the
 \type {texmf.cnf} settings \type {buf_size} and \type {pool_size} are silently
