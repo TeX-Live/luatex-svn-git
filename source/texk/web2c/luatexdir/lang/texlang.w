@@ -409,7 +409,6 @@ halfword insert_syllable_discretionary(halfword t, lang_variables * lan)
         }
         set_disc_field(pre_break(n), g);
     }
-
     if (lan->post_hyphen_char > 0) {
         t = vlink(n);
         g = raw_glyph_node();
@@ -589,6 +588,7 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
     langdata.post_hyphen_char = get_post_hyphen_char(clang);
     for (i = 0; i < len; i++) {
         if (uword[i + 1] == 0 ) {
+            /* we ran out of the exception pattern */
             break;
         } else if (uword[i + 1] == '-') {
             /* a hyphen follows */
@@ -597,74 +597,72 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
             insert_syllable_discretionary(t, &langdata);
             t = vlink(t);       /* skip the new disc */
         } else if (uword[i + 1] == '=') {
-            /* skip disc */
+            /* we skip a disc */
             t = vlink(t);
         } else if (uword[i + 1] == '{') {
+            /* we ran into an exception {}{}{} or {}{}{}[] */
             halfword gg, hh, replace = null;
             int repl;
+            /* pre */
             gg = find_exception_part(&i, uword, (int) len);
             if (i == len || uword[i + 1] != '{') {
                 tex_error("broken pattern 1", PAT_ERROR);
             }
+            /* post */
             hh = find_exception_part(&i, uword, (int) len);
             if (i == len || uword[i + 1] != '{') {
                 tex_error("broken pattern 2", PAT_ERROR);
             }
+            /* replace */
             repl = count_exception_part(&i, uword, (int) len);
             if (i == len) {
                 tex_error("broken pattern 3", PAT_ERROR);
             }
+            /* play safe */
             if (vlink(t) == r)
                 break;
+            /* let's deal with an (optional) replacement */
             if (repl > 0) {
-                /*
-                    we're before the injection and need to replace the replace match and as there can be disc
-                    nodes we just skip repl nodes ... if that gives a weird result so be it ... we cannot catch
-                    abuse
-                */
-                if (type(t) == glyph_node) {
-                    halfword q = t;
-                    halfword old = vlink(q);
-                    halfword tail = null;
-                    halfword temp;
-                    int j;
-                    for (j=0;j<repl;j++) {
-                        temp = copy_node(t);
-                        if (tail == null) {
-                            replace = temp;
-                            tail = temp;
-                            character(temp) = uword[i-repl+j];
-                        } else {
-                            try_couple_nodes(tail, temp);
-                            tail = temp;
-                        }
-                    }
-                    while (repl > 0 && q != null) {
-                        q = vlink(q);
+                /* assemble the replace stream */
+                halfword q = t;
+                replace = vlink(q);
+                while (repl > 0 && q != null) {
+                    q = vlink(q);
+                    if (type(q) == glyph_node || type(q) == disc_node) {
                         repl--;
-                    }
-                    if (q == null) {
-                        /*
-                            we ran out of nodes which is bad and shouldn't happen but one should use a sane
-                            pattern anyway so ...
-                        */
                     } else {
-                        try_couple_nodes(t, vlink(q));
+                        /* printf("WEIRD 1 %i\n",type(q)); */
+                        break ;
                     }
-                    /*
-                        as we can have some mix we just get rid of it
-                    */
-                    if (old != null) {
-                        vlink(q) = null;
-                        flush_list(old);
+                }
+                /* remove it from the main stream */
+                try_couple_nodes(t, vlink(q));
+                /* and finish it in the replace */
+                vlink(q) = null;
+                /* sanitize the replace stream (we could use the flattener instead) */
+                q = replace ;
+                while (q != null) {
+                    halfword n = vlink(q);
+                    if (type(q) == disc_node) {
+                        /* beware: the replacement starts after the no_break pointer */
+                        halfword r = vlink(no_break(q));
+                        vlink(no_break(q)) = null;
+                        alink(r) = null ;
+                        /* insert the replacement glyph */
+                        if (q == replace) {
+                            replace = r;
+                        } else {
+                            try_couple_nodes(alink(q),r);
+                        }
+                        /* append the glyph (one) */
+                        try_couple_nodes(r,n);
+                        /* flush the disc */
+                        flush_node(q);
                     }
-                } else {
-                    /*
-                        we're not at a glyph which is somewhat weird
-                    */
-                    break;
+                    q = n ;
                 }
             }
+            /* check if we have a penalty spec */
             if (((i+3) < len) && uword[i+1] == '[' && uword[i+2] >= '0' && uword[i+2] <= '9' && uword[i+3] == ']') {
                 if (exception_penalty_par > 0) {
                     if (exception_penalty_par > 100000) {
@@ -679,19 +677,19 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
             } else {
                 pen = hyphen_penalty_par;
             }
+            /* now insert a disc node */
             t = insert_discretionary(t, gg, hh, replace, pen);
-            /* skip the new disc */
+            /* skip the new disc node */
             t = vlink(t);
-            /* check if we have two in a row */
+            /* check if we have two exceptions in a row */
             if (uword[i + 1] == '{') {
                 i--;
-                /* printf("backtrack to %i\n",i); */
             }
         } else {
             t = vlink(t);
         }
-        /* safeguard */
-        if (vlink(t) == r) {
+        /* again place safe */
+        if (t == null || vlink(t) == r) {
             break;
         }
     }
