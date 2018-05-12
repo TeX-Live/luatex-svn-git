@@ -2530,7 +2530,7 @@ static void make_fraction(pointer q, int cur_style)
 
     scaled used_fam = math_rules_fam_par;
 
-    if (math_rule_thickness_mode_par > 0) {
+    if (math_rule_thickness_mode_par > 0 && thickness(q) != 0) {
         f = fraction_fam(q);
         if (f >= 0) {
             t = fam_fnt(f,cur_size);
