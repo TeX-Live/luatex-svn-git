@@ -1969,8 +1969,9 @@ static int lua_nodelib_direct_insert_before(lua_State * L)
         current = tail_of_list(head);
     if (head != current) {
         halfword t = alink(current);
-        if (t == null || vlink(t) != current)
+        if (t == null || vlink(t) != current) {
             set_t_to_prev(head, current);
+        }
         couple_nodes(t, n);
     }
     couple_nodes(n, current); /*  nice but incompatible: couple_nodes(tail_of_list(n),current) */
