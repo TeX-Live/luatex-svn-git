@@ -698,7 +698,7 @@ void confusion(const char *s)
         print_err("This can't happen (");
         tprint(s);
         print_char(')');
-        help1("I'm broken. Please show this to someone who can fix can fix");
+        help1("I'm broken. Please show this to someone who can fix");
     } else {
         print_err("I can't go on meeting you like this");
         help2("One of your faux pas seems to have wounded me deeply...",
