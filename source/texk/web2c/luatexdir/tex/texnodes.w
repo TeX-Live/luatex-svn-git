@@ -303,6 +303,7 @@ subtype_info node_subtypes_rule[] = {
 };
 
 subtype_info node_subtypes_glyph[] = {
+    { glyph_unset,     NULL, 0 },
     { glyph_character, NULL, 0 },
     { glyph_ligature,  NULL, 0 },
     { glyph_ghost,     NULL, 0 },
@@ -571,11 +572,12 @@ void l_set_node_data(void) {
     init_node_key(node_subtypes_rule,       math_radical_rule,             radical)
     init_node_key(node_subtypes_rule,       outline_rule,                  outline)
 
-    init_node_key(node_subtypes_glyph,      0,                             character)
-    init_node_key(node_subtypes_glyph,      1,                             ligature)
-    init_node_key(node_subtypes_glyph,      2,                             ghost)
-    init_node_key(node_subtypes_glyph,      3,                             left)
-    init_node_key(node_subtypes_glyph,      4,                             right)
+    init_node_key(node_subtypes_glyph,      0,                             unset)
+    init_node_key(node_subtypes_glyph,      1,                             character)
+    init_node_key(node_subtypes_glyph,      2,                             ligature)
+    init_node_key(node_subtypes_glyph,      3,                             ghost)
+    init_node_key(node_subtypes_glyph,      4,                             left)
+    init_node_key(node_subtypes_glyph,      5,                             right)
 
     init_node_key(node_subtypes_disc,       discretionary_disc,            discretionary)
     init_node_key(node_subtypes_disc,       explicit_disc,                 explicit)

@@ -739,6 +739,7 @@ typedef enum {
 #  define GLYPH_RIGHT         (1 << 4)
 
 typedef enum {
+    glyph_unset     = 0,
     glyph_character = GLYPH_CHARACTER,
     glyph_ligature  = GLYPH_LIGATURE,
     glyph_ghost     = GLYPH_GHOST,
