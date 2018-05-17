@@ -244,9 +244,13 @@ void initialize_commands(void)
     primitive_tex("setbox", set_box_cmd, 0, 0);
     primitive_tex("the", the_cmd, 0, 0);
     primitive_luatex("toksapp", combine_toks_cmd, 0, 0);
-    primitive_luatex("tokspre", combine_toks_cmd, 1, 0);
-    primitive_luatex("etoksapp", combine_toks_cmd, 2, 0);
+    primitive_luatex("etoksapp", combine_toks_cmd, 1, 0);
+    primitive_luatex("tokspre", combine_toks_cmd, 2, 0);
     primitive_luatex("etokspre", combine_toks_cmd, 3, 0);
+    primitive_luatex("gtoksapp", combine_toks_cmd, 4, 0);
+    primitive_luatex("xtoksapp", combine_toks_cmd, 5, 0);
+    primitive_luatex("gtokspre", combine_toks_cmd, 6, 0);
+    primitive_luatex("xtokspre", combine_toks_cmd, 7, 0);
     primitive_tex("toks", toks_register_cmd, 0, 0);
     primitive_tex("vadjust", vadjust_cmd, 0, 0);
     primitive_tex("valign", valign_cmd, 0, 0);

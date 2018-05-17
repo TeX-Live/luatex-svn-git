@@ -2103,6 +2103,8 @@ void ins_the_toks(void)
     ins_list(token_link(temp_token_head));
 }
 
+/* todo: global */
+
 #define set_toks_register(n,t,g) { \
     int a = (g>0) ? 4 : 0; \
     halfword ref = get_avail();  \
@@ -2111,9 +2113,35 @@ void ins_the_toks(void)
     define(n + toks_base, call_cmd, ref); \
 }
 
+#define append_copied_toks_list(s,t) \
+    halfword p = temp_token_head; \
+    halfword q; \
+    set_token_link(p, null); \
+    while (s != null) { \
+        fast_store_new_token(token_info(s)); \
+        s = token_link(s); \
+    } \
+    while (t != null) { \
+        fast_store_new_token(token_info(t)); \
+        t = token_link(t); \
+    }
+
+/*
+    0 toksapp   1 etoksapp
+    2 tokspre   3 etokspre
+
+    4 gtoksapp  5 xtoksapp
+    6 gtokspre  7 xtokspre
+*/
+
 void combine_the_toks(int how)
 {
-    halfword nt;
+    halfword source = null;
+    halfword target = null;
+    halfword append = (how == 0) || (how == 1) || (how == 4) || (how == 5);
+    halfword expand = odd(how);
+    halfword global = how > 3;
+    halfword nt, ns, s, t, p, q, h;
     get_x_token();
     /* target */
     if (cur_cmd == assign_toks_cmd) {
@@ -2121,7 +2149,7 @@ void combine_the_toks(int how)
         /* check range */
     } else {
         back_input();
-        scan_int();
+        scan_register_num();
         nt = cur_val;
     }
     /* source */
@@ -2129,99 +2157,114 @@ void combine_the_toks(int how)
         get_x_token();
     } while (cur_cmd == spacer_cmd);
     if (cur_cmd == left_brace_cmd) {
-        halfword x, source;
         back_input();
-        x = scan_toks(false,how > 1); /* expanded or not */
+        scan_toks(false,expand);
         source = def_ref;
         /* action */
         if (source != null) {
-            halfword target = toks(nt);
+            target = toks(nt);
             if (target == null) {
-                set_toks_register(nt,source,0);
+                set_toks_register(nt,source,global);
             } else {
-                halfword s = token_link(source);
+                s = token_link(source);
                 if (s != null) {
-                    halfword t = token_link(target);
+                    t = token_link(target);
                     if (t == null) {
                         /* can this happen ? */
                         set_token_link(target, s);
-                    } else if (odd(how)) {
-                        /* prepend */
-                        if (cur_level != eq_level_field(eqtb[toks_base+nt])) {
-                            halfword p = temp_token_head;
-                            halfword q;
-                            set_token_link(p, s); /* s = head, x = tail */
-                            p = x;
-                            while (t != null) {
-                                fast_store_new_token(token_info(t));
-                                t = token_link(t);
+                    } else if (append) {
+                        /* append */
+                        if (token_ref_count(target) == 1) {
+                            p = t;
+                            while (token_link(p) != null) {
+                                p = token_link(p);
                             }
-                            set_toks_register(nt,temp_token_head,0);
+                            while (s != null) {
+                                fast_store_new_token(token_info(s));
+                                s = token_link(s);
+                            }
                         } else {
-                            set_token_link(x,t);
-                            set_token_link(target,s);
+                            token_ref_count(target)--;
+                            append_copied_toks_list(t,s)
+                            set_toks_register(nt,temp_token_head,global);
                         }
                     } else {
-                        /* append */
-                        if (cur_level != eq_level_field(eqtb[toks_base+nt])) {
-                            halfword p = temp_token_head;
-                            halfword q;
-                            set_token_link(p, null);
-                            while (t != null) {
-                                fast_store_new_token(token_info(t));
-                                t = token_link(t);
+                        /* prepend */
+                        if (token_ref_count(target) == 1) {
+                            h = null;
+                            p = null ;
+                            while (s != null) {
+                                fast_store_new_token(token_info(s));
+                                if (h == null) {
+                                    h = p;
+                                }
+                                s = token_link(s);
                             }
-                            set_token_link(p,s);
-                            set_toks_register(nt,temp_token_head,0);
+                            set_token_link(p,t);
+                            set_token_link(target,h);
                         } else {
-                            while (token_link(t) != null) {
-                                t = token_link(t);
-                            }
-                            set_token_link(t,s);
+                            token_ref_count(target)--;
+                            append_copied_toks_list(s,t)
+                            set_toks_register(nt,temp_token_head,global);
                         }
                     }
                 }
             }
         }
     } else {
-        halfword source, ns;
         if (cur_cmd == assign_toks_cmd) {
             ns = equiv(cur_cs) - toks_base;
             /* check range */
         } else {
-            back_input();
-            scan_int();
+            scan_register_num();
             ns = cur_val;
         }
         /* action */
         source = toks(ns);
         if (source != null) {
-            halfword target = toks(nt);
+            target = toks(nt);
             if (target == null) {
+                /* assign */
+                token_ref_count(source)++;
                 equiv(toks_base+nt) = source;
-                equiv(toks_base+ns) = null;
-            } else {
-                halfword s = token_link(source);
-                if (s != null) {
-                    halfword t = token_link(target);
-                    if (t == null) {
-                        set_token_link(target, s);
-                    } else if (odd(how)) {
-                        /* prepend */
-                        halfword x = s;
-                        while (token_link(x) != null) {
-                            x = token_link(x);
-                        }
-                        set_token_link(x,t);
-                        set_token_link(target,s);
-                    } else {
-                        /* append */
-                        while (token_link(t) != null) {
-                            t = token_link(t);
-                        }
-                        set_token_link(t,s);
+                return;
+            }
+            s = token_link(source);
+            t = token_link(target);
+            if (append) {
+                /* append */
+                if (token_ref_count(target) == 1) {
+                    p = t;
+                    while (token_link(p) != null) {
+                        p = token_link(p);
                     }
-                     equiv(toks_base+ns) = null;
+                    while (s != null) {
+                        fast_store_new_token(token_info(s));
+                        s = token_link(s);
+                    }
+                } else {
+                    token_ref_count(target)--;
+                    append_copied_toks_list(t,s)
+                    set_toks_register(nt,temp_token_head,global);
+                }
+            } else {
+                /* prepend */
+                if (token_ref_count(target) == 1) {
+                    h = null;
+                    p = null;
+                    while (s != null) {
+                        fast_store_new_token(token_info(s));
+                        if (h == null) {
+                            h = p;
+                        }
+                        s = token_link(s);
+                    }
+                    set_token_link(p,t);
+                    set_token_link(target,h);
+                } else {
+                    token_ref_count(target)--;
+                    append_copied_toks_list(s,t)
+                    set_toks_register(nt,temp_token_head,global);
                 }
             }
         }
