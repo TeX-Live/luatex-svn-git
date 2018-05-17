@@ -295,12 +295,27 @@ int nodelib_getdir(lua_State * L, int n) /* the api public one */
 
 static int get_node_type_id_from_name(lua_State * L, int n, node_info * data)
 {
-    int j;
-    const char *s = lua_tostring(L, n);
-    for (j = 0; data[j].id != -1; j++) {
-/*        if (strcmp(s, data[j].name) == 0) { */
-        if (s == data[j].name) {
-            return j;
+    if (data != NULL) {
+        int j;
+        const char *s = lua_tostring(L, n);
+        for (j = 0; data[j].id != -1; j++) {
+            if (s == data[j].name) {
+                return j;
+            }
+        }
+    }
+    return -1;
+}
+
+static int get_node_subtype_id_from_name(lua_State * L, int n, subtype_info * data)
+{
+    if (data != NULL) {
+        int j;
+        const char *s = lua_tostring(L, n);
+        for (j = 0; data[j].id != -1; j++) {
+            if (s == data[j].name) {
+                return j;
+            }
         }
     }
     return -1;
@@ -312,7 +327,7 @@ static int get_valid_node_type_id(lua_State * L, int n)
     int t = lua_type(L, n);
     if (t == LUA_TSTRING) {
         i = get_node_type_id_from_name(L,n,node_data);
-        if (i<0) {
+        if (i < 0) {
             luaL_error(L, "invalid node type id: %s", lua_tostring(L, n));
         }
     } else if (t == LUA_TNUMBER) {
@@ -1663,7 +1678,7 @@ static halfword lua_nodelib_new_node(lua_State * L)
                 j = -1;
             }
         } else if (t == LUA_TSTRING) {
-            j = get_node_type_id_from_name(L,2,whatsit_node_data);
+            j = get_node_subtype_id_from_name(L,2,whatsit_node_data[i].subtypes);
         } else {
             j = -1;
         }
@@ -1673,7 +1688,7 @@ static halfword lua_nodelib_new_node(lua_State * L)
     } else if (t == LUA_TNUMBER) {
         j = (int) lua_tointeger(L, 2);
     } else if (t == LUA_TSTRING) {
-        j = get_node_type_id_from_name(L,2,node_data);
+        j = get_node_subtype_id_from_name(L,2,node_data[i].subtypes);
     } else {
         j = 0;
     }
@@ -2552,8 +2567,8 @@ static int lua_nodelib_mfont(lua_State * L)
     identifiers.  It has to do some more work, because not all
     identifiers are valid for all types of nodes.
 
-    If really needed we can optimize this one using a big if ..
-    .. else like with the getter and setter.
+    We can make this faster if needed but when this needs to
+    be called often something is wrong with the code.
 
 */
 
@@ -2583,16 +2598,19 @@ static int get_node_field_id(lua_State * L, int n, int node)
         }
     } else {
         int j;
-        const char **fields = node_data[t].fields;
+        field_info *fields ;
         if (t == whatsit_node) {
             fields = whatsit_node_data[subtype(node)].fields;
+        } else {
+            fields = node_data[t].fields;
         }
         if (lua_key_eq(s, list)) {
             s = lua_key(head);
         }
         if (fields != NULL) {
-            for (j = 0; fields[j] != NULL; j++) {
-                if (strcmp(s, fields[j]) == 0) {
+            for (j = 0; fields[j].lua != 0; j++) {
+             /* if (strcmp(s, fields[j]) == 0) { */
+                if (fields[j].name == s) {
                     return j + 3;
                 }
             }
@@ -2694,7 +2712,7 @@ static int lua_nodelib_fields(lua_State * L)
 {
     int i = -1;
     int offset = 2;
-    const char **fields;
+    field_info *fields;
     int t = get_valid_node_type_id(L, 1);
     if (t == whatsit_node) {
         t = get_valid_node_subtype_id(L, 2);
@@ -2718,8 +2736,9 @@ static int lua_nodelib_fields(lua_State * L)
         lua_rawseti(L, -2, -1);
     }
     if (fields != NULL) {
-        for (i = 0; fields[i] != NULL; i++) {
-            lua_pushstring(L, fields[i]); /* todo */
+        for (i = 0; fields[i].lua != 0; i++) {
+         /* lua_pushstring(L, fields[i]);*/ /* todo */
+            lua_rawgeti(L, LUA_REGISTRYINDEX, fields[i].lua);
             lua_rawseti(L, -2, (i + offset));
         }
     }
@@ -2729,7 +2748,7 @@ static int lua_nodelib_fields(lua_State * L)
 static int lua_nodelib_values(lua_State * L)
 {
     int i = -1;
-    const char **values = NULL;
+    subtype_info *values = NULL;
     const char *s ;
     int t = lua_type(L,1);
     if (t == LUA_TSTRING) {
@@ -2740,7 +2759,7 @@ static int lua_nodelib_values(lua_State * L)
         s = lua_tostring(L,1);
              if (lua_key_eq(s,dir))         values = node_values_dir;
         else if (lua_key_eq(s,direction))   values = node_values_dir;
-        else if (lua_key_eq(s,glue))        values = node_values_glue;
+        else if (lua_key_eq(s,glue))        values = node_values_fill;
         /* backend */
         else if (lua_key_eq(s,pdf_literal)) values = node_values_pdf_literal;
         else if (lua_key_eq(s,pdf_action))  values = node_values_pdf_action;
@@ -2752,9 +2771,9 @@ static int lua_nodelib_values(lua_State * L)
     if (values != NULL) {
         lua_checkstack(L, 2);
         lua_newtable(L);
-        for (i = 0; values[i] != NULL; i++) {
-            lua_pushstring(L, values[i]); /* todo */
-            lua_rawseti(L, -2, i);
+        for (i = 0; values[i].id >= 0 ; i++) {
+            lua_rawgeti(L, LUA_REGISTRYINDEX, values[i].lua);
+            lua_rawseti(L, -2, values[i].id);
         }
     } else {
         lua_pushnil(L);
@@ -2765,15 +2784,14 @@ static int lua_nodelib_values(lua_State * L)
 static int lua_nodelib_subtypes(lua_State * L)
 {
     int i = -1;
-    int l = 0;
-    const char **subtypes = NULL;
+    subtype_info *subtypes;
     const char *s ;
     int t = lua_type(L,1);
     if (t == LUA_TSTRING) {
         /* official accessors */
         s = lua_tostring(L,1);
              if (lua_key_eq(s,glyph))           subtypes = node_subtypes_glyph;
-        else if (lua_key_eq(s,glue))          { subtypes = node_subtypes_glue; l = 1; }
+        else if (lua_key_eq(s,glue))            subtypes = node_subtypes_glue;
         else if (lua_key_eq(s,dir))             subtypes = node_subtypes_dir;
         else if (lua_key_eq(s,boundary))        subtypes = node_subtypes_boundary;
         else if (lua_key_eq(s,penalty))         subtypes = node_subtypes_penalty;
@@ -2784,8 +2802,8 @@ static int lua_nodelib_subtypes(lua_State * L)
              ||  lua_key_eq(s,vlist))           subtypes = node_subtypes_list; /* too many but ok as reserved */
         else if (lua_key_eq(s,adjust))          subtypes = node_subtypes_adjust;
         else if (lua_key_eq(s,disc))            subtypes = node_subtypes_disc;
-        else if (lua_key_eq(s,fill))            subtypes = node_subtypes_fill;
-        else if (lua_key_eq(s,leader))        { subtypes = node_subtypes_leader; l = 2; }
+        else if (lua_key_eq(s,fill))            subtypes = node_values_fill;
+        else if (lua_key_eq(s,leader))          subtypes = node_subtypes_leader;
         else if (lua_key_eq(s,marginkern))      subtypes = node_subtypes_marginkern;
         else if (lua_key_eq(s,math))            subtypes = node_subtypes_math;
         else if (lua_key_eq(s,noad))            subtypes = node_subtypes_noad;
@@ -2793,13 +2811,13 @@ static int lua_nodelib_subtypes(lua_State * L)
         else if (lua_key_eq(s,accent))          subtypes = node_subtypes_accent;
         else if (lua_key_eq(s,fence))           subtypes = node_subtypes_fence;
         /* backend */
-        else if (lua_key_eq(s,pdf_destination)) subtypes = node_subtypes_pdf_destination;
-        else if (lua_key_eq(s,pdf_literal))     subtypes = node_subtypes_pdf_literal;
+        else if (lua_key_eq(s,pdf_destination)) subtypes = node_values_pdf_destination;
+        else if (lua_key_eq(s,pdf_literal))     subtypes = node_values_pdf_literal;
     } else if (t == LUA_TNUMBER) {
         /* maybe */
         t = lua_tointeger(L,1);
              if (t == glyph_node)               subtypes = node_subtypes_glyph;
-        else if (t == glue_node)              { subtypes = node_subtypes_glue; l = 1; }
+        else if (t == glue_node)                subtypes = node_subtypes_glue;
         else if (t == dir_node)                 subtypes = node_subtypes_dir;
         else if (t == boundary_node)            subtypes = node_subtypes_boundary;
         else if (t == penalty_node)             subtypes = node_subtypes_penalty;
@@ -2809,7 +2827,7 @@ static int lua_nodelib_subtypes(lua_State * L)
              || (t == vlist_node))              subtypes = node_subtypes_list;
         else if (t == adjust_node)              subtypes = node_subtypes_adjust;
         else if (t == disc_node)                subtypes = node_subtypes_disc;
-        else if (t == glue_spec_node)           subtypes = node_subtypes_fill;
+        else if (t == glue_spec_node)           subtypes = node_values_fill;
         else if (t == margin_kern_node)         subtypes = node_subtypes_marginkern;
         else if (t == math_node)                subtypes = node_subtypes_math;
         else if (t == simple_noad)              subtypes = node_subtypes_noad;
@@ -2817,29 +2835,15 @@ static int lua_nodelib_subtypes(lua_State * L)
         else if (t == accent_noad)              subtypes = node_subtypes_accent;
         else if (t == fence_noad)               subtypes = node_subtypes_fence;
         /* backend */
-        else if (t == pdf_dest_node)            subtypes = node_subtypes_pdf_destination;
-        else if (t == pdf_literal_node)         subtypes = node_subtypes_pdf_literal;
+        else if (t == pdf_dest_node)            subtypes = node_values_pdf_destination;
+        else if (t == pdf_literal_node)         subtypes = node_values_pdf_literal;
     }
     if (subtypes != NULL) {
         lua_checkstack(L, 2);
         lua_newtable(L);
-        if (l < 2) {
-            for (i = 0; subtypes[i] != NULL; i++) {
-                lua_pushstring(L, subtypes[i]); /* todo */
-                lua_rawseti(L, -2, i);
-            }
-        }
-        if (l > 0) {
-            /* add math states */
-            for (i = 0; node_subtypes_mathglue[i] != NULL; i++) {
-                lua_pushstring(L, node_subtypes_mathglue[i]); /* todo */
-                lua_rawseti(L, -2, 98 + i);
-            }
-            /* add leaders */
-            for (i = 0; node_subtypes_leader[i] != NULL; i++) {
-                lua_pushstring(L, node_subtypes_leader[i]); /* todo */
-                lua_rawseti(L, -2, 100 + i);
-            }
+        for (i = 0; subtypes[i].id >= 0 ; i++) {
+            lua_rawgeti(L, LUA_REGISTRYINDEX, subtypes[i].lua);
+            lua_rawseti(L, -2, subtypes[i].id);
         }
     } else {
         lua_pushnil(L);

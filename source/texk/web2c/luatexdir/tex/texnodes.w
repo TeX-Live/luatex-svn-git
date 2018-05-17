@@ -62,464 +62,1053 @@ halfword slow_get_node(int s);  /* defined below */
 
 #define variable_node_size 2
 
-/* core nodes */
+# define init_node_key(target,n,key) \
+    target[n].lua  = luaS_##key##_index; \
+    target[n].name = luaS_##key##_ptr;
 
-const char *node_fields_list[] = {
-    "attr", "width", "depth", "height", "dir", "shift", "glue_order", "glue_sign",
-    "glue_set", "head", NULL
-};
-const char *node_fields_rule[] = {
-    "attr", "width", "depth", "height", "dir", "index", "left", "right", NULL
-};
-const char *node_fields_insert[] = {
-    "attr", "cost", "depth", "height", "spec", "head", NULL
-};
-const char *node_fields_mark[] = {
-    "attr", "class", "mark", NULL
-};
-const char *node_fields_adjust[] = {
-    "attr", "head", NULL
-};
-const char *node_fields_disc[] = {
-    "attr", "pre", "post", "replace", "penalty", NULL
-};
-const char *node_fields_math[] = {
-    "attr", "surround", "width", "stretch", "shrink", "stretch_order", "shrink_order", NULL
-};
-const char *node_fields_glue[] = {
-    "attr", "leader", "width", "stretch", "shrink", "stretch_order", "shrink_order", NULL
-};
-const char *node_fields_kern[] = {
-    "attr", "kern", "expansion_factor", NULL
-};
-const char *node_fields_penalty[] = {
-    "attr", "penalty", NULL
-};
-const char *node_fields_unset[] = {
-    "attr", "width", "depth", "height", "dir", "shrink", "glue_order",
-    "glue_sign", "stretch", "span", "head", NULL
-};
-const char *node_fields_margin_kern[]  = {
-    "attr", "width", "glyph", NULL
-};
-const char *node_fields_glyph[] = {
-    "attr", "char", "font", "lang", "left", "right", "uchyph", "components",
-    "xoffset", "yoffset", "width", "height", "depth", "expansion_factor", NULL
-};
-const char *node_fields_inserting[] = {
-    "height", "last_ins_ptr", "best_ins_ptr",
-    "width", "stretch", "shrink", "stretch_order", "shrink_order", NULL
-};
-const char *node_fields_splitup[] = {
-    "height", "last_ins_ptr", "best_ins_ptr", "broken_ptr", "broken_ins", NULL
-};
-const char *node_fields_attribute[] = {
-    "number", "value", NULL
-};
-const char *node_fields_glue_spec[] = {
-    "width", "stretch", "shrink", "stretch_order", "shrink_order", NULL
-};
-const char *node_fields_attribute_list[] = {
-    NULL
-};
-const char *node_fields_local_par[] = {
-    "attr", "pen_inter", "pen_broken", "dir", "box_left", "box_left_width",
-    "box_right", "box_right_width", NULL
-};
-const char *node_fields_dir[] = {
-    "attr", "dir", "level", NULL
-};
-const char *node_fields_boundary[] = {
-    "attr", "value", NULL
-};
+# define init_field_key(target,n,key) \
+    target[n].lua  = luaS_##key##_index; \
+    target[n].name = luaS_##key##_ptr;
 
-/* math nodes */
+# define init_field_nop(target,n) \
+    target[n].lua  = 0; \
+    target[n].name = NULL;
 
-const char *node_fields_noad[] = {
-    "attr", "nucleus", "sub", "sup", NULL
-};
+field_info node_fields_accent[10];
+field_info node_fields_adjust[3];
+field_info node_fields_attribute[3];
+field_info node_fields_attribute_list[1];
+field_info node_fields_boundary[3];
+field_info node_fields_choice[6];
+field_info node_fields_delim[6];
+field_info node_fields_dir[4];
+field_info node_fields_disc[6];
+field_info node_fields_fence[8];
+field_info node_fields_fraction[10];
+field_info node_fields_glue[8];
+field_info node_fields_glue_spec[6];
+field_info node_fields_glyph[15];
+field_info node_fields_insert[7];
+field_info node_fields_inserting[9];
+field_info node_fields_kern[4];
+field_info node_fields_list[11];
+field_info node_fields_local_par[9];
+field_info node_fields_margin_kern[4];
+field_info node_fields_mark[4];
+field_info node_fields_math[8];
+field_info node_fields_math_char[4];
+field_info node_fields_math_text_char[4];
+field_info node_fields_noad[5];
+field_info node_fields_penalty[3];
+field_info node_fields_radical[9];
+field_info node_fields_rule[9];
+field_info node_fields_splitup[6];
+field_info node_fields_style[3];
+field_info node_fields_sub_box[3];
+field_info node_fields_sub_mlist[3];
+field_info node_fields_unset[12];
 
-const char *node_fields_style[] = {
-    "attr", "style", NULL
-};
-const char *node_fields_choice[] = {
-    "attr", "display", "text", "script", "scriptscript", NULL
-};
-const char *node_fields_radical[] = {
-    "attr", "nucleus", "sub", "sup", "left", "degree", "width", "options", NULL
-};
-const char *node_fields_fraction[] = {
-    "attr", "width", "num", "denom", "left", "right", "middle", "fam", "options", NULL
-};
-const char *node_fields_accent[] = {
-    "attr", "nucleus", "sub", "sup", "accent", "bot_accent", "top_accent",
-    "overlay_accent", "fraction", NULL
-};
-const char *node_fields_fence[] = {
-    "attr", "delim", "italic", "height", "depth", "options", "class", NULL
-};
-const char *node_fields_math_char[] = {
-    "attr", "fam", "char", NULL
-};
-const char *node_fields_sub_box[] = {
-    "attr", "head", NULL
-};
-const char *node_fields_sub_mlist[] = {
-    "attr", "head", NULL
-};
-const char *node_fields_math_text_char[] = {
-    "attr", "fam", "char", NULL
-};
-const char *node_fields_delim[] = {
-    "attr", "small_fam", "small_char", "large_fam", "large_char", NULL
-};
+field_info node_fields_whatsit_close[3];
+field_info node_fields_whatsit_late_lua[6];
+field_info node_fields_whatsit_open[6];
+field_info node_fields_whatsit_save_pos[2];
+field_info node_fields_whatsit_special[3];
+field_info node_fields_whatsit_user_defined[5];
+field_info node_fields_whatsit_write[4];
 
-/* whatsit nodes */
-
-const char *node_fields_whatsit_open[] = {
-    "attr", "stream", "name", "area", "ext", NULL
-};
-const char *node_fields_whatsit_write[] = {
-    "attr", "stream", "data", NULL
-};
-const char *node_fields_whatsit_close[] = {
-    "attr", "stream", NULL
-};
-const char *node_fields_whatsit_special[] = {
-    "attr", "data", NULL
-};
-const char *node_fields_whatsit_save_pos[] = {
-    "attr", NULL
-};
-const char *node_fields_whatsit_late_lua[] = {
-    "attr", "reg", "data", "name", "string", NULL
-};
-const char *node_fields_whatsit_user_defined[] = {
-    "attr", "user_id", "type", "value", NULL
-};
-
-/* pdf backend whatsit nodes */
-
-const char *node_fields_whatsit_pdf_literal[] = {
-    "attr", "mode", "data", NULL
-};
-const char *node_fields_whatsit_pdf_refobj[] = {
-    "attr", "objnum", NULL
-};
-const char *node_fields_whatsit_pdf_annot[] = {
-    "attr", "width", "depth", "height", "objnum", "data", NULL
-};
-const char *node_fields_whatsit_pdf_start_link[] = {
-    "attr", "width", "depth", "height", "objnum", "link_attr", "action", NULL
-};
-const char *node_fields_whatsit_pdf_end_link[] = {
-    "attr", NULL
-};
-const char *node_fields_whatsit_pdf_dest[] = {
-    "attr", "width", "depth", "height", "named_id", "dest_id", "dest_type",
-    "xyz_zoom", "objnum", NULL
-};
-const char *node_fields_whatsit_pdf_action[] = {
-    "action_type", "named_id", "action_id", "file", "new_window", "data", NULL
-};
-const char *node_fields_whatsit_pdf_thread[] = {
-    "attr", "width", "depth", "height",  "named_id", "thread_id", "thread_attr", NULL
-};
-const char *node_fields_whatsit_pdf_start_thread[] = {
-    "attr", "width", "depth", "height", "named_id", "thread_id", "thread_attr", NULL
-};
-const char *node_fields_whatsit_pdf_end_thread[] = {
-    "attr", NULL
-};
-const char *node_fields_whatsit_pdf_colorstack[] = {
-    "attr", "stack", "cmd", "data", NULL
-};
-const char *node_fields_whatsit_pdf_setmatrix[] = {
-    "attr", "data", NULL
-};
-const char *node_fields_whatsit_pdf_save[] = {
-    "attr", NULL
-};
-const char *node_fields_whatsit_pdf_restore[] = {
-    "attr", NULL
-};
+field_info node_fields_whatsit_pdf_action[7];
+field_info node_fields_whatsit_pdf_annot[7];
+field_info node_fields_whatsit_pdf_colorstack[5];
+field_info node_fields_whatsit_pdf_dest[10];
+field_info node_fields_whatsit_pdf_end_link[2];
+field_info node_fields_whatsit_pdf_end_thread[2];
+field_info node_fields_whatsit_pdf_literal[4];
+field_info node_fields_whatsit_pdf_refobj[3];
+field_info node_fields_whatsit_pdf_restore[2];
+field_info node_fields_whatsit_pdf_save[2];
+field_info node_fields_whatsit_pdf_setmatrix[3];
+field_info node_fields_whatsit_pdf_start_link[8];
+field_info node_fields_whatsit_pdf_start_thread[8];
+field_info node_fields_whatsit_pdf_thread[8];
 
 /* values */
 
-const char *node_values_dir[] = {
-    "TLT", "TRT", "LTL", "RTT", NULL
+subtype_info node_values_dir[] = {
+    { 0,  NULL, 0 },
+    { 1,  NULL, 0 },
+    { 2,  NULL, 0 },
+    { 3,  NULL, 0 },
+    { -1, NULL, 0 },
 };
 
-const char *node_values_glue[] = {
-    "normal", "fi", "fil", "fill", "filll", NULL
+subtype_info node_values_pdf_destination[] = {
+    { 0,  NULL, 0 },
+    { 1,  NULL, 0 },
+    { 2,  NULL, 0 },
+    { 3,  NULL, 0 },
+    { 4,  NULL, 0 },
+    { 5,  NULL, 0 },
+    { 6,  NULL, 0 },
+    { 7,  NULL, 0 },
+    { -1, NULL, 0 },
 };
 
-const char *node_values_pdf_literal[] = {
-    "origin", "page", "always", "raw", "text", "font", "special", NULL
+subtype_info node_values_pdf_action[] = {
+    { 0,  NULL, 0 },
+    { 1,  NULL, 0 },
+    { 2,  NULL, 0 },
+    { 3,  NULL, 0 },
+    { -1, NULL, 0 },
 };
 
-const char *node_values_pdf_action[] = {
-    "page", "goto", "thread", "user", NULL
+subtype_info node_values_pdf_window[] = {
+    { 0,  NULL, 0 },
+    { 1,  NULL, 0 },
+    { 2,  NULL, 0 },
+    { -1, NULL, 0 },
 };
 
-const char *node_values_pdf_window[] = {
-    "unset", "new","nonew", NULL
+subtype_info node_values_color_stack[] = {
+    { 0,  NULL, 0 },
+    { 1,  NULL, 0 },
+    { 2,  NULL, 0 },
+    { 3,  NULL, 0 },
+    { -1, NULL, 0 },
 };
 
-const char *node_values_color_stack[] = {
-    "set", "push", "pop", "current", NULL
+subtype_info node_values_fill[] = {
+    { normal, NULL, 0 },
+    { sfi,    NULL, 0 },
+    { fil,    NULL, 0 },
+    { fill,   NULL, 0 },
+    { filll,  NULL, 0 },
+    { -1,     NULL, 0 },
 };
 
-/* subtypes */
-
-const char *node_subtypes_dir[] = {
-    "normal", "cancel", NULL
-};
-const char *node_subtypes_glue[] = {
-    "userskip", "lineskip", "baselineskip", "parskip", "abovedisplayskip", "belowdisplayskip",
-    "abovedisplayshortskip", "belowdisplayshortskip", "leftskip", "rightskip", "topskip",
-    "splittopskip", "tabskip", "spaceskip", "xspaceskip", "parfillskip",
-    "mathskip", "thinmuskip", "medmuskip", "thickmuskip", NULL
-};
-const char *node_subtypes_mathglue[] = { /* 98+ */
-    "conditionalmathskip", "muglue", NULL
-};
-const char *node_subtypes_leader[] = { /* 100+ */
-    "leaders", "cleaders", "xleaders", "gleaders", NULL
-};
-const char *node_subtypes_fill[] = {
-    "stretch", "fi", "fil", "fill", "filll", NULL
-};
-const char *node_subtypes_boundary[] = {
-    "cancel", "user", "protrusion", "word", NULL
-};
-const char *node_subtypes_penalty[] = {
-    "userpenalty", "linebreakpenalty", "linepenalty", "wordpenalty", "finalpenalty",
-    "noadpenalty", "beforedisplaypenalty", "afterdisplaypenalty", "equationnumberpenalty", NULL
-};
-const char *node_subtypes_kern[] = {
-    "fontkern", "userkern", "accentkern", "italiccorrection", NULL
-};
-const char *node_subtypes_rule[] = {
-    "normal", "box", "image", "empty", "user", "over", "under", "fraction", "radical", "outline", NULL
-};
-const char *node_subtypes_glyph[] = {
-    "character", "glyph", "ligature", "ghost", "left", "right", NULL
-};
-const char *node_subtypes_disc[] = {
-    "discretionary", "explicit", "automatic", "regular", "first", "second", NULL
-};
-const char *node_subtypes_marginkern[] = {
-    "left", "right", NULL
-};
-const char *node_subtypes_list[] = {
-    "unknown", "line", "box", "indent", "alignment", "cell", "equation", "equationnumber", NULL
-};
-const char *node_subtypes_adjust[] = {
-    "normal", "pre", NULL
-};
-const char *node_subtypes_math[] = {
-    "beginmath", "endmath", NULL
-};
-const char *node_subtypes_noad[] = {
-    "ord", "opdisplaylimits", "oplimits", "opnolimits", "bin", "rel", "open", "close",
-    "punct", "inner", "under", "over", "vcenter", NULL
-};
-const char *node_subtypes_radical[] = {
-    "radical", "uradical", "uroot", "uunderdelimiter", "uoverdelimiter", "udelimiterunder",
-    "udelimiterover", NULL
-};
-const char *node_subtypes_accent[] = {
-    "bothflexible", "fixedtop", "fixedbottom", "fixedboth", NULL,
-};
-const char *node_subtypes_fence[] = {
-    "unset", "left", "middle", "right", "no", NULL
+subtype_info node_values_pdf_literal[] = {
+    { set_origin,    NULL, 0 },
+    { direct_page,   NULL, 0 },
+    { direct_always, NULL, 0 },
+    { direct_raw,    NULL, 0 },
+    { direct_text,   NULL, 0 },
+    { direct_font,   NULL, 0 },
+    { scan_special,  NULL, 0 },
+    { -1,            NULL, 0 },
 };
 
 /* states */
 
-const char *other_values_page_states[] = {
-    "empty", "box_there", "inserts_only", NULL
+subtype_info other_values_page_states[] = {
+    { 0,  NULL, 0 },
+    { 1,  NULL, 0 },
+    { 2,  NULL, 0 },
+    { -1, NULL, 0 },
+};
+
+/* subtypes */
+
+subtype_info node_subtypes_dir[] = {
+    { normal_dir, NULL, 0 },
+    { cancel_dir, NULL, 0 },
+    { -1,         NULL, 0 },
+};
+
+subtype_info node_subtypes_glue[] = {
+    { user_skip_glue,                NULL, 0 },
+    { line_skip_glue,                NULL, 0 },
+    { baseline_skip_glue,            NULL, 0 },
+    { par_skip_glue,                 NULL, 0 },
+    { above_display_skip_glue,       NULL, 0 },
+    { below_display_skip_glue,       NULL, 0 },
+    { above_display_short_skip_glue, NULL, 0 },
+    { below_display_short_skip_glue, NULL, 0 },
+    { left_skip_glue,                NULL, 0 },
+    { right_skip_glue,               NULL, 0 },
+    { top_skip_glue,                 NULL, 0 },
+    { split_top_skip_glue,           NULL, 0 },
+    { tab_skip_glue,                 NULL, 0 },
+    { space_skip_glue,               NULL, 0 },
+    { xspace_skip_glue,              NULL, 0 },
+    { par_fill_skip_glue,            NULL, 0 },
+    { math_skip_glue,                NULL, 0 },
+    { thin_mu_skip_glue,             NULL, 0 },
+    { med_mu_skip_glue,              NULL, 0 },
+    { thick_mu_skip_glue,            NULL, 0 },
+    /* math */
+    { cond_math_glue,                NULL, 0 },
+    { mu_glue,                       NULL, 0 },
+    /* leaders */
+    { a_leaders,                     NULL, 0 },
+    { c_leaders,                     NULL, 0 },
+    { x_leaders,                     NULL, 0 },
+    { g_leaders,                     NULL, 0 },
+    { -1,                            NULL, 0 },
+};
+
+subtype_info node_subtypes_mathglue[] = { /* 98+ */
+    { cond_math_glue, NULL, 0 },
+    { mu_glue,        NULL, 0 },
+    { -1,             NULL, 0 },
+};
+
+subtype_info node_subtypes_leader[] = { /* 100+ */
+    { a_leaders, NULL, 0 },
+    { c_leaders, NULL, 0 },
+    { x_leaders, NULL, 0 },
+    { g_leaders, NULL, 0 },
+    { -1,        NULL, 0 },
+};
+
+subtype_info node_subtypes_boundary[] = {
+    { cancel_boundary,     NULL, 0 },
+    { user_boundary,       NULL, 0 },
+    { protrusion_boundary, NULL, 0 },
+    { word_boundary,       NULL, 0 },
+    { -1,                  NULL, 0 },
+};
+
+subtype_info node_subtypes_penalty[] = {
+    { user_penalty,            NULL, 0 },
+    { linebreak_penalty,       NULL, 0 },
+    { line_penalty,            NULL, 0 },
+    { word_penalty,            NULL, 0 },
+    { final_penalty,           NULL, 0 },
+    { noad_penalty,            NULL, 0 },
+    { before_display_penalty,  NULL, 0 },
+    { after_display_penalty,   NULL, 0 },
+    { equation_number_penalty, NULL, 0 },
+    { -1,                      NULL, 0 },
+};
+
+subtype_info node_subtypes_kern[] = {
+    { font_kern,     NULL, 0 },
+    { explicit_kern, NULL, 0 },
+    { accent_kern,   NULL, 0 },
+    { italic_kern,   NULL, 0 },
+    { -1,            NULL, 0 },
+};
+
+subtype_info node_subtypes_rule[] = {
+    { normal_rule,        NULL, 0 },
+    { box_rule,           NULL, 0 },
+    { image_rule,         NULL, 0 },
+    { empty_rule,         NULL, 0 },
+    { user_rule,          NULL, 0 },
+    { math_over_rule,     NULL, 0 },
+    { math_under_rule,    NULL, 0 },
+    { math_fraction_rule, NULL, 0 },
+    { math_radical_rule,  NULL, 0 },
+    { outline_rule,       NULL, 0 },
+    { -1,                 NULL, 0 },
+};
+
+subtype_info node_subtypes_glyph[] = {
+    { glyph_character, NULL, 0 },
+    { glyph_ligature,  NULL, 0 },
+    { glyph_ghost,     NULL, 0 },
+    { glyph_left,      NULL, 0 },
+    { glyph_right,     NULL, 0 },
+    { -1,              NULL, 0 },
+};
+
+subtype_info node_subtypes_disc[] = {
+    { discretionary_disc, NULL, 0 },
+    { explicit_disc,      NULL, 0 },
+    { automatic_disc,     NULL, 0 },
+    { syllable_disc,      NULL, 0 },
+    { init_disc,          NULL, 0 },
+    { select_disc,        NULL, 0 },
+    { -1,                 NULL, 0 },
+};
+
+subtype_info node_subtypes_marginkern[] = {
+    { left_side,  NULL, 0 },
+    { right_side, NULL, 0 },
+    { -1,         NULL, 0 },
+};
+
+subtype_info node_subtypes_list[] = {
+    { unknown_list,         NULL, 0 },
+    { line_list,            NULL, 0 },
+    { hbox_list,            NULL, 0 },
+    { indent_list,          NULL, 0 },
+    { align_row_list,       NULL, 0 },
+    { align_cell_list,      NULL, 0 },
+    { equation_list,        NULL, 0 },
+    { equation_number_list, NULL, 0 },
+    { -1,                   NULL, 0 },
+};
+
+subtype_info node_subtypes_adjust[] = {
+    { 0,  NULL, 0 },
+    { 1,  NULL, 0 },
+    { -1, NULL, 0 },
+};
+
+subtype_info node_subtypes_math[] = {
+    { before, NULL, 0 },
+    { after,  NULL, 0 },
+    { -1,     NULL, 0 },
+};
+
+subtype_info node_subtypes_noad[] = {
+    { ord_noad_type,          NULL, 0 },
+    { op_noad_type_normal,    NULL, 0 },
+    { op_noad_type_limits,    NULL, 0 },
+    { op_noad_type_no_limits, NULL, 0 },
+    { bin_noad_type,          NULL, 0 },
+    { rel_noad_type,          NULL, 0 },
+    { open_noad_type,         NULL, 0 },
+    { close_noad_type,        NULL, 0 },
+    { punct_noad_type,        NULL, 0 },
+    { inner_noad_type,        NULL, 0 },
+    { under_noad_type,        NULL, 0 },
+    { over_noad_type,         NULL, 0 },
+    { vcenter_noad_type,      NULL, 0 },
+    { -1,                     NULL, 0 },
+};
+
+subtype_info node_subtypes_radical[] = {
+    { radical_noad_type,         NULL, 0 },
+    { uradical_noad_type,        NULL, 0 },
+    { uroot_noad_type,           NULL, 0 },
+    { uunderdelimiter_noad_type, NULL, 0 },
+    { uoverdelimiter_noad_type,  NULL, 0 },
+    { udelimiterunder_noad_type, NULL, 0 },
+    { udelimiterover_noad_type,  NULL, 0 },
+    { -1,                        NULL, 0 },
+};
+
+subtype_info node_subtypes_accent[] = {
+    { bothflexible_accent, NULL, 0 },
+    { fixedtop_accent,     NULL, 0 },
+    { fixedbottom_accent,  NULL, 0 },
+    { fixedboth_accent,    NULL, 0 },
+    { -1,                  NULL, 0 },
+};
+
+subtype_info node_subtypes_fence[] = {
+    { unset_noad_side,  NULL, 0 },
+    { left_noad_side,   NULL, 0 },
+    { middle_noad_side, NULL, 0 },
+    { right_noad_side,  NULL, 0 },
+    { no_noad_side,     NULL, 0 },
+    { -1,               NULL, 0 },
 };
 
 node_info node_data[] = {
-    { hlist_node,          box_node_size,         node_fields_list,                          NULL,  1, 0 },
-    { vlist_node,          box_node_size,         node_fields_list,                          NULL,  2, 0 },
-    { rule_node,           rule_node_size,        node_fields_rule,                          NULL,  3, 0 },
-    { ins_node,            ins_node_size,         node_fields_insert,                        NULL,  4, 0 },
-    { mark_node,           mark_node_size,        node_fields_mark,                          NULL,  5, 0 },
-    { adjust_node,         adjust_node_size,      node_fields_adjust,                        NULL,  6, 0 },
-    { boundary_node,       boundary_node_size,    node_fields_boundary,                      NULL, -1, 0 },
-    { disc_node,           disc_node_size,        node_fields_disc,                          NULL,  8, 0 },
-    { whatsit_node,        -1,                    NULL,                                      NULL,  9, 0 },
-    { local_par_node,      local_par_size,        node_fields_local_par,                     NULL, -1, 0 },
-    { dir_node,            dir_node_size,         node_fields_dir,                           NULL, -1, 0 },
-    { math_node,           math_node_size,        node_fields_math,                          NULL, 10, 0 },
-    { glue_node,           glue_node_size,        node_fields_glue,                          NULL, 11, 0 },
-    { kern_node,           kern_node_size,        node_fields_kern,                          NULL, 12, 0 },
-    { penalty_node,        penalty_node_size,     node_fields_penalty,                       NULL, 13, 0 },
-    { unset_node,          box_node_size,         node_fields_unset,                         NULL, 14, 0 },
-    { style_node,          style_node_size,       node_fields_style,                         NULL, 15, 0 },
-    { choice_node,         style_node_size,       node_fields_choice,                        NULL, 15, 0 },
-    { simple_noad,         noad_size,             node_fields_noad,                          NULL, 15, 0 },
-    { radical_noad,        radical_noad_size,     node_fields_radical,                       NULL, 15, 0 },
-    { fraction_noad,       fraction_noad_size,    node_fields_fraction,                      NULL, 15, 0 },
-    { accent_noad,         accent_noad_size,      node_fields_accent,                        NULL, 15, 0 },
-    { fence_noad,          fence_noad_size,       node_fields_fence,                         NULL, 15, 0 },
-    { math_char_node,      math_kernel_node_size, node_fields_math_char,                     NULL, 15, 0 },
-    { sub_box_node,        math_kernel_node_size, node_fields_sub_box,                       NULL, 15, 0 },
-    { sub_mlist_node,      math_kernel_node_size, node_fields_sub_mlist,                     NULL, 15, 0 },
-    { math_text_char_node, math_kernel_node_size, node_fields_math_text_char,                NULL, 15, 0 },
-    { delim_node,          math_shield_node_size, node_fields_delim,                         NULL, 15, 0 },
-    { margin_kern_node,    margin_kern_node_size, node_fields_margin_kern,                   NULL, -1, 0 },
-    { glyph_node,          glyph_node_size,       node_fields_glyph,                         NULL,  0, 0 },
-    { align_record_node,   box_node_size,         NULL,                                      NULL, -1, 0 },
-    { pseudo_file_node,    pseudo_file_node_size, NULL,                                      NULL, -1, 0 },
-    { pseudo_line_node,    variable_node_size,    NULL,                                      NULL, -1, 0 },
-    { inserting_node,      page_ins_node_size,    node_fields_inserting,                     NULL, -1, 0 },
-    { split_up_node,       page_ins_node_size,    node_fields_splitup,                       NULL, -1, 0 },
-    { expr_node,           expr_node_size,        NULL,                                      NULL, -1, 0 },
-    { nesting_node,        nesting_node_size,     NULL,                                      NULL, -1, 0 },
-    { span_node,           span_node_size,        NULL,                                      NULL, -1, 0 },
-    { attribute_node,      attribute_node_size,   node_fields_attribute,                     NULL, -1, 0 },
-    { glue_spec_node,      glue_spec_size,        node_fields_glue_spec,                     NULL, -1, 0 },
-    { attribute_list_node, attribute_node_size,   node_fields_attribute_list,                NULL, -1, 0 },
-    { temp_node,           temp_node_size,        NULL,                                      NULL, -1, 0 },
-    { align_stack_node,    align_stack_node_size, NULL,                                      NULL, -1, 0 },
-    { movement_node,       movement_node_size,    NULL,                                      NULL, -1, 0 },
-    { if_node,             if_node_size,          NULL,                                      NULL, -1, 0 },
-    { unhyphenated_node,   active_node_size,      NULL,                                      NULL, -1, 0 },
-    { hyphenated_node,     active_node_size,      NULL,                                      NULL, -1, 0 },
-    { delta_node,          delta_node_size,       NULL,                                      NULL, -1, 0 },
-    { passive_node,        passive_node_size,     NULL,                                      NULL, -1, 0 },
-    { shape_node,          variable_node_size,    NULL,                                      NULL, -1, 0 },
-    { -1,                 -1,                     NULL,                                      NULL, -1, 0 }
+    { hlist_node,          box_node_size,         node_subtypes_list,       node_fields_list,                          NULL,  1, 0 },
+    { vlist_node,          box_node_size,         node_subtypes_list,       node_fields_list,                          NULL,  2, 0 },
+    { rule_node,           rule_node_size,        node_subtypes_rule,       node_fields_rule,                          NULL,  3, 0 },
+    { ins_node,            ins_node_size,         NULL,                     node_fields_insert,                        NULL,  4, 0 },
+    { mark_node,           mark_node_size,        NULL,                     node_fields_mark,                          NULL,  5, 0 },
+    { adjust_node,         adjust_node_size,      node_subtypes_adjust,     node_fields_adjust,                        NULL,  6, 0 },
+    { boundary_node,       boundary_node_size,    node_subtypes_boundary,   node_fields_boundary,                      NULL, -1, 0 },
+    { disc_node,           disc_node_size,        node_subtypes_disc,       node_fields_disc,                          NULL,  8, 0 },
+    { whatsit_node,        -1,                    NULL,                     NULL,                                      NULL,  9, 0 },
+    { local_par_node,      local_par_size,        NULL,                     node_fields_local_par,                     NULL, -1, 0 },
+    { dir_node,            dir_node_size,         node_subtypes_dir,        node_fields_dir,                           NULL, -1, 0 },
+    { math_node,           math_node_size,        node_subtypes_math,       node_fields_math,                          NULL, 10, 0 },
+    { glue_node,           glue_node_size,        node_subtypes_glue,       node_fields_glue,                          NULL, 11, 0 },
+    { kern_node,           kern_node_size,        node_subtypes_kern,       node_fields_kern,                          NULL, 12, 0 },
+    { penalty_node,        penalty_node_size,     node_subtypes_penalty,    node_fields_penalty,                       NULL, 13, 0 },
+    { unset_node,          box_node_size,         NULL,                     node_fields_unset,                         NULL, 14, 0 },
+    { style_node,          style_node_size,       NULL,                     node_fields_style,                         NULL, 15, 0 },
+    { choice_node,         style_node_size,       NULL,                     node_fields_choice,                        NULL, 15, 0 },
+    { simple_noad,         noad_size,             node_subtypes_noad,       node_fields_noad,                          NULL, 15, 0 },
+    { radical_noad,        radical_noad_size,     node_subtypes_radical,    node_fields_radical,                       NULL, 15, 0 },
+    { fraction_noad,       fraction_noad_size,    NULL,                     node_fields_fraction,                      NULL, 15, 0 },
+    { accent_noad,         accent_noad_size,      node_subtypes_accent,     node_fields_accent,                        NULL, 15, 0 },
+    { fence_noad,          fence_noad_size,       node_subtypes_fence,      node_fields_fence,                         NULL, 15, 0 },
+    { math_char_node,      math_kernel_node_size, NULL,                     node_fields_math_char,                     NULL, 15, 0 },
+    { sub_box_node,        math_kernel_node_size, NULL,                     node_fields_sub_box,                       NULL, 15, 0 },
+    { sub_mlist_node,      math_kernel_node_size, NULL,                     node_fields_sub_mlist,                     NULL, 15, 0 },
+    { math_text_char_node, math_kernel_node_size, NULL,                     node_fields_math_text_char,                NULL, 15, 0 },
+    { delim_node,          math_shield_node_size, NULL,                     node_fields_delim,                         NULL, 15, 0 },
+    { margin_kern_node,    margin_kern_node_size, node_subtypes_marginkern, node_fields_margin_kern,                   NULL, -1, 0 },
+    { glyph_node,          glyph_node_size,       node_subtypes_glyph,      node_fields_glyph,                         NULL,  0, 0 },
+    { align_record_node,   box_node_size,         NULL,                     NULL,                                      NULL, -1, 0 },
+    { pseudo_file_node,    pseudo_file_node_size, NULL,                     NULL,                                      NULL, -1, 0 },
+    { pseudo_line_node,    variable_node_size,    NULL,                     NULL,                                      NULL, -1, 0 },
+    { inserting_node,      page_ins_node_size,    NULL,                     node_fields_inserting,                     NULL, -1, 0 },
+    { split_up_node,       page_ins_node_size,    NULL,                     node_fields_splitup,                       NULL, -1, 0 },
+    { expr_node,           expr_node_size,        NULL,                     NULL,                                      NULL, -1, 0 },
+    { nesting_node,        nesting_node_size,     NULL,                     NULL,                                      NULL, -1, 0 },
+    { span_node,           span_node_size,        NULL,                     NULL,                                      NULL, -1, 0 },
+    { attribute_node,      attribute_node_size,   NULL,                     node_fields_attribute,                     NULL, -1, 0 },
+    { glue_spec_node,      glue_spec_size,        NULL,                     node_fields_glue_spec,                     NULL, -1, 0 },
+    { attribute_list_node, attribute_node_size,   NULL,                     node_fields_attribute_list,                NULL, -1, 0 },
+    { temp_node,           temp_node_size,        NULL,                     NULL,                                      NULL, -1, 0 },
+    { align_stack_node,    align_stack_node_size, NULL,                     NULL,                                      NULL, -1, 0 },
+    { movement_node,       movement_node_size,    NULL,                     NULL,                                      NULL, -1, 0 },
+    { if_node,             if_node_size,          NULL,                     NULL,                                      NULL, -1, 0 },
+    { unhyphenated_node,   active_node_size,      NULL,                     NULL,                                      NULL, -1, 0 },
+    { hyphenated_node,     active_node_size,      NULL,                     NULL,                                      NULL, -1, 0 },
+    { delta_node,          delta_node_size,       NULL,                     NULL,                                      NULL, -1, 0 },
+    { passive_node,        passive_node_size,     NULL,                     NULL,                                      NULL, -1, 0 },
+    { shape_node,          variable_node_size,    NULL,                     NULL,                                      NULL, -1, 0 },
+    { -1,                 -1,                     NULL,                     NULL,                                      NULL, -1, 0 }
 };
 
 void l_set_node_data(void) {
-    node_data[hlist_node].lua          = lua_key_index(hlist) ;           node_data[hlist_node].name          = lua_key(hlist) ;
-    node_data[vlist_node].lua          = lua_key_index(vlist) ;           node_data[vlist_node].name          = lua_key(vlist) ;
-    node_data[rule_node].lua           = lua_key_index(rule) ;            node_data[rule_node].name           = lua_key(rule) ;
-    node_data[ins_node].lua            = lua_key_index(ins) ;             node_data[ins_node].name            = lua_key(ins) ;
-    node_data[mark_node].lua           = lua_key_index(mark) ;            node_data[mark_node].name           = lua_key(mark) ;
-    node_data[adjust_node].lua         = lua_key_index(adjust) ;          node_data[adjust_node].name         = lua_key(adjust) ;
-    node_data[boundary_node].lua       = lua_key_index(boundary) ;        node_data[boundary_node].name       = lua_key(boundary) ;
-    node_data[disc_node].lua           = lua_key_index(disc) ;            node_data[disc_node].name           = lua_key(disc) ;
-    node_data[whatsit_node].lua        = lua_key_index(whatsit) ;         node_data[whatsit_node].name        = lua_key(whatsit) ;
-    node_data[local_par_node].lua      = lua_key_index(local_par) ;       node_data[local_par_node].name      = lua_key(local_par) ;
-    node_data[dir_node].lua            = lua_key_index(dir) ;             node_data[dir_node].name            = lua_key(dir) ;
-    node_data[math_node].lua           = lua_key_index(math) ;            node_data[math_node].name           = lua_key(math) ;
-    node_data[glue_node].lua           = lua_key_index(glue) ;            node_data[glue_node].name           = lua_key(glue) ;
-    node_data[kern_node].lua           = lua_key_index(kern) ;            node_data[kern_node].name           = lua_key(kern) ;
-    node_data[penalty_node].lua        = lua_key_index(penalty) ;         node_data[penalty_node].name        = lua_key(penalty) ;
-    node_data[unset_node].lua          = lua_key_index(unset) ;           node_data[unset_node].name          = lua_key(unset) ;
-    node_data[style_node].lua          = lua_key_index(style) ;           node_data[style_node].name          = lua_key(style) ;
-    node_data[choice_node].lua         = lua_key_index(choice) ;          node_data[choice_node].name         = lua_key(choice) ;
-    node_data[simple_noad].lua         = lua_key_index(noad) ;            node_data[simple_noad].name         = lua_key(noad) ;
-    node_data[radical_noad].lua        = lua_key_index(radical) ;         node_data[radical_noad].name        = lua_key(radical) ;
-    node_data[fraction_noad].lua       = lua_key_index(fraction) ;        node_data[fraction_noad].name       = lua_key(fraction) ;
-    node_data[accent_noad].lua         = lua_key_index(accent) ;          node_data[accent_noad].name         = lua_key(accent) ;
-    node_data[fence_noad].lua          = lua_key_index(fence) ;           node_data[fence_noad].name          = lua_key(fence) ;
-    node_data[math_char_node].lua      = lua_key_index(math_char) ;       node_data[math_char_node].name      = lua_key(math_char) ;
-    node_data[sub_box_node].lua        = lua_key_index(sub_box) ;         node_data[sub_box_node].name        = lua_key(sub_box) ;
-    node_data[sub_mlist_node].lua      = lua_key_index(sub_mlist) ;       node_data[sub_mlist_node].name      = lua_key(sub_mlist) ;
-    node_data[math_text_char_node].lua = lua_key_index(math_text_char) ;  node_data[math_text_char_node].name = lua_key(math_text_char) ;
-    node_data[delim_node].lua          = lua_key_index(delim) ;           node_data[delim_node].name          = lua_key(delim) ;
-    node_data[margin_kern_node].lua    = lua_key_index(margin_kern) ;     node_data[margin_kern_node].name    = lua_key(margin_kern) ;
-    node_data[glyph_node].lua          = lua_key_index(glyph) ;           node_data[glyph_node].name          = lua_key(glyph) ;
-    node_data[align_record_node].lua   = lua_key_index(align_record) ;    node_data[align_record_node].name   = lua_key(align_record) ;
-    node_data[pseudo_file_node].lua    = lua_key_index(pseudo_file) ;     node_data[pseudo_file_node].name    = lua_key(pseudo_file) ;
-    node_data[pseudo_line_node].lua    = lua_key_index(pseudo_line) ;     node_data[pseudo_line_node].name    = lua_key(pseudo_line) ;
-    node_data[inserting_node].lua      = lua_key_index(page_insert) ;     node_data[inserting_node].name      = lua_key(page_insert) ;
-    node_data[split_up_node].lua       = lua_key_index(split_insert) ;    node_data[split_up_node].name       = lua_key(split_insert) ;
-    node_data[expr_node].lua           = lua_key_index(expr_stack) ;      node_data[expr_node].name           = lua_key(expr_stack) ;
-    node_data[nesting_node].lua        = lua_key_index(nested_list) ;     node_data[nesting_node].name        = lua_key(nested_list) ;
-    node_data[span_node].lua           = lua_key_index(span) ;            node_data[span_node].name           = lua_key(span) ;
-    node_data[attribute_node].lua      = lua_key_index(attribute) ;       node_data[attribute_node].name      = lua_key(attribute) ;
-    node_data[glue_spec_node].lua      = lua_key_index(glue_spec) ;       node_data[glue_spec_node].name      = lua_key(glue_spec) ;
-    node_data[attribute_list_node].lua = lua_key_index(attribute_list) ;  node_data[attribute_list_node].name = lua_key(attribute_list) ;
-    node_data[temp_node].lua           = lua_key_index(temp) ;            node_data[temp_node].name           = lua_key(temp) ;
-    node_data[align_stack_node].lua    = lua_key_index(align_stack) ;     node_data[align_stack_node].name    = lua_key(align_stack) ;
-    node_data[movement_node].lua       = lua_key_index(movement_stack) ;  node_data[movement_node].name       = lua_key(movement_stack) ;
-    node_data[if_node].lua             = lua_key_index(if_stack) ;        node_data[if_node].name             = lua_key(if_stack) ;
-    node_data[unhyphenated_node].lua   = lua_key_index(unhyphenated) ;    node_data[unhyphenated_node].name   = lua_key(unhyphenated) ;
-    node_data[hyphenated_node].lua     = lua_key_index(hyphenated) ;      node_data[hyphenated_node].name     = lua_key(hyphenated) ;
-    node_data[delta_node].lua          = lua_key_index(delta) ;           node_data[delta_node].name          = lua_key(delta) ;
-    node_data[passive_node].lua        = lua_key_index(passive) ;         node_data[passive_node].name        = lua_key(passive) ;
-    node_data[shape_node].lua          = lua_key_index(shape) ;           node_data[shape_node].name          = lua_key(shape) ;
+    init_node_key(node_data,                hlist_node,                    hlist)
+    init_node_key(node_data,                vlist_node,                    vlist)
+    init_node_key(node_data,                rule_node,                     rule)
+    init_node_key(node_data,                ins_node,                      ins)
+    init_node_key(node_data,                mark_node,                     mark)
+    init_node_key(node_data,                adjust_node,                   adjust)
+    init_node_key(node_data,                boundary_node,                 boundary)
+    init_node_key(node_data,                disc_node,                     disc)
+    init_node_key(node_data,                whatsit_node,                  whatsit)
+    init_node_key(node_data,                local_par_node,                local_par)
+    init_node_key(node_data,                dir_node,                      dir)
+    init_node_key(node_data,                math_node,                     math)
+    init_node_key(node_data,                glue_node,                     glue)
+    init_node_key(node_data,                kern_node,                     kern)
+    init_node_key(node_data,                penalty_node,                  penalty)
+    init_node_key(node_data,                unset_node,                    unset)
+    init_node_key(node_data,                style_node,                    style)
+    init_node_key(node_data,                choice_node,                   choice)
+    init_node_key(node_data,                simple_noad,                   noad)
+    init_node_key(node_data,                radical_noad,                  radical)
+    init_node_key(node_data,                fraction_noad,                 fraction)
+    init_node_key(node_data,                accent_noad,                   accent)
+    init_node_key(node_data,                fence_noad,                    fence)
+    init_node_key(node_data,                math_char_node,                math_char)
+    init_node_key(node_data,                sub_box_node,                  sub_box)
+    init_node_key(node_data,                sub_mlist_node,                sub_mlist)
+    init_node_key(node_data,                math_text_char_node,           math_text_char)
+    init_node_key(node_data,                delim_node,                    delim)
+    init_node_key(node_data,                margin_kern_node,              margin_kern)
+    init_node_key(node_data,                glyph_node,                    glyph)
+    init_node_key(node_data,                align_record_node,             align_record)
+    init_node_key(node_data,                pseudo_file_node,              pseudo_file)
+    init_node_key(node_data,                pseudo_line_node,              pseudo_line)
+    init_node_key(node_data,                inserting_node,                page_insert)
+    init_node_key(node_data,                split_up_node,                 split_insert)
+    init_node_key(node_data,                expr_node,                     expr_stack)
+    init_node_key(node_data,                nesting_node,                  nested_list)
+    init_node_key(node_data,                span_node,                     span)
+    init_node_key(node_data,                attribute_node,                attribute)
+    init_node_key(node_data,                glue_spec_node,                glue_spec)
+    init_node_key(node_data,                attribute_list_node,           attribute_list)
+    init_node_key(node_data,                temp_node,                     temp)
+    init_node_key(node_data,                align_stack_node,              align_stack)
+    init_node_key(node_data,                movement_node,                 movement_stack)
+    init_node_key(node_data,                if_node,                       if_stack)
+    init_node_key(node_data,                unhyphenated_node,             unhyphenated)
+    init_node_key(node_data,                hyphenated_node,               hyphenated)
+    init_node_key(node_data,                delta_node,                    delta)
+    init_node_key(node_data,                passive_node,                  passive)
+    init_node_key(node_data,                shape_node,                    shape)
+
+    init_node_key(node_subtypes_dir,        normal_dir,                    normal)
+    init_node_key(node_subtypes_dir,        cancel_dir,                    cancel)
+
+    init_node_key(node_subtypes_glue,       user_skip_glue,                userskip)
+    init_node_key(node_subtypes_glue,       line_skip_glue,                lineskip)
+    init_node_key(node_subtypes_glue,       baseline_skip_glue,            baselineskip)
+    init_node_key(node_subtypes_glue,       par_skip_glue,                 parskip)
+    init_node_key(node_subtypes_glue,       above_display_skip_glue,       abovedisplayskip)
+    init_node_key(node_subtypes_glue,       below_display_skip_glue,       belowdisplayskip)
+    init_node_key(node_subtypes_glue,       above_display_short_skip_glue, abovedisplayshortskip)
+    init_node_key(node_subtypes_glue,       below_display_short_skip_glue, belowdisplayshortskip)
+    init_node_key(node_subtypes_glue,       left_skip_glue,                leftskip)
+    init_node_key(node_subtypes_glue,       right_skip_glue,               rightskip)
+    init_node_key(node_subtypes_glue,       top_skip_glue,                 topskip)
+    init_node_key(node_subtypes_glue,       split_top_skip_glue,           splittopskip)
+    init_node_key(node_subtypes_glue,       tab_skip_glue,                 tabskip)
+    init_node_key(node_subtypes_glue,       space_skip_glue,               spaceskip)
+    init_node_key(node_subtypes_glue,       xspace_skip_glue,              xspaceskip)
+    init_node_key(node_subtypes_glue,       par_fill_skip_glue,            parfillskip)
+    init_node_key(node_subtypes_glue,       math_skip_glue,                mathskip)
+    init_node_key(node_subtypes_glue,       thin_mu_skip_glue,             thinmuskip)
+    init_node_key(node_subtypes_glue,       med_mu_skip_glue,              medmuskip)
+    init_node_key(node_subtypes_glue,       thick_mu_skip_glue,            thickmuskip)
+    init_node_key(node_subtypes_glue,       thick_mu_skip_glue + 1,        conditionalmathskip)
+    init_node_key(node_subtypes_glue,       thick_mu_skip_glue + 2,        muglue)
+    init_node_key(node_subtypes_glue,       thick_mu_skip_glue + 3,        leaders)
+    init_node_key(node_subtypes_glue,       thick_mu_skip_glue + 4,        cleaders)
+    init_node_key(node_subtypes_glue,       thick_mu_skip_glue + 5,        xleaders)
+    init_node_key(node_subtypes_glue,       thick_mu_skip_glue + 6,        gleaders)
+
+    init_node_key(node_subtypes_mathglue,   0,                             conditionalmathskip)
+    init_node_key(node_subtypes_mathglue,   1,                             muglue)
+
+    init_node_key(node_subtypes_leader,     0,                             leaders)
+    init_node_key(node_subtypes_leader,     1,                             cleaders)
+    init_node_key(node_subtypes_leader,     2,                             xleaders)
+    init_node_key(node_subtypes_leader,     3,                             gleaders)
+
+    init_node_key(node_subtypes_boundary,   cancel_boundary,               cancel)
+    init_node_key(node_subtypes_boundary,   user_boundary,                 user)
+    init_node_key(node_subtypes_boundary,   protrusion_boundary,           protrusion)
+    init_node_key(node_subtypes_boundary,   word_boundary,                 word)
+
+    init_node_key(node_subtypes_penalty,    user_penalty,                  userpenalty)
+    init_node_key(node_subtypes_penalty,    linebreak_penalty,             linebreakpenalty)
+    init_node_key(node_subtypes_penalty,    line_penalty,                  linepenalty)
+    init_node_key(node_subtypes_penalty,    word_penalty,                  wordpenalty)
+    init_node_key(node_subtypes_penalty,    final_penalty,                 finalpenalty)
+    init_node_key(node_subtypes_penalty,    noad_penalty,                  noadpenalty)
+    init_node_key(node_subtypes_penalty,    before_display_penalty,        beforedisplaypenalty)
+    init_node_key(node_subtypes_penalty,    after_display_penalty,         afterdisplaypenalty)
+    init_node_key(node_subtypes_penalty,    equation_number_penalty,       equationnumberpenalty)
+
+    init_node_key(node_subtypes_kern,       font_kern,                     fontkern)
+    init_node_key(node_subtypes_kern,       explicit_kern,                 userkern)
+    init_node_key(node_subtypes_kern,       accent_kern,                   accentkern)
+    init_node_key(node_subtypes_kern,       italic_kern,                   italiccorrection)
+
+    init_node_key(node_subtypes_rule,       normal_rule,                   normal)
+    init_node_key(node_subtypes_rule,       box_rule,                      box)
+    init_node_key(node_subtypes_rule,       image_rule,                    image)
+    init_node_key(node_subtypes_rule,       empty_rule,                    empty)
+    init_node_key(node_subtypes_rule,       user_rule,                     user)
+    init_node_key(node_subtypes_rule,       math_over_rule,                over)
+    init_node_key(node_subtypes_rule,       math_under_rule,               under)
+    init_node_key(node_subtypes_rule,       math_fraction_rule,            fraction)
+    init_node_key(node_subtypes_rule,       math_radical_rule,             radical)
+    init_node_key(node_subtypes_rule,       outline_rule,                  outline)
+
+    init_node_key(node_subtypes_glyph,      0,                             character)
+    init_node_key(node_subtypes_glyph,      1,                             ligature)
+    init_node_key(node_subtypes_glyph,      2,                             ghost)
+    init_node_key(node_subtypes_glyph,      3,                             left)
+    init_node_key(node_subtypes_glyph,      4,                             right)
+
+    init_node_key(node_subtypes_disc,       discretionary_disc,            discretionary)
+    init_node_key(node_subtypes_disc,       explicit_disc,                 explicit)
+    init_node_key(node_subtypes_disc,       automatic_disc,                automatic)
+    init_node_key(node_subtypes_disc,       syllable_disc,                 regular)
+    init_node_key(node_subtypes_disc,       init_disc,                     first)
+    init_node_key(node_subtypes_disc,       select_disc,                   second)
+
+    init_node_key(node_subtypes_fence,      unset_noad_side,               unset)
+    init_node_key(node_subtypes_fence,      left_noad_side,                left)
+    init_node_key(node_subtypes_fence,      middle_noad_side,              middle)
+    init_node_key(node_subtypes_fence,      right_noad_side,               right)
+    init_node_key(node_subtypes_fence,      no_noad_side,                  no)
+
+    init_node_key(node_subtypes_list,       unknown_list,                  unknown)
+    init_node_key(node_subtypes_list,       line_list,                     line)
+    init_node_key(node_subtypes_list,       hbox_list,                     box)
+    init_node_key(node_subtypes_list,       indent_list,                   indent)
+    init_node_key(node_subtypes_list,       align_row_list,                alignment)
+    init_node_key(node_subtypes_list,       align_cell_list,               cell)
+    init_node_key(node_subtypes_list,       equation_list,                 equation)
+    init_node_key(node_subtypes_list,       equation_number_list,          equationnumber)
+
+    init_node_key(node_subtypes_math,       before,                        beginmath)
+    init_node_key(node_subtypes_math,       after,                         endmath)
+
+    init_node_key(node_subtypes_marginkern, left_side,                     left)
+    init_node_key(node_subtypes_marginkern, right_side,                    right)
+
+    init_node_key(node_subtypes_adjust,     0,                             normal)
+    init_node_key(node_subtypes_adjust,     1,                             pre)
+
+    init_node_key(node_subtypes_noad,       ord_noad_type,                 ord)
+    init_node_key(node_subtypes_noad,       op_noad_type_normal,           opdisplaylimits)
+    init_node_key(node_subtypes_noad,       op_noad_type_limits,           oplimits)
+    init_node_key(node_subtypes_noad,       op_noad_type_no_limits,        opnolimits)
+    init_node_key(node_subtypes_noad,       bin_noad_type,                 bin)
+    init_node_key(node_subtypes_noad,       rel_noad_type,                 rel)
+    init_node_key(node_subtypes_noad,       open_noad_type,                open)
+    init_node_key(node_subtypes_noad,       close_noad_type,               close)
+    init_node_key(node_subtypes_noad,       punct_noad_type,               punct)
+    init_node_key(node_subtypes_noad,       inner_noad_type,               inner)
+    init_node_key(node_subtypes_noad,       under_noad_type,               under)
+    init_node_key(node_subtypes_noad,       over_noad_type,                over)
+    init_node_key(node_subtypes_noad,       vcenter_noad_type,             vcenter)
+
+    init_node_key(node_subtypes_radical,    radical_noad_type,             radical)
+    init_node_key(node_subtypes_radical,    uradical_noad_type,            uradical)
+    init_node_key(node_subtypes_radical,    uroot_noad_type,               uroot)
+    init_node_key(node_subtypes_radical,    uunderdelimiter_noad_type,     uunderdelimiter)
+    init_node_key(node_subtypes_radical,    uoverdelimiter_noad_type,      uoverdelimiter)
+    init_node_key(node_subtypes_radical,    udelimiterunder_noad_type,     udelimiterunder)
+    init_node_key(node_subtypes_radical,    udelimiterover_noad_type,      udelimiterover)
+
+    init_node_key(node_subtypes_accent,     bothflexible_accent,           bothflexible)
+    init_node_key(node_subtypes_accent,     fixedtop_accent,               fixedtop)
+    init_node_key(node_subtypes_accent,     fixedbottom_accent,            fixedbottom)
+    init_node_key(node_subtypes_accent,     fixedboth_accent,              fixedboth)
+
+    init_node_key(node_values_fill,         normal,                        normal)
+    init_node_key(node_values_fill,         sfi,                           fi)
+    init_node_key(node_values_fill,         fil,                           fil)
+    init_node_key(node_values_fill,         fill,                          fill)
+    init_node_key(node_values_fill,         filll,                         filll)
+
+    init_node_key(node_values_dir,          0,                             TLT)
+    init_node_key(node_values_dir,          1,                             TRT)
+    init_node_key(node_values_dir,          2,                             LTL)
+    init_node_key(node_values_dir,          3,                             RTT)
+
+    init_node_key(other_values_page_states, 0,                             empty)
+    init_node_key(other_values_page_states, 1,                             box_there)
+    init_node_key(other_values_page_states, 2,                             inserts_only)
+
+    init_field_key(node_fields_accent,0,attr);
+    init_field_key(node_fields_accent,1,nucleus);
+    init_field_key(node_fields_accent,2,sub);
+    init_field_key(node_fields_accent,3,sup);
+    init_field_key(node_fields_accent,4,accent);
+    init_field_key(node_fields_accent,5,bot_accent);
+    init_field_key(node_fields_accent,6,top_accent);
+    init_field_key(node_fields_accent,7,overlay_accent);
+    init_field_key(node_fields_accent,8,fraction);
+    init_field_nop(node_fields_accent,9);
+
+    init_field_key(node_fields_adjust,0,attr);
+    init_field_key(node_fields_adjust,1,head);
+    init_field_nop(node_fields_adjust,2);
+
+    init_field_key(node_fields_attribute,0,number);
+    init_field_key(node_fields_attribute,1,value);
+    init_field_nop(node_fields_attribute,2);
+
+    init_field_nop(node_fields_attribute_list,0);
+
+    init_field_key(node_fields_boundary,0,attr);
+    init_field_key(node_fields_boundary,1,value);
+    init_field_nop(node_fields_boundary,2);
+
+    init_field_key(node_fields_choice,0,attr);
+    init_field_key(node_fields_choice,1,display);
+    init_field_key(node_fields_choice,2,text);
+    init_field_key(node_fields_choice,3,script);
+    init_field_key(node_fields_choice,4,scriptscript);
+    init_field_nop(node_fields_choice,5);
+
+    init_field_key(node_fields_delim,0,attr);
+    init_field_key(node_fields_delim,1,small_fam);
+    init_field_key(node_fields_delim,2,small_char);
+    init_field_key(node_fields_delim,3,large_fam);
+    init_field_key(node_fields_delim,4,large_char);
+    init_field_nop(node_fields_delim,5);
+
+    init_field_key(node_fields_dir,0,attr);
+    init_field_key(node_fields_dir,1,dir);
+    init_field_key(node_fields_dir,2,level);
+    init_field_nop(node_fields_dir,3);
+
+    init_field_key(node_fields_disc,0,attr);
+    init_field_key(node_fields_disc,1,pre);
+    init_field_key(node_fields_disc,2,post);
+    init_field_key(node_fields_disc,3,replace);
+    init_field_key(node_fields_disc,4,penalty);
+    init_field_nop(node_fields_disc,5);
+
+    init_field_key(node_fields_fence,0,attr);
+    init_field_key(node_fields_fence,1,delim);
+    init_field_key(node_fields_fence,2,italic);
+    init_field_key(node_fields_fence,3,height);
+    init_field_key(node_fields_fence,4,depth);
+    init_field_key(node_fields_fence,5,options);
+    init_field_key(node_fields_fence,6,class);
+    init_field_nop(node_fields_fence,7);
+
+    init_field_key(node_fields_fraction,0,attr);
+    init_field_key(node_fields_fraction,1,width);
+    init_field_key(node_fields_fraction,2,num);
+    init_field_key(node_fields_fraction,3,denom);
+    init_field_key(node_fields_fraction,4,left);
+    init_field_key(node_fields_fraction,5,right);
+    init_field_key(node_fields_fraction,6,middle);
+    init_field_key(node_fields_fraction,7,fam);
+    init_field_key(node_fields_fraction,8,options);
+    init_field_nop(node_fields_fraction,9);
+
+    init_field_key(node_fields_glue,0,attr);
+    init_field_key(node_fields_glue,1,leader);
+    init_field_key(node_fields_glue,2,width);
+    init_field_key(node_fields_glue,3,stretch);
+    init_field_key(node_fields_glue,4,shrink);
+    init_field_key(node_fields_glue,5,stretch_order);
+    init_field_key(node_fields_glue,6,shrink_order);
+    init_field_nop(node_fields_glue,7);
+
+    init_field_key(node_fields_glue_spec,0,width);
+    init_field_key(node_fields_glue_spec,1,stretch);
+    init_field_key(node_fields_glue_spec,2,shrink);
+    init_field_key(node_fields_glue_spec,3,stretch_order);
+    init_field_key(node_fields_glue_spec,4,shrink_order);
+    init_field_nop(node_fields_glue_spec,5);
+
+    init_field_key(node_fields_glyph,0,attr);
+    init_field_key(node_fields_glyph,1,char);
+    init_field_key(node_fields_glyph,2,font);
+    init_field_key(node_fields_glyph,3,lang);
+    init_field_key(node_fields_glyph,4,left);
+    init_field_key(node_fields_glyph,5,right);
+    init_field_key(node_fields_glyph,6,uchyph);
+    init_field_key(node_fields_glyph,7,components);
+    init_field_key(node_fields_glyph,8,xoffset);
+    init_field_key(node_fields_glyph,9,yoffset);
+    init_field_key(node_fields_glyph,10,width);
+    init_field_key(node_fields_glyph,11,height);
+    init_field_key(node_fields_glyph,12,depth);
+    init_field_key(node_fields_glyph,13,expansion_factor);
+    init_field_nop(node_fields_glyph,14);
+
+    init_field_key(node_fields_insert,0,attr);
+    init_field_key(node_fields_insert,1,cost);
+    init_field_key(node_fields_insert,2,depth);
+    init_field_key(node_fields_insert,3,height);
+    init_field_key(node_fields_insert,4,spec);
+    init_field_key(node_fields_insert,5,head);
+    init_field_nop(node_fields_insert,6);
+
+    init_field_key(node_fields_inserting,0,height);
+    init_field_key(node_fields_inserting,1,last_ins_ptr);
+    init_field_key(node_fields_inserting,2,best_ins_ptr);
+    init_field_key(node_fields_inserting,3,width);
+    init_field_key(node_fields_inserting,4,stretch);
+    init_field_key(node_fields_inserting,5,shrink);
+    init_field_key(node_fields_inserting,6,stretch_order);
+    init_field_key(node_fields_inserting,7,shrink_order);
+    init_field_nop(node_fields_inserting,8);
+
+    init_field_key(node_fields_kern,0,attr);
+    init_field_key(node_fields_kern,1,kern);
+    init_field_key(node_fields_kern,2,expansion_factor);
+    init_field_nop(node_fields_kern,3);
+
+    init_field_key(node_fields_list,0,attr);
+    init_field_key(node_fields_list,1,width);
+    init_field_key(node_fields_list,2,depth);
+    init_field_key(node_fields_list,3,height);
+    init_field_key(node_fields_list,4,dir);
+    init_field_key(node_fields_list,5,shift);
+    init_field_key(node_fields_list,6,glue_order);
+    init_field_key(node_fields_list,7,glue_sign);
+    init_field_key(node_fields_list,8,glue_set);
+    init_field_key(node_fields_list,9,head);
+    init_field_nop(node_fields_list,10);
+
+    init_field_key(node_fields_local_par,0,attr);
+    init_field_key(node_fields_local_par,1,pen_inter);
+    init_field_key(node_fields_local_par,2,pen_broken);
+    init_field_key(node_fields_local_par,3,dir);
+    init_field_key(node_fields_local_par,4,box_left);
+    init_field_key(node_fields_local_par,5,box_left_width);
+    init_field_key(node_fields_local_par,6,box_right);
+    init_field_key(node_fields_local_par,7,box_right_width);
+    init_field_nop(node_fields_local_par,8);
+
+    init_field_key(node_fields_margin_kern,0,attr);
+    init_field_key(node_fields_margin_kern,1,width);
+    init_field_key(node_fields_margin_kern,2,glyph);
+    init_field_nop(node_fields_margin_kern,3);
+
+    init_field_key(node_fields_mark,0,attr);
+    init_field_key(node_fields_mark,1,class);
+    init_field_key(node_fields_mark,2,mark);
+    init_field_nop(node_fields_mark,3);
+
+    init_field_key(node_fields_math,0,attr);
+    init_field_key(node_fields_math,1,surround);
+    init_field_key(node_fields_math,2,width);
+    init_field_key(node_fields_math,3,stretch);
+    init_field_key(node_fields_math,4,shrink);
+    init_field_key(node_fields_math,5,stretch_order);
+    init_field_key(node_fields_math,6,shrink_order);
+    init_field_nop(node_fields_math,7);
+
+    init_field_key(node_fields_math_char,0,attr);
+    init_field_key(node_fields_math_char,1,fam);
+    init_field_key(node_fields_math_char,2,char);
+    init_field_nop(node_fields_math_char,3);
+
+    init_field_key(node_fields_math_text_char,0,attr);
+    init_field_key(node_fields_math_text_char,1,fam);
+    init_field_key(node_fields_math_text_char,2,char);
+    init_field_nop(node_fields_math_text_char,3);
+
+    init_field_key(node_fields_noad,0,attr);
+    init_field_key(node_fields_noad,1,nucleus);
+    init_field_key(node_fields_noad,2,sub);
+    init_field_key(node_fields_noad,3,sup);
+    init_field_nop(node_fields_noad,4);
+
+    init_field_key(node_fields_penalty,0,attr);
+    init_field_key(node_fields_penalty,1,penalty);
+    init_field_nop(node_fields_penalty,2);
+
+    init_field_key(node_fields_radical,0,attr);
+    init_field_key(node_fields_radical,1,nucleus);
+    init_field_key(node_fields_radical,2,sub);
+    init_field_key(node_fields_radical,3,sup);
+    init_field_key(node_fields_radical,4,left);
+    init_field_key(node_fields_radical,5,degree);
+    init_field_key(node_fields_radical,6,width);
+    init_field_key(node_fields_radical,7,options);
+    init_field_nop(node_fields_radical,8);
+
+    init_field_key(node_fields_rule,0,attr);
+    init_field_key(node_fields_rule,1,width);
+    init_field_key(node_fields_rule,2,depth);
+    init_field_key(node_fields_rule,3,height);
+    init_field_key(node_fields_rule,4,dir);
+    init_field_key(node_fields_rule,5,index);
+    init_field_key(node_fields_rule,6,left);
+    init_field_key(node_fields_rule,7,right);
+    init_field_nop(node_fields_rule,8);
+
+    init_field_key(node_fields_splitup,0,height);
+    init_field_key(node_fields_splitup,1,last_ins_ptr);
+    init_field_key(node_fields_splitup,2,best_ins_ptr);
+    init_field_key(node_fields_splitup,3,broken_ptr);
+    init_field_key(node_fields_splitup,4,broken_ins);
+    init_field_nop(node_fields_splitup,5);
+
+    init_field_key(node_fields_style,0,attr);
+    init_field_key(node_fields_style,1,style);
+    init_field_nop(node_fields_style,2);
+
+    init_field_key(node_fields_sub_box,0,attr);
+    init_field_key(node_fields_sub_box,1,head);
+    init_field_nop(node_fields_sub_box,2);
+
+    init_field_key(node_fields_sub_mlist,0,attr);
+    init_field_key(node_fields_sub_mlist,1,head);
+    init_field_nop(node_fields_sub_mlist,2);
+
+    init_field_key(node_fields_unset,0,attr);
+    init_field_key(node_fields_unset,1,width);
+    init_field_key(node_fields_unset,2,depth);
+    init_field_key(node_fields_unset,3,height);
+    init_field_key(node_fields_unset,4,dir);
+    init_field_key(node_fields_unset,5,shrink);
+    init_field_key(node_fields_unset,6,glue_order);
+    init_field_key(node_fields_unset,7,glue_sign);
+    init_field_key(node_fields_unset,8,stretch);
+    init_field_key(node_fields_unset,9,span);
+    init_field_key(node_fields_unset,10,head);
+    init_field_nop(node_fields_unset,11);
+
 }
 
-const char *node_subtypes_pdf_destination[] = {
-    "xyz", "fit", "fith", "fitv", "fitb", "fitbh", "fitbv", "fitr", NULL
-};
-const char *node_subtypes_pdf_literal[] = {
-    "origin", "page", "direct", NULL
-};
-
 node_info whatsit_node_data[] = {
-    { open_node,             open_node_size,           node_fields_whatsit_open,             NULL, -1, 0 },
-    { write_node,            write_node_size,          node_fields_whatsit_write,            NULL, -1, 0 },
-    { close_node,            close_node_size,          node_fields_whatsit_close,            NULL, -1, 0 },
-    { special_node,          special_node_size,        node_fields_whatsit_special,          NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
-    { save_pos_node,         save_pos_node_size,       node_fields_whatsit_save_pos,         NULL, -1, 0 },
-    { late_lua_node,         late_lua_node_size,       node_fields_whatsit_late_lua,         NULL, -1, 0 },
-    { user_defined_node,     user_defined_node_size,   node_fields_whatsit_user_defined,     NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
-    { fake_node,             fake_node_size,           NULL,                                 NULL, -1, 0 },
+    { open_node,             open_node_size,           NULL, node_fields_whatsit_open,             NULL, -1, 0 },
+    { write_node,            write_node_size,          NULL, node_fields_whatsit_write,            NULL, -1, 0 },
+    { close_node,            close_node_size,          NULL, node_fields_whatsit_close,            NULL, -1, 0 },
+    { special_node,          special_node_size,        NULL, node_fields_whatsit_special,          NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
+    { save_pos_node,         save_pos_node_size,       NULL, node_fields_whatsit_save_pos,         NULL, -1, 0 },
+    { late_lua_node,         late_lua_node_size,       NULL, node_fields_whatsit_late_lua,         NULL, -1, 0 },
+    { user_defined_node,     user_defined_node_size,   NULL, node_fields_whatsit_user_defined,     NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
+    { fake_node,             fake_node_size,           NULL, NULL,                                 NULL, -1, 0 },
     /* here starts the dvi backend section, todo: a separate list  */
     /* nothing for dvi */
     /* here starts the pdf backend section, todo: a separate list  */
-    { pdf_literal_node,      write_node_size,          node_fields_whatsit_pdf_literal,      NULL, -1, 0 },
-    { pdf_refobj_node,       pdf_refobj_node_size,     node_fields_whatsit_pdf_refobj,       NULL, -1, 0 },
-    { pdf_annot_node,        pdf_annot_node_size,      node_fields_whatsit_pdf_annot,        NULL, -1, 0 },
-    { pdf_start_link_node,   pdf_annot_node_size,      node_fields_whatsit_pdf_start_link,   NULL, -1, 0 },
-    { pdf_end_link_node,     pdf_end_link_node_size,   node_fields_whatsit_pdf_end_link,     NULL, -1, 0 },
-    { pdf_dest_node,         pdf_dest_node_size,       node_fields_whatsit_pdf_dest,         NULL, -1, 0 },
-    { pdf_action_node,       pdf_action_size,          node_fields_whatsit_pdf_action,       NULL, -1, 0 },
-    { pdf_thread_node,       pdf_thread_node_size,     node_fields_whatsit_pdf_thread,       NULL, -1, 0 },
-    { pdf_start_thread_node, pdf_thread_node_size,     node_fields_whatsit_pdf_start_thread, NULL, -1, 0 },
-    { pdf_end_thread_node,   pdf_end_thread_node_size, node_fields_whatsit_pdf_end_thread,   NULL, -1, 0 },
-    { pdf_thread_data_node,  pdf_thread_node_size,     NULL,                                 NULL, -1, 0 },
-    { pdf_link_data_node,    pdf_annot_node_size,      NULL,                                 NULL, -1, 0 },
-    { pdf_colorstack_node,   pdf_colorstack_node_size, node_fields_whatsit_pdf_colorstack,   NULL, -1, 0 },
-    { pdf_setmatrix_node,    pdf_setmatrix_node_size,  node_fields_whatsit_pdf_setmatrix,    NULL, -1, 0 },
-    { pdf_save_node,         pdf_save_node_size,       node_fields_whatsit_pdf_save,         NULL, -1, 0 },
-    { pdf_restore_node,      pdf_restore_node_size,    node_fields_whatsit_pdf_restore,      NULL, -1, 0 },
+    { pdf_literal_node,      write_node_size,          NULL, node_fields_whatsit_pdf_literal,      NULL, -1, 0 },
+    { pdf_refobj_node,       pdf_refobj_node_size,     NULL, node_fields_whatsit_pdf_refobj,       NULL, -1, 0 },
+    { pdf_annot_node,        pdf_annot_node_size,      NULL, node_fields_whatsit_pdf_annot,        NULL, -1, 0 },
+    { pdf_start_link_node,   pdf_annot_node_size,      NULL, node_fields_whatsit_pdf_start_link,   NULL, -1, 0 },
+    { pdf_end_link_node,     pdf_end_link_node_size,   NULL, node_fields_whatsit_pdf_end_link,     NULL, -1, 0 },
+    { pdf_dest_node,         pdf_dest_node_size,       NULL, node_fields_whatsit_pdf_dest,         NULL, -1, 0 },
+    { pdf_action_node,       pdf_action_size,          NULL, node_fields_whatsit_pdf_action,       NULL, -1, 0 },
+    { pdf_thread_node,       pdf_thread_node_size,     NULL, node_fields_whatsit_pdf_thread,       NULL, -1, 0 },
+    { pdf_start_thread_node, pdf_thread_node_size,     NULL, node_fields_whatsit_pdf_start_thread, NULL, -1, 0 },
+    { pdf_end_thread_node,   pdf_end_thread_node_size, NULL, node_fields_whatsit_pdf_end_thread,   NULL, -1, 0 },
+    { pdf_thread_data_node,  pdf_thread_node_size,     NULL, NULL,                                 NULL, -1, 0 },
+    { pdf_link_data_node,    pdf_annot_node_size,      NULL, NULL,                                 NULL, -1, 0 },
+    { pdf_colorstack_node,   pdf_colorstack_node_size, NULL, node_fields_whatsit_pdf_colorstack,   NULL, -1, 0 },
+    { pdf_setmatrix_node,    pdf_setmatrix_node_size,  NULL, node_fields_whatsit_pdf_setmatrix,    NULL, -1, 0 },
+    { pdf_save_node,         pdf_save_node_size,       NULL, node_fields_whatsit_pdf_save,         NULL, -1, 0 },
+    { pdf_restore_node,      pdf_restore_node_size,    NULL, node_fields_whatsit_pdf_restore,      NULL, -1, 0 },
     /* done */
-    { -1,                    -1,                       NULL,                                 NULL, -1, 0 },
+    { -1,                    -1,                       NULL, NULL,                                 NULL, -1, 0 },
 };
 
 void l_set_whatsit_data(void) {
-    whatsit_node_data[open_node].lua             = lua_key_index(open);              whatsit_node_data[open_node].name             = lua_key(open);
-    whatsit_node_data[write_node].lua            = lua_key_index(write);             whatsit_node_data[write_node].name            = lua_key(write);
-    whatsit_node_data[close_node].lua            = lua_key_index(close);             whatsit_node_data[close_node].name            = lua_key(close);
-    whatsit_node_data[special_node].lua          = lua_key_index(special);           whatsit_node_data[special_node].name          = lua_key(special);
-    whatsit_node_data[save_pos_node].lua         = lua_key_index(save_pos);          whatsit_node_data[save_pos_node].name         = lua_key(save_pos);
-    whatsit_node_data[late_lua_node].lua         = lua_key_index(late_lua);          whatsit_node_data[late_lua_node].name         = lua_key(late_lua);
-    whatsit_node_data[user_defined_node].lua     = lua_key_index(user_defined);      whatsit_node_data[user_defined_node].name     = lua_key(user_defined);
-    whatsit_node_data[pdf_literal_node].lua      = lua_key_index(pdf_literal);       whatsit_node_data[pdf_literal_node].name      = lua_key(pdf_literal);
-    whatsit_node_data[pdf_refobj_node].lua       = lua_key_index(pdf_refobj);        whatsit_node_data[pdf_refobj_node].name       = lua_key(pdf_refobj);
-    whatsit_node_data[pdf_annot_node].lua        = lua_key_index(pdf_annot);         whatsit_node_data[pdf_annot_node].name        = lua_key(pdf_annot);
-    whatsit_node_data[pdf_start_link_node].lua   = lua_key_index(pdf_start_link);    whatsit_node_data[pdf_start_link_node].name   = lua_key(pdf_start_link);
-    whatsit_node_data[pdf_end_link_node].lua     = lua_key_index(pdf_end_link);      whatsit_node_data[pdf_end_link_node].name     = lua_key(pdf_end_link);
-    whatsit_node_data[pdf_dest_node].lua         = lua_key_index(pdf_dest);          whatsit_node_data[pdf_dest_node].name         = lua_key(pdf_dest);
-    whatsit_node_data[pdf_action_node].lua       = lua_key_index(pdf_action);        whatsit_node_data[pdf_action_node].name       = lua_key(pdf_action);
-    whatsit_node_data[pdf_thread_node].lua       = lua_key_index(pdf_thread);        whatsit_node_data[pdf_thread_node].name       = lua_key(pdf_thread);
-    whatsit_node_data[pdf_start_thread_node].lua = lua_key_index(pdf_start_thread);  whatsit_node_data[pdf_start_thread_node].name = lua_key(pdf_start_thread);
-    whatsit_node_data[pdf_end_thread_node].lua   = lua_key_index(pdf_end_thread);    whatsit_node_data[pdf_end_thread_node].name   = lua_key(pdf_end_thread);
-    whatsit_node_data[pdf_thread_data_node].lua  = lua_key_index(pdf_thread_data);   whatsit_node_data[pdf_thread_data_node].name  = lua_key(pdf_thread_data);
-    whatsit_node_data[pdf_link_data_node].lua    = lua_key_index(pdf_link_data);     whatsit_node_data[pdf_link_data_node].name    = lua_key(pdf_link_data);
-    whatsit_node_data[pdf_colorstack_node].lua   = lua_key_index(pdf_colorstack);    whatsit_node_data[pdf_colorstack_node].name   = lua_key(pdf_colorstack);
-    whatsit_node_data[pdf_setmatrix_node].lua    = lua_key_index(pdf_setmatrix);     whatsit_node_data[pdf_setmatrix_node].name    = lua_key(pdf_setmatrix);
-    whatsit_node_data[pdf_save_node].lua         = lua_key_index(pdf_save);          whatsit_node_data[pdf_save_node].name         = lua_key(pdf_save);
-    whatsit_node_data[pdf_restore_node].lua      = lua_key_index(pdf_restore);       whatsit_node_data[pdf_restore_node].name      = lua_key(pdf_restore);
+    init_node_key(whatsit_node_data,             open_node,            open)
+    init_node_key(whatsit_node_data,             write_node,           write)
+    init_node_key(whatsit_node_data,             close_node,           close)
+    init_node_key(whatsit_node_data,             special_node,         special)
+    init_node_key(whatsit_node_data,             save_pos_node,        save_pos)
+    init_node_key(whatsit_node_data,             late_lua_node,        late_lua)
+    init_node_key(whatsit_node_data,             user_defined_node,    user_defined)
+
+    init_field_key(node_fields_whatsit_close,0,attr);
+    init_field_key(node_fields_whatsit_close,1,stream);
+    init_field_nop(node_fields_whatsit_close,2);
+
+    init_field_key(node_fields_whatsit_late_lua,0,attr);
+    init_field_key(node_fields_whatsit_late_lua,1,reg);
+    init_field_key(node_fields_whatsit_late_lua,2,data);
+    init_field_key(node_fields_whatsit_late_lua,3,name);
+    init_field_key(node_fields_whatsit_late_lua,4,string);
+    init_field_nop(node_fields_whatsit_late_lua,5);
+
+    init_field_key(node_fields_whatsit_open,0,attr);
+    init_field_key(node_fields_whatsit_open,1,stream);
+    init_field_key(node_fields_whatsit_open,2,name);
+    init_field_key(node_fields_whatsit_open,3,area);
+    init_field_key(node_fields_whatsit_open,4,ext);
+    init_field_nop(node_fields_whatsit_open,5);
+
+    init_field_key(node_fields_whatsit_save_pos,0,attr);
+    init_field_nop(node_fields_whatsit_save_pos,1);
+
+    init_field_key(node_fields_whatsit_special,0,attr);
+    init_field_key(node_fields_whatsit_special,1,data);
+    init_field_nop(node_fields_whatsit_special,2);
+
+    init_field_key(node_fields_whatsit_user_defined,0,attr);
+    init_field_key(node_fields_whatsit_user_defined,1,user_id);
+    init_field_key(node_fields_whatsit_user_defined,2,type);
+    init_field_key(node_fields_whatsit_user_defined,3,value);
+    init_field_nop(node_fields_whatsit_user_defined,4);
+
+    init_field_key(node_fields_whatsit_write,0,attr);
+    init_field_key(node_fields_whatsit_write,1,stream);
+    init_field_key(node_fields_whatsit_write,2,data);
+    init_field_nop(node_fields_whatsit_write,3);
+
+    init_node_key(whatsit_node_data,             pdf_literal_node,     pdf_literal)
+    init_node_key(whatsit_node_data,             pdf_refobj_node,      pdf_refobj)
+    init_node_key(whatsit_node_data,             pdf_annot_node,       pdf_annot)
+    init_node_key(whatsit_node_data,             pdf_start_link_node,  pdf_start_link)
+    init_node_key(whatsit_node_data,             pdf_end_link_node,    pdf_end_link)
+    init_node_key(whatsit_node_data,             pdf_dest_node,        pdf_dest)
+    init_node_key(whatsit_node_data,             pdf_action_node,      pdf_action)
+    init_node_key(whatsit_node_data,             pdf_thread_node,      pdf_thread)
+    init_node_key(whatsit_node_data,             pdf_start_thread_node,pdf_start_thread)
+    init_node_key(whatsit_node_data,             pdf_end_thread_node,  pdf_end_thread)
+    init_node_key(whatsit_node_data,             pdf_thread_data_node, pdf_thread_data)
+    init_node_key(whatsit_node_data,             pdf_link_data_node,   pdf_link_data)
+    init_node_key(whatsit_node_data,             pdf_colorstack_node,  pdf_colorstack)
+    init_node_key(whatsit_node_data,             pdf_setmatrix_node,   pdf_setmatrix)
+    init_node_key(whatsit_node_data,             pdf_save_node,        pdf_save)
+    init_node_key(whatsit_node_data,             pdf_restore_node,     pdf_restore)
+
+    init_node_key(node_values_pdf_destination,   0,                    xyz)
+    init_node_key(node_values_pdf_destination,   1,                    fit)
+    init_node_key(node_values_pdf_destination,   2,                    fith)
+    init_node_key(node_values_pdf_destination,   3,                    fitv)
+    init_node_key(node_values_pdf_destination,   4,                    fitb)
+    init_node_key(node_values_pdf_destination,   5,                    fitbh)
+    init_node_key(node_values_pdf_destination,   6,                    fitbv)
+    init_node_key(node_values_pdf_destination,   7,                    fitr)
+
+    init_node_key(node_values_pdf_literal,       set_origin,           origin)
+    init_node_key(node_values_pdf_literal,       direct_page,          page)
+    init_node_key(node_values_pdf_literal,       direct_always,        always)
+    init_node_key(node_values_pdf_literal,       direct_raw,           raw)
+    init_node_key(node_values_pdf_literal,       direct_text,          text)
+    init_node_key(node_values_pdf_literal,       direct_font,          font)
+    init_node_key(node_values_pdf_literal,       scan_special,         special)
+
+    init_node_key(node_values_pdf_action,        0,                    page)
+    init_node_key(node_values_pdf_action,        1,                    goto)
+    init_node_key(node_values_pdf_action,        2,                    thread)
+    init_node_key(node_values_pdf_action,        3,                    user)
+
+    init_node_key(node_values_pdf_window,        0,                    unset)
+    init_node_key(node_values_pdf_window,        1,                    new)
+    init_node_key(node_values_pdf_window,        2,                    nonew)
+
+    init_node_key(node_values_color_stack,       0,                    set)
+    init_node_key(node_values_color_stack,       1,                    push)
+    init_node_key(node_values_color_stack,       2,                    pop)
+    init_node_key(node_values_color_stack,       3,                    current)
+
+    init_field_key(node_fields_whatsit_pdf_action,0,action_type);
+    init_field_key(node_fields_whatsit_pdf_action,1,named_id);
+    init_field_key(node_fields_whatsit_pdf_action,2,action_id);
+    init_field_key(node_fields_whatsit_pdf_action,3,file);
+    init_field_key(node_fields_whatsit_pdf_action,4,new_window);
+    init_field_key(node_fields_whatsit_pdf_action,5,data);
+    init_field_nop(node_fields_whatsit_pdf_action,6);
+
+    init_field_key(node_fields_whatsit_pdf_annot,0,attr);
+    init_field_key(node_fields_whatsit_pdf_annot,1,width);
+    init_field_key(node_fields_whatsit_pdf_annot,2,depth);
+    init_field_key(node_fields_whatsit_pdf_annot,3,height);
+    init_field_key(node_fields_whatsit_pdf_annot,4,objnum);
+    init_field_key(node_fields_whatsit_pdf_annot,5,data);
+    init_field_nop(node_fields_whatsit_pdf_annot,6);
+
+    init_field_key(node_fields_whatsit_pdf_colorstack,0,attr);
+    init_field_key(node_fields_whatsit_pdf_colorstack,1,stack);
+    init_field_key(node_fields_whatsit_pdf_colorstack,2,cmd);
+    init_field_key(node_fields_whatsit_pdf_colorstack,3,data);
+    init_field_nop(node_fields_whatsit_pdf_colorstack,4);
+
+    init_field_key(node_fields_whatsit_pdf_dest,0,attr);
+    init_field_key(node_fields_whatsit_pdf_dest,1,width);
+    init_field_key(node_fields_whatsit_pdf_dest,2,depth);
+    init_field_key(node_fields_whatsit_pdf_dest,3,height);
+    init_field_key(node_fields_whatsit_pdf_dest,4,named_id);
+    init_field_key(node_fields_whatsit_pdf_dest,5,dest_id);
+    init_field_key(node_fields_whatsit_pdf_dest,6,dest_type);
+    init_field_key(node_fields_whatsit_pdf_dest,7,xyz_zoom);
+    init_field_key(node_fields_whatsit_pdf_dest,8,objnum);
+    init_field_nop(node_fields_whatsit_pdf_dest,9);
+
+    init_field_key(node_fields_whatsit_pdf_end_link,0,attr);
+    init_field_nop(node_fields_whatsit_pdf_end_link,1);
+
+    init_field_key(node_fields_whatsit_pdf_end_thread,0,attr);
+    init_field_nop(node_fields_whatsit_pdf_end_thread,1);
+
+    init_field_key(node_fields_whatsit_pdf_literal,0,attr);
+    init_field_key(node_fields_whatsit_pdf_literal,1,mode);
+    init_field_key(node_fields_whatsit_pdf_literal,2,data);
+    init_field_nop(node_fields_whatsit_pdf_literal,3);
+
+    init_field_key(node_fields_whatsit_pdf_refobj,0,attr);
+    init_field_key(node_fields_whatsit_pdf_refobj,1,objnum);
+    init_field_nop(node_fields_whatsit_pdf_refobj,2);
+
+    init_field_key(node_fields_whatsit_pdf_restore,0,attr);
+    init_field_nop(node_fields_whatsit_pdf_restore,1);
+
+    init_field_key(node_fields_whatsit_pdf_save,0,attr);
+    init_field_nop(node_fields_whatsit_pdf_save,1);
+
+    init_field_key(node_fields_whatsit_pdf_setmatrix,0,attr);
+    init_field_key(node_fields_whatsit_pdf_setmatrix,1,data);
+    init_field_nop(node_fields_whatsit_pdf_setmatrix,2);
+
+    init_field_key(node_fields_whatsit_pdf_start_link,0,attr);
+    init_field_key(node_fields_whatsit_pdf_start_link,1,width);
+    init_field_key(node_fields_whatsit_pdf_start_link,2,depth);
+    init_field_key(node_fields_whatsit_pdf_start_link,3,height);
+    init_field_key(node_fields_whatsit_pdf_start_link,4,objnum);
+    init_field_key(node_fields_whatsit_pdf_start_link,5,link_attr);
+    init_field_key(node_fields_whatsit_pdf_start_link,6,action);
+    init_field_nop(node_fields_whatsit_pdf_start_link,7);
+
+    init_field_key(node_fields_whatsit_pdf_start_thread,0,attr);
+    init_field_key(node_fields_whatsit_pdf_start_thread,1,width);
+    init_field_key(node_fields_whatsit_pdf_start_thread,2,depth);
+    init_field_key(node_fields_whatsit_pdf_start_thread,3,height);
+    init_field_key(node_fields_whatsit_pdf_start_thread,4,named_id);
+    init_field_key(node_fields_whatsit_pdf_start_thread,5,thread_id);
+    init_field_key(node_fields_whatsit_pdf_start_thread,6,thread_attr);
+    init_field_nop(node_fields_whatsit_pdf_start_thread,7);
+
+    init_field_key(node_fields_whatsit_pdf_thread,0,attr);
+    init_field_key(node_fields_whatsit_pdf_thread,1,width);
+    init_field_key(node_fields_whatsit_pdf_thread,2,depth);
+    init_field_key(node_fields_whatsit_pdf_thread,3,height);
+    init_field_key(node_fields_whatsit_pdf_thread,4,named_id);
+    init_field_key(node_fields_whatsit_pdf_thread,5,thread_id);
+    init_field_key(node_fields_whatsit_pdf_thread,6,thread_attr);
+    init_field_nop(node_fields_whatsit_pdf_thread,7);
+
 }
 
 #define last_whatsit_node pdf_restore_node
