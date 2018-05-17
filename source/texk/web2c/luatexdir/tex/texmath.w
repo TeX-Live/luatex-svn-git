@@ -1917,16 +1917,36 @@ void close_math_group(pointer p)
 {
     int old_style = m_style;
     unsave_math();
-
     decr(save_ptr);
     assert(saved_type(0) == saved_math);
     type(saved_value(0)) = sub_mlist_node;
     p = fin_mlist(null);
     math_list(saved_value(0)) = p;
-    if (p != null) {
-        if (vlink(p) == null) {
-            if (type(p) == simple_noad && subtype(p) == ord_noad_type) {
-                if (subscr(p) == null && supscr(p) == null) {
+    if (p != null && vlink(p) == null) {
+        if (type(p) == simple_noad) {
+            if (subscr(p) == null && supscr(p) == null) {
+                int flatten = 0; /* (subtype(p) == ord_noad_type) */
+                int modepar = math_flatten_mode_par;
+                switch (subtype(p)) {
+                    case ord_noad_type :
+                        flatten = (modepar & 1) == 1;
+                        break;
+                    case bin_noad_type :
+                        flatten = (modepar & 2) == 2;
+                        break;
+                    case rel_noad_type :
+                        flatten = (modepar & 4) == 4;
+                        break;
+                    case punct_noad_type :
+                        flatten = (modepar & 8) == 8;
+                        break;
+                    case inner_noad_type :
+                        flatten = (modepar & 16) == 16;
+                        break;
+                    default:
+                        break;
+                }
+                if (flatten) {
                     type(saved_value(0)) = type(nucleus(p));
                     if (type(nucleus(p)) == math_char_node) {
                         math_fam(saved_value(0)) = math_fam(nucleus(p));
@@ -1941,24 +1961,21 @@ void close_math_group(pointer p)
                     node_attr(nucleus(p)) = null;
                     flush_node(p);
                 }
-            } else if (type(p) == accent_noad) {
-                if (saved_value(0) == nucleus(tail)) {
-                    if (type(tail) == simple_noad
-                        && subtype(tail) == ord_noad_type) {
-                        pointer q = head;
-                        while (vlink(q) != tail)
-                            q = vlink(q);
-                        vlink(q) = p;
-                        nucleus(tail) = null;
-                        subscr(tail) = null;
-                        supscr(tail) = null;
-                        delete_attribute_ref(node_attr(p));
-                        node_attr(p) = node_attr(tail);
-                        node_attr(tail) = null;
-                        flush_node(tail);
-                        tail = p;
-                    }
-                }
+            }
+        } else if (type(p) == accent_noad) {
+            if (saved_value(0) == nucleus(tail) && type(tail) == simple_noad  && subtype(tail) == ord_noad_type) {
+                pointer q = head;
+                while (vlink(q) != tail)
+                    q = vlink(q);
+                vlink(q) = p;
+                nucleus(tail) = null;
+                subscr(tail) = null;
+                supscr(tail) = null;
+                delete_attribute_ref(node_attr(p));
+                node_attr(p) = node_attr(tail);
+                node_attr(tail) = null;
+                flush_node(tail);
+                tail = p;
             }
         }
     }

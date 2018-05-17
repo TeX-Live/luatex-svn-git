@@ -3696,6 +3696,7 @@ void initialize(void)
         font_bytes = 0;
         px_dimen_par = one_bp;
         math_eqno_gap_step_par = 1000 ;
+        math_flatten_mode_par = 1; /* ord */
         cs_text(frozen_protection) = maketexstring("inaccessible");
         format_ident = maketexstring(" (INITEX)");
         cs_text(end_write) = maketexstring("endwrite");

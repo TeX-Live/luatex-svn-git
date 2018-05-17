@@ -303,8 +303,9 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_script_box_mode_code 111
 #  define math_script_char_mode_code 112
 #  define math_rule_thickness_mode_code 113
+#  define math_flatten_mode_code 114
 
-#  define suppress_primitive_error_code 114
+#  define suppress_primitive_error_code 115
 
 #  define math_option_code (suppress_primitive_error_code+1)
 
@@ -669,6 +670,7 @@ extern halfword last_cs_name;
 #define math_script_box_mode_par           int_par(math_script_box_mode_code)
 #define math_script_char_mode_par          int_par(math_script_char_mode_code)
 #define math_rule_thickness_mode_par       int_par(math_rule_thickness_mode_code)
+#define math_flatten_mode_par              int_par(math_flatten_mode_code)
 #define null_delimiter_space_par           dimen_par(null_delimiter_space_code)
 #define disable_lig_par                    int_par(disable_lig_code)
 #define disable_kern_par                   int_par(disable_kern_code)
