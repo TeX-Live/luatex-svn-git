@@ -1273,16 +1273,16 @@ format and will be available at runtime.
 
 This function returns a list of the primitives that originate from the engine(s)
 given by the requested string value(s). The possible values and their (current)
-return values are:
+return values are given in the following table. In addition the somewhat special
+primitives \quote{\tex{ }}, \quote{\tex {/}} and \quote{\type {-}} are defined.
 
 \startluacode
 function document.showprimitives(tag)
     for k, v in table.sortedpairs(tex.extraprimitives(tag)) do
-        if v == ' ' then
-            v = '\\normalcontrolspace'
+        if v ~= ' ' and v ~= "/" and v ~= "-" then
+            context.type(v)
+            context.space()
         end
-        context.type(v)
-        context.space()
     end
 end
 \stopluacode

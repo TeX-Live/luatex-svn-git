@@ -32,9 +32,8 @@ names as in traditional \ETEX. Keep in mind that these \ETEX\ node numbers are
 different from the real internal ones and that there are more \ETEX\ node types
 than~15.
 
-You can ask for a list of fields with the \type {node.fields} (which takes an id)
-and for valid subtypes with \type {node.subtypes} (which takes a string because
-eventually we might support more used enumerations).
+You can ask for a list of fields with the \type {node.fields} and for valid
+subtypes with \type {node.subtypes}.
 
 The \type {node.values} function reports some used values. Valid arguments are
 \nod {dir}, \type {direction}, \nod {glue}, \whs {pdf_literal}, \whs
@@ -579,7 +578,7 @@ However, only four combinations are accepted: \type {TLT}, \type {TRT}, \type
 direction is indicated by a \type {+} or \type {-}, indicating whether the value
 is pushed or popped from the direction stack.
 
-\subsubsection{\nod {margin_kern} nodes}
+\subsubsection{\nod {marginkern} nodes}
 
 \topicindex {nodes+paragraphs}
 \topicindex {paragraphs}
@@ -590,7 +589,7 @@ Margin kerns result from protrusion.
 \starttabulate[|l|l|p|]
 \DB field          \BC type   \BC explanation \NC \NR
 \TB
-\NC \type{subtype} \NC number \NC \showsubtypes{margin_kern} \NC \NR
+\NC \type{subtype} \NC number \NC \showsubtypes{marginkern} \NC \NR
 \NC \type{attr}    \NC node   \NC list of attributes \NC \NR
 \NC \type{width}   \NC number \NC the advance of the kern \NC \NR
 \NC \type{glyph}   \NC node   \NC the glyph to be used \NC \NR

@@ -2609,7 +2609,7 @@ static int get_node_field_id(lua_State * L, int n, int node)
         }
         if (fields != NULL) {
             for (j = 0; fields[j].lua != 0; j++) {
-             /* if (strcmp(s, fields[j]) == 0) { */
+             // if (strcmp(s, fields[j]) == 0) {
                 if (fields[j].name == s) {
                     return j + 3;
                 }
@@ -2737,7 +2737,7 @@ static int lua_nodelib_fields(lua_State * L)
     }
     if (fields != NULL) {
         for (i = 0; fields[i].lua != 0; i++) {
-         /* lua_pushstring(L, fields[i]);*/ /* todo */
+         // lua_pushstring(L, fields[i]); /* todo */
             lua_rawgeti(L, LUA_REGISTRYINDEX, fields[i].lua);
             lua_rawseti(L, -2, (i + offset));
         }
@@ -2784,7 +2784,7 @@ static int lua_nodelib_values(lua_State * L)
 static int lua_nodelib_subtypes(lua_State * L)
 {
     int i = -1;
-    subtype_info *subtypes;
+    subtype_info *subtypes = NULL;
     const char *s ;
     int t = lua_type(L,1);
     if (t == LUA_TSTRING) {
