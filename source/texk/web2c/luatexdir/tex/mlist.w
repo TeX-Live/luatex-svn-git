@@ -3885,9 +3885,9 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
     case both_types(ord_noad_type,       inner_noad_type    ): x = get_math_param(math_param_ord_inner_spacing,mstyle); break;
     case both_types(op_noad_type_normal, ord_noad_type      ): x = get_math_param(math_param_op_ord_spacing,mstyle); break;
     case both_types(op_noad_type_normal, op_noad_type_normal): x = get_math_param(math_param_op_op_spacing,mstyle); break;
-#if 0
+    /* shouldn't happen */
     case both_types(op_noad_type_normal, bin_noad_type      ): x = get_math_param(math_param_op_bin_spacing,mstyle); break;
-#endif
+    /* */
     case both_types(op_noad_type_normal, rel_noad_type      ): x = get_math_param(math_param_op_rel_spacing,mstyle); break;
     case both_types(op_noad_type_normal, open_noad_type     ): x = get_math_param(math_param_op_open_spacing,mstyle); break;
     case both_types(op_noad_type_normal, close_noad_type    ): x = get_math_param(math_param_op_close_spacing,mstyle); break;
@@ -3895,21 +3895,21 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
     case both_types(op_noad_type_normal, inner_noad_type    ): x = get_math_param(math_param_op_inner_spacing,mstyle); break;
     case both_types(bin_noad_type,       ord_noad_type      ): x = get_math_param(math_param_bin_ord_spacing,mstyle); break;
     case both_types(bin_noad_type,       op_noad_type_normal): x = get_math_param(math_param_bin_op_spacing,mstyle); break;
-#if 0
+    /* shouldn't happen */
     case both_types(bin_noad_type,       bin_noad_type      ): x = get_math_param(math_param_bin_bin_spacing,mstyle); break;
     case both_types(bin_noad_type,       rel_noad_type      ): x = get_math_param(math_param_bin_rel_spacing,mstyle); break;
-#endif
+    /* */
     case both_types(bin_noad_type,       open_noad_type     ): x = get_math_param(math_param_bin_open_spacing,mstyle); break;
-#if 0
+    /* shouldn't happen */
     case both_types(bin_noad_type,       close_noad_type    ): x = get_math_param(math_param_bin_close_spacing,mstyle); break;
     case both_types(bin_noad_type,       punct_noad_type    ): x = get_math_param(math_param_bin_punct_spacing,mstyle); break;
-#endif
+    /* */
     case both_types(bin_noad_type,       inner_noad_type    ): x = get_math_param(math_param_bin_inner_spacing,mstyle); break;
     case both_types(rel_noad_type,       ord_noad_type      ): x = get_math_param(math_param_rel_ord_spacing,mstyle); break;
     case both_types(rel_noad_type,       op_noad_type_normal): x = get_math_param(math_param_rel_op_spacing,mstyle); break;
-#if 0
+    /* shouldn't happen */
     case both_types(rel_noad_type,       bin_noad_type      ): x = get_math_param(math_param_rel_bin_spacing,mstyle); break;
-#endif
+    /* */
     case both_types(rel_noad_type,       rel_noad_type      ): x = get_math_param(math_param_rel_rel_spacing,mstyle); break;
     case both_types(rel_noad_type,       open_noad_type     ): x = get_math_param(math_param_rel_open_spacing,mstyle); break;
     case both_types(rel_noad_type,       close_noad_type    ): x = get_math_param(math_param_rel_close_spacing,mstyle); break;
@@ -3917,9 +3917,9 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
     case both_types(rel_noad_type,       inner_noad_type    ): x = get_math_param(math_param_rel_inner_spacing,mstyle); break;
     case both_types(open_noad_type,      ord_noad_type      ): x = get_math_param(math_param_open_ord_spacing,mstyle); break;
     case both_types(open_noad_type,      op_noad_type_normal): x = get_math_param(math_param_open_op_spacing,mstyle); break;
-#if 0
+    /* shouldn't happen */
     case both_types(open_noad_type,      bin_noad_type      ): x = get_math_param(math_param_open_bin_spacing,mstyle); break;
-#endif
+    /* */
     case both_types(open_noad_type,      rel_noad_type      ): x = get_math_param(math_param_open_rel_spacing,mstyle); break;
     case both_types(open_noad_type,      open_noad_type     ): x = get_math_param(math_param_open_open_spacing,mstyle); break;
     case both_types(open_noad_type,      close_noad_type    ): x = get_math_param(math_param_open_close_spacing,mstyle); break;
@@ -3935,9 +3935,9 @@ static pointer math_spacing_glue(int l_type, int r_type, int mstyle, scaled mmu)
     case both_types(close_noad_type,     inner_noad_type    ): x = get_math_param(math_param_close_inner_spacing,mstyle); break;
     case both_types(punct_noad_type,     ord_noad_type      ): x = get_math_param(math_param_punct_ord_spacing,mstyle); break;
     case both_types(punct_noad_type,     op_noad_type_normal): x = get_math_param(math_param_punct_op_spacing,mstyle); break;
-#if 0
+    /* shouldn't happen */
     case both_types(punct_noad_type,     bin_noad_type      ): x = get_math_param(math_param_punct_bin_spacing,mstyle); break;
-#endif
+    /* */
     case both_types(punct_noad_type,     rel_noad_type      ): x = get_math_param(math_param_punct_rel_spacing,mstyle); break;
     case both_types(punct_noad_type,     open_noad_type     ): x = get_math_param(math_param_punct_open_spacing,mstyle); break;
     case both_types(punct_noad_type,     close_noad_type    ): x = get_math_param(math_param_punct_close_spacing,mstyle); break;
