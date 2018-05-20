@@ -2228,6 +2228,8 @@ void flush_node(halfword p)
             break ;
         case dir_node:
         case local_par_node:
+            free_sub_list(local_box_left(p));
+            free_sub_list(local_box_right(p));
         case boundary_node:
             break;
         case whatsit_node:

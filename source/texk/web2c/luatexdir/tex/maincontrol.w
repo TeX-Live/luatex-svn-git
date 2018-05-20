@@ -1867,8 +1867,13 @@ void build_local_box(void)
     decr(save_ptr);
     p = vlink(head);
     pop_nest();
-    if (p != null)
-        p = hpack(p, 0, additional, -1);
+    if (p != null) {
+     /* p = hpack(p, 0, additional, -1); */
+        /* somehow filtered_hpack goes beyond the first node so we loose it */
+        new_hyphenation(p, null);
+        (void) new_ligkern(p, null);
+        p = lua_hpack_filter(p, 0, additional, local_box_group, -1, null);
+    }
     if (kind == 0)
         eq_define(local_left_box_base, box_ref_cmd, p);
     else
