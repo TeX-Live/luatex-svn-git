@@ -2531,6 +2531,10 @@ void check_node(halfword p)
         case fence_noad:
             dorangetest(p, delimiter(p), var_mem_max);
             break;
+        case local_par_node:
+            dorangetest(p, local_box_left(p), var_mem_max);
+            dorangetest(p, local_box_right(p), var_mem_max);
+            break;
         /*
         case rule_node:
         case kern_node:
@@ -2553,7 +2557,6 @@ void check_node(halfword p)
         case expr_node:
         case dir_node:
         case boundary_node:
-        case local_par_node:
             break;
         default:
             fprintf(stdout, "check_node: type is %d\n", type(p));
