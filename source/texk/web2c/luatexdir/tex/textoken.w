@@ -2105,17 +2105,18 @@ void ins_the_toks(void)
 
 /* todo: global */
 
-#define set_toks_register(n,t,g) { \
+#define set_toks_register(n,t,g) do { \
     int a = (g>0) ? 4 : 0; \
     halfword ref = get_avail();  \
     set_token_ref_count(ref, 0); \
     set_token_link(ref, token_link(t)); \
     define(n + toks_base, call_cmd, ref); \
-}
+} while (0)
 
-#define append_copied_toks_list(s,t) \
-    halfword p = temp_token_head; \
+#define append_copied_toks_list(s,t) do { \
+    halfword p; \
     halfword q; \
+    p = temp_token_head; \
     set_token_link(p, null); \
     while (s != null) { \
         fast_store_new_token(token_info(s)); \
@@ -2124,7 +2125,9 @@ void ins_the_toks(void)
     while (t != null) { \
         fast_store_new_token(token_info(t)); \
         t = token_link(t); \
-    }
+    } \
+   } while (0)
+
 
 /*
     0 toksapp   1 etoksapp
@@ -2185,7 +2188,7 @@ void combine_the_toks(int how)
                             }
                         } else {
                             token_ref_count(target)--;
-                            append_copied_toks_list(t,s)
+                            append_copied_toks_list(t,s);
                             set_toks_register(nt,temp_token_head,global);
                         }
                     } else {
@@ -2204,7 +2207,7 @@ void combine_the_toks(int how)
                             set_token_link(target,h);
                         } else {
                             token_ref_count(target)--;
-                            append_copied_toks_list(s,t)
+                            append_copied_toks_list(s,t);
                             set_toks_register(nt,temp_token_head,global);
                         }
                     }
@@ -2244,7 +2247,7 @@ void combine_the_toks(int how)
                     }
                 } else {
                     token_ref_count(target)--;
-                    append_copied_toks_list(t,s)
+                    append_copied_toks_list(t,s);
                     set_toks_register(nt,temp_token_head,global);
                 }
             } else {
@@ -2263,7 +2266,7 @@ void combine_the_toks(int how)
                     set_token_link(target,h);
                 } else {
                     token_ref_count(target)--;
-                    append_copied_toks_list(s,t)
+                    append_copied_toks_list(s,t);
                     set_toks_register(nt,temp_token_head,global);
                 }
             }

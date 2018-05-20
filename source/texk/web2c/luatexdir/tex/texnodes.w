@@ -2057,8 +2057,12 @@ halfword copy_node(const halfword p)
             copy_sub_node(right_delimiter(r),right_delimiter(p)) ;
             break;
         case glue_spec_node:
+            break;
         case dir_node:
+            break;
         case local_par_node:
+            copy_sub_list(local_box_left(r),local_box_left(p));
+            copy_sub_list(local_box_right(r),local_box_right(p));
         case boundary_node:
             break;
         case whatsit_node:
@@ -2227,9 +2231,11 @@ void flush_node(halfword p)
             /* this allows free-ing of lua-allocated glue specs */
             break ;
         case dir_node:
+            break;
         case local_par_node:
             free_sub_list(local_box_left(p));
             free_sub_list(local_box_right(p));
+            break;
         case boundary_node:
             break;
         case whatsit_node:
