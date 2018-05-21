@@ -2187,7 +2187,7 @@ void combine_the_toks(int how)
                                 s = token_link(s);
                             }
                         } else {
-                            token_ref_count(target)--;
+                            sub_token_ref(target);
                             append_copied_toks_list(t,s);
                             set_toks_register(nt,temp_token_head,global);
                         }
@@ -2206,7 +2206,7 @@ void combine_the_toks(int how)
                             set_token_link(p,t);
                             set_token_link(target,h);
                         } else {
-                            token_ref_count(target)--;
+                            sub_token_ref(target);
                             append_copied_toks_list(s,t);
                             set_toks_register(nt,temp_token_head,global);
                         }
@@ -2228,7 +2228,7 @@ void combine_the_toks(int how)
             target = toks(nt);
             if (target == null) {
                 /* assign */
-                token_ref_count(source)++;
+                add_token_ref(source);
                 equiv(toks_base+nt) = source;
                 return;
             }
@@ -2246,7 +2246,7 @@ void combine_the_toks(int how)
                         s = token_link(s);
                     }
                 } else {
-                    token_ref_count(target)--;
+                    sub_token_ref(target);
                     append_copied_toks_list(t,s);
                     set_toks_register(nt,temp_token_head,global);
                 }
@@ -2265,7 +2265,7 @@ void combine_the_toks(int how)
                     set_token_link(p,t);
                     set_token_link(target,h);
                 } else {
-                    token_ref_count(target)--;
+                    sub_token_ref(target);
                     append_copied_toks_list(s,t);
                     set_toks_register(nt,temp_token_head,global);
                 }

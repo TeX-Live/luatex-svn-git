@@ -106,7 +106,8 @@ extern void token_show(halfword p);
 
 #  define token_ref_count(a) token_info((a))    /* reference count preceding a token list */
 #  define set_token_ref_count(a,b) token_info((a))=b
-#  define add_token_ref(a)   token_ref_count(a)++       /* new reference to a token list */
+#  define add_token_ref(a)   token_ref_count(a)++       /* new reference to a token list    */
+#  define sub_token_ref(a)   token_ref_count(a)--       /* delete reference to a token list */
 
 #  define store_new_token(a) do {				\
     q=get_avail(); token_link(p)=q; token_info(q)=(a); p=q;	\
