@@ -3010,7 +3010,10 @@ static int lua_nodelib_get_attribute(lua_State * L)
         if (p != null) {
             p = vlink(p);
             if (p != null) {
-                int i = lua_tointeger(L, 2);
+                int i = 0;
+                if (lua_gettop(L) > 1) {
+                    i = lua_tointeger(L, 2);
+                }
                 while (p != null) {
                     if (attribute_id(p) == i) {
                         int ret = attribute_value(p);
@@ -3082,7 +3085,10 @@ static int lua_nodelib_direct_get_attribute(lua_State * L)
         if (p != null) {
             p = vlink(p);
             if (p != null) {
-                int i = lua_tointeger(L, 2);
+                int i = 0;
+                if (lua_gettop(L) > 1) {
+                    i = lua_tointeger(L, 2);
+                }
                 while (p != null) {
                     if (attribute_id(p) == i) {
                         int ret = attribute_value(p);
