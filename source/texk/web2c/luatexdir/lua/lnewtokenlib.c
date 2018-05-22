@@ -344,6 +344,123 @@ static int run_scan_int(lua_State * L)
     return 1;
 }
 
+
+static int run_scan_float_indeed(lua_State * L, boolean exponent)
+{
+    saved_tex_scanner texstate;
+    char *str = NULL;
+    int ok;
+    boolean negative = false;
+    double d;
+    luaL_Buffer b ;
+    luaL_buffinit(L,&b) ;
+    save_tex_scanner(texstate);
+    /* we collapse as in scan_dimen */
+    while(1) {
+        do {
+            get_x_token();
+        } while (cur_cmd == spacer_cmd);
+        if (cur_tok == minus_token) {
+            negative = !negative;
+        } else if (cur_tok != plus_token) {
+            break;
+        }
+    }
+    if (negative) {
+        str = (char *) uni2str('-');
+        luaL_addstring(&b, str);
+    }
+    /* we accept [.,]digits */
+    if (cur_tok == point_token || cur_tok == comma_token) {
+        str = (char *) uni2str('.');
+        luaL_addstring(&b, str);
+        while (1) {
+            get_x_token();
+            if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+                str = (char *) uni2str(cur_chr);
+                luaL_addstring(&b, str);
+            } else if (exponent) {
+                goto EXPONENT;
+            } else {
+                back_input();
+                goto DONE;
+            }
+        }
+    } else {
+        back_input();
+        while (1) {
+            get_x_token();
+            if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+                str = (char *) uni2str(cur_chr);
+                luaL_addstring(&b, str);
+            } else {
+                if (cur_tok == point_token || cur_tok == comma_token) {
+                    str = (char *) uni2str('.');
+                    luaL_addstring(&b, str);
+                    while (1) {
+                        get_x_token();
+                        if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+                            str = (char *) uni2str(cur_chr);
+                            luaL_addstring(&b, str);
+                        } else {
+                            back_input();
+                            break;
+                        }
+                    }
+                } else if (exponent) {
+                    goto EXPONENT;
+                } else {
+                    back_input();
+                    goto DONE;
+                }
+            }
+        }
+    }
+EXPONENT:
+    if ((cur_chr == 'E') || (cur_chr == 'e')) {
+        str = (char *) uni2str(cur_chr);
+        luaL_addstring(&b, str);
+        get_x_token();
+        if ((cur_tok == minus_token) || (cur_tok == plus_token)) {
+            str = (char *) uni2str(cur_chr);
+            luaL_addstring(&b, str);
+        } else if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+            str = (char *) uni2str(cur_chr);
+            luaL_addstring(&b, str);
+        }
+        while (1) {
+            get_x_token();
+            if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
+                str = (char *) uni2str(cur_chr);
+                luaL_addstring(&b, str);
+            } else {
+                break;
+            }
+        }
+    }
+    back_input();
+DONE:
+    luaL_pushresult(&b);
+    d = lua_tonumberx(L,1,&ok);
+    if (ok) {
+        lua_pushnumber(L,d);
+    } else {
+        lua_pushnil(L);
+    }
+    unsave_tex_scanner(texstate);
+    return 1;
+}
+
+static int run_scan_float(lua_State * L)
+{
+    return run_scan_float_indeed(L,true);
+}
+
+static int run_scan_real(lua_State * L)
+{
+    return run_scan_float_indeed(L,false);
+}
+
 static int run_scan_dimen(lua_State * L)
 {
     saved_tex_scanner texstate;
@@ -355,7 +472,7 @@ static int run_scan_dimen(lua_State * L)
     if (t>1)
       mu = lua_toboolean(L,2);  /* mu units required ?*/
     save_tex_scanner(texstate);
-    scan_dimen( mu,inf, false); /* arg3 = shortcut */
+    scan_dimen(mu,inf, false); /* arg3 = shortcut */
     v = cur_val;
     o = cur_order;
     unsave_tex_scanner(texstate);
@@ -1066,6 +1183,8 @@ static const struct luaL_Reg tokenlib[] = {
     { "scan_keyword", run_scan_keyword },
     { "scan_keyword_cs", run_scan_keyword_cs },
     { "scan_int", run_scan_int },
+    { "scan_float", run_scan_float },
+    { "scan_real", run_scan_real },
     { "scan_dimen", run_scan_dimen },
     { "scan_glue", run_scan_glue },
     { "scan_toks", run_scan_toks },

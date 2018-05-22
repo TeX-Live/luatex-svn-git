@@ -1610,7 +1610,9 @@ minimal set of tools and no solutions. The functions provided in the \type
 \NC \type{is_token}     \NC token              \NC checks if the given argument is a token \NC \NR
 \NC \type{get_next}     \NC                    \NC returns the next token in the input \NC \NR
 \NC \type{scan_keyword} \NC string             \NC returns true if the given keyword is gobbled \NC \NR
-\NC \type{scan_int}     \NC                    \NC returns a number \NC \NR
+\NC \type{scan_int}     \NC                    \NC returns an integer \NC \NR
+\NC \type{scan_real}    \NC                    \NC returns a number from e.g.\ \type {1},  \type {1.1}, \type {.1} with optional collapsed signs \NC \NR
+\NC \type{scan_float}   \NC                    \NC returns a number from e.g.\ \type {1},  \type {1.1}, \type {.1}, \type {1.1E10}, , \type {.1e-10} with optional collapsed signs \NC \NR
 \NC \type{scan_dimen}   \NC infinity, mu-units \NC returns a number representing a dimension and or two numbers being the filler and order \NC \NR
 \NC \type{scan_glue}    \NC mu-units           \NC returns a glue spec node \NC \NR
 \NC \type{scan_toks}    \NC definer, expand    \NC returns a table of tokens tokens \NC \NR

@@ -1056,7 +1056,7 @@ void scan_int(void)
         /* Accumulate the constant until |cur_tok| is not a suitable digit */
         while (1) {
             if ((cur_tok < zero_token + radix) && (cur_tok >= zero_token)
-                && (cur_tok <= zero_token + 9)) {
+                && (cur_tok <= nine_token)) {
                 d = cur_tok - zero_token;
             } else if (radix == 16) {
                 if ((cur_tok <= A_token + 5) && (cur_tok >= A_token)) {
@@ -1217,11 +1217,11 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
             do {
                 get_x_token();
             } while (cur_cmd == spacer_cmd);
-            if (cur_tok == other_token + '-') {
+            if (cur_tok == minus_token) {
                 negative = !negative;
-                cur_tok = other_token + '+';
+                cur_tok = plus_token;
             }
-        } while (cur_tok == other_token + '+');
+        } while (cur_tok == plus_token);
         if ((cur_cmd >= min_internal_cmd) && (cur_cmd <= max_internal_cmd)) {
             /* Fetch an internal dimension and |goto attach_sign|, or fetch an internal integer */
             if (mu) {
@@ -1265,7 +1265,7 @@ void scan_dimen(boolean mu, boolean inf, boolean shortcut)
                 get_token(); /* |point_token| is being re-scanned */
                 while (1) {
                     get_x_token();
-                    if ((cur_tok > zero_token + 9) || (cur_tok < zero_token))
+                    if ((cur_tok > nine_token) || (cur_tok < zero_token))
                         break;
                     if (k < 17) {
                         /* digits for |k>=17| cannot affect the result */
@@ -1505,11 +1505,11 @@ void scan_glue(int level)
         do {
             get_x_token();
         } while (cur_cmd == spacer_cmd);
-        if (cur_tok == other_token + '-') {
+        if (cur_tok == minus_token) {
             negative = !negative;
-            cur_tok = other_token + '+';
+            cur_tok = plus_token;
         }
-    } while (cur_tok == other_token + '+');
+    } while (cur_tok == plus_token);
     if ((cur_cmd >= min_internal_cmd) && (cur_cmd <= max_internal_cmd)) {
         scan_something_internal(level, negative);
         if (cur_val_level >= glue_val_level) {
@@ -1544,91 +1544,6 @@ void scan_glue(int level)
         shrink_order(q) = (quarterword) cur_order;
     }
     cur_val = q;
-}
-
-@ This is an omega routine
-@c
-void scan_scaled(void)
-{                               /* sets |cur_val| to a scaled value */
-    boolean negative;           /* should the answer be negated? */
-    int f;                      /* numerator of a fraction whose denominator is $2^{16}$ */
-    int k, kk;                  /* number of digits in a decimal fraction */
-    halfword p, q;              /* top of decimal digit stack */
-    f = 0;
-    arith_error = false;
-    negative = false;
-    /* Get the next non-blank non-sign... */
-    do {
-        /* Get the next non-blank non-call token */
-        do {
-            get_x_token();
-        } while (cur_cmd == spacer_cmd);
-        if (cur_tok == other_token + '-') {
-            negative = !negative;
-            cur_tok = other_token + '+';
-        }
-    } while (cur_tok == other_token + '+');
-
-    back_input();
-    if (cur_tok == continental_point_token)
-        cur_tok = point_token;
-    if (cur_tok != point_token) {
-        scan_int();
-    } else {
-        radix = 10;
-        cur_val = 0;
-    }
-    if (cur_tok == continental_point_token)
-        cur_tok = point_token;
-    if ((radix == 10) && (cur_tok == point_token)) {
-        /* Scan decimal fraction */
-        /* TODO: merge this with the same block in |scan_dimen| */
-        /* When the following code is executed, we have |cur_tok=point_token|, but this
-           token has been backed up using |back_input|; we must first discard it.
-
-           It turns out that a decimal point all by itself is equivalent to `\.{0.0}'.
-           Let's hope people don't use that fact. */
-
-        k = 0;
-        p = null;
-        get_token();            /* |point_token| is being re-scanned */
-        while (1) {
-            get_x_token();
-            if ((cur_tok > zero_token + 9) || (cur_tok < zero_token))
-                break;
-            if (k < 17) {       /* digits for |k>=17| cannot affect the result */
-                q = get_avail();
-                set_token_link(q, p);
-                set_token_info(q, cur_tok - zero_token);
-                p = q;
-                incr(k);
-            }
-        }
-        for (kk = k; kk >= 1; kk--) {
-            dig[kk - 1] = token_info(p);
-            q = p;
-            p = token_link(p);
-            free_avail(q);
-        }
-        f = round_decimals(k);
-        if (cur_cmd != spacer_cmd)
-            back_input();
-
-    }
-    if (cur_val < 0) {          /* in this case |f=0| */
-        negative = !negative;
-        negate(cur_val);
-    }
-    if (cur_val > 040000)
-        arith_error = true;
-    else
-        cur_val = cur_val * unity + f;
-    if (arith_error || (abs(cur_val) >= 010000000000)) {
-        print_err("Stack number too large");
-        error();
-    }
-    if (negative)
-        negate(cur_val);
 }
 
 @ This procedure is supposed to scan something like `\.{\\skip\\count12}',
@@ -2046,7 +1961,7 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                     store_new_token(end_match_token);
                     goto DONE;
                 }
-                if (t == zero_token + 9) {
+                if (t == nine_token) {
                     print_err("You already have nine parameters");
                     help1("I'm going to ignore the # sign you just used.");
                     error();
