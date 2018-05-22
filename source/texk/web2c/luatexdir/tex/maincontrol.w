@@ -2290,35 +2290,15 @@ void prefixed_command(void)
             break;
         case let_cmd:
             n = cur_chr;
-            if (n == normal) {
-                get_r_token();
-                p = cur_cs;
-                do {
-                    get_token();
-                } while (cur_cmd == spacer_cmd);
-                if (cur_tok == other_token + '=') {
-                    get_token();
-                    if (cur_cmd == spacer_cmd)
-                        get_token();
-                }
-            } else if (n == normal + 1) {
-                /* futurelet */
-                get_r_token();
-                p = cur_cs;
-                get_token();
-                q = cur_tok;
-                get_token();
-                back_input();
-                cur_tok = q;
-                /* look ahead, then back up */
-                /* note that |back_input| doesn't affect |cur_cmd|, |cur_chr| */
-                back_input();
-            } else {
-                /* letcharcode */
-                scan_int();
-                if (cur_val > 0) {
-                    cur_cs = active_to_cs(cur_val, true);
-                    set_token_info(cur_cs, cur_cs + cs_token_flag);
+            switch (n) {
+                case 0:
+                    /* glet */
+                    if (!is_global(a) && (global_defs_par >= 0)) {
+                        a = a + 4;
+                    }
+                case 1:
+                    /* let */
+                    get_r_token();
                     p = cur_cs;
                     do {
                         get_token();
@@ -2328,10 +2308,44 @@ void prefixed_command(void)
                         if (cur_cmd == spacer_cmd)
                             get_token();
                     }
-                } else {
-                    p = null;
-                    tex_error("invalid number for \\letcharcode",NULL);
-                }
+                    break;
+                case 2:
+                    /* futurelet */
+                    get_r_token();
+                    p = cur_cs;
+                    get_token();
+                    q = cur_tok;
+                    get_token();
+                    back_input();
+                    cur_tok = q;
+                    /* look ahead, then back up */
+                    /* note that |back_input| doesn't affect |cur_cmd|, |cur_chr| */
+                    back_input();
+                    break;
+                case 3:
+                    /* letcharcode */
+                    scan_int();
+                    if (cur_val > 0) {
+                        cur_cs = active_to_cs(cur_val, true);
+                        set_token_info(cur_cs, cur_cs + cs_token_flag);
+                        p = cur_cs;
+                        do {
+                            get_token();
+                        } while (cur_cmd == spacer_cmd);
+                        if (cur_tok == other_token + '=') {
+                            get_token();
+                            if (cur_cmd == spacer_cmd)
+                                get_token();
+                        }
+                    } else {
+                        p = null;
+                        tex_error("invalid number for \\letcharcode",NULL);
+                    }
+                    break;
+                default:
+                    p = null; /* please the compiler */
+                    confusion("let");
+                    break;
             }
             if (cur_cmd >= call_cmd)
                 add_token_ref(cur_chr);

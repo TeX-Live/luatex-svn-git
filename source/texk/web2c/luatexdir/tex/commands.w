@@ -529,9 +529,10 @@ void initialize_commands(void)
     primitive_tex("gdef", def_cmd, 1, 0);
     primitive_tex("edef", def_cmd, 2, 0);
     primitive_tex("xdef", def_cmd, 3, 0);
-    primitive_tex("let", let_cmd, normal, 0);
-    primitive_tex("futurelet", let_cmd, normal + 1, 0);
-    primitive_luatex("letcharcode", let_cmd, normal + 2, 0);
+    primitive_tex("glet", let_cmd, 0, 0);
+    primitive_tex("let", let_cmd, 1, 0);
+    primitive_tex("futurelet", let_cmd, 2, 0);
+    primitive_luatex("letcharcode", let_cmd, 3, 0);
     primitive_tex("chardef", shorthand_def_cmd, char_def_code, 0);
     primitive_tex("mathchardef", shorthand_def_cmd, math_char_def_code, 0);
     primitive_luatex("Umathchardef", shorthand_def_cmd, xmath_char_def_code, 0);

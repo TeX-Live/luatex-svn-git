@@ -865,7 +865,7 @@ immediate command.
 \clearmarks <16-bit number>
 \stopsyntax
 
-\subsection{\type{\letcharcode}}
+\subsection{\lpr {letcharcode}}
 
 This primitive can be used to assign a meaning to an active character, as in:
 
@@ -875,6 +875,17 @@ This primitive can be used to assign a meaning to an active character, as in:
 
 This can be a bit nicer than using the uppercase tricks (using the property of
 \prm {uppercase} that it treats active characters special).
+
+\subsection{\lpr {glet}}
+
+This primitive is similar to:
+
+\starttyping
+\protected\def\glet{\global\let}
+\stoptyping
+
+but faster (only measurable with millions of calls) and probably more convenient
+(after all we also have \type {\gdef}).
 
 \section{Boxes, rules and leaders}
 
