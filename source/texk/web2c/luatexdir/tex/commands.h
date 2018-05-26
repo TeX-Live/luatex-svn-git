@@ -89,6 +89,7 @@ typedef enum {
     char_num_cmd,                         /* character specified numerically ( \.{\\char} ) */
     math_char_num_cmd,                    /* explicit math code ( \.{\\mathchar} ) */
     mark_cmd,                             /* mark definition ( \.{\\mark} ) */
+    node_cmd,
     xray_cmd,                             /* peek inside of \TeX\ ( \.{\\show}, \.{\\showbox}, etc.~) */
     make_box_cmd,                         /* make a box ( \.{\\box}, \.{\\copy}, \.{\\hbox}, etc.~) */
     hmove_cmd,                            /* horizontal motion ( \.{\\moveleft}, \.{\\moveright} ) */

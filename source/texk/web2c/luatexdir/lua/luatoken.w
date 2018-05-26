@@ -43,6 +43,7 @@ command_item command_names[] = {
     {"char_num", char_num_cmd, NULL},
     {"math_char_num", math_char_num_cmd, NULL},
     {"mark", mark_cmd, NULL},
+    {"node", node_cmd, NULL},
     {"xray", xray_cmd, NULL},
     {"make_box", make_box_cmd, NULL},
     {"hmove", hmove_cmd, NULL},

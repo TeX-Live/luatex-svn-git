@@ -33,10 +33,12 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
+/*
 typedef struct lua_token {
     int token;
     int origin;
 } lua_token;
+*/
 
 typedef struct saved_tex_scanner {
     int token;
@@ -348,7 +350,7 @@ static int run_scan_int(lua_State * L)
 static int run_scan_float_indeed(lua_State * L, boolean exponent)
 {
     saved_tex_scanner texstate;
-    char *str = NULL;
+    char * str ;
     int ok;
     boolean negative = false;
     double d;
@@ -368,17 +370,17 @@ static int run_scan_float_indeed(lua_State * L, boolean exponent)
     }
     if (negative) {
         str = (char *) uni2str('-');
-        luaL_addstring(&b, str);
+        luaL_addstring(&b,(char *) str);
     }
     /* we accept [.,]digits */
     if (cur_tok == point_token || cur_tok == comma_token) {
         str = (char *) uni2str('.');
-        luaL_addstring(&b, str);
+        luaL_addstring(&b,(char *) str);
         while (1) {
             get_x_token();
             if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
                 str = (char *) uni2str(cur_chr);
-                luaL_addstring(&b, str);
+                luaL_addstring(&b,(char *) str);
             } else if (exponent) {
                 goto EXPONENT;
             } else {
@@ -392,16 +394,16 @@ static int run_scan_float_indeed(lua_State * L, boolean exponent)
             get_x_token();
             if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
                 str = (char *) uni2str(cur_chr);
-                luaL_addstring(&b, str);
+                luaL_addstring(&b,(char *) str);
             } else {
                 if (cur_tok == point_token || cur_tok == comma_token) {
                     str = (char *) uni2str('.');
-                    luaL_addstring(&b, str);
+                    luaL_addstring(&b,(char *) str);
                     while (1) {
                         get_x_token();
                         if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
                             str = (char *) uni2str(cur_chr);
-                            luaL_addstring(&b, str);
+                            luaL_addstring(&b,(char *) str);
                         } else {
                             back_input();
                             break;
@@ -419,20 +421,20 @@ static int run_scan_float_indeed(lua_State * L, boolean exponent)
 EXPONENT:
     if ((cur_chr == 'E') || (cur_chr == 'e')) {
         str = (char *) uni2str(cur_chr);
-        luaL_addstring(&b, str);
+        luaL_addstring(&b,(char *) str);
         get_x_token();
         if ((cur_tok == minus_token) || (cur_tok == plus_token)) {
             str = (char *) uni2str(cur_chr);
-            luaL_addstring(&b, str);
+            luaL_addstring(&b,(char *) str);
         } else if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
             str = (char *) uni2str(cur_chr);
-            luaL_addstring(&b, str);
+            luaL_addstring(&b,(char *) str);
         }
         while (1) {
             get_x_token();
             if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
                 str = (char *) uni2str(cur_chr);
-                luaL_addstring(&b, str);
+                luaL_addstring(&b,(char *) str);
             } else {
                 break;
             }

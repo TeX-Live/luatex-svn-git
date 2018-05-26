@@ -126,6 +126,15 @@ static void run_char (void) {
     tail_append(new_char(cur_font_par, cur_chr));
 }
 
+static void run_node (void) {
+    halfword n = cur_chr;
+    tail_append(n);
+    while (vlink(n) != null) {
+        n = vlink(n);
+        tail_append(n);
+    }
+}
+
 @
 The occurrence of blank spaces is almost part of \TeX's inner loop,
 since we usually encounter about one space for every five non-blank characters.
@@ -706,6 +715,7 @@ static void init_main_control (void) {
 
     jump_table[hmode + char_num_cmd] = run_char_num;
     jump_table[hmode + letter_cmd] = run_char;
+jump_table[hmode + node_cmd] = run_node;
     jump_table[hmode + other_char_cmd] = run_char;
     jump_table[hmode + char_given_cmd] = run_char;
     jump_table[hmode + spacer_cmd] = run_app_space;
@@ -788,6 +798,7 @@ static void init_main_control (void) {
     jump_table[hmode + start_par_cmd] = run_start_par;
     jump_table[mmode + start_par_cmd] = run_start_par;
     jump_table[vmode + letter_cmd] = run_new_graf;
+jump_table[vmode + node_cmd] = run_node;
     jump_table[vmode + other_char_cmd] = run_new_graf;
     jump_table[vmode + char_num_cmd] = run_new_graf;
     jump_table[vmode + char_given_cmd] = run_new_graf;
@@ -841,6 +852,7 @@ static void init_main_control (void) {
     jump_table[mmode + eq_no_cmd] = run_eq_no;
     jump_table[mmode + left_brace_cmd] = math_left_brace;
     jump_table[mmode + letter_cmd] = run_letter_mmode;
+jump_table[mmode + node_cmd] = run_node;
     jump_table[mmode + other_char_cmd] = run_letter_mmode;
     jump_table[mmode + char_given_cmd] = run_letter_mmode;
     jump_table[mmode + char_num_cmd] = run_char_num_mmode;

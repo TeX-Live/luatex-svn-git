@@ -38,10 +38,10 @@ distinction.
 #  define biggest_reg              65535  /* the largest allowed register number; must be |< max_quarterword| */
 #  define number_regs              65536  /* |biggest_reg+1| */
 #  define number_attrs             65536  /* total numbeer of attributes */
-#  define biggest_char           1114111  /* the largest allowed character number; must be |< max_halfword| */
-#  define too_big_char           1114112  /* |biggest_char+1| */
-#  define special_char           1114113  /* |biggest_char+2| */
-#  define number_chars           1114112  /* |biggest_char+1| */
+#  define biggest_char           1114111  /* 0x10FFFF, the largest allowed character number; must be |< max_halfword| */
+#  define too_big_char   (biggest_char+1) /* 1114112, |biggest_char+1| */
+#  define special_char   (biggest_char+2) /* 1114113, |biggest_char+2| */
+#  define number_chars   (biggest_char+3) /* 1114112, |biggest_char+1| */
 #  define number_fonts (5535-font_base+1)
 #  define biggest_lang             32767
 #  define too_big_lang             32768

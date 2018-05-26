@@ -656,6 +656,10 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
 
         }
         break;
+    case node_cmd:
+        tprint("node ");
+        print_int(chr_code);
+        break;
     default:
         /* these are most commands, actually */
         prim_cmd_chr(cmd, chr_code);

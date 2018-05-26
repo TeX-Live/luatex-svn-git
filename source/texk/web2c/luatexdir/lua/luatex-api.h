@@ -259,7 +259,13 @@ extern char **environ;
 }
 #endif
 
+typedef struct lua_token {
+    int token;
+    int origin;
+} lua_token;
+
 extern int luatwrite(lua_State * L);
+extern int luanwrite(lua_State * L);
 
 /*
     Same as in lnodelib.c, but with prefix G_ for now.

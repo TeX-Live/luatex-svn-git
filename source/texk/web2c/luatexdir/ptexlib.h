@@ -277,7 +277,7 @@ void undump_luac_registers(void);
 void luacstring_start(int n);
 void luacstring_close(int n);
 int luacstring_cattable(void);
-int luacstring_input(void);
+int luacstring_input(halfword *n);
 int luacstring_partial(void);
 int luacstring_final_line(void);
 

@@ -35,7 +35,8 @@ typedef struct {
     void *next;
     boolean partial;
     int cattable;
- /* halfword tok; */
+    halfword tok;
+    halfword nod;
 } rope;
 
 typedef struct {
@@ -54,33 +55,65 @@ static int spindle_size  = 0;
 static spindle *spindles = NULL;
 static int spindle_index = 0;
 
-static void luac_store(lua_State * L, int i, int partial, int cattable)
+static int luac_store(lua_State * L, int i, int partial, int cattable)
 {
-    const char *sttemp;
-    char *st;
-    size_t tsize;
+    char *st = NULL;
+    size_t tsize = 0;
     rope *rn = NULL;
-    sttemp = lua_tolstring(L, i, &tsize);
-    st = xmalloc((unsigned) (tsize + 1));
-    memcpy(st, sttemp, (tsize + 1));
-    if (st) {
-        luacstrings++;
-        rn = (rope *) xmalloc(sizeof(rope));
-        rn->text = st;
-        rn->tsize = (unsigned) tsize;
-        rn->partial = partial;
-        rn->cattable = cattable;
-        rn->next = NULL;
-     /* rn->tok = 0; */
-        if (write_spindle.head == NULL) {
-            assert(write_spindle.tail == NULL);
-            write_spindle.head = rn;
+    halfword tok = null;
+    halfword nod = null;
+    int t = lua_type(L, i);
+    if (t == LUA_TNUMBER || t == LUA_TSTRING) {
+        const char *sttemp;
+        sttemp = lua_tolstring(L, i, &tsize);
+        st = xmalloc((unsigned) (tsize + 1));
+        memcpy(st, sttemp, (tsize + 1));
+    } else if (t == LUA_TUSERDATA) {
+        void *p ;
+        p = lua_touserdata(L, i);
+        if (p == NULL) {
+            return 0;
+        } else if (lua_getmetatable(L, i)) {
+            lua_get_metatablelua(luatex_node);
+            if (lua_rawequal(L, -1, -2)) {
+                nod = *((halfword *)p);
+                lua_pop(L, 2);
+            } else {
+                lua_get_metatablelua(luatex_token);
+                if (lua_rawequal(L, -1, -3)) {
+                    tok = (halfword) token_info((*((lua_token *)p)).token);
+                    lua_pop(L, 3);
+                } else {
+                    lua_pop(L, 3);
+                    return 0;
+                }
+            }
         } else {
-            write_spindle.tail->next = rn;
+            return 0;
         }
-        write_spindle.tail = rn;
-        write_spindle.complete = 0;
+    } else {
+        return 0;
     }
+    /* common*/
+    luacstrings++;
+    rn = (rope *) xmalloc(sizeof(rope));
+    rn->text = st;
+    rn->tsize = (unsigned) tsize;
+    rn->tok = tok;
+    rn->nod = nod;
+    rn->next = NULL;
+    rn->partial = partial;
+    rn->cattable = cattable;
+    /* add */
+    if (write_spindle.head == NULL) {
+     /* assert(write_spindle.tail == NULL); */
+        write_spindle.head = rn;
+    } else {
+        write_spindle.tail->next = rn;
+    }
+    write_spindle.tail = rn;
+    write_spindle.complete = 0;
+    return 1;
 }
 
 static int do_luacprint(lua_State * L, int partial, int deftable)
@@ -93,32 +126,29 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
             cattable = lua_tointeger(L, 1);
             startstrings = 2;
             if (cattable != -1 && cattable != -2 && !valid_catcode_table(cattable)) {
-       cattable = DEFAULT_CAT_TABLE;
-     }
+                cattable = DEFAULT_CAT_TABLE;
+            }
         }
     }
     if (lua_type(L, startstrings) == LUA_TTABLE) {
         int i;
         for (i = 1;; i++) {
             lua_rawgeti(L, startstrings, i);
-            if (lua_isstring(L,-1)) { /* or number */
-                luac_store(L, -1, partial, cattable);
+            if (luac_store(L, -1, partial, cattable)) {
                 lua_pop(L, 1);
             } else {
+                lua_pop(L, 1);
                 break;
             }
         }
     } else {
         int i;
         for (i = startstrings; i <= n; i++) {
-            if (!lua_isstring(L,i)) { /* or number */
-                luaL_error(L, "no string to print");
-            }
             luac_store(L, i, partial, cattable);
         }
         /* hh: We could use this but it makes not much different, apart from allocating more ropes so less
            memory. To be looked into: lua 5.2 buffer mechanism as now we still hash the concatination. This
-           test was part of the why-eis-luajit-so-slow on crited experiments. */
+           test was part of the why-eis-luajit-so-slow on crited experiments. So we don't do this! */
         /*
         if (startstrings == n) {
             luac_store(L, n, partial, cattable);
@@ -131,9 +161,9 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     return 0;
 }
 
-/*
+/* the next one writes a raw token (number) */
 
-// some first experiments .. somewhat tricky at the other end
+/*
 
 int luatwrite(lua_State * L)
 {
@@ -148,6 +178,7 @@ int luatwrite(lua_State * L)
         rn->cattable = DEFAULT_CAT_TABLE;
         rn->next = NULL;
         rn->tok = 0;
+        rn->nod = 0;
         if (write_spindle.head == NULL) {
             write_spindle.head = rn;
         } else {
@@ -165,6 +196,7 @@ int luatwrite(lua_State * L)
                 r->cattable = DEFAULT_CAT_TABLE;
                 r->next = NULL;
                 r->tok = 0;
+                r->nod = 0;
                 rn->next = r;
                 rn = r;
                 write_spindle.tail = rn;
@@ -179,20 +211,78 @@ int luatwrite(lua_State * L)
 
 */
 
+/* the next one writes a raw node (number) */
+
+/*
+
+int luanwrite(lua_State * L)
+{
+    int top = lua_gettop(L);
+    if (top>0) {
+        rope *rn = xmalloc(sizeof(rope)); // overkill
+        int i = 1 ;
+        luacstrings++; // should be luactokens
+        rn->text = NULL;
+        rn->tsize = 0;
+        rn->partial = 0;
+        rn->cattable = DEFAULT_CAT_TABLE;
+        rn->next = NULL;
+        rn->tok = 0;
+        rn->nod = 0;
+        if (write_spindle.head == NULL) {
+            write_spindle.head = rn;
+        } else {
+            write_spindle.tail->next = rn;
+        }
+        write_spindle.tail = rn;
+        write_spindle.complete = 0;
+        while (1) {
+            rn->nod = lua_tointeger(L,i);
+            if (i<top) {
+                rope *r = xmalloc(sizeof(rope)); // overkill
+                r->text = NULL;
+                r->tsize = 0;
+                r->partial = 0;
+                r->cattable = DEFAULT_CAT_TABLE;
+                r->next = NULL;
+                r->tok = 0;
+                r->nod = 0;
+                rn->next = r;
+                rn = r;
+                write_spindle.tail = rn;
+                i++;
+            } else {
+                break;
+            }
+        }
+    }
+    return 0;
+}
+
+*/
+
+/* lua.write */
+
 static int luacwrite(lua_State * L)
 {
     return do_luacprint(L, FULL_LINE, NO_CAT_TABLE);
 }
+
+/* lua.print */
 
 static int luacprint(lua_State * L)
 {
     return do_luacprint(L, FULL_LINE, DEFAULT_CAT_TABLE);
 }
 
+/* lua.sprint */
+
 static int luacsprint(lua_State * L)
 {
     return do_luacprint(L, PARTIAL_LINE, DEFAULT_CAT_TABLE);
 }
+
+/* lua.cprint */
 
 static int luaccprint(lua_State * L)
 {
@@ -207,10 +297,10 @@ static int luaccprint(lua_State * L)
         int i;
         for (i = 1;; i++) {
             lua_rawgeti(L, 2, i);
-            if (lua_isstring(L,-1)) { /* or number */
-                luac_store(L, -1, PARTIAL_LINE, cattable);
+            if (luac_store(L, -1, PARTIAL_LINE, cattable)) {
                 lua_pop(L, 1);
             } else {
+                lua_pop(L, 1);
                 break;
             }
         }
@@ -218,14 +308,13 @@ static int luaccprint(lua_State * L)
         int i;
         int n = lua_gettop(L);
         for (i = 2; i <= n; i++) {
-            if (!lua_isstring(L,i)) { /* or number */
-                luaL_error(L, "no string to print");
-            }
             luac_store(L, i, PARTIAL_LINE, cattable);
         }
     }
     return 0;
 }
+
+/* lua.tprint */
 
 static int luactprint(lua_State * L)
 {
@@ -252,8 +341,7 @@ static int luactprint(lua_State * L)
         for (j = startstrings;; j++) {
             lua_pushinteger(L, j);
             lua_gettable(L, -2);
-            if (lua_isstring(L, -1)) { /* or number */
-                luac_store(L, -1, PARTIAL_LINE, cattable);
+            if (luac_store(L, -1, PARTIAL_LINE, cattable)) {
                 lua_pop(L, 1);
             } else {
                 lua_pop(L, 1);
@@ -280,7 +368,7 @@ int luacstring_final_line(void)
     return (read_spindle.tail->next == NULL);
 }
 
-int luacstring_input(void)
+int luacstring_input(halfword *n)
 {
     rope *t = read_spindle.head;
     int ret = 1 ;
@@ -308,10 +396,12 @@ int luacstring_input(void)
         }
         free(t->text);
         t->text = NULL;
-    /*
     } else if (t->tok > 0) {
-        ret = - t->tok;
-    */
+        *n = t->tok;
+        ret = 2;
+    } else if (t->nod > 0) {
+        *n = t->nod;
+        ret = 3;
     }
     if (read_spindle.tail != NULL) {    /* not a one-liner */
         free(read_spindle.tail);
@@ -3322,10 +3412,14 @@ static const struct luaL_Reg texlib[] = {
     { "finish", tex_run_end },    /* may be needed  */
     { "write", luacwrite },
     { "print", luacprint },
+    { "sprint", luacsprint },
     { "tprint", luactprint },
     { "cprint", luaccprint },
+    /*
+    { "twrite", luatwrite },
+    { "nwrite", luanwrite },
+    */
     { "error", texerror },
-    { "sprint", luacsprint },
     { "set", settex },
     { "get", gettex },
     { "isdimen", isdimen },

@@ -316,6 +316,9 @@ sequence named \.{BAD} would come out `\.{\\BAD\ }'.
             if (c >= (backend_toks_base) && c <= (backend_toks_last)) \
                 p("[internal backend tokenlist]"); \
             break; \
+        case node_cmd: \
+            p("[internal node pointer]"); \
+            break; \
         default: \
             p("BAD"); \
             break; \
@@ -1711,30 +1714,54 @@ one more branch.
                 }
             } else {
                 if (iname == 21) {
-                    if (luacstring_input()) { /* not end of strings  */
-                        firm_up_the_line();
-                        line_catcode_table = (short) luacstring_cattable();
-                        line_partial = (signed char) luacstring_partial();
-                        if (luacstring_final_line() || line_partial
-                            || line_catcode_table == NO_CAT_TABLE)
-                            inhibit_eol = true;
-                        if (!line_partial)
-                            istate = new_line;
-                    } else {
-                        force_eof = true;
+                    halfword n = null;
+                    int t = luacstring_input(&n);
+                    switch (t) {
+                        case 0:
+                            force_eof = true;
+                            break;
+                        case 1:
+                            /* string */
+                            firm_up_the_line();
+                            line_catcode_table = (short) luacstring_cattable();
+                            line_partial = (signed char) luacstring_partial();
+                            if (luacstring_final_line() || line_partial || line_catcode_table == NO_CAT_TABLE)
+                                inhibit_eol = true;
+                            if (!line_partial)
+                                istate = new_line;
+                            break;
+                        case 2:
+                            /* token */
+                            cur_tok = n;
+                            back_input();
+                            return next_line_restart; /* needs checking */
+                            break;
+                        case 3:
+                            /* node */
+                            if (n < biggest_char) {  /* 0x10FFFF == 1114111 */
+                                cur_tok = token_val(node_cmd, n);
+                                back_input();
+                                return next_line_restart; /* needs checking */
+                            } else {
+                                normal_warning("nodes","unable to store reference from lua in tex");
+                                force_eof = true;
+                            }
+                            break;
+                        default:
+                            force_eof = true;
+                            break;
                     }
+                } else if (lua_input_ln(cur_file, 0, true)) {
+                    /* not end of file */
+                    firm_up_the_line(); /* this sets |ilimit| */
+                    line_catcode_table = DEFAULT_CAT_TABLE;
+                } else if ((every_eof_par != null) && (!eof_seen[iindex])) {
+                    ilimit = first - 1;
+                    eof_seen[iindex] = true; /* fake one empty line */
+                    begin_token_list(every_eof_par, every_eof_text);
+                    return next_line_restart;
                 } else {
-                    if (lua_input_ln(cur_file, 0, true)) { /* not end of file */
-                        firm_up_the_line(); /* this sets |ilimit| */
-                        line_catcode_table = DEFAULT_CAT_TABLE;
-                    } else if ((every_eof_par != null) && (!eof_seen[iindex])) {
-                        ilimit = first - 1;
-                        eof_seen[iindex] = true; /* fake one empty line */
-                        begin_token_list(every_eof_par, every_eof_text);
-                        return next_line_restart;
-                    } else {
-                        force_eof = true;
-                    }
+                    force_eof = true;
                 }
             }
         }
@@ -2187,7 +2214,7 @@ void combine_the_toks(int how)
                                 s = token_link(s);
                             }
                         } else {
-                            sub_token_ref(target);
+                            token_ref_count(target)--;
                             append_copied_toks_list(t,s);
                             set_toks_register(nt,temp_token_head,global);
                         }
@@ -2206,7 +2233,7 @@ void combine_the_toks(int how)
                             set_token_link(p,t);
                             set_token_link(target,h);
                         } else {
-                            sub_token_ref(target);
+                            token_ref_count(target)--;
                             append_copied_toks_list(s,t);
                             set_toks_register(nt,temp_token_head,global);
                         }
@@ -2228,7 +2255,7 @@ void combine_the_toks(int how)
             target = toks(nt);
             if (target == null) {
                 /* assign */
-                add_token_ref(source);
+                token_ref_count(source)++;
                 equiv(toks_base+nt) = source;
                 return;
             }
@@ -2246,7 +2273,7 @@ void combine_the_toks(int how)
                         s = token_link(s);
                     }
                 } else {
-                    sub_token_ref(target);
+                    token_ref_count(target)--;
                     append_copied_toks_list(t,s);
                     set_toks_register(nt,temp_token_head,global);
                 }
@@ -2265,7 +2292,7 @@ void combine_the_toks(int how)
                     set_token_link(p,t);
                     set_token_link(target,h);
                 } else {
-                    sub_token_ref(target);
+                    token_ref_count(target)--;
                     append_copied_toks_list(s,t);
                     set_toks_register(nt,temp_token_head,global);
                 }
