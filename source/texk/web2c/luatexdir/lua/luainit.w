@@ -1001,6 +1001,8 @@ void lua_initialize(int ac, char **av)
     l_set_node_data();
     l_set_whatsit_data();
 
+    l_set_token_data();
+
     set_l_img_keys_index;
     set_l_img_pageboxes_index;
 

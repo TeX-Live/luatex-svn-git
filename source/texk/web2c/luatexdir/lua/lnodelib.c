@@ -7943,12 +7943,26 @@ static int lua_nodelib_direct_setbox(lua_State * L)
 
 /* node.is_node(n) */
 
+/*
+
 static int lua_nodelib_is_node(lua_State * L)
 {
     if (maybe_isnode(L,1) == NULL)
         lua_pushboolean(L,0);
     else
         lua_pushboolean(L,1);
+    return 1;
+}
+
+*/
+
+static int lua_nodelib_is_node(lua_State * L)
+{
+    halfword *p = maybe_isnode(L, 1);
+    if (p == NULL)
+        lua_pushboolean(L,0);
+    else
+        lua_pushinteger(L, *((halfword *)p));
     return 1;
 }
 

@@ -3553,6 +3553,8 @@ int luaopen_tex(lua_State * L)
     spindles[0].tail = NULL;
     spindle_size = 1;
     /* a somewhat odd place for this assert, maybe */
-    assert(command_names[data_cmd].command_offset == data_cmd);
+    if (command_names[data_cmd].id != data_cmd) {
+        fatal_error("mismatch between tex and lua command name tables");
+    };
     return 1;
 }

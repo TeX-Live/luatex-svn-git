@@ -1217,12 +1217,12 @@ can be handy for tracing.
 \topicindex {nodes+functions}
 
 \startfunctioncall
-<boolean> t =
+<boolean|integer> t =
     node.is_node(<any> item)
 \stopfunctioncall
 
-This function returns true if the argument is a userdata object of
-type \type {<node>}.
+This function returns a number (the internal index of the node) if the argument
+is a userdata object of type \type {<node>} and false when no node is passed.
 
 \subsubsection{\type {node.types}}
 

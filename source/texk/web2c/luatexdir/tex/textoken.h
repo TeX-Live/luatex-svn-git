@@ -184,4 +184,6 @@ extern void free_lstring(lstring * ls);
 #  define token_chr(A) ((A) & (STRING_OFFSET - 1))
 #  define token_val(A,B) (((A)<<STRING_OFFSET_BITS)+(B))
 
+extern void l_set_token_data(void) ;
+
 #endif

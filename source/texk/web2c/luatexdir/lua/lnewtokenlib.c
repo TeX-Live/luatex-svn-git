@@ -147,33 +147,51 @@ static void push_token(lua_State * L, int tok)
     lua_setmetatable(L, -2);
 }
 
-/* static int run_get_cs_offset(lua_State * L) */
-/* { */
-/*     lua_pushinteger(L, cs_token_flag); */
-/*     return 1; */
-/* } */
+static int run_get_biggest_char(lua_State * L)
+{
+    lua_pushinteger(L, biggest_char);
+    return 1;
+}
 
-/* static int run_get_command_id(lua_State * L) */
-/* { */
-/*     int cs = -1; */
-/*     if (lua_type(L, -1) == LUA_TSTRING) { */
-/*         cs = get_command_id(lua_tostring(L, -1)); */
-/*     } */
-/*     lua_pushinteger(L, cs); */
-/*     return 1; */
-/* } */
+/* not that useful:
 
-/* static int run_get_csname_id(lua_State * L) */
-/* { */
-/*     const char *s; */
-/*     size_t k, cs = 0; */
-/*     if (lua_type(L, -1) == LUA_TSTRING) { */
-/*         s = lua_tolstring(L, -1, &k); */
-/*         cs = (size_t) string_lookup(s, k); */
-/*     } */
-/*     lua_pushinteger(L, (lua_Number) cs); */
-/*     return 1; */
-/* } */
+static int run_get_cs_offset(lua_State * L)
+{
+    lua_pushinteger(L, cs_token_flag);
+    return 1;
+}
+
+*/
+
+static int run_get_command_id(lua_State * L)
+{
+    int id = -1;
+    if (lua_type(L, -1) == LUA_TSTRING) {
+        id = get_command_id(lua_tostring(L, -1));
+    }
+    if (id >= 0) {
+        lua_pushinteger(L, id);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+/* not that useful:
+
+static int run_get_csname_id(lua_State * L)
+{
+    const char *s;
+    size_t k, cs = 0;
+    if (lua_type(L, -1) == LUA_TSTRING) {
+        s = lua_tolstring(L, -1, &k);
+        cs = (size_t) string_lookup(s, k);
+    }
+    lua_pushinteger(L, (lua_Number) cs);
+    return 1;
+}
+
+*/
 
 static int run_get_next(lua_State * L)
 {
@@ -686,12 +704,12 @@ static int lua_tokenlib_is_token(lua_State * L) /* HH */
     return 1;
 }
 
-/* static int run_expand(lua_State * L) */
-/* { */
-/*     (void) L; */
-/*     expand(); */
-/*     return 0; */
-/* } */
+static int run_expand(lua_State * L)
+{
+    (void) L;
+    expand();
+    return 0;
+}
 
 static int run_lookup(lua_State * L)
 {
@@ -813,7 +831,7 @@ inline static int lua_tokenlib_get_cmdname(lua_State * L)
     lua_token *n = check_istoken(L, 1);
     halfword t = token_info(n->token);
     int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-    lua_pushstring(L, command_names[cmd].cmd_name); /* can be sped up */
+    lua_push_string_by_index(L, command_names[cmd].lua);
     return 1;
 }
 
@@ -1175,13 +1193,26 @@ static int set_char(lua_State * L)
     return 0;
 }
 
+static int get_command_names(lua_State * L)
+{
+    int i;
+    lua_createtable(L,data_cmd+1,0);
+    for (i = 0; command_names[i].lua != 0; i++) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, command_names[i].lua);
+        lua_rawseti(L, -2, i);
+    }
+    return 1;
+}
+
 static const struct luaL_Reg tokenlib[] = {
     { "type", lua_tokenlib_type },
     { "create", run_build },
     { "is_token", lua_tokenlib_is_token },
+    { "commands", get_command_names },
+    { "command_id", run_get_command_id },
+    { "biggest_char", run_get_biggest_char },
     /* scanners */
     { "get_next", run_get_next },
-    { "put_next", run_put_next },
     { "scan_keyword", run_scan_keyword },
     { "scan_keyword_cs", run_scan_keyword_cs },
     { "scan_int", run_scan_int },
@@ -1196,10 +1227,9 @@ static const struct luaL_Reg tokenlib[] = {
     { "scan_word", run_scan_word },
     { "scan_csname", run_scan_csname },
     { "scan_token", run_scan_token }, /* expands next token if needed */
-    /* push into input stream */
-    /*
-    { "write",luatwrite },
-    */
+    /* writers */
+    { "put_next", run_put_next },
+    { "expand", run_expand },
     /* getters */
     { "get_command", lua_tokenlib_get_command },
     { "get_index", lua_tokenlib_get_index },
@@ -1211,16 +1241,11 @@ static const struct luaL_Reg tokenlib[] = {
     { "get_active", lua_tokenlib_get_active },
     { "get_expandable", lua_tokenlib_get_expandable },
     { "get_protected", lua_tokenlib_get_protected },
-    /* maybe more setters */
-    { "set_macro", set_macro },
     { "get_macro", get_macro },
     { "get_meaning", get_meaning },
+    /* maybe more setters */
+    { "set_macro", set_macro },
     { "set_char", set_char },
-    /* probably never */
- /* {"expand", run_expand},               */ /* does not work yet! */
- /* {"csname_id", run_get_csname_id},     */ /* yes or no */
- /* {"command_id", run_get_command_id},   */ /* yes or no */
- /* {"cs_offset", run_get_cs_offset},     */ /* not that useful */
     {NULL, NULL}
 };
 

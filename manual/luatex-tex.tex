@@ -1036,7 +1036,11 @@ If there is a table argument instead of a list of strings, this has to
 be a consecutive array of strings to print (the first non-string value
 will stop the printing process).
 
-The optional argument sets the catcode regime, as with \type {tex.print()}.
+The optional argument sets the catcode regime, as with \type {tex.print()}. This
+influences the string arguments (or numbers turned into strings). Although this
+needs to be used with care, you can also pass token or node userdata objects. These
+get injected into the stream. Tokens had best be valid tokens, while nodes need to
+be around when they get injected.
 
 \subsubsection{\type {tex.tprint}}
 
@@ -1704,6 +1708,32 @@ numbers and names are used consistently but are not frozen. So, when you use the
 for comparing you can best query a known primitive or character first to see the
 values.
 
+You can ask for a list of commands:
+
+\starttyping
+local t = token.commands()
+\stoptyping
+
+The id of a token class can be queried as follows:
+
+\starttyping
+local id = token.command_id("math_shift")
+\stoptyping
+
+If you really know what you're doing you can create character tokens by not passing a string
+but a number:
+
+\starttyping
+local letter_x = token.create(string.byte("x"))
+local other_x  = token.create(string.byte("x"),12)
+\stoptyping
+
+Passing weird numbers can give side effects so don't expect too much help with
+that. As said, you need to know what you're doing. The best way to explore the
+way these internals work is to just look at how primitives or macros or \prm
+{chardef}'d commands are tokenized. Just create a known one and inspect its
+fields.
+
 More interesting are the scanners. You can use the \LUA\ interface as follows:
 
 \starttyping
@@ -1815,7 +1845,8 @@ token.put_next ( t3, t4 )
 \stoptyping
 
 When we scan \type {wxyz!} we get \type {yzwx!} back. The argument is either a table
-with tokens or a list of tokens.
+with tokens or a list of tokens. The \type {token.expand} function will trigger
+expansion but what happens really depends on what you're doing where.
 
 \subsection{Nota bene}
 
