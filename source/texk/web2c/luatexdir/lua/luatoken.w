@@ -224,10 +224,10 @@ void l_set_token_data(void)
     init_token_key(command_names, halign_cmd,               halign);
     init_token_key(command_names, valign_cmd,               valign);
     init_token_key(command_names, no_align_cmd,             no_align);
-    init_token_key(command_names, no_vrule_cmd,             novrule);
-    init_token_key(command_names, no_hrule_cmd,             nohrule);
     init_token_key(command_names, vrule_cmd,                vrule);
     init_token_key(command_names, hrule_cmd,                hrule);
+    init_token_key(command_names, no_vrule_cmd,             novrule);
+    init_token_key(command_names, no_hrule_cmd,             nohrule);
     init_token_key(command_names, insert_cmd,               insert);
     init_token_key(command_names, vadjust_cmd,              vadjust);
     init_token_key(command_names, ignore_spaces_cmd,        ignore_spaces);
