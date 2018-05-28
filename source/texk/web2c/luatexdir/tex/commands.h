@@ -137,6 +137,7 @@ typedef enum {
     option_cmd,
     lua_function_call_cmd,
     lua_bytecode_call_cmd,
+    lua_call_cmd,
     in_stream_cmd,                        /* files for reading ( \.{\\openin}, \.{\\closein} ) */
     begin_group_cmd,                      /* begin local grouping ( \.{\\begingroup} ) */
     end_group_cmd,                        /* end local grouping ( \.{\\endgroup} ) */
@@ -193,6 +194,7 @@ typedef enum {
     prefix_cmd,                           /* qualify a definition ( \.{\\global}, \.{\\long}, \.{\\outer} ) */
     let_cmd,                              /* assign a command code ( \.{\\let}, \.{\\futurelet} ) */
     shorthand_def_cmd,                    /* code definition ( \.{\\chardef}, \.{\\countdef}, etc.~) */
+    def_lua_call_cmd,
     read_to_cs_cmd,                       /* read into a control sequence ( \.{\\read} ) */
     def_cmd,                              /* macro definition ( \.{\\def}, \.{\\gdef}, \.{\\xdef}, \.{\\edef} ) */
     set_box_cmd,                          /* set a box ( \.{\\setbox} ) */
@@ -206,6 +208,7 @@ typedef enum {
     expand_after_cmd,                     /* special expansion ( \.{\\expandafter} ) */
     no_expand_cmd,                        /* special nonexpansion ( \.{\\noexpand} ) */
     input_cmd,                            /* input a source file ( \.{\\input}, \.{\\endinput} or \.{\\scantokens} or \.{\\scantextokens} ) */
+    lua_expandable_call_cmd,
     if_test_cmd,                          /* conditional text ( \.{\\if}, \.{\\ifcase}, etc.~) */
     fi_or_else_cmd,                       /* delimiters for conditionals ( \.{\\else}, etc.~) */
     cs_name_cmd,                          /* make a control sequence from tokens ( \.{\\csname} ) */

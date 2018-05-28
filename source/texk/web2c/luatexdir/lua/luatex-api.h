@@ -652,6 +652,7 @@ make_lua_key(def_char_code);\
 make_lua_key(def_del_code);\
 make_lua_key(def_family);\
 make_lua_key(def_font);\
+make_lua_key(def_lua_call);\
 make_lua_key(degree);\
 make_lua_key(delim);\
 make_lua_key(delim_num);\
@@ -835,8 +836,11 @@ make_lua_key(LTL);\
 make_lua_key(lua);\
 make_lua_key(lua_bytecode_call);\
 make_lua_key(lua_bytecodes_indirect);\
+make_lua_key(lua_call);\
+make_lua_key(lua_expandable_call);\
 make_lua_key(lua_function_call);\
 make_lua_key(lua_functions);\
+make_lua_key(lua_given);\
 make_lua_key(luatex);\
 make_lua_key(luatex_node);\
 make_lua_key(luatex_token);\
@@ -1325,6 +1329,7 @@ init_lua_key(def_char_code);\
 init_lua_key(def_del_code);\
 init_lua_key(def_family);\
 init_lua_key(def_font);\
+init_lua_key(def_lua_call);\
 init_lua_key(degree);\
 init_lua_key(delim);\
 init_lua_key(delim_num);\
@@ -1507,8 +1512,11 @@ init_lua_key(LTL);\
 init_lua_key(lua);\
 init_lua_key(lua_bytecode_call);\
 init_lua_key(lua_bytecodes_indirect);\
+init_lua_key(lua_call);\
+init_lua_key(lua_expandable_call);\
 init_lua_key(lua_function_call);\
 init_lua_key(lua_functions);\
+init_lua_key(lua_given);\
 init_lua_key(luatex);\
 init_lua_key(luatex_node);\
 init_lua_key(luatex_token);\
@@ -2042,6 +2050,7 @@ use_lua_key(def_char_code);
 use_lua_key(def_del_code);
 use_lua_key(def_family);
 use_lua_key(def_font);
+use_lua_key(def_lua_call);
 use_lua_key(degree);
 use_lua_key(delim);
 use_lua_key(delim_num);
@@ -2225,8 +2234,11 @@ use_lua_key(LTL);
 use_lua_key(lua);
 use_lua_key(lua_bytecode_call);
 use_lua_key(lua_bytecodes_indirect);
+use_lua_key(lua_call);
+use_lua_key(lua_expandable_call);
 use_lua_key(lua_function_call);
 use_lua_key(lua_functions);
+use_lua_key(lua_given);
 use_lua_key(luatex);
 use_lua_key(luatex_node);
 use_lua_key(luatex_token);

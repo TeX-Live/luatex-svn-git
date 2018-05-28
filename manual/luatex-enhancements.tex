@@ -40,7 +40,7 @@ assumes that you have executed the \prm {directlua} command as given above.
 The startup behaviour documented above is considered stable in the sense that
 there will not be backward|-|incompatible changes any more. We have promoted some
 rather generic \PDFTEX\ primitives to core \LUATEX\ ones, and the ones inherited
-frome \ALEPH\ (\OMEGA) are also promoted. Effectively this means that we now only
+from \ALEPH\ (\OMEGA) are also promoted. Effectively this means that we now only
 have the \type {tex}, \type {etex} and \type {luatex} sets left.
 
 In \in {Chapter} [modifications] we discuss several primitives that are derived
@@ -466,7 +466,7 @@ in a separate file and load it using \LUA's \type {dofile}:
 \directlua { dofile('mysetups.lua') }
 \stoptyping
 
-\subsection{\lpr {luafunction} and \lpr {luafunctioncall}}
+\subsection{\lpr {luafunction}, \lpr {luafunctioncall} and \lpr {luadef}}
 
 The \prm {directlua} commands involves tokenization of its argument (after
 picking up an optional name or number specification). The tokenlist is then
@@ -500,7 +500,15 @@ in the following example the number \type {8} gets typeset.
 \stoptyping
 
 The \lpr {luafunctioncall} primitive does the same but is unexpandable, for
-instance in an \prm {edef}.
+instance in an \prm {edef}. In addition \LUATEX\ provides a definer:
+
+\starttyping
+                 \luadef\MyFunctionA 1
+          \global\luadef\MyFunctionB 2
+\protected\global\luadef\MyFunctionC 3
+\stoptyping
+
+
 
 \subsection{\lpr {luabytecode} and \lpr {luabytecodecall}}
 

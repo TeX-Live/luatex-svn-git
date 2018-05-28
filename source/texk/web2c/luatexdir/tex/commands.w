@@ -260,6 +260,7 @@ void initialize_commands(void)
     primitive_luatex("novrule", no_vrule_cmd, 0, 0);
     primitive_luatex("luafunctioncall", lua_function_call_cmd, 0, 0);
     primitive_luatex("luabytecodecall", lua_bytecode_call_cmd, 0, 0);
+    primitive_luatex("luadef", def_lua_call_cmd, 0, 0);
     primitive_tex("par", par_end_cmd, too_big_char, too_big_char);      /* cf.\ |scan_file_name| */
     par_loc = cur_val;
     par_token = cs_token_flag + par_loc;
@@ -329,7 +330,7 @@ void initialize_commands(void)
     primitive_tex("number", convert_cmd, number_code, 0);
     primitive_tex("romannumeral", convert_cmd, roman_numeral_code, 0);
     primitive_tex("string", convert_cmd, string_code, 0);
-    primitive_tex("csstring", convert_cmd, cs_string_code, 0);
+    primitive_luatex("csstring", convert_cmd, cs_string_code, 0);
     primitive_tex("meaning", convert_cmd, meaning_code, 0);
     primitive_etex("eTeXVersion", convert_cmd, etex_code, 0);
     primitive_tex("fontname", convert_cmd, font_name_code, 0);

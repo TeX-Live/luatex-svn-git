@@ -319,6 +319,11 @@ sequence named \.{BAD} would come out `\.{\\BAD\ }'.
         case node_cmd: \
             p("[internal node pointer]"); \
             break; \
+        case lua_call_cmd: \
+            p("[internal lua function call]"); \
+            break; \
+        case lua_expandable_call_cmd: \
+            p("[internal expandable lua function call]"); \
         default: \
             p("BAD"); \
             break; \

@@ -135,6 +135,19 @@ static void run_node (void) {
     }
 }
 
+static void run_lua_call(void) {
+    if (cur_chr <= 0) {
+        normal_error("luacall", "invalid number");
+    } else {
+        str_number u = save_cur_string();
+        luacstrings = 0;
+        luafunctioncall(cur_chr);
+        restore_cur_string(u);
+        if (luacstrings > 0)
+            lua_string_start();
+    }
+}
+
 @
 The occurrence of blank spaces is almost part of \TeX's inner loop,
 since we usually encounter about one space for every five non-blank characters.
@@ -715,7 +728,6 @@ static void init_main_control (void) {
 
     jump_table[hmode + char_num_cmd] = run_char_num;
     jump_table[hmode + letter_cmd] = run_char;
-jump_table[hmode + node_cmd] = run_node;
     jump_table[hmode + other_char_cmd] = run_char;
     jump_table[hmode + char_given_cmd] = run_char;
     jump_table[hmode + spacer_cmd] = run_app_space;
@@ -798,7 +810,6 @@ jump_table[hmode + node_cmd] = run_node;
     jump_table[hmode + start_par_cmd] = run_start_par;
     jump_table[mmode + start_par_cmd] = run_start_par;
     jump_table[vmode + letter_cmd] = run_new_graf;
-jump_table[vmode + node_cmd] = run_node;
     jump_table[vmode + other_char_cmd] = run_new_graf;
     jump_table[vmode + char_num_cmd] = run_new_graf;
     jump_table[vmode + char_given_cmd] = run_new_graf;
@@ -852,7 +863,6 @@ jump_table[vmode + node_cmd] = run_node;
     jump_table[mmode + eq_no_cmd] = run_eq_no;
     jump_table[mmode + left_brace_cmd] = math_left_brace;
     jump_table[mmode + letter_cmd] = run_letter_mmode;
-jump_table[mmode + node_cmd] = run_node;
     jump_table[mmode + other_char_cmd] = run_letter_mmode;
     jump_table[mmode + char_given_cmd] = run_letter_mmode;
     jump_table[mmode + char_num_cmd] = run_char_num_mmode;
@@ -930,6 +940,11 @@ jump_table[mmode + node_cmd] = run_node;
 
     any_mode(lua_function_call_cmd, lua_function_call);
     any_mode(lua_bytecode_call_cmd, lua_bytecode_call);
+    any_mode(def_lua_call_cmd, prefixed_command);
+    any_mode(lua_call_cmd, run_lua_call);
+    any_mode(lua_expandable_call_cmd, run_lua_call);
+    any_mode(node_cmd, run_node);
+
 }
 
 @ And here is |main_control| itself.  It is quite short nowadays.
@@ -2258,7 +2273,7 @@ void prefixed_command(void)
     } else {
         j = 0;
     }
-    if ((cur_cmd != def_cmd) && ((a % 4 != 0) || (j != 0))) {
+    if ((cur_cmd != def_cmd) && (cur_cmd != def_lua_call_cmd) && ((a % 4 != 0) || (j != 0))) {
         print_err("You can't use `\\long' or `\\outer' or `\\protected' with `");
         print_cmd_chr((quarterword) cur_cmd, cur_chr);
         print_char('\'');
@@ -2617,7 +2632,6 @@ void prefixed_command(void)
                 n = 077777;
             else
                 n = biggest_char;
-
             p = cur_chr;
             if (cur_chr == math_code_base) {
                 if (is_global(a))
@@ -2872,6 +2886,18 @@ void prefixed_command(void)
         case def_font_cmd:
             /* Here is where the information for a new font gets loaded. */
             tex_def_font((small_number) a);
+            break;
+        case def_lua_call_cmd:
+            get_r_token();
+            p = cur_cs;
+            scan_optional_equals();
+            scan_int();
+            /* maybe check */
+            if (j != 0) {
+                define(p, lua_call_cmd, cur_val);
+            } else {
+                define(p, lua_expandable_call_cmd, cur_val);
+            }
             break;
         case letterspace_font_cmd:
             new_letterspaced_font((small_number) a);

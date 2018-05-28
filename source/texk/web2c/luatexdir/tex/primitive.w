@@ -568,6 +568,14 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         tprint_esc("Umathchar");
         show_mathcode_value(mathchar_from_integer(chr_code, umath_mathcode));
         break;
+    case lua_expandable_call_cmd:
+        tprint("expandable luacall ");
+        print_int(chr_code);
+        break;
+    case lua_call_cmd:
+        tprint("luacall ");
+        print_int(chr_code);
+        break;
     case set_font_cmd:
         tprint("select font ");
         tprint(font_name(chr_code));

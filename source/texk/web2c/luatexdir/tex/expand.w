@@ -291,6 +291,18 @@ void expand(void)
             else
                 start_input();
             break;
+        case lua_expandable_call_cmd:
+            if (cur_chr <= 0) {
+                normal_error("luacall", "invalid number");
+            } else {
+                str_number u = save_cur_string();
+                luacstrings = 0;
+                luafunctioncall(cur_chr);
+                restore_cur_string(u);
+                if (luacstrings > 0)
+                    lua_string_start();
+            }
+            break;
         case variable_cmd:
             do_variable();
             break;

@@ -782,7 +782,7 @@ inline static int lua_tokenlib_get_index(lua_State * L)
     lua_token *n = check_istoken(L, 1);
     halfword t = token_info(n->token);
     int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-    halfword e = equiv(t - cs_token_flag);
+    halfword e = -1;
     switch (cmd) {
         case assign_int_cmd:
             e -= count_base;
@@ -803,7 +803,6 @@ inline static int lua_tokenlib_get_index(lua_State * L)
             e -= toks_base;
             break;
         default:
-            e = -1;
             break;
     }
     if ((e >= 0) && (e <= 65535)) {
