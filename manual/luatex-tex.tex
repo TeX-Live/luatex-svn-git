@@ -1732,7 +1732,11 @@ Passing weird numbers can give side effects so don't expect too much help with
 that. As said, you need to know what you're doing. The best way to explore the
 way these internals work is to just look at how primitives or macros or \prm
 {chardef}'d commands are tokenized. Just create a known one and inspect its
-fields.
+fields. A variant that ignores the current catcode table is:
+
+\starttyping
+local whatever = token.new(123,12)
+\stoptyping
 
 More interesting are the scanners. You can use the \LUA\ interface as follows:
 

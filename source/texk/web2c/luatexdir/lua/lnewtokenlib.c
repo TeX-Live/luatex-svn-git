@@ -751,6 +751,15 @@ static int run_build(lua_State * L)
     }
 }
 
+static int run_new(lua_State * L)
+{
+    int cs = 0;
+    int chr = (int) lua_tointeger(L, 1);
+    int cmd = (int) lua_tointeger(L, 2);
+    make_new_token(L, cmd, chr, cs);
+    return 1;
+}
+
 /* token instance functions */
 
 static int lua_tokenlib_free(lua_State * L)
@@ -1206,6 +1215,7 @@ static int get_command_names(lua_State * L)
 static const struct luaL_Reg tokenlib[] = {
     { "type", lua_tokenlib_type },
     { "create", run_build },
+    { "new", run_new },
     { "is_token", lua_tokenlib_is_token },
     { "commands", get_command_names },
     { "command_id", run_get_command_id },
