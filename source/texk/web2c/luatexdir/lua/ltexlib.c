@@ -74,6 +74,7 @@ static int luac_store(lua_State * L, int i, int partial, int cattable)
         if (p == NULL) {
             return 0;
         } else if (lua_getmetatable(L, i)) {
+            /*
             lua_get_metatablelua(luatex_node);
             if (lua_rawequal(L, -1, -2)) {
                 nod = *((halfword *)p);
@@ -82,6 +83,21 @@ static int luac_store(lua_State * L, int i, int partial, int cattable)
                 lua_get_metatablelua(luatex_token);
                 if (lua_rawequal(L, -1, -3)) {
                     tok = (halfword) token_info((*((lua_token *)p)).token);
+                    lua_pop(L, 3);
+                } else {
+                    lua_pop(L, 3);
+                    return 0;
+                }
+            }
+            */
+            lua_get_metatablelua(luatex_token);
+            if (lua_rawequal(L, -1, -2)) {
+                tok = (halfword) token_info((*((lua_token *)p)).token);
+                lua_pop(L, 2);
+            } else {
+                lua_get_metatablelua(luatex_node);
+                if (lua_rawequal(L, -1, -3)) {
+                    nod = *((halfword *)p);
                     lua_pop(L, 3);
                 } else {
                     lua_pop(L, 3);

@@ -1053,6 +1053,56 @@ static int get_macro(lua_State * L)
     return 0;
 }
 
+static int set_lua(lua_State *L)
+{
+    const char *name = null;
+    const char *s  = null;
+    size_t lname = 0;
+    int cs;
+    int n = lua_gettop(L);
+    int a = 0; /* global state */
+    int p = 0; /* protected state */
+    int f = 0; /* function index */
+    int nncs = no_new_control_sequence;
+    if (n < 2) {
+        return 0 ;
+    }
+    name = lua_tolstring(L, 1, &lname);
+    if (name == null) {
+        return 0 ;
+    }
+    f = lua_tointeger(L, 2);
+    if (n > 2)  {
+        s = lua_tostring(L, 3);
+        if (s) {
+            if (lua_key_eq(s, global)) {
+                a = 4;
+            } else if (lua_key_eq(s, protected)) {
+                p = 1;
+            }
+        }
+        if (n > 3) {
+            s = lua_tostring(L, 4);
+            if (s) {
+                if (lua_key_eq(s, global)) {
+                    a = 4;
+                } else if (lua_key_eq(s, protected)) {
+                    p = 1;
+                }
+            }
+        }
+    }
+    no_new_control_sequence = false ;
+    cs = string_lookup(name, lname);
+    no_new_control_sequence = nncs;
+    if (p) {
+        define(cs, lua_call_cmd, f);
+    } else {
+        define(cs, lua_expandable_call_cmd, f);
+    }
+    return 0;
+}
+
 static int set_macro(lua_State * L)
 {
     const char *name = null;
@@ -1252,9 +1302,10 @@ static const struct luaL_Reg tokenlib[] = {
     { "get_protected", lua_tokenlib_get_protected },
     { "get_macro", get_macro },
     { "get_meaning", get_meaning },
-    /* maybe more setters */
+    /* setters */
     { "set_macro", set_macro },
     { "set_char", set_char },
+    { "set_lua", set_lua },
     {NULL, NULL}
 };
 

@@ -1211,7 +1211,6 @@ init_lua_key(adjust_head);\
 init_lua_key(adjusted_hbox);\
 init_lua_key(adjustspacing);\
 init_lua_key(advance);\
-init_lua_key(advance);\
 init_lua_key(after_assignment);\
 init_lua_key(after_display);\
 init_lua_key(after_group);\
@@ -1931,7 +1930,6 @@ use_lua_key(adjust);
 use_lua_key(adjust_head);
 use_lua_key(adjusted_hbox);
 use_lua_key(adjustspacing);
-use_lua_key(advance);
 use_lua_key(advance);
 use_lua_key(after_assignment);
 use_lua_key(after_display);
