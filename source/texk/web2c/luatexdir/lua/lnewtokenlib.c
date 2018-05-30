@@ -364,16 +364,41 @@ static int run_scan_int(lua_State * L)
     return 1;
 }
 
+/*
+    char * str ;
+*/
+
+# define declare_buffer \
+    unsigned char word[5 + 1]; \
+    char *uindex = (char *)word; \
+    luaL_Buffer b ; \
+    luaL_buffinit(L,&b) ;
+
+/*
+    str = (char *) uni2str(cur_chr);
+    luaL_addstring(&b,(char *) str);
+    xfree(str);
+*/
+
+# define add_to_buffer(chr) \
+    if (chr <= 255) { \
+        luaL_addchar(&b,(unsigned) (char) chr); \
+    } else { \
+        uindex = uni2string((char *)word,(unsigned) chr); \
+        *uindex = '\0'; \
+        luaL_addstring(&b,(char *) word); \
+    }
+
+# define push_buffer \
+    luaL_pushresult(&b);
 
 static int run_scan_float_indeed(lua_State * L, boolean exponent)
 {
     saved_tex_scanner texstate;
-    char * str ;
     int ok;
     boolean negative = false;
     double d;
-    luaL_Buffer b ;
-    luaL_buffinit(L,&b) ;
+    declare_buffer;
     save_tex_scanner(texstate);
     /* we collapse as in scan_dimen */
     while(1) {
@@ -387,18 +412,15 @@ static int run_scan_float_indeed(lua_State * L, boolean exponent)
         }
     }
     if (negative) {
-        str = (char *) uni2str('-');
-        luaL_addstring(&b,(char *) str);
+        add_to_buffer('-');
     }
     /* we accept [.,]digits */
     if (cur_tok == point_token || cur_tok == comma_token) {
-        str = (char *) uni2str('.');
-        luaL_addstring(&b,(char *) str);
+        add_to_buffer('.');
         while (1) {
             get_x_token();
             if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
-                str = (char *) uni2str(cur_chr);
-                luaL_addstring(&b,(char *) str);
+                add_to_buffer(cur_chr);
             } else if (exponent) {
                 goto EXPONENT;
             } else {
@@ -411,17 +433,14 @@ static int run_scan_float_indeed(lua_State * L, boolean exponent)
         while (1) {
             get_x_token();
             if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
-                str = (char *) uni2str(cur_chr);
-                luaL_addstring(&b,(char *) str);
+                add_to_buffer(cur_chr);
             } else {
                 if (cur_tok == point_token || cur_tok == comma_token) {
-                    str = (char *) uni2str('.');
-                    luaL_addstring(&b,(char *) str);
+                    add_to_buffer('.');
                     while (1) {
                         get_x_token();
                         if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
-                            str = (char *) uni2str(cur_chr);
-                            luaL_addstring(&b,(char *) str);
+                            add_to_buffer(cur_chr);
                         } else {
                             back_input();
                             break;
@@ -438,21 +457,17 @@ static int run_scan_float_indeed(lua_State * L, boolean exponent)
     }
 EXPONENT:
     if ((cur_chr == 'E') || (cur_chr == 'e')) {
-        str = (char *) uni2str(cur_chr);
-        luaL_addstring(&b,(char *) str);
+        add_to_buffer(cur_chr);
         get_x_token();
         if ((cur_tok == minus_token) || (cur_tok == plus_token)) {
-            str = (char *) uni2str(cur_chr);
-            luaL_addstring(&b,(char *) str);
+            add_to_buffer(cur_chr);
         } else if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
-            str = (char *) uni2str(cur_chr);
-            luaL_addstring(&b,(char *) str);
+            add_to_buffer(cur_chr);
         }
         while (1) {
             get_x_token();
             if ((cur_tok >= zero_token) && (cur_tok <= nine_token)) {
-                str = (char *) uni2str(cur_chr);
-                luaL_addstring(&b,(char *) str);
+                add_to_buffer(cur_chr);
             } else {
                 break;
             }
@@ -460,7 +475,7 @@ EXPONENT:
     }
     back_input();
 DONE:
-    luaL_pushresult(&b);
+    push_buffer;
     d = lua_tonumberx(L,1,&ok);
     if (ok) {
         lua_pushnumber(L,d);
@@ -569,19 +584,16 @@ static int run_scan_string(lua_State * L) /* HH */
         t = token_link(cur_chr);
         tokenlist_to_luastring(L,t);
     } else if (cur_cmd == 11 || cur_cmd == 12 ) {
-        char * str ;
-        luaL_Buffer b ;
-        luaL_buffinit(L,&b) ;
+        declare_buffer;
         while (1) {
-            str = (char *) uni2str(cur_chr);
-            luaL_addstring(&b,(char *) str);
+            add_to_buffer(cur_chr);
             get_x_token();
             if (cur_cmd != 11 && cur_cmd != 12 ) {
                 break ;
             }
         }
         back_input();
-        luaL_pushresult(&b);
+        push_buffer;
     } else {
         back_input();
         lua_pushnil(L);
@@ -619,19 +631,16 @@ static int run_scan_argument(lua_State * L) /* HH */
         def_ref = saved_defref;
         tokenlist_to_luastring(L,t);
     } else if (cur_cmd == 11 || cur_cmd == 12 ) {
-        char * str ;
-        luaL_Buffer b ;
-        luaL_buffinit(L,&b) ;
+        declare_buffer;
         while (1) {
-            str = (char *) uni2str(cur_chr);
-            luaL_addstring(&b,(char *) str);
+            add_to_buffer(cur_chr);
             get_x_token();
             if (cur_cmd != 11 && cur_cmd != 12 ) {
                 break ;
             }
         }
         back_input();
-        luaL_pushresult(&b);
+        push_buffer;
     } else {
         back_input();
         lua_pushnil(L);
@@ -648,20 +657,16 @@ static int run_scan_word(lua_State * L) /* HH */
         get_x_token();
     } while ((cur_cmd == spacer_cmd) || (cur_cmd == relax_cmd));
     if (cur_cmd == 11 || cur_cmd == 12 ) {
-        char *str ;
-        luaL_Buffer b ;
-        luaL_buffinit(L,&b) ;
+        declare_buffer;
         while (1) {
-            str = (char *) uni2str(cur_chr);
-            luaL_addstring(&b,str);
-            xfree(str);
+            add_to_buffer(cur_chr);
             get_x_token();
             if (cur_cmd != 11 && cur_cmd != 12 ) {
                 break ;
             }
         }
         back_input();
-        luaL_pushresult(&b);
+        push_buffer;
     } else {
         back_input();
         lua_pushnil(L);
