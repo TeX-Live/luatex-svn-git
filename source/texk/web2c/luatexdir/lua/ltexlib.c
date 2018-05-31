@@ -74,22 +74,6 @@ static int luac_store(lua_State * L, int i, int partial, int cattable)
         if (p == NULL) {
             return 0;
         } else if (lua_getmetatable(L, i)) {
-            /*
-            lua_get_metatablelua(luatex_node);
-            if (lua_rawequal(L, -1, -2)) {
-                nod = *((halfword *)p);
-                lua_pop(L, 2);
-            } else {
-                lua_get_metatablelua(luatex_token);
-                if (lua_rawequal(L, -1, -3)) {
-                    tok = (halfword) token_info((*((lua_token *)p)).token);
-                    lua_pop(L, 3);
-                } else {
-                    lua_pop(L, 3);
-                    return 0;
-                }
-            }
-            */
             lua_get_metatablelua(luatex_token);
             if (lua_rawequal(L, -1, -2)) {
                 tok = (halfword) token_info((*((lua_token *)p)).token);
@@ -110,7 +94,7 @@ static int luac_store(lua_State * L, int i, int partial, int cattable)
     } else {
         return 0;
     }
-    /* common*/
+    /* common */
     luacstrings++;
     rn = (rope *) xmalloc(sizeof(rope));
     rn->text = st;
@@ -122,7 +106,6 @@ static int luac_store(lua_State * L, int i, int partial, int cattable)
     rn->cattable = cattable;
     /* add */
     if (write_spindle.head == NULL) {
-     /* assert(write_spindle.tail == NULL); */
         write_spindle.head = rn;
     } else {
         write_spindle.tail->next = rn;
@@ -162,17 +145,6 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
         for (i = startstrings; i <= n; i++) {
             luac_store(L, i, partial, cattable);
         }
-        /* hh: We could use this but it makes not much different, apart from allocating more ropes so less
-           memory. To be looked into: lua 5.2 buffer mechanism as now we still hash the concatination. This
-           test was part of the why-eis-luajit-so-slow on crited experiments. So we don't do this! */
-        /*
-        if (startstrings == n) {
-            luac_store(L, n, partial, cattable);
-        } else {
-            lua_concat(L,n-startstrings+1);
-            luac_store(L, startstrings, partial, cattable);
-        }
-        */
     }
     return 0;
 }
@@ -343,7 +315,7 @@ static int luactprint(lua_State * L)
         if (lua_type(L, i) != LUA_TTABLE) {
             luaL_error(L, "no string to print");
         }
-        lua_pushvalue(L, i);    /* push the table */
+        lua_pushvalue(L, i); /* push the table */
         lua_pushinteger(L, 1);
         lua_gettable(L, -2);
         if (lua_type(L, -1) == LUA_TNUMBER) {
@@ -364,7 +336,7 @@ static int luactprint(lua_State * L)
                 break;
             }
         }
-        lua_pop(L, 1);          /* pop the table */
+        lua_pop(L, 1); /* pop the table */
     }
     return 0;
 }
@@ -419,7 +391,8 @@ int luacstring_input(halfword *n)
         *n = t->nod;
         ret = 3;
     }
-    if (read_spindle.tail != NULL) {    /* not a one-liner */
+    if (read_spindle.tail != NULL) {
+        /* not a one-liner */
         free(read_spindle.tail);
     }
     read_spindle.tail = t;
@@ -428,11 +401,13 @@ int luacstring_input(halfword *n)
 }
 
 /* open for reading, and make a new one for writing */
+
 void luacstring_start(int n)
 {
-    (void) n;                   /* for -W */
+    (void) n; /* for -W */
     spindle_index++;
-    if (spindle_size == spindle_index) {        /* add a new one */
+    if (spindle_size == spindle_index) {
+        /* add a new one */
         spindles = xrealloc(spindles, (unsigned) (sizeof(spindle) * (unsigned) (spindle_size + 1)));
         spindles[spindle_index].head = NULL;
         spindles[spindle_index].tail = NULL;
@@ -446,7 +421,7 @@ void luacstring_start(int n)
 void luacstring_close(int n)
 {
     rope *next, *t;
-    (void) n;                   /* for -W */
+    (void) n; /* for -W */
     next = read_spindle.head;
     while (next != NULL) {
         if (next->text != NULL)
@@ -484,15 +459,15 @@ void luacstring_close(int n)
 
 static const char *scan_integer_part(lua_State * L, const char *ss, int *ret, int *radix_ret)
 {
-    boolean negative = false;   /* should the answer be negated? */
-    int m = 214748364;          /* |$2^{31}$ / radix|, the threshold of danger */
-    int d;                      /* the digit just scanned */
-    boolean vacuous = true;     /* have no digits appeared? */
-    boolean OK_so_far = true;   /* has an error message been issued? */
-    int radix1 = 10;            /* the radix of the integer */
-    int c = 0;                  /* the current character */
-    const char *s;              /* where we stopped in the string |ss| */
-    integer val = 0;            /* return value */
+    boolean negative = false; /* should the answer be negated? */
+    int m = 214748364;        /* |$2^{31}$ / radix|, the threshold of danger */
+    int d;                    /* the digit just scanned */
+    boolean vacuous = true;   /* have no digits appeared? */
+    boolean OK_so_far = true; /* has an error message been issued? */
+    int radix1 = 10;          /* the radix of the integer */
+    int c = 0;                /* the current character */
+    const char *s;            /* where we stopped in the string |ss| */
+    integer val = 0;          /* return value */
     s = ss;
     do {
         do {
@@ -554,9 +529,9 @@ static const char *scan_integer_part(lua_State * L, const char *ss, int *ret, in
 
 #define set_conversion(A,B) do { num=(A); denom=(B); } while(0)
 
+/* sets |cur_val| to a dimension */
 
 static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
-/* sets |cur_val| to a dimension */
 {
     boolean negative = false;   /* should the answer be negated? */
     int f = 0;                  /* numerator of a fraction whose denominator is $2^{16}$ */
@@ -566,7 +541,7 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
     int save_cur_val;           /* temporary storage of |cur_val| */
     int c;                      /* the current character */
     const char *s = ss;         /* where we are in the string */
-    int radix1 = 0;              /* the current radix */
+    int radix1 = 0;             /* the current radix */
     int rdig[18];               /* to save the |dig[]| array */
     int saved_tex_remainder;    /* to save |tex_remainder|  */
     int saved_arith_error;      /* to save |arith_error|  */
@@ -574,9 +549,9 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
     saved_tex_remainder = tex_remainder;
     saved_arith_error = arith_error;
     saved_cur_val = cur_val;
-    /* Get the next non-blank non-sign... */
+    /* get the next non-blank non-sign */
     do {
-        /* Get the next non-blank non-call token */
+        /* get the next non-blank non-call token */
         do {
             c = *s++;
         } while (c && c == ' ');
@@ -599,16 +574,18 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
     if (c == ',')
         c = '.';
     if ((radix1 == 10) && (c == '.')) {
-        /* Scan decimal fraction */
+        /* scan decimal fraction */
         for (k = 0; k < 18; k++)
             rdig[k] = dig[k];
         k = 0;
-        s++;                    /* get rid of the '.' */
+        s++;
+        /* get rid of the '.' */
         while (1) {
             c = *s++;
             if ((c > '0' + 9) || (c < '0'))
                 break;
-            if (k < 17) {       /* digits for |k>=17| cannot affect the result */
+            if (k < 17) {
+                /* digits for |k>=17| cannot affect the result */
                 dig[k++] = c - '0';
             }
         }
@@ -622,8 +599,10 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
         negative = !negative;
         cur_val = -cur_val;
     }
-    /* Scan for (u)units that are internal dimensions;
-       |goto attach_sign| with |cur_val| set if found */
+    /*
+        Scan for (u)units that are internal dimensions; |goto attach_sign| with
+        |cur_val| set if found.
+    */
     save_cur_val = cur_val;
     /* Get the next non-blank non-call... */
     do {
@@ -676,8 +655,10 @@ static const char *scan_dimen_part(lua_State * L, const char *ss, int *ret)
         s += 2;
         goto ATTACH_FRACTION;   /* the easy case */
     }
-    /* Scan for (a)all other units and adjust |cur_val| and |f| accordingly;
-       |goto done| in the case of scaled points */
+    /*
+        Scan for (a)all other units and adjust |cur_val| and |f| accordingly; |goto done|
+        in the case of scaled points
+    */
     if (strncmp(s, "mm", 2) == 0) {
         s += 2;
         set_conversion(7227, 2540);
@@ -821,7 +802,7 @@ static int get_item_index(lua_State * L, int i, int base)
             s = lua_tolstring(L, i, &kk);
             cur_cs1 = string_lookup(s, kk);
             if (cur_cs1 == undefined_control_sequence || cur_cs1 == undefined_cs_cmd)
-                k = -1;             /* guarandeed invalid */
+                k = -1; /* guarandeed invalid */
             else
                 k = (equiv(cur_cs1) - base);
             break;
@@ -830,7 +811,7 @@ static int get_item_index(lua_State * L, int i, int base)
             break;
         default:
             luaL_error(L, "argument must be a string or a number");
-            k = -1;                 /* not a valid index */
+            k = -1; /* not a valid index */
     }
     return k;
 }
