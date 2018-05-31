@@ -942,7 +942,7 @@ static void init_main_control (void) {
     any_mode(lua_bytecode_call_cmd, lua_bytecode_call);
     any_mode(def_lua_call_cmd, prefixed_command);
     any_mode(lua_call_cmd, run_lua_call);
-    any_mode(lua_expandable_call_cmd, run_lua_call);
+ /* any_mode(lua_expandable_call_cmd, run_lua_call); */ /* no! outside jump table anyway, handled in expand() */
     any_mode(node_cmd, run_node);
 
 }

@@ -840,7 +840,6 @@ make_lua_key(lua_call);\
 make_lua_key(lua_expandable_call);\
 make_lua_key(lua_function_call);\
 make_lua_key(lua_functions);\
-make_lua_key(lua_given);\
 make_lua_key(luatex);\
 make_lua_key(luatex_node);\
 make_lua_key(luatex_token);\
@@ -1515,7 +1514,6 @@ init_lua_key(lua_call);\
 init_lua_key(lua_expandable_call);\
 init_lua_key(lua_function_call);\
 init_lua_key(lua_functions);\
-init_lua_key(lua_given);\
 init_lua_key(luatex);\
 init_lua_key(luatex_node);\
 init_lua_key(luatex_token);\
@@ -2236,7 +2234,6 @@ use_lua_key(lua_call);
 use_lua_key(lua_expandable_call);
 use_lua_key(lua_function_call);
 use_lua_key(lua_functions);
-use_lua_key(lua_given);
 use_lua_key(luatex);
 use_lua_key(luatex_node);
 use_lua_key(luatex_token);

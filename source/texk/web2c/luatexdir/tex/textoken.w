@@ -324,6 +324,7 @@ sequence named \.{BAD} would come out `\.{\\BAD\ }'.
             break; \
         case lua_expandable_call_cmd: \
             p("[internal expandable lua function call]"); \
+            break; \
         default: \
             p("BAD"); \
             break; \
@@ -2199,7 +2200,6 @@ void combine_the_toks(int how)
         if (source != null) {
             target = toks(nt);
             if (target == null) {
-//printf("HERE 0\n");
                 set_toks_register(nt,source,global);
             } else {
                 s = token_link(source);
@@ -2207,12 +2207,10 @@ void combine_the_toks(int how)
                     t = token_link(target);
                     if (t == null) {
                         /* can this happen ? */
-//printf("HERE 1\n");
                         set_token_link(target, s);
                     } else if (append) {
                         /* append */
                         if (token_ref_count(target) == 0) {
-//printf("HERE 2\n");
                             p = t;
                             while (token_link(p) != null) {
                                 p = token_link(p);
@@ -2222,7 +2220,6 @@ void combine_the_toks(int how)
                                 s = token_link(s);
                             }
                         } else {
-//printf("HERE 3\n");
                             token_ref_count(target)--;
                             append_copied_toks_list(t,s);
                             set_toks_register(nt,temp_token_head,global);
@@ -2230,7 +2227,6 @@ void combine_the_toks(int how)
                     } else {
                         /* prepend */
                         if (token_ref_count(target) == 0) {
-//printf("HERE 4\n");
                             h = null;
                             p = null ;
                             while (s != null) {
@@ -2243,7 +2239,6 @@ void combine_the_toks(int how)
                             set_token_link(p,t);
                             set_token_link(target,h);
                         } else {
-//printf("HERE 5\n");
                             token_ref_count(target)--;
                             append_copied_toks_list(s,t);
                             set_toks_register(nt,temp_token_head,global);
@@ -2265,7 +2260,6 @@ void combine_the_toks(int how)
         if (source != null) {
             target = toks(nt);
             if (target == null) {
-//printf("HERE 6\n");
                 /* assign */
                 token_ref_count(source)++;
                 equiv(toks_base+nt) = source;
@@ -2276,7 +2270,6 @@ void combine_the_toks(int how)
             if (append) {
                 /* append */
                 if (token_ref_count(target) == 0) {
-//printf("HERE 7\n");
                     p = t;
                     while (token_link(p) != null) {
                         p = token_link(p);
@@ -2286,7 +2279,6 @@ void combine_the_toks(int how)
                         s = token_link(s);
                     }
                 } else {
-//printf("HERE 8\n");
                     token_ref_count(target)--;
                     append_copied_toks_list(t,s);
                     set_toks_register(nt,temp_token_head,global);
@@ -2294,7 +2286,6 @@ void combine_the_toks(int how)
             } else {
                 /* prepend */
                 if (token_ref_count(target) == 0) {
-//printf("HERE 9\n");
                     h = null;
                     p = null;
                     while (s != null) {
@@ -2307,7 +2298,6 @@ void combine_the_toks(int how)
                     set_token_link(p,t);
                     set_token_link(target,h);
                 } else {
-//printf("HERE 10\n");
                     token_ref_count(target)--;
                     append_copied_toks_list(s,t);
                     set_toks_register(nt,temp_token_head,global);
