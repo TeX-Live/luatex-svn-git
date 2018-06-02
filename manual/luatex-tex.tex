@@ -1019,28 +1019,60 @@ makes it suitable for use as a partial line input mechanism:
     No \prm {endlinechar} is inserted.
 \stopitem
 \startitem
-    Trailing spaces are not removed.
+    Trailing spaces are not removed. Note that this does not prevent \TEX\ itself
+    from eating spaces as result of interpreting the line. For example, in
 
-    Note that this does not prevent \TEX\ itself from eating spaces as result of
-    interpreting the line. For example, in
+    \starttyping
+    before\directlua{tex.sprint("\\relax")tex.sprint(" inbetween")}after
+    \stoptyping
 
-\starttyping
-before\directlua{tex.sprint("\\relax")tex.sprint(" inbetween")}after
-\stoptyping
     the space before \type {in between} will be gobbled as a result of the \quote
     {normal} scanning of \prm {relax}.
 \stopitem
 \stopitemize
 
-If there is a table argument instead of a list of strings, this has to
-be a consecutive array of strings to print (the first non-string value
-will stop the printing process).
+If there is a table argument instead of a list of strings, this has to be a
+consecutive array of strings to print (the first non-string value will stop the
+printing process).
 
 The optional argument sets the catcode regime, as with \type {tex.print()}. This
-influences the string arguments (or numbers turned into strings). Although this
-needs to be used with care, you can also pass token or node userdata objects. These
-get injected into the stream. Tokens had best be valid tokens, while nodes need to
-be around when they get injected.
+influences the string arguments (or numbers turned into strings).
+
+Although this needs to be used with care, you can also pass token or node
+userdata objects. These get injected into the stream. Tokens had best be valid
+tokens, while nodes need to be around when they get injected. Therefore it is
+important to realize the following:
+
+\startitemize
+\startitem
+    When you inject a token, you need to pass a valid token userdata object. This
+    object will be collected by \LUA\ when it no longer is referenced. When it gets
+    printed to \TEX\ the token itself gets copied so there is no interference with the
+    \LUA\ garbage collection. You manage the object yourself. Because tokens are
+    actually just numbers, there is no real extra overhead at the \TEX\ end.
+\stopitem
+\startitem
+    When you inject a node, you need to pass a valid node userdata object. The
+    node related to the object will not be collected by \LUA\ when it no longer
+    is referenced. It lives on at the \TEX\ end in its own memory space. When it
+    gets printed to \TEX\ the node reference is used assuming that node stays
+    around. There is no \LUA\ garbage collection involved. Again, you manage the
+    object yourself. The node itself is freed when \TEX\ is done with it.
+\stopitem
+\stopitemize
+
+If you consider the last remark you might realize that we have a problem when a
+printed mix of strings, tokens and nodes is reused. Inside \TEX\ the sequence
+becomes a linked list of input buffers. So, \type {"123"} or \type {"\foo{123}"}
+gets read and parsed on the fly, while \typ {<token userdata>} already is
+tokenized and effectively is a token list now. A \typ {<node userdata>} is also
+tokenized into a token list but it has a reference to a real node. Normally this
+goes fine. But now assume that you store the whole lot in a macro: in that case
+the tokenized node can be flushed many times. But, after the first such flush the
+node is used and its memory freed. You can prevent this by using copies which is
+controlled by setting \lpr {luacopyinputnodes} to a non|-|zero value. This is one
+of these fuzzy areas you have to live with if you really mess with these low
+level issues.
 
 \subsubsection{\type {tex.tprint}}
 
@@ -1079,8 +1111,8 @@ Each string argument is treated by \TEX\ as a special kind of input line that
 makes it suitable for use as a quick way to dump information:
 
 \startitemize
-\item All catcodes on that line are either \quote{space} (for '~') or
-     \quote{character} (for all others).
+\item All catcodes on that line are either \quote{space} (for '~') or \quote
+      {character} (for all others).
 \item There is no \prm {endlinechar} appended.
 \stopitemize
 
@@ -1720,8 +1752,8 @@ The id of a token class can be queried as follows:
 local id = token.command_id("math_shift")
 \stoptyping
 
-If you really know what you're doing you can create character tokens by not passing a string
-but a number:
+If you really know what you're doing you can create character tokens by not
+passing a string but a number:
 
 \starttyping
 local letter_x = token.create(string.byte("x"))
@@ -1736,6 +1768,13 @@ fields. A variant that ignores the current catcode table is:
 
 \starttyping
 local whatever = token.new(123,12)
+\stoptyping
+
+You can test if a control sequence is defined with \type {is_defined}, which
+accepts a string and returns a boolean:
+
+\starttyping
+local okay = token.is_defined("foo")
 \stoptyping
 
 More interesting are the scanners. You can use the \LUA\ interface as follows:
@@ -1824,14 +1863,23 @@ the \type {get_meaning} function gives the meaning including the argument
 specification (as usual in \TEX\ separated by \type {->}).
 
 The \type {set_char} function can be used to do a \prm {chardef} at the
-\LUA\ end:
+\LUA\ end, where invalid assignments are silently ignored:
 
 \starttyping
 set_char("csname",number)
 set_char("csname",number,"global")
 \stoptyping
 
-Invalid assignments are silently ignored.
+A special one is the following:
+
+\starttyping
+set_lua("mycode",id)
+set_lua("mycode",id,"global","protected")
+\stoptyping
+
+This creates a token that refers to a \LUA\ function with an entry in the table
+that you can access with \type {lua.get_functions_table()}. It is the companion
+to \lpr {luadef}.
 
 \subsection{Pushing back}
 

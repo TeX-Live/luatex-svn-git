@@ -735,6 +735,21 @@ static int run_lookup(lua_State * L)
     return 1;
 }
 
+static int lua_tokenlib_is_defined(lua_State * L)
+{
+    const char *s;
+    size_t l;
+    if (lua_type(L, -1) == LUA_TSTRING) {
+        s = lua_tolstring(L, -1, &l);
+        if (l > 0) {
+            lua_pushboolean(L,string_lookup(s, l) != undefined_control_sequence);
+            return 1;
+        }
+    }
+    lua_pushnil(L);
+    return 1;
+}
+
 static int run_build(lua_State * L)
 {
     if (lua_type(L, 1) == LUA_TNUMBER) {
@@ -1272,6 +1287,7 @@ static const struct luaL_Reg tokenlib[] = {
     { "create", run_build },
     { "new", run_new },
     { "is_token", lua_tokenlib_is_token },
+    { "is_defined", lua_tokenlib_is_defined },
     { "commands", get_command_names },
     { "command_id", run_get_command_id },
     { "biggest_char", run_get_biggest_char },
