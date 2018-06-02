@@ -128,6 +128,9 @@ static void run_char (void) {
 
 static void run_node (void) {
     halfword n = cur_chr;
+    if (copy_lua_input_nodes_par) {
+        n = copy_node_list(n);
+    }
     tail_append(n);
     while (vlink(n) != null) {
         n = vlink(n);

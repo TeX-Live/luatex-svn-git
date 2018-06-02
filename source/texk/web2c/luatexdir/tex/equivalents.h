@@ -305,7 +305,8 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_rule_thickness_mode_code 113
 #  define math_flatten_mode_code 114
 
-#  define suppress_primitive_error_code 115
+#  define copy_lua_input_nodes_code 115
+#  define suppress_primitive_error_code 116
 
 #  define math_option_code (suppress_primitive_error_code+1)
 
@@ -765,6 +766,7 @@ extern halfword last_cs_name;
 #define suppress_ifcsname_error_par        int_par(suppress_ifcsname_error_code)
 #define suppress_primitive_error_par       int_par(suppress_primitive_error_code)
 #define error_context_lines_par            int_par(error_context_lines_code)
+#define copy_lua_input_nodes_par           int_par(copy_lua_input_nodes_code)
 
 #define math_old_par                       mathoption_int_par(c_mathoption_old_code)
 
