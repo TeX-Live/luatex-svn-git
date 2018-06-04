@@ -951,8 +951,8 @@ static void init_main_control (void) {
 }
 
 @ And here is |main_control| itself.  It is quite short nowadays.
-
 @c
+
 void main_control(void)
 {
     main_control_state = goto_next;
@@ -963,7 +963,7 @@ void main_control(void)
 
     while (1) {
         if (main_control_state == goto_skip_token)
-                main_control_state = goto_next; /* reset */
+            main_control_state = goto_next; /* reset */
         else
             get_x_token();
 
@@ -985,6 +985,37 @@ void main_control(void)
         }
     }
     return; /* not reached */
+}
+
+@ We assume a trailing relax: |{...}\relax|, so we don't need a |back_input()| here.
+@c
+
+void local_control(void)
+{
+    int sp = save_ptr;
+    while (1) {
+        if (main_control_state == goto_skip_token) {
+            main_control_state = goto_next;
+        } else {
+            get_x_token();
+        }
+        if (interrupt != 0 && OK_to_interrupt) {
+            back_input();
+            check_interrupt();
+            continue;
+        }
+        if (tracing_commands_par > 0) {
+            show_cur_cmd_chr();
+        }
+        (jump_table[(abs(mode) + cur_cmd)])();
+        if (save_ptr == sp) {
+            main_control_state = goto_next;
+            return;
+        } else if (main_control_state == goto_return) {
+            return;
+        }
+    }
+    return;
 }
 
 @ @c

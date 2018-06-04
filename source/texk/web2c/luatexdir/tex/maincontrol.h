@@ -205,5 +205,6 @@ extern void show_whatever(void);
 
 extern void initialize(void);   /* this procedure gets things started properly */
 
+extern void local_control(void);
 
 #endif

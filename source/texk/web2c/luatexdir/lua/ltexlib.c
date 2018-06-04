@@ -3390,6 +3390,39 @@ static int lua_set_synctex_no_files(lua_State * L)
     return 0;
 }
 
+/*
+    This is experimental and might change. IN version 10 we hope to have the
+    final version available.
+*/
+
+#define mode mode_par
+
+static int runtoks(lua_State * L)
+{
+    int k = get_item_index(L, lua_gettop(L), toks_base);
+    halfword t = toks(k);
+    check_index_range(k, "gettoks");
+    if (t != null) {
+        int old_mode;
+        pointer q = get_avail();
+        pointer r = get_avail();
+        token_info(q) = right_brace_token + '}';
+        token_link(q) = r;
+        token_info(r) = cs_token_flag + frozen_relax;
+        begin_token_list(q, inserted);
+        begin_token_list(t,local_text);
+        q = get_avail();
+        token_info(q) = left_brace_token + '{';
+        begin_token_list(q, inserted);
+        old_mode = mode;
+        mode = -vmode;
+        local_control();
+        mode = old_mode;
+        end_token_list();
+    }
+    return 0;
+}
+
 /* till here */
 
 void init_tex_table(lua_State * L)
@@ -3506,6 +3539,8 @@ static const struct luaL_Reg texlib[] = {
     { "force_synctex_line", lua_force_synctex_line },
     { "set_synctex_line", lua_set_synctex_line },
     { "get_synctex_line", lua_get_synctex_line },
+    /* test */
+    { "runtoks", runtoks },
     /* sentinel */
     { NULL, NULL }
 };

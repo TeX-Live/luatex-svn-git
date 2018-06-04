@@ -964,7 +964,8 @@ void show_eqtb(halfword n)
 {
     if (n < null_cs) {
         /* this can't happen */
-        print_char('?');
+        tprint("? bad token, case 1: ");
+        print_int(n);
     } else if ((n < glue_base) || ((n > eqtb_size) && (n <= eqtb_top))) {
         /*
             Show equivalent |n|, in region 1 or 2
@@ -1102,7 +1103,8 @@ void show_eqtb(halfword n)
         tprint("pt");
     } else {
         /* this can't happen either */
-        print_char('?');
+        tprint("? bad token, case 2: ");
+        print_int(n);
     }
 }
 
