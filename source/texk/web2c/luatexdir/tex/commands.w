@@ -712,6 +712,7 @@ void initialize_commands(void)
     primitive_tex("write", extension_cmd, write_code, 0);
     write_loc = cur_val;
     primitive_tex("closeout", extension_cmd, close_code, 0);
+    primitive_luatex("endlocalcontrol", extension_cmd, end_local_code, 0);
     primitive_tex("special", extension_cmd, special_code, 0);
     cs_text(frozen_special) = maketexstring("special");
     eqtb[frozen_special] = eqtb[cur_val];

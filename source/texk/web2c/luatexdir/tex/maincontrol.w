@@ -990,15 +990,20 @@ void main_control(void)
 @ We assume a trailing relax: |{...}\relax|, so we don't need a |back_input()| here.
 @c
 
-void local_control(void)
+int local_level = 0;
+
+void local_control(int l)
 {
-    int sp = save_ptr;
+    int ll = local_level;
+    main_control_state = goto_next;
+    local_level += 1;
     while (1) {
         if (main_control_state == goto_skip_token) {
             main_control_state = goto_next;
         } else {
             get_x_token();
         }
+// printf("! local %i target %i level %i\n",local_level,l,cur_level);
         if (interrupt != 0 && OK_to_interrupt) {
             back_input();
             check_interrupt();
@@ -1008,9 +1013,10 @@ void local_control(void)
             show_cur_cmd_chr();
         }
         (jump_table[(abs(mode) + cur_cmd)])();
-        if (save_ptr == sp) {
+        if (local_level <= ll) {
             main_control_state = goto_next;
-            return;
+//            printf("quit local\n");
+            return ;
         } else if (main_control_state == goto_return) {
             return;
         }

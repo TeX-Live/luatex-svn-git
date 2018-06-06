@@ -3391,8 +3391,10 @@ static int lua_set_synctex_no_files(lua_State * L)
 }
 
 /*
-    This is experimental and might change. IN version 10 we hope to have the
-    final version available.
+    This is experimental and might change. In version 10 we hope to have the
+    final version available. It actually took quite a bit of time to understand
+    the implications of mixing lua prints in here. The current variant is (so far)
+    the most robust (wrt crashes and side effects).
 */
 
 #define mode mode_par
@@ -3403,22 +3405,20 @@ static int runtoks(lua_State * L)
     halfword t = toks(k);
     check_index_range(k, "gettoks");
     if (t != null) {
-        int old_mode;
-        pointer q = get_avail();
+        int old_mode = mode;
         pointer r = get_avail();
-        token_info(q) = right_brace_token + '}';
-        token_link(q) = r;
-        token_info(r) = cs_token_flag + frozen_relax;
-        begin_token_list(q, inserted);
+        token_info(r) = token_val(extension_cmd,end_local_code);
+        begin_token_list(r,inserted);
+        /* if we add save levels then we can get crashes when one flushed bad groups */
+        /* new_save_level(semi_simple_group); */
         begin_token_list(t,local_text);
-        q = get_avail();
-        token_info(q) = left_brace_token + '{';
-        begin_token_list(q, inserted);
-        old_mode = mode;
-        mode = -vmode;
-        local_control();
+        if (luacstrings > 0) {
+            lua_string_start();
+        }
+        mode = -hmode;
+        local_control(0);
         mode = old_mode;
-        end_token_list();
+        /* unsave(); */
     }
     return 0;
 }

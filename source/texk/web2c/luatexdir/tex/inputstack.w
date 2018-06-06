@@ -172,6 +172,9 @@ static void print_token_list_type(int t)
         case write_text:
             tprint_nl("<write> ");
             break;
+        case local_text:
+            tprint_nl("<local> ");
+            break;
         default:
             tprint_nl("?");
             /* this should never happen */

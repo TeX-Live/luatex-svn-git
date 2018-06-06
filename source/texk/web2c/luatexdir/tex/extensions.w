@@ -417,6 +417,9 @@ void do_extension(int immediate)
             get_x_token();
             do_extension(1);
             break;
+        case end_local_code:
+            local_level -= 1;
+            break;
         case use_box_resource_code:
         case use_image_resource_code:
         case save_box_resource_code:
