@@ -3399,26 +3399,50 @@ static int lua_set_synctex_no_files(lua_State * L)
 
 #define mode mode_par
 
+/*
+    When we add save levels then we can get crashes when one flushed bad
+    groups due to out of order flushing. So we play safe!
+*/
+
 static int runtoks(lua_State * L)
 {
-    int k = get_item_index(L, lua_gettop(L), toks_base);
-    halfword t = toks(k);
-    check_index_range(k, "gettoks");
-    if (t != null) {
+    if (lua_type(L,1) == LUA_TFUNCTION) {
         int old_mode = mode;
+        str_number u ;
         pointer r = get_avail();
         token_info(r) = token_val(extension_cmd,end_local_code);
         begin_token_list(r,inserted);
-        /* if we add save levels then we can get crashes when one flushed bad groups */
-        /* new_save_level(semi_simple_group); */
-        begin_token_list(t,local_text);
-        if (luacstrings > 0) {
-            lua_string_start();
-        }
+        u = save_cur_string();
+        lua_call(L, lua_gettop(L)-1 , 0);
+        restore_cur_string(u);
+        /* maybe an option: */
+        /*
+            if (luacstrings > 0) {
+                lua_string_start();
+            }
+        */
         mode = -hmode;
         local_control(0);
         mode = old_mode;
-        /* unsave(); */
+    } else {
+        int k = get_item_index(L, lua_gettop(L), toks_base);
+        halfword t = toks(k);
+        check_index_range(k, "gettoks");
+        if (t != null) {
+            int old_mode = mode;
+            pointer r = get_avail();
+            token_info(r) = token_val(extension_cmd,end_local_code);
+            begin_token_list(r,inserted);
+            /* new_save_level(semi_simple_group); */
+            begin_token_list(t,local_text);
+            if (luacstrings > 0) {
+                lua_string_start();
+            }
+            mode = -hmode;
+            local_control(0);
+            mode = old_mode;
+            /* unsave(); */
+        }
     }
     return 0;
 }
