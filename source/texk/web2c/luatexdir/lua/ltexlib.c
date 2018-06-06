@@ -3401,29 +3401,42 @@ static int lua_set_synctex_no_files(lua_State * L)
 
 /*
     When we add save levels then we can get crashes when one flushed bad
-    groups due to out of order flushing. So we play safe!
+    groups due to out of order flushing. So we play safe! But still we can
+    have issues so best make sure you're in hmode.
 */
+
+static int forcehmode(lua_State * L)
+{
+    if (abs(mode) == vmode) {
+        if (lua_type(L,1) == LUA_TBOOLEAN) {
+            new_graf(lua_toboolean(L,1));
+        } else {
+            new_graf(1);
+        }
+    }
+    return 0;
+}
 
 static int runtoks(lua_State * L)
 {
     if (lua_type(L,1) == LUA_TFUNCTION) {
         int old_mode = mode;
-        str_number u ;
+        int ref;
         pointer r = get_avail();
+        pointer t = get_avail();
         token_info(r) = token_val(extension_cmd,end_local_code);
+        lua_pushvalue(L, 1);
+        ref = luaL_ref(L,LUA_REGISTRYINDEX);
+        token_info(t) = token_val(lua_local_call_cmd, ref);
         begin_token_list(r,inserted);
-        u = save_cur_string();
-        lua_call(L, lua_gettop(L)-1 , 0);
-        restore_cur_string(u);
-        /* maybe an option: */
-        /*
-            if (luacstrings > 0) {
-                lua_string_start();
-            }
-        */
+        begin_token_list(t,inserted);
+        if (luacstrings > 0) {
+            lua_string_start();
+        }
         mode = -hmode;
         local_control(0);
         mode = old_mode;
+        luaL_unref(L,LUA_REGISTRYINDEX,ref);
     } else {
         int k = get_item_index(L, lua_gettop(L), toks_base);
         halfword t = toks(k);
@@ -3565,6 +3578,7 @@ static const struct luaL_Reg texlib[] = {
     { "get_synctex_line", lua_get_synctex_line },
     /* test */
     { "runtoks", runtoks },
+    { "forcehmode", forcehmode },
     /* sentinel */
     { NULL, NULL }
 };

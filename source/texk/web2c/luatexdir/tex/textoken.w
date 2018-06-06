@@ -325,6 +325,9 @@ sequence named \.{BAD} would come out `\.{\\BAD\ }'.
         case lua_expandable_call_cmd: \
             p("[internal expandable lua function call]"); \
             break; \
+        case lua_local_call_cmd: \
+            p("[internal local lua function call]"); \
+            break; \
         default: \
             p("BAD"); \
             break; \

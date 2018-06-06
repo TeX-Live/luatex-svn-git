@@ -534,8 +534,8 @@ q = skip(sk);
 
             break;
         default:
-            fprintf(stderr, "type(p)=%d\n", type(p));
-            confusion("page");
+            formatted_error("pagebuilder","invalid node of type %d in vertical mode", type(p));
+         /* confusion("page"); */
             break;
         }
 

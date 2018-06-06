@@ -209,6 +209,7 @@ typedef enum {
     no_expand_cmd,                        /* special nonexpansion ( \.{\\noexpand} ) */
     input_cmd,                            /* input a source file ( \.{\\input}, \.{\\endinput} or \.{\\scantokens} or \.{\\scantextokens} ) */
     lua_expandable_call_cmd,
+    lua_local_call_cmd,
     if_test_cmd,                          /* conditional text ( \.{\\if}, \.{\\ifcase}, etc.~) */
     fi_or_else_cmd,                       /* delimiters for conditionals ( \.{\\else}, etc.~) */
     cs_name_cmd,                          /* make a control sequence from tokens ( \.{\\csname} ) */

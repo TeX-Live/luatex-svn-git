@@ -572,6 +572,10 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
         tprint("expandable luacall ");
         print_int(chr_code);
         break;
+    case lua_local_call_cmd:
+        tprint("local luacall ");
+        print_int(chr_code);
+        break;
     case lua_call_cmd:
         tprint("luacall ");
         print_int(chr_code);

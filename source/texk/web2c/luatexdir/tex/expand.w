@@ -303,6 +303,19 @@ void expand(void)
                     lua_string_start();
             }
             break;
+        case lua_local_call_cmd:
+            if (cur_chr <= 0) {
+                normal_error("luacall", "invalid number");
+            } else {
+                str_number u = save_cur_string();
+                luacstrings = 0;
+                lua_rawgeti(Luas, LUA_REGISTRYINDEX, cur_chr);
+                lua_call(Luas,0,0);
+                restore_cur_string(u);
+                if (luacstrings > 0)
+                    lua_string_start();
+            }
+            break;
         case variable_cmd:
             do_variable();
             break;

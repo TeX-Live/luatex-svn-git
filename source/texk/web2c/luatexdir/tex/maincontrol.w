@@ -1003,7 +1003,6 @@ void local_control(int l)
         } else {
             get_x_token();
         }
-// printf("! local %i target %i level %i\n",local_level,l,cur_level);
         if (interrupt != 0 && OK_to_interrupt) {
             back_input();
             check_interrupt();
@@ -1015,7 +1014,6 @@ void local_control(int l)
         (jump_table[(abs(mode) + cur_cmd)])();
         if (local_level <= ll) {
             main_control_state = goto_next;
-//            printf("quit local\n");
             return ;
         } else if (main_control_state == goto_return) {
             return;

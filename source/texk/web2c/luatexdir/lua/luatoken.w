@@ -160,6 +160,7 @@ command_item command_names[] = {
     { no_expand_cmd,            NULL, 0},
     { input_cmd,                NULL, 0},
     { lua_expandable_call_cmd,  NULL, 0},
+    { lua_local_call_cmd,       NULL, 0},
     { if_test_cmd,              NULL, 0},
     { fi_or_else_cmd,           NULL, 0},
     { cs_name_cmd,              NULL, 0},
@@ -324,6 +325,7 @@ void l_set_token_data(void)
     init_token_key(command_names, no_expand_cmd,            no_expand);
     init_token_key(command_names, input_cmd,                input);
     init_token_key(command_names, lua_expandable_call_cmd,  lua_expandable_call);
+    init_token_key(command_names, lua_local_call_cmd,       lua_local_call);
     init_token_key(command_names, if_test_cmd,              if_test);
     init_token_key(command_names, fi_or_else_cmd,           fi_or_else);
     init_token_key(command_names, cs_name_cmd,              cs_name);
