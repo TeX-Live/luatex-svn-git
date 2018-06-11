@@ -20,8 +20,7 @@
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
 
-
-#define LOAD_BUF_SIZE 256
+#define LOAD_BUF_SIZE 64*1024
 #define UINT_MAX32 0xFFFFFFFF
 
 typedef struct {
