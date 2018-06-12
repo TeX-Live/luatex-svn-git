@@ -172,7 +172,7 @@ then
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
   STRIP="${CONFHOST#--host=}-strip"
-  LDFLAGS="-Wl,--large-address-aware -Wl,--stack,2621440 $CFLAGS"
+  LDFLAGS="-Wl,--large-address-aware -Wl,--stack,2621440 -static-libgcc -static-libstdc++ $CFLAGS"
   export CFLAGS CXXFLAGS LDFLAGS BUILDCXX BUILDCC
 fi
 
