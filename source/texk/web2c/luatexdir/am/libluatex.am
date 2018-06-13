@@ -444,8 +444,8 @@ linebreak.c: ctangle$(EXEEXT) luatexdir/tex/linebreak.w
 	$(luatex_tex_ctangle) linebreak.w
 mainbody.c: ctangle$(EXEEXT) luatexdir/tex/mainbody.w
 	$(luatex_tex_ctangle) mainbody.w
-maincontrol.c: ctangle$(EXEEXT) luatexdir/tex/maincontrol.w
-	$(luatex_tex_ctangle) maincontrol.w
+#maincontrol.c: ctangle$(EXEEXT) luatexdir/tex/maincontrol.w
+#	$(luatex_tex_ctangle) maincontrol.w
 mathcodes.c: ctangle$(EXEEXT) luatexdir/tex/mathcodes.w
 	$(luatex_tex_ctangle) mathcodes.w
 memoryword.c: ctangle$(EXEEXT) luatexdir/tex/memoryword.w
@@ -484,7 +484,7 @@ libluatex_web += luatexdir/tex/commands.w luatexdir/tex/conditional.w luatexdir/
 libluatex_web += luatexdir/tex/dumpdata.w luatexdir/tex/equivalents.w luatexdir/tex/errors.w
 libluatex_web += luatexdir/tex/expand.w luatexdir/tex/extensions.w luatexdir/tex/filename.w
 libluatex_web += luatexdir/tex/inputstack.w luatexdir/tex/linebreak.w luatexdir/tex/mainbody.w
-libluatex_web += luatexdir/tex/maincontrol.w luatexdir/tex/mathcodes.w luatexdir/tex/memoryword.w
+libluatex_web += luatexdir/tex/mathcodes.w luatexdir/tex/memoryword.w
 libluatex_web += luatexdir/tex/mlist.w luatexdir/tex/nesting.w luatexdir/tex/packaging.w
 libluatex_web += luatexdir/tex/postlinebreak.w luatexdir/tex/primitive.w luatexdir/tex/printing.w
 libluatex_web += luatexdir/tex/scanning.w luatexdir/tex/stringpool.w luatexdir/tex/texdeffont.w
@@ -493,7 +493,7 @@ libluatex_web += luatexdir/tex/textcodes.w luatexdir/tex/textoken.w
 
 nodist_libluatex_sources += align.c arithmetic.c buildpage.c commands.c conditional.c directions.c
 nodist_libluatex_sources += dumpdata.c equivalents.c errors.c expand.c extensions.c filename.c
-nodist_libluatex_sources += inputstack.c linebreak.c mainbody.c maincontrol.c mathcodes.c
+nodist_libluatex_sources += inputstack.c linebreak.c mainbody.c mathcodes.c
 nodist_libluatex_sources += memoryword.c mlist.c nesting.c packaging.c postlinebreak.c
 nodist_libluatex_sources += primitive.c printing.c scanning.c stringpool.c texdeffont.c
 nodist_libluatex_sources += texfileio.c texmath.c texnodes.c textcodes.c textoken.c
@@ -530,7 +530,8 @@ dist_libluatex_sources += \
 	luatexdir/tex/texmath.h \
 	luatexdir/tex/texnodes.h \
 	luatexdir/tex/textoken.h \
-	luatexdir/tex/textcodes.h 
+	luatexdir/tex/textcodes.h \
+	luatexdir/tex/maincontrol.c
 
 ## from luatexdir/utils
 ##
