@@ -3873,13 +3873,13 @@ libluapplib_a_DEPENDENCIES = $(ZLIB_DEPEND)
 liblua53pplib_a_DEPENDENCIES = $(ZLIB_DEPEND)
 libluajitpplib_a_DEPENDENCIES = $(ZLIB_DEPEND)
 libluapplib_a_CPPFLAGS = \
-	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(LUA_INCLUDES)
+	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util -I../../libs/zlib/include $(LUA_INCLUDES)
 
 liblua53pplib_a_CPPFLAGS = \
-	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(LUA_LUA53_INCLUDES)
+	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util -I../../libs/zlib/include $(LUA_LUA53_INCLUDES)
 
 libluajitpplib_a_CPPFLAGS = \
-	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(LUAJIT_INCLUDES)
+	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util -I../../libs/zlib/include $(LUAJIT_INCLUDES)
 
 libluapplib_a_CFLAGS = # $(WARNING_CFLAGS)
 libluajitpplib_a_CFLAGS = # $(WARNING_CFLAGS)
