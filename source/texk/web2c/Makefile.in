@@ -3642,6 +3642,7 @@ libluajittex_a_DEPENDENCIES = libff.a libluajitmisc.a
 libluatex_a_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) \
 	$(LIBPNG_INCLUDES) $(POPPLER_INCLUDES) -I$(srcdir)/libmd5 \
 	-DpdfTeX -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/unilib \
+	-I$(srcdir)/luatexdir/luapplib/util \
 	-I$(srcdir)/luatexdir/luafontloader/fontforge/inc \
 	-DLUA_FF_LIB=1 \
 	-I$(srcdir)/luatexdir/luafontloader/fontforge/fontforge \

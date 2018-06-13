@@ -21,6 +21,16 @@
 
 #include "image/epdf.h"
 
+
+/*tex
+
+    This file will host the encapsubaled \PDF\ support code used for inclusion
+    and access from \LUA.
+
+*/
+
+#include "luapplib/pplib.h"
+
 /*
     Patches for the new poppler 0.59 from:
 
