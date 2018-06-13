@@ -267,6 +267,7 @@ dist_libluatex_sources += \
 	luatexdir/lua/lcallbacklib.c \
 	luatexdir/lua/lfontlib.c \
 	luatexdir/lua/limglib.c \
+	luatexdir/lua/lpdfelib.c \
 	luatexdir/lua/lpdfscannerlib.cc \
 	luatexdir/lua/lepdflib.cc \
 	luatexdir/lua/lkpselib.c \
