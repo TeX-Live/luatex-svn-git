@@ -418,87 +418,83 @@ luatex_tex_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctang
 
 align.c: ctangle$(EXEEXT) luatexdir/tex/align.w
 	$(luatex_tex_ctangle) align.w
-arithmetic.c: ctangle$(EXEEXT) luatexdir/tex/arithmetic.w
-	$(luatex_tex_ctangle) arithmetic.w
+#arithmetic.c: ctangle$(EXEEXT) luatexdir/tex/arithmetic.w
+#	$(luatex_tex_ctangle) arithmetic.w
 buildpage.c: ctangle$(EXEEXT) luatexdir/tex/buildpage.w
 	$(luatex_tex_ctangle) buildpage.w
-commands.c: ctangle$(EXEEXT) luatexdir/tex/commands.w
-	$(luatex_tex_ctangle) commands.w
-conditional.c: ctangle$(EXEEXT) luatexdir/tex/conditional.w
-	$(luatex_tex_ctangle) conditional.w
-directions.c: ctangle$(EXEEXT) luatexdir/tex/directions.w
-	$(luatex_tex_ctangle) directions.w
-dumpdata.c: ctangle$(EXEEXT) luatexdir/tex/dumpdata.w
-	$(luatex_tex_ctangle) dumpdata.w
-equivalents.c: ctangle$(EXEEXT) luatexdir/tex/equivalents.w
-	$(luatex_tex_ctangle) equivalents.w
-errors.c: ctangle$(EXEEXT) luatexdir/tex/errors.w
-	$(luatex_tex_ctangle) errors.w
+#commands.c: ctangle$(EXEEXT) luatexdir/tex/commands.w
+#	$(luatex_tex_ctangle) commands.w
+#conditional.c: ctangle$(EXEEXT) luatexdir/tex/conditional.w
+#	$(luatex_tex_ctangle) conditional.w
+#directions.c: ctangle$(EXEEXT) luatexdir/tex/directions.w
+#	$(luatex_tex_ctangle) directions.w
+#dumpdata.c: ctangle$(EXEEXT) luatexdir/tex/dumpdata.w
+#	$(luatex_tex_ctangle) dumpdata.w
+#equivalents.c: ctangle$(EXEEXT) luatexdir/tex/equivalents.w
+#	$(luatex_tex_ctangle) equivalents.w
+#errors.c: ctangle$(EXEEXT) luatexdir/tex/errors.w
+#	$(luatex_tex_ctangle) errors.w
 expand.c: ctangle$(EXEEXT) luatexdir/tex/expand.w
 	$(luatex_tex_ctangle) expand.w
 extensions.c: ctangle$(EXEEXT) luatexdir/tex/extensions.w
 	$(luatex_tex_ctangle) extensions.w
-filename.c: ctangle$(EXEEXT) luatexdir/tex/filename.w
-	$(luatex_tex_ctangle) filename.w
-inputstack.c: ctangle$(EXEEXT) luatexdir/tex/inputstack.w
-	$(luatex_tex_ctangle) inputstack.w
+#filename.c: ctangle$(EXEEXT) luatexdir/tex/filename.w
+#	$(luatex_tex_ctangle) filename.w
+#inputstack.c: ctangle$(EXEEXT) luatexdir/tex/inputstack.w
+#	$(luatex_tex_ctangle) inputstack.w
 linebreak.c: ctangle$(EXEEXT) luatexdir/tex/linebreak.w
 	$(luatex_tex_ctangle) linebreak.w
-mainbody.c: ctangle$(EXEEXT) luatexdir/tex/mainbody.w
-	$(luatex_tex_ctangle) mainbody.w
+#mainbody.c: ctangle$(EXEEXT) luatexdir/tex/mainbody.w
+#	$(luatex_tex_ctangle) mainbody.w
 #maincontrol.c: ctangle$(EXEEXT) luatexdir/tex/maincontrol.w
 #	$(luatex_tex_ctangle) maincontrol.w
-mathcodes.c: ctangle$(EXEEXT) luatexdir/tex/mathcodes.w
-	$(luatex_tex_ctangle) mathcodes.w
-memoryword.c: ctangle$(EXEEXT) luatexdir/tex/memoryword.w
-	$(luatex_tex_ctangle) memoryword.w
+#mathcodes.c: ctangle$(EXEEXT) luatexdir/tex/mathcodes.w
+#	$(luatex_tex_ctangle) mathcodes.w
+#memoryword.c: ctangle$(EXEEXT) luatexdir/tex/memoryword.w
+#	$(luatex_tex_ctangle) memoryword.w
 mlist.c: ctangle$(EXEEXT) luatexdir/tex/mlist.w
 	$(luatex_tex_ctangle) mlist.w
-nesting.c: ctangle$(EXEEXT) luatexdir/tex/nesting.w
-	$(luatex_tex_ctangle) nesting.w
+#nesting.c: ctangle$(EXEEXT) luatexdir/tex/nesting.w
+#	$(luatex_tex_ctangle) nesting.w
 packaging.c: ctangle$(EXEEXT) luatexdir/tex/packaging.w
 	$(luatex_tex_ctangle) packaging.w
-postlinebreak.c: ctangle$(EXEEXT) luatexdir/tex/postlinebreak.w
-	$(luatex_tex_ctangle) postlinebreak.w
-primitive.c: ctangle$(EXEEXT) luatexdir/tex/primitive.w
-	$(luatex_tex_ctangle) primitive.w
-printing.c: ctangle$(EXEEXT) luatexdir/tex/printing.w
-	$(luatex_tex_ctangle) printing.w
+#postlinebreak.c: ctangle$(EXEEXT) luatexdir/tex/postlinebreak.w
+#	$(luatex_tex_ctangle) postlinebreak.w
+#primitive.c: ctangle$(EXEEXT) luatexdir/tex/primitive.w
+#	$(luatex_tex_ctangle) primitive.w
+#printing.c: ctangle$(EXEEXT) luatexdir/tex/printing.w
+#	$(luatex_tex_ctangle) printing.w
 scanning.c: ctangle$(EXEEXT) luatexdir/tex/scanning.w
 	$(luatex_tex_ctangle) scanning.w
-stringpool.c: ctangle$(EXEEXT) luatexdir/tex/stringpool.w
-	$(luatex_tex_ctangle) stringpool.w
-texdeffont.c: ctangle$(EXEEXT) luatexdir/tex/texdeffont.w
-	$(luatex_tex_ctangle) texdeffont.w
+#stringpool.c: ctangle$(EXEEXT) luatexdir/tex/stringpool.w
+#	$(luatex_tex_ctangle) stringpool.w
+#texdeffont.c: ctangle$(EXEEXT) luatexdir/tex/texdeffont.w
+#	$(luatex_tex_ctangle) texdeffont.w
 texfileio.c: ctangle$(EXEEXT) luatexdir/tex/texfileio.w
 	$(luatex_tex_ctangle) texfileio.w
 texmath.c: ctangle$(EXEEXT) luatexdir/tex/texmath.w
 	$(luatex_tex_ctangle) texmath.w
 texnodes.c: ctangle$(EXEEXT) luatexdir/tex/texnodes.w
 	$(luatex_tex_ctangle) texnodes.w
-textcodes.c: ctangle$(EXEEXT) luatexdir/tex/textcodes.w
-	$(luatex_tex_ctangle) textcodes.w
+#textcodes.c: ctangle$(EXEEXT) luatexdir/tex/textcodes.w
+#	$(luatex_tex_ctangle) textcodes.w
 textoken.c: ctangle$(EXEEXT) luatexdir/tex/textoken.w
 	$(luatex_tex_ctangle) textoken.w
 
-libluatex_web += luatexdir/tex/align.w luatexdir/tex/arithmetic.w luatexdir/tex/buildpage.w
-libluatex_web += luatexdir/tex/commands.w luatexdir/tex/conditional.w luatexdir/tex/directions.w
-libluatex_web += luatexdir/tex/dumpdata.w luatexdir/tex/equivalents.w luatexdir/tex/errors.w
-libluatex_web += luatexdir/tex/expand.w luatexdir/tex/extensions.w luatexdir/tex/filename.w
-libluatex_web += luatexdir/tex/inputstack.w luatexdir/tex/linebreak.w luatexdir/tex/mainbody.w
-libluatex_web += luatexdir/tex/mathcodes.w luatexdir/tex/memoryword.w
-libluatex_web += luatexdir/tex/mlist.w luatexdir/tex/nesting.w luatexdir/tex/packaging.w
-libluatex_web += luatexdir/tex/postlinebreak.w luatexdir/tex/primitive.w luatexdir/tex/printing.w
-libluatex_web += luatexdir/tex/scanning.w luatexdir/tex/stringpool.w luatexdir/tex/texdeffont.w
+libluatex_web += luatexdir/tex/align.w luatexdir/tex/buildpage.w
+libluatex_web += luatexdir/tex/expand.w luatexdir/tex/extensions.w
+libluatex_web += luatexdir/tex/linebreak.w
+libluatex_web += luatexdir/tex/packaging.w
+libluatex_web += luatexdir/tex/scanning.w
 libluatex_web += luatexdir/tex/texfileio.w luatexdir/tex/texmath.w luatexdir/tex/texnodes.w
-libluatex_web += luatexdir/tex/textcodes.w luatexdir/tex/textoken.w
+libluatex_web += luatexdir/tex/textoken.w
 
-nodist_libluatex_sources += align.c arithmetic.c buildpage.c commands.c conditional.c directions.c
-nodist_libluatex_sources += dumpdata.c equivalents.c errors.c expand.c extensions.c filename.c
-nodist_libluatex_sources += inputstack.c linebreak.c mainbody.c mathcodes.c
-nodist_libluatex_sources += memoryword.c mlist.c nesting.c packaging.c postlinebreak.c
-nodist_libluatex_sources += primitive.c printing.c scanning.c stringpool.c texdeffont.c
-nodist_libluatex_sources += texfileio.c texmath.c texnodes.c textcodes.c textoken.c
+nodist_libluatex_sources += align.c buildpage.c 
+nodist_libluatex_sources += expand.c extensions.c 
+nodist_libluatex_sources += linebreak.c 
+nodist_libluatex_sources += mlist.c packaging.c
+nodist_libluatex_sources += scanning.c 
+nodist_libluatex_sources += texfileio.c texmath.c texnodes.c textoken.c
 
 dist_libluatex_sources += \
 	luatexdir/tex/align.h \
@@ -533,7 +529,27 @@ dist_libluatex_sources += \
 	luatexdir/tex/texnodes.h \
 	luatexdir/tex/textoken.h \
 	luatexdir/tex/textcodes.h \
-	luatexdir/tex/maincontrol.c
+	luatexdir/tex/arithmetic.c \
+	luatexdir/tex/commands.c \
+	luatexdir/tex/conditional.c \
+	luatexdir/tex/directions.c \
+	luatexdir/tex/dumpdata.c \
+	luatexdir/tex/equivalents.c \
+	luatexdir/tex/errors.c \
+	luatexdir/tex/filename.c \
+	luatexdir/tex/inputstack.c \
+	luatexdir/tex/mainbody.c \
+	luatexdir/tex/maincontrol.c \
+	luatexdir/tex/mathcodes.c \
+	luatexdir/tex/memoryword.c \
+	luatexdir/tex/nesting.c \
+	luatexdir/tex/postlinebreak.c \
+	luatexdir/tex/primitive.c \
+	luatexdir/tex/printing.c \
+	luatexdir/tex/stringpool.c \
+	luatexdir/tex/texdeffont.c \
+	luatexdir/tex/textcodes.c
+
 
 ## from luatexdir/utils
 ##
