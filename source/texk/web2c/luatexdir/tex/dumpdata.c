@@ -70,7 +70,6 @@ dump words of different types:
 
 FILE *fmt_file;
 
-@ @c
 void store_fmt_file(void)
 {
     int j, k, l, x;
@@ -325,11 +324,14 @@ void store_fmt_file(void)
     zwclose(fmt_file);
 }
 
-@ Corresponding to the procedure that dumps a format file, we have a function
-that reads one in. The function returns |false| if the dumped format is
-incompatible with the present \TeX\ table sizes, etc.
+/*tex
 
-@c
+Corresponding to the procedure that dumps a format file, we have a function that
+reads one in. The function returns |false| if the dumped format is incompatible
+with the present \TeX\ table sizes, etc.
+
+*/
+
 #define too_small(A) do { \
     wake_up_terminal(); \
     wterm_cr(); \

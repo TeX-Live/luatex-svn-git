@@ -306,14 +306,12 @@ static void luatex_calledit (int baseptr, int linenumber)
     */
     close_files_and_terminate();
     /*tex
-
         Replace the default with the value of the appropriate environment
         variable or config file value, if it's set.
     */
     temp = kpse_var_value (edit_var);
     if (temp != NULL)
         edit_value = temp;
-
     /*tex
         Construct the command string.  The `11' is the maximum length an
         integer might be.
@@ -400,9 +398,8 @@ static void luatex_calledit (int baseptr, int linenumber)
         strcat(fullcmd, "\"");
         strcat(fullcmd, command);
     }
-#else
-    fullcmd = command;
 #endif
+    fullcmd = command;
     /*tex Execute the command. */
     if (system (fullcmd) != 0) {
         fprintf (stderr, "! Trouble executing `%s'.\n", command);
@@ -642,7 +639,7 @@ void error(void)
     }
     /*tex Put help message on the transcript file. */
     if (interaction > batch_mode) {
-        /* Avoid terminal output: */
+        /*tex Avoid terminal output: */
         decr(selector);
     }
     if (use_err_help) {
@@ -655,7 +652,7 @@ void error(void)
     }
     print_ln();
     if (interaction > batch_mode) {
-        /* Re-enable terminal output: */
+        /*tex Re-enable terminal output: */
         incr(selector);
     }
     print_ln();
@@ -732,12 +729,12 @@ void fatal_error(const char *s)
 
 /*tex
 
-Here is the most dreaded error message
+Here is the most dreaded error message. We stop due to finiteness.
 
 */
 
 void overflow(const char *s, unsigned int n)
-{                               /* stop due to finiteness */
+{
     normalize_selector();
     print_err("TeX capacity exceeded, sorry [");
     tprint(s);

@@ -836,8 +836,6 @@ any \TeX\ job, since a single magnification is applied to an entire run. The
 global variable |mag_set| is set to the current magnification whenever it becomes
 necessary to ``freeze'' it at a particular value.
 
-/*tex
-
 The |prepare_mag| subroutine is called whenever \TeX\ wants to use |mag| for
 magnification. If nonzero, this magnification should be used henceforth. We might
 drop magnifaction at some point.
@@ -944,7 +942,7 @@ level of \.{\\if...\\fi} nesting and |l| the line where \.{\\if} started.
 
 void show_cur_cmd_chr(void)
 {
-    int n, n;
+    int n, l;
     halfword p;
     begin_diagnostic();
     tprint_nl("{");
