@@ -604,12 +604,12 @@ static void print_delimiter(pointer p)
         /* traditional tex style */
         a = small_fam(p) * 256 + small_char(p);
         a = a * 0x1000 + large_fam(p) * 256 + large_char(p);
-        print_hex(a);
+        print_qhex(a);
     } else if ((large_fam(p) == 0 && large_char(p) == 0) ||
                small_char(p) > 65535 || large_char(p) > 65535) {
         /* modern xetex/luatex style */
-        print_hex(small_fam(p));
-        print_hex(small_char(p));
+        print_qhex(small_fam(p));
+        print_qhex(small_char(p));
     }
 }
 

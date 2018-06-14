@@ -659,7 +659,7 @@ void print_cmd_chr(quarterword cmd, halfword chr_code)
             break;
         case char_given_cmd:
             tprint_esc("char");
-            print_hex(chr_code);
+            print_qhex(chr_code);
             break;
         case math_given_cmd:
             /*tex

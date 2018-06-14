@@ -688,7 +688,7 @@ Hexadecimal printing of nonnegative integers is accomplished by |print_hex|.
 
 */
 
-void print_hex(int n)
+void print_qhex(int n)
 {
     /*tex index to current digit; we assume that $0\L n<16^{22}$ */
     int k = 0 ;
