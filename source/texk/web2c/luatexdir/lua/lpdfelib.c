@@ -6,7 +6,31 @@
 */
 
 #include "ptexlib.h"
+
+#ifdef input
+#define lpdfelib_orig_input input
+#undef input
+#endif
+
+#ifdef output
+#define lpdfelib_orig_output output
+#undef output
+#endif
+
 #include "luapplib/pplib.h"
+
+#ifdef lpdfelib_orig_input
+#define input  lpdfelib_orig_input
+#undef lpdfelib_orig_input
+#endif
+
+#ifdef lpdfelib_orig_output
+#define output  lpdfelib_orig_output 
+#undef lpdfelib_orig_output
+#endif
+
+
+
 #include "lua/luatex-api.h"
 
 /* housekeeping */
