@@ -88,16 +88,13 @@ Analyze("e:/tmp/oeps.pdf")
 #  include <assert.h>
 #  include <math.h>
 
-extern "C" {
 #  include <lua.h>
 #  include <lauxlib.h>
 #  include <lualib.h>
 
 #  include "luapplib/pplib.h"
-}
 
 #  include <lua/luatex-api.h>
-
 
 #define SCANNER "pdfscanner"
 

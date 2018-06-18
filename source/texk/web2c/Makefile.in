@@ -562,6 +562,7 @@ dist_liblua53tex_a_OBJECTS =  \
 am__objects_5 =  \
 	luatexdir/luafontloader/src/liblua53tex_a-ffdummies.$(OBJEXT) \
 	luatexdir/luafontloader/src/liblua53tex_a-luafflib.$(OBJEXT) \
+	luatexdir/image/liblua53tex_a-pdftoepdf.$(OBJEXT) \
 	luatexdir/lua/liblua53tex_a-lcallbacklib.$(OBJEXT) \
 	luatexdir/lua/liblua53tex_a-lfontlib.$(OBJEXT) \
 	luatexdir/lua/liblua53tex_a-limglib.$(OBJEXT) \
@@ -630,7 +631,6 @@ am__objects_6 = liblua53tex_a-dvigen.$(OBJEXT) \
 	liblua53tex_a-writejpg.$(OBJEXT) \
 	liblua53tex_a-writejp2.$(OBJEXT) \
 	liblua53tex_a-writepng.$(OBJEXT) \
-	liblua53tex_a-pdftoepdf.$(OBJEXT) \
 	liblua53tex_a-texlang.$(OBJEXT) liblua53tex_a-hyphen.$(OBJEXT) \
 	liblua53tex_a-hnjalloc.$(OBJEXT) \
 	liblua53tex_a-pdfpagetree.$(OBJEXT) \
@@ -745,6 +745,7 @@ dist_libluajittex_a_OBJECTS =  \
 	luatexdir/lua/libluajittex_a-texluajitc.$(OBJEXT)
 am__objects_11 = luatexdir/luafontloader/src/libluajittex_a-ffdummies.$(OBJEXT) \
 	luatexdir/luafontloader/src/libluajittex_a-luafflib.$(OBJEXT) \
+	luatexdir/image/libluajittex_a-pdftoepdf.$(OBJEXT) \
 	luatexdir/lua/libluajittex_a-lcallbacklib.$(OBJEXT) \
 	luatexdir/lua/libluajittex_a-lfontlib.$(OBJEXT) \
 	luatexdir/lua/libluajittex_a-limglib.$(OBJEXT) \
@@ -815,7 +816,6 @@ am__objects_12 = libluajittex_a-dvigen.$(OBJEXT) \
 	libluajittex_a-writejpg.$(OBJEXT) \
 	libluajittex_a-writejp2.$(OBJEXT) \
 	libluajittex_a-writepng.$(OBJEXT) \
-	libluajittex_a-pdftoepdf.$(OBJEXT) \
 	libluajittex_a-texlang.$(OBJEXT) \
 	libluajittex_a-hyphen.$(OBJEXT) \
 	libluajittex_a-hnjalloc.$(OBJEXT) \
@@ -927,6 +927,7 @@ dist_libluatex_a_OBJECTS =  \
 am__objects_16 =  \
 	luatexdir/luafontloader/src/libluatex_a-ffdummies.$(OBJEXT) \
 	luatexdir/luafontloader/src/libluatex_a-luafflib.$(OBJEXT) \
+	luatexdir/image/libluatex_a-pdftoepdf.$(OBJEXT) \
 	luatexdir/lua/libluatex_a-lcallbacklib.$(OBJEXT) \
 	luatexdir/lua/libluatex_a-lfontlib.$(OBJEXT) \
 	luatexdir/lua/libluatex_a-limglib.$(OBJEXT) \
@@ -988,9 +989,8 @@ am__objects_17 = libluatex_a-dvigen.$(OBJEXT) \
 	libluatex_a-writeimg.$(OBJEXT) \
 	libluatex_a-writejbig2.$(OBJEXT) \
 	libluatex_a-writejpg.$(OBJEXT) libluatex_a-writejp2.$(OBJEXT) \
-	libluatex_a-writepng.$(OBJEXT) libluatex_a-pdftoepdf.$(OBJEXT) \
-	libluatex_a-texlang.$(OBJEXT) libluatex_a-hyphen.$(OBJEXT) \
-	libluatex_a-hnjalloc.$(OBJEXT) \
+	libluatex_a-writepng.$(OBJEXT) libluatex_a-texlang.$(OBJEXT) \
+	libluatex_a-hyphen.$(OBJEXT) libluatex_a-hnjalloc.$(OBJEXT) \
 	libluatex_a-pdfpagetree.$(OBJEXT) \
 	libluatex_a-pdfaction.$(OBJEXT) libluatex_a-pdfannot.$(OBJEXT) \
 	libluatex_a-pdfcolorstack.$(OBJEXT) \
@@ -3697,6 +3697,8 @@ nodist_libluajittex_a_SOURCES = \
 	$(dist_libluatex_sources) \
 	$(nodist_libluatex_sources)
 
+#pdftoepdf.cc: ctangle$(EXEEXT) luatexdir/image/pdftoepdf.w
+#	$(luatex_image_ctangle) pdftoepdf.w - $@
 libluatex_web = luatexdir/dvi/dvigen.w luatexdir/font/dofont.w \
 	luatexdir/font/luafont.w luatexdir/font/mapfile.w \
 	luatexdir/font/pkin.w luatexdir/font/sfnt.w \
@@ -3710,41 +3712,41 @@ libluatex_web = luatexdir/dvi/dvigen.w luatexdir/font/dofont.w \
 	luatexdir/font/writetype2.w luatexdir/image/writeimg.w \
 	luatexdir/image/writejbig2.w luatexdir/image/writejpg.w \
 	luatexdir/image/writejp2.w luatexdir/image/writepng.w \
-	luatexdir/image/pdftoepdf.w luatexdir/lang/texlang.w \
-	luatexdir/lang/hyphen.w luatexdir/lang/hnjalloc.w \
-	luatexdir/pdf/pdfpagetree.w luatexdir/pdf/pdfaction.w \
-	luatexdir/pdf/pdfannot.w luatexdir/pdf/pdfcolorstack.w \
-	luatexdir/pdf/pdfdest.w luatexdir/pdf/pdffont.w \
-	luatexdir/pdf/pdfgen.w luatexdir/pdf/pdfglyph.w \
-	luatexdir/pdf/pdfimage.w luatexdir/pdf/pdflink.w \
-	luatexdir/pdf/pdflistout.w luatexdir/pdf/pdfliteral.w \
-	luatexdir/pdf/pdfobj.w luatexdir/pdf/pdfoutline.w \
-	luatexdir/pdf/pdfpage.w luatexdir/pdf/pdfrule.w \
-	luatexdir/pdf/pdfsaverestore.w luatexdir/pdf/pdfsetmatrix.w \
-	luatexdir/pdf/pdfshipout.w luatexdir/pdf/pdftables.w \
-	luatexdir/pdf/pdfthread.w luatexdir/pdf/pdfxform.w \
-	luatexdir/tex/align.w luatexdir/tex/buildpage.w \
-	luatexdir/tex/expand.w luatexdir/tex/extensions.w \
-	luatexdir/tex/linebreak.w luatexdir/tex/packaging.w \
-	luatexdir/tex/scanning.w luatexdir/tex/texfileio.w \
-	luatexdir/tex/texmath.w luatexdir/tex/texnodes.w \
-	luatexdir/tex/textoken.w luatexdir/utils/avlstuff.w \
-	luatexdir/utils/managed-sa.w luatexdir/utils/utils.w \
-	luatexdir/utils/unistring.w
+	luatexdir/lang/texlang.w luatexdir/lang/hyphen.w \
+	luatexdir/lang/hnjalloc.w luatexdir/pdf/pdfpagetree.w \
+	luatexdir/pdf/pdfaction.w luatexdir/pdf/pdfannot.w \
+	luatexdir/pdf/pdfcolorstack.w luatexdir/pdf/pdfdest.w \
+	luatexdir/pdf/pdffont.w luatexdir/pdf/pdfgen.w \
+	luatexdir/pdf/pdfglyph.w luatexdir/pdf/pdfimage.w \
+	luatexdir/pdf/pdflink.w luatexdir/pdf/pdflistout.w \
+	luatexdir/pdf/pdfliteral.w luatexdir/pdf/pdfobj.w \
+	luatexdir/pdf/pdfoutline.w luatexdir/pdf/pdfpage.w \
+	luatexdir/pdf/pdfrule.w luatexdir/pdf/pdfsaverestore.w \
+	luatexdir/pdf/pdfsetmatrix.w luatexdir/pdf/pdfshipout.w \
+	luatexdir/pdf/pdftables.w luatexdir/pdf/pdfthread.w \
+	luatexdir/pdf/pdfxform.w luatexdir/tex/align.w \
+	luatexdir/tex/buildpage.w luatexdir/tex/expand.w \
+	luatexdir/tex/extensions.w luatexdir/tex/linebreak.w \
+	luatexdir/tex/packaging.w luatexdir/tex/scanning.w \
+	luatexdir/tex/texfileio.w luatexdir/tex/texmath.w \
+	luatexdir/tex/texnodes.w luatexdir/tex/textoken.w \
+	luatexdir/utils/avlstuff.w luatexdir/utils/managed-sa.w \
+	luatexdir/utils/utils.w luatexdir/utils/unistring.w
+#libluatex_web += luatexdir/image/pdftoepdf.w
 nodist_libluatex_sources = dvigen.c dofont.c luafont.c mapfile.c \
 	pkin.c sfnt.c texfont.c tfmofm.c tounicode.c tt_glyf.c \
 	tt_table.c vfovf.c vfpacket.c writecff.c writeenc.c \
 	writefont.c writet1.c writet3.c writettf.c writetype0.c \
 	writetype2.c writeimg.c writejbig2.c writejpg.c writejp2.c \
-	writepng.c pdftoepdf.cc texlang.c hyphen.c hnjalloc.c \
-	pdfpagetree.c pdfaction.c pdfannot.c pdfcolorstack.c pdfdest.c \
-	pdffont.c pdfgen.c pdfglyph.c pdfimage.c pdflink.c \
-	pdflistout.c pdfliteral.c pdfobj.c pdfoutline.c pdfpage.c \
-	pdfrule.c pdfsaverestore.c pdfsetmatrix.c pdfshipout.c \
-	pdftables.c pdfthread.c pdfxform.c align.c buildpage.c \
-	expand.c extensions.c linebreak.c mlist.c packaging.c \
-	scanning.c texfileio.c texmath.c texnodes.c textoken.c \
-	avlstuff.c managed-sa.c utils.c unistring.c
+	writepng.c texlang.c hyphen.c hnjalloc.c pdfpagetree.c \
+	pdfaction.c pdfannot.c pdfcolorstack.c pdfdest.c pdffont.c \
+	pdfgen.c pdfglyph.c pdfimage.c pdflink.c pdflistout.c \
+	pdfliteral.c pdfobj.c pdfoutline.c pdfpage.c pdfrule.c \
+	pdfsaverestore.c pdfsetmatrix.c pdfshipout.c pdftables.c \
+	pdfthread.c pdfxform.c align.c buildpage.c expand.c \
+	extensions.c linebreak.c mlist.c packaging.c scanning.c \
+	texfileio.c texmath.c texnodes.c textoken.c avlstuff.c \
+	managed-sa.c utils.c unistring.c
 
 #helpers.c: ctangle$(EXEEXT) luatexdir/lua/helpers.w
 #	$(luatex_lua_ctangle) helpers.w
@@ -3779,63 +3781,63 @@ dist_libluatex_sources = luatexdir/luatexcallbackids.h \
 	luatexdir/image/pdftoepdf.h luatexdir/image/writeimg.h \
 	luatexdir/image/writejbig2.h luatexdir/image/writejpg.h \
 	luatexdir/image/writejp2.h luatexdir/image/writepng.h \
-	luatexdir/lang/hnjalloc.h luatexdir/lang/hyphen.h \
-	luatexdir/lang/texlang.h luatexdir/lua/lcallbacklib.c \
-	luatexdir/lua/lfontlib.c luatexdir/lua/limglib.c \
-	luatexdir/lua/lpdfelib.c luatexdir/lua/lpdfscannerlib.cc \
-	luatexdir/lua/lepdflib.cc luatexdir/lua/lkpselib.c \
-	luatexdir/lua/llanglib.c luatexdir/lua/llualib.c \
-	luatexdir/lua/lnodelib.c luatexdir/lua/liolibext.c \
-	luatexdir/lua/loslibext.c luatexdir/lua/lpdflib.c \
-	luatexdir/lua/lstatslib.c luatexdir/lua/ltexiolib.c \
-	luatexdir/lua/ltexlib.c luatexdir/lua/lnewtokenlib.c \
-	luatexdir/lua/luatex-api.h luatexdir/lua/luatex-core.c \
-	luatexdir/lua/helpers.c luatexdir/lua/luainit.c \
-	luatexdir/lua/luanode.c luatexdir/lua/luastuff.c \
-	luatexdir/lua/luatoken.c luatexdir/lua/mplibstuff.c \
-	luatexdir/pdf/pdfpagetree.h luatexdir/pdf/pdfaction.h \
-	luatexdir/pdf/pdfannot.h luatexdir/pdf/pdfcolorstack.h \
-	luatexdir/pdf/pdfdest.h luatexdir/pdf/pdffont.h \
-	luatexdir/pdf/pdfgen.h luatexdir/pdf/pdfglyph.h \
-	luatexdir/pdf/pdfimage.h luatexdir/pdf/pdflink.h \
-	luatexdir/pdf/pdflistout.h luatexdir/pdf/pdfliteral.h \
-	luatexdir/pdf/pdfobj.h luatexdir/pdf/pdfoutline.h \
-	luatexdir/pdf/pdfpage.h luatexdir/pdf/pdfrule.h \
-	luatexdir/pdf/pdfsaverestore.h luatexdir/pdf/pdfsetmatrix.h \
-	luatexdir/pdf/pdfshipout.h luatexdir/pdf/pdftables.h \
-	luatexdir/pdf/pdfthread.h luatexdir/pdf/pdftypes.h \
-	luatexdir/pdf/pdfxform.h luatexdir/tex/align.h \
-	luatexdir/tex/arithmetic.h luatexdir/tex/buildpage.h \
-	luatexdir/tex/commands.h luatexdir/tex/conditional.h \
-	luatexdir/tex/directions.h luatexdir/tex/dumpdata.h \
-	luatexdir/tex/equivalents.h luatexdir/tex/errors.h \
-	luatexdir/tex/expand.h luatexdir/tex/extensions.h \
-	luatexdir/tex/filename.h luatexdir/tex/inputstack.h \
-	luatexdir/tex/linebreak.h luatexdir/tex/mainbody.h \
-	luatexdir/tex/maincontrol.h luatexdir/tex/mathcodes.h \
-	luatexdir/tex/memoryword.h luatexdir/tex/mlist.h \
-	luatexdir/tex/nesting.h luatexdir/tex/packaging.h \
-	luatexdir/tex/postlinebreak.h luatexdir/tex/primitive.h \
-	luatexdir/tex/printing.h luatexdir/tex/scanning.h \
-	luatexdir/tex/stringpool.h luatexdir/tex/texdeffont.h \
-	luatexdir/tex/texfileio.h luatexdir/tex/texmath.h \
-	luatexdir/tex/texnodes.h luatexdir/tex/textoken.h \
-	luatexdir/tex/textcodes.h luatexdir/tex/arithmetic.c \
-	luatexdir/tex/commands.c luatexdir/tex/conditional.c \
-	luatexdir/tex/directions.c luatexdir/tex/dumpdata.c \
-	luatexdir/tex/equivalents.c luatexdir/tex/errors.c \
-	luatexdir/tex/filename.c luatexdir/tex/inputstack.c \
-	luatexdir/tex/mainbody.c luatexdir/tex/maincontrol.c \
-	luatexdir/tex/mathcodes.c luatexdir/tex/memoryword.c \
-	luatexdir/tex/nesting.c luatexdir/tex/postlinebreak.c \
-	luatexdir/tex/primitive.c luatexdir/tex/printing.c \
-	luatexdir/tex/stringpool.c luatexdir/tex/texdeffont.c \
-	luatexdir/tex/textcodes.c luatexdir/utils/avl.c \
-	luatexdir/utils/avl.h luatexdir/utils/avlstuff.h \
-	luatexdir/utils/managed-sa.h luatexdir/utils/utils.h \
-	luatexdir/utils/unistring.h synctexdir/synctex-common.h \
-	synctexdir/synctex-luatex.h synctexdir/synctex.c \
-	synctexdir/synctex.h
+	luatexdir/image/pdftoepdf.c luatexdir/lang/hnjalloc.h \
+	luatexdir/lang/hyphen.h luatexdir/lang/texlang.h \
+	luatexdir/lua/lcallbacklib.c luatexdir/lua/lfontlib.c \
+	luatexdir/lua/limglib.c luatexdir/lua/lpdfelib.c \
+	luatexdir/lua/lpdfscannerlib.c luatexdir/lua/lepdflib.cc \
+	luatexdir/lua/lkpselib.c luatexdir/lua/llanglib.c \
+	luatexdir/lua/llualib.c luatexdir/lua/lnodelib.c \
+	luatexdir/lua/liolibext.c luatexdir/lua/loslibext.c \
+	luatexdir/lua/lpdflib.c luatexdir/lua/lstatslib.c \
+	luatexdir/lua/ltexiolib.c luatexdir/lua/ltexlib.c \
+	luatexdir/lua/lnewtokenlib.c luatexdir/lua/luatex-api.h \
+	luatexdir/lua/luatex-core.c luatexdir/lua/helpers.c \
+	luatexdir/lua/luainit.c luatexdir/lua/luanode.c \
+	luatexdir/lua/luastuff.c luatexdir/lua/luatoken.c \
+	luatexdir/lua/mplibstuff.c luatexdir/pdf/pdfpagetree.h \
+	luatexdir/pdf/pdfaction.h luatexdir/pdf/pdfannot.h \
+	luatexdir/pdf/pdfcolorstack.h luatexdir/pdf/pdfdest.h \
+	luatexdir/pdf/pdffont.h luatexdir/pdf/pdfgen.h \
+	luatexdir/pdf/pdfglyph.h luatexdir/pdf/pdfimage.h \
+	luatexdir/pdf/pdflink.h luatexdir/pdf/pdflistout.h \
+	luatexdir/pdf/pdfliteral.h luatexdir/pdf/pdfobj.h \
+	luatexdir/pdf/pdfoutline.h luatexdir/pdf/pdfpage.h \
+	luatexdir/pdf/pdfrule.h luatexdir/pdf/pdfsaverestore.h \
+	luatexdir/pdf/pdfsetmatrix.h luatexdir/pdf/pdfshipout.h \
+	luatexdir/pdf/pdftables.h luatexdir/pdf/pdfthread.h \
+	luatexdir/pdf/pdftypes.h luatexdir/pdf/pdfxform.h \
+	luatexdir/tex/align.h luatexdir/tex/arithmetic.h \
+	luatexdir/tex/buildpage.h luatexdir/tex/commands.h \
+	luatexdir/tex/conditional.h luatexdir/tex/directions.h \
+	luatexdir/tex/dumpdata.h luatexdir/tex/equivalents.h \
+	luatexdir/tex/errors.h luatexdir/tex/expand.h \
+	luatexdir/tex/extensions.h luatexdir/tex/filename.h \
+	luatexdir/tex/inputstack.h luatexdir/tex/linebreak.h \
+	luatexdir/tex/mainbody.h luatexdir/tex/maincontrol.h \
+	luatexdir/tex/mathcodes.h luatexdir/tex/memoryword.h \
+	luatexdir/tex/mlist.h luatexdir/tex/nesting.h \
+	luatexdir/tex/packaging.h luatexdir/tex/postlinebreak.h \
+	luatexdir/tex/primitive.h luatexdir/tex/printing.h \
+	luatexdir/tex/scanning.h luatexdir/tex/stringpool.h \
+	luatexdir/tex/texdeffont.h luatexdir/tex/texfileio.h \
+	luatexdir/tex/texmath.h luatexdir/tex/texnodes.h \
+	luatexdir/tex/textoken.h luatexdir/tex/textcodes.h \
+	luatexdir/tex/arithmetic.c luatexdir/tex/commands.c \
+	luatexdir/tex/conditional.c luatexdir/tex/directions.c \
+	luatexdir/tex/dumpdata.c luatexdir/tex/equivalents.c \
+	luatexdir/tex/errors.c luatexdir/tex/filename.c \
+	luatexdir/tex/inputstack.c luatexdir/tex/mainbody.c \
+	luatexdir/tex/maincontrol.c luatexdir/tex/mathcodes.c \
+	luatexdir/tex/memoryword.c luatexdir/tex/nesting.c \
+	luatexdir/tex/postlinebreak.c luatexdir/tex/primitive.c \
+	luatexdir/tex/printing.c luatexdir/tex/stringpool.c \
+	luatexdir/tex/texdeffont.c luatexdir/tex/textcodes.c \
+	luatexdir/utils/avl.c luatexdir/utils/avl.h \
+	luatexdir/utils/avlstuff.h luatexdir/utils/managed-sa.h \
+	luatexdir/utils/utils.h luatexdir/utils/unistring.h \
+	synctexdir/synctex-common.h synctexdir/synctex-luatex.h \
+	synctexdir/synctex.c synctexdir/synctex.h
 luatex_dvi_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
 luatex_font_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 luatex_image_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
@@ -4815,6 +4817,15 @@ luatexdir/luafontloader/src/liblua53tex_a-ffdummies.$(OBJEXT):  \
 luatexdir/luafontloader/src/liblua53tex_a-luafflib.$(OBJEXT):  \
 	luatexdir/luafontloader/src/$(am__dirstamp) \
 	luatexdir/luafontloader/src/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/$(am__dirstamp):
+	@$(MKDIR_P) luatexdir/image
+	@: > luatexdir/image/$(am__dirstamp)
+luatexdir/image/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) luatexdir/image/$(DEPDIR)
+	@: > luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/liblua53tex_a-pdftoepdf.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
 luatexdir/lua/liblua53tex_a-lcallbacklib.$(OBJEXT):  \
 	luatexdir/lua/$(am__dirstamp) \
 	luatexdir/lua/$(DEPDIR)/$(am__dirstamp)
@@ -5149,6 +5160,9 @@ luatexdir/luafontloader/src/libluajittex_a-ffdummies.$(OBJEXT):  \
 luatexdir/luafontloader/src/libluajittex_a-luafflib.$(OBJEXT):  \
 	luatexdir/luafontloader/src/$(am__dirstamp) \
 	luatexdir/luafontloader/src/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluajittex_a-pdftoepdf.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
 luatexdir/lua/libluajittex_a-lcallbacklib.$(OBJEXT):  \
 	luatexdir/lua/$(am__dirstamp) \
 	luatexdir/lua/$(DEPDIR)/$(am__dirstamp)
@@ -5454,6 +5468,9 @@ luatexdir/luafontloader/src/libluatex_a-ffdummies.$(OBJEXT):  \
 luatexdir/luafontloader/src/libluatex_a-luafflib.$(OBJEXT):  \
 	luatexdir/luafontloader/src/$(am__dirstamp) \
 	luatexdir/luafontloader/src/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluatex_a-pdftoepdf.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
 luatexdir/lua/libluatex_a-lcallbacklib.$(OBJEXT):  \
 	luatexdir/lua/$(am__dirstamp) \
 	luatexdir/lua/$(DEPDIR)/$(am__dirstamp)
@@ -6367,6 +6384,7 @@ mostlyclean-compile:
 	-rm -f euptexdir/*.$(OBJEXT)
 	-rm -f libmd5/*.$(OBJEXT)
 	-rm -f luatexdir/*.$(OBJEXT)
+	-rm -f luatexdir/image/*.$(OBJEXT)
 	-rm -f luatexdir/lua/*.$(OBJEXT)
 	-rm -f luatexdir/luaffi/*.$(OBJEXT)
 	-rm -f luatexdir/luafilesystem/src/*.$(OBJEXT)
@@ -6469,7 +6487,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-pdfshipout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-pdftables.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-pdfthread.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-pdftoepdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-pdfxform.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-pkin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-scanning.Po@am__quote@
@@ -6537,7 +6554,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdfshipout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdftables.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdfthread.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdftoepdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pdfxform.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-pkin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-scanning.Po@am__quote@
@@ -6605,7 +6621,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfshipout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdftables.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfthread.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdftoepdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pdfxform.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-pkin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-scanning.Po@am__quote@
@@ -6745,6 +6760,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/$(DEPDIR)/luajittex-luatex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/$(DEPDIR)/luatex-luatex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/$(DEPDIR)/luatex53-luatex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/liblua53tex_a-pdftoepdf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluajittex_a-pdftoepdf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluatex_a-pdftoepdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/lua/$(DEPDIR)/liblua53tex_a-helpers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/lua/$(DEPDIR)/liblua53tex_a-lcallbacklib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/lua/$(DEPDIR)/liblua53tex_a-lepdflib.Po@am__quote@
@@ -8536,6 +8554,20 @@ luatexdir/luafontloader/src/liblua53tex_a-luafflib.obj: luatexdir/luafontloader/
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luafontloader/src/liblua53tex_a-luafflib.obj `if test -f 'luatexdir/luafontloader/src/luafflib.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/src/luafflib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/src/luafflib.c'; fi`
 
+luatexdir/image/liblua53tex_a-pdftoepdf.o: luatexdir/image/pdftoepdf.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-pdftoepdf.o -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-pdftoepdf.Tpo -c -o luatexdir/image/liblua53tex_a-pdftoepdf.o `test -f 'luatexdir/image/pdftoepdf.c' || echo '$(srcdir)/'`luatexdir/image/pdftoepdf.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-pdftoepdf.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-pdftoepdf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/pdftoepdf.c' object='luatexdir/image/liblua53tex_a-pdftoepdf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-pdftoepdf.o `test -f 'luatexdir/image/pdftoepdf.c' || echo '$(srcdir)/'`luatexdir/image/pdftoepdf.c
+
+luatexdir/image/liblua53tex_a-pdftoepdf.obj: luatexdir/image/pdftoepdf.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-pdftoepdf.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-pdftoepdf.Tpo -c -o luatexdir/image/liblua53tex_a-pdftoepdf.obj `if test -f 'luatexdir/image/pdftoepdf.c'; then $(CYGPATH_W) 'luatexdir/image/pdftoepdf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/pdftoepdf.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-pdftoepdf.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-pdftoepdf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/pdftoepdf.c' object='luatexdir/image/liblua53tex_a-pdftoepdf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-pdftoepdf.obj `if test -f 'luatexdir/image/pdftoepdf.c'; then $(CYGPATH_W) 'luatexdir/image/pdftoepdf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/pdftoepdf.c'; fi`
+
 luatexdir/lua/liblua53tex_a-lcallbacklib.o: luatexdir/lua/lcallbacklib.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/liblua53tex_a-lcallbacklib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/liblua53tex_a-lcallbacklib.Tpo -c -o luatexdir/lua/liblua53tex_a-lcallbacklib.o `test -f 'luatexdir/lua/lcallbacklib.c' || echo '$(srcdir)/'`luatexdir/lua/lcallbacklib.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/liblua53tex_a-lcallbacklib.Tpo luatexdir/lua/$(DEPDIR)/liblua53tex_a-lcallbacklib.Po
@@ -8591,6 +8623,20 @@ luatexdir/lua/liblua53tex_a-lpdfelib.obj: luatexdir/lua/lpdfelib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lpdfelib.c' object='luatexdir/lua/liblua53tex_a-lpdfelib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/liblua53tex_a-lpdfelib.obj `if test -f 'luatexdir/lua/lpdfelib.c'; then $(CYGPATH_W) 'luatexdir/lua/lpdfelib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfelib.c'; fi`
+
+luatexdir/lua/liblua53tex_a-lpdfscannerlib.o: luatexdir/lua/lpdfscannerlib.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/liblua53tex_a-lpdfscannerlib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/liblua53tex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.c' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lpdfscannerlib.c' object='luatexdir/lua/liblua53tex_a-lpdfscannerlib.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/liblua53tex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.c' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.c
+
+luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj: luatexdir/lua/lpdfscannerlib.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj -MD -MP -MF luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.c'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lpdfscannerlib.c' object='luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.c'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.c'; fi`
 
 luatexdir/lua/liblua53tex_a-lkpselib.o: luatexdir/lua/lkpselib.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/liblua53tex_a-lkpselib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/liblua53tex_a-lkpselib.Tpo -c -o luatexdir/lua/liblua53tex_a-lkpselib.o `test -f 'luatexdir/lua/lkpselib.c' || echo '$(srcdir)/'`luatexdir/lua/lkpselib.c
@@ -10804,6 +10850,20 @@ luatexdir/luafontloader/src/libluajittex_a-luafflib.obj: luatexdir/luafontloader
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luafontloader/src/libluajittex_a-luafflib.obj `if test -f 'luatexdir/luafontloader/src/luafflib.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/src/luafflib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/src/luafflib.c'; fi`
 
+luatexdir/image/libluajittex_a-pdftoepdf.o: luatexdir/image/pdftoepdf.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-pdftoepdf.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-pdftoepdf.Tpo -c -o luatexdir/image/libluajittex_a-pdftoepdf.o `test -f 'luatexdir/image/pdftoepdf.c' || echo '$(srcdir)/'`luatexdir/image/pdftoepdf.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-pdftoepdf.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-pdftoepdf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/pdftoepdf.c' object='luatexdir/image/libluajittex_a-pdftoepdf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-pdftoepdf.o `test -f 'luatexdir/image/pdftoepdf.c' || echo '$(srcdir)/'`luatexdir/image/pdftoepdf.c
+
+luatexdir/image/libluajittex_a-pdftoepdf.obj: luatexdir/image/pdftoepdf.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-pdftoepdf.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-pdftoepdf.Tpo -c -o luatexdir/image/libluajittex_a-pdftoepdf.obj `if test -f 'luatexdir/image/pdftoepdf.c'; then $(CYGPATH_W) 'luatexdir/image/pdftoepdf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/pdftoepdf.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-pdftoepdf.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-pdftoepdf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/pdftoepdf.c' object='luatexdir/image/libluajittex_a-pdftoepdf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-pdftoepdf.obj `if test -f 'luatexdir/image/pdftoepdf.c'; then $(CYGPATH_W) 'luatexdir/image/pdftoepdf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/pdftoepdf.c'; fi`
+
 luatexdir/lua/libluajittex_a-lcallbacklib.o: luatexdir/lua/lcallbacklib.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/libluajittex_a-lcallbacklib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluajittex_a-lcallbacklib.Tpo -c -o luatexdir/lua/libluajittex_a-lcallbacklib.o `test -f 'luatexdir/lua/lcallbacklib.c' || echo '$(srcdir)/'`luatexdir/lua/lcallbacklib.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluajittex_a-lcallbacklib.Tpo luatexdir/lua/$(DEPDIR)/libluajittex_a-lcallbacklib.Po
@@ -10859,6 +10919,20 @@ luatexdir/lua/libluajittex_a-lpdfelib.obj: luatexdir/lua/lpdfelib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lpdfelib.c' object='luatexdir/lua/libluajittex_a-lpdfelib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/libluajittex_a-lpdfelib.obj `if test -f 'luatexdir/lua/lpdfelib.c'; then $(CYGPATH_W) 'luatexdir/lua/lpdfelib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfelib.c'; fi`
+
+luatexdir/lua/libluajittex_a-lpdfscannerlib.o: luatexdir/lua/lpdfscannerlib.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/libluajittex_a-lpdfscannerlib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/libluajittex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.c' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lpdfscannerlib.c' object='luatexdir/lua/libluajittex_a-lpdfscannerlib.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/libluajittex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.c' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.c
+
+luatexdir/lua/libluajittex_a-lpdfscannerlib.obj: luatexdir/lua/lpdfscannerlib.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/libluajittex_a-lpdfscannerlib.obj -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/libluajittex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.c'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lpdfscannerlib.c' object='luatexdir/lua/libluajittex_a-lpdfscannerlib.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/libluajittex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.c'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.c'; fi`
 
 luatexdir/lua/libluajittex_a-lkpselib.o: luatexdir/lua/lkpselib.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/libluajittex_a-lkpselib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluajittex_a-lkpselib.Tpo -c -o luatexdir/lua/libluajittex_a-lkpselib.o `test -f 'luatexdir/lua/lkpselib.c' || echo '$(srcdir)/'`luatexdir/lua/lkpselib.c
@@ -13044,6 +13118,20 @@ luatexdir/luafontloader/src/libluatex_a-luafflib.obj: luatexdir/luafontloader/sr
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luafontloader/src/libluatex_a-luafflib.obj `if test -f 'luatexdir/luafontloader/src/luafflib.c'; then $(CYGPATH_W) 'luatexdir/luafontloader/src/luafflib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luafontloader/src/luafflib.c'; fi`
 
+luatexdir/image/libluatex_a-pdftoepdf.o: luatexdir/image/pdftoepdf.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-pdftoepdf.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-pdftoepdf.Tpo -c -o luatexdir/image/libluatex_a-pdftoepdf.o `test -f 'luatexdir/image/pdftoepdf.c' || echo '$(srcdir)/'`luatexdir/image/pdftoepdf.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-pdftoepdf.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-pdftoepdf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/pdftoepdf.c' object='luatexdir/image/libluatex_a-pdftoepdf.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-pdftoepdf.o `test -f 'luatexdir/image/pdftoepdf.c' || echo '$(srcdir)/'`luatexdir/image/pdftoepdf.c
+
+luatexdir/image/libluatex_a-pdftoepdf.obj: luatexdir/image/pdftoepdf.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-pdftoepdf.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-pdftoepdf.Tpo -c -o luatexdir/image/libluatex_a-pdftoepdf.obj `if test -f 'luatexdir/image/pdftoepdf.c'; then $(CYGPATH_W) 'luatexdir/image/pdftoepdf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/pdftoepdf.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-pdftoepdf.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-pdftoepdf.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/pdftoepdf.c' object='luatexdir/image/libluatex_a-pdftoepdf.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-pdftoepdf.obj `if test -f 'luatexdir/image/pdftoepdf.c'; then $(CYGPATH_W) 'luatexdir/image/pdftoepdf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/pdftoepdf.c'; fi`
+
 luatexdir/lua/libluatex_a-lcallbacklib.o: luatexdir/lua/lcallbacklib.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/libluatex_a-lcallbacklib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluatex_a-lcallbacklib.Tpo -c -o luatexdir/lua/libluatex_a-lcallbacklib.o `test -f 'luatexdir/lua/lcallbacklib.c' || echo '$(srcdir)/'`luatexdir/lua/lcallbacklib.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluatex_a-lcallbacklib.Tpo luatexdir/lua/$(DEPDIR)/libluatex_a-lcallbacklib.Po
@@ -13099,6 +13187,20 @@ luatexdir/lua/libluatex_a-lpdfelib.obj: luatexdir/lua/lpdfelib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lpdfelib.c' object='luatexdir/lua/libluatex_a-lpdfelib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/libluatex_a-lpdfelib.obj `if test -f 'luatexdir/lua/lpdfelib.c'; then $(CYGPATH_W) 'luatexdir/lua/lpdfelib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfelib.c'; fi`
+
+luatexdir/lua/libluatex_a-lpdfscannerlib.o: luatexdir/lua/lpdfscannerlib.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/libluatex_a-lpdfscannerlib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/libluatex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.c' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lpdfscannerlib.c' object='luatexdir/lua/libluatex_a-lpdfscannerlib.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/libluatex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.c' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.c
+
+luatexdir/lua/libluatex_a-lpdfscannerlib.obj: luatexdir/lua/lpdfscannerlib.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/libluatex_a-lpdfscannerlib.obj -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/libluatex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.c'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/lua/lpdfscannerlib.c' object='luatexdir/lua/libluatex_a-lpdfscannerlib.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/lua/libluatex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.c'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.c'; fi`
 
 luatexdir/lua/libluatex_a-lkpselib.o: luatexdir/lua/lkpselib.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lua/libluatex_a-lkpselib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluatex_a-lkpselib.Tpo -c -o luatexdir/lua/libluatex_a-lkpselib.o `test -f 'luatexdir/lua/lkpselib.c' || echo '$(srcdir)/'`luatexdir/lua/lkpselib.c
@@ -17114,20 +17216,6 @@ xetex-xetex-pool.obj: xetex-pool.c
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
-luatexdir/lua/liblua53tex_a-lpdfscannerlib.o: luatexdir/lua/lpdfscannerlib.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -MT luatexdir/lua/liblua53tex_a-lpdfscannerlib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/liblua53tex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.cc' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='luatexdir/lua/lpdfscannerlib.cc' object='luatexdir/lua/liblua53tex_a-lpdfscannerlib.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -c -o luatexdir/lua/liblua53tex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.cc' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.cc
-
-luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj: luatexdir/lua/lpdfscannerlib.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -MT luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj -MD -MP -MF luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.cc'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.cc'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/liblua53tex_a-lpdfscannerlib.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='luatexdir/lua/lpdfscannerlib.cc' object='luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -c -o luatexdir/lua/liblua53tex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.cc'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.cc'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.cc'; fi`
-
 luatexdir/lua/liblua53tex_a-lepdflib.o: luatexdir/lua/lepdflib.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -MT luatexdir/lua/liblua53tex_a-lepdflib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/liblua53tex_a-lepdflib.Tpo -c -o luatexdir/lua/liblua53tex_a-lepdflib.o `test -f 'luatexdir/lua/lepdflib.cc' || echo '$(srcdir)/'`luatexdir/lua/lepdflib.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/liblua53tex_a-lepdflib.Tpo luatexdir/lua/$(DEPDIR)/liblua53tex_a-lepdflib.Po
@@ -17141,34 +17229,6 @@ luatexdir/lua/liblua53tex_a-lepdflib.obj: luatexdir/lua/lepdflib.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='luatexdir/lua/lepdflib.cc' object='luatexdir/lua/liblua53tex_a-lepdflib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -c -o luatexdir/lua/liblua53tex_a-lepdflib.obj `if test -f 'luatexdir/lua/lepdflib.cc'; then $(CYGPATH_W) 'luatexdir/lua/lepdflib.cc'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lepdflib.cc'; fi`
-
-liblua53tex_a-pdftoepdf.o: pdftoepdf.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -MT liblua53tex_a-pdftoepdf.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-pdftoepdf.Tpo -c -o liblua53tex_a-pdftoepdf.o `test -f 'pdftoepdf.cc' || echo '$(srcdir)/'`pdftoepdf.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-pdftoepdf.Tpo $(DEPDIR)/liblua53tex_a-pdftoepdf.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pdftoepdf.cc' object='liblua53tex_a-pdftoepdf.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -c -o liblua53tex_a-pdftoepdf.o `test -f 'pdftoepdf.cc' || echo '$(srcdir)/'`pdftoepdf.cc
-
-liblua53tex_a-pdftoepdf.obj: pdftoepdf.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -MT liblua53tex_a-pdftoepdf.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-pdftoepdf.Tpo -c -o liblua53tex_a-pdftoepdf.obj `if test -f 'pdftoepdf.cc'; then $(CYGPATH_W) 'pdftoepdf.cc'; else $(CYGPATH_W) '$(srcdir)/pdftoepdf.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-pdftoepdf.Tpo $(DEPDIR)/liblua53tex_a-pdftoepdf.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pdftoepdf.cc' object='liblua53tex_a-pdftoepdf.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(liblua53tex_a_CXXFLAGS) $(CXXFLAGS) -c -o liblua53tex_a-pdftoepdf.obj `if test -f 'pdftoepdf.cc'; then $(CYGPATH_W) 'pdftoepdf.cc'; else $(CYGPATH_W) '$(srcdir)/pdftoepdf.cc'; fi`
-
-luatexdir/lua/libluajittex_a-lpdfscannerlib.o: luatexdir/lua/lpdfscannerlib.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -MT luatexdir/lua/libluajittex_a-lpdfscannerlib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/libluajittex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.cc' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='luatexdir/lua/lpdfscannerlib.cc' object='luatexdir/lua/libluajittex_a-lpdfscannerlib.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -c -o luatexdir/lua/libluajittex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.cc' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.cc
-
-luatexdir/lua/libluajittex_a-lpdfscannerlib.obj: luatexdir/lua/lpdfscannerlib.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -MT luatexdir/lua/libluajittex_a-lpdfscannerlib.obj -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/libluajittex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.cc'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.cc'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/libluajittex_a-lpdfscannerlib.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='luatexdir/lua/lpdfscannerlib.cc' object='luatexdir/lua/libluajittex_a-lpdfscannerlib.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -c -o luatexdir/lua/libluajittex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.cc'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.cc'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.cc'; fi`
 
 luatexdir/lua/libluajittex_a-lepdflib.o: luatexdir/lua/lepdflib.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -MT luatexdir/lua/libluajittex_a-lepdflib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluajittex_a-lepdflib.Tpo -c -o luatexdir/lua/libluajittex_a-lepdflib.o `test -f 'luatexdir/lua/lepdflib.cc' || echo '$(srcdir)/'`luatexdir/lua/lepdflib.cc
@@ -17184,34 +17244,6 @@ luatexdir/lua/libluajittex_a-lepdflib.obj: luatexdir/lua/lepdflib.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -c -o luatexdir/lua/libluajittex_a-lepdflib.obj `if test -f 'luatexdir/lua/lepdflib.cc'; then $(CYGPATH_W) 'luatexdir/lua/lepdflib.cc'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lepdflib.cc'; fi`
 
-libluajittex_a-pdftoepdf.o: pdftoepdf.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -MT libluajittex_a-pdftoepdf.o -MD -MP -MF $(DEPDIR)/libluajittex_a-pdftoepdf.Tpo -c -o libluajittex_a-pdftoepdf.o `test -f 'pdftoepdf.cc' || echo '$(srcdir)/'`pdftoepdf.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-pdftoepdf.Tpo $(DEPDIR)/libluajittex_a-pdftoepdf.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pdftoepdf.cc' object='libluajittex_a-pdftoepdf.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -c -o libluajittex_a-pdftoepdf.o `test -f 'pdftoepdf.cc' || echo '$(srcdir)/'`pdftoepdf.cc
-
-libluajittex_a-pdftoepdf.obj: pdftoepdf.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -MT libluajittex_a-pdftoepdf.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-pdftoepdf.Tpo -c -o libluajittex_a-pdftoepdf.obj `if test -f 'pdftoepdf.cc'; then $(CYGPATH_W) 'pdftoepdf.cc'; else $(CYGPATH_W) '$(srcdir)/pdftoepdf.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-pdftoepdf.Tpo $(DEPDIR)/libluajittex_a-pdftoepdf.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pdftoepdf.cc' object='libluajittex_a-pdftoepdf.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(libluajittex_a_CXXFLAGS) $(CXXFLAGS) -c -o libluajittex_a-pdftoepdf.obj `if test -f 'pdftoepdf.cc'; then $(CYGPATH_W) 'pdftoepdf.cc'; else $(CYGPATH_W) '$(srcdir)/pdftoepdf.cc'; fi`
-
-luatexdir/lua/libluatex_a-lpdfscannerlib.o: luatexdir/lua/lpdfscannerlib.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -MT luatexdir/lua/libluatex_a-lpdfscannerlib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/libluatex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.cc' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='luatexdir/lua/lpdfscannerlib.cc' object='luatexdir/lua/libluatex_a-lpdfscannerlib.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -c -o luatexdir/lua/libluatex_a-lpdfscannerlib.o `test -f 'luatexdir/lua/lpdfscannerlib.cc' || echo '$(srcdir)/'`luatexdir/lua/lpdfscannerlib.cc
-
-luatexdir/lua/libluatex_a-lpdfscannerlib.obj: luatexdir/lua/lpdfscannerlib.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -MT luatexdir/lua/libluatex_a-lpdfscannerlib.obj -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Tpo -c -o luatexdir/lua/libluatex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.cc'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.cc'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Tpo luatexdir/lua/$(DEPDIR)/libluatex_a-lpdfscannerlib.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='luatexdir/lua/lpdfscannerlib.cc' object='luatexdir/lua/libluatex_a-lpdfscannerlib.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -c -o luatexdir/lua/libluatex_a-lpdfscannerlib.obj `if test -f 'luatexdir/lua/lpdfscannerlib.cc'; then $(CYGPATH_W) 'luatexdir/lua/lpdfscannerlib.cc'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lpdfscannerlib.cc'; fi`
-
 luatexdir/lua/libluatex_a-lepdflib.o: luatexdir/lua/lepdflib.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -MT luatexdir/lua/libluatex_a-lepdflib.o -MD -MP -MF luatexdir/lua/$(DEPDIR)/libluatex_a-lepdflib.Tpo -c -o luatexdir/lua/libluatex_a-lepdflib.o `test -f 'luatexdir/lua/lepdflib.cc' || echo '$(srcdir)/'`luatexdir/lua/lepdflib.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lua/$(DEPDIR)/libluatex_a-lepdflib.Tpo luatexdir/lua/$(DEPDIR)/libluatex_a-lepdflib.Po
@@ -17225,20 +17257,6 @@ luatexdir/lua/libluatex_a-lepdflib.obj: luatexdir/lua/lepdflib.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='luatexdir/lua/lepdflib.cc' object='luatexdir/lua/libluatex_a-lepdflib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -c -o luatexdir/lua/libluatex_a-lepdflib.obj `if test -f 'luatexdir/lua/lepdflib.cc'; then $(CYGPATH_W) 'luatexdir/lua/lepdflib.cc'; else $(CYGPATH_W) '$(srcdir)/luatexdir/lua/lepdflib.cc'; fi`
-
-libluatex_a-pdftoepdf.o: pdftoepdf.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -MT libluatex_a-pdftoepdf.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdftoepdf.Tpo -c -o libluatex_a-pdftoepdf.o `test -f 'pdftoepdf.cc' || echo '$(srcdir)/'`pdftoepdf.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-pdftoepdf.Tpo $(DEPDIR)/libluatex_a-pdftoepdf.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pdftoepdf.cc' object='libluatex_a-pdftoepdf.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -c -o libluatex_a-pdftoepdf.o `test -f 'pdftoepdf.cc' || echo '$(srcdir)/'`pdftoepdf.cc
-
-libluatex_a-pdftoepdf.obj: pdftoepdf.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -MT libluatex_a-pdftoepdf.obj -MD -MP -MF $(DEPDIR)/libluatex_a-pdftoepdf.Tpo -c -o libluatex_a-pdftoepdf.obj `if test -f 'pdftoepdf.cc'; then $(CYGPATH_W) 'pdftoepdf.cc'; else $(CYGPATH_W) '$(srcdir)/pdftoepdf.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-pdftoepdf.Tpo $(DEPDIR)/libluatex_a-pdftoepdf.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pdftoepdf.cc' object='libluatex_a-pdftoepdf.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(libluatex_a_CXXFLAGS) $(CXXFLAGS) -c -o libluatex_a-pdftoepdf.obj `if test -f 'pdftoepdf.cc'; then $(CYGPATH_W) 'pdftoepdf.cc'; else $(CYGPATH_W) '$(srcdir)/pdftoepdf.cc'; fi`
 
 pdftexdir/libpdftex_a-pdftoepdf.o: pdftexdir/pdftoepdf.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpdftex_a_CPPFLAGS) $(CPPFLAGS) $(libpdftex_a_CXXFLAGS) $(CXXFLAGS) -MT pdftexdir/libpdftex_a-pdftoepdf.o -MD -MP -MF pdftexdir/$(DEPDIR)/libpdftex_a-pdftoepdf.Tpo -c -o pdftexdir/libpdftex_a-pdftoepdf.o `test -f 'pdftexdir/pdftoepdf.cc' || echo '$(srcdir)/'`pdftexdir/pdftoepdf.cc
@@ -18209,6 +18227,8 @@ distclean-generic:
 	-rm -f libmd5/$(am__dirstamp)
 	-rm -f luatexdir/$(DEPDIR)/$(am__dirstamp)
 	-rm -f luatexdir/$(am__dirstamp)
+	-rm -f luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+	-rm -f luatexdir/image/$(am__dirstamp)
 	-rm -f luatexdir/lua/$(DEPDIR)/$(am__dirstamp)
 	-rm -f luatexdir/lua/$(am__dirstamp)
 	-rm -f luatexdir/luaffi/$(DEPDIR)/$(am__dirstamp)
@@ -18276,7 +18296,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLIBRARIES \
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) alephdir/$(DEPDIR) eptexdir/$(DEPDIR) etexdir/$(DEPDIR) euptexdir/$(DEPDIR) libmd5/$(DEPDIR) luatexdir/$(DEPDIR) luatexdir/lua/$(DEPDIR) luatexdir/luaffi/$(DEPDIR) luatexdir/luafilesystem/src/$(DEPDIR) luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR) luatexdir/luafontloader/fontforge/gutils/$(DEPDIR) luatexdir/luafontloader/src/$(DEPDIR) luatexdir/luamd5/$(DEPDIR) luatexdir/luapeg/$(DEPDIR) luatexdir/luapplib/$(DEPDIR) luatexdir/luapplib/util/$(DEPDIR) luatexdir/luasocket/src/$(DEPDIR) luatexdir/luazip/src/$(DEPDIR) luatexdir/luazlib/$(DEPDIR) luatexdir/slnunicode/$(DEPDIR) luatexdir/tex/$(DEPDIR) luatexdir/unilib/$(DEPDIR) luatexdir/utils/$(DEPDIR) mfluadir/$(DEPDIR) mfluajitdir/$(DEPDIR) mplibdir/$(DEPDIR) pdftexdir/$(DEPDIR) pdftexdir/regex/$(DEPDIR) ptexdir/$(DEPDIR) synctexdir/$(DEPDIR) uptexdir/$(DEPDIR) xetexdir/$(DEPDIR) xetexdir/image/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) alephdir/$(DEPDIR) eptexdir/$(DEPDIR) etexdir/$(DEPDIR) euptexdir/$(DEPDIR) libmd5/$(DEPDIR) luatexdir/$(DEPDIR) luatexdir/image/$(DEPDIR) luatexdir/lua/$(DEPDIR) luatexdir/luaffi/$(DEPDIR) luatexdir/luafilesystem/src/$(DEPDIR) luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR) luatexdir/luafontloader/fontforge/gutils/$(DEPDIR) luatexdir/luafontloader/src/$(DEPDIR) luatexdir/luamd5/$(DEPDIR) luatexdir/luapeg/$(DEPDIR) luatexdir/luapplib/$(DEPDIR) luatexdir/luapplib/util/$(DEPDIR) luatexdir/luasocket/src/$(DEPDIR) luatexdir/luazip/src/$(DEPDIR) luatexdir/luazlib/$(DEPDIR) luatexdir/slnunicode/$(DEPDIR) luatexdir/tex/$(DEPDIR) luatexdir/unilib/$(DEPDIR) luatexdir/utils/$(DEPDIR) mfluadir/$(DEPDIR) mfluajitdir/$(DEPDIR) mplibdir/$(DEPDIR) pdftexdir/$(DEPDIR) pdftexdir/regex/$(DEPDIR) ptexdir/$(DEPDIR) synctexdir/$(DEPDIR) uptexdir/$(DEPDIR) xetexdir/$(DEPDIR) xetexdir/image/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -18327,7 +18347,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) alephdir/$(DEPDIR) eptexdir/$(DEPDIR) etexdir/$(DEPDIR) euptexdir/$(DEPDIR) libmd5/$(DEPDIR) luatexdir/$(DEPDIR) luatexdir/lua/$(DEPDIR) luatexdir/luaffi/$(DEPDIR) luatexdir/luafilesystem/src/$(DEPDIR) luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR) luatexdir/luafontloader/fontforge/gutils/$(DEPDIR) luatexdir/luafontloader/src/$(DEPDIR) luatexdir/luamd5/$(DEPDIR) luatexdir/luapeg/$(DEPDIR) luatexdir/luapplib/$(DEPDIR) luatexdir/luapplib/util/$(DEPDIR) luatexdir/luasocket/src/$(DEPDIR) luatexdir/luazip/src/$(DEPDIR) luatexdir/luazlib/$(DEPDIR) luatexdir/slnunicode/$(DEPDIR) luatexdir/tex/$(DEPDIR) luatexdir/unilib/$(DEPDIR) luatexdir/utils/$(DEPDIR) mfluadir/$(DEPDIR) mfluajitdir/$(DEPDIR) mplibdir/$(DEPDIR) pdftexdir/$(DEPDIR) pdftexdir/regex/$(DEPDIR) ptexdir/$(DEPDIR) synctexdir/$(DEPDIR) uptexdir/$(DEPDIR) xetexdir/$(DEPDIR) xetexdir/image/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) alephdir/$(DEPDIR) eptexdir/$(DEPDIR) etexdir/$(DEPDIR) euptexdir/$(DEPDIR) libmd5/$(DEPDIR) luatexdir/$(DEPDIR) luatexdir/image/$(DEPDIR) luatexdir/lua/$(DEPDIR) luatexdir/luaffi/$(DEPDIR) luatexdir/luafilesystem/src/$(DEPDIR) luatexdir/luafontloader/fontforge/fontforge/$(DEPDIR) luatexdir/luafontloader/fontforge/gutils/$(DEPDIR) luatexdir/luafontloader/src/$(DEPDIR) luatexdir/luamd5/$(DEPDIR) luatexdir/luapeg/$(DEPDIR) luatexdir/luapplib/$(DEPDIR) luatexdir/luapplib/util/$(DEPDIR) luatexdir/luasocket/src/$(DEPDIR) luatexdir/luazip/src/$(DEPDIR) luatexdir/luazlib/$(DEPDIR) luatexdir/slnunicode/$(DEPDIR) luatexdir/tex/$(DEPDIR) luatexdir/unilib/$(DEPDIR) luatexdir/utils/$(DEPDIR) mfluadir/$(DEPDIR) mfluajitdir/$(DEPDIR) mplibdir/$(DEPDIR) pdftexdir/$(DEPDIR) pdftexdir/regex/$(DEPDIR) ptexdir/$(DEPDIR) synctexdir/$(DEPDIR) uptexdir/$(DEPDIR) xetexdir/$(DEPDIR) xetexdir/image/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -19276,8 +19296,6 @@ writejp2.c: ctangle$(EXEEXT) luatexdir/image/writejp2.w
 	$(luatex_image_ctangle) writejp2.w
 writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
 	$(luatex_image_ctangle) writepng.w
-pdftoepdf.cc: ctangle$(EXEEXT) luatexdir/image/pdftoepdf.w
-	$(luatex_image_ctangle) pdftoepdf.w - $@
 
 hnjalloc.c: ctangle$(EXEEXT) luatexdir/lang/hnjalloc.w
 	$(luatex_lang_ctangle) hnjalloc.w

@@ -189,17 +189,17 @@ writejp2.c: ctangle$(EXEEXT) luatexdir/image/writejp2.w
 	$(luatex_image_ctangle) writejp2.w
 writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
 	$(luatex_image_ctangle) writepng.w
-pdftoepdf.cc: ctangle$(EXEEXT) luatexdir/image/pdftoepdf.w
-	$(luatex_image_ctangle) pdftoepdf.w - $@
+#pdftoepdf.cc: ctangle$(EXEEXT) luatexdir/image/pdftoepdf.w
+#	$(luatex_image_ctangle) pdftoepdf.w - $@
 
 libluatex_web += luatexdir/image/writeimg.w
 libluatex_web += luatexdir/image/writejbig2.w
 libluatex_web += luatexdir/image/writejpg.w
 libluatex_web += luatexdir/image/writejp2.w
 libluatex_web += luatexdir/image/writepng.w
-libluatex_web += luatexdir/image/pdftoepdf.w
+#libluatex_web += luatexdir/image/pdftoepdf.w
 
-nodist_libluatex_sources += writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c pdftoepdf.cc
+nodist_libluatex_sources += writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c 
 
 dist_libluatex_sources += \
 	luatexdir/image/epdf.h \
@@ -209,7 +209,8 @@ dist_libluatex_sources += \
 	luatexdir/image/writejbig2.h \
 	luatexdir/image/writejpg.h \
 	luatexdir/image/writejp2.h \
-	luatexdir/image/writepng.h
+	luatexdir/image/writepng.h \
+	luatexdir/image/pdftoepdf.c
 
 ## from luatexdir/lang
 ##
@@ -262,7 +263,7 @@ dist_libluatex_sources += \
 	luatexdir/lua/lfontlib.c \
 	luatexdir/lua/limglib.c \
 	luatexdir/lua/lpdfelib.c \
-	luatexdir/lua/lpdfscannerlib.cc \
+	luatexdir/lua/lpdfscannerlib.c \
 	luatexdir/lua/lepdflib.cc \
 	luatexdir/lua/lkpselib.c \
 	luatexdir/lua/llanglib.c \

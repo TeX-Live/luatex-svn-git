@@ -7,6 +7,14 @@
 
 #include "ptexlib.h"
 
+/* Avoid collision with  */
+/* #define input stdin   */
+/* #define output stdout */
+/* in cpascal.h          */
+
+#undef lpdfelib_orig_input 
+#undef lpdfelib_orig_output 
+
 #ifdef input
 #define lpdfelib_orig_input input
 #undef input

@@ -18,18 +18,18 @@
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
 
-// this is the common header file for C++ sources pdftoepdf.cc and lepdflib.cc
+/* this is the common header file for C++ sources pdftoepdf.c and lepdflib.c */
 
 #ifndef EPDF_H
 #  define EPDF_H
 
-extern "C" {
+/*extern "C" {*/
 
 #ifdef HAVE_CONFIG_H
 #include <w2c/config.h>
 #endif
 
-}
+/*}*/
 
 #  include <stdlib.h>
 #  include <math.h>
@@ -40,7 +40,7 @@ extern "C" {
 #  include <sys/stat.h>
 #  include <dirent.h>
 
-extern "C" {
+/*extern "C" { */
 
 #  include <kpathsea/c-auto.h>
 
@@ -111,7 +111,7 @@ extern void print_pdffloat(PDF pdf, pdffloat f);
 
 extern int pdf_create_obj(PDF pdf, int t, int i);
 
-/* pdftoepdf.cc */
+/* pdftoepdf.c */
 
 extern void read_pdf_info(image_dict *);
 extern void flush_pdf_info(image_dict *);
@@ -138,24 +138,31 @@ int luaopen_epdf(lua_State * L);
 
 #  include "luatex-common.h"
 
-}
+/*}*/
+
+typedef struct InObj InObj;
 
 struct InObj {
-    ppref *ref;                 // ref in original PDF
-    int num;                    // new object number in output PDF
-    InObj *next;                // next entry in list of indirect objects
-};
+    ppref *ref;                 /* ref in original PDF */
+    int num;                    /* new object number in output PDF */
+    InObj *next;                /* next entry in list of indirect objects */
+} ;
+
+
+typedef struct avl_table avl_table;
 
 struct PdfDocument {
-    char *file_path;            // full file name including path
-    char *checksum;             // for reopening
+    char *file_path;            /* full file name including path */
+    char *checksum;             /* for reopening */
     ppdoc *pdfe;
     int decode;
-    InObj *inObjList;           // temporary linked list
-    avl_table *ObjMapTree;      // permanent over luatex run
-    unsigned int occurences;    // number of references to the PdfDocument; it can be deleted when occurences == 0
-    unsigned int pc;            // counter to track PDFDoc generation or deletion
+    InObj *inObjList;           /* temporary linked list */
+    avl_table *ObjMapTree;      /* permanent over luatex run */
+    unsigned int occurences;    /* number of references to the PdfDocument; it can be deleted when occurences == 0 */
+    unsigned int pc;            /* counter to track PDFDoc generation or deletion */
 };
+
+typedef struct PdfDocument PdfDocument;
 
 PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe);
 
