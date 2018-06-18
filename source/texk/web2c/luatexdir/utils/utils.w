@@ -41,9 +41,6 @@
 #include "png.h"
 #include "mplib.h"
 
-/* POPPLER_VERSION is defined in poppler-config.h for poppler from
- * the TeX Live tree, or in the Makefile for an installed version.  */
-#include "poppler-config.h"
 
 @ @c
 #define check_nprintf(size_get, size_want) \
@@ -262,14 +259,12 @@ void initversionstring(char **versions)
                     "Compiled with libpng %s; using %s\n"
                     "Compiled with %s\n" /* Lua or LuaJIT */
                     "Compiled with mplib version %s\n"
-                    "Compiled with poppler version %s\n"
                     "Compiled with zlib %s; using %s\n"
                     "\nDevelopment id: %s\n";
     size_t len = strlen(fmt)
                     + strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver)
                     + strlen(LUA_VER_STRING) 
                     + strlen(mp_metapost_version())
-                    + strlen(POPPLER_VERSION)
                     + strlen(ZLIB_VERSION) + strlen(zlib_version)
                     + strlen(STR(luatex_svn_revision))
                     + 1;
@@ -279,7 +274,7 @@ void initversionstring(char **versions)
     *versions = xmalloc(len);
     sprintf(*versions, fmt,
                     PNG_LIBPNG_VER_STRING, png_libpng_ver, LUA_VER_STRING,
-                    mp_metapost_version(),POPPLER_VERSION,
+                    mp_metapost_version(),
                     ZLIB_VERSION, zlib_version,STR(luatex_svn_revision));
 #undef STR2
 #undef STR

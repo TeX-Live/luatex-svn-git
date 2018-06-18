@@ -126,7 +126,6 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/texk/texlive/ac/withenable.ac \
 	$(top_srcdir)/texk/texlive/ac/texlive.ac \
 	$(top_srcdir)/libs/zziplib/ac/withenable.ac \
-	$(top_srcdir)/libs/poppler/ac/withenable.ac \
 	$(top_srcdir)/libs/mpfr/ac/withenable.ac \
 	$(top_srcdir)/libs/gmp/ac/withenable.ac \
 	$(top_srcdir)/libs/libpng/ac/withenable.ac \
@@ -141,7 +140,6 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/libs/libpng/ac/libpng.ac \
 	$(top_srcdir)/libs/gmp/ac/gmp.ac \
 	$(top_srcdir)/libs/mpfr/ac/mpfr.ac \
-	$(top_srcdir)/libs/poppler/ac/poppler.ac \
 	$(top_srcdir)/libs/zziplib/ac/zziplib.ac \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \

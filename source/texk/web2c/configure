@@ -18766,7 +18766,6 @@ case $enable_luatex in #(
 esac
 
 test "x$enable_web2c:$enable_luatex" = xyes:yes && {
-  need_poppler=yes
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
@@ -18784,7 +18783,6 @@ case $enable_luatex53 in #(
 esac
 
 test "x$enable_web2c:$enable_luatex53" = xyes:yes && {
-  need_poppler=yes
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
@@ -18802,7 +18800,6 @@ case $enable_luajittex in #(
 esac
 
 test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
-  need_poppler=yes
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes

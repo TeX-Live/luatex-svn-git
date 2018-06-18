@@ -26,7 +26,7 @@ liblua53tex_a_DEPENDENCIES = libff.a liblua53misc.a
 libluajittex_a_DEPENDENCIES = libff.a libluajitmisc.a
 
 libluatex_a_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES)
-libluatex_a_preflags += $(POPPLER_INCLUDES) -I$(srcdir)/libmd5
+libluatex_a_preflags += -I$(srcdir)/libmd5
 libluatex_a_preflags += -DpdfTeX -I$(srcdir)/luatexdir
 libluatex_a_preflags += -I$(srcdir)/luatexdir/unilib
 libluatex_a_preflags += -I$(srcdir)/luatexdir/luapplib/util
@@ -66,9 +66,9 @@ nodist_libluajittex_a_SOURCES = \
 	$(nodist_libluatex_sources)
 
 ## mplib "stub" backends are in mplibstuff.c
-$(libluatex_a_OBJECTS): libff.a libmplibcore.a libluamisc.a $(POPPLER_DEPEND)
-$(liblua53tex_a_OBJECTS): libff.a libmplibcore.a liblua53misc.a $(POPPLER_DEPEND)
-$(libluajittex_a_OBJECTS): libff.a libmplibcore.a libluajitmisc.a $(POPPLER_DEPEND)
+$(libluatex_a_OBJECTS): libff.a libmplibcore.a libluamisc.a 
+$(liblua53tex_a_OBJECTS): libff.a libmplibcore.a liblua53misc.a 
+$(libluajittex_a_OBJECTS): libff.a libmplibcore.a libluajitmisc.a 
 
 
 ## from luatexdir
