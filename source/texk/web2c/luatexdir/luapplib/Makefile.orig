@@ -29,7 +29,7 @@ OBJEXT=$(BUILDSUFFIX).o
 
 PPUTILS=utilmem utilpool utilnumber utiliof utilmd5 utilsha utilcrypt
 PPFILTERS=utilbasexx utilflate utillzw utilfpred utilfilter
-PPMODULES=ppheap pparray ppdict ppstream ppxref ppload
+PPMODULES=ppheap pparray ppdict ppstream ppcrypt ppxref ppload
 
 OUTDIR=build
 UTILSDIR=util
@@ -68,6 +68,7 @@ $(PPSTATICFILTERSOBJ): $(OUTDIR)/%$(OBJEXT): $(UTILSDIR)/%.c $(UTILSDIR)/%.h
 
 $(PPSTATICLIB): $(PPSTATICOBJ) $(PPSTATICUTILSOBJ) $(PPSTATICFILTERSOBJ)
 	ar rcs $@ $^
+	strip -N print_hex $@
 
 $(PPTEST1): $(PPSTATICLIB) pptest1.c
 	$(CC) $(CFLAGS) $(STATICCOPTS) -o $(OUTDIR)/pptest1$(OBJEXT) -c pptest1.c

@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <string.h>
 
 #include "ppconf.h"
 
@@ -49,7 +50,18 @@ typedef struct {
   void *input, *I;
   size_t offset;
   size_t length;
+  ppstring cryptkey;
+  int flags;
 } ppstream;
+
+#define PPSTREAM_COMPRESSED (1<<0)
+#define PPSTREAM_ENCRYPTED_AES (1<<1)
+#define PPSTREAM_ENCRYPTED_RC4 (1<<2)
+#define PPSTREAM_ENCRYPTED (PPSTREAM_ENCRYPTED_AES|PPSTREAM_ENCRYPTED_RC4)
+#define PPSTREAM_ENCRYPTED_OWN (1<<3)
+
+#define ppstream_compressed(stream) ((stream)->flags & PPSTREAM_COMPRESSED)
+#define ppstream_encrypted(stream) ((stream)->flags & PPSTREAM_ENCRYPTED)
 
 typedef enum {
   PPNONE = 0,
@@ -64,6 +76,8 @@ typedef enum {
   PPSTREAM,
   PPREF
 } ppobjtp;
+
+PPDEF extern const char * ppobj_kind[];
 
 struct ppobj {
   ppobjtp type;
@@ -86,7 +100,7 @@ struct ppref {
   ppobj object;
   ppuint number, version;
   size_t offset;
-  ppuint length;
+  size_t length;
   ppxref *xref;
 };
 
@@ -265,6 +279,30 @@ PPAPI ppref * ppdoc_next_page (ppdoc *pdf);
 PPAPI ppstream * ppcontents_first (ppdict *dict);
 PPAPI ppstream * ppcontents_next (ppdict *dict, ppstream *stream);
 
+/* crypt */
+
+typedef enum {
+  PPCRYPT_NONE = 0,
+  PPCRYPT_DONE = 1,
+  PPCRYPT_FAIL = -1,
+  PPCRYPT_PASS = -2
+} ppcrypt_status;
+
+PPAPI ppcrypt_status ppdoc_crypt_status (ppdoc *pdf);
+PPAPI ppcrypt_status ppdoc_crypt_pass (ppdoc *pdf, const void *userpass, size_t userpasslength, const void *ownerpass, size_t ownerpasslength);
+
+/* permission flags, effect in Acrobat File -> Properties -> Security tab */
+
+PPAPI ppint ppdoc_permissions (ppdoc *pdf);
+
+#define PPDOC_ALLOW_PRINT (1<<2)        // printing
+#define PPDOC_ALLOW_MODIFY (1<<3)       // filling form fields, signing, creating template pages
+#define PPDOC_ALLOW_COPY (1<<4)         // copying, copying for accessibility
+#define PPDOC_ALLOW_ANNOTS (1<<5)       // filling form fields, copying, signing
+#define PPDOC_ALLOW_EXTRACT (1<<9)      // contents copying for accessibility
+#define PPDOC_ALLOW_ASSEMBLY (1<<10)    // (no effect)
+#define PPDOC_ALLOW_PRINT_HIRES (1<<11) // (no effect)
+
 /* context */
 
 typedef struct ppcontext ppcontext;
@@ -297,6 +335,9 @@ PPAPI ppmatrix * pparray_to_matrix (pparray *array, ppmatrix *matrix);
 PPAPI ppmatrix * ppdict_get_matrix (ppdict *dict, const char *name, ppmatrix *matrix);
 
 /* stats and debug */
+
+PPAPI const char * ppdoc_version_string (ppdoc *pdf);
+PPAPI int ppdoc_version_number (ppdoc *pdf, int *minor);
 
 PPAPI size_t ppdoc_file_size (ppdoc *pdf);
 PPAPI ppuint ppdoc_objects (ppdoc *pdf);

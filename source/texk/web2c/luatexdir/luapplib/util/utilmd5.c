@@ -390,12 +390,12 @@ md5_put(md5_state_t *pms, uint8_t digest[16])
 
 static md5_state_t state;
 
-/*void md5 (const void *input, size_t length, uint8_t output[16])
+void pplib_md5 (const void *input, size_t length, uint8_t output[16])
 {
   pplib_md5_init(&state);
   md5_add(&state, input, length);
   md5_put(&state, output);
-}*/
+}
 
 void md5init (void)
 {

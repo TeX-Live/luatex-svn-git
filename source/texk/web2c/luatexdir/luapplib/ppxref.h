@@ -24,6 +24,7 @@ struct ppxref {
   ppxref *prev;     // previous xref
   ppdoc *pdf;       // parent pdf to access entries in linearized docs
   size_t offset;    // file offset of xref
+  //ppcrypt *crypt;   // per xref encryption state? 
 };
 
 ppxref * ppxref_create (ppdoc *pdf, size_t initsize, size_t xrefoffset);

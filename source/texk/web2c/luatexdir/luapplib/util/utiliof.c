@@ -14,7 +14,6 @@ void * iof_copy_data (const void *data, size_t size)
   return memcpy(util_malloc(size), data, size);
 }
 
-
 uint8_t * iof_copy_file_data (const char *filename, size_t *psize)
 {
   FILE *file;

@@ -3,6 +3,8 @@
 
 #include "pplib.h"
 
+const char * ppobj_kind[] = { "none", "null", "bool", "integer", "number", "name", "string", "array", "dict", "stream", "ref" };
+
 #define ignored_char(c) (c == 0x20 || c == 0x0A || c == 0x0D || c == 0x09 || c == 0x00)
 #define newline_char(c) (c == 0x0A || c == 0x0D)
 #define IGNORED_CHAR_CASE 0x20: case 0x0A: case 0x0D: case 0x09: case 0x00
@@ -11,6 +13,8 @@
 #define OCTAL_CHAR_CASE '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7'
 
 #define MAX_INT_DIGITS 32
+
+#define PP_LENGTH_UNKNOWN ((size_t)-1)
 
 static const char * ppref_str (ppuint refnumber, ppuint refversion)
 {
@@ -64,7 +68,7 @@ const char ppname_byte_lookup[] = {
 #define ppname_set_alter_ego(name, ghost, ego) (*((ppname *)(name + (ghost)->size + 1)) = ego)
 #define ppname_get_alter_ego(name) (*((ppname *)(name + ppname_size(name) + 1)))
 
-static ppname ppscan_name_or_exec (iof *I, ppheap **pheap, int flags)
+static ppname ppscan_name (iof *I, ppheap **pheap)
 {
   int c, decode;
   iof *O;
@@ -81,8 +85,8 @@ static ppname ppscan_name_or_exec (iof *I, ppheap **pheap, int flags)
     iof_put(O, c);
   }
   if (!decode)
-    return ppname_flush(O, ghost1, size, flags);
-  encoded = ppname_flush_with_ego(O, ghost1, size, flags|PPNAME_ENCODED);
+    return ppname_flush(O, ghost1, size, 0);
+  encoded = ppname_flush_with_ego(O, ghost1, size, 0|PPNAME_ENCODED);
   O = ppheap_buffer(pheap, sizeof(_ppname), PPNAME_INIT);
   for (p = encoded, e = encoded + ghost1->size; p < e; ++p)
   {
@@ -91,14 +95,56 @@ static ppname ppscan_name_or_exec (iof *I, ppheap **pheap, int flags)
     else
       iof_put(O, *p);
   }
-  decoded = ppname_flush_with_ego(O, ghost2, size, flags|PPNAME_DECODED);
+  decoded = ppname_flush_with_ego(O, ghost2, size, 0|PPNAME_DECODED);
   ppname_set_alter_ego(encoded, ghost1, decoded);
   ppname_set_alter_ego(decoded, ghost2, encoded);
   return encoded;
 }
 
-#define ppscan_name(I, pheap) ppscan_name_or_exec(I, pheap, 0)
-#define ppscan_exec(I, pheap) ppscan_name_or_exec(I, pheap, PPNAME_EXEC)
+static ppname ppscan_exec (iof *I, ppheap **pheap, int first)
+{
+  int c, decode;
+  iof *O;
+  _ppname *ghost1, *ghost2;
+  ppname encoded, decoded;
+  size_t size;
+  const char *p, *e;
+  uint8_t v1, v2;
+
+  O = ppheap_buffer(pheap, sizeof(_ppname), PPNAME_INIT);
+  iof_put(O, first);
+  for (decode = 0, c = iof_char(I); c >= 0 && ppname_byte_lookup[c]; c = iof_next(I))
+  {
+    if (c == '#')
+      decode = 1;
+    iof_put(O, c);
+  }
+  if (!decode)
+    return ppname_flush(O, ghost1, size, PPNAME_EXEC);
+  encoded = ppname_flush_with_ego(O, ghost1, size, PPNAME_EXEC|PPNAME_ENCODED);
+  O = ppheap_buffer(pheap, sizeof(_ppname), PPNAME_INIT);
+  for (p = encoded, e = encoded + ghost1->size; p < e; ++p)
+  {
+    if (*p == '#' && p + 2 < e && (v1 = base16_value(p[1])) >= 0 && (v2 = base16_value(p[2])) >= 0)
+      iof_put(O, ((v1<<4)+v2));
+    else
+      iof_put(O, *p);
+  }
+  decoded = ppname_flush_with_ego(O, ghost2, size, PPNAME_EXEC|PPNAME_DECODED);
+  ppname_set_alter_ego(encoded, ghost1, decoded);
+  ppname_set_alter_ego(decoded, ghost2, encoded);
+  return encoded;
+}
+
+static ppname ppexec_internal (const void *data, size_t size, ppheap **pheap)
+{ // used only for artificial 'EI' operator name
+  iof *O;
+  _ppname *ghost1;
+
+  O = ppheap_buffer(pheap, sizeof(_ppname), size);
+  iof_write(O, data, size);
+  return ppname_flush(O, ghost1, size, PPNAME_EXEC);
+}
 
 ppname ppname_decoded (ppname name)
 {
@@ -134,6 +180,17 @@ ppname ppname_encoded (ppname name)
    ghost->size = siz - sizeof(_ppstring) - 1 - sizeof(ppstring *), \
   (ppstring)(ghost + 1))
 
+#define ppstring_utf16be_bom(decoded) (decoded[0] == 0xFE && decoded[1] == 0xFF)
+#define ppstring_utf16le_bom(decoded) (decoded[0] == 0xFF && decoded[1] == 0xFE)
+
+#define ppstring_check_bom(decoded, ghost) ((void)\
+  (ghost->size >= 2 ? (ppstring_utf16be_bom(decoded) ? (ghost->flags |= PPSTRING_UTF16BE) : \
+                      (ppstring_utf16le_bom(decoded) ? (ghost->flags |= PPSTRING_UTF16LE) : 0)) : 0))
+
+#define ppstring_check_bom2(decoded, ghost1, ghost2) ((void)\
+  (ghost2->size >= 2 ? (ppstring_utf16be_bom(decoded) ? ((ghost1->flags |= PPSTRING_UTF16BE), (ghost2->flags |= PPSTRING_UTF16BE)) : \
+                       (ppstring_utf16le_bom(decoded) ? ((ghost1->flags |= PPSTRING_UTF16LE), (ghost2->flags |= PPSTRING_UTF16LE)) : 0)) : 0))
+
 #define ppstring_set_alter_ego(string, ghost, ego) (*((ppstring *)(string + (ghost)->size + 1)) = ego)
 #define ppstring_get_alter_ego(string) (*((ppstring *)(string + ppstring_size(string) + 1)))
 
@@ -142,7 +199,7 @@ static ppstring ppscan_string (iof *I, ppheap **pheap)
   int c, decode, balance;
   iof *O;
   _ppstring *ghost1, *ghost2;
-  const char *p, *e;
+  uint8_t *p, *e;
   ppstring encoded, decoded;
   size_t size;
   O = ppheap_buffer(pheap, sizeof(_ppstring), PPSTRING_INIT);
@@ -183,30 +240,26 @@ static ppstring ppscan_string (iof *I, ppheap **pheap)
   if (!decode)
   {
     encoded = ppstring_flush(O, ghost1, size, 0);
-    if (ghost1->size >= 2)
-    { // theoretically any bytes can be there
-      if (encoded[0] == 0xFE && encoded[1] == 0xFF)
-        ghost1->flags |= PPSTRING_UTF16BE;
-      else if (encoded[0] == 0xFF && encoded[1] == 0xFE)
-        ghost1->flags |= PPSTRING_UTF16LE;
-    }
+    ppstring_check_bom(encoded, ghost1); // any bytes can be there
     return encoded;
   }
   encoded = ppstring_flush_with_ego(O, ghost1, size, 0|PPSTRING_ENCODED);
   O = ppheap_buffer(pheap, sizeof(_ppstring), PPSTRING_INIT);
-  for (p = encoded, e = encoded + ghost1->size; p < e; ++p)
+  for (p = (uint8_t *)encoded, e = (uint8_t *)encoded + ghost1->size; p < e; ++p)
   {
-    if (*p == '\\' && ++p < e)
+    if (*p == '\\')
     {
+      if (++p >= e)
+        break;
       switch (*p)
       {
         case OCTAL_CHAR_CASE:
           c = *p - '0';
           if (++p < e && *p >= '0' && *p <= '7')
           {
-            c = (c << 3) + c - '0';
+            c = (c << 3) + *p - '0';
             if (++p < e && *p >= '0' && *p <= '7')
-              c = (c << 3) + c - '0';
+              c = (c << 3) + *p - '0';
           }
           iof_put(O, c);
           break;
@@ -237,19 +290,7 @@ static ppstring ppscan_string (iof *I, ppheap **pheap)
       iof_put(O, *p);
   }
   decoded = ppstring_flush_with_ego(O, ghost2, size, 0|PPSTRING_DECODED);
-  if (ghost2->size >= 2)
-  {
-    if (decoded[0] == 0xFE && decoded[1] == 0xFF)
-    {
-      ghost1->flags |= PPSTRING_UTF16BE;
-      ghost2->flags |= PPSTRING_UTF16BE;
-    }
-    else if (decoded[0] == 0xFF && decoded[1] == 0xFE)
-    {
-      ghost1->flags |= PPSTRING_UTF16LE;
-      ghost2->flags |= PPSTRING_UTF16LE;
-    }
-  }
+  ppstring_check_bom2(decoded, ghost1, ghost2);
   ppstring_set_alter_ego(encoded, ghost1, decoded);
   ppstring_set_alter_ego(decoded, ghost2, encoded);
   return encoded;
@@ -264,7 +305,8 @@ static ppstring ppscan_base16 (iof *I, ppheap **pheap)
   _ppstring *ghost1, *ghost2;
   size_t size;
   ppstring encoded, decoded;
-  const char *p, *e;
+  uint8_t *p, *e;
+
   O = ppheap_buffer(pheap, sizeof(_ppstring), PPSTRING_INIT);
   for (c = iof_char(I); c >= 0 && (base16_digit(c) || ignored_char(c)); c = iof_next(I))
     iof_put(O, c);
@@ -272,7 +314,7 @@ static ppstring ppscan_base16 (iof *I, ppheap **pheap)
     ++I->pos;
   encoded = ppstring_flush_with_ego(O, ghost1, size, PPSTRING_BASE16|PPSTRING_ENCODED);
   O = ppheap_buffer(pheap, sizeof(_ppstring), (ghost1->size >> 1) + 1);
-  for (p = encoded, e = encoded + ghost1->size; p < e; ++p)
+  for (p = (uint8_t *)encoded, e = (uint8_t *)encoded + ghost1->size; p < e; ++p)
   {
     if ((v1 = base16_value(*p)) < 0) // ignored
       continue;
@@ -280,25 +322,41 @@ static ppstring ppscan_base16 (iof *I, ppheap **pheap)
     iof_put(O, (v1<<4)|v2);
   }
   decoded = ppstring_flush_with_ego(O, ghost2, size, 0|PPSTRING_DECODED);
-  if (ghost2->size >= 2)
-  {
-    if (decoded[0] == 0xFE && decoded[1] == 0xFF)
-    {
-      ghost1->flags |= PPSTRING_UTF16BE;
-      ghost2->flags |= PPSTRING_UTF16BE;
-    }
-    else if (decoded[0] == 0xFF && decoded[1] == 0xFE)
-    {
-      ghost1->flags |= PPSTRING_UTF16LE;
-      ghost2->flags |= PPSTRING_UTF16LE;
-    }
-  }
+  ppstring_check_bom2(decoded, ghost1, ghost2);
   ppstring_set_alter_ego(encoded, ghost1, decoded);
   ppstring_set_alter_ego(decoded, ghost2, encoded);
   return encoded;
 }
 
-/* PDF spec says nothing about base85 strings, but streams might be (afair no leading '<~' but resent trailing '~>') */
+/* internal use only; binary string */
+
+static ppstring ppstring_buffer (iof *O, ppheap **pheap)
+{
+   _ppstring *ghost1, *ghost2;
+   ppstring encoded, decoded;
+   uint8_t *p, *e;
+   size_t size;
+
+   decoded = ppstring_flush_with_ego(O, ghost2, size, 0|PPSTRING_DECODED);
+   O = ppheap_buffer(pheap, sizeof(_ppstring), (ghost2->size << 1) + 1);
+   for (p = (uint8_t *)decoded, e = (uint8_t *)decoded + ghost2->size; p < e; ++p)
+     iof_set2(O, base16_uc_alphabet[(*p)>>4], base16_uc_alphabet[(*p)&15]);
+   encoded = ppstring_flush_with_ego(O, ghost1, size, PPSTRING_BASE16|PPSTRING_ENCODED);
+   ppstring_set_alter_ego(encoded, ghost1, decoded);
+   ppstring_set_alter_ego(decoded, ghost2, encoded);
+   return encoded;
+}
+
+ppstring ppstring_internal (const void *data, size_t size, ppheap **pheap)
+{ // so far used only for crypt key
+  iof *O;
+
+  O = ppheap_buffer(pheap, sizeof(_ppstring), size);
+  iof_write(O, data, size);
+  return ppstring_buffer(O, pheap);
+}
+
+/* PDF spec says nothing about base85 strings, but streams might be (afair no leading '<~' but present trailing '~>') */
 
 static ppstring ppscan_base85 (iof *I, ppheap **pheap)
 { // bawse85 alphabet is 33.117, adobe also hires 'z' and 'y' for compression
@@ -318,23 +376,218 @@ static ppstring ppscan_base85 (iof *I, ppheap **pheap)
   O = ppheap_buffer(pheap, sizeof(_ppstring), (ghost1->size * 5 / 4) + 1);
   base85_decode(&B, O);
   decoded = ppstring_flush_with_ego(O, ghost2, size, 0|PPSTRING_DECODED);
-  if (ghost2->size >= 2)
-  {
-    if (decoded[0] == 0xFE && decoded[1] == 0xFF)
-    {
-      ghost1->flags |= PPSTRING_UTF16BE;
-      ghost2->flags |= PPSTRING_UTF16BE;
-    }
-    else if (decoded[0] == 0xFF && decoded[1] == 0xFE)
-    {
-      ghost1->flags |= PPSTRING_UTF16LE;
-      ghost2->flags |= PPSTRING_UTF16LE;
-    }
-  }
+  ppstring_check_bom2(decoded, ghost1, ghost2);
   ppstring_set_alter_ego(encoded, ghost1, decoded);
   ppstring_set_alter_ego(decoded, ghost2, encoded);
   return encoded;
 }
+
+/*
+Encrypted strings. In case of encrypted strings, we first need to decode the string (saving original form hardly makes sense),
+then decrypt the string, and encode it again.
+*/
+
+const char ppstring_byte_escape[] = { /* -1 escaped with octal, >0 escaped with \\, 0 left intact*/
+ -1,-1,-1,-1,-1,-1,-1,-1,'b','t','n',-1,'f','r',-1,-1,
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+  0, 0, 0, 0, 0, 0, 0, 0,'(',')', 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'\\', 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+};
+
+
+ppstring ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap **pheap)
+{
+  int c, b, balance, encode;
+  iof *O;
+  _ppstring *ghost1, *ghost2;
+  ppstring encoded, decoded;
+  uint8_t *p, *e;
+  size_t size;
+
+  O = ppheap_buffer(pheap, sizeof(_ppstring), PPSTRING_INIT);
+  for (balance = 0, encode = 0, c = iof_char(I); c >= 0; )
+  {
+    switch (c)
+    {
+      case '\\':
+        if ((c = iof_next(I)) < 0)
+          break;
+        encode = 1;
+        switch (c)
+        {
+          case OCTAL_CHAR_CASE:
+            b = c - '0';
+            if ((c = iof_next(I)) >= 0 && c >= '0' && c <= '7')
+            {
+              b = (b << 3) + c - '0';
+              if ((c = iof_next(I)) >= 0 && c >= '0' && c <= '7')
+              {
+                b = (b << 3) + c - '0';
+                c = iof_next(I);
+              }
+            }
+            iof_put(O, b);
+            // c is set to the next char
+            break;
+          case 'n':
+            iof_put(O, '\n');
+            c = iof_next(I);
+            break;
+          case 'r':
+            iof_put(O, '\r');
+            c = iof_next(I);
+            break;
+          case 't':
+            iof_put(O, '\t');
+            c = iof_next(I);
+            break;
+          case 'b':
+            iof_put(O, '\b');
+            c = iof_next(I);
+            break;
+          case 'f':
+            iof_put(O, '\f');
+            c = iof_next(I);
+            break;
+          case NEWLINE_CHAR_CASE: // not a part of the string, ignore (pdf spec page 55)
+            c = iof_next(I);
+            break;
+          case '(': case ')': case '\\':
+          default: // for enything else backslash is ignored (pdf spec page 54)
+            iof_put(O, c);
+            c = iof_next(I);
+            break;
+        }
+        break;
+      case '(':
+        ++balance;
+        encode = 1;
+        iof_put(O, '(');
+        c = iof_next(I);
+        break;
+      case ')':
+        if (balance == 0)
+        {
+          c = IOFEOF;
+          ++I->pos;
+        }
+        else
+        {
+          --balance;
+          //encode = 1;
+          iof_put(O, ')');
+          c = iof_next(I);
+        }
+        break;
+      default:
+        if (ppstring_byte_escape[c] != 0)
+          encode = 1;
+        iof_put(O, c);
+        c = iof_next(I);
+    }
+  }
+  /* decrypt the buffer in place, update size */
+  if (ppstring_decrypt(crypt, O->buf, iof_size(O), O->buf, &size))
+    O->pos = O->buf + size;
+  /* make encoded counterpart */
+  if (!encode)
+  {
+    decoded = ppstring_flush(O, ghost2, size, 0);
+    ppstring_check_bom(decoded, ghost2);
+    return decoded;
+  }
+  decoded = ppstring_flush_with_ego(O, ghost2, size, PPSTRING_DECODED);
+  O = ppheap_buffer(pheap, sizeof(_ppstring), ghost2->size);
+  for (p = (uint8_t *)decoded, e = (uint8_t *)decoded + ghost2->size; p < e; ++p)
+  {
+    switch ((b = ppstring_byte_escape[*p]))
+    {
+      case 0:
+        iof_put(O, *p);
+        break;
+      case -1:
+        iof_put4(O, '\\', (c >> 6) + '0', ((c >> 3) & 7) + '0', (c & 7) + '0');
+        break;
+      default:
+        iof_put2(O, '\\', b);
+        break;
+    }
+  }
+  encoded = ppstring_flush_with_ego(O, ghost1, size, PPSTRING_ENCODED);
+  ppstring_check_bom2(decoded, ghost1, ghost2);
+  ppstring_set_alter_ego(encoded, ghost1, decoded);
+  ppstring_set_alter_ego(decoded, ghost2, encoded);
+  return encoded;
+}
+
+
+ppstring ppscan_crypt_base16 (iof *I, ppcrypt *crypt, ppheap **pheap)
+{
+  int c, v1, v2;
+  iof *O;
+  _ppstring *ghost1, *ghost2;
+  ppstring encoded, decoded;
+  uint8_t *p, *e;
+  size_t size;
+
+  O = ppheap_buffer(pheap, sizeof(_ppstring), PPSTRING_INIT);
+  // base16_decode(I, O); // no info about the last char..
+  for (c = iof_char(I); c != '>' && c >= 0; )
+  {
+    if ((v1 = base16_value(c)) < 0)
+    {
+      if (ignored_char(c))
+      {
+        c = iof_next(I);
+        continue;
+      }
+      break;
+    }
+    do {
+      c = iof_next(I);
+      if ((v2 = base16_value(c)) >= 0)
+      {
+        c = iof_next(I);
+        break;
+      }
+      if (!ignored_char(c)) // c == '>' || c < 0 or some crap
+      {
+        v2 = 0;
+        break;
+      }
+    } while (1);
+    iof_put(O, (v1 << 4)|v2);
+  }
+  if (c == '>')
+    ++I->pos;
+  /* decrypt the buffer in place, update size */
+  if (ppstring_decrypt(crypt, O->buf, iof_size(O), O->buf, &size))
+    O->pos = O->buf + size;
+  decoded = ppstring_flush_with_ego(O, ghost2, size, PPSTRING_DECODED);
+  /* recreate an encoded form */
+  O = ppheap_buffer(pheap, sizeof(_ppstring), (ghost2->size << 1) + 1);
+  for (p = (uint8_t *)decoded, e = (uint8_t *)decoded + ghost2->size; p < e; ++p)
+    iof_set2(O, base16_uc_alphabet[(*p)>>4], base16_uc_alphabet[(*p)&15]);
+  encoded = ppstring_flush_with_ego(O, ghost1, size, PPSTRING_BASE16|PPSTRING_ENCODED);
+  ppstring_check_bom2(decoded, ghost1, ghost2);
+  ppstring_set_alter_ego(encoded, ghost1, decoded);
+  ppstring_set_alter_ego(decoded, ghost2, encoded);
+  return encoded;
+}
+
+/* ppstring alter ego switcher */
 
 ppstring ppstring_decoded (ppstring string)
 {
@@ -411,6 +664,18 @@ static ppobj * ppscan_numobj (iof *I, ppobj *obj, int negative)
   return obj;
 }
 
+static ppobj * ppscan_numobj_frac (iof *I, ppobj *obj, int negative)
+{
+  ppnum number;
+  int c, exponent;
+
+  number = 0.0;
+  c = iof_next(I);
+  iof_scan_fraction(I, c, number, exponent);
+  double_negative_exp10(number, exponent);
+  obj->type = PPNUM, obj->number = negative ? -number : number;
+  return obj;
+}
 
 static int ppscan_find (iof *I)
 { // skips whitechars and comments
@@ -469,19 +734,24 @@ static ppref * ppref_unresolved (ppheap **pheap, ppuint refnumber, ppuint refver
 
 #define PPMARK PPNONE
 
-ppobj * ppscan_obj (iof *I, ppstack *stack, ppxref *xref)
+static ppobj * ppscan_obj (iof *I, ppdoc *pdf, ppxref *xref)
 {
   int c;
   ppobj *obj;
   size_t mark, size;
   ppuint refnumber, refversion;
   ppref *ref;
+  ppstack *stack;
+  ppcrypt *crypt;
 
+  stack = &pdf->stack;
   c = iof_char(I);
   switch (c)
   {
     case DIGIT_CHAR_CASE:
       return ppscan_numobj(I, ppstack_push(stack), 0);
+    case '.':
+      return ppscan_numobj_frac(I, ppstack_push(stack), 0);
     case '+':
       ++I->pos;
       return ppscan_numobj(I, ppstack_push(stack), 0);
@@ -492,13 +762,16 @@ ppobj * ppscan_obj (iof *I, ppstack *stack, ppxref *xref)
       ++I->pos;
       obj = ppstack_push(stack);
       obj->type = PPNAME;
-      obj->name = ppscan_name(I, stack->pheap);
+      obj->name = ppscan_name(I, &pdf->heap);
       return obj;
     case '(':
       ++I->pos;
       obj = ppstack_push(stack);
       obj->type = PPSTRING;
-      obj->string = ppscan_string(I, stack->pheap);
+      if (ppcrypt_ref(pdf, crypt))
+        obj->string = ppscan_crypt_string(I, crypt, &pdf->heap);
+      else
+        obj->string = ppscan_string(I, &pdf->heap);
       return obj;
     case '[':
       mark = stack->size;
@@ -508,7 +781,7 @@ ppobj * ppscan_obj (iof *I, ppstack *stack, ppxref *xref)
       ++I->pos;
       for (c = ppscan_find(I); c != ']'; c = ppscan_find(I))
       {
-        if (ppscan_obj(I, stack, xref) == NULL)
+        if (ppscan_obj(I, pdf, xref) == NULL)
         { // callers assume that NULL returns means nothing pushed
           size = stack->size - mark; // pop items AND the obj reserved for array
           ppstack_pop(stack, size);
@@ -519,7 +792,7 @@ ppobj * ppscan_obj (iof *I, ppstack *stack, ppxref *xref)
       size = stack->size - mark - 1;
       obj = ppstack_at(stack, mark); // stack might have been realocated
       obj->type = PPARRAY;
-      obj->array = pparray_create(ppstack_at(stack, mark + 1), size, stack->pheap);
+      obj->array = pparray_create(ppstack_at(stack, mark + 1), size, &pdf->heap);
       ppstack_pop(stack, size); // pop array items, leave the array on top
       return obj;
     case '<':
@@ -532,9 +805,8 @@ ppobj * ppscan_obj (iof *I, ppstack *stack, ppxref *xref)
         ++I->pos;
         for (c = ppscan_find(I); c != '>'; c = ppscan_find(I))
         {
-          if (ppscan_obj(I, stack, xref) == NULL)
+          if (ppscan_obj(I, pdf, xref) == NULL)
           {
-            printf("FAILED DICT\n");
             size = stack->size - mark;
             ppstack_pop(stack, size);
             return NULL;
@@ -545,16 +817,16 @@ ppobj * ppscan_obj (iof *I, ppstack *stack, ppxref *xref)
         size = stack->size - mark - 1;
         obj = ppstack_at(stack, mark);
         obj->type = PPDICT;
-        obj->dict = ppdict_create(ppstack_at(stack, mark + 1), size, stack->pheap);
+        obj->dict = ppdict_create(ppstack_at(stack, mark + 1), size, &pdf->heap);
         ppstack_pop(stack, size);
         return obj;
       }
       obj = ppstack_push(stack);
       obj->type = PPSTRING;
-      if (0) // c == '~' postscript only
-        ++I->pos, obj->string = ppscan_base85(I, stack->pheap);
+      if (ppcrypt_ref(pdf, crypt))
+        obj->string = ppscan_crypt_base16(I, crypt, &pdf->heap);
       else
-        obj->string = ppscan_base16(I, stack->pheap);
+        obj->string = ppscan_base16(I, &pdf->heap);
       return obj;
     case 'R':
       if (stack->size >= 2 && stack->pos[-1].type == PPINT && stack->pos[-2].type == PPINT)
@@ -610,38 +882,48 @@ ppobj * ppscan_obj (iof *I, ppstack *stack, ppxref *xref)
   return NULL;
 }
 
-/* A variant for contents streams (aka postscript); wise of operators, blind to references.
+/*
+A variant for contents streams (aka postscript); wise of operators, blind to references.
 We are still PDF, so we don't care about postscript specific stuff such as radix numbers
-and scientific numbers notation. */
+and scientific numbers notation. It takes ppstack * as context (no ppdoc *) to be able
+to run contents parser beyond the scope of ppdoc heap.
+*/
 
-ppobj * ppscan_psobj (iof *I, ppstack *stack)
+static ppstring ppstring_inline (iof *I, ppdict *imagedict, ppheap **pheap);
+
+static ppobj * ppscan_psobj (iof *I, ppstack *stack)
 {
   int c;
-  ppobj *obj;
+  ppobj *obj, *op;
   size_t size, mark;
   ppname exec;
 
   c = iof_char(I);
-
   switch (c)
   {
     case DIGIT_CHAR_CASE:
       return ppscan_numobj(I, ppstack_push(stack), 0);
+    case '.':
+      return ppscan_numobj_frac(I, ppstack_push(stack), 0);
     case '+':
       c = iof_next(I);
-      if (base10_digit(c) || c == '.') // '+.abc' is probably an executable name, but we are not in postscript
+      if (base10_digit(c)) // '+.abc' is probably an executable name, but we are not in postscript
         return ppscan_numobj(I, ppstack_push(stack), 0);
+      else if (c == '.')
+        return ppscan_numobj_frac(I, ppstack_push(stack), 0);
       obj = ppstack_push(stack);
       obj->type = PPNAME;
-      obj->name = ppscan_exec(I, stack->pheap);
+      obj->name = ppscan_exec(I, stack->pheap, '+');
       return obj;
     case '-':
       c = iof_next(I);
-      if (base10_digit(c) || c == '.') // ditto, we would handle type1 '-|' '|-' operators though
+      if (base10_digit(c)) // ditto, we would handle type1 '-|' '|-' operators though
         return ppscan_numobj(I, ppstack_push(stack), 1);
+      else if (c == '.')
+        return ppscan_numobj_frac(I, ppstack_push(stack), 1);
       obj = ppstack_push(stack);
       obj->type = PPNAME;
-      obj->name = ppscan_exec(I, stack->pheap);
+      obj->name = ppscan_exec(I, stack->pheap, '-');
       return obj;
     case '/':
       ++I->pos;
@@ -711,9 +993,12 @@ ppobj * ppscan_psobj (iof *I, ppstack *stack)
         obj->string = ppscan_base16(I, stack->pheap);
       return obj;
     default:
-      if (c < 0)
-        break;
-      exec = ppscan_exec(I, stack->pheap);
+      if (c < 0 || !ppname_byte_lookup[c])
+        break; // forbid empty names; dead loop otherwise
+      ++I->pos;
+      /* true false null practically don't occur in streams so it makes sense to assume that we get an operator name here.
+         If it happen to be a keyword we could give back those several bytes to the heap but.. heap buffer is tricky enough. */
+      exec = ppscan_exec(I, stack->pheap, c);
       obj = ppstack_push(stack);
       switch (exec[0])
       {
@@ -722,6 +1007,7 @@ ppobj * ppscan_psobj (iof *I, ppstack *stack)
           {
             obj->type = PPBOOL;
             obj->integer = 1;
+            // todo: drop exec
             return obj;
           }
           break;
@@ -730,6 +1016,7 @@ ppobj * ppscan_psobj (iof *I, ppstack *stack)
           {
             obj->type = PPBOOL;
             obj->integer = 0;
+            // todo: drop exec
             return obj;
           }
           break;
@@ -738,15 +1025,167 @@ ppobj * ppscan_psobj (iof *I, ppstack *stack)
           {
             obj->type = PPNULL;
             obj->any = NULL;
+            // todo: drop exec
             return obj;
           }
           break;
+        case 'B':
+           /*
+           Inline images break rules of operand/operator syntax, so 'BI/ID' operators need to be treated as special syntactic keywords.
+
+             BI <keyval pairs> ID<whitechar?><imagedata><whitechar?>EI
+
+           We treat the image as a single syntactic token; BI starts collecting a dict, ID is the beginning of the data. Effectively EI
+           operator obtains two operands - dict and string. It is ok to put three items onto the stack, callers dont't assume there is just one.
+           */
+          if (exec[1] == 'I' && exec[2] == '\0')
+          {
+            ppdict *imagedict;
+            /* key val pairs -> dict */
+            mark = stack->size - 1;
+            obj->type = PPMARK;
+            obj->any = NULL;
+            for (c = ppscan_find(I); ; c = ppscan_find(I))
+            {
+              if ((op = ppscan_psobj(I, stack)) == NULL)
+              {
+                size = stack->size - mark;
+                ppstack_pop(stack, size);
+                return NULL;
+              }
+              if (op->type == PPNAME && ppname_exec(op->name))
+              {
+                if (!ppname_is(op->name, "ID"))
+                { // weird
+                  size = stack->size - mark;
+                  ppstack_pop(stack, size);
+                  return NULL;
+                }
+                break;
+              }
+            }
+            size = stack->size - mark - 1;
+            obj = ppstack_at(stack, mark);
+            obj->type = PPDICT;
+            obj->dict = imagedict = ppdict_create(ppstack_at(stack, mark + 1), size, stack->pheap);
+            ppstack_pop(stack, size);
+            /* put image data string */
+            obj = ppstack_push(stack);
+            obj->type = PPSTRING;
+            obj->string = ppstring_inline(I, imagedict, stack->pheap);;
+            /* put EI operator name */
+            obj = ppstack_push(stack);
+            obj->type = PPNAME;
+            obj->name = ppexec_internal("EI", 2, stack->pheap);
+            return obj;
+          }
       }
       obj->type = PPNAME;
       obj->name = exec;
       return obj;
   }
   return NULL;
+}
+
+/*
+We try to get the exact inline image length from its dict params. If cannot predict the length, we have to scan the input until 'EI'.
+I've checked on may examples that it gives the same results but one can never be sure, as 'EI' might happen to be a part of the data.
+Stripping white char is also very heuristic; \0 is a white char in PDF and very likely to be a data byte.. weak method.
+*/
+
+static size_t inline_image_length (ppdict *dict)
+{
+  ppuint w, h, bpc, colors;
+  ppname cs;
+
+  if (ppdict_get_uint(dict, "W", &w) && ppdict_get_uint(dict, "H", &h) && ppdict_get_uint(dict, "BPC", &bpc) && (cs = ppdict_get_name(dict, "CS")) != NULL)
+  {
+    if (ppname_is(cs, "DeviceGray"))
+      colors = 1;
+    else if (ppname_is(cs, "DeviceRGB"))
+      colors = 3;
+    else if (ppname_is(cs, "DeviceCMYK"))
+      colors = 4;
+    else
+      return PP_LENGTH_UNKNOWN;
+    return (w * h * bpc * colors + 7) >> 3;
+  }
+  return PP_LENGTH_UNKNOWN;
+}
+
+static ppstring ppstring_inline (iof *I, ppdict *imagedict, ppheap **pheap)
+{
+  iof *O;
+  int c, d, e;
+  size_t length, leftin, leftout, bytes;
+
+  O = ppheap_buffer(pheap, sizeof(_ppstring), PPSTRING_INIT);
+  c = iof_char(I);
+  if (ignored_char(c))
+    c = iof_next(I);
+
+  length = inline_image_length(imagedict);
+  if (length != PP_LENGTH_UNKNOWN)
+  {
+    while (length > 0 && iof_readable(I) && iof_writable(O))
+    {
+      leftin = iof_left(I);
+      leftout = iof_left(O);
+      bytes = length;
+      if (bytes > leftin) bytes = leftin;
+      if (bytes > leftout) bytes = leftout;
+      memcpy(O->pos, I->pos, bytes);
+      I->pos += bytes;
+      O->pos += bytes;
+      length -= bytes;
+    }
+    // gobble EI
+    if (ppscan_find(I) == 'E')
+      if (iof_next(I) == 'I')
+        ++I->pos;
+  }
+  else
+  {
+    while (c >= 0)
+    {
+      if (c == 'E')
+      {
+        d = iof_next(I);
+        if (d == 'I')
+        {
+          e = iof_next(I);
+          if (!ppname_byte_lookup[e])
+          { /* strip one newline from the end and stop */
+            if (O->pos - 2 >= O->buf) // sanity
+            {
+              c = *(O->pos - 1);
+              if (ignored_char(c))
+              {
+                if (c == 0x0A && *(O->pos - 2) == 0x0D)
+                  O->pos -= 2;
+                else
+                  O->pos -= 1;
+              }
+            }
+            break;
+          }
+          iof_put2(O, c, d);
+          c = e;
+        }
+        else
+        {
+          iof_put(O, c);
+          c = d;
+        }
+      }
+      else
+      {
+        iof_put(O, c);
+        c = iof_next(I);
+      }
+    }
+  }
+  return ppstring_buffer(O, pheap);
 }
 
 /* input reader */
@@ -788,8 +1227,6 @@ Whenever we need to read the input file, we fseek the to the given offset and fr
 The length we need is not always predictable, in which case PPDOC_BUFFER bytes are read (keep it small).
 I->buf = I->pos is set to the beginning, I->end set to the end (end is the first byte one shouldn't read).
 */
-
-#define PP_LENGTH_UNKNOWN ((size_t)-1)
 
 static iof * ppdoc_reader (ppdoc *pdf, size_t offset, size_t length)
 {
@@ -1024,7 +1461,7 @@ static ppxref * ppxref_load_table (iof *I, ppdoc *pdf, size_t xrefoffset)
   if (!ppscan_key(I, "trailer"))
     return NULL;
   ppscan_find(I);
-  if ((obj = ppscan_obj(I, &pdf->stack, NULL)) == NULL)
+  if ((obj = ppscan_obj(I, pdf, NULL)) == NULL)
     return NULL;
   ppstack_pop(&pdf->stack, 1);
   if (obj->type != PPDICT)
@@ -1073,12 +1510,18 @@ static ppxref * ppxref_load_stream (iof *I, ppdoc *pdf, size_t xrefoffset)
 
   if (!ppscan_skip_entry(I))
     return NULL;
-  if ((obj = ppscan_obj(I, &pdf->stack, NULL)) == NULL)
+  if ((obj = ppscan_obj(I, pdf, NULL)) == NULL)
     return NULL;
   ppstack_pop(&pdf->stack, 1);
   if (obj->type != PPDICT || !ppscan_start_stream(I, pdf, &streamoffset))
     return NULL;
   xrefstream = ppstream_create(pdf, obj->dict, streamoffset);
+  /* All normal streams go through ppstream_info(), but it makes no sense for trailer stream (no crypt allowed, no refs yet).
+     So we just record the length and informative flag. Here we have to expect that /Length and /Filter are not indirects. */
+  if (!ppdict_get_uint(obj->dict, "Length", &xrefstream->length))
+    return NULL;
+  if (ppdict_get_obj(obj->dict, "Filter") != NULL)
+    xrefstream->flags |= PPSTREAM_COMPRESSED;
   if ((fieldwidths = ppdict_get_array(xrefstream->dict, "W")) != NULL)
   {
     if (!pparray_get_uint(fieldwidths, 0, &w1)) w1 = 0;
@@ -1259,9 +1702,9 @@ static void fix_trailer_references (ppdoc *pdf)
       if (obj->type != PPREF)
         continue;
       ref = obj->ref;
-      if (ref->object.type == PPNONE) // unresolved?
+      if (ref->offset == 0) // unresolved?
         if ((ref = ppxref_find(xref, ref->number)) != NULL)
-          obj->ref = ref;
+          obj->ref = ref; // at this moment the reference still points nothing, but should be the one with the proper offset
     }
   }
 }
@@ -1279,29 +1722,26 @@ Here is the proc:
   - for every ref from the sorted list:
     - estimate object length to avoid fread-ing more than necessary (not perfect but enough)
     - fseek() to the proper offset, fread() entry data or its part
-    - parse the object with ppscan_obj(stack, xref), where xref is not necessarily top pdf->xref
+    - parse the object with ppscan_obj(I, pdf, xref), where xref is not necessarily top pdf->xref
     - save the actual ref->length (not sure if we need that?)
     - make a stream if a dict is followed by "stream" keyword, also save the stream offset
   - free the list
-
-Special treatment of compressed objects: if ref->offset == 1, it means compressed (or insane) entry.
-Not involved in sorted refs list, parsed when /ObjStm occurs.
 */
 
-static int ppdoc_load_objstm (ppstream *stream, ppstack *stack, ppxref *xref);
+static int ppdoc_load_objstm (ppstream *stream, ppdoc *pdf, ppxref *xref);
 
 static void ppdoc_load_entries (ppdoc *pdf)
 {
-  size_t objects, sectionindex, refnumber, refversion, offindex, streamoffset;
+  size_t objects, sectionindex, refnumber, offindex;
   ppnum linearized;
-  ppref **offmap, **pref, *ref, *refref;
+  ppref **offmap, **pref, *ref;
   ppxref *xref;
   ppxsec *xsec;
-  iof *I;
-  ppstack *stack;
   ppobj *obj;
   ppname type;
   int redundant_indirection = 0;
+  ppcrypt *crypt;
+  ppstream *stream;
 
   if ((objects = (size_t)ppdoc_objects(pdf)) == 0) // can't happen
     return;
@@ -1310,77 +1750,139 @@ static void ppdoc_load_entries (ppdoc *pdf)
   for (xref = pdf->xref; xref != NULL; xref = xref->prev)
     for (sectionindex = 0, xsec = xref->sects; sectionindex < xref->size; ++sectionindex, ++xsec)
       for (refnumber = xsec->first, ref = xsec->refs; refnumber <= xsec->last; ++refnumber, ++ref)
-        if (ref->offset > 0) // compressed or insane
+        if (ref->offset > 0) // 0 means compressed or insane
           *pref++ = ref, ++objects;
   ppoffmap_sort(offmap, offmap + objects - 1);
-  stack = &pdf->stack;
+
+  crypt = pdf->crypt;
   for (offindex = 0, pref = offmap; offindex < objects; )
   {
     ref = *pref;
     ++pref;
-    if (++offindex < objects)
+    ++offindex;
+    if (ref->object.type != PPNONE) // might be preloaded already (/Encrypt dict, stream filter dicts, stream /Length..)
+    	continue;
+    if (offindex < objects)
       ref->length = (*pref)->offset - ref->offset;
     else
       ref->length = pdf->filesize > ref->offset ? pdf->filesize - ref->offset : 0;
-    if ((I = ppdoc_reader(pdf, ref->offset, ref->length)) == NULL || !ppscan_start_entry(I, ref))
+    if (crypt != NULL)
     {
-      PPMESS("invalid %s offset " PPSIZEF "\n", ppref_str(ref->number, ref->version), ref->offset);
-      //ref->object.type = PPNONE;
-      //ref->object.any = NULL;
-      continue;
+      ppcrypt_start_ref(crypt, ref);
+      obj = ppdoc_load_entry(pdf, ref);
+      ppcrypt_end_ref(crypt);
     }
-    xref = ref->xref; // to resolve indirects properly
-    if ((obj = ppscan_obj(I, stack, xref)) == NULL)
+    else
     {
-      PPMESS("invalid %s object at offset " PPSIZEF "\n", ppref_str(ref->number, ref->version), ref->offset);
-      //ref->object.type = PPNONE;
-      //ref->object.any = NULL;
-      continue;
+      obj = ppdoc_load_entry(pdf, ref);
     }
-    ref->object = *obj;
-    ref->length = ppdoc_reader_tell(pdf, I) - ref->offset;
-    if (obj->type == PPDICT)
+    switch (obj->type)
     {
-      /* Check if the object at first offset is linearized dict (/Linearized value is a version, default 1.0).
-         We need that to resolve all references properly. */
-      if (offindex == 1 && ppdict_get_num(obj->dict, "Linearized", &linearized))
-        pdf->flags |= PPDOC_LINEARIZED;
-      else if (ppscan_start_stream(I, pdf, &streamoffset))
-      {
-        ref->object.type = PPSTREAM;
-        ref->object.stream = ppstream_create(pdf, obj->dict, streamoffset);
-        if (xref->trailer.type == PPSTREAM && (type = ppdict_get_name(obj->dict, "Type")) != NULL && ppname_is(type, "ObjStm")) // somewhat dummy..
-          if (!ppdoc_load_objstm(ref->object.stream, stack, xref))
-            PPMESS("invalid objects stream %s at offset " PPSIZEF "\n", ppref_str(ref->number, ref->version), ref->offset);
-      }
-    }
-    else if (obj->type == PPINT)
-    {
-      ppscan_find(I);
-      if (ppscan_uint(I, &refversion) && ppscan_find(I) == 'R')
-      { /* hmm.. multiple indirection? we just cut it, otherwise we would need annoying checks on every _rget.. but this is too early
-           to replace ref->object with ref->object.ref->object, as the later may be PPNONE (not parsed yet). */
+      case PPDICT: /* Check if the object at first offset is linearized dict. We need that to resolve all references properly. */
+        if (offindex == 1 && ppdict_get_num(obj->dict, "Linearized", &linearized)) // /Linearized value is a version number, default 1.0
+          pdf->flags |= PPDOC_LINEARIZED;
+        break;
+      case PPREF:
         redundant_indirection = 1;
-        refnumber = (ppuint)obj->integer;
-        if ((refref = ppxref_find(ref->xref, refnumber)) != NULL)
-        {
-          ref->object.type = PPREF;
-          ref->object.ref = refref;
-        }
-        else
-        {
-          ref->object.type = PPNONE; // as ppref_unresolved()
-          ref->object.any = NULL;
-        }
-      }
+        break;
+      default:
+        break;
     }
-    ppstack_pop(stack, 1);
+    // if pdf->crypt crypt->ref = NULL
   }
+
+  /* refs pointngs refs? cut. */
   if (redundant_indirection)
-    for (offindex = 0, pref = offmap, ref = *pref; offindex < objects; ++pref, ref = *pref)
+  {
+    for (offindex = 0, pref = offmap; offindex < objects; ++offindex)
+    {
+      ref = *pref++;
       if (ref->object.type == PPREF)
         ref->object = ref->object.ref->object; // doing for all effectively cuts all insane chains
+    }
+  }
+
+  /* now handle streams; update stream info (eg. /Length), load pdf 1.5 object streams
+     we could do earlier but then we would need to struggle with indirects */
+  for (offindex = 0, pref = offmap; offindex < objects; ++offindex)
+  {
+    ref = *pref++;
+    obj = &ref->object;
+    if (obj->type != PPSTREAM)
+      continue;
+    stream = obj->stream;
+    if (crypt != NULL)
+    {
+      ppcrypt_start_ref(crypt, ref);
+      ppstream_info(stream, pdf);
+      ppcrypt_end_ref(crypt);
+    }
+    else
+    {
+      ppstream_info(stream, pdf);
+    }
+    if (ref->xref->trailer.type == PPSTREAM && (type = ppdict_get_name(stream->dict, "Type")) != NULL && ppname_is(type, "ObjStm")) // somewhat dummy..
+      if (!ppdoc_load_objstm(stream, pdf, ref->xref))
+        PPMESS("invalid objects stream %s at offset " PPSIZEF "\n", ppref_str(ref->number, ref->version), ref->offset);
+  }
   pp_free(offmap);
+}
+
+ppobj * ppdoc_load_entry (ppdoc *pdf, ppref *ref)
+{
+  iof *I;
+  size_t length;
+  ppxref *xref;
+  ppobj *obj;
+  ppstack *stack;
+  size_t streamoffset;
+  ppref *refref;
+  ppuint refnumber, refversion;
+
+  length = ref->length > 0 ? ref->length : PP_LENGTH_UNKNOWN; // estimated or unknown
+  if ((I = ppdoc_reader(pdf, ref->offset, length)) == NULL || !ppscan_start_entry(I, ref))
+  {
+    PPMESS("invalid %s offset " PPSIZEF "\n", ppref_str(ref->number, ref->version), ref->offset);
+    return &ref->object; // PPNONE
+  }
+  stack = &pdf->stack;
+  xref = ref->xref; // to resolve indirects properly
+  if ((obj = ppscan_obj(I, pdf, xref)) == NULL)
+  {
+    PPMESS("invalid %s object at offset " PPSIZEF "\n", ppref_str(ref->number, ref->version), ref->offset);
+    return &ref->object; // PPNONE
+  }
+  ref->object = *obj;
+  ppstack_pop(stack, 1);
+  obj = &ref->object;
+  ref->length = ppdoc_reader_tell(pdf, I) - ref->offset;
+  if (obj->type == PPDICT)
+  {
+    if (ppscan_start_stream(I, pdf, &streamoffset))
+    {
+      obj->type = PPSTREAM;
+      obj->stream = ppstream_create(pdf, obj->dict, streamoffset);
+    }
+  }
+  else if (obj->type == PPINT)
+  {
+    ppscan_find(I);
+    if (ppscan_uint(I, &refversion) && ppscan_find(I) == 'R')
+    {
+      refnumber = (ppuint)obj->integer;
+      if ((refref = ppxref_find(xref, refnumber)) != NULL)
+      {
+        obj->type = PPREF;
+        obj->ref = refref;
+      }
+      else
+      {
+        obj->type = PPNONE; // as ppref_unresolved()
+        obj->any = NULL;
+      }
+    }
+  }
+  return obj;
 }
 
 /* Loading entries from object stream
@@ -1394,7 +1896,7 @@ PDF spec says there might be some additional data between objects, so we should 
 Which means we should basically load the stream at once (may be needed anyway to grab the stream [...]).
 */
 
-static int ppdoc_load_objstm (ppstream *stream, ppstack *stack, ppxref *xref)
+static int ppdoc_load_objstm (ppstream *stream, ppdoc *pdf, ppxref *xref)
 {
   ppdict *dict; // stream dict, actually still on stack
   ppref *ref;
@@ -1402,6 +1904,7 @@ static int ppdoc_load_objstm (ppstream *stream, ppstack *stack, ppxref *xref)
   ppuint items, firstoffset, offset, objnum, i, invalid = 0;
   iof *I;
   uint8_t *firstdata, *indexdata;
+  ppstack *stack;
 
   dict = stream->dict;
   if (!ppdict_rget_uint(dict, "N", &items) || !ppdict_rget_uint(dict, "First", &firstoffset))
@@ -1411,6 +1914,9 @@ static int ppdoc_load_objstm (ppstream *stream, ppstack *stack, ppxref *xref)
   firstdata = I->pos + firstoffset;
   if (firstdata >= I->end)
     goto invalid_objstm;
+  stack = &pdf->stack;
+  //if (pdf->crypt != NULL)
+  //  ppcrypt_end_ref(pdf->crypt); // objects are not encrypted, pdf->crypt->ref ensured NULL
   for (i = 0; i < items; ++i)
   {
     ppscan_find(I);
@@ -1434,7 +1940,7 @@ static int ppdoc_load_objstm (ppstream *stream, ppstack *stack, ppxref *xref)
     indexdata = I->pos; // save position
     I->pos = firstdata + offset; // go to the object
     ppscan_find(I);
-    if ((obj = ppscan_obj(I, stack, xref)) != NULL)
+    if ((obj = ppscan_obj(I, pdf, xref)) != NULL)
     {
       ref->object = *obj;
       ppstack_pop(stack, 1);
@@ -1456,6 +1962,31 @@ invalid_objstm:
 
 /* main PDF loader proc */
 
+ppcrypt_status ppdoc_crypt_pass (ppdoc *pdf, const void *userpass, size_t userpasslength, const void *ownerpass, size_t ownerpasslength)
+{
+  switch (pdf->cryptstatus)
+  {
+    case PPCRYPT_NONE:
+    case PPCRYPT_DONE:
+    case PPCRYPT_FAIL:
+      break;
+    case PPCRYPT_PASS: // initial status or really needs password
+      pdf->cryptstatus = ppdoc_crypt_init(pdf, userpass, userpasslength, ownerpass, ownerpasslength);
+      switch (pdf->cryptstatus)
+      {
+        case PPCRYPT_NONE:
+        case PPCRYPT_DONE:
+          ppdoc_load_entries(pdf);
+          break;
+        case PPCRYPT_PASS: // user needs to check ppdoc_crypt_status() and recall ppdoc_crypt_pass() with the proper password
+        case PPCRYPT_FAIL: // hopeless..
+          break;
+      }
+      break;
+  }
+  return pdf->cryptstatus;
+}
+
 static ppdoc * ppdoc_read (ppdoc *pdf, iof_file *input)
 {
   uint8_t header[PPDOC_HEADER];
@@ -1465,11 +1996,22 @@ static ppdoc * ppdoc_read (ppdoc *pdf, iof_file *input)
   if (iof_file_read(header, 1, PPDOC_HEADER, input) != PPDOC_HEADER || !ppdoc_header(pdf, header))
     return NULL;
   if (!ppdoc_tail(pdf, input, &xrefoffset))
-    return 0;
+    return NULL;
   if (ppxref_load(pdf, xrefoffset) == NULL)
-    return 0;
-  ppdoc_load_entries(pdf);
-  fix_trailer_references(pdf);
+    return NULL;
+  fix_trailer_references(pdf); // after loading xrefs but before accessing trailer refs (/Encrypt might be a reference)
+  // check encryption, if any, try empty password
+  switch (ppdoc_crypt_pass(pdf, "", 0, NULL, 0))
+  {
+    case PPCRYPT_NONE: // no encryption
+    case PPCRYPT_DONE: // encryption with an empty password
+    case PPCRYPT_PASS: // the user needs to check ppdoc_crypt_status() and call ppdoc_crypt_pass()
+      break;
+    case PPCRYPT_FAIL: // hopeless
+      //PPMESS("decryption failed\n");
+      //return NULL;
+      break;
+  }
   return pdf;
 }
 
@@ -1486,6 +2028,8 @@ static ppdoc * ppdoc_create (iof_file *input)
   pdf->heap = heap;
   pdf->xref = NULL;
   pdf->version[0] = '\0';
+  pdf->crypt = NULL;
+  pdf->cryptstatus = PPCRYPT_PASS; // force encryption check on ppdoc_read() -> ppdoc_crypt_pass()
   ppstack_init(&pdf->stack, &pdf->heap);
   ppdoc_reader_init(pdf, input);
   ppdoc_pages_init(pdf);
@@ -1520,6 +2064,16 @@ void ppdoc_free (ppdoc *pdf)
   iof_file_decref(&pdf->input);
   ppstack_free_buffer(&pdf->stack);
   ppheap_free(pdf->heap); // last!
+}
+
+ppcrypt_status ppdoc_crypt_status (ppdoc *pdf)
+{
+  return pdf->cryptstatus;
+}
+
+ppint ppdoc_permissions (ppdoc *pdf)
+{
+  return pdf->crypt != NULL ? pdf->crypt->permissions : (ppint)0xFFFFFFFFFFFFFFFF;
 }
 
 /* pages access */
@@ -1632,6 +2186,7 @@ scan_array:
       }
       if (index == 1 && ppname_is_page(type))
         return r->ref;
+      --index;
     }
   }
   return NULL;
@@ -1927,7 +2482,18 @@ ppmatrix * ppdict_get_matrix (ppdict *dict, const char *name, ppmatrix *matrix)
   return (array = ppdict_rget_array(dict, name)) != NULL ? pparray_to_matrix(array, matrix) : NULL;
 }
 
-/* stats and debug */
+/* inifo and debug */
+
+const char * ppdoc_version_string (ppdoc *pdf)
+{
+  return pdf->version;
+}
+
+int ppdoc_version_number (ppdoc *pdf, int *minor)
+{
+  *minor = pdf->version[2] - '0';
+  return pdf->version[0] - '0';
+}
 
 size_t ppdoc_file_size (ppdoc *pdf)
 {

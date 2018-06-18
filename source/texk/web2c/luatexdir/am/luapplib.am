@@ -34,54 +34,59 @@ nodist_liblua53pplib_a_SOURCES = $(libluapplib_sources)
 nodist_libluajitpplib_a_SOURCES = $(libluapplib_sources)
 
 libluapplib_sources = \
-	luatexdir/luapplib/ppapi.h \
-	luatexdir/luapplib/pparray.c \
-	luatexdir/luapplib/pparray.h \
-	luatexdir/luapplib/ppconf.h \
-	luatexdir/luapplib/ppdict.c \
-	luatexdir/luapplib/ppdict.h \
-	luatexdir/luapplib/ppheap.c \
-	luatexdir/luapplib/ppheap.h \
-	luatexdir/luapplib/pplib.h \
-	luatexdir/luapplib/ppload.c \
-	luatexdir/luapplib/ppload.h \
-	luatexdir/luapplib/ppstream.c \
-	luatexdir/luapplib/ppstream.h \
-	luatexdir/luapplib/pptest1.c \
 	luatexdir/luapplib/pptest2.c \
+	luatexdir/luapplib/ppstream.c \
+	luatexdir/luapplib/pparray.c \
+	luatexdir/luapplib/ppconf.h \
 	luatexdir/luapplib/ppxref.c \
+	luatexdir/luapplib/ppheap.h \
+	luatexdir/luapplib/ppload.c \
 	luatexdir/luapplib/ppxref.h \
-	luatexdir/luapplib/util/utilbasexx.c \
-	luatexdir/luapplib/util/utilbasexx.h \
-	luatexdir/luapplib/util/utilbasexxdef.h \
-	luatexdir/luapplib/util/utilcrypt.c \
-	luatexdir/luapplib/util/utilcrypt.h \
-	luatexdir/luapplib/util/utilcryptdef.h \
+	luatexdir/luapplib/ppcrypt.h \
+	luatexdir/luapplib/pptest1.c \
+	luatexdir/luapplib/ppdict.c \
+	luatexdir/luapplib/ppload.h \
 	luatexdir/luapplib/util/utildecl.h \
-	luatexdir/luapplib/util/utilfilter.c \
-	luatexdir/luapplib/util/utilfilter.h \
-	luatexdir/luapplib/util/utilflate.c \
-	luatexdir/luapplib/util/utilflate.h \
-	luatexdir/luapplib/util/utilflatedef.h \
-	luatexdir/luapplib/util/utilfpred.c \
-	luatexdir/luapplib/util/utilfpred.h \
-	luatexdir/luapplib/util/utilfpreddef.h \
-	luatexdir/luapplib/util/utiliof.c \
-	luatexdir/luapplib/util/utiliof.h \
-	luatexdir/luapplib/util/utillzw.c \
-	luatexdir/luapplib/util/utillzw.h \
-	luatexdir/luapplib/util/utillzwdef.h \
-	luatexdir/luapplib/util/utilmd5.c \
-	luatexdir/luapplib/util/utilmd5.h \
-	luatexdir/luapplib/util/utilmem.c \
-	luatexdir/luapplib/util/utilmem.h \
-	luatexdir/luapplib/util/utilnumber.c \
-	luatexdir/luapplib/util/utilnumber.h \
-	luatexdir/luapplib/util/utilplat.h \
-	luatexdir/luapplib/util/utilpool.c \
-	luatexdir/luapplib/util/utilpool.h \
+	luatexdir/luapplib/util/utilcrypt.c \
 	luatexdir/luapplib/util/utilsha.c \
-	luatexdir/luapplib/util/utilsha.h
+	luatexdir/luapplib/util/utilmd5.h \
+	luatexdir/luapplib/util/utillzw.c \
+	luatexdir/luapplib/util/utiliof.c \
+	luatexdir/luapplib/util/utilflate.h \
+	luatexdir/luapplib/util/utilcryptdef.h \
+	luatexdir/luapplib/util/utilflate.c \
+	luatexdir/luapplib/util/utilpool.h \
+	luatexdir/luapplib/util/utilnumber.c \
+	luatexdir/luapplib/util/utillzwdef.h \
+	luatexdir/luapplib/util/utilmem.h \
+	luatexdir/luapplib/util/utilfilter.c \
+	luatexdir/luapplib/util/utilbasexx.h \
+	luatexdir/luapplib/util/utillzw.h \
+	luatexdir/luapplib/util/utilplat.h \
+	luatexdir/luapplib/util/utilfpred.c \
+	luatexdir/luapplib/util/utilfilter.h \
+	luatexdir/luapplib/util/utiliof.h \
+	luatexdir/luapplib/util/utilflatedef.h \
+	luatexdir/luapplib/util/utilcrypt.h \
+	luatexdir/luapplib/util/utilnumber.h \
+	luatexdir/luapplib/util/utilpool.c \
+	luatexdir/luapplib/util/utilbasexx.c \
+	luatexdir/luapplib/util/utilfpreddef.h \
+	luatexdir/luapplib/util/utilsha.h \
+	luatexdir/luapplib/util/utilbasexxdef.h \
+	luatexdir/luapplib/util/utilmd5.c \
+	luatexdir/luapplib/util/utilmem.c \
+	luatexdir/luapplib/util/utilfpred.h \
+	luatexdir/luapplib/pplib.h \
+	luatexdir/luapplib/ppdict.h \
+	luatexdir/luapplib/ppstream.h \
+	luatexdir/luapplib/ppcrypt.c \
+	luatexdir/luapplib/pparray.h \
+	luatexdir/luapplib/ppheap.c \
+	luatexdir/luapplib/ppfilter.h \
+	luatexdir/luapplib/ppapi.h \
+	luatexdir/luapplib/zlib/zconf.h \
+	luatexdir/luapplib/zlib/zlib.h 
 
 liblua53pplib_sources = $(libluapplib_sources)
 libluajitpplib_sources = $(libluapplib_sources)

@@ -51,6 +51,20 @@ rc4_state * rc4_state_initialize (rc4_state *state, rc4_map *map, const void *vk
   return state;
 }
 
+void rc4_map_save (rc4_state *state, rc4_map *map)
+{
+  memcpy(map, state->map, sizeof(rc4_map));
+}
+
+void rc4_map_restore (rc4_state *state, rc4_map *map)
+{
+  memcpy(state->map, map, sizeof(rc4_map));
+  //state->flags = 0;
+  //state->flush = 0;
+  state->i = 0;
+  state->j = 0;
+}
+
 static uint8_t rc4_next_random_byte (rc4_state *state)
 {
   uint8_t tmp;

@@ -14,6 +14,22 @@ static const char * sizenum (size_t s)
   return buffer;
 }
 
+static const char * crypt_info (ppdoc *pdf)
+{
+	switch (ppdoc_crypt_status(pdf))
+	{
+		case PPCRYPT_NONE:
+			return "none";
+		case PPCRYPT_DONE:
+			return "empty password";
+		case PPCRYPT_PASS:
+			return "nonempty password";
+		default:
+			break;
+	}
+	return "this shouldn't happen";
+}
+
 static void print_info (ppdoc *pdf)
 {
   ppdict *info;
@@ -27,6 +43,8 @@ static void print_info (ppdoc *pdf)
     if ((producer = ppdict_rget_string(info, "Producer")) != NULL)
       printf("  producer: %s\n", ppstring_decoded(producer));
   }
+  printf("  version: %s\n", ppdoc_version_string(pdf));
+  printf("  protection: %s\n", crypt_info(pdf));
   printf("  filesize: %s\n", sizenum(ppdoc_file_size(pdf)));
   printf("  objects: " PPUINTF "\n", ppdoc_objects(pdf));
   printf("  pagecount: " PPUINTF "\n", ppdoc_page_count(pdf));

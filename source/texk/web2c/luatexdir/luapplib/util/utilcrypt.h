@@ -19,6 +19,8 @@ typedef struct rc4_state rc4_state;
 
 UTILAPI rc4_state * rc4_state_initialize (rc4_state *state, rc4_map *map, const void *vkey, size_t keylength);
 #define rc4_state_init(state, vkey, keylength) rc4_state_initialize(state, NULL, vkey, keylength)
+UTILAPI void rc4_map_save (rc4_state *state, rc4_map *map);
+UTILAPI void rc4_map_restore (rc4_state *state, rc4_map *map);
 
 /* Codecs operating on iof */
 

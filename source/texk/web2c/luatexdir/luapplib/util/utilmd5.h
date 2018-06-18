@@ -86,7 +86,7 @@ extern "C"
 #endif
 
 /* Initialize the algorithm. */
-UTILAPI void pplib_md5_init (md5_state_t *pms);
+UTILAPI void md5_init (md5_state_t *pms);
 
 /* Append a string to the message. */
 //void md5_add(md5_state_t *pms, const uint8_t *data, int nbytes); // PJ
@@ -110,6 +110,6 @@ UTILAPI void md5init (void);
 UTILAPI void md5add (const void *input, size_t length);
 UTILAPI void md5put (uint8_t output[16]);
 
-/*UTILAPI void md5 (const void *input, size_t length, uint8_t output[16]);*/
+UTILAPI void pplib_md5 (const void *input, size_t length, uint8_t output[16]);
 
 #endif

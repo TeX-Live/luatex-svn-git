@@ -1,6 +1,5 @@
 
-#define NO_IMAGE_FILTER
-#include "utilfilter.h"
+#include "ppfilter.h"
 #include "pplib.h"
 
 ppstream * ppstream_create (ppdoc *pdf, ppdict *dict, size_t offset)
@@ -9,10 +8,13 @@ ppstream * ppstream_create (ppdoc *pdf, ppdict *dict, size_t offset)
 	stream = ppheap_take(&pdf->heap, sizeof(ppstream));
 	stream->dict = dict;
 	stream->offset = offset;
-	if (!ppdict_rget_uint(dict, "Length", &stream->length))
-	  stream->length = 0;
+	//if (!ppdict_rget_uint(dict, "Length", &stream->length)) // may be indirect pointing PPNONE at this moment
+	//  stream->length = 0;
+	stream->length = 0;
 	stream->input = &pdf->input;
 	stream->I = NULL;
+	stream->cryptkey = NULL;
+	stream->flags = 0;
 	return stream;
 }
 
@@ -79,11 +81,12 @@ static iof * ppstream_predictor (ppdict *params, iof *N)
   return iof_filter_predictor_decoder(N, (int)predictor, (int)rowsamples, (int)components, (int)samplebits);
 }
 
-static iof * ppstream_decoder (int codectype, ppdict *params, iof *N)
+static iof * ppstream_decoder (ppstream *stream, int codectype, ppdict *params, iof *N)
 {
   int flags;
   iof *F, *P;
   ppint earlychange;
+  ppstring cryptkey;
 
   switch (codectype)
   {
@@ -122,11 +125,18 @@ static iof * ppstream_decoder (int codectype, ppdict *params, iof *N)
         return F;
       }
       break;
+    case PPSTREAM_CRYPT:
+      if ((cryptkey = stream->cryptkey) == NULL)
+        return N; // /Identity crypt
+      if (stream->flags & PPSTREAM_ENCRYPTED_AES)
+        return iof_filter_aes_decoder(N, cryptkey, ppstring_size(cryptkey));
+      if (stream->flags & PPSTREAM_ENCRYPTED_RC4)
+        return iof_filter_rc4_decoder(N, cryptkey, ppstring_size(cryptkey));
+      return NULL; // if neither AES or RC4 but cryptkey present, something went wrong; see ppstream_info()
     case PPSTREAM_CCITT:
     case PPSTREAM_DCT:
     case PPSTREAM_JBIG2:
     case PPSTREAM_JPX:
-    case PPSTREAM_CRYPT:
     case PPSTREAM_UNKNOWN:
       break;
   }
@@ -170,7 +180,7 @@ iof * ppstream_read (ppstream *stream, int decode, int all)
 {
   ppdict *dict;
   iof *I, *F;
-  int codectype, external;
+  int codectype, external, owncrypt;
   ppobj *filterobj, *paramsobj, *filespecobj;
   ppname filter;
   ppdict *params;
@@ -194,8 +204,18 @@ iof * ppstream_read (ppstream *stream, int decode, int all)
   }
   if (I == NULL)
     return NULL;
-  // if stream encrypted, decipher should go here
-  if (decode)
+  /* If the stream is encrypted, decipher is the first to be applied */
+  owncrypt = (stream->flags & PPSTREAM_ENCRYPTED_OWN) != 0;
+  if (!owncrypt)
+  {
+    if (stream->cryptkey != NULL)
+    { /* implied global crypt */
+      if ((F = ppstream_decoder(stream, PPSTREAM_CRYPT, NULL, I)) == NULL)
+        goto stream_error;
+      I = F;
+    } /* otherwise no crypt at all or /Identity */
+  }
+  if (decode || owncrypt)
   {
     filterobj = ppdict_rget_obj(dict, external ? "FFilter" : "Filter");
     if (filterobj != NULL)
@@ -205,9 +225,11 @@ iof * ppstream_read (ppstream *stream, int decode, int all)
       {
         params = paramsobj != NULL ? ppstream_filter_params(paramsobj, index) : NULL;
         codectype = ppstream_codec_type(filter);
-        if ((F = ppstream_decoder(codectype, params, I)) != NULL)
+        if ((F = ppstream_decoder(stream, codectype, params, I)) != NULL)
         {
           I = F;
+          if (owncrypt && !decode && codectype == PPSTREAM_CRYPT)
+            break; // /Crypt filter should always be first, so in practise we return decrypted but compressed
           continue;
         }
         if (!ppstream_image(codectype)) // something unexpected

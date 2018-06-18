@@ -36,12 +36,15 @@ struct ppdoc {
   ppstack stack;
   pppages pages;
   int flags;
+  ppcrypt *crypt;
+  ppcrypt_status cryptstatus;
 };
 
 #define PPDOC_LINEARIZED (1 << 0)
 
-ppobj * ppscan_obj (iof *I, ppstack *stack, ppxref *xref);
-ppobj * ppscan_psobj (iof *I, ppstack *stack);
+ppobj * ppdoc_load_entry (ppdoc *pdf, ppref *ref);
+#define ppobj_preloaded(pdf, obj) ((obj)->type != PPREF ? (obj) : ((obj)->ref->object.type == PPNONE ? ppdoc_load_entry(pdf, (obj)->ref) : &(obj)->ref->object))
+ppstring ppstring_internal (const void *data, size_t size, ppheap **pheap);
 
 struct ppcontext {
   ppheap *heap;

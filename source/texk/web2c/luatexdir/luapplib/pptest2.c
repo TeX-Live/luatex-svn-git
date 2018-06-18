@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <assert.h>
 #include "ppapi.h"
 
 const char * get_file_name (const char *path)
@@ -18,7 +19,7 @@ static void box_info (ppdict *pagedict, FILE *fh)
   size_t i;
   for (i = 0; i < sizeof(boxes) / sizeof(const char *); ++i)
     if (ppdict_get_box(pagedict, boxes[i], &rect))
-      fprintf(fh, "%%%% %s [%f %f %f %f]\n", boxes[i], rect.lx, rect.ly, rect.rx, rect.ly);
+      fprintf(fh, "%%%% %s [%f %f %f %f]\n", boxes[i], rect.lx, rect.ly, rect.rx, rect.ry);
 }
 
 static int usage (const char *argv0)
@@ -62,6 +63,22 @@ int main (int argc, const char **argv)
       continue;
     }
     printf("done.\n");
+    switch (ppdoc_crypt_status(pdf))
+    {
+    	case PPCRYPT_NONE:
+    	case PPCRYPT_DONE:
+    		break;
+    	case PPCRYPT_PASS:
+    		if (ppdoc_crypt_pass(pdf, "dummy", 5, NULL, 0) == PPCRYPT_DONE || ppdoc_crypt_pass(pdf, NULL, 0, "dummy", 5) == PPCRYPT_DONE)
+    		  break;
+        printf("sorry, password needed\n");
+        ppdoc_free(pdf);
+        continue;
+    	case PPCRYPT_FAIL:
+    		printf("sorry, encryption failed\n");
+    		ppdoc_free(pdf);
+    		continue;
+    }
     filename = get_file_name(filepath);
     sprintf(outname, OUTDIR "/%s.out", filename);
     fh = fopen(outname, "wb");
@@ -85,13 +102,10 @@ int main (int argc, const char **argv)
         for (data = ppstream_first(stream, &size, 1);
              data != NULL;
              data = ppstream_next(stream, &size))
-        {
           fwrite(data, size, 1, fh);
-          fputc('\n', fh);
-        }
         ppstream_done(stream);
       }
-      /* parse contents */
+      /* now parse contents */
       for (stream = ppcontents_first(pagedict);
            stream != NULL;
            stream = ppcontents_next(pagedict, stream))

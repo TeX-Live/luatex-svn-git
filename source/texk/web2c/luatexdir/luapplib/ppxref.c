@@ -19,6 +19,7 @@ ppxref * ppxref_create (ppdoc *pdf, size_t initsize, size_t xrefoffset)
   xref->prev = NULL;
   xref->pdf = pdf;
   xref->offset = xrefoffset;
+  //xref->crypt = NULL;
   return xref;
 }
 
