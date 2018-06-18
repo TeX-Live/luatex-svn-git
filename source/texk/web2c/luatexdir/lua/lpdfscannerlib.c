@@ -81,20 +81,20 @@ Analyze("e:/tmp/oeps.pdf")
 
 */
 
-#  include <stdlib.h>
-#  include <stdio.h>
-#  include <stdarg.h>
-#  include <string.h>
-#  include <assert.h>
-#  include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
+#include <assert.h>
+#include <math.h>
 
-#  include <lua.h>
-#  include <lauxlib.h>
-#  include <lualib.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
-#  include "luapplib/pplib.h"
+#include "luapplib/pplib.h"
 
-#  include <lua/luatex-api.h>
+#include <lua/luatex-api.h>
 
 #define SCANNER "pdfscanner"
 
@@ -111,7 +111,7 @@ typedef enum {
     pdf_stoparray,
     pdf_startdict,
     pdf_stopdict,
-} pdf_token_type ;
+} pdf_token_type;
 
 typedef struct Token {
     pdf_token_type type;
@@ -127,9 +127,9 @@ typedef struct ObjectList {
 typedef struct scannerdata {
     int _ininlineimage;
     int _nextoperand;
-    Token ** _operandstack;
-    ppstream * _stream;
-    ObjectList * _streams;
+    Token **_operandstack;
+    ppstream *_stream;
+    ObjectList *_streams;
     const char *buffer;
     size_t position;
     size_t size;
@@ -140,30 +140,34 @@ typedef struct scannerdata {
 
 typedef struct {
     void *d;
-    void *pd;            // reference to PdfDocument, or NULL
-    unsigned long pc;    // counter to detect PDFDoc change
+    void *pd;			/* reference to PdfDocument, or NULL */
+    unsigned long pc;		/* counter to detect PDFDoc change */
 } udstruct;
 
-static void clear_operand_stack (scannerdata *self, int from);
-static Token *_parseToken (scannerdata *self, int c);
-static void push_token (lua_State *L, scannerdata *self);
+static void clear_operand_stack(scannerdata * self, int from);
+static Token *_parseToken(scannerdata * self, int c);
+static void push_token(lua_State * L, scannerdata * self);
 
-static void *priv_xmalloc (size_t size)
+static void *priv_xmalloc(size_t size)
 {
-    void *new_mem = (void *)malloc(size);
+    void *new_mem = (void *) malloc(size);
     if (new_mem == NULL) {
-        fprintf(stderr, "fatal: memory exhausted (priv_xmalloc of %lu bytes).\n", (unsigned long)size);
-        exit(1);
+	fprintf(stderr,
+		"fatal: memory exhausted (priv_xmalloc of %lu bytes).\n",
+		(unsigned long) size);
+	exit(1);
     }
     return new_mem;
 }
 
-static void *priv_xrealloc (void *old_ptr, size_t size)
+static void *priv_xrealloc(void *old_ptr, size_t size)
 {
-    void *new_mem = (void *)realloc(old_ptr, size);
+    void *new_mem = (void *) realloc(old_ptr, size);
     if (new_mem == NULL) {
-        fprintf(stderr,"fatal: memory exhausted (realloc of %lu bytes).\n", (unsigned long)size);
-        exit(EXIT_FAILURE);
+	fprintf(stderr,
+		"fatal: memory exhausted (realloc of %lu bytes).\n",
+		(unsigned long) size);
+	exit(EXIT_FAILURE);
     }
     return new_mem;
 }
@@ -188,112 +192,117 @@ static void *priv_xrealloc (void *old_ptr, size_t size)
 } while (0)
 
 
-static scannerdata * scanner_push(lua_State * L)
+static scannerdata *scanner_push(lua_State * L)
 {
-    scannerdata *a = (scannerdata *)lua_newuserdata(L, sizeof(scannerdata));
+    scannerdata *a =
+	(scannerdata *) lua_newuserdata(L, sizeof(scannerdata));
     luaL_getmetatable(L, SCANNER);
     lua_setmetatable(L, -2);
     return a;
 }
 
-static scannerdata *scanner_check (lua_State *L, int index)
+static scannerdata *scanner_check(lua_State * L, int index)
 {
     scannerdata *bar;
     luaL_checktype(L, index, LUA_TUSERDATA);
-    bar = (scannerdata *)luaL_checkudata(L, index, SCANNER);
+    bar = (scannerdata *) luaL_checkudata(L, index, SCANNER);
     if (bar == NULL)
-        luaL_argerror(L, index, SCANNER " expected");
+	luaL_argerror(L, index, SCANNER " expected");
     return bar;
 }
 
-static void free_token (Token *token)
+static void free_token(Token * token)
 {
     if (token->string) {
-        free(token->string);
+	free(token->string);
     }
     free(token);
 }
 
-static void clear_operand_stack (scannerdata *self, int from)
+static void clear_operand_stack(scannerdata * self, int from)
 {
-    int i = self->_nextoperand-1;
-        while (i>=from) {
-            if (self->_operandstack[i]) {
-            free_token(self->_operandstack[i]);
-            self->_operandstack[i] = NULL;
-        }
-        i--;
+    int i = self->_nextoperand - 1;
+    while (i >= from) {
+	if (self->_operandstack[i]) {
+	    free_token(self->_operandstack[i]);
+	    self->_operandstack[i] = NULL;
+	}
+	i--;
     }
     self->_nextoperand = from;
 }
 
-static void push_operand (scannerdata *self, Token *token)
+static void push_operand(scannerdata * self, Token * token)
 {
-    if (self->_nextoperand+1> MAXOPERANDS) {
-        fprintf(stderr, "out of operand stack space");
-        exit(1);
+    if (self->_nextoperand + 1 > MAXOPERANDS) {
+	fprintf(stderr, "out of operand stack space");
+	exit(1);
     }
     self->_operandstack[self->_nextoperand++] = token;
 }
 
-static Token * new_operand (pdf_token_type c)
+static Token *new_operand(pdf_token_type c)
 {
-    Token *token = (Token *)priv_xmalloc(sizeof(Token));
-    memset (token, 0, sizeof(Token));
+    Token *token = (Token *) priv_xmalloc(sizeof(Token));
+    memset(token, 0, sizeof(Token));
     token->type = c;
     return token;
 }
 
-static void _nextStream (scannerdata *self)
+static void _nextStream(scannerdata * self)
 {
+    ObjectList *rover = NULL;
     if (self->buffer != NULL) {
-        ppstream_done(self->_stream);
+	ppstream_done(self->_stream);
     }
-    ObjectList *rover = self->_streams;
+    rover = self->_streams;
     self->_stream = rover->stream;
-    self->buffer = (const char*) ppstream_all(self->_stream,&self->size,1);
+    self->buffer =
+	(const char *) ppstream_all(self->_stream, &self->size, 1);
     self->position = 0;
     self->_streams = rover->next;
     free(rover);
 }
 
-static int streamGetChar (scannerdata *self)
+static int streamGetChar(scannerdata * self)
 {
-    int i = EOF ;
+    int i = EOF;
     if (self->position < self->size) {
-        const char c = self->buffer[self->position];
-        ++self->position;
-        i = (int) c;
+	const char c = self->buffer[self->position];
+	++self->position;
+	i = (int) c;
     }
-    if (i<0 && self->_streams) {
-        _nextStream(self);
-        i = streamGetChar(self);
+    if (i < 0 && self->_streams) {
+	_nextStream(self);
+	i = streamGetChar(self);
     }
     return i;
 }
 
-static int streamLookChar (scannerdata *self)
+static int streamLookChar(scannerdata * self)
 {
-    int i = EOF ;
+    int i = EOF;
     if (self->position < self->size) {
-        const char c = self->buffer[self->position];
-     /* ++self->position; */
-        i = (int) c;
+	const char c = self->buffer[self->position];
+	/* ++self->position; */
+	i = (int) c;
     }
-    if (i<0 && self->_streams) {
-        _nextStream(self);
-        i = streamGetChar(self);
+    if (i < 0 && self->_streams) {
+	_nextStream(self);
+	i = streamGetChar(self);
     }
     return i;
 }
 
-static void streamReset (scannerdata *self)
+static void streamReset(scannerdata * self)
 {
-    self->buffer = (const char*) ppstream_all(self->_stream,&self->size,1);
+    self->buffer =
+	(const char *) ppstream_all(self->_stream, &self->size, 1);
     self->position = 0;
 }
 
-static void streamClose (scannerdata *self) {
+static void streamClose(scannerdata * self)
+{
     ppstream_done(self->_stream);
     self->buffer = NULL;
     self->_stream = NULL;
@@ -301,130 +310,138 @@ static void streamClose (scannerdata *self) {
 
 /* end of stream interface */
 
-static Token * _parseSpace (scannerdata *self)
+static Token *_parseSpace(scannerdata * self)
 {
-    return _parseToken (self,streamGetChar(self));
+    return _parseToken(self, streamGetChar(self));
 }
 
-static Token * _parseString (scannerdata *self, int c)
+static Token *_parseString(scannerdata * self, int c)
 {
+    int level;
+    Token *token = NULL;
     define_buffer(found);
-    int level = 1;
+    level = 1;
     while (1) {
-        c = streamGetChar(self);
-        if (c == '(') {
-            level = level + 1 ;
-        } else if (c == ')') {
-            level = level - 1 ;
-            if (level < 1) break;
-        } else if (c == '\\') {
-            int next = streamGetChar(self);
-            if (next == '(' || next == ')' || next == '\\') {
-                c = next;
-            } else if (next == '\n' || next == '\r') {
-                c = '\0';
-            } else if (next == 'n') {
-                c = '\n';
-            } else if (next == 'r') {
-                c = '\r';
-            } else if (next == 't') {
-                c = '\t';
-            } else if (next == 'b') {
-                c = '\b';
-            } else if (next == 'f') {
-                c = '\f';
-            } else if (next >= '0' && next <= '7') {
-                next = next - '0';
-                int next2 = streamLookChar(self);
-                if (next2 >= '0' && next2 <= '7') {
-                    next2 = streamGetChar(self);
-                    next2 = next2 - '0';
-                    int next3 = streamLookChar(self);
-                    if (next3 >= '0' && next3 <= '7') {
-                        next3 = streamGetChar(self);
-                        next3 = next3 - '0';
-                        c = (next*64+next2*8+next3);
-                    } else {
-                        c = (next*8+next2);
-                    }
-                } else {
-                    c = next;
-                }
-            } else {
-                c = next;
-            }
-        }
-        check_overflow(found,foundindex);
-        if (c>=0) {
-            found[foundindex++] = c;
-        }
+	c = streamGetChar(self);
+	if (c == '(') {
+	    level = level + 1;
+	} else if (c == ')') {
+	    level = level - 1;
+	    if (level < 1)
+		break;
+	} else if (c == '\\') {
+	    int next = streamGetChar(self);
+	    if (next == '(' || next == ')' || next == '\\') {
+		c = next;
+	    } else if (next == '\n' || next == '\r') {
+		c = '\0';
+	    } else if (next == 'n') {
+		c = '\n';
+	    } else if (next == 'r') {
+		c = '\r';
+	    } else if (next == 't') {
+		c = '\t';
+	    } else if (next == 'b') {
+		c = '\b';
+	    } else if (next == 'f') {
+		c = '\f';
+	    } else if (next >= '0' && next <= '7') {
+		int next2;
+		next = next - '0';
+		next2 = streamLookChar(self);
+		if (next2 >= '0' && next2 <= '7') {
+		    int next3;
+		    next2 = streamGetChar(self);
+		    next2 = next2 - '0';
+		    next3 = streamLookChar(self);
+		    if (next3 >= '0' && next3 <= '7') {
+			next3 = streamGetChar(self);
+			next3 = next3 - '0';
+			c = (next * 64 + next2 * 8 + next3);
+		    } else {
+			c = (next * 8 + next2);
+		    }
+		} else {
+		    c = next;
+		}
+	    } else {
+		c = next;
+	    }
+	}
+	check_overflow(found, foundindex);
+	if (c >= 0) {
+	    found[foundindex++] = c;
+	}
     }
-    Token *token = new_operand(pdf_string);
+    token = new_operand(pdf_string);
     token->value = foundindex;
     token->string = found;
     return token;
 }
 
-static Token * _parseNumber (scannerdata *self, int c)
+static Token *_parseNumber(scannerdata * self, int c)
 {
     double value = 0;
     pdf_token_type type = pdf_integer;
     int isfraction = 0;
     int isnegative = 0;
     int i = 0;
+    Token *token = NULL;
     if (c == '-') {
-        isnegative = 1;
-        c = streamGetChar(self);
+	isnegative = 1;
+	c = streamGetChar(self);
     }
     if (c == '.') {
-        type = pdf_real;
-        isfraction = 1;
-    } else  {
-        value = c - '0';
+	type = pdf_real;
+	isfraction = 1;
+    } else {
+	value = c - '0';
     }
     c = streamLookChar(self);
-    if ((c>= '0'&&  c<= '9') || c == '.') {
-        c = streamGetChar(self);
-        while (1) {
-            if (c == '.') {
-                type = pdf_real;
-                isfraction = 1;
-            } else {
-                i = c - '0';
-                if (isfraction>0) {
-                    value = value + (i/(pow(10.0,isfraction)));
-                    isfraction = isfraction + 1;
-                } else {
-                    value = (value * 10) + i;
-                }
-            }
-            c = streamLookChar(self);
-            if (! ((c>= '0' && c<= '9') ||  c == '.'))
-                break ;
-            c = streamGetChar(self);
-        }
+    if ((c >= '0' && c <= '9') || c == '.') {
+	c = streamGetChar(self);
+	while (1) {
+	    if (c == '.') {
+		type = pdf_real;
+		isfraction = 1;
+	    } else {
+		i = c - '0';
+		if (isfraction > 0) {
+		    value = value + (i / (pow(10.0, isfraction)));
+		    isfraction = isfraction + 1;
+		} else {
+		    value = (value * 10) + i;
+		}
+	    }
+	    c = streamLookChar(self);
+	    if (!((c >= '0' && c <= '9') || c == '.'))
+		break;
+	    c = streamGetChar(self);
+	}
     }
     if (isnegative) {
-        value = -value;
+	value = -value;
     }
-    Token *token = new_operand(type);
+    token = new_operand(type);
     token->value = value;
     return token;
 }
 
-static Token *_parseName (scannerdata *self, int c)
+static Token *_parseName(scannerdata * self, int c)
 {
+    Token *token = NULL;
     define_buffer(found);
     c = streamGetChar(self);
     while (1) {
-        check_overflow(found,foundindex);
-        found[foundindex++] = c;
-        c = streamLookChar(self);
-        if (c == ' ' || c == '\n' || c == '\r' || c == '\t' ||
-            c == '/' || c == '[' || c == '(' || c == '<') break ;
-        c = streamGetChar(self);
+	check_overflow(found, foundindex);
+	found[foundindex++] = c;
+	c = streamLookChar(self);
+	if (c == ' ' || c == '\n' || c == '\r' || c == '\t' ||
+	    c == '/' || c == '[' || c == '(' || c == '<')
+	    break;
+	c = streamGetChar(self);
     }
-    Token *token = new_operand(pdf_name);
+    token = new_operand(pdf_name);
     token->string = found;
     token->value = strlen(found);
     return token;
@@ -433,26 +450,28 @@ static Token *_parseName (scannerdata *self, int c)
 #define hexdigit(c)	\
   (c>= '0' && c<= '9') ? (c - '0') : ((c>= 'A' && c<= 'F') ? (c - 'A' + 10) : (c - 'a' + 10))
 
-static Token *_parseHexstring (scannerdata *self, int c)
+static Token *_parseHexstring(scannerdata * self, int c)
 {
     int isodd = 1;
     int hexval = 0;
+    Token *token = NULL;
     define_buffer(found);
     while (c != '>') {
-        if ((c>= '0' && c<= '9') || (c>= 'A' && c<= 'F') || (c>= 'a' && c<= 'f')) {
-            if (isodd==1) {
-                int v = hexdigit(c);
-                hexval = 16 * v;
-            } else {
-                hexval += hexdigit(c);
-                check_overflow(found,foundindex);
-                found[foundindex++] = hexval;
-            }
-            isodd = (isodd==1 ? 0 : 1);
-        }
-        c = streamGetChar(self);
+	if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')
+	    || (c >= 'a' && c <= 'f')) {
+	    if (isodd == 1) {
+		int v = hexdigit(c);
+		hexval = 16 * v;
+	    } else {
+		hexval += hexdigit(c);
+		check_overflow(found, foundindex);
+		found[foundindex++] = hexval;
+	    }
+	    isodd = (isodd == 1 ? 0 : 1);
+	}
+	c = streamGetChar(self);
     }
-    Token *token = new_operand(pdf_string);
+    token = new_operand(pdf_string);
     token->value = foundindex;
     token->string = found;
     return token;
@@ -460,205 +479,209 @@ static Token *_parseHexstring (scannerdata *self, int c)
 
 #define pdf_isspace(a) (a == '\0' || a == ' ' || a == '\n' || a == '\r' || a == '\t' || a == '\v')
 
-// -- this is rather horrible
+/* -- this is rather horrible */
 
-static Token *_parseInlineImage (scannerdata *self, int c)
+static Token *_parseInlineImage(scannerdata * self, int c)
 {
+    Token *token = NULL;
     define_buffer(found);
-    if (c == ' ') { // first space can be ignored
-        c = streamGetChar(self);
+    if (c == ' ') {		/* first space can be ignored */
+	c = streamGetChar(self);
     }
     check_overflow(found, foundindex);
     found[foundindex++] = c;
     while (1) {
-        c = streamLookChar(self);
-        if (c == 'E' && (found[foundindex-1] == '\n' || found[foundindex-1] == '\r')) {
-            c = streamGetChar(self);
-            check_overflow(found, foundindex);
-            found[foundindex++] = c;
-            c = streamLookChar(self);
-            if (c == 'I') {
-                c = streamGetChar(self);
-                check_overflow(found, foundindex);
-                found[foundindex++] = c;
-                c = streamLookChar(self);
-                if (pdf_isspace(c)) {
-                    found[--foundindex] = '\0'; /* I */
-                    found[--foundindex] = '\0'; /* E */
-                    /* remove end-of-line before EI */
-                    if (found[foundindex-1] == '\n') {
-                        found[--foundindex] = '\0';
-                    }
-                    if (found[foundindex-1] == '\r') {
-                        found[--foundindex] = '\0';
-                    }
-                    break;
-                } else {
-                    c = streamGetChar(self);
-                    check_overflow(found, foundindex);
-                    found[foundindex++] = c;
-                }
-            } else {
-                c = streamGetChar(self);
-                check_overflow(found, foundindex);
-                found[foundindex++] = c;
-            }
-        } else {
-            c = streamGetChar(self);
-            check_overflow(found, foundindex);
-            found[foundindex++] = c;
-        }
+	c = streamLookChar(self);
+	if (c == 'E'
+	    && (found[foundindex - 1] == '\n'
+		|| found[foundindex - 1] == '\r')) {
+	    c = streamGetChar(self);
+	    check_overflow(found, foundindex);
+	    found[foundindex++] = c;
+	    c = streamLookChar(self);
+	    if (c == 'I') {
+		c = streamGetChar(self);
+		check_overflow(found, foundindex);
+		found[foundindex++] = c;
+		c = streamLookChar(self);
+		if (pdf_isspace(c)) {
+		    found[--foundindex] = '\0';	/* I */
+		    found[--foundindex] = '\0';	/* E */
+		    /* remove end-of-line before EI */
+		    if (found[foundindex - 1] == '\n') {
+			found[--foundindex] = '\0';
+		    }
+		    if (found[foundindex - 1] == '\r') {
+			found[--foundindex] = '\0';
+		    }
+		    break;
+		} else {
+		    c = streamGetChar(self);
+		    check_overflow(found, foundindex);
+		    found[foundindex++] = c;
+		}
+	    } else {
+		c = streamGetChar(self);
+		check_overflow(found, foundindex);
+		found[foundindex++] = c;
+	    }
+	} else {
+	    c = streamGetChar(self);
+	    check_overflow(found, foundindex);
+	    found[foundindex++] = c;
+	}
     }
-    Token *token = new_operand(pdf_string);
+    token = new_operand(pdf_string);
     token->value = foundindex;
     token->string = found;
     return token;
 }
 
-static Token *_parseOperator (scannerdata *self, int c)
+static Token *_parseOperator(scannerdata * self, int c)
 {
     define_buffer(found);
     while (1) {
-        check_overflow(found, foundindex);
-        found[foundindex++] = c;
-        c = streamLookChar(self);
-        if ((c<0) || (c == ' ' || c == '\n' || c == '\r' || c == '\t' ||
-                c == '/' || c == '[' || c == '(' || c == '<'))
-            break ;
-        c = streamGetChar(self);
+	check_overflow(found, foundindex);
+	found[foundindex++] = c;
+	c = streamLookChar(self);
+	if ((c < 0) || (c == ' ' || c == '\n' || c == '\r' || c == '\t' ||
+			c == '/' || c == '[' || c == '(' || c == '<'))
+	    break;
+	c = streamGetChar(self);
     }
-    // print (found)
+    /* print (found) */
     if (strcmp(found, "ID") == 0) {
-        self->_ininlineimage = 1;
+	self->_ininlineimage = 1;
     }
-    if (strcmp(found,"false") == 0) {
-        Token *token = new_operand(pdf_boolean);
-        token->value = 0;
-        free(found);
-        return token;
-    } else if (strcmp(found,"true") == 0) {
-        Token *token = new_operand(pdf_boolean);
-        token->value = 1.0;
-        free(found);
-        return token;
+    if (strcmp(found, "false") == 0) {
+	Token *token = new_operand(pdf_boolean);
+	token->value = 0;
+	free(found);
+	return token;
+    } else if (strcmp(found, "true") == 0) {
+	Token *token = new_operand(pdf_boolean);
+	token->value = 1.0;
+	free(found);
+	return token;
     } else {
-        Token *token = new_operand(pdf_operator);
-        token->string = found;
-        return token;
+	Token *token = new_operand(pdf_operator);
+	token->string = found;
+	return token;
     }
 }
 
 
-static Token * _parseComment  (scannerdata *self, int c)
+static Token *_parseComment(scannerdata * self, int c)
 {
     do {
-        c = streamGetChar(self);
+	c = streamGetChar(self);
     } while (c != '\n' && c != '\r' && c != -1);
-    return _parseToken(self,streamGetChar(self));
+    return _parseToken(self, streamGetChar(self));
 }
 
-static Token *_parseLt (scannerdata *self, int c)
+static Token *_parseLt(scannerdata * self, int c)
 {
     c = streamGetChar(self);
     if (c == '<') {
-        return new_operand(pdf_startdict);
+	return new_operand(pdf_startdict);
     } else {
-        return _parseHexstring(self,c);
+	return _parseHexstring(self, c);
     }
 }
 
-static Token * _parseGt (scannerdata *self, int c)
+static Token *_parseGt(scannerdata * self, int c)
 {
     c = streamGetChar(self);
-    if (c== '>') {
-        return new_operand(pdf_stopdict);
+    if (c == '>') {
+	return new_operand(pdf_stopdict);
     } else {
-        fprintf(stderr,"stray > in stream");
-        return NULL;
+	fprintf(stderr, "stray > in stream");
+	return NULL;
     }
 }
 
-static Token *_parseError (int c)
+static Token *_parseError(int c)
 {
     fprintf(stderr, "stray %c [%d] in stream", c, c);
     return NULL;
 }
 
-static Token *_parseStartarray ()
+static Token *_parseStartarray(void)
 {
-    return new_operand (pdf_startarray);
+    return new_operand(pdf_startarray);
 }
 
-static Token *_parseStoparray ()
+static Token *_parseStoparray(void)
 {
-    return new_operand (pdf_stoparray);
+    return new_operand(pdf_stoparray);
 }
 
 
-static Token *_parseToken (scannerdata *self, int c)
+static Token *_parseToken(scannerdata * self, int c)
 {
-    if (self->_ininlineimage==1) {
-        self->_ininlineimage = 2;
-        return _parseInlineImage(self,c);
-    } else if (self->_ininlineimage==2) {
-        self->_ininlineimage = 0;
-        Token *token = new_operand(pdf_operator);
-        token->string = strdup("EI");
-        return token;
+    if (self->_ininlineimage == 1) {
+	self->_ininlineimage = 2;
+	return _parseInlineImage(self, c);
+    } else if (self->_ininlineimage == 2) {
+	Token *token = NULL;
+	self->_ininlineimage = 0;
+	token = new_operand(pdf_operator);
+	token->string = strdup("EI");
+	return token;
     }
-    if (c<0)
-        return NULL ;
+    if (c < 0)
+	return NULL;
     switch (c) {
-        case '(':
-            return _parseString(self,c);
-            break;
-        case ')':
-            return _parseError(c);
-            break;
-        case '[':
-            return _parseStartarray();
-            break;
-        case ']':
-            return _parseStoparray();
-            break;
-        case '/':
-            return _parseName(self,c);
-            break;
-        case '<':
-            return _parseLt(self,c);
-            break;
-        case '>':
-            return _parseGt(self,c);
-            break;
-        case '%':
-            return _parseComment(self,c);
-            break;
-        case ' ':
-        case '\r':
-        case '\n':
-        case '\t':
-            return _parseSpace(self);
-        break;
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-        case '-':
-        case '.':
-            return _parseNumber(self,c);
-        break;
-        default:
-            if (c<=127) {
-                return _parseOperator(self,c);
-            } else {
-                return _parseError(c);
-            }
+    case '(':
+	return _parseString(self, c);
+	break;
+    case ')':
+	return _parseError(c);
+	break;
+    case '[':
+	return _parseStartarray();
+	break;
+    case ']':
+	return _parseStoparray();
+	break;
+    case '/':
+	return _parseName(self, c);
+	break;
+    case '<':
+	return _parseLt(self, c);
+	break;
+    case '>':
+	return _parseGt(self, c);
+	break;
+    case '%':
+	return _parseComment(self, c);
+	break;
+    case ' ':
+    case '\r':
+    case '\n':
+    case '\t':
+	return _parseSpace(self);
+	break;
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+    case '-':
+    case '.':
+	return _parseNumber(self, c);
+	break;
+    default:
+	if (c <= 127) {
+	    return _parseOperator(self, c);
+	} else {
+	    return _parseError(c);
+	}
     }
 }
 
@@ -667,115 +690,123 @@ static int scanner_scan(lua_State * L)
     Token *token;
     scannerdata *self;
     if (lua_gettop(L) != 3) {
-        return 0;
+	return 0;
     }
     luaL_checktype(L, 2, LUA_TTABLE);
     luaL_checktype(L, 3, LUA_TTABLE);
     self = scanner_push(L);
-    memset(self,0,sizeof(scannerdata));
-    self->_operandstack = (Token **)priv_xmalloc (MAXOPERANDS * sizeof (Token));
-    memset (self->_operandstack,0,(MAXOPERANDS * sizeof (Token)));
-    // 4 = self
-    if (lua_type(L,1)== LUA_TTABLE) {
-        udstruct *uin;
-        void *ud;
-        int i = 1;
-        while (1) {
-            lua_rawgeti(L,1,i);
-            if (lua_type(L,-1)== LUA_TUSERDATA) {
-                ud = luaL_checkudata(L, -1, PDFE_METATABLE_STREAM);
-                if (ud != NULL) {
-                    uin = (udstruct *) ud;
-                    ObjectList *rover = self->_streams;
-                    ObjectList *item = (ObjectList *)priv_xmalloc (sizeof(ObjectList));
-                    item->stream = ((ppstream *) uin->d);
-                    item->next = NULL;
-                    if (!rover) {
-                        rover = item;
-                        self->_streams = rover;
-                    } else {
-                        while (rover->next)
-                            rover = rover->next;
-                        rover->next = item;
-                    }
-                }
-            } else {
-                ObjectList *rover = self->_streams;
-                self->_stream = rover->stream;
-                self->_streams = rover->next;
-                free(rover);
-                lua_pop(L,1);
-                break;
-            }
-            lua_pop(L,1);
-            i++;
-        }
+    memset(self, 0, sizeof(scannerdata));
+    self->_operandstack =
+	(Token **) priv_xmalloc(MAXOPERANDS * sizeof(Token));
+    memset(self->_operandstack, 0, (MAXOPERANDS * sizeof(Token)));
+    /* 4 = self */
+    if (lua_type(L, 1) == LUA_TTABLE) {
+	udstruct *uin;
+	void *ud;
+	int i = 1;
+	while (1) {
+	    lua_rawgeti(L, 1, i);
+	    if (lua_type(L, -1) == LUA_TUSERDATA) {
+		ud = luaL_checkudata(L, -1, PDFE_METATABLE_STREAM);
+		if (ud != NULL) {
+		    ObjectList *rover = NULL;
+		    ObjectList *item = NULL;
+		    uin = (udstruct *) ud;
+		    rover = self->_streams;
+		    item = (ObjectList *) priv_xmalloc(sizeof(ObjectList));
+		    item->stream = ((ppstream *) uin->d);
+		    item->next = NULL;
+		    if (!rover) {
+			rover = item;
+			self->_streams = rover;
+		    } else {
+			while (rover->next)
+			    rover = rover->next;
+			rover->next = item;
+		    }
+		}
+	    } else {
+		ObjectList *rover = self->_streams;
+		self->_stream = rover->stream;
+		self->_streams = rover->next;
+		free(rover);
+		lua_pop(L, 1);
+		break;
+	    }
+	    lua_pop(L, 1);
+	    i++;
+	}
     } else {
-        udstruct *uin;
-        void *ud;
-        luaL_checktype(L, 1, LUA_TUSERDATA);
-        ud = luaL_checkudata(L, 1, PDFE_METATABLE_STREAM);
-        if (ud != NULL) {
-            uin = (udstruct *) ud;
-            self->_stream = ((ppstream *) uin->d);
-        } else {
-            ud = luaL_checkudata(L, 1, PDFE_METATABLE_ARRAY);
-            if (ud != NULL) {
-                uin = (udstruct *) ud;
-                pparray * array = (pparray *) uin->d;
-                int count = array->size;
-                int i;
-                for (i=0;i<count;i++) {
-                    ppobj *obj = pparray_at(array,i);
-                    if (obj->type == PPSTREAM) {
-                        ObjectList *rover = self->_streams;
-                        ObjectList *item = (ObjectList *)priv_xmalloc (sizeof(ObjectList));
-                        item->stream = obj->stream;
-                        item->next = NULL;
-                        if (!rover) {
-                            rover = item;
-                            self->_streams = rover;
-                        } else {
-                            while (rover->next)
-                            rover = rover->next;
-                            rover->next = item;
-                        }
-                    }
-                }
-                ObjectList *rover = self->_streams;
-                self->_stream = rover->stream;
-                self->_streams = rover->next;
-            }
-        }
+	udstruct *uin;
+	void *ud;
+	luaL_checktype(L, 1, LUA_TUSERDATA);
+	ud = luaL_checkudata(L, 1, PDFE_METATABLE_STREAM);
+	if (ud != NULL) {
+	    uin = (udstruct *) ud;
+	    self->_stream = ((ppstream *) uin->d);
+	} else {
+	    ud = luaL_checkudata(L, 1, PDFE_METATABLE_ARRAY);
+	    if (ud != NULL) {
+		ObjectList *rover = NULL;
+		pparray *array = NULL;
+		int count;
+		int i;
+		uin = (udstruct *) ud;
+		array = (pparray *) uin->d;
+		count = array->size;
+		for (i = 0; i < count; i++) {
+		    ppobj *obj = pparray_at(array, i);
+		    if (obj->type == PPSTREAM) {
+			ObjectList *rover = self->_streams;
+			ObjectList *item =
+			    (ObjectList *)
+			    priv_xmalloc(sizeof(ObjectList));
+			item->stream = obj->stream;
+			item->next = NULL;
+			if (!rover) {
+			    rover = item;
+			    self->_streams = rover;
+			} else {
+			    while (rover->next)
+				rover = rover->next;
+			    rover->next = item;
+			}
+		    }
+		}
+		rover = self->_streams;
+		self->_stream = rover->stream;
+		self->_streams = rover->next;
+	    }
+	}
     }
     streamReset(self);
-    token = _parseToken(self,streamGetChar(self));
+    token = _parseToken(self, streamGetChar(self));
     while (token) {
-        if (token->type == pdf_operator) {
-            lua_pushstring(L, token->string);
-            free_token(token);
-            lua_rawget(L,2); // operator table
-            if (lua_isfunction(L,-1)) {
-                lua_pushvalue(L,4);
-                lua_pushvalue(L,3);
-                (void)lua_call(L,2,0);
-            } else {
-                lua_pop(L,1); // nil
-            }
-            clear_operand_stack(self,0);
-        } else {
-            push_operand(self, token);
-        }
-        if (!self->_stream) {
-            break;
-        }
-        token = _parseToken(self,streamGetChar(self));
+	if (token->type == pdf_operator) {
+	    lua_pushstring(L, token->string);
+	    free_token(token);
+	    lua_rawget(L, 2);	/* operator table */
+	    if (lua_isfunction(L, -1)) {
+		lua_pushvalue(L, 4);
+		lua_pushvalue(L, 3);
+		(void) lua_call(L, 2, 0);
+	    } else {
+		lua_pop(L, 1);	/* nil */
+	    }
+	    clear_operand_stack(self, 0);
+	} else {
+	    push_operand(self, token);
+	}
+	if (!self->_stream) {
+	    break;
+	}
+	token = _parseToken(self, streamGetChar(self));
     }
     /* wrap up */
     if (self->_stream) {
-        streamClose(self);
+	streamClose(self);
     }
-    clear_operand_stack(self,0);
+    clear_operand_stack(self, 0);
     free(self->_operandstack);
     return 0;
 }
@@ -783,215 +814,221 @@ static int scanner_scan(lua_State * L)
 static int scanner_done(lua_State * L)
 {
     int c;
-    scannerdata *self = scanner_check(L,1);
-    while ((c=streamGetChar(self))>=0) ;
+    scannerdata *self = scanner_check(L, 1);
+    while ((c = streamGetChar(self)) >= 0);
     return 0;
 }
 
-// here are the stack popping functions, and their helpers
+/* here are the stack popping functions, and their helpers */
 
-static void operandstack_backup (scannerdata *self) {
-    int i = self->_nextoperand-1;
+static void operandstack_backup(scannerdata * self)
+{
+    int i = self->_nextoperand - 1;
     int balance = 0;
     int backupstart = 0;
     int backupstop = self->_operandstack[i]->type;
     if (backupstop == pdf_stopdict) {
-        backupstart = pdf_startdict;
+	backupstart = pdf_startdict;
     } else if (backupstop == pdf_stoparray) {
-        backupstart = pdf_startarray;
+	backupstart = pdf_startarray;
     } else {
-        return;
+	return;
     }
-    for (;i>=0;i--) {
-        if (self->_operandstack[i]->type == backupstop) {
-            balance++;
-        } else if (self->_operandstack[i]->type == backupstart) {
-            balance--;
-        }
-        if (balance==0) {
-            break;
-        }
+    for (; i >= 0; i--) {
+	if (self->_operandstack[i]->type == backupstop) {
+	    balance++;
+	} else if (self->_operandstack[i]->type == backupstart) {
+	    balance--;
+	}
+	if (balance == 0) {
+	    break;
+	}
     }
-    self->_nextoperand = i+1;
+    self->_nextoperand = i + 1;
 }
 
-static void push_array (lua_State *L, scannerdata *self)
+static void push_array(lua_State * L, scannerdata * self)
 {
-    int balance = 1; // nesting tracking
-    int index = 1;   // lua array index
-    Token *token =  self->_operandstack[self->_nextoperand++];
+    int balance = 1;		/* nesting tracking */
+    int index = 1;		/* lua array index */
+    Token *token = self->_operandstack[self->_nextoperand++];
     lua_newtable(L);
     while (token) {
-        if (token->type == pdf_stoparray)
-            balance --;
-        if (token->type == pdf_startarray)
-            balance ++;
-        if (!balance) {
-            break;
-        } else {
-            push_token(L,self);
-            lua_rawseti(L,-2, index++);
-        }
-        token =  self->_operandstack[self->_nextoperand++];
+	if (token->type == pdf_stoparray)
+	    balance--;
+	if (token->type == pdf_startarray)
+	    balance++;
+	if (!balance) {
+	    break;
+	} else {
+	    push_token(L, self);
+	    lua_rawseti(L, -2, index++);
+	}
+	token = self->_operandstack[self->_nextoperand++];
     }
 }
 
 
-static void push_dict (lua_State *L, scannerdata *self)
+static void push_dict(lua_State * L, scannerdata * self)
 {
-    int balance = 1; // nesting tracking
-    int needskey = 1; // toggle between lua value and lua key
-    Token *token =  self->_operandstack[self->_nextoperand++];
+    int balance = 1;		/* nesting tracking */
+    int needskey = 1;		/* toggle between lua value and lua key */
+    Token *token = self->_operandstack[self->_nextoperand++];
     lua_newtable(L);
     while (token) {
-        if (token->type == pdf_stopdict)
-            balance --;
-        if (token->type == pdf_startdict)
-            balance ++;
-        if (!balance) {
-            break;
-        } else if (needskey) {
-            lua_pushlstring(L, token->string, token->value);
-            needskey = 0;
-        } else {
-            push_token(L,self);
-            needskey = 1;
-            lua_rawset(L,-3);
-        }
-        token =  self->_operandstack[self->_nextoperand++];
+	if (token->type == pdf_stopdict)
+	    balance--;
+	if (token->type == pdf_startdict)
+	    balance++;
+	if (!balance) {
+	    break;
+	} else if (needskey) {
+	    lua_pushlstring(L, token->string, token->value);
+	    needskey = 0;
+	} else {
+	    push_token(L, self);
+	    needskey = 1;
+	    lua_rawset(L, -3);
+	}
+	token = self->_operandstack[self->_nextoperand++];
     }
 }
 
-const char *typenames[pdf_stopdict+1] = {
+const char *typenames[pdf_stopdict + 1] = {
     "unknown", "integer", "real", "boolean", "name", "operator",
     "string", "array", "array", "dict", "dict"
 };
 
-static void push_token (lua_State *L, scannerdata *self)
+static void push_token(lua_State * L, scannerdata * self)
 {
-    Token *token =  self->_operandstack[self->_nextoperand-1];
-    lua_createtable(L,2,0);
-    lua_pushstring (L, typenames[token->type]);
-    lua_rawseti(L,-2,1);
+    Token *token = self->_operandstack[self->_nextoperand - 1];
+    lua_createtable(L, 2, 0);
+    lua_pushstring(L, typenames[token->type]);
+    lua_rawseti(L, -2, 1);
     if (token->type == pdf_string || token->type == pdf_name) {
-        lua_pushlstring(L, token->string, token->value);
+	lua_pushlstring(L, token->string, token->value);
     } else if (token->type == pdf_real || token->type == pdf_integer) {
-        lua_pushnumber(L, token->value); /* integer or float */
+	lua_pushnumber(L, token->value);	/* integer or float */
     } else if (token->type == pdf_boolean) {
-        lua_pushboolean(L, (int)token->value);
+	lua_pushboolean(L, (int) token->value);
     } else if (token->type == pdf_startarray) {
-        push_array(L, self);
+	push_array(L, self);
     } else if (token->type == pdf_startdict) {
-        push_dict(L, self);
+	push_dict(L, self);
     } else {
-        lua_pushnil(L);
+	lua_pushnil(L);
     }
-    lua_rawseti(L,-2, 2);
+    lua_rawseti(L, -2, 2);
 }
 
-static int scanner_popsingular (lua_State * L, int token_type) {
-    int clear = 0; // how much of the operand stack needs deleting
-    scannerdata *self = scanner_check(L,1);
-    if (self->_nextoperand==0) {
-        return 0;
+static int scanner_popsingular(lua_State * L, int token_type)
+{
+    Token *token = NULL;
+    int clear = 0;		/* how much of the operand stack needs deleting */
+    scannerdata *self = scanner_check(L, 1);
+    if (self->_nextoperand == 0) {
+	return 0;
     }
-    clear = self->_nextoperand-1;
-    Token *token = self->_operandstack[self->_nextoperand-1];
-    if (token ==NULL || (token->type != token_type )) {
-        return 0;
+    clear = self->_nextoperand - 1;
+    token = self->_operandstack[self->_nextoperand - 1];
+    if (token == NULL || (token->type != token_type)) {
+	return 0;
     }
-    // the simple cases can be written out directly, but dicts and
-    // arrays are better done via the recursive function
+    /* the simple cases can be written out directly, but dicts and */
+    /* arrays are better done via the recursive function */
     if (token_type == pdf_stoparray || token_type == pdf_stopdict) {
-        operandstack_backup(self);
-        clear = self->_nextoperand-1;
-        push_token(L, self);
-        lua_rawgeti(L,-1,2);
+	operandstack_backup(self);
+	clear = self->_nextoperand - 1;
+	push_token(L, self);
+	lua_rawgeti(L, -1, 2);
     } else if (token_type == pdf_real || token_type == pdf_integer) {
-        lua_pushnumber(L, token->value); /* integer or float */
+	lua_pushnumber(L, token->value);	/* integer or float */
     } else if (token_type == pdf_boolean) {
-        lua_pushboolean(L,(int)token->value);
+	lua_pushboolean(L, (int) token->value);
     } else if (token_type == pdf_name || token_type == pdf_string) {
-        lua_pushlstring(L, token->string, token->value);
+	lua_pushlstring(L, token->string, token->value);
     } else {
-        return 0;
+	return 0;
     }
-    clear_operand_stack(self,clear);
+    clear_operand_stack(self, clear);
     return 1;
 }
 
-static int scanner_popanything (lua_State * L) {
-    int clear = 0; // how much of the operand stack needs deleting
-    scannerdata *self = scanner_check(L,1);
-    if (self->_nextoperand==0) {
-        return 0;
+static int scanner_popanything(lua_State * L)
+{
+    Token *token = NULL;
+    int clear = 0;		/* how much of the operand stack needs deleting */
+    int token_type;
+    scannerdata *self = scanner_check(L, 1);
+    if (self->_nextoperand == 0) {
+	return 0;
     }
-    clear = self->_nextoperand-1;
-    Token *token = self->_operandstack[self->_nextoperand-1];
-    if (token ==NULL) {
-        return 0;
+    clear = self->_nextoperand - 1;
+    token = self->_operandstack[self->_nextoperand - 1];
+    if (token == NULL) {
+	return 0;
     }
-    int token_type = token->type;
-    // the simple cases can be written out directly, but dicts and
-    // arrays are better done via the recursive function
+    token_type = token->type;
+    /* the simple cases can be written out directly, but dicts and */
+    /* arrays are better done via the recursive function */
     if (token_type == pdf_stoparray || token_type == pdf_stopdict) {
-        operandstack_backup(self);
-        clear = self->_nextoperand-1;
-        push_token(L, self);
+	operandstack_backup(self);
+	clear = self->_nextoperand - 1;
+	push_token(L, self);
     } else {
-        push_token(L, self);
+	push_token(L, self);
     }
-    clear_operand_stack(self,clear);
+    clear_operand_stack(self, clear);
     return 1;
 }
 
 
 static int scanner_popnumber(lua_State * L)
 {
-    if(scanner_popsingular(L,pdf_real))
-        return 1;
-    if (scanner_popsingular(L,pdf_integer))
-        return 1;
+    if (scanner_popsingular(L, pdf_real))
+	return 1;
+    if (scanner_popsingular(L, pdf_integer))
+	return 1;
     lua_pushnil(L);
-  return 1;
+    return 1;
 }
 
 static int scanner_popboolean(lua_State * L)
 {
-    if(scanner_popsingular(L,pdf_boolean))
-        return 1;
+    if (scanner_popsingular(L, pdf_boolean))
+	return 1;
     lua_pushnil(L);
     return 1;
 }
 
 static int scanner_popstring(lua_State * L)
 {
-    if (scanner_popsingular(L,pdf_string))
-        return 1;
+    if (scanner_popsingular(L, pdf_string))
+	return 1;
     lua_pushnil(L);
     return 1;
 }
 
 static int scanner_popname(lua_State * L)
 {
-    if (scanner_popsingular(L,pdf_name))
-        return 1;
+    if (scanner_popsingular(L, pdf_name))
+	return 1;
     lua_pushnil(L);
     return 1;
 }
 
 static int scanner_poparray(lua_State * L)
 {
-    if (scanner_popsingular(L,pdf_stoparray))
-        return 1;
+    if (scanner_popsingular(L, pdf_stoparray))
+	return 1;
     lua_pushnil(L);
     return 1;
 }
 
 static int scanner_popdictionary(lua_State * L)
 {
-    if (scanner_popsingular(L,pdf_stopdict))
-        return 1;
+    if (scanner_popsingular(L, pdf_stopdict))
+	return 1;
     lua_pushnil(L);
     return 1;
 }
@@ -999,7 +1036,7 @@ static int scanner_popdictionary(lua_State * L)
 static int scanner_popany(lua_State * L)
 {
     if (scanner_popanything(L))
-        return 1;
+	return 1;
     lua_pushnil(L);
     return 1;
 }
@@ -1009,15 +1046,15 @@ static const luaL_Reg scannerlib_meta[] = {
 };
 
 static const struct luaL_Reg scannerlib_m[] = {
-    {"done",        scanner_done},
-    {"popNumber",   scanner_popnumber},
-    {"popName",     scanner_popname},
-    {"popString",   scanner_popstring},
-    {"popArray",    scanner_poparray},
-    {"popDict",     scanner_popdictionary},
-    {"popBool",     scanner_popboolean},
-    {"pop",         scanner_popany},
-    {NULL, NULL}    /* sentinel */
+    {"done", scanner_done},
+    {"popNumber", scanner_popnumber},
+    {"popName", scanner_popname},
+    {"popString", scanner_popstring},
+    {"popArray", scanner_poparray},
+    {"popDict", scanner_popdictionary},
+    {"popBool", scanner_popboolean},
+    {"pop", scanner_popany},
+    {NULL, NULL}		/* sentinel */
 };
 
 static const luaL_Reg scannerlib[] = {
@@ -1035,4 +1072,3 @@ LUALIB_API int luaopen_pdfscanner(lua_State * L)
     luaL_openlib(L, "pdfscanner", scannerlib, 0);
     return 1;
 }
-
