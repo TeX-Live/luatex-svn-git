@@ -17,6 +17,70 @@
    You should have received a copy of the GNU General Public License along
    with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
 
+/* converted example in manual:
+
+local operatortable = { }
+
+operatortable.Do = function(scanner,info)
+    local resources = info.resources
+    if resources then
+        local val     = scanner:pop()
+        local name    = val[2]
+        local xobject = pdfe.dictionarytotable(resources.XObject[2])
+        print(info.space .. "Uses XObject " .. name)
+        local kind,
+              entry  = unpack(xobject[name])
+        local dict
+        if kind == 10 then -- reference
+            kind,
+            entry,
+            dict = pdfe.getfromreference(entry)
+        end
+        if kind == 9 then -- stream
+            dict = pdfe.dictionarytotable(dict)
+            local resources = dict.Resources
+            if resources then
+                local newinfo =  {
+                    space     = info.space .. "  " ,
+                    resources = Resources[2],
+                }
+                pdfscanner.scan(entry, operatortable, newinfo)
+            end
+        end
+    end
+end
+
+local function Analyze(filename)
+    local doc = pdfe.open(filename)
+    if doc then
+        local pagenum  = 1
+        local n        = 1 -- pdfe.getnofpages(doc)
+        for i=1,n do
+            local page = pdfe.getpage(doc,i)
+            local kind,
+                  data = pdfe.getfromdictionarybyname(page,"Resources")
+            if kind == 10 then -- reference
+                kind, data = pdfe.getfromreference(data)
+            end
+            data = pdfe.dictionarytotable(data)
+            local info = {
+              space     = "  " ,
+              resources = data,
+            }
+            print("Page " .. i)
+            kind, data = pdfe.getfromdictionarybyname(page,"Contents")
+            if kind == 10 then -- reference
+                kind, data = pdfe.getfromreference(data)
+            end
+            pdfscanner.scan(data,operatortable,info)
+        end
+    end
+end
+
+Analyze("e:/tmp/oeps.pdf")
+
+*/
+
 #  include <stdlib.h>
 #  include <stdio.h>
 #  include <stdarg.h>
@@ -28,11 +92,12 @@ extern "C" {
 #  include <lua.h>
 #  include <lauxlib.h>
 #  include <lualib.h>
+
+#  include "luapplib/pplib.h"
 }
 
-#  include <Object.h>
-
 #  include <lua/luatex-api.h>
+
 
 #define SCANNER "pdfscanner"
 
@@ -51,7 +116,6 @@ typedef enum {
     pdf_stopdict,
 } pdf_token_type ;
 
-
 typedef struct Token {
     pdf_token_type type;
     double value;
@@ -60,25 +124,25 @@ typedef struct Token {
 
 typedef struct ObjectList {
     struct ObjectList *next;
-    Object *stream;
+    ppstream *stream;
 } ObjectList;
 
 typedef struct scannerdata {
     int _ininlineimage;
     int _nextoperand;
     Token ** _operandstack;
-    Object * _stream;
+    ppstream * _stream;
     ObjectList * _streams;
+    const char *buffer;
+    size_t position;
+    size_t size;
 } scannerdata;
 
-typedef enum { ALLOC_POPPLER, ALLOC_LEPDF } alloctype;
-
-#define M_Object  "Object"
-#define M_Stream  "Stream"
+#define PDFE_METATABLE_ARRAY  "luatex.pdfe.array"
+#define PDFE_METATABLE_STREAM "luatex.pdfe.stream"
 
 typedef struct {
     void *d;
-    alloctype atype;     // was it allocated by poppler or the lepdflib.cc?
     void *pd;            // reference to PdfDocument, or NULL
     unsigned long pc;    // counter to detect PDFDoc change
 } udstruct;
@@ -183,34 +247,27 @@ static Token * new_operand (pdf_token_type c)
     return token;
 }
 
-/* (HH) These are the only dependencies on the pdf loader library:
-
-    _stream->streamClose()
-    _stream->streamReset()
-    _stream->streamGetChar()
-    _stream->streamLookChar()
-
-    ->isStream
-
-    ->isArray
-    ->getArray
-    ->getLength
-
-*/
-
 static void _nextStream (scannerdata *self)
 {
-    self->_stream->streamClose();
+    if (self->buffer != NULL) {
+        ppstream_done(self->_stream);
+    }
     ObjectList *rover = self->_streams;
     self->_stream = rover->stream;
-    self->_stream->streamReset();
+    self->buffer = (const char*) ppstream_all(self->_stream,&self->size,1);
+    self->position = 0;
     self->_streams = rover->next;
     free(rover);
 }
 
 static int streamGetChar (scannerdata *self)
 {
-    int i = self->_stream->streamGetChar();
+    int i = EOF ;
+    if (self->position < self->size) {
+        const char c = self->buffer[self->position];
+        ++self->position;
+        i = (int) c;
+    }
     if (i<0 && self->_streams) {
         _nextStream(self);
         i = streamGetChar(self);
@@ -220,21 +277,28 @@ static int streamGetChar (scannerdata *self)
 
 static int streamLookChar (scannerdata *self)
 {
-    int i= self->_stream->streamLookChar();
+    int i = EOF ;
+    if (self->position < self->size) {
+        const char c = self->buffer[self->position];
+     /* ++self->position; */
+        i = (int) c;
+    }
     if (i<0 && self->_streams) {
         _nextStream(self);
-        i = streamLookChar(self);
+        i = streamGetChar(self);
     }
     return i;
 }
 
 static void streamReset (scannerdata *self)
 {
-    self->_stream->streamReset();
+    self->buffer = (const char*) ppstream_all(self->_stream,&self->size,1);
+    self->position = 0;
 }
 
 static void streamClose (scannerdata *self) {
-    self->_stream->streamClose();
+    ppstream_done(self->_stream);
+    self->buffer = NULL;
     self->_stream = NULL;
 }
 
@@ -617,15 +681,17 @@ static int scanner_scan(lua_State * L)
     // 4 = self
     if (lua_type(L,1)== LUA_TTABLE) {
         udstruct *uin;
+        void *ud;
         int i = 1;
         while (1) {
             lua_rawgeti(L,1,i);
             if (lua_type(L,-1)== LUA_TUSERDATA) {
-                uin = (udstruct *) luaL_checkudata(L, -1, M_Object);
-                if (((Object *) uin->d)->isStream()) {
+                ud = luaL_checkudata(L, -1, PDFE_METATABLE_STREAM);
+                if (ud != NULL) {
+                    uin = (udstruct *) ud;
                     ObjectList *rover = self->_streams;
                     ObjectList *item = (ObjectList *)priv_xmalloc (sizeof(ObjectList));
-                    item->stream = ((Object *) uin->d);
+                    item->stream = ((ppstream *) uin->d);
                     item->next = NULL;
                     if (!rover) {
                         rover = item;
@@ -636,7 +702,7 @@ static int scanner_scan(lua_State * L)
                         rover->next = item;
                     }
                 }
-            } else { // done
+            } else {
                 ObjectList *rover = self->_streams;
                 self->_stream = rover->stream;
                 self->_streams = rover->next;
@@ -649,39 +715,42 @@ static int scanner_scan(lua_State * L)
         }
     } else {
         udstruct *uin;
+        void *ud;
         luaL_checktype(L, 1, LUA_TUSERDATA);
-        uin = (udstruct *) luaL_checkudata(L, 1, M_Object);
-        if (((Object *) uin->d)->isStream()) {
-            self->_stream = ((Object *) uin->d);
-        } else if (((Object *) uin->d)->isArray()) {
-            Array *arrayref = ((Object *) uin->d)->getArray();
-            int count = arrayref->getLength();
-            int i;
-            for (i=0;i<count;i++) {
-                Object *val = new Object();
-                *val = arrayref->get(i);
-                if (val->isStream()) {
-                    ObjectList *rover = self->_streams;
-                    ObjectList *item = (ObjectList *)priv_xmalloc (sizeof(ObjectList));
-                    item->stream = val;
-                    item->next = NULL;
-                    if (!rover) {
-                        rover = item;
-                        self->_streams = rover;
-                    } else {
-                        while (rover->next)
-                        rover = rover->next;
-                        rover->next = item;
+        ud = luaL_checkudata(L, 1, PDFE_METATABLE_STREAM);
+        if (ud != NULL) {
+            uin = (udstruct *) ud;
+            self->_stream = ((ppstream *) uin->d);
+        } else {
+            ud = luaL_checkudata(L, 1, PDFE_METATABLE_ARRAY);
+            if (ud != NULL) {
+                uin = (udstruct *) ud;
+                pparray * array = (pparray *) uin->d;
+                int count = array->size;
+                int i;
+                for (i=0;i<count;i++) {
+                    ppobj *obj = pparray_at(array,i);
+                    if (obj->type == PPSTREAM) {
+                        ObjectList *rover = self->_streams;
+                        ObjectList *item = (ObjectList *)priv_xmalloc (sizeof(ObjectList));
+                        item->stream = obj->stream;
+                        item->next = NULL;
+                        if (!rover) {
+                            rover = item;
+                            self->_streams = rover;
+                        } else {
+                            while (rover->next)
+                            rover = rover->next;
+                            rover->next = item;
+                        }
                     }
                 }
+                ObjectList *rover = self->_streams;
+                self->_stream = rover->stream;
+                self->_streams = rover->next;
             }
-            ObjectList *rover = self->_streams;
-            self->_stream = rover->stream;
-            self->_streams = rover->next;
         }
-
     }
-    assert (lua_gettop(L) == 4);
     streamReset(self);
     token = _parseToken(self,streamGetChar(self));
     while (token) {

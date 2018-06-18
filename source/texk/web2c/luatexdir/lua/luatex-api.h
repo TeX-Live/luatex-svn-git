@@ -102,7 +102,7 @@ extern void luatex_socketlua_open(lua_State * L);
 
 extern int luaopen_img(lua_State * L);
 extern int l_new_image(lua_State * L);
-extern int luaopen_epdf(lua_State * L);
+extern int luaopen_pdfe(lua_State * L);
 extern int luaopen_pdfscanner(lua_State * L);
 extern int luaopen_mplib(lua_State * L);
 extern int luaopen_fio(lua_State * L);
@@ -844,6 +844,11 @@ make_lua_key(lua_functions);\
 make_lua_key(luatex);\
 make_lua_key(luatex_node);\
 make_lua_key(luatex_token);\
+make_lua_key(luatex_pdfe);\
+make_lua_key(luatex_pdfe_dictionary);\
+make_lua_key(luatex_pdfe_array);\
+make_lua_key(luatex_pdfe_stream);\
+make_lua_key(luatex_pdfe_reference);\
 make_lua_key(mac_param);\
 make_lua_key(make_box);\
 make_lua_key(margin_kern);\
@@ -951,6 +956,7 @@ make_lua_key(parshape);\
 make_lua_key(parskip);\
 make_lua_key(passive);\
 make_lua_key(pdf);\
+make_lua_key(pdfe);\
 make_lua_key(pdf_action);\
 make_lua_key(pdf_annot);\
 make_lua_key(pdf_colorstack);\
@@ -1519,6 +1525,11 @@ init_lua_key(lua_functions);\
 init_lua_key(luatex);\
 init_lua_key(luatex_node);\
 init_lua_key(luatex_token);\
+init_lua_key(luatex_pdfe);\
+init_lua_key(luatex_pdfe_dictionary);\
+init_lua_key(luatex_pdfe_array);\
+init_lua_key(luatex_pdfe_stream);\
+init_lua_key(luatex_pdfe_reference);\
 init_lua_key(mac_param);\
 init_lua_key(make_box);\
 init_lua_key(margin_kern);\
@@ -1619,6 +1630,7 @@ init_lua_key(parfillskip);\
 init_lua_key(parshape);\
 init_lua_key(parskip);\
 init_lua_key(passive);\
+init_lua_key(pdfe);\
 init_lua_key(pdf_action);\
 init_lua_key(pdf_annot);\
 init_lua_key(pdf_colorstack);\
@@ -1859,6 +1871,11 @@ init_lua_key_alias(lua_bytecodes_indirect,"lua.bytecodes.indirect");\
 init_lua_key_alias(lua_functions,"lua.functions");\
 init_lua_key_alias(luatex_node, "luatex.node");\
 init_lua_key_alias(luatex_token, "luatex.token");\
+init_lua_key_alias(luatex_pdfe, "luatex.pdfe");\
+init_lua_key_alias(luatex_pdfe_dictionary, "luatex.pdfe.dictionary");\
+init_lua_key_alias(luatex_pdfe_array, "luatex.pdfe.array");\
+init_lua_key_alias(luatex_pdfe_stream, "luatex.pdfe.stream");\
+init_lua_key_alias(luatex_pdfe_reference, "luatex.pdfe.reference");\
 init_lua_key_alias(mLTL,"-LTL");\
 init_lua_key_alias(mRTT,"-RTT");\
 init_lua_key_alias(mTLT,"-TLT");\
@@ -2240,6 +2257,11 @@ use_lua_key(lua_functions);
 use_lua_key(luatex);
 use_lua_key(luatex_node);
 use_lua_key(luatex_token);
+use_lua_key(luatex_pdfe);
+use_lua_key(luatex_pdfe_dictionary);
+use_lua_key(luatex_pdfe_array);
+use_lua_key(luatex_pdfe_stream);
+use_lua_key(luatex_pdfe_reference);
 use_lua_key(mac_param);
 use_lua_key(make_box);
 use_lua_key(margin_kern);
@@ -2347,6 +2369,7 @@ use_lua_key(parshape);
 use_lua_key(parskip);
 use_lua_key(passive);
 use_lua_key(pdf);
+use_lua_key(pdfe);
 use_lua_key(pdf_action);
 use_lua_key(pdf_annot);
 use_lua_key(pdf_colorstack);

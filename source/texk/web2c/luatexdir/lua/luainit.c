@@ -442,8 +442,8 @@ static void parse_options(int ac, char **av)
                  "pdftex    : Han The Thanh and friends\n"
                  "kpathsea  : Karl Berry, Olaf Weber and others\n"
                  "lua       : Roberto Ierusalimschy, Waldemar Celes and Luiz Henrique de Figueiredo\n"
-                 "metapost  : John Hobby, Taco Hoekwater and friends\n"
-                 "poppler   : Derek Noonburg, Kristian Hogsberg (partial)\n"
+                 "metapost  : John Hobby, Taco Hoekwater, Luigi Scarso, Hans Hagen and friends\n"
+                 "pplib     : Paweł Jackowski\n"
                  "fontforge : George Williams (partial)\n"
                  "luajit    : Mike Pall (used in LuajitTeX)\n");
             /* *INDENT-ON* */

@@ -367,7 +367,7 @@ void luainterpreter(void)
     luaopen_mplib(L);
     luaopen_vf(L);
     luaopen_pdf(L);
-    luaopen_epdf(L);
+    luaopen_pdfe(L);
     luaopen_pdfscanner(L);
     if (!lua_only) {
         luaopen_img(L);
