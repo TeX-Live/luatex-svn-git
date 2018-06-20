@@ -139,6 +139,7 @@ typedef enum {
     c_pdf_pk_fixed_dpi,
     c_pdf_suppress_optional_info,
     c_pdf_omit_cidset,
+    c_pdf_recompress,
 } pdf_backend_counters ;
 
 typedef enum {
@@ -187,6 +188,7 @@ extern int pdf_cur_form;
 #  define pdf_pk_fixed_dpi              get_tex_extension_count_register(c_pdf_pk_fixed_dpi)
 #  define pdf_suppress_optional_info    get_tex_extension_count_register(c_pdf_suppress_optional_info)
 #  define pdf_omit_cidset               get_tex_extension_count_register(c_pdf_omit_cidset)
+#  define pdf_recompress                get_tex_extension_count_register(c_pdf_recompress)
 
 #  define pdf_h_origin                  get_tex_extension_dimen_register(d_pdf_h_origin)
 #  define pdf_v_origin                  get_tex_extension_dimen_register(d_pdf_v_origin)
@@ -209,6 +211,7 @@ extern int pdf_cur_form;
 #  define set_pdf_obj_compress_level(i) set_tex_extension_count_register(c_pdf_obj_compress_level,i)
 #  define set_pdf_omit_cidset(i)        set_tex_extension_count_register(c_pdf_omit_cidset,i)
 #  define set_pdf_gen_tounicode(i)      set_tex_extension_count_register(c_pdf_gen_tounicode,i)
+#  define set_pdf_recompress(i)         set_tex_extension_count_register(c_pdf_recompress,i)
 
 #  define set_pdf_decimal_digits(i)     set_tex_extension_count_register(c_pdf_decimal_digits,i)
 #  define set_pdf_pk_resolution(i)      set_tex_extension_count_register(c_pdf_pk_resolution,i)

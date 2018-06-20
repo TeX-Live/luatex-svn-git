@@ -605,6 +605,7 @@ make_lua_key(call);\
 make_lua_key(cancel);\
 make_lua_key(car_ret);\
 make_lua_key(case_shift);\
+make_lua_key(Catalog);\
 make_lua_key(catalog);\
 make_lua_key(cell);\
 make_lua_key(char);\
@@ -784,6 +785,7 @@ make_lua_key(in_stream);\
 make_lua_key(indent);\
 make_lua_key(index);\
 make_lua_key(info);\
+make_lua_key(Info);\
 make_lua_key(inner);\
 make_lua_key(input);\
 make_lua_key(ins);\
@@ -946,6 +948,7 @@ make_lua_key(pageattributes);\
 make_lua_key(pagebox);\
 make_lua_key(pageresources);\
 make_lua_key(pages);\
+make_lua_key(Pages);\
 make_lua_key(pagesattributes);\
 make_lua_key(pagestate);\
 make_lua_key(par_end);\
@@ -1012,6 +1015,7 @@ make_lua_key(quad);\
 make_lua_key(radical);\
 make_lua_key(raw);\
 make_lua_key(read_to_cs);\
+make_lua_key(recompress);\
 make_lua_key(ref_count);\
 make_lua_key(reg);\
 make_lua_key(register);\
@@ -1131,6 +1135,7 @@ make_lua_key(topskip);\
 make_lua_key(tounicode);\
 make_lua_key(tracingparagraphs);\
 make_lua_key(trailer);\
+make_lua_key(Trailer);\
 make_lua_key(trailerid);\
 make_lua_key(transform);\
 make_lua_key(trim);\
@@ -1287,6 +1292,7 @@ init_lua_key(call);\
 init_lua_key(cancel);\
 init_lua_key(car_ret);\
 init_lua_key(case_shift);\
+init_lua_key(Catalog);\
 init_lua_key(catalog);\
 init_lua_key(cell);\
 init_lua_key(char);\
@@ -1465,6 +1471,7 @@ init_lua_key(in_stream);\
 init_lua_key(indent);\
 init_lua_key(index);\
 init_lua_key(info);\
+init_lua_key(Info);\
 init_lua_key(inner);\
 init_lua_key(input);\
 init_lua_key(ins);\
@@ -1621,6 +1628,7 @@ init_lua_key(pageattributes);\
 init_lua_key(pagebox);\
 init_lua_key(pageresources);\
 init_lua_key(pages);\
+init_lua_key(Pages);\
 init_lua_key(pagesattributes);\
 init_lua_key(pagestate);\
 init_lua_key(par_end);\
@@ -1682,6 +1690,7 @@ init_lua_key(radical);\
 init_lua_key(raw);\
 init_lua_key(read_to_cs);\
 init_lua_key(ref_count);\
+init_lua_key(recompress);\
 init_lua_key(reg);\
 init_lua_key(register);\
 init_lua_key(registry);\
@@ -1799,6 +1808,7 @@ init_lua_key(topskip);\
 init_lua_key(tounicode);\
 init_lua_key(tracingparagraphs);\
 init_lua_key(trailer);\
+init_lua_key(Trailer);\
 init_lua_key(trailerid);\
 init_lua_key(transform);\
 init_lua_key(trim);\
@@ -2018,6 +2028,7 @@ use_lua_key(call);
 use_lua_key(cancel);
 use_lua_key(car_ret);
 use_lua_key(case_shift);
+use_lua_key(Catalog);
 use_lua_key(catalog);
 use_lua_key(cell);
 use_lua_key(char);
@@ -2197,6 +2208,7 @@ use_lua_key(in_stream);
 use_lua_key(indent);
 use_lua_key(index);
 use_lua_key(info);
+use_lua_key(Info);
 use_lua_key(inner);
 use_lua_key(input);
 use_lua_key(ins);
@@ -2359,6 +2371,7 @@ use_lua_key(pageattributes);
 use_lua_key(pagebox);
 use_lua_key(pageresources);
 use_lua_key(pages);
+use_lua_key(Pages);
 use_lua_key(pagesattributes);
 use_lua_key(pagestate);
 use_lua_key(par_end);
@@ -2426,6 +2439,7 @@ use_lua_key(radical);
 use_lua_key(raw);
 use_lua_key(read_to_cs);
 use_lua_key(ref_count);
+use_lua_key(recompress);
 use_lua_key(reg);
 use_lua_key(register);
 use_lua_key(registry);
@@ -2544,6 +2558,7 @@ use_lua_key(topskip);
 use_lua_key(tounicode);
 use_lua_key(tracingparagraphs);
 use_lua_key(trailer);
+use_lua_key(Trailer);
 use_lua_key(trailerid);
 use_lua_key(transform);
 use_lua_key(trim);

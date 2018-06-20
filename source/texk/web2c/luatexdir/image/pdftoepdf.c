@@ -63,7 +63,7 @@ static char *get_file_checksum(const char *a, file_error_mode fe)
         if (ck == NULL)
             formatted_error("pdf inclusion","out of memory while processing '%s'", a);
         snprintf(ck, PDF_CHECKSUM_SIZE, "%" PRIu64 "_%" PRIu64, (uint64_t) size,(uint64_t) mtime);
-   } else {
+    } else {
         switch (fe) {
             case FE_FAIL:
                 formatted_error("pdf inclusion","could not stat() file '%s'", a);
@@ -104,8 +104,6 @@ static char *get_stream_checksum (const char *str, unsigned long long str_size){
     When fe = FE_RETURN_NULL, the function returns NULL in error case.
 */
 
-#define PDF_DECODE_STREAM 0
-
 PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe)
 {
     char *checksum, *path_copy;
@@ -126,7 +124,6 @@ PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe)
         pdf_doc->ObjMapTree = NULL;
         pdf_doc->occurences = 0; /* 0 = unreferenced */
         pdf_doc->pc = 0;
-        pdf_doc->decode = PDF_DECODE_STREAM;
     } else {
         if (strncmp(pdf_doc->checksum, checksum, PDF_CHECKSUM_SIZE) != 0) {
             formatted_error("pdf inclusion","file has changed '%s'", file_path);
@@ -144,7 +141,10 @@ PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe)
                     normal_error("pdf inclusion","reading image failed");
                     break;
                 case FE_RETURN_NULL:
-                    ppdoc_free(pdfe);
+                    if (pdf_doc->pdfe != NULL) {
+                        ppdoc_free(pdfe);
+                        pdf_doc->pdfe = NULL;
+                    }
                     /* delete docName */
                     if (new_flag == 1) {
                         if (pdf_doc->file_path != NULL)
@@ -160,7 +160,6 @@ PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe)
             }
         }
         pdf_doc->pdfe = pdfe;
-        pdf_doc->decode = PDF_DECODE_STREAM;
     }
     /* PDF file could be opened without problems, checksum ok. */
     if (PdfDocumentTree == NULL)
@@ -202,7 +201,6 @@ PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streams
         pdf_doc->ObjMapTree = NULL;
         pdf_doc->occurences = 0; /* 0 = unreferenced */
         pdf_doc->pc = 0;
-        pdf_doc->decode = PDF_DECODE_STREAM;
     } else {
         /* As is now, checksum is in file_path, so this check should be useless. */
         if (strncmp(pdf_doc->checksum, checksum, STRSTREAM_CHECKSUM_SIZE) != 0) {
@@ -218,7 +216,6 @@ PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streams
             normal_error("pdf inclusion","reading pdf Stream failed");
         }
         pdf_doc->pdfe = pdfe;
-        pdf_doc->decode = 0;
     }
     /* PDF file could be opened without problems, checksum ok. */
     if (PdfDocumentTree == NULL)
@@ -380,33 +377,43 @@ static void copyStreamStream(PDF pdf, ppstream * stream, int decode)
 {
     uint8_t *data = NULL;
     size_t size = 0;
-    /*
-    for (data = ppstream_first(stream, &size, decode); data != NULL; data = ppstream_next(stream, &size)) {
-        pdf_out_block(pdf, (const char *) data, size);
-    }
-    ppstream_done(stream);
-    */
     if (0) {
         for (data = ppstream_first(stream, &size, decode); data != NULL; data = ppstream_next(stream, &size)) {
             pdf_out_block(pdf, (const char *) data, size);
         }
     } else {
         data = ppstream_all(stream,&size,decode);
-        pdf_out_block(pdf, (const char *) data, size);
+        if (data != NULL) {
+            pdf_out_block(pdf, (const char *) data, size);
+        }
     }
     ppstream_done(stream);
 }
 
 static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
 {
-    ppdict *dict = ppstream_dict(stream);
-    if (pdf_doc->decode) {
+    ppdict *dict = stream->dict; /* bug in: stream_dict(stream) */
+    if (pdf->compress_level == 0 || pdf->recompress) {
+        const char *ignoredkeys[] = {
+            "Filter", "Decode", "Length", "DL", NULL
+        };
         int i;
         int n = dict->size;
         pdf_begin_dict(pdf);
         for (i=0; i<n; ++i) {
-            pdf_add_name(pdf, (const char *) ppdict_key(dict,i));
-            copyObject(pdf, pdf_doc, ppdict_at(dict,i));
+            const char *key = ppdict_key(dict,i);
+            int okay = 1;
+            int k;
+            for (k = 0; ignoredkeys[k] != NULL; k++) {
+                if (strcmp(key,ignoredkeys[k]) == 0) {
+                    okay = 0;
+                    break;
+                }
+            }
+            if (okay) {
+                pdf_add_name(pdf, key);
+                copyObject(pdf, pdf_doc, ppdict_at(dict,i));
+            }
         }
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
@@ -494,15 +501,12 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
 
 static void somebox(ppdict *page, const char * key, pprect * box)
 {
-    pparray * a = ppdict_get_array(page, key);
-    if (a != NULL) {
-        pprect rect;
-        if (pparray_to_rect(a, &rect) != NULL) {
-            box->lx = rect.lx;
-            box->ly = rect.ly;
-            box->rx = rect.rx;
-            box->ry = rect.ry;
-        }
+    pprect * r = ppdict_get_box(page, key, box);
+    if (r != NULL) {
+        box->lx = r->lx;
+        box->ly = r->ly;
+        box->rx = r->rx;
+        box->ry = r->ry;
     }
 }
 
@@ -584,10 +588,7 @@ void read_pdf_info(image_dict * idict)
         PDF newer than 1.x will not be backwards compatible to PDF 1.x, we will
         then have to changed drastically anyway.
     */
-/* todo:
-    pdf_major_version_found = doc->getPDFMajorVersion();
-    pdf_minor_version_found = doc->getPDFMinorVersion();
-*/
+    pdf_major_version_found = ppdoc_version_number(pdfe,&pdf_minor_version_found);
     if ((100 * pdf_major_version_found + pdf_major_version_found) > (100 * img_pdfmajorversion(idict) + img_pdfminorversion(idict))) {
         const char *msg = "PDF inclusion: found PDF version '%d.%d', but at most version '%d.%d' allowed";
         if (img_errorlevel(idict) > 0) {
@@ -747,9 +748,9 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     if ((suppress_optional_info & 8) == 0) {
         infoDict = ppdoc_info(pdfe);
         if (infoDict != NULL) {
-/* todo : check this
+            /* todo : check this
                 pdf_dict_add_ref(pdf, "PTEX.InfoDict", addInObj(pdf, pdf_doc, infoDict));
-*/
+            */
             pdf_add_name(pdf, "PTEX.InfoDict");
             copyDict(pdf, pdf_doc, infoDict);
         }
@@ -788,7 +789,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         copy selected items in Page dictionary
     */
     for (i = 0; pagedictkeys[i] != NULL; i++) {
-        obj = ppdict_get_obj(pageDict, pagedictkeys[i]);
+        obj = ppdict_rget_obj(pageDict, pagedictkeys[i]);
         if (obj != NULL) {
             pdf_add_name(pdf, pagedictkeys[i]);
             /*
@@ -797,7 +798,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
             copyObject(pdf, pdf_doc, obj);
         }
     }
-    resources = ppdict_get_obj(pageDict, "Resources");
+    resources = ppdict_rget_obj(pageDict, "Resources");
     if (resources == NULL) {
         /*
             If there are no Resources in the Page dict of the embedded page,
@@ -805,9 +806,9 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
             PDF file, climbing up the tree until the Resources are found.
             (This fixes a problem with Scribus 1.3.3.14.)
         */
-            obj = ppdict_get_obj(pageDict, "Parent");
+            obj = ppdict_rget_obj(pageDict, "Parent");
             while (obj != NULL && obj->type == PPDICT) {
-                resources = ppdict_get_obj(obj->dict, "Resources");
+                resources = ppdict_rget_obj(obj->dict, "Resources");
                 if (resources != NULL) {
                     break;
                 }
@@ -825,27 +826,24 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     */
     content = ppdict_rget_obj(pageDict, "Contents");
     if (content->type == PPSTREAM) {
-        if (pdf_doc->decode) {
-            /*
-                Variant A: get stream and recompress under control of \pdfcompresslevel
-            */
+        if (pdf->compress_level == 0 || pdf->recompress) {
             pdf_dict_add_streaminfo(pdf);
             pdf_end_dict(pdf);
             pdf_begin_stream(pdf);
-            copyStreamStream(pdf, content->stream,1);
+            copyStreamStream(pdf, content->stream,1); /* decompress */
         } else {
-            /*
-                Variant B: copy stream without recompressing
-            */
-            obj = ppdict_get_obj(pageDict, "Length");
+            /* copies compressed stream */
+            ppstream * stream = content->stream;
+            ppdict *streamDict = stream->dict; /* */
+            obj = ppdict_rget_obj(streamDict, "Length");
             if (obj != NULL) {
                 pdf_add_name(pdf, "Length");
                 copyObject(pdf, pdf_doc, obj);
-                obj = ppdict_get_obj(pageDict, "Filter");
+                obj = ppdict_rget_obj(streamDict, "Filter");
                 if (obj != NULL) {
                     pdf_add_name(pdf, "Filter");
                     copyObject(pdf, pdf_doc, obj);
-                    obj = ppdict_get_obj(pageDict, "DecodeParms");
+                    obj = ppdict_rget_obj(streamDict, "DecodeParms");
                     if (obj != NULL) {
                         pdf_add_name(pdf, "DecodeParms");
                         copyObject(pdf, pdf_doc, obj);
@@ -853,32 +851,44 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
                 }
                 pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
-                copyStreamStream(pdf, content->stream,0);
+                copyStreamStream(pdf, stream,0);
             } else {
                 pdf_dict_add_streaminfo(pdf);
                 pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
-                copyStreamStream(pdf, content->stream,1);
+                copyStreamStream(pdf, stream,1);
             }
         }
+        pdf_end_stream(pdf);
     } else if (content->type == PPARRAY) {
+        /* listens to compresslevel */
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
         {
             int i;
+            int b = 0;
             int n = content->array->size;
             for (i=0; i<n; ++i) {
-                copyStreamStream(pdf, pparray_at(content->array,i)->stream,1);
-                if (i > 0) {
-                    /*
-                        Put a space between streams to be on the safe side (streams
-                        should have a trailing space here, but one never knows)
-                    */
-                    pdf_out(pdf, ' ');
+                ppobj *o = pparray_at(content->array,i);
+                while (o != NULL && o->type == PPREF) {
+                    o = ppref_obj((ppref *) o->ref);
+                }
+                if (o != NULL && o->type == PPSTREAM) {
+                    if (b) {
+                        /*
+                            Put a space between streams to be on the safe side (streams
+                            should have a trailing space here, but one never knows)
+                        */
+                        pdf_out(pdf, ' ');
+                    } else {
+                        b = 1;
+                    }
+                    copyStreamStream(pdf, (ppstream *) o->stream,1);
                 }
             }
         }
+        pdf_end_stream(pdf);
     } else {
         /*
             the contents are optional, but we need to include an empty stream
@@ -886,8 +896,8 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
         pdf_begin_stream(pdf);
+        pdf_end_stream(pdf);
     }
-    pdf_end_stream(pdf);
     pdf_end_obj(pdf);
     /*
         write out all indirect objects
@@ -914,8 +924,8 @@ int write_epdf_object(PDF pdf, image_dict * idict, int n)
         ppdoc * pdfe = pdf_doc->pdfe;
         ppref * ref = ppxref_find(ppdoc_xref(pdfe), (ppuint) n);
         if (ref != NULL) {
-	    ppobj *obj; 
-	    num = pdf->obj_count++;
+            ppobj *obj;
+            num = pdf->obj_count++;
             obj = ppref_obj(ref);
             if (obj->type == PPSTREAM) {
                 pdf_begin_obj(pdf, num, OBJSTM_NEVER);
@@ -943,8 +953,10 @@ static void deletePdfDocumentPdfDoc(PdfDocument * pdf_doc)
         n = r->next;
         free(r);
     }
-    ppdoc_free(pdf_doc->pdfe);
-    pdf_doc->pdfe = NULL;
+    if (pdf_doc->pdfe != NULL) {
+        ppdoc_free(pdf_doc->pdfe);
+        pdf_doc->pdfe = NULL;
+    }
  /* pdf_doc->pc++; */
     pdf_doc->pc = 0;
 }

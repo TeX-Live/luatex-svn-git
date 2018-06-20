@@ -198,6 +198,7 @@ PDF init_pdf_struct(PDF pdf)
     pdf->image_apply_gamma = 0;
     pdf->objcompresslevel = 0;
     pdf->compress_level = 0;
+    pdf->recompress = 0;
     pdf->draftmode = 0;
     pdf->inclusion_copy_font = 1;
     pdf->pk_resolution = 0;
@@ -980,6 +981,7 @@ static void init_pdf_outputparameters(PDF pdf)
     pdf->image_hicolor = fix_int(pdf_image_hicolor, 0, 1);
     pdf->image_apply_gamma = fix_int(pdf_image_apply_gamma, 0, 1);
     pdf->objcompresslevel = fix_int(pdf_obj_compress_level, 0, MAX_OBJ_COMPRESS_LEVEL);
+    pdf->recompress = fix_int(pdf_recompress, 0, 1);
     pdf->inclusion_copy_font = fix_int(pdf_inclusion_copy_font, 0, 1);
     pdf->pk_resolution = fix_int(pdf_pk_resolution, 72, 8000);
     pdf->pk_fixed_dpi = fix_int(pdf_pk_fixed_dpi, 0, 1);

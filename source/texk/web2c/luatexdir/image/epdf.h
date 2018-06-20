@@ -155,7 +155,6 @@ struct PdfDocument {
     char *file_path;            /* full file name including path */
     char *checksum;             /* for reopening */
     ppdoc *pdfe;
-    int decode;
     InObj *inObjList;           /* temporary linked list */
     avl_table *ObjMapTree;      /* permanent over luatex run */
     unsigned int occurences;    /* number of references to the PdfDocument; it can be deleted when occurences == 0 */

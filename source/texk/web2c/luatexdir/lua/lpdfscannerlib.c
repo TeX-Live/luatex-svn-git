@@ -26,26 +26,15 @@ operatortable.Do = function(scanner,info)
     if resources then
         local val     = scanner:pop()
         local name    = val[2]
-        local xobject = pdfe.dictionarytotable(resources.XObject[2])
+        local xobject = resources.XObject
         print(info.space .. "Uses XObject " .. name)
-        local kind,
-              entry  = unpack(xobject[name])
-        local dict
-        if kind == 10 then -- reference
-            kind,
-            entry,
-            dict = pdfe.getfromreference(entry)
-        end
-        if kind == 9 then -- stream
-            dict = pdfe.dictionarytotable(dict)
-            local resources = dict.Resources
-            if resources then
-                local newinfo =  {
-                    space     = info.space .. "  " ,
-                    resources = Resources[2],
-                }
-                pdfscanner.scan(entry, operatortable, newinfo)
-            end
+        local resources = xobject.Resources
+        if resources then
+            local newinfo =  {
+                space     = info.space .. "  ",
+                resources = resources,
+            }
+            pdfscanner.scan(entry, operatortable, newinfo)
         end
     end
 end
@@ -53,26 +42,15 @@ end
 local function Analyze(filename)
     local doc = pdfe.open(filename)
     if doc then
-        local pagenum  = 1
-        local n        = 1 -- pdfe.getnofpages(doc)
-        for i=1,n do
-            local page = pdfe.getpage(doc,i)
-            local kind,
-                  data = pdfe.getfromdictionarybyname(page,"Resources")
-            if kind == 10 then -- reference
-                kind, data = pdfe.getfromreference(data)
-            end
-            data = pdfe.dictionarytotable(data)
+        local pages = doc.Pages
+        for i=1,#pages do
+            local page = pages[i]
             local info = {
               space     = "  " ,
-              resources = data,
+              resources = page.Resources,
             }
             print("Page " .. i)
-            kind, data = pdfe.getfromdictionarybyname(page,"Contents")
-            if kind == 10 then -- reference
-                kind, data = pdfe.getfromreference(data)
-            end
-            pdfscanner.scan(data,operatortable,info)
+            pdfscanner.scan(page.Contents,operatortable,info)
         end
     end
 end

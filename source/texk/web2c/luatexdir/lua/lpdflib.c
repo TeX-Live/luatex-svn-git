@@ -771,6 +771,12 @@ static int l_get_obj_compress_level(lua_State * L)
     return 1 ;
 }
 
+static int l_get_recompress(lua_State * L)
+{
+    lua_pushinteger(L, (pdf_recompress));
+    return 1 ;
+}
+
 static int l_set_compress_level(lua_State * L)
 {
     if (lua_type(L, 1) == LUA_TNUMBER) {
@@ -793,6 +799,19 @@ static int l_set_obj_compress_level(lua_State * L)
         else if (c>9)
             c = 9 ;
         set_pdf_obj_compress_level(c);
+    }
+    return 0 ;
+}
+
+    static int l_set_recompress(lua_State * L)
+{
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        int c = (int) lua_tointeger(L, 1);
+        if (c<0)
+            c = 0 ;
+        else if (c>9)
+            c = 9 ;
+        set_pdf_recompress(c);
     }
     return 0 ;
 }
@@ -1214,8 +1233,10 @@ static const struct luaL_Reg pdflib[] = {
     { "getlastannot", l_get_lastannot },
     { "getcompresslevel", l_get_compress_level },
     { "getobjcompresslevel", l_get_obj_compress_level },
+    { "getrecompress", l_get_recompress },
     { "setcompresslevel", l_set_compress_level },
     { "setobjcompresslevel", l_set_obj_compress_level },
+    { "setrecompress", l_set_recompress },
     { "getdecimaldigits", l_get_decimal_digits },
     { "setdecimaldigits", l_set_decimal_digits },
     { "getpkresolution", l_get_pk_resolution },
