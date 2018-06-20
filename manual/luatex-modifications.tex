@@ -207,6 +207,12 @@ backend are decoupled as much as possible.
 \stopitem
 
 \startitem
+    Image specifications also support \type {visiblefilename}, \type
+    {userpassword} and \type {ownerpassword}. The password options are only
+    relevant for encrypted \PDF\ files.
+\stopitem
+
+\startitem
     The current version of \LUATEX\ no longer replaces and|/|or merges fonts in
     embedded \PDF\ files with fonts of the enveloping \PDF\ document. This
     regression may be temporary, depending on how the rewritten font backend will
@@ -616,6 +622,7 @@ The configuration related registers have become:
 \starttyping
 \edef\pdfcompresslevel            {\pdfvariable compresslevel}
 \edef\pdfobjcompresslevel         {\pdfvariable objcompresslevel}
+\edef\pdfrecompress               {\pdfvariable recompress}
 \edef\pdfdecimaldigits            {\pdfvariable decimaldigits}
 \edef\pdfgamma                    {\pdfvariable gamma}
 \edef\pdfimageresolution          {\pdfvariable imageresolution}
@@ -676,6 +683,7 @@ the defaults; these are:
 \starttyping
 \pdfcompresslevel         9
 \pdfobjcompresslevel      1 % used: (0,9)
+\pdfrecompress            0 % mostly for debugging
 \pdfdecimaldigits         4 % used: (3,6)
 \pdfgamma              1000
 \pdfimageresolution      71

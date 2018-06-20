@@ -939,6 +939,7 @@ make_lua_key(outline);\
 make_lua_key(output);\
 make_lua_key(over);\
 make_lua_key(overlay_accent);\
+make_lua_key(ownerpassword);\
 make_lua_key(page);\
 make_lua_key(page_discards_head);\
 make_lua_key(page_head);\
@@ -1157,6 +1158,7 @@ make_lua_key(uradical);\
 make_lua_key(uroot);\
 make_lua_key(used);\
 make_lua_key(user);\
+make_lua_key(userpassword);\
 make_lua_key(user_defined);\
 make_lua_key(user_id);\
 make_lua_key(userkern);\
@@ -1619,6 +1621,7 @@ init_lua_key(outline);\
 init_lua_key(output);\
 init_lua_key(over);\
 init_lua_key(overlay_accent);\
+init_lua_key(ownerpassword);\
 init_lua_key(page);\
 init_lua_key(page_discards_head);\
 init_lua_key(page_head);\
@@ -1830,6 +1833,7 @@ init_lua_key(uradical);\
 init_lua_key(uroot);\
 init_lua_key(used);\
 init_lua_key(user);\
+init_lua_key(userpassword);\
 init_lua_key(user_defined);\
 init_lua_key(user_id);\
 init_lua_key(userkern);\
@@ -2362,6 +2366,7 @@ use_lua_key(outline);
 use_lua_key(output);
 use_lua_key(over);
 use_lua_key(overlay_accent);
+use_lua_key(ownerpassword);
 use_lua_key(page);
 use_lua_key(page_discards_head);
 use_lua_key(page_head);
@@ -2580,6 +2585,7 @@ use_lua_key(uradical);
 use_lua_key(uroot);
 use_lua_key(used);
 use_lua_key(user);
+use_lua_key(userpassword);
 use_lua_key(user_defined);
 use_lua_key(user_id);
 use_lua_key(userkern);

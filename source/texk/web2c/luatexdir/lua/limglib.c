@@ -380,12 +380,6 @@ static int m_img_get(lua_State * L)
         } else {
             lua_pushstring(L, img_filename(d));
         }
-    } else if (lua_key_eq(s,visiblefilename)) {
-        if (img_visiblefilename(d) == NULL || strlen(img_visiblefilename(d)) == 0) {
-            lua_pushnil(L);
-        } else {
-            lua_pushstring(L, img_visiblefilename(d));
-        }
     } else if (lua_key_eq(s,keepopen)) {
         lua_pushboolean(L, img_keepopen(d));
     } else if (lua_key_eq(s,filepath)) {
@@ -498,6 +492,24 @@ static int m_img_get(lua_State * L)
         } else {
             lua_pushstring(L, img_pdfstream_stream(d));
         }
+    } else if (lua_key_eq(s,visiblefilename)) {
+        if (img_visiblefilename(d) == NULL || strlen(img_visiblefilename(d)) == 0) {
+            lua_pushnil(L);
+        } else {
+            lua_pushstring(L, img_visiblefilename(d));
+        }
+    } else if (lua_key_eq(s,userpassword)) {
+        if (img_userpassword(d) == NULL || strlen(img_userpassword(d)) == 0) {
+            lua_pushnil(L);
+        } else {
+            lua_pushstring(L, img_userpassword(d));
+        }
+    } else if (lua_key_eq(s,ownerpassword)) {
+        if (img_ownerpassword(d) == NULL || strlen(img_ownerpassword(d)) == 0) {
+            lua_pushnil(L);
+        } else {
+            lua_pushstring(L, img_ownerpassword(d));
+        }
     } else if (lua_key_eq(s,ref_count)) {
         lua_pushinteger(L, img_luaref(d));
     } else {
@@ -552,7 +564,7 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         if (img_state(d) >= DICT_FILESCANNED) {
             luaL_error(L, "image.filename is now read-only");
         } else if (img_type(d) == IMG_TYPE_PDFSTREAM) {
-            luaL_error(L, "image.filename can't be used with image.stream");
+            /* just ignore */
         } else if (t == LUA_TSTRING) {
             xfree(img_filename(d));
             img_filename(d) = xstrdup(lua_tostring(L, -1));
@@ -563,12 +575,34 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         if (img_state(d) >= DICT_FILESCANNED) {
             luaL_error(L, "image.visiblefilename is now read-only");
         } else if (img_type(d) == IMG_TYPE_PDFSTREAM) {
-            luaL_error(L, "image.visiblefilename can't be used with image.stream");
+            img_visiblefilename(d) = NULL;
         } else if (t == LUA_TSTRING) {
             xfree(img_visiblefilename(d));
             img_visiblefilename(d) = xstrdup(lua_tostring(L, -1));
         } else {
             luaL_error(L, "image.visiblefilename needs string value");
+        }
+    } else if (lua_key_eq(s,userpassword)) {
+        if (img_state(d) >= DICT_FILESCANNED) {
+            luaL_error(L, "image.userpassword is now read-only");
+        } else if (img_type(d) == IMG_TYPE_PDFSTREAM) {
+            img_userpassword(d) = NULL;
+        } else if (t == LUA_TSTRING) {
+            xfree(img_userpassword(d));
+            img_userpassword(d) = xstrdup(lua_tostring(L, -1));
+        } else {
+            luaL_error(L, "image.userpassword needs string value");
+        }
+    } else if (lua_key_eq(s,ownerpassword)) {
+        if (img_state(d) >= DICT_FILESCANNED) {
+            luaL_error(L, "image.ownerpassword is now read-only");
+        } else if (img_type(d) == IMG_TYPE_PDFSTREAM) {
+            img_ownerpassword(d) = NULL;
+        } else if (t == LUA_TSTRING) {
+            xfree(img_ownerpassword(d));
+            img_ownerpassword(d) = xstrdup(lua_tostring(L, -1));
+        } else {
+            luaL_error(L, "image.ownerpassword needs string value");
         }
     } else if (lua_key_eq(s,attr)) {
         if (img_state(d) >= DICT_FILESCANNED) {

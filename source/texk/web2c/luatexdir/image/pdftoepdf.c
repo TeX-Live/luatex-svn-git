@@ -104,7 +104,7 @@ static char *get_stream_checksum (const char *str, unsigned long long str_size){
     When fe = FE_RETURN_NULL, the function returns NULL in error case.
 */
 
-PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe)
+PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe, const char *userpassword, const char *ownerpassword)
 {
     char *checksum, *path_copy;
     PdfDocument *pdf_doc;
@@ -157,6 +157,17 @@ PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe)
                     break;
                 default:
                     assert(0);
+            }
+        }
+        if (pdfe != NULL) {
+            if (ppdoc_crypt_status(pdfe) < 0) {
+                ppdoc_crypt_pass(pdfe,userpassword,strlen(userpassword),NULL,0);
+            }
+            if (ppdoc_crypt_status(pdfe) < 0) {
+                ppdoc_crypt_pass(pdfe,NULL,0,ownerpassword,strlen(ownerpassword));
+            }
+            if (ppdoc_crypt_status(pdfe) < 0) {
+                formatted_error("pdf inclusion","the pdf file '%s' is encrypted, provide proper passwords",file_path);
             }
         }
         pdf_doc->pdfe = pdfe;
@@ -233,6 +244,7 @@ PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streams
 */
 
 typedef struct ObjMap ObjMap ;
+
 struct ObjMap {
     ppref * in;
     int out_num;
@@ -571,7 +583,7 @@ void read_pdf_info(image_dict * idict)
     int pdf_minor_version_found = 3;
     float xsize, ysize, xorig, yorig;
     if (img_type(idict) == IMG_TYPE_PDF) {
-        pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
+        pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL, img_userpassword(idict), img_ownerpassword(idict));
     } else if (img_type(idict) == IMG_TYPE_PDFMEMSTREAM) {
         pdf_doc = findPdfDocument(img_filepath(idict)) ;
         if (pdf_doc == NULL )
@@ -718,7 +730,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         open PDF file
     */
     if (img_type(idict) == IMG_TYPE_PDF) {
-        pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
+        pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL, img_userpassword(idict), img_ownerpassword(idict));
     } else if (img_type(idict) == IMG_TYPE_PDFMEMSTREAM) {
         pdf_doc = findPdfDocument(img_filepath(idict)) ;
         pdf_doc->occurences++;
@@ -920,7 +932,7 @@ int write_epdf_object(PDF pdf, image_dict * idict, int n)
     if (img_type(idict) != IMG_TYPE_PDF) {
         normal_error("pdf inclusion","unknown document");
     } else {
-        PdfDocument * pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL);
+        PdfDocument * pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL, img_userpassword(idict), img_ownerpassword(idict));
         ppdoc * pdfe = pdf_doc->pdfe;
         ppref * ref = ppxref_find(ppdoc_xref(pdfe), (ppuint) n);
         if (ref != NULL) {

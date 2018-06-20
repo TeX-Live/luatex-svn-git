@@ -341,7 +341,7 @@ void read_img(image_dict * idict)
 }
 
 @ @c
-static image_dict *read_image(char *file_name, int page_num, char *page_name, int colorspace, int page_box)
+static image_dict *read_image(char *file_name, int page_num, char *page_name, int colorspace, int page_box, char *user_password, char *owner_password, char *visible_filename)
 {
     image *a = new_image();
     image_dict *idict = img_dict(a) = new_image_dict();
@@ -353,6 +353,9 @@ static image_dict *read_image(char *file_name, int page_num, char *page_name, in
     img_colorspace(idict) = colorspace;
     img_pagenum(idict) = page_num;
     img_pagename(idict) = page_name;
+    img_userpassword(idict) = user_password;
+    img_ownerpassword(idict) = owner_password;
+    img_visiblefilename(idict) = visible_filename;
     if (file_name == NULL) {
         normal_error("pdf backend","no image filename given");
     }
@@ -387,7 +390,7 @@ void scan_pdfximage(PDF pdf) /* static_pdf */
     scaled_whd alt_rule;
     image_dict *idict;
     int transform = 0, page = 1, pagebox, colorspace = 0;
-    char *named = NULL, *attr = NULL, *file_name = NULL;
+    char *named = NULL, *attr = NULL, *file_name = NULL, *user = NULL, *owner = NULL, *visible = NULL;
     alt_rule = scan_alt_rule(); /* scans |<rule spec>| to |alt_rule| */
     if (scan_keyword("attr")) {
         scan_toks(false, true);
@@ -396,12 +399,32 @@ void scan_pdfximage(PDF pdf) /* static_pdf */
     }
     if (scan_keyword("named")) {
         scan_toks(false, true);
-        named = tokenlist_to_cstring(def_ref, true, NULL);
+        if (0) {
+            named = tokenlist_to_cstring(def_ref, true, NULL);
+            page = 0;
+        } else {
+            normal_warning("pdf backend","named pages are not supported, using page 1");
+            page = 1;
+        }
         delete_token_ref(def_ref);
-        page = 0;
     } else if (scan_keyword("page")) {
         scan_int();
         page = cur_val;
+    }
+    if (scan_keyword("userpassword")) {
+        scan_toks(false, true);
+        user = tokenlist_to_cstring(def_ref, true, NULL);
+        delete_token_ref(def_ref);
+    }
+    if (scan_keyword("ownerpassword")) {
+        scan_toks(false, true);
+        owner = tokenlist_to_cstring(def_ref, true, NULL);
+        delete_token_ref(def_ref);
+    }
+    if (scan_keyword("visiblefilename")) {
+        scan_toks(false, true);
+        visible = tokenlist_to_cstring(def_ref, true, NULL);
+        delete_token_ref(def_ref);
     }
     if (scan_keyword("colorspace")) {
         scan_int();
@@ -419,7 +442,7 @@ void scan_pdfximage(PDF pdf) /* static_pdf */
         normal_error("pdf backend","no image filename given");
     }
     delete_token_ref(def_ref);
-    idict = read_image(file_name, page, named, colorspace, pagebox);
+    idict = read_image(file_name, page, named, colorspace, pagebox, user, owner, visible);
     img_attr(idict) = attr;
     img_dimen(idict) = alt_rule;
     img_transform(idict) = transform;

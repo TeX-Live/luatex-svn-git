@@ -116,6 +116,8 @@ typedef struct {
     char *filepath;             /* full file path after kpathsea */
     char *attr;                 /* additional image dict entries */
     FILE *file;
+    char *userpassword;
+    char *ownerpassword;
     imgtype_e image_type;
     int procset;                /* /ProcSet flags */
     int color_depth;            /* color depth */
@@ -159,6 +161,8 @@ typedef struct {
 #  define img_pagename(N)         ((N)->pagename)
 #  define img_filename(N)         ((N)->filename)
 #  define img_visiblefilename(N)  ((N)->visiblefilename)
+#  define img_userpassword(N)     ((N)->userpassword)
+#  define img_ownerpassword(N)    ((N)->ownerpassword)
 #  define img_filepath(N)         ((N)->filepath)
 #  define img_attr(N)             ((N)->attr)
 #  define img_file(N)             ((N)->file)

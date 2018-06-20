@@ -163,7 +163,7 @@ struct PdfDocument {
 
 typedef struct PdfDocument PdfDocument;
 
-PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe);
+PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe, const char *userpassword, const char *ownerpassword);
 
 PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streamsize, const char *file_id);
 

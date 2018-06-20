@@ -183,12 +183,12 @@ static pdfe_reference *check_isreference(lua_State * L, int n)
 
 #define check_type(field,meta,name) do { \
     lua_get_metatablelua(luatex_##meta); \
-    if (lua_rawequal(L, -1, -2)) {	 \
-      lua_pushstring(L,name);		 \
-      return 1;				 \
-    }					 \
-    lua_pop(L, 1);			 \
-  } while (0)
+    if (lua_rawequal(L, -1, -2)) { \
+        lua_pushstring(L,name); \
+        return 1; \
+    } \
+    lua_pop(L, 1); \
+} while (0)
 
 static int pdfelib_type(lua_State * L)
 {
@@ -317,7 +317,7 @@ static int pushstreamonly(lua_State * L, ppstream * stream)
     luaL_getmetatable(L, PDFE_METATABLE_REFERENCE);			\
     lua_setmetatable(L, -2);						\
     r->reference = reference;						\
-  } while(0)
+  } while (0)
 
 static int pushreference(lua_State * L, ppref * reference)
 {
@@ -588,7 +588,7 @@ static int pdfelib_pagestotable(lua_State * L)
         ppdoc *d = p->document;
         ppref *r = NULL;
         int i = 0;
-        lua_createtable(L,p->pages,0);
+        lua_createtable(L,ppdoc_page_count(d),0);
         /* pages[1..n] */
         for (r = ppdoc_first_page(d), i = 1; r != NULL; r = ppdoc_next_page(d), ++i) {
             lua_createtable(L,3,0);
@@ -707,7 +707,6 @@ static int pdfelib_open(lua_State * L)
         p->document = d;
         p->open = true;
         p->isfile = true;
-        p->pages = (int) ppdoc_page_count(d); /* we can delay this */
         return 1;
     }
     return 0;
@@ -770,15 +769,15 @@ static int pdfelib_unencrypt(lua_State * L)
         const char* user = NULL;
         const char* owner = NULL;
         int top = lua_gettop(L);
-        if (top > 0) {
-            if (lua_type(L,1) == LUA_TSTRING) {
-                user = lua_tolstring(L, 1, &u);
+        if (top > 1) {
+            if (lua_type(L,2) == LUA_TSTRING) {
+                user = lua_tolstring(L, 2, &u);
             } else {
                 /* we're not too picky but normally it will be nil or false */
             }
-            if (top > 1) {
-                if (lua_type(L,2) == LUA_TSTRING) {
-                    owner = lua_tolstring(L, 2, &o);
+            if (top > 2) {
+                if (lua_type(L,3) == LUA_TSTRING) {
+                    owner = lua_tolstring(L, 3, &o);
                 } else {
                     /* we're not too picky but normally it will be nil or false */
                 }
@@ -867,7 +866,7 @@ static int pdfelib_getnofpages(lua_State * L)
     pdfe_document *p = check_isdocument(L, 1);
     if (p == NULL)
         return 0;
-    lua_pushinteger(L,(int) p->pages);
+    lua_pushinteger(L,(int) ppdoc_page_count(p->document));
     return 1;
 }
 
@@ -893,7 +892,7 @@ static int pdfelib_getpage(lua_State * L)
     pdfe_document *p = check_isdocument(L, 1);
     if (p != NULL) {
         int page = luaL_checkint(L, 2);
-        if (page <= p->pages) {
+        if (page <= ppdoc_page_count(p->document)) {
             ppref *pp = ppdoc_page(p->document,page);
             return pushdictionaryonly(L, ppref_obj(pp)->dict);
         }
@@ -909,8 +908,8 @@ static int pdfelib_getbox(lua_State * L)
         pdfe_dictionary *p = check_isdictionary(L, 1);
         if (p != NULL) {
             const char *key = lua_tostring(L,1);
-            pprect *box ; box->lx = box->rx = box->ly = box->ry = 0;
-            pprect *r = ppdict_get_box(p->dictionary,key,box);
+            pprect box ; box.lx = box.rx = box.ly = box.ry = 0;
+            pprect *r = ppdict_get_box(p->dictionary,key,&box);
             if (r != NULL) {
                 lua_createtable(L,4,0);
                 lua_pushnumber(L,r->lx);
@@ -963,7 +962,7 @@ static int pdfelib_getfromreference(lua_State * L)
     } else if (! lua_getmetatable(L, 1)) {				\
       normal_warning("pdfe lib","first argument should be a <pde array> or <pde dictionary>"); \
     }									\
-} while(0)
+  } while (0)
 
 #define pdfelib_get_value_check_2 \
     normal_warning("pdfe lib","second argument should be integer or string");
@@ -1004,13 +1003,13 @@ static int pdfelib_getfromreference(lua_State * L)
       }									\
     } else {								\
       pdfelib_get_value_check_2;					\
-    } 									\
-  } while(0)
+    }									\
+  } while (0)
 
 #define pdfelib_get_value_indirect(get_d,get_a) do {			\
     int t = lua_type(L,2);						\
     void *p = lua_touserdata(L, 1);					\
-     pdfelib_get_value_check_1;						\
+    pdfelib_get_value_check_1;						\
     if (t == LUA_TSTRING) {						\
       const char *key = lua_tostring(L,-2);				\
       lua_get_metatablelua(luatex_pdfe_dictionary);			\
@@ -1061,7 +1060,7 @@ static int pdfelib_getinteger(lua_State * L)
 {
     if (lua_gettop(L) > 1) {
         ppint value = 0;
-	int okay = 0; /* BE CAREFUL: modified by the macro below */
+	int okay = 0;
         pdfelib_get_value_indirect(ppdict_rget_int,pparray_rget_int);
         if (okay) {
             lua_pushinteger(L,(int) value);
@@ -1075,7 +1074,7 @@ static int pdfelib_getnumber(lua_State * L)
 {
     if (lua_gettop(L) > 1) {
         ppnum value = 0;
-	int okay = 0; /* BE CAREFUL: modified by the macro below */
+	int okay = 0;
         pdfelib_get_value_indirect(ppdict_rget_num,pparray_rget_num);
         if (okay) {
             lua_pushnumber(L,value);
@@ -1089,7 +1088,7 @@ static int pdfelib_getboolean(lua_State * L)
 {
     if (lua_gettop(L) > 1) {
         int value = 0;
-	int okay = 0; /* BE CAREFUL: modified by the macro below */
+	int okay = 0;
         pdfelib_get_value_indirect(ppdict_rget_bool,pparray_rget_bool);
         if (okay) {
             lua_pushboolean(L,value);
@@ -1225,7 +1224,7 @@ static int pdfelib_access(lua_State * L)
             int i = 0;
             ppref *r;
             ppdoc *d = p->document;
-            lua_createtable(L,p->pages,0);
+            lua_createtable(L,ppdoc_page_count(d),0);
             /* pages[1..n] */
             for (r = ppdoc_first_page(d), i = 1; r != NULL; r = ppdoc_next_page(d), ++i) {
                 pushdictionaryonly(L,ppref_obj(r)->dict);
