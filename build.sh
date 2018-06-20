@@ -100,8 +100,8 @@ until [ -z "$1" ]; do
     --nojit     ) BUILDJIT=FALSE     ;;
     --make      ) ONLY_MAKE=TRUE     ;;
     --nostrip   ) STRIP_LUATEX=FALSE ;;
-    --debugopt  ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-O3 -g -ggdb3 $CFLAGS" ; CXXFLAGS="-O3 -g -ggdb $CXXFLAGS"  ;;
-    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-O0 -g -ggdb3 $CFLAGS" ; CXXFLAGS="-O0 -g -ggdb $CXXFLAGS"  ;;
+    --debugopt  ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-O3 -g -ggdb3 $CFLAGS" ; CXXFLAGS="-O3 -g -ggdb3 $CXXFLAGS"  ;;
+    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-O0 -g -ggdb3 $CFLAGS" ; CXXFLAGS="-O0 -g -ggdb3 $CXXFLAGS"  ;;
     --clang     ) export CC=clang; export CXX=clang++ ; TARGET_CC=$CC ; CLANG=TRUE ;;
     --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
     --lua52     ) BUILDLUA52=TRUE    ;;
