@@ -39,6 +39,7 @@ extern scaled one_hundred_bp;   /* from pdfgen.w */
 
 typedef struct {
     char *stream;
+    size_t size;
 } pdf_stream_struct;
 
 typedef struct {
@@ -181,6 +182,7 @@ typedef struct {
 
 #  define img_pdfstream_ptr(N)    ((N)->img_struct.pdfstream)
 #  define img_pdfstream_stream(N) ((N)->img_struct.pdfstream->stream)
+#  define img_pdfstream_size(N)   ((N)->img_struct.pdfstream->size)
 
 #  define img_png_ptr(N)          ((N)->img_struct.png)
 #  define img_png_png_ptr(N)      ((N)->img_struct.png->png_ptr)

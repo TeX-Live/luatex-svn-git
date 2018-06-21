@@ -487,10 +487,10 @@ static int m_img_get(lua_State * L)
         if (img_type(d) != IMG_TYPE_PDFSTREAM
                 || img_pdfstream_ptr(d) == NULL
                 || img_pdfstream_stream(d) == NULL
-                || strlen(img_pdfstream_stream(d)) == 0) {
+                || img_pdfstream_size(d) == 0) {
             lua_pushnil(L);
         } else {
-            lua_pushstring(L, img_pdfstream_stream(d));
+            lua_pushlstring(L, img_pdfstream_stream(d), img_pdfstream_size(d));
         }
     } else if (lua_key_eq(s,visiblefilename)) {
         if (img_visiblefilename(d) == NULL || strlen(img_visiblefilename(d)) == 0) {
@@ -702,11 +702,15 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         } else if (img_state(d) >= DICT_FILESCANNED) {
             luaL_error(L, "image.stream is now read-only");
         } else {
+            size_t size = 0;
+            const char *stream = lua_tolstring(L, -1, &size);
             if (img_pdfstream_ptr(d) == NULL) {
                 new_img_pdfstream_struct(d);
             }
             xfree(img_pdfstream_stream(d));
-            img_pdfstream_stream(d) = xstrdup(lua_tostring(L, -1));
+            img_pdfstream_size(d) = size;
+            img_pdfstream_stream(d) = xmalloc(size);
+            memcpy(img_pdfstream_stream(d),stream,size);
             img_type(d) = IMG_TYPE_PDFSTREAM;
         }
     } else {

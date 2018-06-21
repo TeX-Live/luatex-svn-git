@@ -184,6 +184,7 @@ void new_img_pdfstream_struct(image_dict * p)
 {
     img_pdfstream_ptr(p) = xtalloc(1, pdf_stream_struct);
     img_pdfstream_stream(p) = NULL;
+    img_pdfstream_size(p) = 0;
 }
 
 @ @c
@@ -693,8 +694,9 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
-    if (img_pdfstream_stream(idict) != NULL)
-        pdf_puts(pdf, img_pdfstream_stream(idict));
+    if (img_pdfstream_stream(idict) != NULL) {
+        pdf_out_block(pdf, (const char *) img_pdfstream_stream(idict), img_pdfstream_size(idict));
+    }
     pdf_end_stream(pdf);
     pdf_end_obj(pdf);
 }
