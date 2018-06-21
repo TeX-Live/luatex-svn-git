@@ -724,7 +724,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     int i;
     double bbox[4];
     const char *pagedictkeys[] = {
-        "Group", "LastModified", "Metadata", "PieceInfo", "Resources", "SeparationInfo", NULL
+        "Group", "LastModified", "Metadata", "PieceInfo", "SeparationInfo", NULL
     };
     /*
         open PDF file
@@ -746,9 +746,6 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "XObject");
     pdf_dict_add_name(pdf, "Subtype", "Form");
-    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0) {
-        pdf_printf(pdf, "\n%s\n", img_attr(idict));
-    }
     pdf_dict_add_int(pdf, "FormType", 1);
     /*
         write additional information
@@ -834,6 +831,12 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         formatted_warning("pdf inclusion","Page /Resources missing");
     }
     /*
+        User supplied entries.
+    */
+    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0) {
+        pdf_printf(pdf, "\n%s\n", img_attr(idict));
+    }
+    /*
         Write the Page contents.
     */
     content = ppdict_rget_obj(pageDict, "Contents");
@@ -861,7 +864,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
                         copyObject(pdf, pdf_doc, obj);
                     }
                 }
-                pdf_end_dict(pdf);
+               pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
                 copyStreamStream(pdf, stream,0);
             } else {
