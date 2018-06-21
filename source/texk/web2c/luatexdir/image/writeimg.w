@@ -681,8 +681,6 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     pdf_begin_dict(pdf);
     pdf_dict_add_name(pdf, "Type", "XObject");
     pdf_dict_add_name(pdf, "Subtype", "Form");
-    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
-        pdf_printf(pdf, "\n%s\n", img_attr(idict));
     pdf_dict_add_int(pdf, "FormType", 1);
     pdf_add_name(pdf, "BBox");
     pdf_begin_array(pdf);
@@ -691,6 +689,8 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     pdf_add_real(pdf, sp2bp(img_bbox(idict)[2]));
     pdf_add_real(pdf, sp2bp(img_bbox(idict)[3]));
     pdf_end_array(pdf);
+    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
+        pdf_printf(pdf, "\n%s\n", img_attr(idict));
     pdf_dict_add_streaminfo(pdf);
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
