@@ -324,12 +324,15 @@ The second mode accepts a single argument table with key--value pairs.
     compresslevel  = <number>,
     objcompression = <boolean>,
     file           = <string>,
-    string         = <string>
+    string         = <string>,
+    nolength       = <boolean>,
 }
 \stopfunctioncall
 
 The \type {type} field can have the values \type {raw} and \type {stream}, this
-field is required, the others are optional (within constraints).
+field is required, the others are optional (within constraints). When \type
+{nolength} is set, there will be no \type {/Length} entry added to the
+dictionary.
 
 Note: this mode makes \type{obj} look more flexible than it actually is: the
 constraints from the separate parameter version still apply, so for example you
@@ -397,6 +400,259 @@ instance be used to add a custom \type {ToUnicode} vector to a bitmap file.
 pdf.setfontattributes(<number> font id, <string> pdf code)
 \stopfunctioncall
 
+\section{The \type {pdfe} library}
+
+\topicindex{\PDF+analyze}
+\topicindex{\PDF+\type{pdfe}}
+
+The \type {pdfe} library replaces the \type {epdf} library and provides an
+interface to \PDF\ files. It uses the same code as is used for \PDF\ image
+inclusion. The \type {pplib} library by Paweł Jackowski replaces the \type
+{poppler} (derived from \type {xpdf}) library.
+
+A \PDF\ file is basically a tree of objects and one descends into the tree via
+dictionaries (key/value) and arrays (index/value). There are a few topmost
+dictionaries that start at root that are accessed more directly.
+
+Although everything in \PDF\ is basically an object we only wrap a few in so
+called userdata \LUA\ objects.
+
+\starttabulate
+\BC \PDF          \BC \LUA \NC \NR
+\NC null          \NC nil \NC \NR
+\NC boolean       \NC boolean \NC \NR
+\NC integer       \NC integer \NC \NR
+\NC float         \NC number \NC \NR
+\NC name          \NC string \NC \NR
+\NC string        \NC string \NC \NR
+\NC array         \NC array userdatum \NC \NR
+\NC dictionary    \NC dictionary userdatum \NC \NR
+\NC stream        \NC stream userdatum (with related dictionary) \NC \NR
+\NC reference     \NC reference userdatum \NC \NR
+\stoptabulate
+
+The regular getters return these \LUA\ data types but one can also get more
+detailed information.
+
+A document is laded from a file or string
+
+\starttyping
+<pdfe document> = pdfe.open(filename)
+<pdfe document> = pdfe.new(somestring,somelength)
+\stoptyping
+
+Such a document is closed with:
+
+\starttyping
+pdfe.close(<pdfe document>)
+\stoptyping
+
+You can check if a document opened well by:
+
+\starttyping
+pdfe.status(<pdfe document>)
+\stoptyping
+
+The returned codes are:
+
+\starttabulate[|c|l|]
+\DB value       \BC explanation \NC \NR
+\TB
+\NC \type {-2}  \NC the document failed to open \NC \NR
+\NC \type {-1}  \NC the document is (still) protected \NC \NR
+\NC \type {0}   \NC the document is not encrypted \NC \NR
+\NC \type {2}   \NC the document has been unencrypted \NC \NR
+\LL
+\stoptabulate
+
+An encrypted document can be unencrypted by the next command where instead of
+either password you can give \type {nil}:
+
+\starttyping
+pdfe.unencrypt(<pdfe document>,userpassword,ownerpassword)
+\stoptyping
+
+A successfully opened document can provide some information:
+
+\starttyping
+bytes = size(<pdfe document>)
+major, minor = version(<pdfe document>)
+n = nofobjects(<pdfe document>)
+n = nofpages(<pdfe document>)
+bytes, waste = nofpages(<pdfe document>)
+\stoptyping
+
+For accessing the document structure you start with the so called catalog, a
+dictionary:
+
+\starttyping
+<pdfe dictionary> = pdfe.getcatalog(<pdfe document>)
+\stoptyping
+
+The other two root dictionaries are accessed with:
+
+\starttyping
+<pdfe dictionary> = pdfe.gettrailer(<pdfe document>)
+<pdfe dictionary> = pdfe.getinfo(<pdfe document>)
+\stoptyping
+
+A specific page can conveniently be reached with the next command, which
+returns a dictionary.
+
+\starttyping
+<pdfe dictionary> = pdfe.getpage(<pdfe document>,pagenumber)
+\stoptyping
+
+Another convenience command gives you the (bounding) box of a (normally page)
+which can be inheritted from the document itself. An example of a valid box name
+is \type {MediaBox}.
+
+\starttyping
+pages = pdfe.getbox(<pdfe document>,boxname)
+\stoptyping
+
+Common values in dictionaries and arrays are strings, integers, floats, booleans
+and names (which are also strings) and these are also normal \LUA\ objects:
+
+\starttyping
+s = getstring (<pdfe array|dictionary>,index|key)
+i = getinteger(<pdfe array|dictionary>,index|key)
+n = getnumber (<pdfe array|dictionary>,index|key)
+b = getboolean(<pdfe array|dictionary>,index|key)
+n = getname   (<pdfe array|dictionary>,index|key)
+\stoptyping
+
+Normally you will use an index in an array and key in a dictionary but dictionaries
+also accept an index. The size of an array or dictionary is available with the
+usual \type {#} operator.
+
+\starttyping
+<pdfe dictionary>   = getdictionary(<pdfe array|dictionary>,index|key)
+<pdfe array>        = getarray     (<pdfe array|dictionary>,index|key)
+<pdfe stream>,
+<pdfe dictionary>   = getstream    (<pdfe array|dictionary>,index|key)
+\stoptyping
+
+These commands return dictionaries, arrays and streams, which are dictionaries
+with a blob of data attached.
+
+Before we come to an alternative access mode, we mention that the objects provide
+access in a different way too, for instance this is valid:
+
+\starttyping
+print(pdfe.open("foo.pdf").Catalog.Type)
+\stoptyping
+
+At the topmost level there are \type {Catalog}, \type {Info}, \type {Trailer}
+and \type {Pages}, so this is also okay:
+
+\starttyping
+print(pdfe.open("foo.pdf").Pages[1])
+\stoptyping
+
+Streams are sort of special. When your index or key hits a stream you get back a
+stream object and dictionary object. The dictionary you can access in the usual
+way and for the stream there are the following methods:
+
+\starttyping
+okay   = openstream(<pdfe stream>,[decode])
+         closestream(<pdfe stream>)
+str, n = readfromstream(<pdfe stream>)
+str, n = readwholestream(<pdfe stream>,[decode])
+\stoptyping
+
+You either read in chunks, or you ask for the whole. When reading in chunks, you
+need to open and close the stream yourself. The \type {n} value indicates the
+length read. The \type {decode} parameter controls if the stream data gets
+uncompressed.
+
+As with dictionaries, you can access fields in a stream dictionary in the usual
+\LUA\ way too. You get the content when you \quote {call} the stream. You can
+pass a boolean that indicates if the stream has to be decompressed.
+
+% pdfe.objectcodes      = objectcodes
+% pdfe.stringcodes      = stringcodes
+% pdfe.encryptioncodes  = encryptioncodes
+
+In addition to the interface described before, there is also a bit lower level
+interface available.
+
+\starttyping
+key, type, value, detail = getfromdictionary(<pdfe dictionary>,index)
+type, value, detail = getfromarray(<pdfe array>,index)
+\stoptyping
+
+\starttabulate[|c|l|l|l|]
+\DB type       \BC meaning    \BC value            \BC detail \NC \NR
+\NC \type {0}  \NC none       \NC nil              \NC \NC \NR
+\NC \type {1}  \NC null       \NC nil              \NC \NC \NR
+\NC \type {2}  \NC boolean    \NC boolean          \NC \NC \NR
+\NC \type {3}  \NC boolean    \NC integer          \NC \NC \NR
+\NC \type {4}  \NC number     \NC float            \NC \NC \NR
+\NC \type {5}  \NC name       \NC string           \NC \NC \NR
+\NC \type {6}  \NC string     \NC string           \NC hex \NC \NR
+\NC \type {7}  \NC array      \NC arrayobject      \NC size \NC \NR
+\NC \type {8}  \NC dictionary \NC dictionaryobject \NC size \NC \NR
+\NC \type {9}  \NC stream     \NC streamobject     \NC dictionary size \NC \NR
+\NC \type {10} \NC reference  \NC integer          \NC \NC \NR
+\LL
+\stoptabulate
+
+A \type {hex} string is (in the \PDF\ file) surrounded by \type {<>} while plain
+strings are bounded by \type {<>}.
+
+All entries in a dictionary or table can be fetched with the following commands
+where the return values are a hashed or indexed table.
+
+\starttyping
+hash = dictionarytotable(<pdfe dictionary>)
+list = arraytotable(<pdfe array>)
+\stoptyping
+
+You can get a list of pages with:
+
+\starttyping
+{ { <pdfe dictionary>, size, objnum }, ... } = pagestotable(<pdfe document>)
+\stoptyping
+
+Because you can have unresolved references, a reference object can be resolved
+with:
+
+\starttyping
+<pdfe dictionary|array|stream> = getfromreference(<pdfe reference>)
+\stoptyping
+
+\topicindex{\PDF+memory streams}
+
+There is an experimental function \type {epdf.openMemStream} that takes three
+arguments:
+
+\starttabulate
+\DB value           \BC explanation      \NC \NR
+\TB
+\NC \type {stream}  \NC this is a (in low level \LUA\ speak) light userdata
+                        object, i.e.\ a pointer to a sequence of bytes \NC \NR
+\NC \type {length}  \NC this is the length of the stream in bytes \NC \NR
+\NC \type {name}    \NC this is a unique identifier that is used for hashing the
+                        stream, so that multiple doesn't use more memory \NC \NR
+\LL
+\stoptabulate
+
+Instead of a light userdata stream you can also pass a \LUA\ string, in which
+case the given length is (at most) the string length.
+
+The function returns an \type {epdf} object and a string. The string can be used in
+the \type {img} library instead of a filename. You need to prevent garbage
+collection of the object when you use it as image (for instance by storing it
+somewhere).
+
+Both the memory stream and it's use in the image library is experimental and can
+change. In case you wonder where this can be used: when you use the swiglib
+library for \type {graphicmagick}, it can return such a userdata object. This
+permits conversion in memory and passing the result directly to the backend. This
+might save some runtime in one|-|pass workflows. This feature is currently not
+meant for production and we might come up with a better implementation.
+
 \section {The \type {pdfscanner} library}
 
 \topicindex{\PDF+scanner}
@@ -407,21 +663,19 @@ The \type {pdfscanner} library allows interpretation of \PDF\ content streams an
 top|-|level function in this library:
 
 \startfunctioncall
-pdfscanner.scan (<Object> stream, <table> operatortable, <table> info)
+pdfscanner.scan (<pdfe stream>, <table> operatortable, <table> info)
+pdfscanner.scan (<pdfe array>, <table> operatortable, <table> info)
+pdfscanner.scan (<string>, <table> operatortable, <table> info)
 \stopfunctioncall
 
-The first argument, \type {stream}, should be either a \PDF\ stream object, or a
-\PDF\ array of \PDF\ stream objects (those options comprise the possible return
-values of \type {<Page>:getContents()} and \type {<Object>:getStream()} in the
-\type {epdf} library).
-
-The second argument, \type {operatortable}, should be a \LUA\ table where the
-keys are \PDF\ operator name strings and the values are \LUA\ functions (defined
-by you) that are used to process those operators. The functions are called
-whenever the scanner finds one of these \PDF\ operators in the content stream(s).
-The functions are called with two arguments: the \type {scanner} object itself,
-and the \type {info} table that was passed are the third argument to \type
-{pdfscanner.scan}.
+The first argument should be a \LUA\ string or a stream or array onject coming
+from the \type {pdfe} library. The second argument, \type {operatortable}, should
+be a \LUA\ table where the keys are \PDF\ operator name strings and the values
+are \LUA\ functions (defined by you) that are used to process those operators.
+The functions are called whenever the scanner finds one of these \PDF\ operators
+in the content stream(s). The functions are called with two arguments: the \type
+{scanner} object itself, and the \type {info} table that was passed are the third
+argument to \type {pdfscanner.scan}.
 
 Internally, \type {pdfscanner.scan} loops over the \PDF\ operators in the
 stream(s), collecting operands on an internal stack until it finds a \PDF\
@@ -437,42 +691,44 @@ stack.
 A simple example of processing a \PDF's document stream could look like this:
 
 \starttyping
-function Do (scanner, info)
-   local val       = scanner:pop()
-   local name      = val[2] -- val[1] == 'name'
-   local resources = info.resources
-   local xobject   = resources:lookup("XObject"):getDict():lookup(name)
-   print (info.space ..'Use XObject '.. name)
-   if xobject and xobject:isStream() then
-      local dict = xobject:getStream():getDict()
-      if dict then
-        local name = dict:lookup("Subtype")
-        if name:getName() == "Form" then
-          local newinfo =  {
-            space = info.space .. "  " ,
-            resources = dict:lookup("Resources"):getDict()
-          }
-          pdfscanner.scan(xobject, operatortable, newinfo)
+local operatortable = { }
+
+operatortable.Do = function(scanner,info)
+    local resources = info.resources
+    if resources then
+        local val     = scanner:pop()
+        local name    = val[2]
+        local xobject = resources.XObject
+        print(info.space .. "Uses XObject " .. name)
+        local resources = xobject.Resources
+        if resources then
+            local newinfo =  {
+                space     = info.space .. "  ",
+                resources = resources,
+            }
+            pdfscanner.scan(entry, operatortable, newinfo)
         end
-      end
-   end
+    end
 end
 
-operatortable = { Do = Do }
-
-doc      = epdf.open(arg[1])
-pagenum  = 1
-
-while pagenum <= doc:getNumPages() do
-   local page = doc:getCatalog():getPage(pagenum)
-   local info = {
-     space     = "  " ,
-     resources = page:getResourceDict()
-   }
-   print('Page ' .. pagenum)
-   pdfscanner.scan(page:getContents(), operatortable, info)
-   pagenum = pagenum + 1
+local function Analyze(filename)
+    local doc = pdfe.open(filename)
+    if doc then
+        local pages = doc.Pages
+        for i=1,#pages do
+            local page = pages[i]
+            local info = {
+              space     = "  " ,
+              resources = page.Resources,
+            }
+            print("Page " .. i)
+         -- pdfscanner.scan(page.Contents,operatortable,info)
+            pdfscanner.scan(page.Contents(),operatortable,info)
+        end
+    end
 end
+
+Analyze("foo.pdf")
 \stoptyping
 
 This example iterates over all the actual content in the \PDF, and prints out the
@@ -481,11 +737,7 @@ found \type {XObject} names. While the code demonstrates quite some of the \type
 instead.
 
 From the bottom up, the following line runs the scanner with the \PDF\ page's
-top-level content.
-
-\starttyping
-   pdfscanner.scan(page:getContents(), operatortable, info)
-\stoptyping
+top|-|level content given in the first argument.
 
 The third argument, \type {info}, contains two entries: \type {space} is used to
 indent the printed output, and \type {resources} is needed so that embedded \type
@@ -567,218 +819,6 @@ have learned everything you want to learn. This comes in handy while parsing
 \type {/ToUnicode}, because there usually is trailing garbage that you are not
 interested in. Without \type {done}, processing only ends at the end of the
 stream, possibly wasting \CPU\ cycles.
-
-\section{The \type {epdf} library}
-
-\topicindex{\PDF+analyze}
-\topicindex{\PDF+\type{epdf}}
-
-When a (page from a) \PDF\ file is included, that file is opened for inspection.
-The library that is used here is also available via the \LUA\ \type {epdf}
-library. In versions upto 1.07 we use the poppler \PDF\ viewer library (written
-in C$+{}+$ by Kristian H\o gsberg, based on xpdf by Derek Noonburg). Because the
-low level accessors are not considered to be part fo that library we decided that
-from version 1.10 onwards we will use a lightweight dedicated library instead.
-The backend only needs a small subset of accessors but we provide enough in the
-library to investigate a file.
-
-{\em The text below still describes the current library but be aware of upcoming
-changes. More might disappear during the transition!}
-
-A \PDF\ file is opened by \type {epdf.open()} with file name, as in:
-
-\starttyping
-doc = epdf.open("foo.pdf")
-\stoptyping
-
-This normally returns a \type {PDFDoc} userdata variable; but if the file could
-not be opened successfully, instead of a fatal error just the value \type {nil} is
-returned.
-
-All \LUA\ functions in the \type {epdf} library are named after the poppler
-functions listed in the poppler header files for the various classes, e.g., files
-\type {PDFDoc.h}, \type {Dict.h}, and \type {Array.h}. These files can be found
-in the poppler subdirectory within the \LUATEX\ sources. Which functions are
-already implemented in the \type {epdf} library can be found in the \LUATEX\
-source file \type {lepdflib.cc}. For using the \type {epdf} library, knowledge of
-the \PDF\ file architecture is indispensable.
-
-There are many different userdata types defined by the \type {epdf} library,
-currently these are \type {Array}, \type {Catalog}, \type {Dict}, \type
-{ObjectStream}, \type {Object}, \type {PDFDoc}, \type {Stream},
-\type {XRefEntry} and \type {XRef}.
-
-All these userdata names and the \LUA\ access functions closely resemble the
-classes naming from the poppler header files, including the choice of mixed upper
-and lower case letters. The \LUA\ function calls use object|-|oriented syntax,
-e.g., the following calls return the \type {Page} object for page~1:
-
-\starttyping
-pageref = doc:getCatalog():getPageRef(1)
-pageobj = doc:getXRef():fetch(pageref.num, pageref.gen)
-\stoptyping
-
-But writing such chained calls is risky, as an intermediate function may return
-\type {nil} on error. Therefore between function calls there should be \LUA\ type
-checks (e.g., against \type {nil}) done. If a non|-|object item is requested,
-cf.~\type {Page.h}) but not available, the \LUA\ functions return \type {nil}
-(without error). If a function should return an \type {Object}, but it's not
-existing, a \type {Null} object is returned instead, also without error. This is
-in|-|line with poppler behavior.
-
-All library objects have a \type {__gc} metamethod for garbage collection. The
-\type {__tostring} metamethod gives the type name for each object.
-
-These are the object constructors:
-
-\startfunctioncall
-<PDFDoc>       = epdf.open(<string> PDF filename)
-<PDFDoc>       = epdf.openMemStream(<string> PDF code)
-\stopfunctioncall
-
-\type {Array} methods:
-
-\startfunctioncall
-<integer> = <Array>:getLength()
-<Object>  = <Array>:get(<integer>)
-<Object>  = <Array>:getNF(<integer>)
-\stopfunctioncall
-
-\type {Catalog} methods:
-
-\startfunctioncall
-<integer>  = <Catalog>:getNumPages()
-<Page>     = <Catalog>:getPage(<integer>)
-<Ref>      = <Catalog>:getPageRef(<integer>)
-<integer>  = <Catalog>:findPage(<integer> object number, <integer> object generation)
-\stopfunctioncall
-
-\type {Dict} methods:
-
-\startfunctioncall
-<integer> = <Dict>:getLength()
-<Object>  = <Dict>:lookup(<string>)
-<Object>  = <Dict>:lookupNF(<string>)
-<string>  = <Dict>:getKey(<integer>)
-<Object>  = <Dict>:getVal(<integer>)
-<Object>  = <Dict>:getValNF(<integer>)
-<boolean> = <Dict>:hasKey(<string>)
-\stopfunctioncall
-
-\type {Object} methods:
-
-\startfunctioncall
-<Object>  = <Object>:fetch(<XRef>)
-<integer> = <Object>:getType()
-<string>  = <Object>:getTypeName()
-<boolean> = <Object>:getBool()
-<integer> = <Object>:getInt()
-<number>  = <Object>:getReal()
-<string>  = <Object>:getString()
-<string>  = <Object>:getName()
-<Array>   = <Object>:getArray()
-<Dict>    = <Object>:getDict()
-<Stream>  = <Object>:getStream()
-<Ref>     = <Object>:getRef()
-<integer> = <Object>:getRefNum()
-<integer> = <Object>:getRefGen()
-<string>  = <Object>:getCmd()
-<integer> = <Object>:arrayGetLength()
-<Object>  = <Object>:arrayGet(<integer>)
-<Object>  = <Object>:arrayGetNF(<integer>)
-<integer> = <Object>:dictGetLength(<integer>)
-<Object>  = <Object>:dictLookup(<string>)
-<Object>  = <Object>:dictLookupNF(<string>)
-<string>  = <Object>:dictgetKey(<integer>)
-<Object>  = <Object>:dictgetVal(<integer>)
-<Object>  = <Object>:dictgetValNF(<integer>)
-          = <Object>:streamReset()
-<integer> = <Object>:streamGetChar()
-<integer> = <Object>:streamLookChar()
-<integer> = <Object>:streamGetPos()
-          = <Object>:streamSetPos(<integer>)
-<Dict>    = <Object>:streamGetDict()
-\stopfunctioncall
-
-\type {PDFDoc} methods:
-
-\startfunctioncall
-<boolean>  = <PDFDoc>:isOk()
-<string>   = <PDFDoc>:getFileName()
-<XRef>     = <PDFDoc>:getXRef()
-<Catalog>  = <PDFDoc>:getCatalog()
-<integer>  = <PDFDoc>:getNumPages()
-<integer>  = <PDFDoc>:findPage(<integer> object number,
-                <integer> object generation)
-<Object>   = <PDFDoc>:getDocInfo()
-<Object>   = <PDFDoc>:getDocInfoNF()
-<integer>  = <PDFDoc>:getPDFMajorVersion()
-<integer>  = <PDFDoc>:getPDFMinorVersion()
-\stopfunctioncall
-
-\type {Stream} methods:
-
-\startfunctioncall
-<integer>  = <Stream>:getKind()
-<string>   = <Stream>:getKindName()
-           = <Stream>:reset()
-           = <Stream>:close()
-<integer>  = <Stream>:getChar()
-<integer>  = <Stream>:lookChar()
-<integer>  = <Stream>:getRawChar()
-<integer>  = <Stream>:getUnfilteredChar()
-           = <Stream>:unfilteredReset()
-<integer>  = <Stream>:getPos()
-<boolean>  = <Stream>:isBinary()
-<Stream>   = <Stream>:getUndecodedStream()
-<Dict>     = <Stream>:getDict()
-\stopfunctioncall
-
-\type {XRef} methods:
-
-\startfunctioncall
-<Object>   = <XRef>:getCatalog()
-<Object>   = <XRef>:fetch(<integer> object number,
-                <integer> object generation)
-<Object>   = <XRef>:getDocInfo()
-<Object>   = <XRef>:getDocInfoNF()
-<integer>  = <XRef>:getNumObjects()
-<integer>  = <XRef>:getRootNum()
-<integer>  = <XRef>:getRootGen()
-<integer>  = <XRef>:getSize()
-<Object>   = <XRef>:getTrailerDict()
-\stopfunctioncall
-
-\topicindex{\PDF+memory streams}
-
-There is an experimental function \type {epdf.openMemStream} that takes three
-arguments:
-
-\starttabulate
-\DB value           \BC explanation      \NC \NR
-\TB
-\NC \type {stream}  \NC this is a (in low level \LUA\ speak) light userdata
-                        object, i.e.\ a pointer to a sequence of bytes \NC \NR
-\NC \type {length}  \NC this is the length of the stream in bytes \NC \NR
-\NC \type {name}    \NC this is a unique identifier that is used for hashing the
-                        stream, so that multiple doesn't use more memory \NC \NR
-\LL
-\stoptabulate
-
-Instead of a light userdata stream you can also pass a \LUA\ string, in which
-case the given length is (at most) the string length.
-
-The function returns an \type {epdf} object and a string. The string can be used in
-the \type {img} library instead of a filename. You need to prevent garbage
-collection of the object when you use it as image (for instance by storing it
-somewhere).
-
-Both the memory stream and it's use in the image library is experimental and can
-change. In case you wonder where this can be used: when you use the swiglib
-library for \type {graphicmagick}, it can return such a userdata object. This
-permits conversion in memory and passing the result directly to the backend. This
-might save some runtime in one|-|pass workflows. This feature is currently not
-meant for production and we might come up with a better implementation.
 
 \stopchapter
 

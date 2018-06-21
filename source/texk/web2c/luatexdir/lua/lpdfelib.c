@@ -8,7 +8,9 @@
 #include "ptexlib.h"
 
 /*tex
+
     We need to avoid collision with some defines in |cpascal.h|.
+
 */
 
 #undef lpdfelib_orig_input
@@ -38,9 +40,13 @@
 
 #include "lua/luatex-api.h"
 
-/* housekeeping */
+/*tex
 
-/* data types */
+    We start with some housekeeping. Dictionaries, arrays, streams and references
+    get userdata, while strings, names, integers, floats and booleans become regular
+    \LUA\ objects. We need to define a few metatable identifiers too.
+
+*/
 
 #define PDFE_METATABLE            "luatex.pdfe"
 #define PDFE_METATABLE_DICTIONARY "luatex.pdfe.dictionary"
@@ -77,14 +83,17 @@ typedef struct {
     ppref *reference;
 } pdfe_reference;
 
-/* housekeeping */
+/*tex
 
-static void pdfe_warning(const char * detail)
+    We need to check if we have the right userdata. A similar warning is issued
+    when encounter a problem. We don't exit.
+
+*/
+
+static void pdfe_invalid_object_warning(const char * detail)
 {
     formatted_warning("pdfe lib","lua <pdfe %s> expected",detail);
 }
-
-/* document helpers */
 
 static pdfe_document *check_isdocument(lua_State * L, int n)
 {
@@ -99,11 +108,9 @@ static pdfe_document *check_isdocument(lua_State * L, int n)
             return p;
         }
     }
-    pdfe_warning("document");
+    pdfe_invalid_object_warning("document");
     return NULL;
 }
-
-/* dictionary helpers */
 
 static pdfe_dictionary *check_isdictionary(lua_State * L, int n)
 {
@@ -118,11 +125,9 @@ static pdfe_dictionary *check_isdictionary(lua_State * L, int n)
             return p;
         }
     }
-    pdfe_warning("dictionary");
+    pdfe_invalid_object_warning("dictionary");
     return NULL;
 }
-
-/* array helpers */
 
 static pdfe_array *check_isarray(lua_State * L, int n)
 {
@@ -137,11 +142,9 @@ static pdfe_array *check_isarray(lua_State * L, int n)
             return p;
         }
     }
-    pdfe_warning("array");
+    pdfe_invalid_object_warning("array");
     return NULL;
 }
-
-/* stream helpers */
 
 static pdfe_stream *check_isstream(lua_State * L, int n)
 {
@@ -156,11 +159,9 @@ static pdfe_stream *check_isstream(lua_State * L, int n)
             return p;
         }
     }
-    pdfe_warning("stream");
+    pdfe_invalid_object_warning("stream");
     return NULL;
 }
-
-/* reference helpers */
 
 static pdfe_reference *check_isreference(lua_State * L, int n)
 {
@@ -175,11 +176,20 @@ static pdfe_reference *check_isreference(lua_State * L, int n)
             return p;
         }
     }
-    pdfe_warning("reference");
+    pdfe_invalid_object_warning("reference");
     return NULL;
 }
 
-/* housekeeping */
+/*tex
+
+    Reporting the type of a userdata is just a sequence of tests till we find the
+    right one. We return nothing is it is no pdfe type.
+
+    \starttyping
+    t = pdfe.type(<pdfe document|dictionary|array|reference|stream>)
+    \stoptyping
+
+*/
 
 #define check_type(field,meta,name) do { \
     lua_get_metatablelua(luatex_##meta); \
@@ -203,6 +213,13 @@ static int pdfelib_type(lua_State * L)
     return 0;
 }
 
+/*tex
+
+    The \type {tostring} metamethods are similar and report a pdfe type plus a
+    pointer value, as is rather usual in \LUA.
+
+*/
+
 #define define_to_string(field,what) \
 static int pdfelib_tostring_##field(lua_State * L) { \
     pdfe_##field *p = check_is##field(L, 1); \
@@ -219,19 +236,18 @@ define_to_string(array,     "pdfe.array")
 define_to_string(reference, "pdfe.reference")
 define_to_string(stream,    "pdfe.stream")
 
-/*
+/*tex
 
-    There is no gc needed as the library itself manages the objects. Normally
-    objects don't take much space. Streams use buffers so (I assume) that they
-    are not persistent.
+    The pushers look rather similar. We have two variants, one that just pushes
+    the object, and another that also pushes some extra information.
 
 */
 
-#define pdfe_push_dictionary do {					\
-    pdfe_dictionary *d = lua_newuserdata(L, sizeof(pdfe_dictionary));	\
-    luaL_getmetatable(L, PDFE_METATABLE_DICTIONARY);			\
-    lua_setmetatable(L, -2);						\
-    d->dictionary = dictionary;						\
+#define pdfe_push_dictionary do { \
+    pdfe_dictionary *d = lua_newuserdata(L, sizeof(pdfe_dictionary)); \
+    luaL_getmetatable(L, PDFE_METATABLE_DICTIONARY); \
+    lua_setmetatable(L, -2); \
+    d->dictionary = dictionary; \
   } while(0)
 
 static int pushdictionary(lua_State * L, ppdict *dictionary)
@@ -253,11 +269,11 @@ static int pushdictionaryonly(lua_State * L, ppdict *dictionary)
     return 0;
 }
 
-#define pdfe_push_array do {					\
-    pdfe_array *a = lua_newuserdata(L, sizeof(pdfe_array));	\
-    luaL_getmetatable(L, PDFE_METATABLE_ARRAY);			\
-    lua_setmetatable(L, -2);					\
-    a->array = array;						\
+#define pdfe_push_array do { \
+    pdfe_array *a = lua_newuserdata(L, sizeof(pdfe_array)); \
+    luaL_getmetatable(L, PDFE_METATABLE_ARRAY); \
+    lua_setmetatable(L, -2); \
+    a->array = array; \
   } while (0)
 
 static int pusharray(lua_State * L, pparray * array)
@@ -279,13 +295,13 @@ static int pusharrayonly(lua_State * L, pparray * array)
     return 0;
 }
 
-#define pdfe_push_stream do {					\
-    pdfe_stream *s = lua_newuserdata(L, sizeof(pdfe_stream));	\
-    luaL_getmetatable(L, PDFE_METATABLE_STREAM);		\
-    lua_setmetatable(L, -2);					\
-    s->stream = stream;						\
-    s->open = 0;						\
-    s->decode = 0;						\
+#define pdfe_push_stream do { \
+    pdfe_stream *s = lua_newuserdata(L, sizeof(pdfe_stream)); \
+    luaL_getmetatable(L, PDFE_METATABLE_STREAM); \
+    lua_setmetatable(L, -2); \
+    s->stream = stream; \
+    s->open = 0; \
+    s->decode = 0; \
   } while(0)
 
 static int pushstream(lua_State * L, ppstream * stream)
@@ -312,11 +328,11 @@ static int pushstreamonly(lua_State * L, ppstream * stream)
     return 0;
 }
 
-#define pdfe_push_reference do {					\
-    pdfe_reference *r = lua_newuserdata(L, sizeof(pdfe_reference));	\
-    luaL_getmetatable(L, PDFE_METATABLE_REFERENCE);			\
-    lua_setmetatable(L, -2);						\
-    r->reference = reference;						\
+#define pdfe_push_reference do { \
+    pdfe_reference *r = lua_newuserdata(L, sizeof(pdfe_reference)); \
+    luaL_getmetatable(L, PDFE_METATABLE_REFERENCE); \
+    lua_setmetatable(L, -2); \
+    r->reference = reference; \
   } while (0)
 
 static int pushreference(lua_State * L, ppref * reference)
@@ -329,17 +345,30 @@ static int pushreference(lua_State * L, ppref * reference)
     return 0;
 }
 
-/*
-    PPNULL      null          nil
-    PPBOOL      boolean       boolean
-    PPINT       boolean       integer
-    PPNUM       number        float
-    PPNAME      name          string
-    PPSTRING    string        string + type
-    PPARRAY     array         arrayobject       size
-    PPDICT      dictionary    dictionaryobject  size
-    PPSTREAM    stream        streamobject      dictionary   size
-    PPREF       reference     integer
+/*tex
+
+    The next function checks for the type and then pushes the matching data on
+    the stack.
+
+    \starttabulate[|c|l|l|l|]
+    \BC type       \BC meaning    \BC value            \BC detail \NC \NR
+    \NC \type {0}  \NC none       \NC nil              \NC \NC \NR
+    \NC \type {1}  \NC null       \NC nil              \NC \NC \NR
+    \NC \type {2}  \NC boolean    \NC boolean          \NC \NC \NR
+    \NC \type {3}  \NC boolean    \NC integer          \NC \NC \NR
+    \NC \type {4}  \NC number     \NC float            \NC \NC \NR
+    \NC \type {5}  \NC name       \NC string           \NC \NC \NR
+    \NC \type {6}  \NC string     \NC string           \NC type \NC \NR
+    \NC \type {7}  \NC array      \NC arrayobject      \NC size \NC \NR
+    \NC \type {8}  \NC dictionary \NC dictionaryobject \NC size \NC \NR
+    \NC \type {9}  \NC stream     \NC streamobject     \NC dictionary size \NC \NR
+    \NC \type {10} \NC reference  \NC integer          \NC \NC \NR
+    \LL
+    \stoptabulate
+
+    A name and string can be distinguished by the extra type value that a string
+    has.
+
 */
 
 static int pushvalue(lua_State * L, ppobj *object)
@@ -377,15 +406,7 @@ static int pushvalue(lua_State * L, ppobj *object)
         case PPNAME:
             {
                 ppname name = ppobj_get_name(object);
-                /*
-                size_t n = ppname_size(name);
-                lua_pushlstring(L, (const char *) name, n);
-                */
                 lua_pushstring(L, (const char *) ppname_decoded(name));
-                /*
-                lua_pushboolean(L, ppname_exec(name));
-                return 2;
-                */
                 return 1;
             }
             break;
@@ -394,7 +415,7 @@ static int pushvalue(lua_State * L, ppobj *object)
                 ppstring str = ppobj_get_string(object);
                 size_t n = ppstring_size(str);
                 lua_pushlstring(L,(const char *) str, n);
-                lua_pushinteger(L, ppstring_type(str));
+                lua_pushboolean(L, ppstring_hex(str));
                 return 2;
             }
             break;
@@ -414,7 +435,18 @@ static int pushvalue(lua_State * L, ppobj *object)
     return 0;
 }
 
-/* catalogdictionary = getcatalog(documentobject) */
+/*tex
+
+    We need to start someplace when we traverse a document's tree. There are
+    three places:
+
+    \starttyping
+    catalogdictionary = getcatalog(documentobject)
+    trailerdictionary = gettrailer(documentobject)
+    infodictionary    = getinfo   (documentobject)
+    \stoptyping
+
+*/
 
 static int pdfelib_getcatalog(lua_State * L)
 {
@@ -424,8 +456,6 @@ static int pdfelib_getcatalog(lua_State * L)
     return pushdictionaryonly(L,ppdoc_catalog(p->document));
 }
 
-/* trailerdictionary = gettrailer(documentobject) */
-
 static int pdfelib_gettrailer(lua_State * L)
 {
     pdfe_document *p = check_isdocument(L, 1);
@@ -433,8 +463,6 @@ static int pdfelib_gettrailer(lua_State * L)
         return 0;
     return pushdictionaryonly(L,ppdoc_trailer(p->document));
 }
-
-/* infodictionary = getinfo(documentobject) */
 
 static int pdfelib_getinfo(lua_State * L)
 {
@@ -444,39 +472,17 @@ static int pdfelib_getinfo(lua_State * L)
     return pushdictionaryonly(L,ppdoc_info(p->document));
 }
 
-/* key, type, value, detail = getfromdictionary(dictionary,index) */
+/*tex
 
-static int pdfelib_getfromdictionary(lua_State * L)
-{
-    pdfe_dictionary *d = check_isdictionary(L, 1);
-    if (d != NULL) {
-        int index = luaL_checkint(L, 2) - 1;
-        if (index < d->dictionary->size) {
-            ppobj *object = ppdict_at(d->dictionary,index);
-            ppname key = ppdict_key(d->dictionary,index);
-            lua_pushstring(L,(const char *) key);
-            lua_pushinteger(L,(int) object->type);
-            return 2 + pushvalue(L,object);
-        }
-    }
-    return 0;
-}
+    We have three more helpers.
 
-static int pdfelib_getfromdictionarybyname(lua_State * L)
-{
-    pdfe_dictionary *d = check_isdictionary(L, 1);
-    if (d != NULL) {
-        const char *name = luaL_checkstring(L, 2);
-        ppobj *object = ppdict_get_obj(d->dictionary,name);
-        if (object != NULL) {
-            lua_pushinteger(L,(int) object->type);
-            return 1 + pushvalue(L,object);
-        }
-    }
-    return 0;
-}
+    \starttyping
+    [key,] type, value, detail = getfromdictionary(dictionaryobject,name|index)
+           type, value, detail = getfromarray     (arrayobject,index)
+    [key,] type, value, detail = getfromstream    (streamobject,name|index)
+    \stoptyping
 
-/* type, value, detail = getfromarray(arrayobject,index) */
+*/
 
 static int pdfelib_getfromarray(lua_State * L)
 {
@@ -492,7 +498,72 @@ static int pdfelib_getfromarray(lua_State * L)
     return 0;
 }
 
-/* t = arraytotable(arrayobject) */
+static int pdfelib_getfromdictionary(lua_State * L)
+{
+    pdfe_dictionary *d = check_isdictionary(L, 1);
+    if (d != NULL) {
+        if (lua_type(L,2) == LUA_TSTRING) {
+            const char *name = luaL_checkstring(L, 2);
+            ppobj *object = ppdict_get_obj(d->dictionary,name);
+            if (object != NULL) {
+                lua_pushinteger(L,(int) object->type);
+                return 1 + pushvalue(L,object);
+            }
+        } else {
+            int index = luaL_checkint(L, 2) - 1;
+            if (index < d->dictionary->size) {
+                ppobj *object = ppdict_at(d->dictionary,index);
+                ppname key = ppdict_key(d->dictionary,index);
+                lua_pushstring(L,(const char *) key);
+                lua_pushinteger(L,(int) object->type);
+                return 2 + pushvalue(L,object);
+            }
+        }
+    }
+    return 0;
+}
+
+static int pdfelib_getfromstream(lua_State * L)
+{
+    pdfe_stream *s = lua_touserdata(L, 1);
+    if (s != NULL) {
+        ppdict *d = s->stream->dict;
+        if (lua_type(L,2) == LUA_TSTRING) {
+            const char *name = luaL_checkstring(L, 2);
+            ppobj *object = ppdict_get_obj(d,name);
+            if (object != NULL) {
+                lua_pushinteger(L,(int) object->type);
+                return 1 + pushvalue(L,object);
+            }
+        } else {
+            int index = luaL_checkint(L, 2) - 1;
+            if (index < d->size) {
+                ppobj *object = ppdict_at(d,index);
+                ppname key = ppdict_key(d,index);
+                lua_pushstring(L,(const char *) key);
+                lua_pushinteger(L,(int) object->type);
+                return 2 + pushvalue(L,object);
+            }
+        }
+    }
+    return 0;
+}
+
+/*tex
+
+    An indexed table with all entries in an array can be fetched with::
+
+    \starttyping
+    t = arraytotable(arrayobject)
+    \stoptyping
+
+    An hashed table with all entries in an dictionary can be fetched with::
+
+    \starttyping
+    t = dictionarytotable(arrayobject)
+    \stoptyping
+
+*/
 
 static void pdfelib_totable(lua_State * L, ppobj * object, int flat)
 {
@@ -554,8 +625,6 @@ static int pdfelib_arraytotable(lua_State * L)
     return 0;
 }
 
-/* t = dictionarytotable(dictionary) */
-
 static int pdfelib_dictionarytotable(lua_State * L)
 {
     pdfe_dictionary *d = check_isdictionary(L, 1);
@@ -579,7 +648,15 @@ static int pdfelib_dictionarytotable(lua_State * L)
     return 0;
 }
 
-/* { { dict, size, objnum }, ... } = pagestotable(document) */
+/*tex
+
+    All pages are collected with:
+
+    \starttyping
+    { { dict, size, objnum }, ... } = pagestotable(document)
+    \stoptyping
+
+*/
 
 static int pdfelib_pagestotable(lua_State * L)
 {
@@ -610,7 +687,49 @@ static int pdfelib_pagestotable(lua_State * L)
     return 0;
 }
 
-/* okay = openstream(streamobject,[decode]) */
+/*tex
+
+    Streams can be fetched on one go:
+
+    \starttyping
+    string, n = readwholestream(streamobject,decode)
+    \stoptyping
+
+*/
+
+static int pdfelib_readwholestream(lua_State * L)
+{
+    pdfe_stream *s = check_isstream(L, 1);
+    if (s != NULL) {
+        uint8_t *b = NULL;
+        int decode = 0;
+        size_t n = 0;
+        if (s->open > 0) {
+            ppstream_done(s->stream);
+            s->open = 0;
+            s->decode = 0;
+        }
+        if (lua_gettop(L) > 1 && lua_isboolean(L, 2)) {
+            decode = lua_toboolean(L, 2);
+        }
+        b = ppstream_all(s->stream,&n,decode);
+        lua_pushlstring(L, (const char *) b, n);
+        lua_pushinteger(L, (int) n);
+        ppstream_done(s->stream);
+        return 2;
+    }
+    return 0;
+}
+
+/*tex
+
+    Alternatively streams can be fetched stepwise:
+
+    okay = openstream(streamobject,[decode])
+    string, n = readfromstream(streamobject)
+    closestream(streamobject)
+
+*/
 
 static int pdfelib_openstream(lua_State * L)
 {
@@ -628,8 +747,6 @@ static int pdfelib_openstream(lua_State * L)
     return 0;
 }
 
-/* closestream(streamobject) */
-
 static int pdfelib_closestream(lua_State * L)
 {
     pdfe_stream *s = check_isstream(L, 1);
@@ -642,8 +759,6 @@ static int pdfelib_closestream(lua_State * L)
     }
     return 0;
 }
-
-/* string, n = readfromstream(streamobject) */
 
 static int pdfelib_readfromstream(lua_State * L)
 {
@@ -666,33 +781,22 @@ static int pdfelib_readfromstream(lua_State * L)
     return 0;
 }
 
-/* string, n = readwhilestream(streamobject) */
+/*tex
 
-static int pdfelib_readwholestream(lua_State * L)
-{
-    pdfe_stream *s = check_isstream(L, 1);
-    if (s != NULL) {
-        uint8_t *b = NULL;
-        int decode = 0;
-        size_t n = 0;
-        if (s->open > 0) {
-            ppstream_done(s->stream);
-            s->open = 0;
-            s->decode = 0;
-        }
-        if (lua_gettop(L) > 1) {
-            decode = lua_isboolean(L, 2);
-        }
-        b = ppstream_all(s->stream,&n,decode);
-        lua_pushlstring(L, (const char *) b, n);
-        lua_pushinteger(L, (int) n);
-        ppstream_done(s->stream);
-        return 2;
-    }
-    return 0;
-}
+    There are two methods for opening a document: files and strings.
 
-/* documentobject = open(filename) */
+    \starttyping
+    documentobject = open(filename)
+    documentobject = new(string,length)
+    \stoptyping
+
+    Closing happens with:
+
+    \starttyping
+    close(documentobject)
+    \stoptyping
+
+*/
 
 static int pdfelib_open(lua_State * L)
 {
@@ -711,8 +815,6 @@ static int pdfelib_open(lua_State * L)
     }
     return 0;
 }
-
-/* documentobject = open(string|pointer,length) */
 
 static int pdfelib_new(lua_State * L)
 {
@@ -758,39 +860,14 @@ static int pdfelib_new(lua_State * L)
     return 0;
 }
 
-/* status = unencrypt(documentobject,user,owner) */
+/*
 
-static int pdfelib_unencrypt(lua_State * L)
-{
-    pdfe_document *p = check_isdocument(L, 1);
-    if (p != NULL) {
-        size_t u = 0;
-        size_t o = 0;
-        const char* user = NULL;
-        const char* owner = NULL;
-        int top = lua_gettop(L);
-        if (top > 1) {
-            if (lua_type(L,2) == LUA_TSTRING) {
-                user = lua_tolstring(L, 2, &u);
-            } else {
-                /* we're not too picky but normally it will be nil or false */
-            }
-            if (top > 2) {
-                if (lua_type(L,3) == LUA_TSTRING) {
-                    owner = lua_tolstring(L, 3, &o);
-                } else {
-                    /* we're not too picky but normally it will be nil or false */
-                }
-            }
-            lua_pushinteger(L, (int) ppdoc_crypt_pass(p->document,user,u,owner,o));
-        }
-    }
-    lua_pushinteger(L, (int) PPCRYPT_FAIL);
-    return 0;
-}
+    There is no garbage collection needed as the library itself manages the
+    objects. Normally objects don't take much space. Streams use buffers so (I
+    assume) that they are not persistent. The only collector is in the parent
+    object (the document).
 
-
-/* close(documentobject) */
+*/
 
 static int pdfelib_free(lua_State * L)
 {
@@ -810,7 +887,63 @@ static int pdfelib_close(lua_State * L)
     return pdfelib_free(L);
 }
 
-/* bytes = size(documentobject) */
+/*tex
+
+    A document is can be uncrypted with:
+
+    \starttyping
+    status = unencrypt(documentobject,user,owner)
+    \stoptyping
+
+    Instead of a password \type {nil} can be passed, so there are three possible
+    useful combinations.
+
+*/
+
+static int pdfelib_unencrypt(lua_State * L)
+{
+    pdfe_document *p = check_isdocument(L, 1);
+    if (p != NULL) {
+        size_t u = 0;
+        size_t o = 0;
+        const char* user = NULL;
+        const char* owner = NULL;
+        int top = lua_gettop(L);
+        if (top > 1) {
+            if (lua_type(L,2) == LUA_TSTRING) {
+                user = lua_tolstring(L, 2, &u);
+            } else {
+                /*tex we're not too picky but normally it will be nil or false */
+            }
+            if (top > 2) {
+                if (lua_type(L,3) == LUA_TSTRING) {
+                    owner = lua_tolstring(L, 3, &o);
+                } else {
+                    /*tex we're not too picky but normally it will be nil or false */
+                }
+            }
+            lua_pushinteger(L, (int) ppdoc_crypt_pass(p->document,user,u,owner,o));
+            return 1;
+        }
+    }
+    lua_pushinteger(L, (int) PPCRYPT_FAIL);
+    return 1;
+}
+
+/*tex
+
+    There are a couple of ways to get information about the document:
+
+    \starttyping
+    n             = getsize       (documentobject)
+    major, minor  = getversion    (documentobject)
+    status        = getstatus     (documentobject)
+    n             = getnofobjects (documentobject)
+    n             = getnofpages   (documentobject)
+    bytes, waste  = getmemoryusage(documentobject)
+    \stoptyping
+
+*/
 
 static int pdfelib_getsize(lua_State * L)
 {
@@ -821,7 +954,6 @@ static int pdfelib_getsize(lua_State * L)
     return 1;
 }
 
-/* major, minor = version(documentobject) */
 
 static int pdfelib_getversion(lua_State * L)
 {
@@ -837,8 +969,6 @@ static int pdfelib_getversion(lua_State * L)
     }
 }
 
-/* status = status(documentobject) */
-
 static int pdfelib_getstatus(lua_State * L)
 {
     pdfe_document *p = check_isdocument(L, 1);
@@ -847,8 +977,6 @@ static int pdfelib_getstatus(lua_State * L)
     lua_pushinteger(L,(int) ppdoc_crypt_status(p->document));
     return 1;
 }
-
-/* n = nofobjects(documentobject) */
 
 static int pdfelib_getnofobjects(lua_State * L)
 {
@@ -859,8 +987,6 @@ static int pdfelib_getnofobjects(lua_State * L)
     return 1;
 }
 
-/* n = nofpages(documentobject) */
-
 static int pdfelib_getnofpages(lua_State * L)
 {
     pdfe_document *p = check_isdocument(L, 1);
@@ -869,8 +995,6 @@ static int pdfelib_getnofpages(lua_State * L)
     lua_pushinteger(L,(int) ppdoc_page_count(p->document));
     return 1;
 }
-
-/* bytes, waste = nofpages(documentobject) */
 
 static int pdfelib_getmemoryusage(lua_State * L)
 {
@@ -885,22 +1009,70 @@ static int pdfelib_getmemoryusage(lua_State * L)
     return 0;
 }
 
-/* dictionaryobject = getpage(documentobject,pagenumber) */
+/*
+    A specific page dictionary can be filtered with the next command. So, there
+    is no need to parse the document page tree (with these \type {kids} arrays).
+
+    \starttyping
+    dictionaryobject = getpage(documentobject,pagenumber)
+    \stoptyping
+
+*/
+
+static int pushpage(lua_State * L, ppdoc * d, int page)
+{
+    if (page <= 0 || page > ppdoc_page_count(d)) {
+        return 0;
+    } else {
+        ppref *pp = ppdoc_page(d,page);
+        return pushdictionaryonly(L, ppref_obj(pp)->dict);
+    }
+}
 
 static int pdfelib_getpage(lua_State * L)
 {
     pdfe_document *p = check_isdocument(L, 1);
-    if (p != NULL) {
-        int page = luaL_checkint(L, 2);
-        if (page <= ppdoc_page_count(p->document)) {
-            ppref *pp = ppdoc_page(p->document,page);
-            return pushdictionaryonly(L, ppref_obj(pp)->dict);
-        }
+    if (p == NULL) {
+        return 0;
+    } else {
+        return pushpage(L, p->document, luaL_checkint(L, 2));
     }
-    return 0;
 }
 
-/* table = getbox(dictionary,name) */
+static int pushpages(lua_State * L, ppdoc * d)
+{
+    int i = 0;
+    ppref *r;
+    lua_createtable(L,ppdoc_page_count(d),0);
+    /* pages[1..n] */
+    for (r = ppdoc_first_page(d), i = 1; r != NULL; r = ppdoc_next_page(d), ++i) {
+        pushdictionaryonly(L,ppref_obj(r)->dict);
+        lua_rawseti(L,-2,i);
+    }
+    return 1 ;
+}
+
+static int pdfelib_getpages(lua_State * L)
+{
+    pdfe_document *p = check_isdocument(L, 1);
+    if (p == NULL) {
+        return 0;
+    } else {
+        return pushpages(L, p->document);
+    }
+}
+
+/*tex
+
+    The boundingbox (\type {MediaBox) and similar boxes can be available in a
+    (page) doctionary but also in a parent object. Therefore a helper is
+    available that does the (backtracked) lookup.
+
+    \starttyping
+    { lx, ly, rx, ry } = getbox(dictionaryobject)
+    \stoptyping
+
+*/
 
 static int pdfelib_getbox(lua_State * L)
 {
@@ -927,7 +1099,16 @@ static int pdfelib_getbox(lua_State * L)
     return 0;
 }
 
-/* [dictionary|array|stream]object = getfromreference(referenceobject) */
+/*tex
+
+    This one is needed when you use the detailed getters and run into an
+    object reference. The regular getters resolve this automatically.
+
+    \starttyping
+    [dictionary|array|stream]object = getfromreference(referenceobject)
+    \stoptyping
+
+*/
 
 static int pdfelib_getfromreference(lua_State * L)
 {
@@ -940,108 +1121,134 @@ static int pdfelib_getfromreference(lua_State * L)
     return 0;
 }
 
-/* <string>         = getstring    (array|dict|ref,index|key) */
-/* <integer>        = getinteger   (array|dict|ref,index|key) */
-/* <number>         = getnumber    (array|dict|ref,index|key) */
-/* <boolan>         = getboolean   (array|dict|ref,index|key) */
-/* <string>         = getname      (array|dict|ref,index|key) */
-/* <dictionary>     = getdictionary(array|dict|ref,index|key) */
-/* <array>          = getarray     (array|dict|ref,index|key) */
-/* <stream>, <dict> = getstream    (array|dict|ref,index|key) */
+/*tex
 
-#define pdfelib_get_value_check_1 do {					\
-    if (p == NULL) {							\
-      if (t == LUA_TSTRING) {						\
-	normal_warning("pdfe lib","lua <pdfe dictionary> expected");	\
-      } else if (t == LUA_TNUMBER) {					\
-	normal_warning("pdfe lib","lua <pdfe array> expected");		\
-      } else {								\
-	normal_warning("pdfe lib","invalid arguments");			\
-      }									\
-      return 0;								\
-    } else if (! lua_getmetatable(L, 1)) {				\
-      normal_warning("pdfe lib","first argument should be a <pde array> or <pde dictionary>"); \
-    }									\
-  } while (0)
+    Here are some convenient getters:
+
+    \starttyping
+    <string>         = getstring    (array|dict|ref,index|key)
+    <integer>        = getinteger   (array|dict|ref,index|key)
+    <number>         = getnumber    (array|dict|ref,index|key)
+    <boolan>         = getboolean   (array|dict|ref,index|key)
+    <string>         = getname      (array|dict|ref,index|key)
+    <dictionary>     = getdictionary(array|dict|ref,index|key)
+    <array>          = getarray     (array|dict|ref,index|key)
+    <stream>, <dict> = getstream    (array|dict|ref,index|key)
+    \stoptyping
+
+    We report issues when reasonable but are silent when it makes sense. We don't
+    error on this because we expect the user code to act reasonable on a return
+    value.
+
+*/
+
+#define pdfelib_get_value_check_1 do { \
+    if (p == NULL) { \
+        if (t == LUA_TSTRING) { \
+            normal_warning("pdfe lib","lua <pdfe dictionary> expected"); \
+        } else if (t == LUA_TNUMBER) { \
+            normal_warning("pdfe lib","lua <pdfe array> expected"); \
+        } else { \
+          normal_warning("pdfe lib","invalid arguments"); \
+        } \
+        return 0; \
+    } else if (! lua_getmetatable(L, 1)) { \
+        normal_warning("pdfe lib","first argument should be a <pde array> or <pde dictionary>"); \
+    } \
+} while (0)
 
 #define pdfelib_get_value_check_2 \
     normal_warning("pdfe lib","second argument should be integer or string");
 
-#define pdfelib_get_value_direct(get_d,get_a) do {			\
-    int t = lua_type(L,2);						\
-    void *p = lua_touserdata(L, 1);					\
-    pdfelib_get_value_check_1;						\
-    if (t == LUA_TSTRING) {						\
-      const char *key = lua_tostring(L,-2);				\
-      lua_get_metatablelua(luatex_pdfe_dictionary);			\
-      if (lua_rawequal(L, -1, -2)) {					\
-	value = get_d(((pdfe_dictionary *) p)->dictionary, key);	\
-      } else {								\
-	lua_pop(L,1);							\
-	lua_get_metatablelua(luatex_pdfe_reference);			\
-	if (lua_rawequal(L, -1, -2)) {					\
-	  ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
-	  if (o != NULL && o->type == PPDICT) {				\
-	    value = get_d((ppdict *)o->dict, key);			\
-	  }								\
-	}								\
-      }									\
-    } else if (t == LUA_TNUMBER) {					\
-      size_t index = lua_tointeger(L,-2);				\
-      lua_get_metatablelua(luatex_pdfe_array);				\
-      if (lua_rawequal(L, -1, -2)) {					\
-	value = get_a(((pdfe_array *) p)->array, index);		\
-      } else {								\
-	lua_pop(L,1);							\
-	lua_get_metatablelua(luatex_pdfe_reference);			\
-	if (lua_rawequal(L, -1, -2)) {					\
-	  ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
-	  if (o != NULL && o->type == PPARRAY) {			\
-	    value = get_a((pparray *) o->array, index);			\
-	  }								\
-	}								\
-      }									\
-    } else {								\
-      pdfelib_get_value_check_2;					\
-    }									\
-  } while (0)
+/*tex
 
-#define pdfelib_get_value_indirect(get_d,get_a) do {			\
-    int t = lua_type(L,2);						\
-    void *p = lua_touserdata(L, 1);					\
-    pdfelib_get_value_check_1;						\
-    if (t == LUA_TSTRING) {						\
-      const char *key = lua_tostring(L,-2);				\
-      lua_get_metatablelua(luatex_pdfe_dictionary);			\
-      if (lua_rawequal(L, -1, -2)) {					\
-	okay = get_d(((pdfe_dictionary *) p)->dictionary, key, &value); \
-      } else {								\
-	lua_pop(L,1);							\
-	lua_get_metatablelua(luatex_pdfe_reference);			\
-	if (lua_rawequal(L, -1, -2)) {					\
-	  ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
-	  if (o != NULL && o->type == PPDICT)				\
-	    okay = get_d(o->dict, key, &value);				\
-	}								\
-      }									\
-    } else if (t == LUA_TNUMBER) {					\
-      size_t index = lua_tointeger(L,-2);				\
-      lua_get_metatablelua(luatex_pdfe_array);				\
-      if (lua_rawequal(L, -1, -2)) {					\
-	okay = get_a(((pdfe_array *) p)->array, index, &value);		\
-      } else {								\
-	lua_pop(L,1);							\
-	lua_get_metatablelua(luatex_pdfe_reference);			\
-	if (lua_rawequal(L, -1, -2)) {					\
-	  ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
-	  if (o != NULL && o->type == PPARRAY)				\
-	    okay = get_a(o->array, index, &value);			\
-	}								\
-      }									\
-    } else {								\
-      pdfelib_get_value_check_2;					\
-    }									\
-  } while (0)
+    The direct fetcher returns the result or |NULL| when there is nothing
+    found.
+
+*/
+
+#define pdfelib_get_value_direct(get_d,get_a) do {                      \
+    int t = lua_type(L,2);                                              \
+    void *p = lua_touserdata(L, 1);                                     \
+    pdfelib_get_value_check_1;                                          \
+    if (t == LUA_TSTRING) {                                             \
+        const char *key = lua_tostring(L,-2);                           \
+        lua_get_metatablelua(luatex_pdfe_dictionary);                   \
+        if (lua_rawequal(L, -1, -2)) {                                  \
+            value = get_d(((pdfe_dictionary *) p)->dictionary, key);    \
+        } else {                                                        \
+            lua_pop(L,1);                                               \
+            lua_get_metatablelua(luatex_pdfe_reference);                \
+            if (lua_rawequal(L, -1, -2)) {                              \
+                ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
+                if (o != NULL && o->type == PPDICT) {                   \
+                    value = get_d((ppdict *)o->dict, key);              \
+                }                                                       \
+            }                                                           \
+        }                                                               \
+    } else if (t == LUA_TNUMBER) {                                      \
+        size_t index = lua_tointeger(L,-2);                             \
+        lua_get_metatablelua(luatex_pdfe_array);                        \
+        if (lua_rawequal(L, -1, -2)) {                                  \
+            value = get_a(((pdfe_array *) p)->array, index);            \
+        } else {                                                        \
+            lua_pop(L,1);                                               \
+            lua_get_metatablelua(luatex_pdfe_reference);                \
+            if (lua_rawequal(L, -1, -2)) {                              \
+                ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
+                if (o != NULL && o->type == PPARRAY) {                  \
+                    value = get_a((pparray *) o->array, index);         \
+                }                                                       \
+            }                                                           \
+        }                                                               \
+    } else {                                                            \
+        pdfelib_get_value_check_2;                                      \
+    }                                                                   \
+} while (0)
+
+/*tex
+
+    The indirect fetcher passes a pointer to the target variable and returns
+    success state.
+
+*/
+
+#define pdfelib_get_value_indirect(get_d,get_a) do {                        \
+    int t = lua_type(L,2);                                                  \
+    void *p = lua_touserdata(L, 1);                                         \
+    pdfelib_get_value_check_1;                                              \
+    if (t == LUA_TSTRING) {                                                 \
+        const char *key = lua_tostring(L,-2);                               \
+        lua_get_metatablelua(luatex_pdfe_dictionary);                       \
+        if (lua_rawequal(L, -1, -2)) {                                      \
+            okay = get_d(((pdfe_dictionary *) p)->dictionary, key, &value); \
+        } else {                                                            \
+            lua_pop(L,1);                                                   \
+            lua_get_metatablelua(luatex_pdfe_reference);                    \
+            if (lua_rawequal(L, -1, -2)) {                                  \
+                ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
+                if (o != NULL && o->type == PPDICT)                         \
+                    okay = get_d(o->dict, key, &value);                     \
+            }                                                               \
+        }                                                                   \
+    } else if (t == LUA_TNUMBER) {                                          \
+        size_t index = lua_tointeger(L,-2);                                 \
+        lua_get_metatablelua(luatex_pdfe_array);                            \
+        if (lua_rawequal(L, -1, -2)) {                                      \
+            okay = get_a(((pdfe_array *) p)->array, index, &value);         \
+        } else {                                                            \
+            lua_pop(L,1);                                                   \
+            lua_get_metatablelua(luatex_pdfe_reference);                    \
+            if (lua_rawequal(L, -1, -2)) {                                  \
+                ppobj * o = ppref_obj((ppref *) (((pdfe_reference *) p)->reference)); \
+                if (o != NULL && o->type == PPARRAY)                        \
+                    okay = get_a(o->array, index, &value);                  \
+            }                                                               \
+        }                                                                   \
+    } else {                                                                \
+        pdfelib_get_value_check_2;                                          \
+    }                                                                       \
+} while (0)
 
 static int pdfelib_getstring(lua_State * L)
 {
@@ -1060,7 +1267,7 @@ static int pdfelib_getinteger(lua_State * L)
 {
     if (lua_gettop(L) > 1) {
         ppint value = 0;
-	int okay = 0;
+        int okay = 0;
         pdfelib_get_value_indirect(ppdict_rget_int,pparray_rget_int);
         if (okay) {
             lua_pushinteger(L,(int) value);
@@ -1074,7 +1281,7 @@ static int pdfelib_getnumber(lua_State * L)
 {
     if (lua_gettop(L) > 1) {
         ppnum value = 0;
-	int okay = 0;
+        int okay = 0;
         pdfelib_get_value_indirect(ppdict_rget_num,pparray_rget_num);
         if (okay) {
             lua_pushnumber(L,value);
@@ -1088,7 +1295,7 @@ static int pdfelib_getboolean(lua_State * L)
 {
     if (lua_gettop(L) > 1) {
         int value = 0;
-	int okay = 0;
+        int okay = 0;
         pdfelib_get_value_indirect(ppdict_rget_bool,pparray_rget_bool);
         if (okay) {
             lua_pushboolean(L,value);
@@ -1147,7 +1354,12 @@ static int pdfelib_getstream(lua_State * L)
     return 0;
 }
 
-/* accessors */
+/*tex
+
+    The generic pushed that does a similar job as the previous getters acts upon
+    the type.
+
+*/
 
 static int pdfelib_pushvalue(lua_State * L, ppobj *object)
 {
@@ -1209,6 +1421,13 @@ static int pdfelib_pushvalue(lua_State * L, ppobj *object)
     return 1;
 }
 
+/*tex
+
+    Finally we arrived at the acessors for the userdata objects. The use
+    previously defined helpers.
+
+*/
+
 static int pdfelib_access(lua_State * L)
 {
     if (lua_type(L,2) == LUA_TSTRING) {
@@ -1221,16 +1440,7 @@ static int pdfelib_access(lua_State * L)
         } else if (lua_key_eq(s,trailer) || lua_key_eq(s,Trailer)) {
             return pushdictionaryonly(L,ppdoc_trailer(p->document));
         } else if (lua_key_eq(s,pages) || lua_key_eq(s,Pages)) {
-            int i = 0;
-            ppref *r;
-            ppdoc *d = p->document;
-            lua_createtable(L,ppdoc_page_count(d),0);
-            /* pages[1..n] */
-            for (r = ppdoc_first_page(d), i = 1; r != NULL; r = ppdoc_next_page(d), ++i) {
-                pushdictionaryonly(L,ppref_obj(r)->dict);
-                lua_rawseti(L,-2,i);
-            }
-            return 1 ;
+            return pushpages(L,p->document);
         }
     }
     return 0;
@@ -1247,13 +1457,6 @@ static int pdfelib_array_access(lua_State * L)
         }
     }
     return 0;
-}
-
-static int pdfelib_array_size(lua_State * L)
-{
-    pdfe_array *p = lua_touserdata(L, 1);
-    lua_pushinteger(L,p->array->size);
-    return 1;
 }
 
 static int pdfelib_dictionary_access(lua_State * L)
@@ -1275,6 +1478,38 @@ static int pdfelib_dictionary_access(lua_State * L)
     return 0;
 }
 
+static int pdfelib_stream_access(lua_State * L)
+{
+    pdfe_stream *p = lua_touserdata(L, 1);
+    if (lua_type(L,2) == LUA_TSTRING) {
+        ppstring key = lua_tostring(L,2);
+        ppobj *o = ppdict_rget_obj(p->stream->dict,key);
+        if (o != NULL) {
+            return pdfelib_pushvalue(L,o);
+        }
+    } else if (lua_type(L,2) == LUA_TNUMBER) {
+        ppint index = lua_tointeger(L,2) - 1;
+        ppobj *o = ppdict_at(p->stream->dict,index);
+        if (o != NULL) {
+            return pdfelib_pushvalue(L,o);
+        }
+    }
+    return 0;
+}
+
+/*tex
+
+    The length metamethods are defined last.
+
+*/
+
+static int pdfelib_array_size(lua_State * L)
+{
+    pdfe_array *p = lua_touserdata(L, 1);
+    lua_pushinteger(L,p->array->size);
+    return 1;
+}
+
 static int pdfelib_dictionary_size(lua_State * L)
 {
     pdfe_dictionary *p = lua_touserdata(L, 1);
@@ -1282,7 +1517,19 @@ static int pdfelib_dictionary_size(lua_State * L)
     return 1;
 }
 
-/* initialization */
+static int pdfelib_stream_size(lua_State * L)
+{
+    pdfe_stream *p = lua_touserdata(L, 1);
+    lua_pushinteger(L,p->stream->dict->size);
+    return 1;
+}
+
+/*tex
+
+    We now initialize the main interface. We might aa few more
+    informational helpers but this is it.
+
+*/
 
 static const struct luaL_Reg pdfelib[] = {
     /* management */
@@ -1303,11 +1550,13 @@ static const struct luaL_Reg pdfelib[] = {
     { "gettrailer",              pdfelib_gettrailer },
     { "getinfo",                 pdfelib_getinfo },
     { "getpage",                 pdfelib_getpage },
+    { "getpages",                pdfelib_getpages },
     { "getbox",                  pdfelib_getbox },
     { "getfromreference",        pdfelib_getfromreference },
     { "getfromdictionary",       pdfelib_getfromdictionary },
-    { "getfromdictionarybyname", pdfelib_getfromdictionarybyname },
     { "getfromarray",            pdfelib_getfromarray },
+    { "getfromstream",           pdfelib_getfromstream },
+    /* collectors */
     { "dictionarytotable",       pdfelib_dictionarytotable },
     { "arraytotable",            pdfelib_arraytotable },
     { "pagestotable",            pdfelib_pagestotable },
@@ -1329,6 +1578,13 @@ static const struct luaL_Reg pdfelib[] = {
     /* done */
     { NULL,                      NULL}
 };
+
+/*tex
+
+    The user data metatables are defined as follows. Watch how only the
+    document needs a garbage collector.
+
+*/
 
 static const struct luaL_Reg pdfelib_m[] = {
     { "__tostring", pdfelib_tostring_document },
@@ -1353,6 +1609,9 @@ static const struct luaL_Reg pdfelib_m_array[] = {
 
 static const struct luaL_Reg pdfelib_m_stream[] = {
     { "__tostring", pdfelib_tostring_stream },
+    { "__index",    pdfelib_stream_access },
+    { "__len",      pdfelib_stream_size },
+    { "__call",     pdfelib_readwholestream },
     { NULL,         NULL}
 };
 
@@ -1361,8 +1620,17 @@ static const struct luaL_Reg pdfelib_m_reference[] = {
     { NULL,         NULL}
 };
 
+/*tex
+
+    Finally we hav earrived at the main initialiser that will be called as part
+    of \LUATEX's initializer.
+
+*/
+
 int luaopen_pdfe(lua_State * L)
 {
+    /*tex First the four userdata object get their metatables defined. */
+
     luaL_newmetatable(L, PDFE_METATABLE_DICTIONARY);
     luaL_openlib(L, NULL, pdfelib_m_dictionary, 0);
 
@@ -1375,10 +1643,13 @@ int luaopen_pdfe(lua_State * L)
     luaL_newmetatable(L, PDFE_METATABLE_REFERENCE);
     luaL_openlib(L, NULL, pdfelib_m_reference, 0);
 
-    /* the main metatable of pdfe userdata */
+    /*tex Then comes the main (document) metatable: */
 
     luaL_newmetatable(L, PDFE_METATABLE);
     luaL_openlib(L, NULL, pdfelib_m, 0);
+
+    /*tex Last the library opens up itself to the world. */
+
     luaL_openlib(L, "pdfe", pdfelib, 0);
 
     return 1;

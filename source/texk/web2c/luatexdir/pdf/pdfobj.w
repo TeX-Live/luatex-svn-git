@@ -126,6 +126,7 @@ void init_obj_obj(PDF pdf, int k)
     obj_obj_data(pdf, k) = LUA_NOREF;
     unset_obj_obj_is_stream(pdf, k);
     unset_obj_obj_is_file(pdf, k);
+    unset_obj_obj_no_length(pdf, k);
     obj_obj_pdfcompresslevel(pdf, k) = -1; /* unset */
     obj_obj_objstm_threshold(pdf, k) = OBJSTM_UNSET; /* unset */
 }

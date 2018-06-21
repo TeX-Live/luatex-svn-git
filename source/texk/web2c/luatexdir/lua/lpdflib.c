@@ -194,6 +194,7 @@ static int table_obj(lua_State * L)
     const_lstring attr, st;
     lstring buf;
     int immediate = 0;          /* default: not immediate */
+    int nolength = 1;
     attr.s = st.s = NULL;
     attr.l = 0;
     assert(lua_istable(L, 1));  /* t */
@@ -212,6 +213,12 @@ static int table_obj(lua_State * L)
         if (!lua_isboolean(L, -1))      /* !b t */
             luaL_error(L, "pdf.obj(): \"immediate\" must be boolean");
         immediate = lua_toboolean(L, -1);       /* 0 or 1 */
+    }
+    lua_pop(L, 1);              /* t */
+    lua_key_rawgeti(nolength);
+    if (!lua_isnil(L, -1)) {    /* b? t */
+        if (!lua_isboolean(L, -1))      /* !b t */
+            nolength = lua_toboolean(L, -1);       /* 0 or 1 */
     }
     lua_pop(L, 1);              /* t */
 
@@ -336,19 +343,29 @@ static int table_obj(lua_State * L)
     } else {
         if (immediate == 1) {
             pdf_begin_obj(static_pdf, k, OBJSTM_NEVER); /* 0 = not an object stream candidate! */
-            pdf_begin_dict(static_pdf);
-            if (attr.s != NULL) {
+            if (nolength && attr.s != NULL) {
+                /* we have a direct copy possible with compressed data */
+                pdf_begin_dict(static_pdf);
                 pdf_out_block(static_pdf, attr.s, attr.l);
-                if (attr.s[attr.l - 1] != '\n')
-                    pdf_out(static_pdf, '\n');
+                static_pdf->compress_level = 0;
+                static_pdf->stream_deflate = false;
+                pdf_end_dict(static_pdf);
+            } else {
+                pdf_begin_dict(static_pdf);
+                if (attr.s != NULL) {
+                    pdf_out_block(static_pdf, attr.s, attr.l);
+                    if (attr.s[attr.l - 1] != '\n')
+                        pdf_out(static_pdf, '\n');
+                }
+                if (compress_level > -1)
+                    static_pdf->compress_level = compress_level;
+                pdf_dict_add_streaminfo(static_pdf);
+                pdf_end_dict(static_pdf);
             }
-            if (compress_level > -1)
-                static_pdf->compress_level = compress_level;
-            pdf_dict_add_streaminfo(static_pdf);
-            pdf_end_dict(static_pdf);
             pdf_begin_stream(static_pdf);
         } else {
             set_obj_obj_is_stream(static_pdf, k);
+            set_obj_obj_no_length(static_pdf, k);
             if (compress_level > -1)
                 obj_obj_pdfcompresslevel(static_pdf, k) = compress_level;
         }
