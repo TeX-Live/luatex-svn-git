@@ -239,14 +239,6 @@ if [ ! -r "$B" ]
 then
   mkdir "$B"
 fi
-#
-# get a new svn version header
-if [ "$WARNINGS" = "max" ]
-then
-    rm -f source/texk/web2c/luatexdir/luatex_svnversion.h
-fi
-## Not used anymore
-##( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
 
 
 JITENABLE=
@@ -269,6 +261,8 @@ fi
 
 cd "$B"
 
+#    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
+
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
 TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
@@ -281,7 +275,6 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-ipc \
     --enable-dump-share  \
     --enable-web2c  \
-    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
     $LUA52ENABLE  $LUA53ENABLE  $JITENABLE \
     --without-system-ptexenc \
     --without-system-kpathsea \
