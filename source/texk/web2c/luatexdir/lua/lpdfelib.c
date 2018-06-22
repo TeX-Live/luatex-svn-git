@@ -1080,8 +1080,10 @@ static int pdfelib_getbox(lua_State * L)
         pdfe_dictionary *p = check_isdictionary(L, 1);
         if (p != NULL) {
             const char *key = lua_tostring(L,1);
-            pprect box ; box.lx = box.rx = box.ly = box.ry = 0;
-            pprect *r = ppdict_get_box(p->dictionary,key,&box);
+            pprect box;
+            pprect *r;
+            box.lx = box.rx = box.ly = box.ry = 0;
+            r = ppdict_get_box(p->dictionary,key,&box);
             if (r != NULL) {
                 lua_createtable(L,4,0);
                 lua_pushnumber(L,r->lx);
