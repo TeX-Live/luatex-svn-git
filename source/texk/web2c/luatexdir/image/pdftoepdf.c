@@ -124,6 +124,7 @@ PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe, const cha
         pdf_doc->ObjMapTree = NULL;
         pdf_doc->occurences = 0; /* 0 = unreferenced */
         pdf_doc->pc = 0;
+        pdf_doc->is_mem = 0;
     } else {
         if (strncmp(pdf_doc->checksum, checksum, PDF_CHECKSUM_SIZE) != 0) {
             formatted_error("pdf inclusion","file has changed '%s'", file_path);
@@ -212,6 +213,8 @@ PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streams
         pdf_doc->ObjMapTree = NULL;
         pdf_doc->occurences = 0; /* 0 = unreferenced */
         pdf_doc->pc = 0;
+        pdf_doc->is_mem = 1;
+        pdf_doc->memstream = docstream;
     } else {
         /* As is now, checksum is in file_path, so this check should be useless. */
         if (strncmp(pdf_doc->checksum, checksum, STRSTREAM_CHECKSUM_SIZE) != 0) {
@@ -971,6 +974,10 @@ static void deletePdfDocumentPdfDoc(PdfDocument * pdf_doc)
     if (pdf_doc->pdfe != NULL) {
         ppdoc_free(pdf_doc->pdfe);
         pdf_doc->pdfe = NULL;
+    }
+    if (pdf_doc->memstream != NULL) {
+     /* pplib does this: free(pdf_doc->memstream); */
+        pdf_doc->memstream = NULL;
     }
  /* pdf_doc->pc++; */
     pdf_doc->pc = 0;

@@ -28,6 +28,8 @@
 
 #include "luapplib/pplib.h"
 
+#include "image/epdf.h"
+
 #ifdef lpdfelib_orig_input
 #define input  lpdfelib_orig_input
 #undef lpdfelib_orig_input
@@ -58,6 +60,7 @@ typedef struct {
     ppdoc *document;
     boolean open;
     boolean isfile;
+    char *memstream;
     int pages;
     int index;
 } pdfe_document ;
@@ -796,6 +799,9 @@ static int pdfelib_readfromstream(lua_State * L)
     close(documentobject)
     \stoptyping
 
+    When the \type {new} function gets a peudo filename as third argument,
+    no user data will be created but the stream is accessible as image.
+
 */
 
 static int pdfelib_open(lua_State * L)
@@ -811,6 +817,7 @@ static int pdfelib_open(lua_State * L)
         p->document = d;
         p->open = true;
         p->isfile = true;
+        p->memstream = NULL;
         return 1;
     }
     return 0;
@@ -819,9 +826,8 @@ static int pdfelib_open(lua_State * L)
 static int pdfelib_new(lua_State * L)
 {
     const char *docstream = NULL;
-    char *docstream_usr = NULL ;
-    unsigned long long stream_size;
-    ppdoc *d;
+    char *memstream = NULL ;
+    unsigned long long streamsize;
     switch (lua_type(L, 1)) {
         case LUA_TSTRING:
             /* stream as Lua string */
@@ -839,23 +845,46 @@ static int pdfelib_new(lua_State * L)
         luaL_error(L, "bad <pdfe> document");
     }
     /* size of the stream */
-    stream_size = (unsigned long long) luaL_checkint(L, 2);
-    /* do we need to copy? ask */
-    docstream_usr = (char *)xmalloc((unsigned) (stream_size + 1));
-    if (! docstream_usr) {
-        luaL_error(L, "no room for <pdfe>");
+    streamsize = (unsigned long long) luaL_checkint(L, 2);
+    memstream = xmalloc((unsigned) (streamsize + 1));
+    if (! memstream) {
+        luaL_error(L, "no room for <pdfe> stream");
     }
-    memcpy(docstream_usr, docstream, (stream_size + 1));
-    docstream_usr[stream_size]='\0';
-    d = ppdoc_mem(docstream_usr, stream_size);
-    if (d != NULL) {
-        pdfe_document *p = (pdfe_document *) lua_newuserdata(L, sizeof(pdfe_document));
-        luaL_getmetatable(L, PDFE_METATABLE);
-        lua_setmetatable(L, -2);
-        p->document = d;
-        p->open = true;
-        p->isfile = false;
-        return 1;
+    memcpy(memstream, docstream, (streamsize + 1));
+    memstream[streamsize]='\0';
+    if (lua_gettop(L) == 2) {
+        /* we stay at the lua end */
+        ppdoc *d = ppdoc_mem(memstream, streamsize);
+        if (d == NULL) {
+            normal_warning("pdfe lib","no valid pdf mem stream");
+        } else {
+            pdfe_document *p = (pdfe_document *) lua_newuserdata(L, sizeof(pdfe_document));
+            luaL_getmetatable(L, PDFE_METATABLE);
+            lua_setmetatable(L, -2);
+            p->document = d;
+            p->open = true;
+            p->isfile = false;
+            p->memstream = memstream;
+            return 1;
+        }
+    } else {
+        /* pseudo file name */
+        PdfDocument *pdf_doc;
+        const char *file_id = luaL_checkstring(L, 3);
+        if (file_id == NULL) {
+            luaL_error(L, "<pdfe> stream has an invalid id");
+        }
+        if (strlen(file_id) > STREAM_FILE_ID_LEN ) {
+            /* a limit to the length of the string */
+            luaL_error(L, "<pdfe> stream has a too long id");
+        }
+        pdf_doc = refMemStreamPdfDocument(memstream, streamsize, file_id);
+        if (pdf_doc != NULL) {
+            lua_pushstring(L,pdf_doc->file_path);
+            return 1;
+        } else {
+            /* pplib does this: xfree(memstream); */
+        }
     }
     return 0;
 }
@@ -872,12 +901,16 @@ static int pdfelib_new(lua_State * L)
 static int pdfelib_free(lua_State * L)
 {
     pdfe_document *p = check_isdocument(L, 1);
-    if (p != NULL) {
-        if (p->open) {
+    if (p != NULL && p->open) {
+        if (p->document != NULL) {
             ppdoc_free(p->document);
-            p->open = false;
             p->document = NULL;
         }
+        if (p->memstream != NULL) {
+         /* pplib does this: xfree(p->memstream); */
+            p->memstream = NULL;
+        }
+        p->open = false;
     }
     return 0;
 }

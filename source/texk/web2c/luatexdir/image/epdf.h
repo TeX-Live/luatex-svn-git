@@ -128,6 +128,9 @@ extern void epdf_free(void);
 
 extern void pdf_dict_add_img_filename(PDF pdf, image_dict * idict);
 
+/* utils.w */
+
+/*extern char *convertStringToPDFString(const char *in, int len);*/
 
 /* lepdflib.w */
 
@@ -154,6 +157,8 @@ struct PdfDocument {
     ppdoc *pdfe;
     InObj *inObjList;           /* temporary linked list */
     avl_table *ObjMapTree;      /* permanent over luatex run */
+    int is_mem;
+    char *memstream;
     unsigned int occurences;    /* number of references to the PdfDocument; it can be deleted when occurences == 0 */
     unsigned int pc;            /* counter to track PDFDoc generation or deletion */
 };

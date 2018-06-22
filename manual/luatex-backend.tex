@@ -624,24 +624,31 @@ with:
 
 \topicindex{\PDF+memory streams}
 
-There is an experimental function \type {epdf.openMemStream} that takes three
-arguments:
+There is an experimental function \type {pdfe.new} that takes three arguments:
 
 \starttabulate
 \DB value           \BC explanation      \NC \NR
 \TB
 \NC \type {stream}  \NC this is a (in low level \LUA\ speak) light userdata
                         object, i.e.\ a pointer to a sequence of bytes \NC \NR
-\NC \type {length}  \NC this is the length of the stream in bytes \NC \NR
-\NC \type {name}    \NC this is a unique identifier that is used for hashing the
-                        stream, so that multiple doesn't use more memory \NC \NR
+\NC \type {length}  \NC this is the length of the stream in bytes (the stream can
+                        have embedded zeros) \NC \NR
+\NC \type {name}    \NC optional, this is a unique identifier that is used for
+                        hashing the stream, so that multiple doesn't use more
+                        memory \NC \NR
 \LL
 \stoptabulate
 
-Instead of a light userdata stream you can also pass a \LUA\ string, in which
-case the given length is (at most) the string length.
+The third argument is optional. When it is not given the function will return an
+\type {pdfe} document object as with a regular file, otherwise it will return a
+filename that can be used elsewhere (e.g.\ in the image library) to reference the
+stream as pseudo file.
 
-The function returns an \type {epdf} object and a string. The string can be used in
+Instead of a light userdata stream (which is actually fragile but handy when you
+come from a library) you can also pass a \LUA\ string, in which case the given
+length is (at most) the string length.
+
+The function returns an \type {pdfe} object and a string. The string can be used in
 the \type {img} library instead of a filename. You need to prevent garbage
 collection of the object when you use it as image (for instance by storing it
 somewhere).
@@ -659,7 +666,7 @@ meant for production and we might come up with a better implementation.
 
 The \type {pdfscanner} library allows interpretation of \PDF\ content streams and
 \type {/ToUnicode} (cmap) streams. You can get those streams from the \type
-{epdf} library, as explained in an earlier section. There is only a single
+{pdfe} library, as explained in an earlier section. There is only a single
 top|-|level function in this library:
 
 \startfunctioncall
@@ -733,7 +740,7 @@ Analyze("foo.pdf")
 
 This example iterates over all the actual content in the \PDF, and prints out the
 found \type {XObject} names. While the code demonstrates quite some of the \type
-{epdf} functions, let's focus on the type \type {pdfscanner} specific code
+{pdfe} functions, let's focus on the type \type {pdfscanner} specific code
 instead.
 
 From the bottom up, the following line runs the scanner with the \PDF\ page's
