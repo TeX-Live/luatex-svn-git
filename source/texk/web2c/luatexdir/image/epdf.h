@@ -128,9 +128,6 @@ extern void epdf_free(void);
 
 extern void pdf_dict_add_img_filename(PDF pdf, image_dict * idict);
 
-/* utils.w */
-
-extern char *convertStringToPDFString(char *in, int len);
 
 /* lepdflib.w */
 
