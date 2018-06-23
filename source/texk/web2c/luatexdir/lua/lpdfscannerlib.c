@@ -703,10 +703,12 @@ static int scanner_scan(lua_State * L)
             We could make a temporary copy on the stack (or in teh registry)
             which saves memory.
         */
+	char *buf = NULL;
         const char *s = lua_tolstring(L, 1, &self->size);
         self->uses_stream = 0;
         self->buffer = priv_xmalloc(self->size);
-        memcpy((char *) self->buffer,s,self->size);
+        memcpy(buf,s,self->size);
+	self->buffer = (const char*)(buf);
     } else if (lua_type(L, 1) == LUA_TTABLE) {
         udstruct *uin;
         void *ud;

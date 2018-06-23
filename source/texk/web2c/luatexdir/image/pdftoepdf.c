@@ -24,6 +24,11 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 #include "image/epdf.h"
 
+/* Conflict with pdfgen.h */
+#ifndef pdf_out
+#define pdf_out(pdf, A) do { pdf_room(pdf, 1); *(pdf->buf->p++) = A; } while (0)
+#endif
+
 /* Maintain AVL tree of all PDF files for embedding */
 
 static avl_table *PdfDocumentTree = NULL;
