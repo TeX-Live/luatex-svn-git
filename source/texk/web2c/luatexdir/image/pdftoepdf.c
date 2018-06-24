@@ -866,11 +866,14 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
                 if (obj != NULL) {
                     pdf_add_name(pdf, "Filter");
                     copyObject(pdf, pdf_doc, obj);
+                    /* the next one is irrelevant, only for inline images: */
+                    /*
                     obj = ppdict_rget_obj(streamDict, "DecodeParms");
                     if (obj != NULL) {
                         pdf_add_name(pdf, "DecodeParms");
                         copyObject(pdf, pdf_doc, obj);
                     }
+                    */
                 }
                pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);

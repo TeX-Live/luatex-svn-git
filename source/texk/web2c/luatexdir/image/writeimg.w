@@ -689,9 +689,12 @@ void write_pdfstream(PDF pdf, image_dict * idict)
     pdf_add_real(pdf, sp2bp(img_bbox(idict)[2]));
     pdf_add_real(pdf, sp2bp(img_bbox(idict)[3]));
     pdf_end_array(pdf);
-    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0)
+    if (img_attr(idict) != NULL && strlen(img_attr(idict)) > 0) {
         pdf_printf(pdf, "\n%s\n", img_attr(idict));
-    pdf_dict_add_streaminfo(pdf);
+    }
+    if (!img_nolength(idict)) {
+        pdf_dict_add_streaminfo(pdf);
+    }
     pdf_end_dict(pdf);
     pdf_begin_stream(pdf);
     if (img_pdfstream_stream(idict) != NULL) {
