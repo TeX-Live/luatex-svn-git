@@ -37,23 +37,41 @@ produced by several `|print|' procedures. These procedures will direct their
 output to a variety of places, based on the setting of the global variable
 |selector|, which has the following possible values:
 
+\startitemize
+
+\startitem
     |term_and_log|, the normal setting, prints on the terminal and on the
-      transcript file.
+    transcript file.
+\stopitem
 
+\startitem
     |log_only|, prints only on the transcript file.
+\stopitem
 
+\startitem
     |term_only|, prints only on the terminal.
+\stopitem
 
+\startitem
     |no_print|, doesn't print at all. This is used only in rare cases before the
     transcript file is open.
+\stopitem
 
+\startitem
     |pseudo|, puts output into a cyclic buffer that is used by the |show_context|
     routine; when we get to that routine we shall discuss the reasoning behind
     this curious mode.
+\stopitem
 
+\startitem
     |new_string|, appends the output to the current string in the string pool.
+\stopitem
 
+\startitem
     0 to 15, prints on one of the sixteen files for \.{\\write} output.
+\stopitem
+
+\stopitemize
 
 The symbolic names `|term_and_log|', etc., have been assigned numeric codes that
 satisfy the convenient relations |no_print+1=term_only|, |no_print+2=log_only|,
@@ -268,12 +286,13 @@ is the number of a single-character string, as explained above. But
 when it knows that this is safe. (The present implementation assumes that it is
 always safe to print a visible ASCII character.)
 
-@^system dependencies@> The first 256 entries above the 17th unicode plane are
-used for a special trick: when \TeX\ has to print items in that range, it will
-instead print the character that results from substracting 0x110000 from that
-value. This allows byte-oriented output to things like \.{\\specials} and
-\.{\\pdfextension literals}. Todo: Perhaps it would be useful to do the same
-substraction while typesetting.
+The first 256 entries above the 17th unicode plane are used for a special trick:
+when \TeX\ has to print items in that range, it will instead print the character
+that results from substracting 0x110000 from that value. This allows
+byte-oriented output to things like \.{\\specials} and \.{\\pdfextension
+literals}. Todo: Perhaps it would be useful to do the same substraction while
+typesetting.
+
 
 */
 
@@ -590,7 +609,7 @@ void print_esc(str_number s)
 {
     /*tex Set variable |c| to the current escape character: */
     int c = escape_char_par;
-    if (c >= 0 && c < STRING_OFFSET)
+    if (c >= 0 && c < 0x110000)
         print(c);
     print(s);
 }
@@ -605,7 +624,7 @@ void tprint_esc(const char *s)
 {
     /*tex Set variable |c| to the current escape character: */
     int c = escape_char_par;
-    if (c >= 0 && c < STRING_OFFSET)
+    if (c >= 0 && c < 0x110000)
         print(c);
     tprint(s);
 }

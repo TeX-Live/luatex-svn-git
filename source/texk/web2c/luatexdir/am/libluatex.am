@@ -94,15 +94,16 @@ dist_libluatex_sources += \
 ##
 luatex_dvi_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
 
-dvigen.c: ctangle$(EXEEXT) luatexdir/dvi/dvigen.w
-	$(luatex_dvi_ctangle) dvigen.w
+#dvigen.c: ctangle$(EXEEXT) luatexdir/dvi/dvigen.w
+#	$(luatex_dvi_ctangle) dvigen.w
 
-libluatex_web += luatexdir/dvi/dvigen.w
+#libluatex_web += luatexdir/dvi/dvigen.w
 
-nodist_libluatex_sources += dvigen.c
+#nodist_libluatex_sources += dvigen.c
 
 dist_libluatex_sources += \
-	luatexdir/dvi/dvigen.h
+	luatexdir/dvi/dvigen.h \
+	luatexdir/dvi/dvigen.c
 
 ## from luatexdir/font
 ##
@@ -216,21 +217,13 @@ dist_libluatex_sources += \
 ##
 luatex_lang_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/lang $(ctangle)
 
-hnjalloc.c: ctangle$(EXEEXT) luatexdir/lang/hnjalloc.w
-	$(luatex_lang_ctangle) hnjalloc.w
-hyphen.c: ctangle$(EXEEXT) luatexdir/lang/hyphen.w
-	$(luatex_lang_ctangle) hyphen.w
-texlang.c: ctangle$(EXEEXT) luatexdir/lang/texlang.w
-	$(luatex_lang_ctangle) texlang.w
-
-libluatex_web += luatexdir/lang/texlang.w luatexdir/lang/hyphen.w luatexdir/lang/hnjalloc.w
-
-nodist_libluatex_sources += texlang.c hyphen.c hnjalloc.c
-
 dist_libluatex_sources += \
 	luatexdir/lang/hnjalloc.h \
 	luatexdir/lang/hyphen.h \
-	luatexdir/lang/texlang.h
+	luatexdir/lang/texlang.h \
+	luatexdir/lang/hnjalloc.c \
+	luatexdir/lang/hyphen.c \
+	luatexdir/lang/texlang.c
 
 ## from luatexdir/lua
 ##

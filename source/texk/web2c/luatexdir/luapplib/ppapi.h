@@ -17,8 +17,8 @@ typedef int64_t ppint;
 typedef size_t ppuint; // machine word
 
 typedef double ppnum;
-typedef const char * ppname;
-typedef const char * ppstring;
+typedef const char *ppname;
+typedef const char *ppstring;
 
 typedef struct {
   size_t size;
