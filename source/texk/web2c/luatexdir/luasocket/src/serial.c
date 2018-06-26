@@ -32,15 +32,15 @@ have only one object type.
 * Internal function prototypes
 \*=========================================================================*/
 /*static int global_create(lua_State *L);*/
-static int meth_send(lua_State *L);
-static int meth_receive(lua_State *L);
-static int meth_close(lua_State *L);
-static int meth_settimeout(lua_State *L);
-static int meth_getfd(lua_State *L);
-static int meth_setfd(lua_State *L);
-static int meth_dirty(lua_State *L);
-static int meth_getstats(lua_State *L);
-static int meth_setstats(lua_State *L);
+/* static int meth_send(lua_State *L); */
+/* static int meth_receive(lua_State *L); */
+/* static int meth_close(lua_State *L); */
+/* static int meth_settimeout(lua_State *L); */
+/* static int meth_getfd(lua_State *L); */
+/* static int meth_setfd(lua_State *L); */
+/* static int meth_dirty(lua_State *L); */
+/* static int meth_getstats(lua_State *L); */
+/* static int meth_setstats(lua_State *L); */
 
 /* serial object methods */
 /* static luaL_Reg serial_methods[] = { */
@@ -76,67 +76,67 @@ static int meth_setstats(lua_State *L);
 /*-------------------------------------------------------------------------*\
 * Just call buffered IO methods
 \*-------------------------------------------------------------------------*/
-static int meth_send(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkclass(L, "serial{client}", 1);
-    return buffer_meth_send(L, &un->buf);
-}
+/* static int meth_send(lua_State *L) { */
+/*     p_unix un = (p_unix) auxiliar_checkclass(L, "serial{client}", 1); */
+/*     return buffer_meth_send(L, &un->buf); */
+/* } */
 
-static int meth_receive(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkclass(L, "serial{client}", 1);
-    return buffer_meth_receive(L, &un->buf);
-}
+/* static int meth_receive(lua_State *L) { */
+/*     p_unix un = (p_unix) auxiliar_checkclass(L, "serial{client}", 1); */
+/*     return buffer_meth_receive(L, &un->buf); */
+/* } */
 
-static int meth_getstats(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkclass(L, "serial{client}", 1);
-    return buffer_meth_getstats(L, &un->buf);
-}
+/* static int meth_getstats(lua_State *L) { */
+/*     p_unix un = (p_unix) auxiliar_checkclass(L, "serial{client}", 1); */
+/*     return buffer_meth_getstats(L, &un->buf); */
+/* } */
 
-static int meth_setstats(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkclass(L, "serial{client}", 1);
-    return buffer_meth_setstats(L, &un->buf);
-}
+/* static int meth_setstats(lua_State *L) { */
+/*     p_unix un = (p_unix) auxiliar_checkclass(L, "serial{client}", 1); */
+/*     return buffer_meth_setstats(L, &un->buf); */
+/* } */
 
 /*-------------------------------------------------------------------------*\
 * Select support methods
 \*-------------------------------------------------------------------------*/
-static int meth_getfd(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1);
-    lua_pushnumber(L, (int) un->sock);
-    return 1;
-}
+/* static int meth_getfd(lua_State *L) { */
+/*     p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1); */
+/*     lua_pushnumber(L, (int) un->sock); */
+/*     return 1; */
+/* } */
 
-/* this is very dangerous, but can be handy for those that are brave enough */
-static int meth_setfd(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1);
-    un->sock = (t_socket) luaL_checknumber(L, 2);
-    return 0;
-}
+/* /\* this is very dangerous, but can be handy for those that are brave enough *\/ */
+/* static int meth_setfd(lua_State *L) { */
+/*     p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1); */
+/*     un->sock = (t_socket) luaL_checknumber(L, 2); */
+/*     return 0; */
+/* } */
 
-static int meth_dirty(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1);
-    lua_pushboolean(L, !buffer_isempty(&un->buf));
-    return 1;
-}
+/* static int meth_dirty(lua_State *L) { */
+/*     p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1); */
+/*     lua_pushboolean(L, !buffer_isempty(&un->buf)); */
+/*     return 1; */
+/* } */
 
 /*-------------------------------------------------------------------------*\
 * Closes socket used by object
 \*-------------------------------------------------------------------------*/
-static int meth_close(lua_State *L)
-{
-    p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1);
-    socket_destroy(&un->sock);
-    lua_pushnumber(L, 1);
-    return 1;
-}
+/* static int meth_close(lua_State *L) */
+/* { */
+/*     p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1); */
+/*     socket_destroy(&un->sock); */
+/*     lua_pushnumber(L, 1); */
+/*     return 1; */
+/* } */
 
 
 /*-------------------------------------------------------------------------*\
 * Just call tm methods
 \*-------------------------------------------------------------------------*/
-static int meth_settimeout(lua_State *L) {
-    p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1);
-    return timeout_meth_settimeout(L, &un->tm);
-}
+/* static int meth_settimeout(lua_State *L) { */
+/*     p_unix un = (p_unix) auxiliar_checkgroup(L, "serial{any}", 1); */
+/*     return timeout_meth_settimeout(L, &un->tm); */
+/* } */
 
 /*=========================================================================*\
 * Library functions
