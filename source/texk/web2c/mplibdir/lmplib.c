@@ -94,6 +94,7 @@ mplib_make_S(memory);
 mplib_make_S(hash);
 mplib_make_S(params);
 mplib_make_S(open);
+mplib_make_S(cycle);
 
 mplib_make_S(offset);
 mplib_make_S(dashes);
@@ -153,6 +154,7 @@ static void mplib_init_Ses(lua_State * L)
     mplib_init_S(hash);
     mplib_init_S(params);
     mplib_init_S(open);
+    mplib_init_S(cycle);
 
     mplib_init_S(offset);
     mplib_init_S(dashes);
@@ -1583,6 +1585,52 @@ static void mplib_push_path(lua_State * L, mp_gr_knot h, int is_pen)
     }
 }
 
+static int mplib_get_path(lua_State * L)
+{
+    MP *mp = is_mp(L, 1);
+    if (*mp != NULL) {
+        size_t l;
+        const char *s = lua_tolstring(L, 2, &l);
+        if (s != NULL) {
+            mp_knot p = mp_get_path_value(*mp,s,l) ;
+            if (p != NULL) {
+                int i = 1;
+                mp_knot h = p;
+                lua_newtable(L);
+                do {
+                    lua_createtable(L, 6, 1);
+                    mplib_push_number(L, mp_number_as_double(*mp,p->x_coord));
+                    lua_rawseti(L,-2,1);
+                    mplib_push_number(L, mp_number_as_double(*mp,p->y_coord));
+                    lua_rawseti(L,-2,2);
+                    mplib_push_number(L, mp_number_as_double(*mp,p->left_x));
+                    lua_rawseti(L,-2,3);
+                    mplib_push_number(L, mp_number_as_double(*mp,p->left_y));
+                    lua_rawseti(L,-2,4);
+                    mplib_push_number(L, mp_number_as_double(*mp,p->right_x));
+                    lua_rawseti(L,-2,5);
+                    mplib_push_number(L, mp_number_as_double(*mp,p->right_y));
+                    lua_rawseti(L,-2,6);
+                    lua_rawseti(L,-2, i);
+                    i++;
+                    if (p->data.types.right_type == mp_endpoint) {
+                        mplib_push_S(cycle);
+                        lua_pushboolean(L,0);
+                        lua_rawset(L,-3);
+                        return 1;
+                    }
+                    p = p->next;
+                } while (p != h);
+                mplib_push_S(cycle);
+                lua_pushboolean(L,1);
+                lua_rawset(L,-3);
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 /* this assumes that the top of the stack is a table
    or nil already in the case
 */
@@ -1889,6 +1937,7 @@ static const struct luaL_reg mplib_d[] = {
     {"get_number", mplib_get_numeric},
     {"get_boolean", mplib_get_boolean},
     {"get_string", mplib_get_string},
+    {"get_path", mplib_get_path},
     {NULL, NULL} /* sentinel */
 };
 
@@ -1901,6 +1950,7 @@ static const struct luaL_reg mplib_m[] = {
     {"get_number", mplib_get_numeric},
     {"get_boolean", mplib_get_boolean},
     {"get_string", mplib_get_string},
+    {"get_path", mplib_get_path},
     {NULL, NULL} /* sentinel */
 };
 

@@ -309,6 +309,28 @@ This function returns a list with the supported \PDF\ page box names, currently
 these are \type {media}, \type {crop}, \type {bleed}, \type {trim}, and \type
 {art}, all in lowercase.
 
+The \PDF\ file is kept open after its properties are determined. After inclusion,
+which happens when the page that references the image is flushed, the file is
+closed. This means that when you have thousands of images on one page, your
+operating system might decide to abort the run. When you include more than one
+page from a \PDF\ file you can set the \type {keepopen} flag when you allocate an
+image object, or pass the \type {keepopen} directive when you refer to the image
+with \lpr {useimageresource}. This only makes sense when you embed many pages.
+An \prm {immediate} applied to \lpr {saveimageresource} will also force a
+close after inclusion.
+
+\starttyping
+\immediate\useimageresource{foo.pdf}%
+          \saveimageresource         \lastsavedimageresourceindex % closed
+          \useimageresource{foo.pdf}%
+          \saveimageresource         \lastsavedimageresourceindex % kept open
+          \useimageresource{foo.pdf}%
+          \saveimageresource keepopen\lastsavedimageresourceindex % kept open
+
+\directlua{img.write(img.scan{ file = "foo.pdf" })}                  % closed
+\directlua{img.write(img.scan{ file = "foo.pdf", keepopen = true })} % kept open
+\stoptyping
+
 \section{The \type {mplib} library}
 
 \topicindex {\METAPOST}
@@ -375,27 +397,38 @@ Note that the new version of \MPLIB\ no longer uses binary mem files, so the way
 to preload a set of macros is simply to start off with an \type {input} command
 in the first \type {mp:execute()} call.
 
-The \PDF\ file is kept open after its properties are determined. After inclusion,
-which happens when the page that references the image is flushed, the file is
-closed. This means that when you have thousands of images on one page, your
-operating system might decide to abort the run. When you include more than one
-page from a \PDF\ file you can set the \type {keepopen} flag when you allocate an
-image object, or pass the \type {keepopen} directive when you refer to the image
-with \lpr {useimageresource}. This only makes sense when you embed many pages.
-An \prm {immediate} applied to \lpr {saveimageresource} will also force a
-close after inclusion.
+When you're in a scriptrun the handler assigned to \type {run_script} can fetch
+variables from \METAPOST\ by name, given that they are accessible.
 
 \starttyping
-\immediate\useimageresource{foo.pdf}%
-          \saveimageresource         \lastsavedimageresourceindex % closed
-          \useimageresource{foo.pdf}%
-          \saveimageresource         \lastsavedimageresourceindex % kept open
-          \useimageresource{foo.pdf}%
-          \saveimageresource keepopen\lastsavedimageresourceindex % kept open
-
-\directlua{img.write(img.scan{ file = "foo.pdf" })}                  % closed
-\directlua{img.write(img.scan{ file = "foo.pdf", keepopen = true })} % kept open
+<number>  = get_numeric("foo")
+<boolean> = get_boolean("foo")
+<string>  = get_string ("foo")
+<table>   = get_path   ("foo")
 \stoptyping
+
+A path table has entries that themselves are tables of six numbers. The table
+also has a \type {cycle} key indicating if we're dealing with a cycle.
+
+When you are processing a snippet of text starting with \type {btex} and
+ending with either \type {etex} or \type {verbatimtex}, the \METAPOST\
+\type {texscriptmode} parameter controls how spaces and newlines get honoured.
+The default value is~1. Possible values are:
+
+\starttabulate[|l|p|]
+\DB name      \BC meaning \NC \NR
+\TB
+\NC \type {0} \NC no newlines \NC \NR
+\NC \type {1} \NC newlines in \type {verbatimtex} \NC \NR
+\NC \type {2} \NC newlines in \type {verbatimtex} and \type {etex} \NC \NR
+\NC \type {3} \NC no leading and trailing strip in \type {verbatimtex} \NC \NR
+\NC \type {4} \NC no leading and trailing strip in \type {verbatimtex} and \type {btex} \NC \NR
+\LL
+\stoptabulate
+
+That way the \LUA\ handler (assigned to \type {make_text}) can do what it likes.
+An \type {etex} has to be followed by a space or \type {;} or be at the end of a
+line and preceded by a space or at the beginning of a line.
 
 \subsection{\type {mp:statistics}}
 
