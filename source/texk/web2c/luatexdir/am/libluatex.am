@@ -289,65 +289,65 @@ dist_libluatex_sources += \
 ##
 luatex_pdf_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/pdf $(ctangle)
 
-pdfpagetree.c: ctangle$(EXEEXT) luatexdir/pdf/pdfpagetree.w
-	$(luatex_pdf_ctangle) pdfpagetree.w
-pdfaction.c: ctangle$(EXEEXT) luatexdir/pdf/pdfaction.w
-	$(luatex_pdf_ctangle) pdfaction.w
-pdfannot.c: ctangle$(EXEEXT) luatexdir/pdf/pdfannot.w
-	$(luatex_pdf_ctangle) pdfannot.w
-pdfcolorstack.c: ctangle$(EXEEXT) luatexdir/pdf/pdfcolorstack.w
-	$(luatex_pdf_ctangle) pdfcolorstack.w
-pdfdest.c: ctangle$(EXEEXT) luatexdir/pdf/pdfdest.w
-	$(luatex_pdf_ctangle) pdfdest.w
-pdffont.c: ctangle$(EXEEXT) luatexdir/pdf/pdffont.w
-	$(luatex_pdf_ctangle) pdffont.w
-pdfgen.c: ctangle$(EXEEXT) luatexdir/pdf/pdfgen.w
-	$(luatex_pdf_ctangle) pdfgen.w
-pdfglyph.c: ctangle$(EXEEXT) luatexdir/pdf/pdfglyph.w
-	$(luatex_pdf_ctangle) pdfglyph.w
-pdfimage.c: ctangle$(EXEEXT) luatexdir/pdf/pdfimage.w
-	$(luatex_pdf_ctangle) pdfimage.w
-pdflink.c: ctangle$(EXEEXT) luatexdir/pdf/pdflink.w
-	$(luatex_pdf_ctangle) pdflink.w
-pdflistout.c: ctangle$(EXEEXT) luatexdir/pdf/pdflistout.w
-	$(luatex_pdf_ctangle) pdflistout.w
-pdfliteral.c: ctangle$(EXEEXT) luatexdir/pdf/pdfliteral.w
-	$(luatex_pdf_ctangle) pdfliteral.w
-pdfobj.c: ctangle$(EXEEXT) luatexdir/pdf/pdfobj.w
-	$(luatex_pdf_ctangle) pdfobj.w
-pdfoutline.c: ctangle$(EXEEXT) luatexdir/pdf/pdfoutline.w
-	$(luatex_pdf_ctangle) pdfoutline.w
-pdfpage.c: ctangle$(EXEEXT) luatexdir/pdf/pdfpage.w
-	$(luatex_pdf_ctangle) pdfpage.w
-pdfrule.c: ctangle$(EXEEXT) luatexdir/pdf/pdfrule.w
-	$(luatex_pdf_ctangle) pdfrule.w
-pdfsaverestore.c: ctangle$(EXEEXT) luatexdir/pdf/pdfsaverestore.w
-	$(luatex_pdf_ctangle) pdfsaverestore.w
-pdfsetmatrix.c: ctangle$(EXEEXT) luatexdir/pdf/pdfsetmatrix.w
-	$(luatex_pdf_ctangle) pdfsetmatrix.w
-pdfshipout.c: ctangle$(EXEEXT) luatexdir/pdf/pdfshipout.w
-	$(luatex_pdf_ctangle) pdfshipout.w
-pdftables.c: ctangle$(EXEEXT) luatexdir/pdf/pdftables.w
-	$(luatex_pdf_ctangle) pdftables.w
-pdfthread.c: ctangle$(EXEEXT) luatexdir/pdf/pdfthread.w
-	$(luatex_pdf_ctangle) pdfthread.w
-pdfxform.c: ctangle$(EXEEXT) luatexdir/pdf/pdfxform.w
-	$(luatex_pdf_ctangle) pdfxform.w
+# pdfpagetree.c: ctangle$(EXEEXT) luatexdir/pdf/pdfpagetree.w
+# 	$(luatex_pdf_ctangle) pdfpagetree.w
+# pdfaction.c: ctangle$(EXEEXT) luatexdir/pdf/pdfaction.w
+# 	$(luatex_pdf_ctangle) pdfaction.w
+# pdfannot.c: ctangle$(EXEEXT) luatexdir/pdf/pdfannot.w
+# 	$(luatex_pdf_ctangle) pdfannot.w
+# pdfcolorstack.c: ctangle$(EXEEXT) luatexdir/pdf/pdfcolorstack.w
+# 	$(luatex_pdf_ctangle) pdfcolorstack.w
+# pdfdest.c: ctangle$(EXEEXT) luatexdir/pdf/pdfdest.w
+# 	$(luatex_pdf_ctangle) pdfdest.w
+# pdffont.c: ctangle$(EXEEXT) luatexdir/pdf/pdffont.w
+# 	$(luatex_pdf_ctangle) pdffont.w
+# pdfgen.c: ctangle$(EXEEXT) luatexdir/pdf/pdfgen.w
+# 	$(luatex_pdf_ctangle) pdfgen.w
+# pdfglyph.c: ctangle$(EXEEXT) luatexdir/pdf/pdfglyph.w
+# 	$(luatex_pdf_ctangle) pdfglyph.w
+# pdfimage.c: ctangle$(EXEEXT) luatexdir/pdf/pdfimage.w
+# 	$(luatex_pdf_ctangle) pdfimage.w
+# pdflink.c: ctangle$(EXEEXT) luatexdir/pdf/pdflink.w
+# 	$(luatex_pdf_ctangle) pdflink.w
+# pdflistout.c: ctangle$(EXEEXT) luatexdir/pdf/pdflistout.w
+# 	$(luatex_pdf_ctangle) pdflistout.w
+# pdfliteral.c: ctangle$(EXEEXT) luatexdir/pdf/pdfliteral.w
+# 	$(luatex_pdf_ctangle) pdfliteral.w
+# pdfobj.c: ctangle$(EXEEXT) luatexdir/pdf/pdfobj.w
+# 	$(luatex_pdf_ctangle) pdfobj.w
+# pdfoutline.c: ctangle$(EXEEXT) luatexdir/pdf/pdfoutline.w
+# 	$(luatex_pdf_ctangle) pdfoutline.w
+# pdfpage.c: ctangle$(EXEEXT) luatexdir/pdf/pdfpage.w
+# 	$(luatex_pdf_ctangle) pdfpage.w
+# pdfrule.c: ctangle$(EXEEXT) luatexdir/pdf/pdfrule.w
+# 	$(luatex_pdf_ctangle) pdfrule.w
+# pdfsaverestore.c: ctangle$(EXEEXT) luatexdir/pdf/pdfsaverestore.w
+# 	$(luatex_pdf_ctangle) pdfsaverestore.w
+# pdfsetmatrix.c: ctangle$(EXEEXT) luatexdir/pdf/pdfsetmatrix.w
+# 	$(luatex_pdf_ctangle) pdfsetmatrix.w
+# pdfshipout.c: ctangle$(EXEEXT) luatexdir/pdf/pdfshipout.w
+# 	$(luatex_pdf_ctangle) pdfshipout.w
+# pdftables.c: ctangle$(EXEEXT) luatexdir/pdf/pdftables.w
+# 	$(luatex_pdf_ctangle) pdftables.w
+# pdfthread.c: ctangle$(EXEEXT) luatexdir/pdf/pdfthread.w
+# 	$(luatex_pdf_ctangle) pdfthread.w
+# pdfxform.c: ctangle$(EXEEXT) luatexdir/pdf/pdfxform.w
+# 	$(luatex_pdf_ctangle) pdfxform.w
 
-libluatex_web += luatexdir/pdf/pdfpagetree.w luatexdir/pdf/pdfaction.w luatexdir/pdf/pdfannot.w
-libluatex_web += luatexdir/pdf/pdfcolorstack.w luatexdir/pdf/pdfdest.w
-libluatex_web += luatexdir/pdf/pdffont.w luatexdir/pdf/pdfgen.w luatexdir/pdf/pdfglyph.w
-libluatex_web += luatexdir/pdf/pdfimage.w luatexdir/pdf/pdflink.w luatexdir/pdf/pdflistout.w
-libluatex_web += luatexdir/pdf/pdfliteral.w luatexdir/pdf/pdfobj.w
-libluatex_web += luatexdir/pdf/pdfoutline.w luatexdir/pdf/pdfpage.w luatexdir/pdf/pdfrule.w
-libluatex_web += luatexdir/pdf/pdfsaverestore.w luatexdir/pdf/pdfsetmatrix.w
-libluatex_web += luatexdir/pdf/pdfshipout.w luatexdir/pdf/pdftables.w
-libluatex_web += luatexdir/pdf/pdfthread.w luatexdir/pdf/pdfxform.w
+#libluatex_web += luatexdir/pdf/pdfpagetree.w luatexdir/pdf/pdfaction.w luatexdir/pdf/pdfannot.w
+#libluatex_web += luatexdir/pdf/pdfcolorstack.w luatexdir/pdf/pdfdest.w
+#libluatex_web += luatexdir/pdf/pdffont.w luatexdir/pdf/pdfgen.w luatexdir/pdf/pdfglyph.w
+#libluatex_web += luatexdir/pdf/pdfimage.w luatexdir/pdf/pdflink.w luatexdir/pdf/pdflistout.w
+#libluatex_web += luatexdir/pdf/pdfliteral.w luatexdir/pdf/pdfobj.w
+#libluatex_web += luatexdir/pdf/pdfoutline.w luatexdir/pdf/pdfpage.w luatexdir/pdf/pdfrule.w
+#libluatex_web += luatexdir/pdf/pdfsaverestore.w luatexdir/pdf/pdfsetmatrix.w
+#libluatex_web += luatexdir/pdf/pdfshipout.w luatexdir/pdf/pdftables.w
+#libluatex_web += luatexdir/pdf/pdfthread.w luatexdir/pdf/pdfxform.w
 
-nodist_libluatex_sources += pdfpagetree.c pdfaction.c pdfannot.c pdfcolorstack.c pdfdest.c pdffont.c
-nodist_libluatex_sources += pdfgen.c pdfglyph.c pdfimage.c pdflink.c pdflistout.c pdfliteral.c
-nodist_libluatex_sources += pdfobj.c pdfoutline.c pdfpage.c pdfrule.c pdfsaverestore.c
-nodist_libluatex_sources += pdfsetmatrix.c pdfshipout.c pdftables.c pdfthread.c pdfxform.c
+#nodist_libluatex_sources += pdfpagetree.c pdfaction.c pdfannot.c pdfcolorstack.c pdfdest.c pdffont.c
+#nodist_libluatex_sources += pdfgen.c pdfglyph.c pdfimage.c pdflink.c pdflistout.c pdfliteral.c
+#nodist_libluatex_sources += pdfobj.c pdfoutline.c pdfpage.c pdfrule.c pdfsaverestore.c
+#nodist_libluatex_sources += pdfsetmatrix.c pdfshipout.c pdftables.c pdfthread.c pdfxform.c
 
 dist_libluatex_sources += \
 	luatexdir/pdf/pdfpagetree.h \
@@ -372,7 +372,29 @@ dist_libluatex_sources += \
 	luatexdir/pdf/pdftables.h \
 	luatexdir/pdf/pdfthread.h \
 	luatexdir/pdf/pdftypes.h \
-	luatexdir/pdf/pdfxform.h
+	luatexdir/pdf/pdfxform.h \
+	luatexdir/pdf/pdfaction.c \
+	luatexdir/pdf/pdfannot.c \
+	luatexdir/pdf/pdfcolorstack.c \
+	luatexdir/pdf/pdfdest.c \
+	luatexdir/pdf/pdffont.c \
+	luatexdir/pdf/pdfgen.c \
+	luatexdir/pdf/pdfglyph.c \
+	luatexdir/pdf/pdfimage.c \
+	luatexdir/pdf/pdflink.c \
+	luatexdir/pdf/pdflistout.c \
+	luatexdir/pdf/pdfliteral.c \
+	luatexdir/pdf/pdfobj.c \
+	luatexdir/pdf/pdfoutline.c \
+	luatexdir/pdf/pdfpage.c \
+	luatexdir/pdf/pdfpagetree.c \
+	luatexdir/pdf/pdfrule.c \
+	luatexdir/pdf/pdfsaverestore.c \
+	luatexdir/pdf/pdfsetmatrix.c \
+	luatexdir/pdf/pdfshipout.c \
+	luatexdir/pdf/pdftables.c \
+	luatexdir/pdf/pdfthread.c \
+	luatexdir/pdf/pdfxform.c 
 
 ################################################################################
 ################################################################################
