@@ -565,6 +565,11 @@ am__objects_5 =  \
 	luatexdir/luafontloader/src/liblua53tex_a-luafflib.$(OBJEXT) \
 	luatexdir/dvi/liblua53tex_a-dvigen.$(OBJEXT) \
 	luatexdir/image/liblua53tex_a-pdftoepdf.$(OBJEXT) \
+	luatexdir/image/liblua53tex_a-writeimg.$(OBJEXT) \
+	luatexdir/image/liblua53tex_a-writejbig2.$(OBJEXT) \
+	luatexdir/image/liblua53tex_a-writejp2.$(OBJEXT) \
+	luatexdir/image/liblua53tex_a-writejpg.$(OBJEXT) \
+	luatexdir/image/liblua53tex_a-writepng.$(OBJEXT) \
 	luatexdir/lang/liblua53tex_a-hnjalloc.$(OBJEXT) \
 	luatexdir/lang/liblua53tex_a-hyphen.$(OBJEXT) \
 	luatexdir/lang/liblua53tex_a-texlang.$(OBJEXT) \
@@ -631,11 +636,6 @@ am__objects_6 = liblua53tex_a-dofont.$(OBJEXT) \
 	liblua53tex_a-writettf.$(OBJEXT) \
 	liblua53tex_a-writetype0.$(OBJEXT) \
 	liblua53tex_a-writetype2.$(OBJEXT) \
-	liblua53tex_a-writeimg.$(OBJEXT) \
-	liblua53tex_a-writejbig2.$(OBJEXT) \
-	liblua53tex_a-writejpg.$(OBJEXT) \
-	liblua53tex_a-writejp2.$(OBJEXT) \
-	liblua53tex_a-writepng.$(OBJEXT) \
 	liblua53tex_a-pdfpagetree.$(OBJEXT) \
 	liblua53tex_a-pdfaction.$(OBJEXT) \
 	liblua53tex_a-pdfannot.$(OBJEXT) \
@@ -751,6 +751,11 @@ am__objects_11 = luatexdir/luafontloader/src/libluajittex_a-ffdummies.$(OBJEXT) 
 	luatexdir/luafontloader/src/libluajittex_a-luafflib.$(OBJEXT) \
 	luatexdir/dvi/libluajittex_a-dvigen.$(OBJEXT) \
 	luatexdir/image/libluajittex_a-pdftoepdf.$(OBJEXT) \
+	luatexdir/image/libluajittex_a-writeimg.$(OBJEXT) \
+	luatexdir/image/libluajittex_a-writejbig2.$(OBJEXT) \
+	luatexdir/image/libluajittex_a-writejp2.$(OBJEXT) \
+	luatexdir/image/libluajittex_a-writejpg.$(OBJEXT) \
+	luatexdir/image/libluajittex_a-writepng.$(OBJEXT) \
 	luatexdir/lang/libluajittex_a-hnjalloc.$(OBJEXT) \
 	luatexdir/lang/libluajittex_a-hyphen.$(OBJEXT) \
 	luatexdir/lang/libluajittex_a-texlang.$(OBJEXT) \
@@ -818,11 +823,6 @@ am__objects_12 = libluajittex_a-dofont.$(OBJEXT) \
 	libluajittex_a-writettf.$(OBJEXT) \
 	libluajittex_a-writetype0.$(OBJEXT) \
 	libluajittex_a-writetype2.$(OBJEXT) \
-	libluajittex_a-writeimg.$(OBJEXT) \
-	libluajittex_a-writejbig2.$(OBJEXT) \
-	libluajittex_a-writejpg.$(OBJEXT) \
-	libluajittex_a-writejp2.$(OBJEXT) \
-	libluajittex_a-writepng.$(OBJEXT) \
 	libluajittex_a-pdfpagetree.$(OBJEXT) \
 	libluajittex_a-pdfaction.$(OBJEXT) \
 	libluajittex_a-pdfannot.$(OBJEXT) \
@@ -934,6 +934,11 @@ am__objects_16 =  \
 	luatexdir/luafontloader/src/libluatex_a-luafflib.$(OBJEXT) \
 	luatexdir/dvi/libluatex_a-dvigen.$(OBJEXT) \
 	luatexdir/image/libluatex_a-pdftoepdf.$(OBJEXT) \
+	luatexdir/image/libluatex_a-writeimg.$(OBJEXT) \
+	luatexdir/image/libluatex_a-writejbig2.$(OBJEXT) \
+	luatexdir/image/libluatex_a-writejp2.$(OBJEXT) \
+	luatexdir/image/libluatex_a-writejpg.$(OBJEXT) \
+	luatexdir/image/libluatex_a-writepng.$(OBJEXT) \
 	luatexdir/lang/libluatex_a-hnjalloc.$(OBJEXT) \
 	luatexdir/lang/libluatex_a-hyphen.$(OBJEXT) \
 	luatexdir/lang/libluatex_a-texlang.$(OBJEXT) \
@@ -995,10 +1000,6 @@ am__objects_17 = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-writettf.$(OBJEXT) \
 	libluatex_a-writetype0.$(OBJEXT) \
 	libluatex_a-writetype2.$(OBJEXT) \
-	libluatex_a-writeimg.$(OBJEXT) \
-	libluatex_a-writejbig2.$(OBJEXT) \
-	libluatex_a-writejpg.$(OBJEXT) libluatex_a-writejp2.$(OBJEXT) \
-	libluatex_a-writepng.$(OBJEXT) \
 	libluatex_a-pdfpagetree.$(OBJEXT) \
 	libluatex_a-pdfaction.$(OBJEXT) libluatex_a-pdfannot.$(OBJEXT) \
 	libluatex_a-pdfcolorstack.$(OBJEXT) \
@@ -3705,8 +3706,6 @@ nodist_libluajittex_a_SOURCES = \
 	$(dist_libluatex_sources) \
 	$(nodist_libluatex_sources)
 
-#pdftoepdf.cc: ctangle$(EXEEXT) luatexdir/image/pdftoepdf.w
-#	$(luatex_image_ctangle) pdftoepdf.w - $@
 libluatex_web = luatexdir/font/dofont.w luatexdir/font/luafont.w \
 	luatexdir/font/mapfile.w luatexdir/font/pkin.w \
 	luatexdir/font/sfnt.w luatexdir/font/texfont.w \
@@ -3717,33 +3716,29 @@ libluatex_web = luatexdir/font/dofont.w luatexdir/font/luafont.w \
 	luatexdir/font/writefont.w luatexdir/font/writet1.w \
 	luatexdir/font/writet3.w luatexdir/font/writettf.w \
 	luatexdir/font/writetype0.w luatexdir/font/writetype2.w \
-	luatexdir/image/writeimg.w luatexdir/image/writejbig2.w \
-	luatexdir/image/writejpg.w luatexdir/image/writejp2.w \
-	luatexdir/image/writepng.w luatexdir/pdf/pdfpagetree.w \
-	luatexdir/pdf/pdfaction.w luatexdir/pdf/pdfannot.w \
-	luatexdir/pdf/pdfcolorstack.w luatexdir/pdf/pdfdest.w \
-	luatexdir/pdf/pdffont.w luatexdir/pdf/pdfgen.w \
-	luatexdir/pdf/pdfglyph.w luatexdir/pdf/pdfimage.w \
-	luatexdir/pdf/pdflink.w luatexdir/pdf/pdflistout.w \
-	luatexdir/pdf/pdfliteral.w luatexdir/pdf/pdfobj.w \
-	luatexdir/pdf/pdfoutline.w luatexdir/pdf/pdfpage.w \
-	luatexdir/pdf/pdfrule.w luatexdir/pdf/pdfsaverestore.w \
-	luatexdir/pdf/pdfsetmatrix.w luatexdir/pdf/pdfshipout.w \
-	luatexdir/pdf/pdftables.w luatexdir/pdf/pdfthread.w \
-	luatexdir/pdf/pdfxform.w luatexdir/tex/align.w \
-	luatexdir/tex/buildpage.w luatexdir/tex/expand.w \
-	luatexdir/tex/extensions.w luatexdir/tex/linebreak.w \
-	luatexdir/tex/packaging.w luatexdir/tex/scanning.w \
-	luatexdir/tex/texfileio.w luatexdir/tex/texmath.w \
-	luatexdir/tex/texnodes.w luatexdir/tex/textoken.w \
-	luatexdir/utils/avlstuff.w luatexdir/utils/managed-sa.w \
-	luatexdir/utils/utils.w luatexdir/utils/unistring.w
-#libluatex_web += luatexdir/image/pdftoepdf.w
+	luatexdir/pdf/pdfpagetree.w luatexdir/pdf/pdfaction.w \
+	luatexdir/pdf/pdfannot.w luatexdir/pdf/pdfcolorstack.w \
+	luatexdir/pdf/pdfdest.w luatexdir/pdf/pdffont.w \
+	luatexdir/pdf/pdfgen.w luatexdir/pdf/pdfglyph.w \
+	luatexdir/pdf/pdfimage.w luatexdir/pdf/pdflink.w \
+	luatexdir/pdf/pdflistout.w luatexdir/pdf/pdfliteral.w \
+	luatexdir/pdf/pdfobj.w luatexdir/pdf/pdfoutline.w \
+	luatexdir/pdf/pdfpage.w luatexdir/pdf/pdfrule.w \
+	luatexdir/pdf/pdfsaverestore.w luatexdir/pdf/pdfsetmatrix.w \
+	luatexdir/pdf/pdfshipout.w luatexdir/pdf/pdftables.w \
+	luatexdir/pdf/pdfthread.w luatexdir/pdf/pdfxform.w \
+	luatexdir/tex/align.w luatexdir/tex/buildpage.w \
+	luatexdir/tex/expand.w luatexdir/tex/extensions.w \
+	luatexdir/tex/linebreak.w luatexdir/tex/packaging.w \
+	luatexdir/tex/scanning.w luatexdir/tex/texfileio.w \
+	luatexdir/tex/texmath.w luatexdir/tex/texnodes.w \
+	luatexdir/tex/textoken.w luatexdir/utils/avlstuff.w \
+	luatexdir/utils/managed-sa.w luatexdir/utils/utils.w \
+	luatexdir/utils/unistring.w
 nodist_libluatex_sources = dofont.c luafont.c mapfile.c pkin.c sfnt.c \
 	texfont.c tfmofm.c tounicode.c tt_glyf.c tt_table.c vfovf.c \
 	vfpacket.c writecff.c writeenc.c writefont.c writet1.c \
-	writet3.c writettf.c writetype0.c writetype2.c writeimg.c \
-	writejbig2.c writejpg.c writejp2.c writepng.c pdfpagetree.c \
+	writet3.c writettf.c writetype0.c writetype2.c pdfpagetree.c \
 	pdfaction.c pdfannot.c pdfcolorstack.c pdfdest.c pdffont.c \
 	pdfgen.c pdfglyph.c pdfimage.c pdflink.c pdflistout.c \
 	pdfliteral.c pdfobj.c pdfoutline.c pdfpage.c pdfrule.c \
@@ -3759,6 +3754,28 @@ nodist_libluatex_sources = dofont.c luafont.c mapfile.c pkin.c sfnt.c \
 #libluatex_web += luatexdir/dvi/dvigen.w
 
 #nodist_libluatex_sources += dvigen.c
+
+#writeimg.c: ctangle$(EXEEXT) luatexdir/image/writeimg.w
+#	$(luatex_image_ctangle) writeimg.w
+#writejbig2.c: ctangle$(EXEEXT) luatexdir/image/writejbig2.w
+#	$(luatex_image_ctangle) writejbig2.w
+#writejpg.c: ctangle$(EXEEXT) luatexdir/image/writejpg.w
+#	$(luatex_image_ctangle) writejpg.w
+#writejp2.c: ctangle$(EXEEXT) luatexdir/image/writejp2.w
+#	$(luatex_image_ctangle) writejp2.w
+#writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
+#	$(luatex_image_ctangle) writepng.w
+#pdftoepdf.cc: ctangle$(EXEEXT) luatexdir/image/pdftoepdf.w
+#	$(luatex_image_ctangle) pdftoepdf.w - $@
+
+#libluatex_web += luatexdir/image/writeimg.w
+#libluatex_web += luatexdir/image/writejbig2.w
+#libluatex_web += luatexdir/image/writejpg.w
+#libluatex_web += luatexdir/image/writejp2.w
+#libluatex_web += luatexdir/image/writepng.w
+#libluatex_web += luatexdir/image/pdftoepdf.w
+
+#nodist_libluatex_sources += writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c 
 
 #helpers.c: ctangle$(EXEEXT) luatexdir/lua/helpers.w
 #	$(luatex_lua_ctangle) helpers.w
@@ -3794,64 +3811,67 @@ dist_libluatex_sources = luatexdir/luatexcallbackids.h \
 	luatexdir/image/writeimg.h luatexdir/image/writejbig2.h \
 	luatexdir/image/writejpg.h luatexdir/image/writejp2.h \
 	luatexdir/image/writepng.h luatexdir/image/pdftoepdf.c \
-	luatexdir/lang/hnjalloc.h luatexdir/lang/hyphen.h \
-	luatexdir/lang/texlang.h luatexdir/lang/hnjalloc.c \
-	luatexdir/lang/hyphen.c luatexdir/lang/texlang.c \
-	luatexdir/lua/lcallbacklib.c luatexdir/lua/lfontlib.c \
-	luatexdir/lua/limglib.c luatexdir/lua/lpdfelib.c \
-	luatexdir/lua/lpdfscannerlib.c luatexdir/lua/lepdflib.cc \
-	luatexdir/lua/lkpselib.c luatexdir/lua/llanglib.c \
-	luatexdir/lua/llualib.c luatexdir/lua/lnodelib.c \
-	luatexdir/lua/liolibext.c luatexdir/lua/loslibext.c \
-	luatexdir/lua/lpdflib.c luatexdir/lua/lstatslib.c \
-	luatexdir/lua/ltexiolib.c luatexdir/lua/ltexlib.c \
-	luatexdir/lua/lnewtokenlib.c luatexdir/lua/luatex-api.h \
-	luatexdir/lua/luatex-core.c luatexdir/lua/helpers.c \
-	luatexdir/lua/luainit.c luatexdir/lua/luanode.c \
-	luatexdir/lua/luastuff.c luatexdir/lua/luatoken.c \
-	luatexdir/lua/mplibstuff.c luatexdir/pdf/pdfpagetree.h \
-	luatexdir/pdf/pdfaction.h luatexdir/pdf/pdfannot.h \
-	luatexdir/pdf/pdfcolorstack.h luatexdir/pdf/pdfdest.h \
-	luatexdir/pdf/pdffont.h luatexdir/pdf/pdfgen.h \
-	luatexdir/pdf/pdfglyph.h luatexdir/pdf/pdfimage.h \
-	luatexdir/pdf/pdflink.h luatexdir/pdf/pdflistout.h \
-	luatexdir/pdf/pdfliteral.h luatexdir/pdf/pdfobj.h \
-	luatexdir/pdf/pdfoutline.h luatexdir/pdf/pdfpage.h \
-	luatexdir/pdf/pdfrule.h luatexdir/pdf/pdfsaverestore.h \
-	luatexdir/pdf/pdfsetmatrix.h luatexdir/pdf/pdfshipout.h \
-	luatexdir/pdf/pdftables.h luatexdir/pdf/pdfthread.h \
-	luatexdir/pdf/pdftypes.h luatexdir/pdf/pdfxform.h \
-	luatexdir/tex/align.h luatexdir/tex/arithmetic.h \
-	luatexdir/tex/buildpage.h luatexdir/tex/commands.h \
-	luatexdir/tex/conditional.h luatexdir/tex/directions.h \
-	luatexdir/tex/dumpdata.h luatexdir/tex/equivalents.h \
-	luatexdir/tex/errors.h luatexdir/tex/expand.h \
-	luatexdir/tex/extensions.h luatexdir/tex/filename.h \
-	luatexdir/tex/inputstack.h luatexdir/tex/linebreak.h \
-	luatexdir/tex/mainbody.h luatexdir/tex/maincontrol.h \
-	luatexdir/tex/mathcodes.h luatexdir/tex/memoryword.h \
-	luatexdir/tex/mlist.h luatexdir/tex/nesting.h \
-	luatexdir/tex/packaging.h luatexdir/tex/postlinebreak.h \
-	luatexdir/tex/primitive.h luatexdir/tex/printing.h \
-	luatexdir/tex/scanning.h luatexdir/tex/stringpool.h \
-	luatexdir/tex/texdeffont.h luatexdir/tex/texfileio.h \
-	luatexdir/tex/texmath.h luatexdir/tex/texnodes.h \
-	luatexdir/tex/textoken.h luatexdir/tex/textcodes.h \
-	luatexdir/tex/arithmetic.c luatexdir/tex/commands.c \
-	luatexdir/tex/conditional.c luatexdir/tex/directions.c \
-	luatexdir/tex/dumpdata.c luatexdir/tex/equivalents.c \
-	luatexdir/tex/errors.c luatexdir/tex/filename.c \
-	luatexdir/tex/inputstack.c luatexdir/tex/mainbody.c \
-	luatexdir/tex/maincontrol.c luatexdir/tex/mathcodes.c \
-	luatexdir/tex/memoryword.c luatexdir/tex/nesting.c \
-	luatexdir/tex/postlinebreak.c luatexdir/tex/primitive.c \
-	luatexdir/tex/printing.c luatexdir/tex/stringpool.c \
-	luatexdir/tex/texdeffont.c luatexdir/tex/textcodes.c \
-	luatexdir/utils/avl.c luatexdir/utils/avl.h \
-	luatexdir/utils/avlstuff.h luatexdir/utils/managed-sa.h \
-	luatexdir/utils/utils.h luatexdir/utils/unistring.h \
-	synctexdir/synctex-common.h synctexdir/synctex-luatex.h \
-	synctexdir/synctex.c synctexdir/synctex.h
+	luatexdir/image/writeimg.c luatexdir/image/writejbig2.c \
+	luatexdir/image/writejp2.c luatexdir/image/writejpg.c \
+	luatexdir/image/writepng.c luatexdir/lang/hnjalloc.h \
+	luatexdir/lang/hyphen.h luatexdir/lang/texlang.h \
+	luatexdir/lang/hnjalloc.c luatexdir/lang/hyphen.c \
+	luatexdir/lang/texlang.c luatexdir/lua/lcallbacklib.c \
+	luatexdir/lua/lfontlib.c luatexdir/lua/limglib.c \
+	luatexdir/lua/lpdfelib.c luatexdir/lua/lpdfscannerlib.c \
+	luatexdir/lua/lepdflib.cc luatexdir/lua/lkpselib.c \
+	luatexdir/lua/llanglib.c luatexdir/lua/llualib.c \
+	luatexdir/lua/lnodelib.c luatexdir/lua/liolibext.c \
+	luatexdir/lua/loslibext.c luatexdir/lua/lpdflib.c \
+	luatexdir/lua/lstatslib.c luatexdir/lua/ltexiolib.c \
+	luatexdir/lua/ltexlib.c luatexdir/lua/lnewtokenlib.c \
+	luatexdir/lua/luatex-api.h luatexdir/lua/luatex-core.c \
+	luatexdir/lua/helpers.c luatexdir/lua/luainit.c \
+	luatexdir/lua/luanode.c luatexdir/lua/luastuff.c \
+	luatexdir/lua/luatoken.c luatexdir/lua/mplibstuff.c \
+	luatexdir/pdf/pdfpagetree.h luatexdir/pdf/pdfaction.h \
+	luatexdir/pdf/pdfannot.h luatexdir/pdf/pdfcolorstack.h \
+	luatexdir/pdf/pdfdest.h luatexdir/pdf/pdffont.h \
+	luatexdir/pdf/pdfgen.h luatexdir/pdf/pdfglyph.h \
+	luatexdir/pdf/pdfimage.h luatexdir/pdf/pdflink.h \
+	luatexdir/pdf/pdflistout.h luatexdir/pdf/pdfliteral.h \
+	luatexdir/pdf/pdfobj.h luatexdir/pdf/pdfoutline.h \
+	luatexdir/pdf/pdfpage.h luatexdir/pdf/pdfrule.h \
+	luatexdir/pdf/pdfsaverestore.h luatexdir/pdf/pdfsetmatrix.h \
+	luatexdir/pdf/pdfshipout.h luatexdir/pdf/pdftables.h \
+	luatexdir/pdf/pdfthread.h luatexdir/pdf/pdftypes.h \
+	luatexdir/pdf/pdfxform.h luatexdir/tex/align.h \
+	luatexdir/tex/arithmetic.h luatexdir/tex/buildpage.h \
+	luatexdir/tex/commands.h luatexdir/tex/conditional.h \
+	luatexdir/tex/directions.h luatexdir/tex/dumpdata.h \
+	luatexdir/tex/equivalents.h luatexdir/tex/errors.h \
+	luatexdir/tex/expand.h luatexdir/tex/extensions.h \
+	luatexdir/tex/filename.h luatexdir/tex/inputstack.h \
+	luatexdir/tex/linebreak.h luatexdir/tex/mainbody.h \
+	luatexdir/tex/maincontrol.h luatexdir/tex/mathcodes.h \
+	luatexdir/tex/memoryword.h luatexdir/tex/mlist.h \
+	luatexdir/tex/nesting.h luatexdir/tex/packaging.h \
+	luatexdir/tex/postlinebreak.h luatexdir/tex/primitive.h \
+	luatexdir/tex/printing.h luatexdir/tex/scanning.h \
+	luatexdir/tex/stringpool.h luatexdir/tex/texdeffont.h \
+	luatexdir/tex/texfileio.h luatexdir/tex/texmath.h \
+	luatexdir/tex/texnodes.h luatexdir/tex/textoken.h \
+	luatexdir/tex/textcodes.h luatexdir/tex/arithmetic.c \
+	luatexdir/tex/commands.c luatexdir/tex/conditional.c \
+	luatexdir/tex/directions.c luatexdir/tex/dumpdata.c \
+	luatexdir/tex/equivalents.c luatexdir/tex/errors.c \
+	luatexdir/tex/filename.c luatexdir/tex/inputstack.c \
+	luatexdir/tex/mainbody.c luatexdir/tex/maincontrol.c \
+	luatexdir/tex/mathcodes.c luatexdir/tex/memoryword.c \
+	luatexdir/tex/nesting.c luatexdir/tex/postlinebreak.c \
+	luatexdir/tex/primitive.c luatexdir/tex/printing.c \
+	luatexdir/tex/stringpool.c luatexdir/tex/texdeffont.c \
+	luatexdir/tex/textcodes.c luatexdir/utils/avl.c \
+	luatexdir/utils/avl.h luatexdir/utils/avlstuff.h \
+	luatexdir/utils/managed-sa.h luatexdir/utils/utils.h \
+	luatexdir/utils/unistring.h synctexdir/synctex-common.h \
+	synctexdir/synctex-luatex.h synctexdir/synctex.c \
+	synctexdir/synctex.h
 luatex_dvi_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
 luatex_font_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 luatex_image_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
@@ -4857,6 +4877,21 @@ luatexdir/image/$(DEPDIR)/$(am__dirstamp):
 luatexdir/image/liblua53tex_a-pdftoepdf.$(OBJEXT):  \
 	luatexdir/image/$(am__dirstamp) \
 	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/liblua53tex_a-writeimg.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/liblua53tex_a-writejbig2.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/liblua53tex_a-writejp2.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/liblua53tex_a-writejpg.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/liblua53tex_a-writepng.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
 luatexdir/lang/$(am__dirstamp):
 	@$(MKDIR_P) luatexdir/lang
 	@: > luatexdir/lang/$(am__dirstamp)
@@ -5215,6 +5250,21 @@ luatexdir/dvi/libluajittex_a-dvigen.$(OBJEXT):  \
 luatexdir/image/libluajittex_a-pdftoepdf.$(OBJEXT):  \
 	luatexdir/image/$(am__dirstamp) \
 	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluajittex_a-writeimg.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluajittex_a-writejbig2.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluajittex_a-writejp2.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluajittex_a-writejpg.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluajittex_a-writepng.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
 luatexdir/lang/libluajittex_a-hnjalloc.$(OBJEXT):  \
 	luatexdir/lang/$(am__dirstamp) \
 	luatexdir/lang/$(DEPDIR)/$(am__dirstamp)
@@ -5536,6 +5586,21 @@ luatexdir/dvi/libluatex_a-dvigen.$(OBJEXT):  \
 	luatexdir/dvi/$(am__dirstamp) \
 	luatexdir/dvi/$(DEPDIR)/$(am__dirstamp)
 luatexdir/image/libluatex_a-pdftoepdf.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluatex_a-writeimg.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluatex_a-writejbig2.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluatex_a-writejp2.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluatex_a-writejpg.$(OBJEXT):  \
+	luatexdir/image/$(am__dirstamp) \
+	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
+luatexdir/image/libluatex_a-writepng.$(OBJEXT):  \
 	luatexdir/image/$(am__dirstamp) \
 	luatexdir/image/$(DEPDIR)/$(am__dirstamp)
 luatexdir/lang/libluatex_a-hnjalloc.$(OBJEXT):  \
@@ -6582,11 +6647,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writecff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writeenc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writefont.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writeimg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writejbig2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writejp2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writejpg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writepng.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writet1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writet3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writettf.Po@am__quote@
@@ -6645,11 +6705,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writecff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writeenc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writefont.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writeimg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writejbig2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writejp2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writejpg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writepng.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writet1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writet3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writettf.Po@am__quote@
@@ -6708,11 +6763,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writecff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writeenc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writefont.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writeimg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writejbig2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writejp2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writejpg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writepng.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writet1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writet3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writettf.Po@am__quote@
@@ -6830,8 +6880,23 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/dvi/$(DEPDIR)/libluajittex_a-dvigen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/dvi/$(DEPDIR)/libluatex_a-dvigen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/liblua53tex_a-pdftoepdf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/liblua53tex_a-writeimg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/liblua53tex_a-writejbig2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/liblua53tex_a-writejp2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/liblua53tex_a-writejpg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/liblua53tex_a-writepng.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluajittex_a-pdftoepdf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluajittex_a-writeimg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluajittex_a-writejbig2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluajittex_a-writejp2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluajittex_a-writejpg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluajittex_a-writepng.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluatex_a-pdftoepdf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluatex_a-writeimg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluatex_a-writejbig2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluatex_a-writejp2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluatex_a-writejpg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/image/$(DEPDIR)/libluatex_a-writepng.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/lang/$(DEPDIR)/liblua53tex_a-hnjalloc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/lang/$(DEPDIR)/liblua53tex_a-hyphen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/lang/$(DEPDIR)/liblua53tex_a-texlang.Po@am__quote@
@@ -8677,6 +8742,76 @@ luatexdir/image/liblua53tex_a-pdftoepdf.obj: luatexdir/image/pdftoepdf.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-pdftoepdf.obj `if test -f 'luatexdir/image/pdftoepdf.c'; then $(CYGPATH_W) 'luatexdir/image/pdftoepdf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/pdftoepdf.c'; fi`
 
+luatexdir/image/liblua53tex_a-writeimg.o: luatexdir/image/writeimg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writeimg.o -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writeimg.Tpo -c -o luatexdir/image/liblua53tex_a-writeimg.o `test -f 'luatexdir/image/writeimg.c' || echo '$(srcdir)/'`luatexdir/image/writeimg.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writeimg.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writeimg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writeimg.c' object='luatexdir/image/liblua53tex_a-writeimg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writeimg.o `test -f 'luatexdir/image/writeimg.c' || echo '$(srcdir)/'`luatexdir/image/writeimg.c
+
+luatexdir/image/liblua53tex_a-writeimg.obj: luatexdir/image/writeimg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writeimg.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writeimg.Tpo -c -o luatexdir/image/liblua53tex_a-writeimg.obj `if test -f 'luatexdir/image/writeimg.c'; then $(CYGPATH_W) 'luatexdir/image/writeimg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writeimg.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writeimg.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writeimg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writeimg.c' object='luatexdir/image/liblua53tex_a-writeimg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writeimg.obj `if test -f 'luatexdir/image/writeimg.c'; then $(CYGPATH_W) 'luatexdir/image/writeimg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writeimg.c'; fi`
+
+luatexdir/image/liblua53tex_a-writejbig2.o: luatexdir/image/writejbig2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writejbig2.o -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writejbig2.Tpo -c -o luatexdir/image/liblua53tex_a-writejbig2.o `test -f 'luatexdir/image/writejbig2.c' || echo '$(srcdir)/'`luatexdir/image/writejbig2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writejbig2.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writejbig2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejbig2.c' object='luatexdir/image/liblua53tex_a-writejbig2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writejbig2.o `test -f 'luatexdir/image/writejbig2.c' || echo '$(srcdir)/'`luatexdir/image/writejbig2.c
+
+luatexdir/image/liblua53tex_a-writejbig2.obj: luatexdir/image/writejbig2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writejbig2.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writejbig2.Tpo -c -o luatexdir/image/liblua53tex_a-writejbig2.obj `if test -f 'luatexdir/image/writejbig2.c'; then $(CYGPATH_W) 'luatexdir/image/writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejbig2.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writejbig2.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writejbig2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejbig2.c' object='luatexdir/image/liblua53tex_a-writejbig2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writejbig2.obj `if test -f 'luatexdir/image/writejbig2.c'; then $(CYGPATH_W) 'luatexdir/image/writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejbig2.c'; fi`
+
+luatexdir/image/liblua53tex_a-writejp2.o: luatexdir/image/writejp2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writejp2.o -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writejp2.Tpo -c -o luatexdir/image/liblua53tex_a-writejp2.o `test -f 'luatexdir/image/writejp2.c' || echo '$(srcdir)/'`luatexdir/image/writejp2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writejp2.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writejp2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejp2.c' object='luatexdir/image/liblua53tex_a-writejp2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writejp2.o `test -f 'luatexdir/image/writejp2.c' || echo '$(srcdir)/'`luatexdir/image/writejp2.c
+
+luatexdir/image/liblua53tex_a-writejp2.obj: luatexdir/image/writejp2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writejp2.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writejp2.Tpo -c -o luatexdir/image/liblua53tex_a-writejp2.obj `if test -f 'luatexdir/image/writejp2.c'; then $(CYGPATH_W) 'luatexdir/image/writejp2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejp2.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writejp2.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writejp2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejp2.c' object='luatexdir/image/liblua53tex_a-writejp2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writejp2.obj `if test -f 'luatexdir/image/writejp2.c'; then $(CYGPATH_W) 'luatexdir/image/writejp2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejp2.c'; fi`
+
+luatexdir/image/liblua53tex_a-writejpg.o: luatexdir/image/writejpg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writejpg.o -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writejpg.Tpo -c -o luatexdir/image/liblua53tex_a-writejpg.o `test -f 'luatexdir/image/writejpg.c' || echo '$(srcdir)/'`luatexdir/image/writejpg.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writejpg.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writejpg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejpg.c' object='luatexdir/image/liblua53tex_a-writejpg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writejpg.o `test -f 'luatexdir/image/writejpg.c' || echo '$(srcdir)/'`luatexdir/image/writejpg.c
+
+luatexdir/image/liblua53tex_a-writejpg.obj: luatexdir/image/writejpg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writejpg.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writejpg.Tpo -c -o luatexdir/image/liblua53tex_a-writejpg.obj `if test -f 'luatexdir/image/writejpg.c'; then $(CYGPATH_W) 'luatexdir/image/writejpg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejpg.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writejpg.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writejpg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejpg.c' object='luatexdir/image/liblua53tex_a-writejpg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writejpg.obj `if test -f 'luatexdir/image/writejpg.c'; then $(CYGPATH_W) 'luatexdir/image/writejpg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejpg.c'; fi`
+
+luatexdir/image/liblua53tex_a-writepng.o: luatexdir/image/writepng.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writepng.o -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writepng.Tpo -c -o luatexdir/image/liblua53tex_a-writepng.o `test -f 'luatexdir/image/writepng.c' || echo '$(srcdir)/'`luatexdir/image/writepng.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writepng.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writepng.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writepng.c' object='luatexdir/image/liblua53tex_a-writepng.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writepng.o `test -f 'luatexdir/image/writepng.c' || echo '$(srcdir)/'`luatexdir/image/writepng.c
+
+luatexdir/image/liblua53tex_a-writepng.obj: luatexdir/image/writepng.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/liblua53tex_a-writepng.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/liblua53tex_a-writepng.Tpo -c -o luatexdir/image/liblua53tex_a-writepng.obj `if test -f 'luatexdir/image/writepng.c'; then $(CYGPATH_W) 'luatexdir/image/writepng.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writepng.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/liblua53tex_a-writepng.Tpo luatexdir/image/$(DEPDIR)/liblua53tex_a-writepng.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writepng.c' object='luatexdir/image/liblua53tex_a-writepng.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/liblua53tex_a-writepng.obj `if test -f 'luatexdir/image/writepng.c'; then $(CYGPATH_W) 'luatexdir/image/writepng.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writepng.c'; fi`
+
 luatexdir/lang/liblua53tex_a-hnjalloc.o: luatexdir/lang/hnjalloc.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lang/liblua53tex_a-hnjalloc.o -MD -MP -MF luatexdir/lang/$(DEPDIR)/liblua53tex_a-hnjalloc.Tpo -c -o luatexdir/lang/liblua53tex_a-hnjalloc.o `test -f 'luatexdir/lang/hnjalloc.c' || echo '$(srcdir)/'`luatexdir/lang/hnjalloc.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lang/$(DEPDIR)/liblua53tex_a-hnjalloc.Tpo luatexdir/lang/$(DEPDIR)/liblua53tex_a-hnjalloc.Po
@@ -9614,76 +9749,6 @@ liblua53tex_a-writetype2.obj: writetype2.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writetype2.c' object='liblua53tex_a-writetype2.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writetype2.obj `if test -f 'writetype2.c'; then $(CYGPATH_W) 'writetype2.c'; else $(CYGPATH_W) '$(srcdir)/writetype2.c'; fi`
-
-liblua53tex_a-writeimg.o: writeimg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writeimg.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-writeimg.Tpo -c -o liblua53tex_a-writeimg.o `test -f 'writeimg.c' || echo '$(srcdir)/'`writeimg.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writeimg.Tpo $(DEPDIR)/liblua53tex_a-writeimg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writeimg.c' object='liblua53tex_a-writeimg.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writeimg.o `test -f 'writeimg.c' || echo '$(srcdir)/'`writeimg.c
-
-liblua53tex_a-writeimg.obj: writeimg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writeimg.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-writeimg.Tpo -c -o liblua53tex_a-writeimg.obj `if test -f 'writeimg.c'; then $(CYGPATH_W) 'writeimg.c'; else $(CYGPATH_W) '$(srcdir)/writeimg.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writeimg.Tpo $(DEPDIR)/liblua53tex_a-writeimg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writeimg.c' object='liblua53tex_a-writeimg.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writeimg.obj `if test -f 'writeimg.c'; then $(CYGPATH_W) 'writeimg.c'; else $(CYGPATH_W) '$(srcdir)/writeimg.c'; fi`
-
-liblua53tex_a-writejbig2.o: writejbig2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writejbig2.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-writejbig2.Tpo -c -o liblua53tex_a-writejbig2.o `test -f 'writejbig2.c' || echo '$(srcdir)/'`writejbig2.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writejbig2.Tpo $(DEPDIR)/liblua53tex_a-writejbig2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejbig2.c' object='liblua53tex_a-writejbig2.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writejbig2.o `test -f 'writejbig2.c' || echo '$(srcdir)/'`writejbig2.c
-
-liblua53tex_a-writejbig2.obj: writejbig2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writejbig2.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-writejbig2.Tpo -c -o liblua53tex_a-writejbig2.obj `if test -f 'writejbig2.c'; then $(CYGPATH_W) 'writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/writejbig2.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writejbig2.Tpo $(DEPDIR)/liblua53tex_a-writejbig2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejbig2.c' object='liblua53tex_a-writejbig2.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writejbig2.obj `if test -f 'writejbig2.c'; then $(CYGPATH_W) 'writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/writejbig2.c'; fi`
-
-liblua53tex_a-writejpg.o: writejpg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writejpg.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-writejpg.Tpo -c -o liblua53tex_a-writejpg.o `test -f 'writejpg.c' || echo '$(srcdir)/'`writejpg.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writejpg.Tpo $(DEPDIR)/liblua53tex_a-writejpg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejpg.c' object='liblua53tex_a-writejpg.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writejpg.o `test -f 'writejpg.c' || echo '$(srcdir)/'`writejpg.c
-
-liblua53tex_a-writejpg.obj: writejpg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writejpg.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-writejpg.Tpo -c -o liblua53tex_a-writejpg.obj `if test -f 'writejpg.c'; then $(CYGPATH_W) 'writejpg.c'; else $(CYGPATH_W) '$(srcdir)/writejpg.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writejpg.Tpo $(DEPDIR)/liblua53tex_a-writejpg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejpg.c' object='liblua53tex_a-writejpg.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writejpg.obj `if test -f 'writejpg.c'; then $(CYGPATH_W) 'writejpg.c'; else $(CYGPATH_W) '$(srcdir)/writejpg.c'; fi`
-
-liblua53tex_a-writejp2.o: writejp2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writejp2.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-writejp2.Tpo -c -o liblua53tex_a-writejp2.o `test -f 'writejp2.c' || echo '$(srcdir)/'`writejp2.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writejp2.Tpo $(DEPDIR)/liblua53tex_a-writejp2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejp2.c' object='liblua53tex_a-writejp2.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writejp2.o `test -f 'writejp2.c' || echo '$(srcdir)/'`writejp2.c
-
-liblua53tex_a-writejp2.obj: writejp2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writejp2.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-writejp2.Tpo -c -o liblua53tex_a-writejp2.obj `if test -f 'writejp2.c'; then $(CYGPATH_W) 'writejp2.c'; else $(CYGPATH_W) '$(srcdir)/writejp2.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writejp2.Tpo $(DEPDIR)/liblua53tex_a-writejp2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejp2.c' object='liblua53tex_a-writejp2.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writejp2.obj `if test -f 'writejp2.c'; then $(CYGPATH_W) 'writejp2.c'; else $(CYGPATH_W) '$(srcdir)/writejp2.c'; fi`
-
-liblua53tex_a-writepng.o: writepng.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writepng.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-writepng.Tpo -c -o liblua53tex_a-writepng.o `test -f 'writepng.c' || echo '$(srcdir)/'`writepng.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writepng.Tpo $(DEPDIR)/liblua53tex_a-writepng.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writepng.c' object='liblua53tex_a-writepng.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writepng.o `test -f 'writepng.c' || echo '$(srcdir)/'`writepng.c
-
-liblua53tex_a-writepng.obj: writepng.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-writepng.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-writepng.Tpo -c -o liblua53tex_a-writepng.obj `if test -f 'writepng.c'; then $(CYGPATH_W) 'writepng.c'; else $(CYGPATH_W) '$(srcdir)/writepng.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-writepng.Tpo $(DEPDIR)/liblua53tex_a-writepng.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writepng.c' object='liblua53tex_a-writepng.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-writepng.obj `if test -f 'writepng.c'; then $(CYGPATH_W) 'writepng.c'; else $(CYGPATH_W) '$(srcdir)/writepng.c'; fi`
 
 liblua53tex_a-pdfpagetree.o: pdfpagetree.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-pdfpagetree.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-pdfpagetree.Tpo -c -o liblua53tex_a-pdfpagetree.o `test -f 'pdfpagetree.c' || echo '$(srcdir)/'`pdfpagetree.c
@@ -10987,6 +11052,76 @@ luatexdir/image/libluajittex_a-pdftoepdf.obj: luatexdir/image/pdftoepdf.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-pdftoepdf.obj `if test -f 'luatexdir/image/pdftoepdf.c'; then $(CYGPATH_W) 'luatexdir/image/pdftoepdf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/pdftoepdf.c'; fi`
 
+luatexdir/image/libluajittex_a-writeimg.o: luatexdir/image/writeimg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writeimg.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writeimg.Tpo -c -o luatexdir/image/libluajittex_a-writeimg.o `test -f 'luatexdir/image/writeimg.c' || echo '$(srcdir)/'`luatexdir/image/writeimg.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writeimg.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writeimg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writeimg.c' object='luatexdir/image/libluajittex_a-writeimg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writeimg.o `test -f 'luatexdir/image/writeimg.c' || echo '$(srcdir)/'`luatexdir/image/writeimg.c
+
+luatexdir/image/libluajittex_a-writeimg.obj: luatexdir/image/writeimg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writeimg.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writeimg.Tpo -c -o luatexdir/image/libluajittex_a-writeimg.obj `if test -f 'luatexdir/image/writeimg.c'; then $(CYGPATH_W) 'luatexdir/image/writeimg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writeimg.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writeimg.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writeimg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writeimg.c' object='luatexdir/image/libluajittex_a-writeimg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writeimg.obj `if test -f 'luatexdir/image/writeimg.c'; then $(CYGPATH_W) 'luatexdir/image/writeimg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writeimg.c'; fi`
+
+luatexdir/image/libluajittex_a-writejbig2.o: luatexdir/image/writejbig2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writejbig2.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writejbig2.Tpo -c -o luatexdir/image/libluajittex_a-writejbig2.o `test -f 'luatexdir/image/writejbig2.c' || echo '$(srcdir)/'`luatexdir/image/writejbig2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writejbig2.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writejbig2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejbig2.c' object='luatexdir/image/libluajittex_a-writejbig2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writejbig2.o `test -f 'luatexdir/image/writejbig2.c' || echo '$(srcdir)/'`luatexdir/image/writejbig2.c
+
+luatexdir/image/libluajittex_a-writejbig2.obj: luatexdir/image/writejbig2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writejbig2.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writejbig2.Tpo -c -o luatexdir/image/libluajittex_a-writejbig2.obj `if test -f 'luatexdir/image/writejbig2.c'; then $(CYGPATH_W) 'luatexdir/image/writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejbig2.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writejbig2.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writejbig2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejbig2.c' object='luatexdir/image/libluajittex_a-writejbig2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writejbig2.obj `if test -f 'luatexdir/image/writejbig2.c'; then $(CYGPATH_W) 'luatexdir/image/writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejbig2.c'; fi`
+
+luatexdir/image/libluajittex_a-writejp2.o: luatexdir/image/writejp2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writejp2.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writejp2.Tpo -c -o luatexdir/image/libluajittex_a-writejp2.o `test -f 'luatexdir/image/writejp2.c' || echo '$(srcdir)/'`luatexdir/image/writejp2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writejp2.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writejp2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejp2.c' object='luatexdir/image/libluajittex_a-writejp2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writejp2.o `test -f 'luatexdir/image/writejp2.c' || echo '$(srcdir)/'`luatexdir/image/writejp2.c
+
+luatexdir/image/libluajittex_a-writejp2.obj: luatexdir/image/writejp2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writejp2.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writejp2.Tpo -c -o luatexdir/image/libluajittex_a-writejp2.obj `if test -f 'luatexdir/image/writejp2.c'; then $(CYGPATH_W) 'luatexdir/image/writejp2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejp2.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writejp2.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writejp2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejp2.c' object='luatexdir/image/libluajittex_a-writejp2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writejp2.obj `if test -f 'luatexdir/image/writejp2.c'; then $(CYGPATH_W) 'luatexdir/image/writejp2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejp2.c'; fi`
+
+luatexdir/image/libluajittex_a-writejpg.o: luatexdir/image/writejpg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writejpg.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writejpg.Tpo -c -o luatexdir/image/libluajittex_a-writejpg.o `test -f 'luatexdir/image/writejpg.c' || echo '$(srcdir)/'`luatexdir/image/writejpg.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writejpg.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writejpg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejpg.c' object='luatexdir/image/libluajittex_a-writejpg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writejpg.o `test -f 'luatexdir/image/writejpg.c' || echo '$(srcdir)/'`luatexdir/image/writejpg.c
+
+luatexdir/image/libluajittex_a-writejpg.obj: luatexdir/image/writejpg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writejpg.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writejpg.Tpo -c -o luatexdir/image/libluajittex_a-writejpg.obj `if test -f 'luatexdir/image/writejpg.c'; then $(CYGPATH_W) 'luatexdir/image/writejpg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejpg.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writejpg.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writejpg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejpg.c' object='luatexdir/image/libluajittex_a-writejpg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writejpg.obj `if test -f 'luatexdir/image/writejpg.c'; then $(CYGPATH_W) 'luatexdir/image/writejpg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejpg.c'; fi`
+
+luatexdir/image/libluajittex_a-writepng.o: luatexdir/image/writepng.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writepng.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writepng.Tpo -c -o luatexdir/image/libluajittex_a-writepng.o `test -f 'luatexdir/image/writepng.c' || echo '$(srcdir)/'`luatexdir/image/writepng.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writepng.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writepng.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writepng.c' object='luatexdir/image/libluajittex_a-writepng.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writepng.o `test -f 'luatexdir/image/writepng.c' || echo '$(srcdir)/'`luatexdir/image/writepng.c
+
+luatexdir/image/libluajittex_a-writepng.obj: luatexdir/image/writepng.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluajittex_a-writepng.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluajittex_a-writepng.Tpo -c -o luatexdir/image/libluajittex_a-writepng.obj `if test -f 'luatexdir/image/writepng.c'; then $(CYGPATH_W) 'luatexdir/image/writepng.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writepng.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluajittex_a-writepng.Tpo luatexdir/image/$(DEPDIR)/libluajittex_a-writepng.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writepng.c' object='luatexdir/image/libluajittex_a-writepng.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluajittex_a-writepng.obj `if test -f 'luatexdir/image/writepng.c'; then $(CYGPATH_W) 'luatexdir/image/writepng.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writepng.c'; fi`
+
 luatexdir/lang/libluajittex_a-hnjalloc.o: luatexdir/lang/hnjalloc.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lang/libluajittex_a-hnjalloc.o -MD -MP -MF luatexdir/lang/$(DEPDIR)/libluajittex_a-hnjalloc.Tpo -c -o luatexdir/lang/libluajittex_a-hnjalloc.o `test -f 'luatexdir/lang/hnjalloc.c' || echo '$(srcdir)/'`luatexdir/lang/hnjalloc.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lang/$(DEPDIR)/libluajittex_a-hnjalloc.Tpo luatexdir/lang/$(DEPDIR)/libluajittex_a-hnjalloc.Po
@@ -11938,76 +12073,6 @@ libluajittex_a-writetype2.obj: writetype2.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writetype2.c' object='libluajittex_a-writetype2.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writetype2.obj `if test -f 'writetype2.c'; then $(CYGPATH_W) 'writetype2.c'; else $(CYGPATH_W) '$(srcdir)/writetype2.c'; fi`
-
-libluajittex_a-writeimg.o: writeimg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writeimg.o -MD -MP -MF $(DEPDIR)/libluajittex_a-writeimg.Tpo -c -o libluajittex_a-writeimg.o `test -f 'writeimg.c' || echo '$(srcdir)/'`writeimg.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writeimg.Tpo $(DEPDIR)/libluajittex_a-writeimg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writeimg.c' object='libluajittex_a-writeimg.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writeimg.o `test -f 'writeimg.c' || echo '$(srcdir)/'`writeimg.c
-
-libluajittex_a-writeimg.obj: writeimg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writeimg.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-writeimg.Tpo -c -o libluajittex_a-writeimg.obj `if test -f 'writeimg.c'; then $(CYGPATH_W) 'writeimg.c'; else $(CYGPATH_W) '$(srcdir)/writeimg.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writeimg.Tpo $(DEPDIR)/libluajittex_a-writeimg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writeimg.c' object='libluajittex_a-writeimg.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writeimg.obj `if test -f 'writeimg.c'; then $(CYGPATH_W) 'writeimg.c'; else $(CYGPATH_W) '$(srcdir)/writeimg.c'; fi`
-
-libluajittex_a-writejbig2.o: writejbig2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writejbig2.o -MD -MP -MF $(DEPDIR)/libluajittex_a-writejbig2.Tpo -c -o libluajittex_a-writejbig2.o `test -f 'writejbig2.c' || echo '$(srcdir)/'`writejbig2.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writejbig2.Tpo $(DEPDIR)/libluajittex_a-writejbig2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejbig2.c' object='libluajittex_a-writejbig2.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writejbig2.o `test -f 'writejbig2.c' || echo '$(srcdir)/'`writejbig2.c
-
-libluajittex_a-writejbig2.obj: writejbig2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writejbig2.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-writejbig2.Tpo -c -o libluajittex_a-writejbig2.obj `if test -f 'writejbig2.c'; then $(CYGPATH_W) 'writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/writejbig2.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writejbig2.Tpo $(DEPDIR)/libluajittex_a-writejbig2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejbig2.c' object='libluajittex_a-writejbig2.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writejbig2.obj `if test -f 'writejbig2.c'; then $(CYGPATH_W) 'writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/writejbig2.c'; fi`
-
-libluajittex_a-writejpg.o: writejpg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writejpg.o -MD -MP -MF $(DEPDIR)/libluajittex_a-writejpg.Tpo -c -o libluajittex_a-writejpg.o `test -f 'writejpg.c' || echo '$(srcdir)/'`writejpg.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writejpg.Tpo $(DEPDIR)/libluajittex_a-writejpg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejpg.c' object='libluajittex_a-writejpg.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writejpg.o `test -f 'writejpg.c' || echo '$(srcdir)/'`writejpg.c
-
-libluajittex_a-writejpg.obj: writejpg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writejpg.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-writejpg.Tpo -c -o libluajittex_a-writejpg.obj `if test -f 'writejpg.c'; then $(CYGPATH_W) 'writejpg.c'; else $(CYGPATH_W) '$(srcdir)/writejpg.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writejpg.Tpo $(DEPDIR)/libluajittex_a-writejpg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejpg.c' object='libluajittex_a-writejpg.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writejpg.obj `if test -f 'writejpg.c'; then $(CYGPATH_W) 'writejpg.c'; else $(CYGPATH_W) '$(srcdir)/writejpg.c'; fi`
-
-libluajittex_a-writejp2.o: writejp2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writejp2.o -MD -MP -MF $(DEPDIR)/libluajittex_a-writejp2.Tpo -c -o libluajittex_a-writejp2.o `test -f 'writejp2.c' || echo '$(srcdir)/'`writejp2.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writejp2.Tpo $(DEPDIR)/libluajittex_a-writejp2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejp2.c' object='libluajittex_a-writejp2.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writejp2.o `test -f 'writejp2.c' || echo '$(srcdir)/'`writejp2.c
-
-libluajittex_a-writejp2.obj: writejp2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writejp2.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-writejp2.Tpo -c -o libluajittex_a-writejp2.obj `if test -f 'writejp2.c'; then $(CYGPATH_W) 'writejp2.c'; else $(CYGPATH_W) '$(srcdir)/writejp2.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writejp2.Tpo $(DEPDIR)/libluajittex_a-writejp2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejp2.c' object='libluajittex_a-writejp2.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writejp2.obj `if test -f 'writejp2.c'; then $(CYGPATH_W) 'writejp2.c'; else $(CYGPATH_W) '$(srcdir)/writejp2.c'; fi`
-
-libluajittex_a-writepng.o: writepng.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writepng.o -MD -MP -MF $(DEPDIR)/libluajittex_a-writepng.Tpo -c -o libluajittex_a-writepng.o `test -f 'writepng.c' || echo '$(srcdir)/'`writepng.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writepng.Tpo $(DEPDIR)/libluajittex_a-writepng.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writepng.c' object='libluajittex_a-writepng.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writepng.o `test -f 'writepng.c' || echo '$(srcdir)/'`writepng.c
-
-libluajittex_a-writepng.obj: writepng.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-writepng.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-writepng.Tpo -c -o libluajittex_a-writepng.obj `if test -f 'writepng.c'; then $(CYGPATH_W) 'writepng.c'; else $(CYGPATH_W) '$(srcdir)/writepng.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-writepng.Tpo $(DEPDIR)/libluajittex_a-writepng.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writepng.c' object='libluajittex_a-writepng.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-writepng.obj `if test -f 'writepng.c'; then $(CYGPATH_W) 'writepng.c'; else $(CYGPATH_W) '$(srcdir)/writepng.c'; fi`
 
 libluajittex_a-pdfpagetree.o: pdfpagetree.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-pdfpagetree.o -MD -MP -MF $(DEPDIR)/libluajittex_a-pdfpagetree.Tpo -c -o libluajittex_a-pdfpagetree.o `test -f 'pdfpagetree.c' || echo '$(srcdir)/'`pdfpagetree.c
@@ -13269,6 +13334,76 @@ luatexdir/image/libluatex_a-pdftoepdf.obj: luatexdir/image/pdftoepdf.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-pdftoepdf.obj `if test -f 'luatexdir/image/pdftoepdf.c'; then $(CYGPATH_W) 'luatexdir/image/pdftoepdf.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/pdftoepdf.c'; fi`
 
+luatexdir/image/libluatex_a-writeimg.o: luatexdir/image/writeimg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writeimg.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writeimg.Tpo -c -o luatexdir/image/libluatex_a-writeimg.o `test -f 'luatexdir/image/writeimg.c' || echo '$(srcdir)/'`luatexdir/image/writeimg.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writeimg.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writeimg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writeimg.c' object='luatexdir/image/libluatex_a-writeimg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writeimg.o `test -f 'luatexdir/image/writeimg.c' || echo '$(srcdir)/'`luatexdir/image/writeimg.c
+
+luatexdir/image/libluatex_a-writeimg.obj: luatexdir/image/writeimg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writeimg.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writeimg.Tpo -c -o luatexdir/image/libluatex_a-writeimg.obj `if test -f 'luatexdir/image/writeimg.c'; then $(CYGPATH_W) 'luatexdir/image/writeimg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writeimg.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writeimg.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writeimg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writeimg.c' object='luatexdir/image/libluatex_a-writeimg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writeimg.obj `if test -f 'luatexdir/image/writeimg.c'; then $(CYGPATH_W) 'luatexdir/image/writeimg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writeimg.c'; fi`
+
+luatexdir/image/libluatex_a-writejbig2.o: luatexdir/image/writejbig2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writejbig2.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writejbig2.Tpo -c -o luatexdir/image/libluatex_a-writejbig2.o `test -f 'luatexdir/image/writejbig2.c' || echo '$(srcdir)/'`luatexdir/image/writejbig2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writejbig2.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writejbig2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejbig2.c' object='luatexdir/image/libluatex_a-writejbig2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writejbig2.o `test -f 'luatexdir/image/writejbig2.c' || echo '$(srcdir)/'`luatexdir/image/writejbig2.c
+
+luatexdir/image/libluatex_a-writejbig2.obj: luatexdir/image/writejbig2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writejbig2.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writejbig2.Tpo -c -o luatexdir/image/libluatex_a-writejbig2.obj `if test -f 'luatexdir/image/writejbig2.c'; then $(CYGPATH_W) 'luatexdir/image/writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejbig2.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writejbig2.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writejbig2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejbig2.c' object='luatexdir/image/libluatex_a-writejbig2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writejbig2.obj `if test -f 'luatexdir/image/writejbig2.c'; then $(CYGPATH_W) 'luatexdir/image/writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejbig2.c'; fi`
+
+luatexdir/image/libluatex_a-writejp2.o: luatexdir/image/writejp2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writejp2.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writejp2.Tpo -c -o luatexdir/image/libluatex_a-writejp2.o `test -f 'luatexdir/image/writejp2.c' || echo '$(srcdir)/'`luatexdir/image/writejp2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writejp2.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writejp2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejp2.c' object='luatexdir/image/libluatex_a-writejp2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writejp2.o `test -f 'luatexdir/image/writejp2.c' || echo '$(srcdir)/'`luatexdir/image/writejp2.c
+
+luatexdir/image/libluatex_a-writejp2.obj: luatexdir/image/writejp2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writejp2.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writejp2.Tpo -c -o luatexdir/image/libluatex_a-writejp2.obj `if test -f 'luatexdir/image/writejp2.c'; then $(CYGPATH_W) 'luatexdir/image/writejp2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejp2.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writejp2.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writejp2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejp2.c' object='luatexdir/image/libluatex_a-writejp2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writejp2.obj `if test -f 'luatexdir/image/writejp2.c'; then $(CYGPATH_W) 'luatexdir/image/writejp2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejp2.c'; fi`
+
+luatexdir/image/libluatex_a-writejpg.o: luatexdir/image/writejpg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writejpg.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writejpg.Tpo -c -o luatexdir/image/libluatex_a-writejpg.o `test -f 'luatexdir/image/writejpg.c' || echo '$(srcdir)/'`luatexdir/image/writejpg.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writejpg.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writejpg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejpg.c' object='luatexdir/image/libluatex_a-writejpg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writejpg.o `test -f 'luatexdir/image/writejpg.c' || echo '$(srcdir)/'`luatexdir/image/writejpg.c
+
+luatexdir/image/libluatex_a-writejpg.obj: luatexdir/image/writejpg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writejpg.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writejpg.Tpo -c -o luatexdir/image/libluatex_a-writejpg.obj `if test -f 'luatexdir/image/writejpg.c'; then $(CYGPATH_W) 'luatexdir/image/writejpg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejpg.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writejpg.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writejpg.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writejpg.c' object='luatexdir/image/libluatex_a-writejpg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writejpg.obj `if test -f 'luatexdir/image/writejpg.c'; then $(CYGPATH_W) 'luatexdir/image/writejpg.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writejpg.c'; fi`
+
+luatexdir/image/libluatex_a-writepng.o: luatexdir/image/writepng.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writepng.o -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writepng.Tpo -c -o luatexdir/image/libluatex_a-writepng.o `test -f 'luatexdir/image/writepng.c' || echo '$(srcdir)/'`luatexdir/image/writepng.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writepng.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writepng.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writepng.c' object='luatexdir/image/libluatex_a-writepng.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writepng.o `test -f 'luatexdir/image/writepng.c' || echo '$(srcdir)/'`luatexdir/image/writepng.c
+
+luatexdir/image/libluatex_a-writepng.obj: luatexdir/image/writepng.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/image/libluatex_a-writepng.obj -MD -MP -MF luatexdir/image/$(DEPDIR)/libluatex_a-writepng.Tpo -c -o luatexdir/image/libluatex_a-writepng.obj `if test -f 'luatexdir/image/writepng.c'; then $(CYGPATH_W) 'luatexdir/image/writepng.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writepng.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/image/$(DEPDIR)/libluatex_a-writepng.Tpo luatexdir/image/$(DEPDIR)/libluatex_a-writepng.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/image/writepng.c' object='luatexdir/image/libluatex_a-writepng.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/image/libluatex_a-writepng.obj `if test -f 'luatexdir/image/writepng.c'; then $(CYGPATH_W) 'luatexdir/image/writepng.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/image/writepng.c'; fi`
+
 luatexdir/lang/libluatex_a-hnjalloc.o: luatexdir/lang/hnjalloc.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/lang/libluatex_a-hnjalloc.o -MD -MP -MF luatexdir/lang/$(DEPDIR)/libluatex_a-hnjalloc.Tpo -c -o luatexdir/lang/libluatex_a-hnjalloc.o `test -f 'luatexdir/lang/hnjalloc.c' || echo '$(srcdir)/'`luatexdir/lang/hnjalloc.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/lang/$(DEPDIR)/libluatex_a-hnjalloc.Tpo luatexdir/lang/$(DEPDIR)/libluatex_a-hnjalloc.Po
@@ -14206,76 +14341,6 @@ libluatex_a-writetype2.obj: writetype2.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writetype2.c' object='libluatex_a-writetype2.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writetype2.obj `if test -f 'writetype2.c'; then $(CYGPATH_W) 'writetype2.c'; else $(CYGPATH_W) '$(srcdir)/writetype2.c'; fi`
-
-libluatex_a-writeimg.o: writeimg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writeimg.o -MD -MP -MF $(DEPDIR)/libluatex_a-writeimg.Tpo -c -o libluatex_a-writeimg.o `test -f 'writeimg.c' || echo '$(srcdir)/'`writeimg.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writeimg.Tpo $(DEPDIR)/libluatex_a-writeimg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writeimg.c' object='libluatex_a-writeimg.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writeimg.o `test -f 'writeimg.c' || echo '$(srcdir)/'`writeimg.c
-
-libluatex_a-writeimg.obj: writeimg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writeimg.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writeimg.Tpo -c -o libluatex_a-writeimg.obj `if test -f 'writeimg.c'; then $(CYGPATH_W) 'writeimg.c'; else $(CYGPATH_W) '$(srcdir)/writeimg.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writeimg.Tpo $(DEPDIR)/libluatex_a-writeimg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writeimg.c' object='libluatex_a-writeimg.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writeimg.obj `if test -f 'writeimg.c'; then $(CYGPATH_W) 'writeimg.c'; else $(CYGPATH_W) '$(srcdir)/writeimg.c'; fi`
-
-libluatex_a-writejbig2.o: writejbig2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writejbig2.o -MD -MP -MF $(DEPDIR)/libluatex_a-writejbig2.Tpo -c -o libluatex_a-writejbig2.o `test -f 'writejbig2.c' || echo '$(srcdir)/'`writejbig2.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writejbig2.Tpo $(DEPDIR)/libluatex_a-writejbig2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejbig2.c' object='libluatex_a-writejbig2.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writejbig2.o `test -f 'writejbig2.c' || echo '$(srcdir)/'`writejbig2.c
-
-libluatex_a-writejbig2.obj: writejbig2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writejbig2.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writejbig2.Tpo -c -o libluatex_a-writejbig2.obj `if test -f 'writejbig2.c'; then $(CYGPATH_W) 'writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/writejbig2.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writejbig2.Tpo $(DEPDIR)/libluatex_a-writejbig2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejbig2.c' object='libluatex_a-writejbig2.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writejbig2.obj `if test -f 'writejbig2.c'; then $(CYGPATH_W) 'writejbig2.c'; else $(CYGPATH_W) '$(srcdir)/writejbig2.c'; fi`
-
-libluatex_a-writejpg.o: writejpg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writejpg.o -MD -MP -MF $(DEPDIR)/libluatex_a-writejpg.Tpo -c -o libluatex_a-writejpg.o `test -f 'writejpg.c' || echo '$(srcdir)/'`writejpg.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writejpg.Tpo $(DEPDIR)/libluatex_a-writejpg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejpg.c' object='libluatex_a-writejpg.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writejpg.o `test -f 'writejpg.c' || echo '$(srcdir)/'`writejpg.c
-
-libluatex_a-writejpg.obj: writejpg.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writejpg.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writejpg.Tpo -c -o libluatex_a-writejpg.obj `if test -f 'writejpg.c'; then $(CYGPATH_W) 'writejpg.c'; else $(CYGPATH_W) '$(srcdir)/writejpg.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writejpg.Tpo $(DEPDIR)/libluatex_a-writejpg.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejpg.c' object='libluatex_a-writejpg.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writejpg.obj `if test -f 'writejpg.c'; then $(CYGPATH_W) 'writejpg.c'; else $(CYGPATH_W) '$(srcdir)/writejpg.c'; fi`
-
-libluatex_a-writejp2.o: writejp2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writejp2.o -MD -MP -MF $(DEPDIR)/libluatex_a-writejp2.Tpo -c -o libluatex_a-writejp2.o `test -f 'writejp2.c' || echo '$(srcdir)/'`writejp2.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writejp2.Tpo $(DEPDIR)/libluatex_a-writejp2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejp2.c' object='libluatex_a-writejp2.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writejp2.o `test -f 'writejp2.c' || echo '$(srcdir)/'`writejp2.c
-
-libluatex_a-writejp2.obj: writejp2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writejp2.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writejp2.Tpo -c -o libluatex_a-writejp2.obj `if test -f 'writejp2.c'; then $(CYGPATH_W) 'writejp2.c'; else $(CYGPATH_W) '$(srcdir)/writejp2.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writejp2.Tpo $(DEPDIR)/libluatex_a-writejp2.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writejp2.c' object='libluatex_a-writejp2.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writejp2.obj `if test -f 'writejp2.c'; then $(CYGPATH_W) 'writejp2.c'; else $(CYGPATH_W) '$(srcdir)/writejp2.c'; fi`
-
-libluatex_a-writepng.o: writepng.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writepng.o -MD -MP -MF $(DEPDIR)/libluatex_a-writepng.Tpo -c -o libluatex_a-writepng.o `test -f 'writepng.c' || echo '$(srcdir)/'`writepng.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writepng.Tpo $(DEPDIR)/libluatex_a-writepng.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writepng.c' object='libluatex_a-writepng.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writepng.o `test -f 'writepng.c' || echo '$(srcdir)/'`writepng.c
-
-libluatex_a-writepng.obj: writepng.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-writepng.obj -MD -MP -MF $(DEPDIR)/libluatex_a-writepng.Tpo -c -o libluatex_a-writepng.obj `if test -f 'writepng.c'; then $(CYGPATH_W) 'writepng.c'; else $(CYGPATH_W) '$(srcdir)/writepng.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-writepng.Tpo $(DEPDIR)/libluatex_a-writepng.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='writepng.c' object='libluatex_a-writepng.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-writepng.obj `if test -f 'writepng.c'; then $(CYGPATH_W) 'writepng.c'; else $(CYGPATH_W) '$(srcdir)/writepng.c'; fi`
 
 libluatex_a-pdfpagetree.o: pdfpagetree.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-pdfpagetree.o -MD -MP -MF $(DEPDIR)/libluatex_a-pdfpagetree.Tpo -c -o libluatex_a-pdfpagetree.o `test -f 'pdfpagetree.c' || echo '$(srcdir)/'`pdfpagetree.c
@@ -19409,17 +19474,6 @@ writetype0.c: ctangle$(EXEEXT) luatexdir/font/writetype0.w
 	$(luatex_font_ctangle) writetype0.w
 writetype2.c: ctangle$(EXEEXT) luatexdir/font/writetype2.w
 	$(luatex_font_ctangle) writetype2.w
-
-writeimg.c: ctangle$(EXEEXT) luatexdir/image/writeimg.w
-	$(luatex_image_ctangle) writeimg.w
-writejbig2.c: ctangle$(EXEEXT) luatexdir/image/writejbig2.w
-	$(luatex_image_ctangle) writejbig2.w
-writejpg.c: ctangle$(EXEEXT) luatexdir/image/writejpg.w
-	$(luatex_image_ctangle) writejpg.w
-writejp2.c: ctangle$(EXEEXT) luatexdir/image/writejp2.w
-	$(luatex_image_ctangle) writejp2.w
-writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
-	$(luatex_image_ctangle) writepng.w
 
 pdfpagetree.c: ctangle$(EXEEXT) luatexdir/pdf/pdfpagetree.w
 	$(luatex_pdf_ctangle) pdfpagetree.w

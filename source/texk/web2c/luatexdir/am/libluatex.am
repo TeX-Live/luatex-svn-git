@@ -180,27 +180,27 @@ dist_libluatex_sources += \
 ##
 luatex_image_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/image $(ctangle)
 
-writeimg.c: ctangle$(EXEEXT) luatexdir/image/writeimg.w
-	$(luatex_image_ctangle) writeimg.w
-writejbig2.c: ctangle$(EXEEXT) luatexdir/image/writejbig2.w
-	$(luatex_image_ctangle) writejbig2.w
-writejpg.c: ctangle$(EXEEXT) luatexdir/image/writejpg.w
-	$(luatex_image_ctangle) writejpg.w
-writejp2.c: ctangle$(EXEEXT) luatexdir/image/writejp2.w
-	$(luatex_image_ctangle) writejp2.w
-writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
-	$(luatex_image_ctangle) writepng.w
+#writeimg.c: ctangle$(EXEEXT) luatexdir/image/writeimg.w
+#	$(luatex_image_ctangle) writeimg.w
+#writejbig2.c: ctangle$(EXEEXT) luatexdir/image/writejbig2.w
+#	$(luatex_image_ctangle) writejbig2.w
+#writejpg.c: ctangle$(EXEEXT) luatexdir/image/writejpg.w
+#	$(luatex_image_ctangle) writejpg.w
+#writejp2.c: ctangle$(EXEEXT) luatexdir/image/writejp2.w
+#	$(luatex_image_ctangle) writejp2.w
+#writepng.c: ctangle$(EXEEXT) luatexdir/image/writepng.w
+#	$(luatex_image_ctangle) writepng.w
 #pdftoepdf.cc: ctangle$(EXEEXT) luatexdir/image/pdftoepdf.w
 #	$(luatex_image_ctangle) pdftoepdf.w - $@
 
-libluatex_web += luatexdir/image/writeimg.w
-libluatex_web += luatexdir/image/writejbig2.w
-libluatex_web += luatexdir/image/writejpg.w
-libluatex_web += luatexdir/image/writejp2.w
-libluatex_web += luatexdir/image/writepng.w
+#libluatex_web += luatexdir/image/writeimg.w
+#libluatex_web += luatexdir/image/writejbig2.w
+#libluatex_web += luatexdir/image/writejpg.w
+#libluatex_web += luatexdir/image/writejp2.w
+#libluatex_web += luatexdir/image/writepng.w
 #libluatex_web += luatexdir/image/pdftoepdf.w
 
-nodist_libluatex_sources += writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c 
+#nodist_libluatex_sources += writeimg.c writejbig2.c writejpg.c writejp2.c writepng.c 
 
 dist_libluatex_sources += \
 	luatexdir/image/epdf.h \
@@ -211,7 +211,12 @@ dist_libluatex_sources += \
 	luatexdir/image/writejpg.h \
 	luatexdir/image/writejp2.h \
 	luatexdir/image/writepng.h \
-	luatexdir/image/pdftoepdf.c
+	luatexdir/image/pdftoepdf.c \
+	luatexdir/image/writeimg.c \
+	luatexdir/image/writejbig2.c \
+	luatexdir/image/writejp2.c \
+	luatexdir/image/writejpg.c \
+	luatexdir/image/writepng.c
 
 ## from luatexdir/lang
 ##
