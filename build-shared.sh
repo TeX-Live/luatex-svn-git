@@ -86,11 +86,6 @@ TARGET_TCFLAGS=
 CFLAGS="$CFLAGS"
 CXXFLAGS="$CXXFLAGS"
 
-# poppler 0.55 needs c++11 
-# for the moment we put the flag here
-# export CXXFLAGS="-std=c++11 $CXXFLAGS"
-
-
 until [ -z "$1" ]; do
   case "$1" in
     --jit       ) BUILDJIT=TRUE     ;;
@@ -306,7 +301,6 @@ $MAKE
 (cd libs/zziplib; $MAKE all )
 (cd libs/zlib; $MAKE all )
 (cd libs/libpng; $MAKE all )
-(cd libs/poppler; $MAKE all )
 (cd texk; $MAKE web2c/Makefile)
 (cd texk/kpathsea; $MAKE )
 if [ "$BUILDJIT" = "TRUE" ]
