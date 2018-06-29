@@ -109,62 +109,62 @@ dist_libluatex_sources += \
 ##
 luatex_font_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/font $(ctangle)
 
-dofont.c: ctangle$(EXEEXT) luatexdir/font/dofont.w
-	$(luatex_font_ctangle) dofont.w
-luafont.c: ctangle$(EXEEXT) luatexdir/font/luafont.w
-	$(luatex_font_ctangle) luafont.w
-mapfile.c: ctangle$(EXEEXT) luatexdir/font/mapfile.w
-	$(luatex_font_ctangle) mapfile.w
-pkin.c: ctangle$(EXEEXT) luatexdir/font/pkin.w
-	$(luatex_font_ctangle) pkin.w
-sfnt.c: ctangle$(EXEEXT) luatexdir/font/sfnt.w
-	$(luatex_font_ctangle) sfnt.w
-texfont.c: ctangle$(EXEEXT) luatexdir/font/texfont.w
-	$(luatex_font_ctangle) texfont.w
-tfmofm.c: ctangle$(EXEEXT) luatexdir/font/tfmofm.w
-	$(luatex_font_ctangle) tfmofm.w
-tounicode.c: ctangle$(EXEEXT) luatexdir/font/tounicode.w
-	$(luatex_font_ctangle) tounicode.w
-tt_glyf.c: ctangle$(EXEEXT) luatexdir/font/tt_glyf.w
-	$(luatex_font_ctangle) tt_glyf.w
-tt_table.c: ctangle$(EXEEXT) luatexdir/font/tt_table.w
-	$(luatex_font_ctangle) tt_table.w
-vfovf.c: ctangle$(EXEEXT) luatexdir/font/vfovf.w
-	$(luatex_font_ctangle) vfovf.w
-vfpacket.c: ctangle$(EXEEXT) luatexdir/font/vfpacket.w
-	$(luatex_font_ctangle) vfpacket.w
-writecff.c: ctangle$(EXEEXT) luatexdir/font/writecff.w
-	$(luatex_font_ctangle) writecff.w
-writeenc.c: ctangle$(EXEEXT) luatexdir/font/writeenc.w
-	$(luatex_font_ctangle) writeenc.w
-writefont.c: ctangle$(EXEEXT) luatexdir/font/writefont.w
-	$(luatex_font_ctangle) writefont.w
-writet1.c: ctangle$(EXEEXT) luatexdir/font/writet1.w
-	$(luatex_font_ctangle) writet1.w
-writet3.c: ctangle$(EXEEXT) luatexdir/font/writet3.w
-	$(luatex_font_ctangle) writet3.w
-writettf.c: ctangle$(EXEEXT) luatexdir/font/writettf.w
-	$(luatex_font_ctangle) writettf.w
-writetype0.c: ctangle$(EXEEXT) luatexdir/font/writetype0.w
-	$(luatex_font_ctangle) writetype0.w
-writetype2.c: ctangle$(EXEEXT) luatexdir/font/writetype2.w
-	$(luatex_font_ctangle) writetype2.w
+# dofont.c: ctangle$(EXEEXT) luatexdir/font/dofont.w
+# 	$(luatex_font_ctangle) dofont.w
+# luafont.c: ctangle$(EXEEXT) luatexdir/font/luafont.w
+# 	$(luatex_font_ctangle) luafont.w
+# mapfile.c: ctangle$(EXEEXT) luatexdir/font/mapfile.w
+# 	$(luatex_font_ctangle) mapfile.w
+# pkin.c: ctangle$(EXEEXT) luatexdir/font/pkin.w
+# 	$(luatex_font_ctangle) pkin.w
+# sfnt.c: ctangle$(EXEEXT) luatexdir/font/sfnt.w
+# 	$(luatex_font_ctangle) sfnt.w
+# texfont.c: ctangle$(EXEEXT) luatexdir/font/texfont.w
+# 	$(luatex_font_ctangle) texfont.w
+# tfmofm.c: ctangle$(EXEEXT) luatexdir/font/tfmofm.w
+# 	$(luatex_font_ctangle) tfmofm.w
+# tounicode.c: ctangle$(EXEEXT) luatexdir/font/tounicode.w
+# 	$(luatex_font_ctangle) tounicode.w
+# tt_glyf.c: ctangle$(EXEEXT) luatexdir/font/tt_glyf.w
+# 	$(luatex_font_ctangle) tt_glyf.w
+# tt_table.c: ctangle$(EXEEXT) luatexdir/font/tt_table.w
+# 	$(luatex_font_ctangle) tt_table.w
+# vfovf.c: ctangle$(EXEEXT) luatexdir/font/vfovf.w
+# 	$(luatex_font_ctangle) vfovf.w
+# vfpacket.c: ctangle$(EXEEXT) luatexdir/font/vfpacket.w
+# 	$(luatex_font_ctangle) vfpacket.w
+# writecff.c: ctangle$(EXEEXT) luatexdir/font/writecff.w
+# 	$(luatex_font_ctangle) writecff.w
+# writeenc.c: ctangle$(EXEEXT) luatexdir/font/writeenc.w
+# 	$(luatex_font_ctangle) writeenc.w
+# writefont.c: ctangle$(EXEEXT) luatexdir/font/writefont.w
+# 	$(luatex_font_ctangle) writefont.w
+# writet1.c: ctangle$(EXEEXT) luatexdir/font/writet1.w
+# 	$(luatex_font_ctangle) writet1.w
+# writet3.c: ctangle$(EXEEXT) luatexdir/font/writet3.w
+# 	$(luatex_font_ctangle) writet3.w
+# writettf.c: ctangle$(EXEEXT) luatexdir/font/writettf.w
+# 	$(luatex_font_ctangle) writettf.w
+# writetype0.c: ctangle$(EXEEXT) luatexdir/font/writetype0.w
+# 	$(luatex_font_ctangle) writetype0.w
+# writetype2.c: ctangle$(EXEEXT) luatexdir/font/writetype2.w
+# 	$(luatex_font_ctangle) writetype2.w
 
-libluatex_web += luatexdir/font/dofont.w luatexdir/font/luafont.w luatexdir/font/mapfile.w
-libluatex_web += luatexdir/font/pkin.w luatexdir/font/sfnt.w 
-libluatex_web += luatexdir/font/texfont.w luatexdir/font/tfmofm.w
-libluatex_web += luatexdir/font/tounicode.w luatexdir/font/tt_glyf.w
-libluatex_web += luatexdir/font/tt_table.w luatexdir/font/vfovf.w
-libluatex_web += luatexdir/font/vfpacket.w luatexdir/font/writecff.w
-libluatex_web += luatexdir/font/writeenc.w luatexdir/font/writefont.w
-libluatex_web += luatexdir/font/writet1.w luatexdir/font/writet3.w
-libluatex_web += luatexdir/font/writettf.w luatexdir/font/writetype0.w
-libluatex_web += luatexdir/font/writetype2.w
+# libluatex_web += luatexdir/font/dofont.w luatexdir/font/luafont.w luatexdir/font/mapfile.w
+# libluatex_web += luatexdir/font/pkin.w luatexdir/font/sfnt.w 
+# libluatex_web += luatexdir/font/texfont.w luatexdir/font/tfmofm.w
+# libluatex_web += luatexdir/font/tounicode.w luatexdir/font/tt_glyf.w
+# libluatex_web += luatexdir/font/tt_table.w luatexdir/font/vfovf.w
+# libluatex_web += luatexdir/font/vfpacket.w luatexdir/font/writecff.w
+# libluatex_web += luatexdir/font/writeenc.w luatexdir/font/writefont.w
+# libluatex_web += luatexdir/font/writet1.w luatexdir/font/writet3.w
+# libluatex_web += luatexdir/font/writettf.w luatexdir/font/writetype0.w
+# libluatex_web += luatexdir/font/writetype2.w
 
-nodist_libluatex_sources += dofont.c luafont.c mapfile.c pkin.c sfnt.c 
-nodist_libluatex_sources += texfont.c tfmofm.c tounicode.c tt_glyf.c tt_table.c vfovf.c vfpacket.c
-nodist_libluatex_sources += writecff.c writeenc.c writefont.c writet1.c writet3.c writettf.c
-nodist_libluatex_sources += writetype0.c writetype2.c
+# nodist_libluatex_sources += dofont.c luafont.c mapfile.c pkin.c sfnt.c 
+# nodist_libluatex_sources += texfont.c tfmofm.c tounicode.c tt_glyf.c tt_table.c vfovf.c vfpacket.c
+# nodist_libluatex_sources += writecff.c writeenc.c writefont.c writet1.c writet3.c writettf.c
+# nodist_libluatex_sources += writetype0.c writetype2.c
 
 dist_libluatex_sources += \
 	luatexdir/font/luatexfont.h \
@@ -174,7 +174,28 @@ dist_libluatex_sources += \
 	luatexdir/font/tt_glyf.h \
 	luatexdir/font/tt_table.h \
 	luatexdir/font/writecff.h \
-	luatexdir/font/writettf.h
+	luatexdir/font/writettf.h \
+	luatexdir/font/dofont.c \
+	luatexdir/font/luafont.c \
+	luatexdir/font/mapfile.c \
+	luatexdir/font/pkin.c \
+	luatexdir/font/sfnt.c \
+	luatexdir/font/texfont.c \
+	luatexdir/font/tfmofm.c \
+	luatexdir/font/tounicode.c \
+	luatexdir/font/tt_glyf.c \
+	luatexdir/font/tt_table.c \
+	luatexdir/font/vfovf.c \
+	luatexdir/font/vfpacket.c \
+	luatexdir/font/writecff.c \
+	luatexdir/font/writeenc.c \
+	luatexdir/font/writefont.c \
+	luatexdir/font/writet1.c \
+	luatexdir/font/writet3.c \
+	luatexdir/font/writettf.c \
+	luatexdir/font/writetype0.c \
+	luatexdir/font/writetype2.c 
+
 
 ## from luatexdir/image
 ##
