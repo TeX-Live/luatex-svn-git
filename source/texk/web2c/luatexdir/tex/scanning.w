@@ -208,13 +208,6 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
     case assign_attr_cmd:
         scanned_result(eqtb[m].cint, int_val_level);
         break;
-    case assign_dir_cmd:
-    case assign_direction_cmd:
-        if (m == (int_base + line_direction_code)) {
-            m = int_base + text_direction_code;
-        }
-        scanned_result(eqtb[m].cint, dir_val_level);
-        break;
     case assign_dimen_cmd:
         scanned_result(eqtb[m].cint, dimen_val_level);
         break;
@@ -223,6 +216,18 @@ static boolean short_scan_something_internal(int cmd, int chr, int level,
         break;
     case assign_mu_glue_cmd:
         scanned_result(equiv(m), mu_val_level);
+        break;
+    case assign_direction_cmd:
+        if (m == (int_base + line_direction_code)) {
+            m = int_base + text_direction_code;
+        }
+        scanned_result(eqtb[m].cint, int_val_level);
+        break;
+    case assign_dir_cmd:
+        if (m == (int_base + line_direction_code)) {
+            m = int_base + text_direction_code;
+        }
+        scanned_result(eqtb[m].cint, dir_val_level);
         break;
     case math_style_cmd:
         scanned_result(m, int_val_level);
