@@ -640,6 +640,10 @@ am__objects_5 =  \
 	luatexdir/tex/liblua53tex_a-texdeffont.$(OBJEXT) \
 	luatexdir/tex/liblua53tex_a-textcodes.$(OBJEXT) \
 	luatexdir/utils/liblua53tex_a-avl.$(OBJEXT) \
+	luatexdir/utils/liblua53tex_a-avlstuff.$(OBJEXT) \
+	luatexdir/utils/liblua53tex_a-managed-sa.$(OBJEXT) \
+	luatexdir/utils/liblua53tex_a-unistring.$(OBJEXT) \
+	luatexdir/utils/liblua53tex_a-utils.$(OBJEXT) \
 	synctexdir/liblua53tex_a-synctex.$(OBJEXT)
 am__objects_6 = liblua53tex_a-dofont.$(OBJEXT) \
 	liblua53tex_a-luafont.$(OBJEXT) \
@@ -669,11 +673,7 @@ am__objects_6 = liblua53tex_a-dofont.$(OBJEXT) \
 	liblua53tex_a-texfileio.$(OBJEXT) \
 	liblua53tex_a-texmath.$(OBJEXT) \
 	liblua53tex_a-texnodes.$(OBJEXT) \
-	liblua53tex_a-textoken.$(OBJEXT) \
-	liblua53tex_a-avlstuff.$(OBJEXT) \
-	liblua53tex_a-managed-sa.$(OBJEXT) \
-	liblua53tex_a-utils.$(OBJEXT) \
-	liblua53tex_a-unistring.$(OBJEXT)
+	liblua53tex_a-textoken.$(OBJEXT)
 nodist_liblua53tex_a_OBJECTS = $(am__objects_5) $(am__objects_6)
 liblua53tex_a_OBJECTS = $(dist_liblua53tex_a_OBJECTS) \
 	$(nodist_liblua53tex_a_OBJECTS)
@@ -828,6 +828,10 @@ am__objects_11 = luatexdir/luafontloader/src/libluajittex_a-ffdummies.$(OBJEXT) 
 	luatexdir/tex/libluajittex_a-texdeffont.$(OBJEXT) \
 	luatexdir/tex/libluajittex_a-textcodes.$(OBJEXT) \
 	luatexdir/utils/libluajittex_a-avl.$(OBJEXT) \
+	luatexdir/utils/libluajittex_a-avlstuff.$(OBJEXT) \
+	luatexdir/utils/libluajittex_a-managed-sa.$(OBJEXT) \
+	luatexdir/utils/libluajittex_a-unistring.$(OBJEXT) \
+	luatexdir/utils/libluajittex_a-utils.$(OBJEXT) \
 	synctexdir/libluajittex_a-synctex.$(OBJEXT)
 am__objects_12 = libluajittex_a-dofont.$(OBJEXT) \
 	libluajittex_a-luafont.$(OBJEXT) \
@@ -858,11 +862,7 @@ am__objects_12 = libluajittex_a-dofont.$(OBJEXT) \
 	libluajittex_a-texfileio.$(OBJEXT) \
 	libluajittex_a-texmath.$(OBJEXT) \
 	libluajittex_a-texnodes.$(OBJEXT) \
-	libluajittex_a-textoken.$(OBJEXT) \
-	libluajittex_a-avlstuff.$(OBJEXT) \
-	libluajittex_a-managed-sa.$(OBJEXT) \
-	libluajittex_a-utils.$(OBJEXT) \
-	libluajittex_a-unistring.$(OBJEXT)
+	libluajittex_a-textoken.$(OBJEXT)
 nodist_libluajittex_a_OBJECTS = $(am__objects_11) $(am__objects_12)
 libluajittex_a_OBJECTS = $(dist_libluajittex_a_OBJECTS) \
 	$(nodist_libluajittex_a_OBJECTS)
@@ -1011,6 +1011,10 @@ am__objects_16 =  \
 	luatexdir/tex/libluatex_a-texdeffont.$(OBJEXT) \
 	luatexdir/tex/libluatex_a-textcodes.$(OBJEXT) \
 	luatexdir/utils/libluatex_a-avl.$(OBJEXT) \
+	luatexdir/utils/libluatex_a-avlstuff.$(OBJEXT) \
+	luatexdir/utils/libluatex_a-managed-sa.$(OBJEXT) \
+	luatexdir/utils/libluatex_a-unistring.$(OBJEXT) \
+	luatexdir/utils/libluatex_a-utils.$(OBJEXT) \
 	synctexdir/libluatex_a-synctex.$(OBJEXT)
 am__objects_17 = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-luafont.$(OBJEXT) libluatex_a-mapfile.$(OBJEXT) \
@@ -1029,10 +1033,7 @@ am__objects_17 = libluatex_a-dofont.$(OBJEXT) \
 	libluatex_a-linebreak.$(OBJEXT) libluatex_a-mlist.$(OBJEXT) \
 	libluatex_a-packaging.$(OBJEXT) libluatex_a-scanning.$(OBJEXT) \
 	libluatex_a-texfileio.$(OBJEXT) libluatex_a-texmath.$(OBJEXT) \
-	libluatex_a-texnodes.$(OBJEXT) libluatex_a-textoken.$(OBJEXT) \
-	libluatex_a-avlstuff.$(OBJEXT) \
-	libluatex_a-managed-sa.$(OBJEXT) libluatex_a-utils.$(OBJEXT) \
-	libluatex_a-unistring.$(OBJEXT)
+	libluatex_a-texnodes.$(OBJEXT) libluatex_a-textoken.$(OBJEXT)
 nodist_libluatex_a_OBJECTS = $(am__objects_16) $(am__objects_17)
 libluatex_a_OBJECTS = $(dist_libluatex_a_OBJECTS) \
 	$(nodist_libluatex_a_OBJECTS)
@@ -3730,16 +3731,14 @@ libluatex_web = luatexdir/font/dofont.w luatexdir/font/luafont.w \
 	luatexdir/tex/linebreak.w luatexdir/tex/packaging.w \
 	luatexdir/tex/scanning.w luatexdir/tex/texfileio.w \
 	luatexdir/tex/texmath.w luatexdir/tex/texnodes.w \
-	luatexdir/tex/textoken.w luatexdir/utils/avlstuff.w \
-	luatexdir/utils/managed-sa.w luatexdir/utils/utils.w \
-	luatexdir/utils/unistring.w
+	luatexdir/tex/textoken.w
 nodist_libluatex_sources = dofont.c luafont.c mapfile.c pkin.c sfnt.c \
 	texfont.c tfmofm.c tounicode.c tt_glyf.c tt_table.c vfovf.c \
 	vfpacket.c writecff.c writeenc.c writefont.c writet1.c \
 	writet3.c writettf.c writetype0.c writetype2.c align.c \
 	buildpage.c expand.c extensions.c linebreak.c mlist.c \
 	packaging.c scanning.c texfileio.c texmath.c texnodes.c \
-	textoken.c avlstuff.c managed-sa.c utils.c unistring.c
+	textoken.c
 
 #dvigen.c: ctangle$(EXEEXT) luatexdir/dvi/dvigen.w
 #	$(luatex_dvi_ctangle) dvigen.w
@@ -3850,6 +3849,19 @@ nodist_libluatex_sources = dofont.c luafont.c mapfile.c pkin.c sfnt.c \
 #nodist_libluatex_sources += pdfgen.c pdfglyph.c pdfimage.c pdflink.c pdflistout.c pdfliteral.c
 #nodist_libluatex_sources += pdfobj.c pdfoutline.c pdfpage.c pdfrule.c pdfsaverestore.c
 #nodist_libluatex_sources += pdfsetmatrix.c pdfshipout.c pdftables.c pdfthread.c pdfxform.c
+
+#avlstuff.c: ctangle$(EXEEXT) luatexdir/utils/avlstuff.w
+#	$(luatex_utils_ctangle) avlstuff.w
+#managed-sa.c: ctangle$(EXEEXT) luatexdir/utils/managed-sa.w
+#	$(luatex_utils_ctangle) managed-sa.w
+#utils.c: ctangle$(EXEEXT) luatexdir/utils/utils.w
+#	$(luatex_utils_ctangle) utils.w
+#unistring.c: ctangle$(EXEEXT) luatexdir/utils/unistring.w
+#	$(luatex_utils_ctangle) unistring.w
+
+#libluatex_web += luatexdir/utils/avlstuff.w luatexdir/utils/managed-sa.w luatexdir/utils/utils.w luatexdir/utils/unistring.w
+
+#nodist_libluatex_sources += avlstuff.c managed-sa.c utils.c unistring.c
 dist_libluatex_sources = luatexdir/luatexcallbackids.h \
 	luatexdir/luatex.h luatexdir/luatex-common.h \
 	luatexdir/ptexlib.h luatexdir/luafontloader/src/ffdummies.c \
@@ -3933,7 +3945,9 @@ dist_libluatex_sources = luatexdir/luatexcallbackids.h \
 	luatexdir/tex/textcodes.c luatexdir/utils/avl.c \
 	luatexdir/utils/avl.h luatexdir/utils/avlstuff.h \
 	luatexdir/utils/managed-sa.h luatexdir/utils/utils.h \
-	luatexdir/utils/unistring.h synctexdir/synctex-common.h \
+	luatexdir/utils/unistring.h luatexdir/utils/avlstuff.c \
+	luatexdir/utils/managed-sa.c luatexdir/utils/unistring.c \
+	luatexdir/utils/utils.c synctexdir/synctex-common.h \
 	synctexdir/synctex-luatex.h synctexdir/synctex.c \
 	synctexdir/synctex.h
 luatex_dvi_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/dvi $(ctangle)
@@ -5187,6 +5201,18 @@ luatexdir/utils/$(DEPDIR)/$(am__dirstamp):
 luatexdir/utils/liblua53tex_a-avl.$(OBJEXT):  \
 	luatexdir/utils/$(am__dirstamp) \
 	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/liblua53tex_a-avlstuff.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/liblua53tex_a-managed-sa.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/liblua53tex_a-unistring.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/liblua53tex_a-utils.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
 synctexdir/$(am__dirstamp):
 	@$(MKDIR_P) synctexdir
 	@: > synctexdir/$(am__dirstamp)
@@ -5611,6 +5637,18 @@ luatexdir/tex/libluajittex_a-textcodes.$(OBJEXT):  \
 luatexdir/utils/libluajittex_a-avl.$(OBJEXT):  \
 	luatexdir/utils/$(am__dirstamp) \
 	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/libluajittex_a-avlstuff.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/libluajittex_a-managed-sa.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/libluajittex_a-unistring.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/libluajittex_a-utils.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
 synctexdir/libluajittex_a-synctex.$(OBJEXT):  \
 	synctexdir/$(am__dirstamp) \
 	synctexdir/$(DEPDIR)/$(am__dirstamp)
@@ -6010,6 +6048,18 @@ luatexdir/tex/libluatex_a-textcodes.$(OBJEXT):  \
 	luatexdir/tex/$(am__dirstamp) \
 	luatexdir/tex/$(DEPDIR)/$(am__dirstamp)
 luatexdir/utils/libluatex_a-avl.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/libluatex_a-avlstuff.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/libluatex_a-managed-sa.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/libluatex_a-unistring.$(OBJEXT):  \
+	luatexdir/utils/$(am__dirstamp) \
+	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
+luatexdir/utils/libluatex_a-utils.$(OBJEXT):  \
 	luatexdir/utils/$(am__dirstamp) \
 	luatexdir/utils/$(DEPDIR)/$(am__dirstamp)
 synctexdir/libluatex_a-synctex.$(OBJEXT): synctexdir/$(am__dirstamp) \
@@ -6864,14 +6914,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gftype.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/initex-callexe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-align.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-avlstuff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-buildpage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-dofont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-expand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-extensions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-linebreak.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-luafont.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-managed-sa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-mapfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-mlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-packaging.Po@am__quote@
@@ -6887,8 +6935,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-tounicode.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-tt_glyf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-tt_table.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-unistring.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-vfovf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-vfpacket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writecff.Po@am__quote@
@@ -6900,14 +6946,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writetype0.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblua53tex_a-writetype2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-align.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-avlstuff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-buildpage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-dofont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-expand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-extensions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-linebreak.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-luafont.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-managed-sa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-mapfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-mlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-packaging.Po@am__quote@
@@ -6923,8 +6967,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-tounicode.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-tt_glyf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-tt_table.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-unistring.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-vfovf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-vfpacket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writecff.Po@am__quote@
@@ -6936,14 +6978,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writetype0.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluajittex_a-writetype2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-align.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-avlstuff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-buildpage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-dofont.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-expand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-extensions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-linebreak.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-luafont.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-managed-sa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mapfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-mlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-packaging.Po@am__quote@
@@ -6959,8 +6999,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tounicode.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tt_glyf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-tt_table.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-unistring.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-vfovf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-vfpacket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libluatex_a-writecff.Po@am__quote@
@@ -7517,8 +7555,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/unilib/$(DEPDIR)/libunilib_a-ustring.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/unilib/$(DEPDIR)/libunilib_a-utype.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/liblua53tex_a-avl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/liblua53tex_a-avlstuff.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/liblua53tex_a-managed-sa.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/liblua53tex_a-unistring.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/liblua53tex_a-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluajittex_a-avl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluajittex_a-avlstuff.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluajittex_a-managed-sa.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluajittex_a-unistring.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluajittex_a-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluatex_a-avl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluatex_a-avlstuff.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluatex_a-managed-sa.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluatex_a-unistring.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/utils/$(DEPDIR)/libluatex_a-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@mfluadir/$(DEPDIR)/libmflua_a-mfluac.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@mfluadir/$(DEPDIR)/libmfluajit_a-mfluac.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@mfluadir/$(DEPDIR)/mflua-mfluaextra.Po@am__quote@
@@ -10033,6 +10083,62 @@ luatexdir/utils/liblua53tex_a-avl.obj: luatexdir/utils/avl.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/liblua53tex_a-avl.obj `if test -f 'luatexdir/utils/avl.c'; then $(CYGPATH_W) 'luatexdir/utils/avl.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avl.c'; fi`
 
+luatexdir/utils/liblua53tex_a-avlstuff.o: luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/liblua53tex_a-avlstuff.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/liblua53tex_a-avlstuff.Tpo -c -o luatexdir/utils/liblua53tex_a-avlstuff.o `test -f 'luatexdir/utils/avlstuff.c' || echo '$(srcdir)/'`luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/liblua53tex_a-avlstuff.Tpo luatexdir/utils/$(DEPDIR)/liblua53tex_a-avlstuff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/avlstuff.c' object='luatexdir/utils/liblua53tex_a-avlstuff.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/liblua53tex_a-avlstuff.o `test -f 'luatexdir/utils/avlstuff.c' || echo '$(srcdir)/'`luatexdir/utils/avlstuff.c
+
+luatexdir/utils/liblua53tex_a-avlstuff.obj: luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/liblua53tex_a-avlstuff.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/liblua53tex_a-avlstuff.Tpo -c -o luatexdir/utils/liblua53tex_a-avlstuff.obj `if test -f 'luatexdir/utils/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/utils/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avlstuff.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/liblua53tex_a-avlstuff.Tpo luatexdir/utils/$(DEPDIR)/liblua53tex_a-avlstuff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/avlstuff.c' object='luatexdir/utils/liblua53tex_a-avlstuff.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/liblua53tex_a-avlstuff.obj `if test -f 'luatexdir/utils/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/utils/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avlstuff.c'; fi`
+
+luatexdir/utils/liblua53tex_a-managed-sa.o: luatexdir/utils/managed-sa.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/liblua53tex_a-managed-sa.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/liblua53tex_a-managed-sa.Tpo -c -o luatexdir/utils/liblua53tex_a-managed-sa.o `test -f 'luatexdir/utils/managed-sa.c' || echo '$(srcdir)/'`luatexdir/utils/managed-sa.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/liblua53tex_a-managed-sa.Tpo luatexdir/utils/$(DEPDIR)/liblua53tex_a-managed-sa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/managed-sa.c' object='luatexdir/utils/liblua53tex_a-managed-sa.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/liblua53tex_a-managed-sa.o `test -f 'luatexdir/utils/managed-sa.c' || echo '$(srcdir)/'`luatexdir/utils/managed-sa.c
+
+luatexdir/utils/liblua53tex_a-managed-sa.obj: luatexdir/utils/managed-sa.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/liblua53tex_a-managed-sa.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/liblua53tex_a-managed-sa.Tpo -c -o luatexdir/utils/liblua53tex_a-managed-sa.obj `if test -f 'luatexdir/utils/managed-sa.c'; then $(CYGPATH_W) 'luatexdir/utils/managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/managed-sa.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/liblua53tex_a-managed-sa.Tpo luatexdir/utils/$(DEPDIR)/liblua53tex_a-managed-sa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/managed-sa.c' object='luatexdir/utils/liblua53tex_a-managed-sa.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/liblua53tex_a-managed-sa.obj `if test -f 'luatexdir/utils/managed-sa.c'; then $(CYGPATH_W) 'luatexdir/utils/managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/managed-sa.c'; fi`
+
+luatexdir/utils/liblua53tex_a-unistring.o: luatexdir/utils/unistring.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/liblua53tex_a-unistring.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/liblua53tex_a-unistring.Tpo -c -o luatexdir/utils/liblua53tex_a-unistring.o `test -f 'luatexdir/utils/unistring.c' || echo '$(srcdir)/'`luatexdir/utils/unistring.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/liblua53tex_a-unistring.Tpo luatexdir/utils/$(DEPDIR)/liblua53tex_a-unistring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/unistring.c' object='luatexdir/utils/liblua53tex_a-unistring.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/liblua53tex_a-unistring.o `test -f 'luatexdir/utils/unistring.c' || echo '$(srcdir)/'`luatexdir/utils/unistring.c
+
+luatexdir/utils/liblua53tex_a-unistring.obj: luatexdir/utils/unistring.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/liblua53tex_a-unistring.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/liblua53tex_a-unistring.Tpo -c -o luatexdir/utils/liblua53tex_a-unistring.obj `if test -f 'luatexdir/utils/unistring.c'; then $(CYGPATH_W) 'luatexdir/utils/unistring.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/unistring.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/liblua53tex_a-unistring.Tpo luatexdir/utils/$(DEPDIR)/liblua53tex_a-unistring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/unistring.c' object='luatexdir/utils/liblua53tex_a-unistring.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/liblua53tex_a-unistring.obj `if test -f 'luatexdir/utils/unistring.c'; then $(CYGPATH_W) 'luatexdir/utils/unistring.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/unistring.c'; fi`
+
+luatexdir/utils/liblua53tex_a-utils.o: luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/liblua53tex_a-utils.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/liblua53tex_a-utils.Tpo -c -o luatexdir/utils/liblua53tex_a-utils.o `test -f 'luatexdir/utils/utils.c' || echo '$(srcdir)/'`luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/liblua53tex_a-utils.Tpo luatexdir/utils/$(DEPDIR)/liblua53tex_a-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/utils.c' object='luatexdir/utils/liblua53tex_a-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/liblua53tex_a-utils.o `test -f 'luatexdir/utils/utils.c' || echo '$(srcdir)/'`luatexdir/utils/utils.c
+
+luatexdir/utils/liblua53tex_a-utils.obj: luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/liblua53tex_a-utils.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/liblua53tex_a-utils.Tpo -c -o luatexdir/utils/liblua53tex_a-utils.obj `if test -f 'luatexdir/utils/utils.c'; then $(CYGPATH_W) 'luatexdir/utils/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/utils.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/liblua53tex_a-utils.Tpo luatexdir/utils/$(DEPDIR)/liblua53tex_a-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/utils.c' object='luatexdir/utils/liblua53tex_a-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/liblua53tex_a-utils.obj `if test -f 'luatexdir/utils/utils.c'; then $(CYGPATH_W) 'luatexdir/utils/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/utils.c'; fi`
+
 synctexdir/liblua53tex_a-synctex.o: synctexdir/synctex.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT synctexdir/liblua53tex_a-synctex.o -MD -MP -MF synctexdir/$(DEPDIR)/liblua53tex_a-synctex.Tpo -c -o synctexdir/liblua53tex_a-synctex.o `test -f 'synctexdir/synctex.c' || echo '$(srcdir)/'`synctexdir/synctex.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) synctexdir/$(DEPDIR)/liblua53tex_a-synctex.Tpo synctexdir/$(DEPDIR)/liblua53tex_a-synctex.Po
@@ -10494,62 +10600,6 @@ liblua53tex_a-textoken.obj: textoken.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='textoken.c' object='liblua53tex_a-textoken.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-textoken.obj `if test -f 'textoken.c'; then $(CYGPATH_W) 'textoken.c'; else $(CYGPATH_W) '$(srcdir)/textoken.c'; fi`
-
-liblua53tex_a-avlstuff.o: avlstuff.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-avlstuff.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-avlstuff.Tpo -c -o liblua53tex_a-avlstuff.o `test -f 'avlstuff.c' || echo '$(srcdir)/'`avlstuff.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-avlstuff.Tpo $(DEPDIR)/liblua53tex_a-avlstuff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='avlstuff.c' object='liblua53tex_a-avlstuff.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-avlstuff.o `test -f 'avlstuff.c' || echo '$(srcdir)/'`avlstuff.c
-
-liblua53tex_a-avlstuff.obj: avlstuff.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-avlstuff.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-avlstuff.Tpo -c -o liblua53tex_a-avlstuff.obj `if test -f 'avlstuff.c'; then $(CYGPATH_W) 'avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/avlstuff.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-avlstuff.Tpo $(DEPDIR)/liblua53tex_a-avlstuff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='avlstuff.c' object='liblua53tex_a-avlstuff.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-avlstuff.obj `if test -f 'avlstuff.c'; then $(CYGPATH_W) 'avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/avlstuff.c'; fi`
-
-liblua53tex_a-managed-sa.o: managed-sa.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-managed-sa.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-managed-sa.Tpo -c -o liblua53tex_a-managed-sa.o `test -f 'managed-sa.c' || echo '$(srcdir)/'`managed-sa.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-managed-sa.Tpo $(DEPDIR)/liblua53tex_a-managed-sa.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='managed-sa.c' object='liblua53tex_a-managed-sa.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-managed-sa.o `test -f 'managed-sa.c' || echo '$(srcdir)/'`managed-sa.c
-
-liblua53tex_a-managed-sa.obj: managed-sa.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-managed-sa.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-managed-sa.Tpo -c -o liblua53tex_a-managed-sa.obj `if test -f 'managed-sa.c'; then $(CYGPATH_W) 'managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/managed-sa.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-managed-sa.Tpo $(DEPDIR)/liblua53tex_a-managed-sa.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='managed-sa.c' object='liblua53tex_a-managed-sa.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-managed-sa.obj `if test -f 'managed-sa.c'; then $(CYGPATH_W) 'managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/managed-sa.c'; fi`
-
-liblua53tex_a-utils.o: utils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-utils.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-utils.Tpo -c -o liblua53tex_a-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-utils.Tpo $(DEPDIR)/liblua53tex_a-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='utils.c' object='liblua53tex_a-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-
-liblua53tex_a-utils.obj: utils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-utils.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-utils.Tpo -c -o liblua53tex_a-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-utils.Tpo $(DEPDIR)/liblua53tex_a-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='utils.c' object='liblua53tex_a-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
-
-liblua53tex_a-unistring.o: unistring.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-unistring.o -MD -MP -MF $(DEPDIR)/liblua53tex_a-unistring.Tpo -c -o liblua53tex_a-unistring.o `test -f 'unistring.c' || echo '$(srcdir)/'`unistring.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-unistring.Tpo $(DEPDIR)/liblua53tex_a-unistring.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='unistring.c' object='liblua53tex_a-unistring.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-unistring.o `test -f 'unistring.c' || echo '$(srcdir)/'`unistring.c
-
-liblua53tex_a-unistring.obj: unistring.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT liblua53tex_a-unistring.obj -MD -MP -MF $(DEPDIR)/liblua53tex_a-unistring.Tpo -c -o liblua53tex_a-unistring.obj `if test -f 'unistring.c'; then $(CYGPATH_W) 'unistring.c'; else $(CYGPATH_W) '$(srcdir)/unistring.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/liblua53tex_a-unistring.Tpo $(DEPDIR)/liblua53tex_a-unistring.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='unistring.c' object='liblua53tex_a-unistring.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o liblua53tex_a-unistring.obj `if test -f 'unistring.c'; then $(CYGPATH_W) 'unistring.c'; else $(CYGPATH_W) '$(srcdir)/unistring.c'; fi`
 
 luatexdir/luaffi/libluaffi_a-call.o: luatexdir/luaffi/call.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluaffi_a_CPPFLAGS) $(CPPFLAGS) $(libluaffi_a_CFLAGS) $(CFLAGS) -MT luatexdir/luaffi/libluaffi_a-call.o -MD -MP -MF luatexdir/luaffi/$(DEPDIR)/libluaffi_a-call.Tpo -c -o luatexdir/luaffi/libluaffi_a-call.o `test -f 'luatexdir/luaffi/call.c' || echo '$(srcdir)/'`luatexdir/luaffi/call.c
@@ -12357,6 +12407,62 @@ luatexdir/utils/libluajittex_a-avl.obj: luatexdir/utils/avl.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluajittex_a-avl.obj `if test -f 'luatexdir/utils/avl.c'; then $(CYGPATH_W) 'luatexdir/utils/avl.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avl.c'; fi`
 
+luatexdir/utils/libluajittex_a-avlstuff.o: luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluajittex_a-avlstuff.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluajittex_a-avlstuff.Tpo -c -o luatexdir/utils/libluajittex_a-avlstuff.o `test -f 'luatexdir/utils/avlstuff.c' || echo '$(srcdir)/'`luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluajittex_a-avlstuff.Tpo luatexdir/utils/$(DEPDIR)/libluajittex_a-avlstuff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/avlstuff.c' object='luatexdir/utils/libluajittex_a-avlstuff.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluajittex_a-avlstuff.o `test -f 'luatexdir/utils/avlstuff.c' || echo '$(srcdir)/'`luatexdir/utils/avlstuff.c
+
+luatexdir/utils/libluajittex_a-avlstuff.obj: luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluajittex_a-avlstuff.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluajittex_a-avlstuff.Tpo -c -o luatexdir/utils/libluajittex_a-avlstuff.obj `if test -f 'luatexdir/utils/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/utils/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avlstuff.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluajittex_a-avlstuff.Tpo luatexdir/utils/$(DEPDIR)/libluajittex_a-avlstuff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/avlstuff.c' object='luatexdir/utils/libluajittex_a-avlstuff.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluajittex_a-avlstuff.obj `if test -f 'luatexdir/utils/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/utils/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avlstuff.c'; fi`
+
+luatexdir/utils/libluajittex_a-managed-sa.o: luatexdir/utils/managed-sa.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluajittex_a-managed-sa.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluajittex_a-managed-sa.Tpo -c -o luatexdir/utils/libluajittex_a-managed-sa.o `test -f 'luatexdir/utils/managed-sa.c' || echo '$(srcdir)/'`luatexdir/utils/managed-sa.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluajittex_a-managed-sa.Tpo luatexdir/utils/$(DEPDIR)/libluajittex_a-managed-sa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/managed-sa.c' object='luatexdir/utils/libluajittex_a-managed-sa.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluajittex_a-managed-sa.o `test -f 'luatexdir/utils/managed-sa.c' || echo '$(srcdir)/'`luatexdir/utils/managed-sa.c
+
+luatexdir/utils/libluajittex_a-managed-sa.obj: luatexdir/utils/managed-sa.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluajittex_a-managed-sa.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluajittex_a-managed-sa.Tpo -c -o luatexdir/utils/libluajittex_a-managed-sa.obj `if test -f 'luatexdir/utils/managed-sa.c'; then $(CYGPATH_W) 'luatexdir/utils/managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/managed-sa.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluajittex_a-managed-sa.Tpo luatexdir/utils/$(DEPDIR)/libluajittex_a-managed-sa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/managed-sa.c' object='luatexdir/utils/libluajittex_a-managed-sa.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluajittex_a-managed-sa.obj `if test -f 'luatexdir/utils/managed-sa.c'; then $(CYGPATH_W) 'luatexdir/utils/managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/managed-sa.c'; fi`
+
+luatexdir/utils/libluajittex_a-unistring.o: luatexdir/utils/unistring.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluajittex_a-unistring.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluajittex_a-unistring.Tpo -c -o luatexdir/utils/libluajittex_a-unistring.o `test -f 'luatexdir/utils/unistring.c' || echo '$(srcdir)/'`luatexdir/utils/unistring.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluajittex_a-unistring.Tpo luatexdir/utils/$(DEPDIR)/libluajittex_a-unistring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/unistring.c' object='luatexdir/utils/libluajittex_a-unistring.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluajittex_a-unistring.o `test -f 'luatexdir/utils/unistring.c' || echo '$(srcdir)/'`luatexdir/utils/unistring.c
+
+luatexdir/utils/libluajittex_a-unistring.obj: luatexdir/utils/unistring.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluajittex_a-unistring.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluajittex_a-unistring.Tpo -c -o luatexdir/utils/libluajittex_a-unistring.obj `if test -f 'luatexdir/utils/unistring.c'; then $(CYGPATH_W) 'luatexdir/utils/unistring.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/unistring.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluajittex_a-unistring.Tpo luatexdir/utils/$(DEPDIR)/libluajittex_a-unistring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/unistring.c' object='luatexdir/utils/libluajittex_a-unistring.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluajittex_a-unistring.obj `if test -f 'luatexdir/utils/unistring.c'; then $(CYGPATH_W) 'luatexdir/utils/unistring.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/unistring.c'; fi`
+
+luatexdir/utils/libluajittex_a-utils.o: luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluajittex_a-utils.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluajittex_a-utils.Tpo -c -o luatexdir/utils/libluajittex_a-utils.o `test -f 'luatexdir/utils/utils.c' || echo '$(srcdir)/'`luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluajittex_a-utils.Tpo luatexdir/utils/$(DEPDIR)/libluajittex_a-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/utils.c' object='luatexdir/utils/libluajittex_a-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluajittex_a-utils.o `test -f 'luatexdir/utils/utils.c' || echo '$(srcdir)/'`luatexdir/utils/utils.c
+
+luatexdir/utils/libluajittex_a-utils.obj: luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluajittex_a-utils.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluajittex_a-utils.Tpo -c -o luatexdir/utils/libluajittex_a-utils.obj `if test -f 'luatexdir/utils/utils.c'; then $(CYGPATH_W) 'luatexdir/utils/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/utils.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluajittex_a-utils.Tpo luatexdir/utils/$(DEPDIR)/libluajittex_a-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/utils.c' object='luatexdir/utils/libluajittex_a-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluajittex_a-utils.obj `if test -f 'luatexdir/utils/utils.c'; then $(CYGPATH_W) 'luatexdir/utils/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/utils.c'; fi`
+
 synctexdir/libluajittex_a-synctex.o: synctexdir/synctex.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT synctexdir/libluajittex_a-synctex.o -MD -MP -MF synctexdir/$(DEPDIR)/libluajittex_a-synctex.Tpo -c -o synctexdir/libluajittex_a-synctex.o `test -f 'synctexdir/synctex.c' || echo '$(srcdir)/'`synctexdir/synctex.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) synctexdir/$(DEPDIR)/libluajittex_a-synctex.Tpo synctexdir/$(DEPDIR)/libluajittex_a-synctex.Po
@@ -12818,62 +12924,6 @@ libluajittex_a-textoken.obj: textoken.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='textoken.c' object='libluajittex_a-textoken.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-textoken.obj `if test -f 'textoken.c'; then $(CYGPATH_W) 'textoken.c'; else $(CYGPATH_W) '$(srcdir)/textoken.c'; fi`
-
-libluajittex_a-avlstuff.o: avlstuff.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-avlstuff.o -MD -MP -MF $(DEPDIR)/libluajittex_a-avlstuff.Tpo -c -o libluajittex_a-avlstuff.o `test -f 'avlstuff.c' || echo '$(srcdir)/'`avlstuff.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-avlstuff.Tpo $(DEPDIR)/libluajittex_a-avlstuff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='avlstuff.c' object='libluajittex_a-avlstuff.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-avlstuff.o `test -f 'avlstuff.c' || echo '$(srcdir)/'`avlstuff.c
-
-libluajittex_a-avlstuff.obj: avlstuff.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-avlstuff.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-avlstuff.Tpo -c -o libluajittex_a-avlstuff.obj `if test -f 'avlstuff.c'; then $(CYGPATH_W) 'avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/avlstuff.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-avlstuff.Tpo $(DEPDIR)/libluajittex_a-avlstuff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='avlstuff.c' object='libluajittex_a-avlstuff.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-avlstuff.obj `if test -f 'avlstuff.c'; then $(CYGPATH_W) 'avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/avlstuff.c'; fi`
-
-libluajittex_a-managed-sa.o: managed-sa.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-managed-sa.o -MD -MP -MF $(DEPDIR)/libluajittex_a-managed-sa.Tpo -c -o libluajittex_a-managed-sa.o `test -f 'managed-sa.c' || echo '$(srcdir)/'`managed-sa.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-managed-sa.Tpo $(DEPDIR)/libluajittex_a-managed-sa.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='managed-sa.c' object='libluajittex_a-managed-sa.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-managed-sa.o `test -f 'managed-sa.c' || echo '$(srcdir)/'`managed-sa.c
-
-libluajittex_a-managed-sa.obj: managed-sa.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-managed-sa.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-managed-sa.Tpo -c -o libluajittex_a-managed-sa.obj `if test -f 'managed-sa.c'; then $(CYGPATH_W) 'managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/managed-sa.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-managed-sa.Tpo $(DEPDIR)/libluajittex_a-managed-sa.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='managed-sa.c' object='libluajittex_a-managed-sa.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-managed-sa.obj `if test -f 'managed-sa.c'; then $(CYGPATH_W) 'managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/managed-sa.c'; fi`
-
-libluajittex_a-utils.o: utils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-utils.o -MD -MP -MF $(DEPDIR)/libluajittex_a-utils.Tpo -c -o libluajittex_a-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-utils.Tpo $(DEPDIR)/libluajittex_a-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='utils.c' object='libluajittex_a-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-
-libluajittex_a-utils.obj: utils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-utils.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-utils.Tpo -c -o libluajittex_a-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-utils.Tpo $(DEPDIR)/libluajittex_a-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='utils.c' object='libluajittex_a-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
-
-libluajittex_a-unistring.o: unistring.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-unistring.o -MD -MP -MF $(DEPDIR)/libluajittex_a-unistring.Tpo -c -o libluajittex_a-unistring.o `test -f 'unistring.c' || echo '$(srcdir)/'`unistring.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-unistring.Tpo $(DEPDIR)/libluajittex_a-unistring.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='unistring.c' object='libluajittex_a-unistring.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-unistring.o `test -f 'unistring.c' || echo '$(srcdir)/'`unistring.c
-
-libluajittex_a-unistring.obj: unistring.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluajittex_a-unistring.obj -MD -MP -MF $(DEPDIR)/libluajittex_a-unistring.Tpo -c -o libluajittex_a-unistring.obj `if test -f 'unistring.c'; then $(CYGPATH_W) 'unistring.c'; else $(CYGPATH_W) '$(srcdir)/unistring.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluajittex_a-unistring.Tpo $(DEPDIR)/libluajittex_a-unistring.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='unistring.c' object='libluajittex_a-unistring.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluajittex_a-unistring.obj `if test -f 'unistring.c'; then $(CYGPATH_W) 'unistring.c'; else $(CYGPATH_W) '$(srcdir)/unistring.c'; fi`
 
 luatexdir/luafilesystem/src/libluamisc_a-lfs.o: luatexdir/luafilesystem/src/lfs.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluamisc_a_CPPFLAGS) $(CPPFLAGS) $(libluamisc_a_CFLAGS) $(CFLAGS) -MT luatexdir/luafilesystem/src/libluamisc_a-lfs.o -MD -MP -MF luatexdir/luafilesystem/src/$(DEPDIR)/libluamisc_a-lfs.Tpo -c -o luatexdir/luafilesystem/src/libluamisc_a-lfs.o `test -f 'luatexdir/luafilesystem/src/lfs.c' || echo '$(srcdir)/'`luatexdir/luafilesystem/src/lfs.c
@@ -14625,6 +14675,62 @@ luatexdir/utils/libluatex_a-avl.obj: luatexdir/utils/avl.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluatex_a-avl.obj `if test -f 'luatexdir/utils/avl.c'; then $(CYGPATH_W) 'luatexdir/utils/avl.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avl.c'; fi`
 
+luatexdir/utils/libluatex_a-avlstuff.o: luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluatex_a-avlstuff.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluatex_a-avlstuff.Tpo -c -o luatexdir/utils/libluatex_a-avlstuff.o `test -f 'luatexdir/utils/avlstuff.c' || echo '$(srcdir)/'`luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluatex_a-avlstuff.Tpo luatexdir/utils/$(DEPDIR)/libluatex_a-avlstuff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/avlstuff.c' object='luatexdir/utils/libluatex_a-avlstuff.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluatex_a-avlstuff.o `test -f 'luatexdir/utils/avlstuff.c' || echo '$(srcdir)/'`luatexdir/utils/avlstuff.c
+
+luatexdir/utils/libluatex_a-avlstuff.obj: luatexdir/utils/avlstuff.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluatex_a-avlstuff.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluatex_a-avlstuff.Tpo -c -o luatexdir/utils/libluatex_a-avlstuff.obj `if test -f 'luatexdir/utils/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/utils/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avlstuff.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluatex_a-avlstuff.Tpo luatexdir/utils/$(DEPDIR)/libluatex_a-avlstuff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/avlstuff.c' object='luatexdir/utils/libluatex_a-avlstuff.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluatex_a-avlstuff.obj `if test -f 'luatexdir/utils/avlstuff.c'; then $(CYGPATH_W) 'luatexdir/utils/avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/avlstuff.c'; fi`
+
+luatexdir/utils/libluatex_a-managed-sa.o: luatexdir/utils/managed-sa.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluatex_a-managed-sa.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluatex_a-managed-sa.Tpo -c -o luatexdir/utils/libluatex_a-managed-sa.o `test -f 'luatexdir/utils/managed-sa.c' || echo '$(srcdir)/'`luatexdir/utils/managed-sa.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluatex_a-managed-sa.Tpo luatexdir/utils/$(DEPDIR)/libluatex_a-managed-sa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/managed-sa.c' object='luatexdir/utils/libluatex_a-managed-sa.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluatex_a-managed-sa.o `test -f 'luatexdir/utils/managed-sa.c' || echo '$(srcdir)/'`luatexdir/utils/managed-sa.c
+
+luatexdir/utils/libluatex_a-managed-sa.obj: luatexdir/utils/managed-sa.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluatex_a-managed-sa.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluatex_a-managed-sa.Tpo -c -o luatexdir/utils/libluatex_a-managed-sa.obj `if test -f 'luatexdir/utils/managed-sa.c'; then $(CYGPATH_W) 'luatexdir/utils/managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/managed-sa.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluatex_a-managed-sa.Tpo luatexdir/utils/$(DEPDIR)/libluatex_a-managed-sa.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/managed-sa.c' object='luatexdir/utils/libluatex_a-managed-sa.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluatex_a-managed-sa.obj `if test -f 'luatexdir/utils/managed-sa.c'; then $(CYGPATH_W) 'luatexdir/utils/managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/managed-sa.c'; fi`
+
+luatexdir/utils/libluatex_a-unistring.o: luatexdir/utils/unistring.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluatex_a-unistring.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluatex_a-unistring.Tpo -c -o luatexdir/utils/libluatex_a-unistring.o `test -f 'luatexdir/utils/unistring.c' || echo '$(srcdir)/'`luatexdir/utils/unistring.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluatex_a-unistring.Tpo luatexdir/utils/$(DEPDIR)/libluatex_a-unistring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/unistring.c' object='luatexdir/utils/libluatex_a-unistring.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluatex_a-unistring.o `test -f 'luatexdir/utils/unistring.c' || echo '$(srcdir)/'`luatexdir/utils/unistring.c
+
+luatexdir/utils/libluatex_a-unistring.obj: luatexdir/utils/unistring.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluatex_a-unistring.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluatex_a-unistring.Tpo -c -o luatexdir/utils/libluatex_a-unistring.obj `if test -f 'luatexdir/utils/unistring.c'; then $(CYGPATH_W) 'luatexdir/utils/unistring.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/unistring.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluatex_a-unistring.Tpo luatexdir/utils/$(DEPDIR)/libluatex_a-unistring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/unistring.c' object='luatexdir/utils/libluatex_a-unistring.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluatex_a-unistring.obj `if test -f 'luatexdir/utils/unistring.c'; then $(CYGPATH_W) 'luatexdir/utils/unistring.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/unistring.c'; fi`
+
+luatexdir/utils/libluatex_a-utils.o: luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluatex_a-utils.o -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluatex_a-utils.Tpo -c -o luatexdir/utils/libluatex_a-utils.o `test -f 'luatexdir/utils/utils.c' || echo '$(srcdir)/'`luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluatex_a-utils.Tpo luatexdir/utils/$(DEPDIR)/libluatex_a-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/utils.c' object='luatexdir/utils/libluatex_a-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluatex_a-utils.o `test -f 'luatexdir/utils/utils.c' || echo '$(srcdir)/'`luatexdir/utils/utils.c
+
+luatexdir/utils/libluatex_a-utils.obj: luatexdir/utils/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/utils/libluatex_a-utils.obj -MD -MP -MF luatexdir/utils/$(DEPDIR)/libluatex_a-utils.Tpo -c -o luatexdir/utils/libluatex_a-utils.obj `if test -f 'luatexdir/utils/utils.c'; then $(CYGPATH_W) 'luatexdir/utils/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/utils.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/utils/$(DEPDIR)/libluatex_a-utils.Tpo luatexdir/utils/$(DEPDIR)/libluatex_a-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/utils/utils.c' object='luatexdir/utils/libluatex_a-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/utils/libluatex_a-utils.obj `if test -f 'luatexdir/utils/utils.c'; then $(CYGPATH_W) 'luatexdir/utils/utils.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/utils/utils.c'; fi`
+
 synctexdir/libluatex_a-synctex.o: synctexdir/synctex.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT synctexdir/libluatex_a-synctex.o -MD -MP -MF synctexdir/$(DEPDIR)/libluatex_a-synctex.Tpo -c -o synctexdir/libluatex_a-synctex.o `test -f 'synctexdir/synctex.c' || echo '$(srcdir)/'`synctexdir/synctex.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) synctexdir/$(DEPDIR)/libluatex_a-synctex.Tpo synctexdir/$(DEPDIR)/libluatex_a-synctex.Po
@@ -15086,62 +15192,6 @@ libluatex_a-textoken.obj: textoken.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='textoken.c' object='libluatex_a-textoken.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-textoken.obj `if test -f 'textoken.c'; then $(CYGPATH_W) 'textoken.c'; else $(CYGPATH_W) '$(srcdir)/textoken.c'; fi`
-
-libluatex_a-avlstuff.o: avlstuff.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avlstuff.o -MD -MP -MF $(DEPDIR)/libluatex_a-avlstuff.Tpo -c -o libluatex_a-avlstuff.o `test -f 'avlstuff.c' || echo '$(srcdir)/'`avlstuff.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-avlstuff.Tpo $(DEPDIR)/libluatex_a-avlstuff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='avlstuff.c' object='libluatex_a-avlstuff.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avlstuff.o `test -f 'avlstuff.c' || echo '$(srcdir)/'`avlstuff.c
-
-libluatex_a-avlstuff.obj: avlstuff.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-avlstuff.obj -MD -MP -MF $(DEPDIR)/libluatex_a-avlstuff.Tpo -c -o libluatex_a-avlstuff.obj `if test -f 'avlstuff.c'; then $(CYGPATH_W) 'avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/avlstuff.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-avlstuff.Tpo $(DEPDIR)/libluatex_a-avlstuff.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='avlstuff.c' object='libluatex_a-avlstuff.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-avlstuff.obj `if test -f 'avlstuff.c'; then $(CYGPATH_W) 'avlstuff.c'; else $(CYGPATH_W) '$(srcdir)/avlstuff.c'; fi`
-
-libluatex_a-managed-sa.o: managed-sa.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-managed-sa.o -MD -MP -MF $(DEPDIR)/libluatex_a-managed-sa.Tpo -c -o libluatex_a-managed-sa.o `test -f 'managed-sa.c' || echo '$(srcdir)/'`managed-sa.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-managed-sa.Tpo $(DEPDIR)/libluatex_a-managed-sa.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='managed-sa.c' object='libluatex_a-managed-sa.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-managed-sa.o `test -f 'managed-sa.c' || echo '$(srcdir)/'`managed-sa.c
-
-libluatex_a-managed-sa.obj: managed-sa.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-managed-sa.obj -MD -MP -MF $(DEPDIR)/libluatex_a-managed-sa.Tpo -c -o libluatex_a-managed-sa.obj `if test -f 'managed-sa.c'; then $(CYGPATH_W) 'managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/managed-sa.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-managed-sa.Tpo $(DEPDIR)/libluatex_a-managed-sa.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='managed-sa.c' object='libluatex_a-managed-sa.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-managed-sa.obj `if test -f 'managed-sa.c'; then $(CYGPATH_W) 'managed-sa.c'; else $(CYGPATH_W) '$(srcdir)/managed-sa.c'; fi`
-
-libluatex_a-utils.o: utils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-utils.o -MD -MP -MF $(DEPDIR)/libluatex_a-utils.Tpo -c -o libluatex_a-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-utils.Tpo $(DEPDIR)/libluatex_a-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='utils.c' object='libluatex_a-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-utils.o `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-
-libluatex_a-utils.obj: utils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-utils.obj -MD -MP -MF $(DEPDIR)/libluatex_a-utils.Tpo -c -o libluatex_a-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-utils.Tpo $(DEPDIR)/libluatex_a-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='utils.c' object='libluatex_a-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-utils.obj `if test -f 'utils.c'; then $(CYGPATH_W) 'utils.c'; else $(CYGPATH_W) '$(srcdir)/utils.c'; fi`
-
-libluatex_a-unistring.o: unistring.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-unistring.o -MD -MP -MF $(DEPDIR)/libluatex_a-unistring.Tpo -c -o libluatex_a-unistring.o `test -f 'unistring.c' || echo '$(srcdir)/'`unistring.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-unistring.Tpo $(DEPDIR)/libluatex_a-unistring.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='unistring.c' object='libluatex_a-unistring.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-unistring.o `test -f 'unistring.c' || echo '$(srcdir)/'`unistring.c
-
-libluatex_a-unistring.obj: unistring.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libluatex_a-unistring.obj -MD -MP -MF $(DEPDIR)/libluatex_a-unistring.Tpo -c -o libluatex_a-unistring.obj `if test -f 'unistring.c'; then $(CYGPATH_W) 'unistring.c'; else $(CYGPATH_W) '$(srcdir)/unistring.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libluatex_a-unistring.Tpo $(DEPDIR)/libluatex_a-unistring.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='unistring.c' object='libluatex_a-unistring.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libluatex_a-unistring.obj `if test -f 'unistring.c'; then $(CYGPATH_W) 'unistring.c'; else $(CYGPATH_W) '$(srcdir)/unistring.c'; fi`
 
 libmd5/libmd5_a-md5.o: libmd5/md5.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmd5_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmd5/libmd5_a-md5.o -MD -MP -MF libmd5/$(DEPDIR)/libmd5_a-md5.Tpo -c -o libmd5/libmd5_a-md5.o `test -f 'libmd5/md5.c' || echo '$(srcdir)/'`libmd5/md5.c
@@ -19810,15 +19860,6 @@ texnodes.c: ctangle$(EXEEXT) luatexdir/tex/texnodes.w
 #	$(luatex_tex_ctangle) textcodes.w
 textoken.c: ctangle$(EXEEXT) luatexdir/tex/textoken.w
 	$(luatex_tex_ctangle) textoken.w
-
-avlstuff.c: ctangle$(EXEEXT) luatexdir/utils/avlstuff.w
-	$(luatex_utils_ctangle) avlstuff.w
-managed-sa.c: ctangle$(EXEEXT) luatexdir/utils/managed-sa.w
-	$(luatex_utils_ctangle) managed-sa.w
-utils.c: ctangle$(EXEEXT) luatexdir/utils/utils.w
-	$(luatex_utils_ctangle) utils.w
-unistring.c: ctangle$(EXEEXT) luatexdir/utils/unistring.w
-	$(luatex_utils_ctangle) unistring.w
 
 #libluaffi_a_DEPENDENCIES = $(ZLIB_DEPEND)
 

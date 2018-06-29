@@ -578,18 +578,18 @@ dist_libluatex_sources += \
 ##
 luatex_utils_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/utils $(ctangle)
 
-avlstuff.c: ctangle$(EXEEXT) luatexdir/utils/avlstuff.w
-	$(luatex_utils_ctangle) avlstuff.w
-managed-sa.c: ctangle$(EXEEXT) luatexdir/utils/managed-sa.w
-	$(luatex_utils_ctangle) managed-sa.w
-utils.c: ctangle$(EXEEXT) luatexdir/utils/utils.w
-	$(luatex_utils_ctangle) utils.w
-unistring.c: ctangle$(EXEEXT) luatexdir/utils/unistring.w
-	$(luatex_utils_ctangle) unistring.w
+#avlstuff.c: ctangle$(EXEEXT) luatexdir/utils/avlstuff.w
+#	$(luatex_utils_ctangle) avlstuff.w
+#managed-sa.c: ctangle$(EXEEXT) luatexdir/utils/managed-sa.w
+#	$(luatex_utils_ctangle) managed-sa.w
+#utils.c: ctangle$(EXEEXT) luatexdir/utils/utils.w
+#	$(luatex_utils_ctangle) utils.w
+#unistring.c: ctangle$(EXEEXT) luatexdir/utils/unistring.w
+#	$(luatex_utils_ctangle) unistring.w
 
-libluatex_web += luatexdir/utils/avlstuff.w luatexdir/utils/managed-sa.w luatexdir/utils/utils.w luatexdir/utils/unistring.w
+#libluatex_web += luatexdir/utils/avlstuff.w luatexdir/utils/managed-sa.w luatexdir/utils/utils.w luatexdir/utils/unistring.w
 
-nodist_libluatex_sources += avlstuff.c managed-sa.c utils.c unistring.c
+#nodist_libluatex_sources += avlstuff.c managed-sa.c utils.c unistring.c
 
 dist_libluatex_sources += \
 	luatexdir/utils/avl.c \
@@ -597,7 +597,11 @@ dist_libluatex_sources += \
 	luatexdir/utils/avlstuff.h \
 	luatexdir/utils/managed-sa.h \
 	luatexdir/utils/utils.h \
-	luatexdir/utils/unistring.h
+	luatexdir/utils/unistring.h \
+	luatexdir/utils/avlstuff.c \
+	luatexdir/utils/managed-sa.c \
+	luatexdir/utils/unistring.c \
+	luatexdir/utils/utils.c
 
 ## from ../synctexdir
 ##
