@@ -50,6 +50,16 @@
 
 */
 
+#define ppobj_get_bool_value(o) \
+    ((o)->type == PPBOOL ? ((o)->integer != 0) : 0)
+
+#define ppobj_get_int_value(o) \
+    ((o)->type == PPINT  ? (o)->integer : 0)
+
+#define ppobj_get_num_value(o) \
+    ((o)->type == PPNUM  ? (o)->number : \
+    ((o)->type == PPINT  ? (ppnum) (o)->integer : 0))
+
 #define PDFE_METATABLE            "luatex.pdfe"
 #define PDFE_METATABLE_DICTIONARY "luatex.pdfe.dictionary"
 #define PDFE_METATABLE_ARRAY      "luatex.pdfe.array"
@@ -383,41 +393,25 @@ static int pushvalue(lua_State * L, ppobj *object)
             return 1;
             break;
         case PPBOOL:
-            {
-                int b;
-                ppobj_get_bool(object,b);
-                lua_pushboolean(L,b);
-                return 1;
-            }
+            lua_pushboolean(L,ppobj_get_bool_value(object));
+            return 1;
             break;
         case PPINT:
-            {
-                ppint i;
-                ppobj_get_int(object,i);
-                lua_pushinteger(L, i);
-                return 1;
-            }
+            lua_pushinteger(L, ppobj_get_int_value(object));
+            return 1;
             break;
         case PPNUM:
-            {
-                ppnum n;
-                ppobj_get_num(object,n);
-                lua_pushnumber(L, n);
-                return 1;
-            }
+            lua_pushnumber(L, ppobj_get_num_value(object));
+            return 1;
             break;
         case PPNAME:
-            {
-                ppname name = ppobj_get_name(object);
-                lua_pushstring(L, (const char *) ppname_decoded(name));
-                return 1;
-            }
+            lua_pushstring(L, (const char *) ppname_decoded(ppobj_get_name(object)));
+            return 1;
             break;
         case PPSTRING:
             {
                 ppstring str = ppobj_get_string(object);
-                size_t n = ppstring_size(str);
-                lua_pushlstring(L,(const char *) str, n);
+                lua_pushlstring(L,(const char *) str, ppstring_size(str));
                 lua_pushboolean(L, ppstring_hex(str));
                 return 2;
             }
@@ -1404,37 +1398,21 @@ static int pdfelib_pushvalue(lua_State * L, ppobj *object)
             lua_pushnil(L);
             break;
         case PPBOOL:
-            {
-                int b;
-                ppobj_get_bool(object,b);
-                lua_pushboolean(L,b);
-            }
+            lua_pushboolean(L,ppobj_get_bool_value(object));
             break;
         case PPINT:
-            {
-                ppint i;
-                ppobj_get_int(object,i);
-                lua_pushinteger(L, i);
-            }
+            lua_pushinteger(L, ppobj_get_int_value(object));
             break;
         case PPNUM:
-            {
-                ppnum n;
-                ppobj_get_num(object,n);
-                lua_pushnumber(L, n);
-            }
+            lua_pushnumber(L, ppobj_get_num_value(object));
             break;
         case PPNAME:
-            {
-                ppname name = ppobj_get_name(object);
-                lua_pushstring(L, (const char *) ppname_decoded(name));
-            }
+            lua_pushstring(L, (const char *) ppname_decoded(ppobj_get_name(object)));
             break;
         case PPSTRING:
             {
                 ppstring str = ppobj_get_string(object);
-                size_t n = ppstring_size(str);
-                lua_pushlstring(L,(const char *) str, n);
+                lua_pushlstring(L,(const char *) str, ppstring_size(str));
             }
             break;
         case PPARRAY:

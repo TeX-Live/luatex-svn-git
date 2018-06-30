@@ -448,6 +448,16 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
     }
 }
 
+#define ppobj_get_bool_value(o) \
+    ((o)->type == PPBOOL ? ((o)->integer != 0) : 0)
+
+#define ppobj_get_int_value(o) \
+    ((o)->type == PPINT  ? (o)->integer : 0)
+
+#define ppobj_get_num_value(o) \
+    ((o)->type == PPNUM  ? (o)->number : \
+    ((o)->type == PPINT  ? (ppnum) (o)->integer : 0))
+
 static void copyObject(PDF pdf, PdfDocument * pdf_doc, ppobj * obj)
 {
     switch (obj->type) {
@@ -455,25 +465,13 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, ppobj * obj)
             pdf_add_null(pdf);
             break;
         case PPBOOL:
-            {
-                int b;
-                ppobj_get_bool(obj,b);
-                pdf_add_bool(pdf,b);
-            }
+            pdf_add_bool(pdf,ppobj_get_bool_value(obj));
             break;
         case PPINT:
-            {
-                ppint i;
-                ppobj_get_int(obj,i);
-                pdf_add_int(pdf, i);
-            }
+            pdf_add_int(pdf,ppobj_get_int_value(obj));
             break;
         case PPNUM:
-            {
-                ppnum n;
-                ppobj_get_num(obj,n);
-                pdf_add_real(pdf, n);
-            }
+            pdf_add_real(pdf,ppobj_get_num_value(obj));
             break;
         case PPNAME:
             pdf_add_name(pdf, (const char *) ppobj_get_name(obj));
