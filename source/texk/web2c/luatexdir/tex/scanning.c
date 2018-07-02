@@ -402,6 +402,7 @@ static boolean short_scan_something_internal(int cmd, int chr, int level, boolea
                                 case font_char_ic_code:
                                     cur_val = char_italic(q, cur_val);
                                     break;
+				}
                             } else {
                                 cur_val = 0;
                             }
