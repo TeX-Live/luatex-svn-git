@@ -462,15 +462,7 @@ int tt_get_metrics(sfnt * sfont, struct tt_glyphs *g)
     ULONG *location, offset;
     long i;
     USHORT *w_stat;
-    if (sfont == NULL ||
-#ifdef XETEX
-        sfont->ft_face == NULL
-#elif defined(pdfTeX)
-        sfont->buffer == NULL
-#else
-        sfont->stream == NULL
-#endif
-        )
+    if (sfont == NULL || sfont->buffer == NULL)
         normal_error("ttf","file not opened");
     if (sfont->type != SFNT_TYPE_TRUETYPE && sfont->type != SFNT_TYPE_TTC)
         normal_error("ttf","invalid font type");

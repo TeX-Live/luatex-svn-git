@@ -47,7 +47,7 @@ The organization of the source code is adapted so that it can glue all these
 components together. We continue cleaning up side effects of the accumulated
 code in \TEX\ engines (especially code that is not needed any longer).
 
-\startitemize % [packed]
+\startitemize [unpacked]
     \startitem
         We started out with most of \PDFTEX\ version 1.40.9. The code base was
         converted to \CCODE\ and split in modules. Experimental features were
@@ -108,29 +108,43 @@ code in \TEX\ engines (especially code that is not needed any longer).
         means that a complete \TEX\ workflow can be built without the need for
         additional programs.
     \stopitem
+    \startitem
+        The versions starting from 1.09 no longer use the poppler library for
+        inclusion but a lightweight dedicated one. This removes a dependency but
+        also makes the inclusion code of \LUATEX\ different from \PDFTEX. In fact
+        it was already much different due to the \LUA\ image interfacing.
+    \stopitem
 \stopitemize
 
 We try to keep upcoming versions compatible but intermediate releases can contain
 experimental features. A general rule is that versions that end up on \TEXLIVE\
-and|/|or are released around \CONTEXT\ meetings are stable. Future versions will
-probably become a bit leaner and meaner. Some libraries might become external as
-we don't want to bloat the binary and also don't want to add more hard coded
-solutions. After all, with \LUA\ you can extend the core functionality. The less
-dependencies, the better.
+and|/|or are released around \CONTEXT\ meetings are stable. Any version between
+the yearly \TEXLIVE\ releases are to be considered beta and in the repository end
+up as trunk releases. We have an experimental branch that we use for development
+but there is no support for any of its experimental features. Intermediate
+releases (from trunk) are normally available via the \CONTEXT\ distribution
+channels (the garden and so called minimals).
+
+Future versions will probably become a bit leaner and meaner. Some libraries
+might become external as we don't want to bloat the binary and also don't want to
+add more hard coded solutions. After all, with \LUA\ you can extend the core
+functionality. The less dependencies, the better.
 
 You might find \LUA\ helpers that are not yet documented. These are considered
 experimental, although when you encounter them in a \CONTEXT\ version that has
 been around for a while you can assume that they will stay. Of course it can just
 be that we forgot to document them yet.
 
-The \TEXLIVE\ version is to be considered the current stable version. Any version
-between the yearly \TEXLIVE\ releases are to be considered beta and in the
-repository end up as trunk releases. We have an experimental branch that we use
-for development but there is no support for any of its experimental features.
-Intermediate releases (from trunk) are normally available via the \CONTEXT\
-distribution channels (the garden and so called minimals).
+A manual like this is not really meant as tutorial, for that we refer to
+documents that ship with \CONTEXT, articles, etc. It is also never complete
+enough for all readers. We try to keep up but the reader needs to realize that
+it's all volunteer work done in spare time. And for sure, complaining about a bad
+manual or crappy documentation will not really motivate us to spend more time on
+it. That being said, we hope that this document is useful.
 
 \blank[big]
+
+\testpage[5]
 
 \startlines
 Hans Hagen

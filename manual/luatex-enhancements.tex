@@ -9,9 +9,9 @@
 \section{Introduction}
 
 From day one, \LUATEX\ has offered extra features compared to the superset of
-\PDFTEX\ and \ALEPH. This has not been limited to the possibility to execute
-\LUA\ code via \prm {directlua}, but \LUATEX\ also adds functionality via new
-\TEX|-|side primitives or extensions to existing ones.
+\PDFTEX, which includes \ETEX, and \ALEPH. This has not been limited to the
+possibility to execute \LUA\ code via \prm {directlua}, but \LUATEX\ also adds
+functionality via new \TEX|-|side primitives or extensions to existing ones.
 
 When \LUATEX\ starts up in \quote {iniluatex} mode (\type {luatex -ini}), it
 defines only the primitive commands known by \TEX82 and the one extra command
@@ -39,9 +39,9 @@ assumes that you have executed the \prm {directlua} command as given above.
 
 The startup behaviour documented above is considered stable in the sense that
 there will not be backward|-|incompatible changes any more. We have promoted some
-rather generic \PDFTEX\ primitives to core \LUATEX\ ones, and the ones inherited
-from \ALEPH\ (\OMEGA) are also promoted. Effectively this means that we now only
-have the \type {tex}, \type {etex} and \type {luatex} sets left.
+rather generic \PDFTEX\ primitives to core \LUATEX\ ones, and the few that we
+inherited from \ALEPH\ (\OMEGA) are also promoted. Effectively this means that we
+now only have the \type {tex}, \type {etex} and \type {luatex} sets left.
 
 In \in {Chapter} [modifications] we discuss several primitives that are derived
 from \PDFTEX\ and \ALEPH\ (\OMEGA). Here we stick to real new ones. In the
@@ -133,7 +133,8 @@ As far as the core engine is concerned, all input and output to text files is
 \UTF-8 encoded. Input files can be pre|-|processed using the \type {reader}
 callback. This will be explained in \in {section} [iocallback]. Normalization of
 the \UNICODE\ input is on purpose not built|-|in and can be handled by a macro
-package during callback processing.
+package during callback processing. We have made some practical choices and the
+user has to live with those.
 
 Output in byte|-|sized chunks can be achieved by using characters just outside of
 the valid \UNICODE\ range, starting at the value $1{,}114{,}112$ (0x110000). When
@@ -188,7 +189,9 @@ commands are:
 
 Because font memory management has been rewritten, character properties in fonts
 are no longer shared among font instances that originate from the same metric
-file.
+file. Of course we share fonts in the backend when possible so that the resulting
+\PDF\ file is as efficient as possible, but for instance also expansion and
+protrusion no longer use copies as in \PDFTEX.
 
 \section{Attributes}
 
@@ -220,7 +223,11 @@ attached to all nodes created in their scope. These can then be queried from any
 attributes for node list processing from \LUA\ is given in~\in {chapter}[nodes].
 
 Attributes are stored in a sorted (sparse) linked list that are shared when
-possible. This permits efficient testing and updating.
+possible. This permits efficient testing and updating. You can define many
+thousands of attributes but normally such a large number makes no sense and is
+also not that efficient because each node carries a (possibly shared) link to a
+list of currently set attributes. But they are a convenient extension and one of
+the first extensions we implemented in \LUATEX.
 
 \subsection{Nodes}
 
@@ -508,7 +515,10 @@ instance in an \prm {edef}. In addition \LUATEX\ provides a definer:
 \protected\global\luadef\MyFunctionC 3
 \stoptyping
 
-
+You should really use these commands with care. Some references get stored in
+tokens and assume that the function is available when that token expands. On the
+other hand, as we have tested this functionality in relative complex situations
+normal usage should not give problems.
 
 \subsection{\lpr {luabytecode} and \lpr {luabytecodecall}}
 
@@ -1038,9 +1048,10 @@ The \lpr {outputmode} variable tells \LUATEX\ what it has to produce:
 
 \subsection{\lpr {draftmode}}
 
-The value of the \lpr {draftmode} counter signals the backend if it should
-output less. The \PDF\ backend accepts a value of~1, while the \DVI\ backend
-ignores the value.
+The value of the \lpr {draftmode} counter signals the backend if it should output
+less. The \PDF\ backend accepts a value of~1, while the \DVI\ backend ignores the
+value. This is no critical feature so we can remove it in future versions when it
+can make the backend cleaner.
 
 \section {Files}
 

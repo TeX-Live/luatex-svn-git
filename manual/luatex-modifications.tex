@@ -1,4 +1,4 @@
-4% language=uk
+% language=uk
 
 \environment luatex-style
 
@@ -1177,6 +1177,30 @@ this. In \in {figure} [fig:shapemode] a few examples are given.
          \egroup} {TRT: parshape mode 2 & 3}
     \stopcombination
 \stopplacefigure
+
+Internally the implementation is different from \ALEPH. First of all we use no
+whatsits but dedicated nodes, but also we have only 4 directions that are mapped
+onto 4 numbers. A text direction node can mark the start or end of a sequence of
+nodes, and therefore has two states. At the \TEX\ end we don't see these states
+because \TEX\ itself will add proper end state nodes if needed.
+
+The symbolic names \type {TLT}, \type {TRT}, etc.\ originate in \OMEGA. In
+\LUATEX\ we also have a number based model which sometimes makes more sense.
+
+\starttabulate[|c|l|l|]
+\DB value    \BC equivalent \NC \NR
+\TB
+\BC \type {0} \NC  TLT \NC \NR
+\BC \type {1} \NC  TRT \NC \NR
+\BC \type {2} \NC  LTL \NC \NR
+\BC \type {3} \NC  RTT \NC \NR
+\LL
+\stoptabulate
+
+The primitives that set the direction by number are: \lpr {textdirection}, \lpr
+{pardirection}, \lpr {pagedirection} and \lpr {bodydirection} and \lpr
+{mathdirection}. When specifying a direction for a box you can use \type {bdir}
+instead of \type {dir}.
 
 \stopsection
 
