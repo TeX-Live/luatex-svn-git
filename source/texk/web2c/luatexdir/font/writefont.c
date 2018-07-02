@@ -241,6 +241,11 @@ void register_fd_entry(fd_entry * fd)
         fd_tree = avl_create(comp_fd_entry, NULL, &avl_xallocator);
     }
     /*tex The font descriptor is not yet registered: */
+	if (lookup_fd_entry(fd->fm->ff_name) == NULL) {
+        /*tex Is this a problem? */
+    } else {
+        /*tex The lookup also can create */
+    }
     aa = avl_probe(fd_tree, fd);
     if (aa == NULL) {
         /*tex Is this a problem? */
