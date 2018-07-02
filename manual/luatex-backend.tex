@@ -402,6 +402,10 @@ pdf.setfontattributes(<number> font id, <string> pdf code)
 
 \section{The \type {pdfe} library}
 
+\subsection{Introduction}
+
+\topicindex{\PDF+objects}
+
 \topicindex{\PDF+analyze}
 \topicindex{\PDF+\type{pdfe}}
 
@@ -434,7 +438,9 @@ called userdata \LUA\ objects.
 The regular getters return these \LUA\ data types but one can also get more
 detailed information.
 
-A document is laded from a file or string
+\subsection {\type {open}, \type {new}, \type {status}, \type {close}, \type {unencrypt}}
+
+A document is loaded from a file or string
 
 \starttyping
 <pdfe document> = pdfe.open(filename)
@@ -472,6 +478,8 @@ either password you can give \type {nil}:
 pdfe.unencrypt(<pdfe document>,userpassword,ownerpassword)
 \stoptyping
 
+\subsection {\type {size}, \type {version}, \type {nofobjects}, \type {nofpages}}
+
 A successfully opened document can provide some information:
 
 \starttyping
@@ -481,6 +489,8 @@ n = nofobjects(<pdfe document>)
 n = nofpages(<pdfe document>)
 bytes, waste = nofpages(<pdfe document>)
 \stoptyping
+
+\subsection {\type {get[catalog|trailer|info}}
 
 For accessing the document structure you start with the so called catalog, a
 dictionary:
@@ -495,6 +505,8 @@ The other two root dictionaries are accessed with:
 <pdfe dictionary> = pdfe.gettrailer(<pdfe document>)
 <pdfe dictionary> = pdfe.getinfo(<pdfe document>)
 \stoptyping
+
+\subsection {\type {getpage}, \type {getbox}}
 
 A specific page can conveniently be reached with the next command, which
 returns a dictionary.
@@ -511,6 +523,8 @@ is \type {MediaBox}.
 pages = pdfe.getbox(<pdfe document>,boxname)
 \stoptyping
 
+\subsection {\type {get[string|integer|number|boolean|string]}}
+
 Common values in dictionaries and arrays are strings, integers, floats, booleans
 and names (which are also strings) and these are also normal \LUA\ objects:
 
@@ -521,6 +535,8 @@ n = getnumber (<pdfe array|dictionary>,index|key)
 b = getboolean(<pdfe array|dictionary>,index|key)
 n = getname   (<pdfe array|dictionary>,index|key)
 \stoptyping
+
+\subsection {\type {get[from][dictionary|array|stream]}}
 
 Normally you will use an index in an array and key in a dictionary but dictionaries
 also accept an index. The size of an array or dictionary is available with the
@@ -601,6 +617,8 @@ type, value, detail = getfromarray(<pdfe array>,index)
 A \type {hex} string is (in the \PDF\ file) surrounded by \type {<>} while plain
 strings are bounded by \type {<>}.
 
+\subsection {\type {[dictionary|array]totable}}
+
 All entries in a dictionary or table can be fetched with the following commands
 where the return values are a hashed or indexed table.
 
@@ -615,6 +633,8 @@ You can get a list of pages with:
 { { <pdfe dictionary>, size, objnum }, ... } = pagestotable(<pdfe document>)
 \stoptyping
 
+\subsection {\type {getfromreference}}
+
 Because you can have unresolved references, a reference object can be resolved
 with:
 
@@ -622,9 +642,11 @@ with:
 <pdfe dictionary|array|stream> = getfromreference(<pdfe reference>)
 \stoptyping
 
+\section {Memory streams}
+
 \topicindex{\PDF+memory streams}
 
-There is an experimental function \type {pdfe.new} that takes three arguments:
+The \type {pdfe.new} that takes three arguments:
 
 \starttabulate
 \DB value           \BC explanation      \NC \NR

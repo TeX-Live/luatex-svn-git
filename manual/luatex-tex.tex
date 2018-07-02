@@ -8,7 +8,7 @@
 
 \section{The \type {lua} library}
 
-\subsection{\LUA\ version}
+\subsection{Version information}
 
 \topicindex{libraries+\type{lua}}
 \topicindex{version}
@@ -22,7 +22,7 @@ This library contains one read|-|only item:
 This returns the \LUA\ version identifier string. The value is currently
 \directlua {tex.print(lua.version)}.
 
-\subsection{\LUA\ bytecode registers}
+\subsection{Bytecode registers}
 
 \topicindex{bytecodes}
 \topicindex{registers+bytecodes}
@@ -66,9 +66,7 @@ used in \INITEX. If it contains private information, i.e. the user name, this
 information is then contained in the format file as well. This should be kept in
 mind when preloading files into a bytecode register in \INITEX.
 
-
-
-\subsection{\LUA\ chunk name registers}
+\subsection{Chunk name registers}
 
 There is an array of 65536 (0--65535) potential chunk names for use with the
 \prm {directlua} and \lpr {latelua} primitives.

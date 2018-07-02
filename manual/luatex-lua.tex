@@ -4,11 +4,11 @@
 
 \startcomponent luatex-lua
 
-\startchapter[reference=lua,title={\LUA\ general}]
+\startchapter[reference=lua,title={Using \LUATEX}]
 
-\section[init]{Initialization}
+\startsection[title={Initialization},reference=init]
 
-\subsection{\LUATEX\ as a \LUA\ interpreter}
+\startsubsection[title={\LUATEX\ as a \LUA\ interpreter}]
 
 \topicindex {initialization}
 \topicindex {\LUA+interpreter}
@@ -37,7 +37,9 @@ positive values, just like the \LUA\ interpreter.
 in effect, a somewhat bulky stand alone \LUA\ interpreter with a bunch of extra
 preloaded libraries.
 
-\subsection{\LUATEX\ as a \LUA\ byte compiler}
+\stopsubsection
+
+\startsubsection[title={\LUATEX\ as a \LUA\ byte compiler}]
 
 \topicindex {\LUA+byte code}
 
@@ -54,7 +56,9 @@ accepts (but ignores) the \type {--luaconly} switch. The current version of \LUA
 can dump bytecode using \type {string.dump} so we might decide to drop this
 version of \LUATEX.
 
-\subsection{Other commandline processing}
+\stopsubsection
+
+\startsubsection[title={Other commandline processing}]
 
 \topicindex {command line}
 
@@ -240,10 +244,22 @@ finished: in order to initialize the built|-|in \KPATHSEA\ library properly,
 check \type {--progname}, or \type {--ini} and \type {--fmt}, if \type
 {--progname} is missing.
 
-\section{\LUA\ behaviour}
+\stopsubsection
+
+\stopsection
+
+\startsection{\LUA\ behaviour}
+
+\startsubsection[title={The \LUA\ version}]
 
 \topicindex {\LUA+libraries}
 \topicindex {\LUA+extensions}
+
+We currently use \LUA\ 5.3 and will follow developments of the language but
+normally with some delay. Therefore the user needs to keep an eye on (subtle)
+differences in successive versions of the language. Also, \LUAJITTEX\ lags behind
+in the sense that \LUAJIT\ is not in sync with regular \LUA\ development. Here is
+an example of one aspect.
 
 \LUA s \type {tostring} function (and \type {string.format} may return values in
 scientific notation, thereby confusing the \TEX\ end of things when it is used as
@@ -251,6 +267,11 @@ the right|-|hand side of an assignment to a \prm {dimen} or \prm {count}. The
 output of these serializers also depend on the \LUA\ version, so in \LUA\ 5.3 you
 can get different output than from 5.2.
 
+\stopsubsection
+
+\startsubsection[title={Integration in the \TDS\ ecosystem}]
+
+The main \TEX\ distributions follow the \TEX\ directory structure (\TDS).
 \LUATEX\ is able to use the kpathsea library to find \type {require()}d modules.
 For this purpose, \type {package.searchers[2]} is replaced by a different loader
 function, that decides at runtime whether to use kpathsea or the built|-|in core
@@ -260,6 +281,10 @@ in time, otherwise it reverts to using the normal \type {package.path} loader.
 Initialization of \KPATHSEA\ can happen either implicitly (when \LUATEX\ starts
 up and the startup script has not set \type {texconfig.kpse_init} to false), or
 explicitly by calling the \LUA\ function \type {kpse.set_program_name()}.
+
+\stopsubsection
+
+\startsubsection[title={Loading libraries}]
 
 \LUATEX\ is able to use dynamically loadable \LUA\ libraries, unless
 \type {--safer} was given as an option on the command line. For this purpose,
@@ -290,6 +315,10 @@ at the same time (which will typically happen on \type {win32}, because there is
 one \LUA\ 5.3 inside \LUATEX, and another will likely be linked to the \DLL\ file
 of the module itself).
 
+\stopsubsection
+
+\startsubsection[title={Executing programs}]
+
 In keeping with the other \TEX|-|like programs in \TEXLIVE, the two \LUA\ functions
 \type {os.execute} and \type {io.popen}, as well as the two new functions \type
 {os.exec} and \type {os.spawn} that are explained below, take the value of \type
@@ -313,6 +342,10 @@ platforms. Finally, for non|-|\type {win32} platforms only, we provided \type
 name. However, the \type library evolved so we have dropped these in favour of
 pure \LUA\ variants. The \type {shortname} helper is obsolete and now just
 returns the name.
+
+\stopsubsection
+
+\startsubsection[title={Multibyte \type {string} functions}]
 
 The \type {string} library has a few extra functions like \type
 {string.explode(s[,m])}. This function returns an array containing the string
@@ -392,7 +425,9 @@ These three functions are relative fast and don't do much checking. They can be 
 as building blocks for other helpers. So, eventually we can decide to drop the
 \type {sln} library, just that you know.
 
-\blank
+\stopsubsection
+
+\startsubsection[title={Extra \type {os} library functions}]
 
 The \type {os} library has a few extra functions and variables:
 
@@ -524,6 +559,10 @@ The \type {os} library has a few extra functions and variables:
 
 \stopitemize
 
+\stopsubsection
+
+\startsubsection[title={Locales}]
+
 In stock \LUA, many things depend on the current locale. In \LUATEX, we can't do
 that, because it makes documents unportable.  While \LUATEX\ is running if
 forces the following locale settings:
@@ -534,7 +573,11 @@ LC_COLLATE=C
 LC_NUMERIC=C
 \stoptyping
 
-\section {\LUA\ modules}
+\stopsubsection
+
+\stopsection
+
+\startsection[title={\LUA\ modules}]
 
 \topicindex {\LUA+libraries}
 \topicindex {\LUA+modules}
@@ -597,7 +640,9 @@ Some modules that are normally external to \LUA\ are statically linked in with
 
 \stopitemize
 
-\section{Testing}
+\stopsection
+
+\startsection[title={Testing}]
 
 \topicindex {testing}
 \topicindex {\PDF+date}
@@ -632,6 +677,8 @@ complementary entry \type {use_utc_time} in the \type {texconfig} table.
 There is some control possible, for instance prevent filename to be written to
 the \PDF\ file. This is discussed elsewhere. In \CONTEXT\ we provide the command
 line argument \type {--nodates} that does a bit more disabling of dates.
+
+\stopsection
 
 \stopchapter
 

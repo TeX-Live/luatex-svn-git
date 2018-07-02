@@ -281,7 +281,7 @@ local fields = fontloader.fields(f.glyphs[0])
 
 \section{Table types}
 
-\subsection{Top-level}
+\subsection{The main table}
 
 The top|-|level keys in the returned table are (the explanations in this part of
 the documentation are not yet finished):
@@ -367,7 +367,7 @@ the documentation are not yet finished):
 \LL
 \stoptabulate
 
-\subsection{Glyph items}
+\subsection{\type {glyphs}}
 
 The \type {glyphs} is an array containing the per|-|character
 information (quite a few of these are only present if non|-|zero).
@@ -532,7 +532,7 @@ For clarification, an anchor table could for example look like this :
 
 Note: The \type {baselig} table can be sparse!
 
-\subsection{map table}
+\subsection{\type {map}}
 
 The top|-|level map is a list of encoding mappings. Each of those is a table
 itself.
@@ -592,12 +592,12 @@ The \type {enc} table is a bit more verbose:
 \LL
 \stoptabulate
 
-\subsection{private table}
+\subsection{\type {private}}
 
 This is the font's private \POSTSCRIPT\ dictionary, if any. Keys and values are
 both strings.
 
-\subsection{cidinfo table}
+\subsection{\type {cidinfo}}
 
 \starttabulate[|l|l|p|]
 \DB key               \BC type   \BC explanation \NC \NR
@@ -609,7 +609,7 @@ both strings.
 \LL
 \stoptabulate
 
-\subsection[fontloaderpfminfotable]{pfminfo table}
+\subsection[fontloaderpfminfotable]{\type {pfminfo}}
 
 The \type {pfminfo} table contains most of the OS/2 information:
 
@@ -688,7 +688,7 @@ The \type {panose} subtable has exactly 10 string keys:
 \LL
 \stoptabulate
 
-\subsection[fontloadernamestable]{names table}
+\subsection[fontloadernamestable]{\type {names}}
 
 Each item has two top|-|level keys:
 
@@ -709,7 +709,7 @@ are: \type {copyright}, \type {family}, \type {subfamily}, \type {uniqueid},
 {sampletext}, \type {cidfindfontname}, \type {wwsfamily} and \type
 {wwssubfamily}.
 
-\subsection{anchor_classes table}
+\subsection{\type {anchor_classes}}
 
 The anchor_classes classes:
 
@@ -725,7 +725,7 @@ The anchor_classes classes:
 % type is actually a lookup subtype, not a feature name. Officially, these
 % strings should be gpos_mark2mark etc.
 
-\subsection{gpos table}
+\subsection{\type {gpos}}
 
 The \type {gpos} table has one array entry for each lookup. (The \type {gpos_}
 prefix is somewhat redundant.)
@@ -806,7 +806,7 @@ Note: the kernclass (as far as we can see) always has one entry so it could be o
 deep instead. Also the seconds start at \type {[2]} which is close to the fontforge
 internals so we keep that too.
 
-\subsection{gsub table}
+\subsection{\type {gsub}}
 
 This has identical layout to the \type {gpos} table, except for the
 type:
@@ -821,7 +821,7 @@ type:
 \LL
 \stoptabulate
 
-\subsection{ttf_tables and ttf_tab_saved tables}
+\subsection{\type {ttf_tables} and \type {ttf_tab_saved}}
 
 \starttabulate[|l|l|p|]
 \DB key           \BC type   \BC explanation \NC \NR
@@ -833,7 +833,7 @@ type:
 \LL
 \stoptabulate
 
-\subsection{mm table}
+\subsection{\type {mm}}
 
 \starttabulate[|l|l|p|]
 \DB key                   \BC type   \BC explanation \NC \NR
@@ -862,12 +862,12 @@ The \type {axismaps}:
 \LL
 \stoptabulate
 
-\subsection{mark_classes table}
+\subsection{\type {mark_classes}}
 
 The keys in this table are mark class names, and the values are a
 space|-|separated string of glyph names in this class.
 
-\subsection{math table}
+\subsection{\type {math}}
 
 The math table has the variables that are also discussed in the chapter aboout
 math: \type {ScriptPercentScaleDown}, \type {ScriptScriptPercentScaleDown}, \type
@@ -900,11 +900,11 @@ math: \type {ScriptPercentScaleDown}, \type {ScriptScriptPercentScaleDown}, \typ
 {MinConnectorOverlap}, \type {FractionDelimiterSize} and \type
 {FractionDelimiterDisplayStyleSize}.
 
-\subsection{validation_state table}
+\subsection{\type {validation_state}}
 
 This is just a bonus table with keys: \type {bad_ps_fontname}, \type {bad_glyph_table}, \type {bad_cff_table}, \type {bad_metrics_table}, \type {bad_cmap_table}, \type {bad_bitmaps_table}, \type {bad_gx_table}, \type {bad_ot_table}, \type {bad_os2_version} and \type {bad_sfnt_header}.
 
-\subsection{horiz_base and vert_base table}
+\subsection{\type {horiz_base} and \type {vert_base}}
 
 \starttabulate[|l|l|p|]
 \DB key            \BC type  \BC explanation \NC \NR
@@ -941,7 +941,7 @@ The \type {lang} subtable:
 The \type {features} points to an array of tables with the same layout except
 that in those nested tables, the tag represents a language.
 
-\subsection{altuni table}
+\subsection{\type {altuni}}
 
 An array of alternate \UNICODE\ values. Inside that array are hashes with:
 
@@ -953,7 +953,7 @@ An array of alternate \UNICODE\ values. Inside that array are hashes with:
 \LL
 \stoptabulate
 
-\subsection{vert_variants and horiz_variants table}
+\subsection{\type {vert_variants} and \type {horiz_variants}}
 
 \starttabulate[|l|l|p|]
 \DB key                      \BC type   \BC explanation \NC \NR
@@ -977,7 +977,7 @@ The \type {parts} table is an array of smaller tables:
 \LL
 \stoptabulate
 
-\subsection{mathkern table}
+\subsection{\type {mathkern}}
 
 \starttabulate[|l|l|p|]
 \DB key                 \BC type  \BC explanation \NC \NR
@@ -999,15 +999,15 @@ Each of the subtables is an array of small hashes with two keys:
 \LL
 \stoptabulate
 
-\subsection{kerns table}
+\subsection{\type {kerns}}
 
 Substructure is identical to the per|-|glyph subtable.
 
-\subsection{vkerns table}
+\subsection{\type {vkerns}}
 
 Substructure is identical to the per|-|glyph subtable.
 
-\subsection{texdata table}
+\subsection{\type {texdata}}
 
 \starttabulate[|l|l|p|]
 \DB key           \BC type   \BC explanation \NC \NR
@@ -1017,7 +1017,7 @@ Substructure is identical to the per|-|glyph subtable.
 \LL
 \stoptabulate
 
-\subsection{lookups table}
+\subsection{\type {lookups}}
 
 Top|-|level \type {lookups} is quite different from the ones at character level.
 The keys in this hash are strings, the values the actual lookups, represented as

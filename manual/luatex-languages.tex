@@ -6,6 +6,8 @@
 
 \startchapter[reference=languages,title={Languages, characters, fonts and glyphs}]
 
+\section {Introduction}
+
 \topicindex {languages}
 
 \LUATEX's internal handling of the characters and glyphs that eventually become
@@ -49,7 +51,7 @@ font information in the whole list (creating ligatures and adjusting kerning),
 and finally it adjusts all the subtype identifiers so that the records are \quote
 {glyph nodes} from now on.
 
-\section[charsandglyphs]{Characters and glyphs}
+\section[charsandglyphs]{Characters, glyphs and discretionaries}
 
 \topicindex {characters}
 \topicindex {glyphs}
@@ -274,6 +276,7 @@ min values to 1 and make sure that the words hyphenate at each character.
         {\SomeTest{3}{one}} {\type{3}}
     \stopcombination
 \stopplacefigure
+
 \startplacefigure[reference=hb:2,title={\type{one\null two}}]
     \startcombination[4*1]
         {\SomeTest{0}{one\null two}} {\type{0}}
@@ -282,6 +285,7 @@ min values to 1 and make sure that the words hyphenate at each character.
         {\SomeTest{3}{one\null two}} {\type{3}}
     \stopcombination
 \stopplacefigure
+
 \startplacefigure[reference=hb:3,title={\type{\null one\null two}}]
     \startcombination[4*1]
         {\SomeTest{0}{\null one\null two}} {\type{0}}
@@ -290,6 +294,7 @@ min values to 1 and make sure that the words hyphenate at each character.
         {\SomeTest{3}{\null one\null two}} {\type{3}}
     \stopcombination
 \stopplacefigure
+
 \startplacefigure[reference=hb:4,title={\type{one\null two\null}}]
     \startcombination[4*1]
         {\SomeTest{0}{one\null two\null}} {\type{0}}
@@ -298,6 +303,7 @@ min values to 1 and make sure that the words hyphenate at each character.
         {\SomeTest{3}{one\null two\null}} {\type{3}}
     \stopcombination
 \stopplacefigure
+
 \startplacefigure[reference=hb:5,title={\type{\null one\null two\null}}]
     \startcombination[4*1]
         {\SomeTest{0}{\null one\null two\null}} {\type{0}}
@@ -344,18 +350,6 @@ before--after \par
 before---after \par
 \stopbuffer
 
-In \in {figure} [automatichyphenmode:1] \in {and} [automatichyphenmode:2] we show
-what happens with three samples:
-
-Input A: \typebuffer[a]
-Input B: \typebuffer[b]
-Input C: \typebuffer[c]
-
-As with primitive companions of other single character commands, the \prm {-}
-command has a more verbose primitive version in \lpr {explicitdiscretionary}
-and the normally intercepted in the hyphenator character \type {-} (or whatever
-is configured) is available as \lpr {automaticdiscretionary}.
-
 \startbuffer[demo]
 \startcombination[nx=4,ny=3,location=top]
     {\framed[align=normal,strut=no,top=\vskip.5ex,bottom=\vskip.5ex]{\automatichyphenmode\zerocount \hsize6em \getbuffer[a]}} {A~0~6em}
@@ -373,7 +367,7 @@ is configured) is available as \lpr {automaticdiscretionary}.
 \stopcombination
 \stopbuffer
 
-\startplacefigure[reference=automatichyphenmode:1,title={The automatic modes \type {0} (default), \type {1} and \type {2}, with a \prm {hsize}
+\startplacefigure[locationreference=automatichyphenmode:1,title={The automatic modes \type {0} (default), \type {1} and \type {2}, with a \prm {hsize}
 of 6em and 2pt (which triggers a linebreak).}]
     \dontcomplain \tt \getbuffer[demo]
 \stopplacefigure
@@ -383,6 +377,18 @@ of 6em and 2pt (which triggers a linebreak).}]
     \preexhyphenchar `B\relax
     \dontcomplain \tt \getbuffer[demo]
 \stopplacefigure
+
+In \in {figure} [automatichyphenmode:1] \in {and} [automatichyphenmode:2] we show
+what happens with three samples:
+
+Input A: \typebuffer[a]
+Input B: \typebuffer[b]
+Input C: \typebuffer[c]
+
+As with primitive companions of other single character commands, the \prm {-}
+command has a more verbose primitive version in \lpr {explicitdiscretionary}
+and the normally intercepted in the hyphenator character \type {-} (or whatever
+is configured) is available as \lpr {automaticdiscretionary}.
 
 \section{The main control loop}
 
@@ -911,10 +917,12 @@ ligatures are used. Of course kerning also complicates matters here.
 
 \section{The \type {lang} library}
 
+\subsection {\type {lang.new} and \type {lang.id}}
+
 \topicindex {languages+library}
 
-This library provides the interface to \LUATEX's structure
-representing a language, and the associated functions.
+This library provides the interface to \LUATEX's structure representing a
+language, and the associated functions.
 
 \startfunctioncall
 <language> l = lang.new()
@@ -934,10 +942,16 @@ the internal language with that id number.
 
 The number returned is the internal \prm {language} id number this object refers to.
 
+\subsection {\type {lang.hyphenation}}
+
+You can hyphenate a string directly with:
+
 \startfunctioncall
 <string> n = lang.hyphenation(<language> l)
 lang.hyphenation(<language> l, <string> n)
 \stopfunctioncall
+
+\subsection {\type {lang.clear_hyphenation} and \type {lang.clean}}
 
 This either returns the current hyphenation exceptions for this language, or adds
 new ones. The syntax of the string is explained in~\in {section}
@@ -959,6 +973,8 @@ syntax of the argument string is explained in \in {section} [patternsexceptions]
 This function is useful if you want to do something else based on the words in a
 dictionary file, like spell|-|checking.
 
+\subsection {\type {lang.patterns} and \type {lang.clear_patterns}}
+
 \startfunctioncall
 <string> n = lang.patterns(<language> l)
 lang.patterns(<language> l, <string> n)
@@ -973,6 +989,8 @@ lang.clear_patterns(<language> l)
 \stopfunctioncall
 
 This can be used to clear the pattern dictionary for a language.
+
+\subsection {\type {lang.[pre|post]hyphenchar}}
 
 \startfunctioncall
 <number> n = lang.prehyphenchar(<language> l)
@@ -998,20 +1016,24 @@ These gets or set the \quote {pre|-|break} and \quote {post|-|break} hyphen
 characters for explicit hyphenation in this language. Both are initially
 decimal~0 (indicating emptiness).
 
+\subsection {\type {lang.hyphenate}}
+
+The next call inserts hyphenation points (discretionary nodes) in a node list. If
+\type {tail} is given as argument, processing stops on that node. Currently,
+\type {success} is always true if \type {head} (and \type {tail}, if specified)
+are proper nodes, regardless of possible other errors.
+
 \startfunctioncall
 <boolean> success = lang.hyphenate(<node> head)
 <boolean> success = lang.hyphenate(<node> head, <node> tail)
 \stopfunctioncall
 
-This call inserts hyphenation points (discretionary nodes) in a node list. If
-\type {tail} is given as argument, processing stops on that node. Currently,
-\type {success} is always true if \type {head} (and \type {tail}, if specified)
-are proper nodes, regardless of possible other errors.
-
 Hyphenation works only on \quote {characters}, a special subtype of all the glyph
 nodes with the node subtype having the value \type {1}. Glyph modes with
 different subtypes are not processed. See \in {section} [charsandglyphs] for
 more details.
+
+\subsection {\type {lang.[set|get]hjcode}}
 
 The following two commands can be used to set or query hj codes:
 
