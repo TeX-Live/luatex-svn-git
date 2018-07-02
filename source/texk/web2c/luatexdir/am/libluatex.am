@@ -486,8 +486,8 @@ luatex_tex_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctang
 #	$(luatex_tex_ctangle) filename.w
 #inputstack.c: ctangle$(EXEEXT) luatexdir/tex/inputstack.w
 #	$(luatex_tex_ctangle) inputstack.w
-linebreak.c: ctangle$(EXEEXT) luatexdir/tex/linebreak.w
-	$(luatex_tex_ctangle) linebreak.w
+# linebreak.c: ctangle$(EXEEXT) luatexdir/tex/linebreak.w
+# 	$(luatex_tex_ctangle) linebreak.w
 #mainbody.c: ctangle$(EXEEXT) luatexdir/tex/mainbody.w
 #	$(luatex_tex_ctangle) mainbody.w
 #maincontrol.c: ctangle$(EXEEXT) luatexdir/tex/maincontrol.w
@@ -496,8 +496,8 @@ linebreak.c: ctangle$(EXEEXT) luatexdir/tex/linebreak.w
 #	$(luatex_tex_ctangle) mathcodes.w
 #memoryword.c: ctangle$(EXEEXT) luatexdir/tex/memoryword.w
 #	$(luatex_tex_ctangle) memoryword.w
-mlist.c: ctangle$(EXEEXT) luatexdir/tex/mlist.w
-	$(luatex_tex_ctangle) mlist.w
+# mlist.c: ctangle$(EXEEXT) luatexdir/tex/mlist.w
+# 	$(luatex_tex_ctangle) mlist.w
 #nesting.c: ctangle$(EXEEXT) luatexdir/tex/nesting.w
 #	$(luatex_tex_ctangle) nesting.w
 # packaging.c: ctangle$(EXEEXT) luatexdir/tex/packaging.w
@@ -516,23 +516,17 @@ mlist.c: ctangle$(EXEEXT) luatexdir/tex/mlist.w
 #	$(luatex_tex_ctangle) texdeffont.w
 # texfileio.c: ctangle$(EXEEXT) luatexdir/tex/texfileio.w
 # 	$(luatex_tex_ctangle) texfileio.w
-texmath.c: ctangle$(EXEEXT) luatexdir/tex/texmath.w
-	$(luatex_tex_ctangle) texmath.w
-texnodes.c: ctangle$(EXEEXT) luatexdir/tex/texnodes.w
-	$(luatex_tex_ctangle) texnodes.w
+# texmath.c: ctangle$(EXEEXT) luatexdir/tex/texmath.w
+# 	$(luatex_tex_ctangle) texmath.w
+# texnodes.c: ctangle$(EXEEXT) luatexdir/tex/texnodes.w
+# 	$(luatex_tex_ctangle) texnodes.w
 #textcodes.c: ctangle$(EXEEXT) luatexdir/tex/textcodes.w
 #	$(luatex_tex_ctangle) textcodes.w
-textoken.c: ctangle$(EXEEXT) luatexdir/tex/textoken.w
-	$(luatex_tex_ctangle) textoken.w
-
-libluatex_web += luatexdir/tex/linebreak.w
-libluatex_web += luatexdir/tex/texmath.w luatexdir/tex/texnodes.w
-libluatex_web += luatexdir/tex/textoken.w
+# textoken.c: ctangle$(EXEEXT) luatexdir/tex/textoken.w
+# 	$(luatex_tex_ctangle) textoken.w
 
 
-nodist_libluatex_sources += linebreak.c 
-nodist_libluatex_sources += mlist.c 
-nodist_libluatex_sources += texmath.c texnodes.c textoken.c
+
 
 dist_libluatex_sources += \
 	luatexdir/tex/align.h \
@@ -580,10 +574,12 @@ dist_libluatex_sources += \
 	luatexdir/tex/extensions.c \
 	luatexdir/tex/filename.c \
 	luatexdir/tex/inputstack.c \
+	luatexdir/tex/linebreak.c \
 	luatexdir/tex/mainbody.c \
 	luatexdir/tex/maincontrol.c \
 	luatexdir/tex/mathcodes.c \
 	luatexdir/tex/memoryword.c \
+	luatexdir/tex/mlist.c \
 	luatexdir/tex/nesting.c \
 	luatexdir/tex/packaging.c \
 	luatexdir/tex/postlinebreak.c \
@@ -593,7 +589,10 @@ dist_libluatex_sources += \
 	luatexdir/tex/stringpool.c \
 	luatexdir/tex/texdeffont.c \
 	luatexdir/tex/texfileio.c \
-	luatexdir/tex/textcodes.c 
+	luatexdir/tex/texmath.c \
+	luatexdir/tex/texnodes.c \
+	luatexdir/tex/textcodes.c \
+	luatexdir/tex/textoken.c 
 
 
 ## from luatexdir/utils
