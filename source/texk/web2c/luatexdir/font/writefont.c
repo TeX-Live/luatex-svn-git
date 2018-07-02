@@ -242,6 +242,9 @@ void register_fd_entry(fd_entry * fd)
     }
     /*tex The font descriptor is not yet registered: */
     aa = avl_probe(fd_tree, fd);
+    if (aa == NULL) {
+        /*tex Is this a problem? */
+    }
 }
 
 static void create_fontdescriptor(fo_entry * fo, internal_font_number f)
@@ -277,6 +280,9 @@ static void mark_reenc_glyphs(fo_entry * fo, internal_font_number f)
                 && g[i] != notdef
                 && (char *) avl_find(fo->fd->gl_tree, g[i]) == NULL) {
                 aa = avl_probe(fo->fd->gl_tree, xstrdup(g[i]));
+                if (aa == NULL) {
+                    /*tex Is this a problem? */
+                }
             }
         }
     }
@@ -306,7 +312,9 @@ static struct avl_table *mark_chars(fo_entry * fo, struct avl_table *tx_tree, in
             j = xtalloc(1, int);
             *j = i;
             aa = avl_probe(tx_tree, j);
-            assert(aa != NULL);
+            if (aa == NULL) {
+                /*tex Is this a problem? */
+            }
         }
     }
     return tx_tree;
@@ -398,7 +406,15 @@ static void register_fo_entry(fo_entry * fo)
     if (fo_tree == NULL) {
         fo_tree = avl_create(comp_fo_entry, NULL, &avl_xallocator);
     }
+    if (lookup_fo_entry(fo->fm->tfm_name) == NULL) {
+        /*tex Is this a problem? */
+    } else {
+        /*tex The lookup also can create */
+    }
     aa = avl_probe(fo_tree, fo);
+    if (aa == NULL) {
+        /*tex Is this a problem? */
+    }
 }
 
 /*tex
@@ -872,6 +888,9 @@ static void mark_cid_subset_glyphs(fo_entry * fo, internal_font_number f)
             j->wd = divide_scaled_n(char_width(f, i), l, 10000.0);
             if ((glw_entry *) avl_find(fo->fd->gl_tree, j) == NULL) {
                 aa = avl_probe(fo->fd->gl_tree, j);
+                if (aa == NULL) {
+                    /*tex Is this a problem? */
+                }
             } else {
                 xfree(j);
             }

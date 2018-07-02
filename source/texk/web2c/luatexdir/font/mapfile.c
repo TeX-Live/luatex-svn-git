@@ -176,7 +176,9 @@ int avl_do_entry(fm_entry * fm, int mode)
     }
     if ((mode == FM_DUPIGNORE || mode == FM_REPLACE) && delete_new == 0) {
         aa = avl_probe(tfm_tree, fm);
-        assert(aa != NULL);
+        if (aa == NULL) {
+            /*tex Is this a problem? */
+        }
     } else
         delete_new = 1;
     return delete_new;
@@ -196,6 +198,9 @@ static char *add_encname(char *s)
         /*tex The encoding name has not yet been registered. */
         p = xstrdup(s);
         aa = avl_probe(encname_tree, p);
+        if (aa == NULL) {
+            /*tex Is this a problem? */
+        }
     }
     return p;
 }
@@ -212,8 +217,8 @@ static int check_fm_entry(fm_entry * fm, boolean warn)
     if (is_fontfile(fm) && !is_included(fm)) {
         if (warn)
             formatted_warning("map file",
-                 "ambiguous entry for '%s': font file present but not included, "
-                 "will be treated as font file not present", fm->tfm_name);
+                "ambiguous entry for '%s': font file present but not included, "
+                "will be treated as font file not present", fm->tfm_name);
         xfree(fm->ff_name);
         /*tex Do not set variable |a| as this entry will be still accepted. */
     }
@@ -351,12 +356,12 @@ static void fm_scan_line(void)
     if (isdigit((unsigned char)*r)) {
         /*tex Is the font descriptor |/Flags| given? */
         for (s = r; isdigit((unsigned char)*s); s++);
-            if (*s == ' ' || *s == '"' || *s == '<' || *s == '\0') {
-                /*tex not e.g.\ |8r.enc| */
-                fm->fd_flags = atoi(r);
-                while (isdigit((unsigned char)*r))
-                    r++;
-            }
+        if (*s == ' ' || *s == '"' || *s == '<' || *s == '\0') {
+            /*tex not e.g.\ |8r.enc| */
+            fm->fd_flags = atoi(r);
+            while (isdigit((unsigned char)*r))
+                r++;
+        }
     }
     /*tex Loop through specials, encoding, font file:*/
     while (1) {
@@ -391,7 +396,7 @@ static void fm_scan_line(void)
                         } else {
                             /*tex unknown name, jump over it */
                             for (r = s; *r != ' ' && *r != '"' && *r != '\0'; r++);
-                                c = *r;
+                            c = *r;
                             *r = '\0';
                             formatted_warning("map file", "invalid entry for '%s': unknown name '%s' ignored", fm->tfm_name, s);
                             *r = (char) c;
@@ -721,6 +726,9 @@ ff_entry *check_ff_exist(char *ff_name, boolean is_tt)
             }
         }
         aa = avl_probe(ff_tree, ff);
+        if (aa == NULL) {
+            /*tex Is this a problem? */
+        }
     }
     return ff;
 }

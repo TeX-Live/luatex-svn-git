@@ -335,7 +335,9 @@ static void ttf_copy_encoding(void)
             q = xtalloc(1, int);
             *q = 'a';
             aa = avl_probe(fd_cur->tx_tree, q);
-            assert(aa != NULL);
+            if (aa == NULL) {
+                /*tex Is this a problem? */
+            }
         }
         /*tex Take over collected characters from \TeX, reencode them. */
         avl_t_init(&t, fd_cur->tx_tree);
@@ -731,6 +733,9 @@ static ttf_cmap_entry *ttf_read_cmap(char *ttf_name, int pid, int eid, boolean w
     xfree(seg_tab);
     xfree(glyphId);
     aa = avl_probe(ttf_cmap_tree, p);
+    if (aa == NULL) {
+        /*tex Is this a problem? */
+    }
     return p;
 }
 

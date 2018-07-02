@@ -1247,6 +1247,9 @@ static struct avl_table *create_t1_glyph_tree(char **glyph_names)
             (char **) avl_find(gl_tree, &glyph_names[i]) == NULL) {
             /*tex No |strdup| here, just point to the |glyph_names| array members. */
             aa = avl_probe(gl_tree, &glyph_names[i]);
+            if (aa == NULL) {
+                /*tex Is this a problem? */
+            }
         }
     }
     return gl_tree;
@@ -1499,8 +1502,8 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
             }
         }
         xfree(ptr->data);
-    if (is_subr)
-        ptr->valid=false;
+        if (is_subr)
+            ptr->valid = false;
         if (ptr->name != notdef)
             xfree(ptr->name);
     }
@@ -1513,7 +1516,7 @@ static void t1_flush_cs(PDF pdf, boolean is_subr)
             if (ptr->valid) {
                 xfree(ptr->data);
                 if (ptr->name != notdef)
-                xfree(ptr->name);
+                    xfree(ptr->name);
             }
         }
         xfree(return_cs);
@@ -1628,23 +1631,24 @@ static void t1_subset_end(PDF pdf)
         }
         /*tex Write \.{mark currentfile closefile}. */
         t1_putline(pdf);
-    } else
+    } else {
         while (!t1_end_eexec()) {
             /*tex Copy to \.{mark currentfile closefile}. */
             t1_getline();
             t1_putline(pdf);
         }
-        t1_stop_eexec(pdf);
-        if (fixedcontent) {
-            /*tex Copy 512 zeros (not needed for PDF). */
-            while (!t1_cleartomark()) {
-                t1_getline();
-                t1_putline(pdf);
-            }
-            /*tex Don't check \.{{restore}if} for synthetic fonts. */
-            if (!t1_synthetic) {
-                /*tex Write \.{{restore}if} if found. */
-                t1_check_end(pdf);
+    }
+    t1_stop_eexec(pdf);
+    if (fixedcontent) {
+        /*tex Copy 512 zeros (not needed for PDF). */
+        while (!t1_cleartomark()) {
+            t1_getline();
+            t1_putline(pdf);
+        }
+        /*tex Don't check \.{{restore}if} for synthetic fonts. */
+        if (!t1_synthetic) {
+            /*tex Write \.{{restore}if} if found. */
+            t1_check_end(pdf);
         }
     }
     get_length3();
