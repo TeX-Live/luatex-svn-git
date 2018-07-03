@@ -699,16 +699,21 @@ static int scanner_scan(lua_State * L)
     /*tex stack slot 4 = self */
     self->uses_stream = 1;
     if (lua_type(L, 1) == LUA_TSTRING) {
-        /*tex
-            We could make a temporary copy on the stack (or in teh registry)
-            which saves memory.
-        */
-	char *buf = NULL;
-        const char *s = lua_tolstring(L, 1, &self->size);
-        self->uses_stream = 0;
-        self->buffer = priv_xmalloc(self->size);
-        memcpy(buf,s,self->size);
-	self->buffer = (const char*)(buf);
+      /*tex
+	We could make a temporary copy on the stack (or in the registry)
+	which saves memory.
+      */
+      char *buf = NULL;
+      const char *s = lua_tolstring(L, 1, &self->size);
+      if (s==NULL){
+	fprintf(stderr,"fatal: cannot convert the token to string.");
+	exit(1);
+      }
+      buf = priv_xmalloc(self->size+1);
+      buf[self->size]='\0';
+      self->uses_stream = 0;
+      memcpy(buf,s,self->size);
+      self->buffer = buf;
     } else if (lua_type(L, 1) == LUA_TTABLE) {
         udstruct *uin;
         void *ud;
