@@ -15,7 +15,9 @@
    License for more details.
 
    You should have received a copy of the GNU Lesser General Public License along
-   with LuaTeX; if not, see <http://www.gnu.org/licenses/>. */
+   with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
+
+*/
 
 #include <w2c/config.h>
 #include <stdlib.h>
@@ -23,7 +25,7 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <math.h> /* temporary */
+#include <math.h>
 
 #ifndef pdfTeX
 #  include <lua.h>
@@ -41,20 +43,23 @@
 #define luaL_reg luaL_Reg
 #endif
 
-
 #ifndef lua_objlen
 #define lua_objlen lua_rawlen
 #endif
-
 
 #include "mplib.h"
 #include "mplibps.h"
 #include "mplibsvg.h"
 #include "mplibpng.h"
 
-int luaopen_mplib(lua_State * L); /* forward */
+int luaopen_mplib(lua_State * L);
 
-/* metatable identifiers and tests */
+/*tex
+
+    We need a few metatable identifiers in order to access the metatables for the
+    main object and result userdata.
+
+*/
 
 #define MPLIB_METATABLE     "MPlib.meta"
 #define MPLIB_FIG_METATABLE "MPlib.fig"
@@ -64,7 +69,12 @@ int luaopen_mplib(lua_State * L); /* forward */
 #define is_fig(L,b) (struct mp_edge_object **)luaL_checkudata(L,b,MPLIB_FIG_METATABLE)
 #define is_gr_object(L,b) (struct mp_graphic_object **)luaL_checkudata(L,b,MPLIB_GR_METATABLE)
 
-/* Lua string pre-hashing */
+/*tex
+
+    We pre-hash the \LUA\ strings which is much faster. The approach is similar to the one
+    used at the \TEX\ end.
+
+*/
 
 #define mplib_init_S(a) do {                            \
     lua_pushliteral(L,#a);                              \
@@ -83,7 +93,9 @@ int luaopen_mplib(lua_State * L); /* forward */
     static int mplib_##a##_index = 0;         \
     static const char *mplib_##a##_ptr = NULL
 
-static int mplib_type_Ses[mp_special_code + 1] = { 0 }; /* [0] is not used */
+/*tex In the next array entry 0 is not used */
+
+static int mplib_type_Ses[mp_special_code + 1] = { 0 };
 
 mplib_make_S(term);
 mplib_make_S(error);
@@ -213,9 +225,12 @@ static void mplib_init_Ses(lua_State * L)
     mplib_init_S(elliptical);
 }
 
-/* Enumeration arrays to map MPlib enums to Lua strings */
+/*tex
 
-/* Todo: as with nodes and such. */
+    Here are some enumeration arrays to map MPlib enums to \LUA\ strings. If needed
+    we can also predefine keys here, as we do with nodes.
+
+*/
 
 static const char *math_options[] =
     { "scaled", "double", "binary", "decimal", NULL };
@@ -259,7 +274,11 @@ static const char *stop_clip_fields[] =
 static const char *no_fields[] =
     { NULL };
 
-/* The list of supported MPlib options (not all make sense) */
+/*tex
+
+    The list of supported MPlib options (not all make sense).
+
+*/
 
 typedef enum {
     P_ERROR_LINE,
@@ -279,8 +298,10 @@ typedef enum {
 } mplib_parm_idx;
 
 typedef struct {
-    const char *name;   /* parameter name */
-    mplib_parm_idx idx; /* parameter index */
+    /*tex parameter name */
+    const char *name;
+    /*tex parameter index */
+    mplib_parm_idx idx;
 } mplib_parm_struct;
 
 static mplib_parm_struct mplib_parms[] = {
@@ -298,9 +319,11 @@ static mplib_parm_struct mplib_parms[] = {
     {NULL,           P__SENTINEL    }
 };
 
-/* Start by defining the needed callback routines for the library  */
+/*tex
 
-/* todo: make subtable in registry, beware, for all mp instances */
+    We start by defining the needed callback routines for the library.
+
+*/
 
 static char *mplib_find_file(MP mp, const char *fname, const char *fmode, int ftype)
 {
@@ -324,7 +347,8 @@ static char *mplib_find_file(MP mp, const char *fname, const char *fmode, int ft
         x = lua_tostring(L, -1);
         if (x != NULL)
             s = strdup(x);
-        lua_pop(L, 1);          /* pop the string */
+        /*tex pop the string */
+        lua_pop(L, 1);
         return s;
     } else {
         lua_pop(L, 1);
@@ -338,12 +362,18 @@ static char *mplib_find_file(MP mp, const char *fname, const char *fmode, int ft
 static int mplib_find_file_function(lua_State * L)
 {
     if (!(lua_isfunction(L, -1) || lua_isnil(L, -1))) {
-        return 1; /* error */
+        /*tex An error. */
+        return 1;
     }
     lua_pushstring(L, "mplib.file_finder");
     lua_pushvalue(L, -2);
     lua_rawset(L, LUA_REGISTRYINDEX);
     return 0;
+}
+
+static void mplib_warning(const char *str)
+{
+    fprintf(stdout,"mplib warning: %s\n",str);
 }
 
 static void mplib_script_error(MP mp, const char *str)
@@ -353,9 +383,10 @@ static void mplib_script_error(MP mp, const char *str)
     lua_getfield(L, LUA_REGISTRYINDEX, "mplib.script_error");
     if (lua_isfunction(L, -1)) {
         lua_pushstring(L, str);
-        lua_pcall(L, 1, 0, 0); /* assume the function is ok */
+        /*tex We assume that the function is okay. */
+        lua_pcall(L, 1, 0, 0);
     } else {
-        fprintf(stdout,"Error in script: %s\n",str);
+        mplib_warning(str);
         lua_pop(L, 1);
     }
 }
@@ -363,7 +394,8 @@ static void mplib_script_error(MP mp, const char *str)
 static int mplib_script_error_function(lua_State * L)
 {
     if (!(lua_isfunction(L, -1) || lua_isnil(L, -1))) {
-        return 1; /* error */
+        /*tex An error. */
+        return 1;
     }
     lua_pushstring(L, "mplib.script_error");
     lua_pushvalue(L, -2);
@@ -381,13 +413,14 @@ static char *mplib_run_script(MP mp, const char *str)
         const char *x = NULL;
         lua_pushstring(L, str);
         if (lua_pcall(L, 1, 1, 0) != 0) {
-            mplib_script_error(mp, lua_tostring(L, -1));
+            fprintf(stdout,"mplib warning: error in script: %s\n",lua_tostring(L, -1));
             return NULL;
         }
         x = lua_tostring(L, -1);
         if (x != NULL)
             s = strdup(x);
-        lua_pop(L, 1);          /* pop the string */
+        /*tex Pop the string. */
+        lua_pop(L, 1);
         return s;
     } else {
         lua_pop(L, 1);
@@ -423,7 +456,8 @@ static char *mplib_make_text(MP mp, const char *str, int mode)
         x = lua_tostring(L, -1);
         if (x != NULL)
             s = strdup(x);
-        lua_pop(L, 1);          /* pop the string */
+        /*tex Pop the string. */
+        lua_pop(L, 1);
         return s;
     } else {
         lua_pop(L, 1);
@@ -434,7 +468,8 @@ static char *mplib_make_text(MP mp, const char *str, int mode)
 static int mplib_make_text_function(lua_State * L)
 {
     if (!(lua_isfunction(L, -1) || lua_isnil(L, -1))) {
-        return 1; /* error */
+        /*tex An error. */
+        return 1;
     }
     lua_pushstring(L, "mplib.make_text");
     lua_pushvalue(L, -2);
@@ -500,7 +535,8 @@ static int mplib_new(lua_State * L)
         int i;
         struct MP_options *options = mp_options();
         options->userdata = (void *) L;
-        options->noninteractive = 1;    /* required ! */
+        /*tex Required: */
+        options->noninteractive = 1;
         options->extensions = 0 ;
         options->find_file = mplib_find_file;
         options->run_script = mplib_run_script;
@@ -513,56 +549,59 @@ static int mplib_new(lua_State * L)
                 lua_getfield(L, 1, mplib_parms[i].name);
                 if (lua_isnil(L, -1)) {
                     lua_pop(L, 1);
-                    continue;   /* skip unset */
+                    continue;
                 }
                 switch (mplib_parms[i].idx) {
-                case P_ERROR_LINE:
-                  options->error_line = (int)lua_tointeger(L, -1);
-                    if (options->error_line<60) options->error_line =60;
-                    if (options->error_line>250) options->error_line = 250;
-                    options->half_error_line = (options->error_line/2)+10;
-                    break;
-                case P_MAX_LINE:
-                    options->max_print_line = (int)lua_tointeger(L, -1);
-                    if (options->max_print_line<60) options->max_print_line = 60;
-                    break;
-                case P_RANDOM_SEED:
-                    options->random_seed = (int)lua_tointeger(L, -1);
-                    break;
-                case P_INTERACTION:
-                    options->interaction = luaL_checkoption(L, -1, "errorstopmode", interaction_options);
-                    break;
-                case P_MATH_MODE:
-                    options->math_mode = luaL_checkoption(L, -1, "scaled", math_options);
-                    break;
-                case P_JOB_NAME:
-                    options->job_name = strdup(lua_tostring(L, -1));
-                    break;
-                case P_FIND_FILE:
-                    if (mplib_find_file_function(L)) {  /* error here */
-                        fprintf(stdout,"Invalid arguments to mp.new { find_file = ... }\n");
-                    }
-                    break;
-                case P_RUN_SCRIPT:
-                    if (mplib_run_script_function(L)) {  /* error here */
-                        fprintf(stdout,"Invalid arguments to mp.new { run_script = ... }\n");
-                    }
-                    break;
-                case P_MAKE_TEXT:
-                    if (mplib_make_text_function(L)) {  /* error here */
-                        fprintf(stdout,"Invalid arguments to mp.new { make_text = ... }\n");
-                    }
-                    break;
-                case P_SCRIPT_ERROR:
-                    if (mplib_script_error_function(L)) {  /* error here */
-                        fprintf(stdout,"Invalid arguments to mp.new { script_error = ... }\n");
-                    }
-                    break;
-                case P_EXTENSIONS:
-                    options->extensions = (int)lua_tointeger(L, -1);
-                    break;
-                default:
-                    break;
+                    case P_ERROR_LINE:
+                        options->error_line = (int)lua_tointeger(L, -1);
+                        if (options->error_line < 60)
+                            options->error_line = 60;
+                        if (options->error_line > 250)
+                            options->error_line = 250;
+                        options->half_error_line = (options->error_line/2)+10;
+                        break;
+                    case P_MAX_LINE:
+                        options->max_print_line = (int)lua_tointeger(L, -1);
+                        if (options->max_print_line < 60)
+                            options->max_print_line = 60;
+                        break;
+                    case P_RANDOM_SEED:
+                        options->random_seed = (int)lua_tointeger(L, -1);
+                        break;
+                    case P_INTERACTION:
+                        options->interaction = luaL_checkoption(L, -1, "errorstopmode", interaction_options);
+                        break;
+                    case P_MATH_MODE:
+                        options->math_mode = luaL_checkoption(L, -1, "scaled", math_options);
+                        break;
+                    case P_JOB_NAME:
+                        options->job_name = strdup(lua_tostring(L, -1));
+                        break;
+                    case P_FIND_FILE:
+                        if (mplib_find_file_function(L)) {
+                            mplib_warning("function expected for 'find_file'");
+                        }
+                        break;
+                    case P_RUN_SCRIPT:
+                        if (mplib_run_script_function(L)) {
+                            mplib_warning("function expected for 'run_script'");
+                        }
+                        break;
+                    case P_MAKE_TEXT:
+                        if (mplib_make_text_function(L)) {
+                            mplib_warning("function expected for 'make_text'");
+                        }
+                        break;
+                    case P_SCRIPT_ERROR:
+                        if (mplib_script_error_function(L)) {
+                            mplib_warning("function expected for 'script_error'");
+                        }
+                        break;
+                    case P_EXTENSIONS:
+                        options->extensions = (int)lua_tointeger(L, -1);
+                        break;
+                    default:
+                        break;
                 }
                 lua_pop(L, 1);
             }
@@ -951,7 +990,7 @@ static int mplib_solve_path(lua_State * L)
     mp = *mp_ptr;
     cyclic = lua_toboolean(L,3);
     lua_pop(L,1);
-    /* build up the path */
+    /*tex We build up the path. */
     numpoints = lua_objlen(L,2);
     first = p = NULL;
     for (i=1;i<=numpoints;i++) {
@@ -980,8 +1019,12 @@ static int mplib_solve_path(lua_State * L)
         lua_pop(L,1);
         q = p;
         if (q!=NULL) {
-            /* we have to save the right_tension because |mp_append_knot| trashes
-               it, believing that it is as yet uninitialized */
+            /*tex
+
+                We have to save the right_tension because |mp_append_knot|
+                trashes it, believing that it is as yet uninitialized.
+
+            */
             double saved_tension = mp_number_as_double(mp, mp_knot_right_tension(mp,p));
             p = mp_append_knot(mp, p, x_coord, y_coord);
             if ( ! p ) {
@@ -1007,7 +1050,8 @@ static int mplib_solve_path(lua_State * L)
             }
             left_set  = 1;
         } else {
-            lua_pop(L,1); /* a nil value */
+            /*tex A |nil| value. */
+            lua_pop(L,1);
         }
         mplib_push_S(left_tension);
         lua_rawget(L,-2);
@@ -1023,7 +1067,8 @@ static int mplib_solve_path(lua_State * L)
                 left_set  = 1;
             }
         } else {
-            lua_pop(L,1); /* a nil value */
+            /*tex A |nil| value. */
+            lua_pop(L,1);
         }
         mplib_push_S(left_x);
         lua_rawget(L,-2);
@@ -1049,7 +1094,8 @@ static int mplib_solve_path(lua_State * L)
             }
             right_set  = 1;
         } else {
-            lua_pop(L,1); /* a nil value */
+            /*tex A |nil| value. */
+            lua_pop(L,1);
         }
         mplib_push_S(right_tension);
         lua_rawget(L,-2);
@@ -1090,9 +1136,11 @@ static int mplib_solve_path(lua_State * L)
                 goto BAD;
             }
         } else {
-            lua_pop(L,1); /* a nil value */
+            /*tex A |nil| value. */
+            lua_pop(L,1);
         }
-        lua_pop(L,1); /* done with this item */
+        /*tex Up the next item */
+        lua_pop(L,1);
     }
     if (cyclic) {
         mp_close_path_cycle (mp, p, first);
@@ -1102,12 +1150,12 @@ static int mplib_solve_path(lua_State * L)
 #if 0
     mp_dump_path(mp,first);
 #endif
-    /* finished reading arguments */
+    /*tex We're finished reading arguments. */
     if (!mp_solve_path(mp,first)) {
         errormsg = "Failed to solve the path";
         goto BAD;
     }
-    /* squeeze the new values back into the table */
+    /*tex Squeeze the new values back into the table. */
     p = first;
     for (i=1;i<=numpoints;i++) {
         lua_rawgeti(L,-1, i);
@@ -1115,14 +1163,14 @@ static int mplib_solve_path(lua_State * L)
         mplib_push_S(left_y);  lua_pushnumber(L, mp_number_as_double(mp, mp_knot_left_y(mp, p)));  lua_rawset(L,-3);
         mplib_push_S(right_x); lua_pushnumber(L, mp_number_as_double(mp, mp_knot_right_x(mp, p))); lua_rawset(L,-3);
         mplib_push_S(right_y); lua_pushnumber(L, mp_number_as_double(mp, mp_knot_right_y(mp, p))); lua_rawset(L,-3);
-        /* is this really needed */
-            mplib_push_S(left_tension);  lua_pushnil(L); lua_rawset(L,-3);
-            mplib_push_S(right_tension); lua_pushnil(L); lua_rawset(L,-3);
-            mplib_push_S(left_curl);     lua_pushnil(L); lua_rawset(L,-3);
-            mplib_push_S(right_curl);    lua_pushnil(L); lua_rawset(L,-3);
-            mplib_push_S(direction_x);   lua_pushnil(L); lua_rawset(L,-3);
-            mplib_push_S(direction_y);   lua_pushnil(L); lua_rawset(L,-3);
-        /* till here */
+        /*tex This is a bit overkill \unknown */
+        mplib_push_S(left_tension);  lua_pushnil(L); lua_rawset(L,-3);
+        mplib_push_S(right_tension); lua_pushnil(L); lua_rawset(L,-3);
+        mplib_push_S(left_curl);     lua_pushnil(L); lua_rawset(L,-3);
+        mplib_push_S(right_curl);    lua_pushnil(L); lua_rawset(L,-3);
+        mplib_push_S(direction_x);   lua_pushnil(L); lua_rawset(L,-3);
+        mplib_push_S(direction_y);   lua_pushnil(L); lua_rawset(L,-3);
+        /*tex \unknown\ till here. */
         mplib_push_S(left_type);  lua_pushstring(L, knot_type_enum[mp_knot_left_type(mp, p)]);  lua_rawset(L, -3);
         mplib_push_S(right_type); lua_pushstring(L, knot_type_enum[mp_knot_right_type(mp, p)]); lua_rawset(L, -3);
         lua_pop(L,1);
@@ -1130,7 +1178,7 @@ static int mplib_solve_path(lua_State * L)
     }
     lua_pushboolean(L, 1);
     return 1;
-BAD:
+  BAD:
     if (p != NULL) {
         mp_close_path (mp, p, first);
         mp_free_path (mp, p);
@@ -1140,7 +1188,11 @@ BAD:
     return 2;
 }
 
-/* figure methods */
+/*tex
+
+    The next methods are for collecting the results from |fig|.
+
+*/
 
 static int mplib_fig_collect(lua_State * L)
 {
@@ -1169,7 +1221,7 @@ static int mplib_fig_body(lua_State * L)
         i++;
         p = p->next;
     }
-    /* prevent double free */
+    /*tex Prevent a double free: */
     (*hh)->body = NULL;
     return 1;
 }
@@ -1329,7 +1381,11 @@ static int mplib_fig_bb(lua_State * L)
     return 1;
 }
 
-/* object methods */
+/*tex
+
+    The methods for the figure objects plus a few helpers.
+
+*/
 
 static int mplib_gr_collect(lua_State * L)
 {
@@ -1476,6 +1532,13 @@ static int mplib_gr_peninfo(lua_State * L) {
     return 1;
 }
 
+/*tex
+
+    Here is a helper that reports the valid field names of the possible
+    objects.
+
+*/
+
 static int mplib_gr_fields(lua_State * L)
 {
     const char **fields;
@@ -1521,7 +1584,6 @@ static int mplib_gr_fields(lua_State * L)
     return 1;
 }
 
-
 #define mplib_push_number(L,x) lua_pushnumber(L,(lua_Number)(x))
 
 #define MPLIB_PATH 0
@@ -1529,7 +1591,7 @@ static int mplib_gr_fields(lua_State * L)
 
 static void mplib_push_path(lua_State * L, mp_gr_knot h, int is_pen)
 {
-    mp_gr_knot p;          /* for scanning the path */
+    mp_gr_knot p;
     int i = 1;
     p = h;
     if (p != NULL) {
@@ -1624,16 +1686,17 @@ static int mplib_get_path(lua_State * L)
     return 0;
 }
 
-/* this assumes that the top of the stack is a table
-   or nil already in the case
+/*tex
+
+    This assumes that the top of the stack is a table or nil already in the case.
 */
 
 static void mplib_push_pentype(lua_State * L, mp_gr_knot h)
 {
-    mp_gr_knot p;          /* for scanning the path */
+    mp_gr_knot p;
     p = h;
     if (p == NULL) {
-        /* do nothing */
+        /*tex Do nothing. */
     } else if (p == p->next) {
         mplib_push_S(type);
         mplib_push_S(elliptical);
@@ -1684,7 +1747,11 @@ static void mplib_push_color(lua_State * L, struct mp_graphic_object *p)
     }
 }
 
-/* the dash scale is not exported, the field has no external value */
+/*tex
+
+    The dash scale is not exported, the field has no external value.
+
+*/
 
 static void mplib_push_dash(lua_State * L, struct mp_stroked_object *h)
 {
@@ -1852,7 +1919,6 @@ static int mplib_gr_index(lua_State * L)
     struct mp_graphic_object **hh = is_gr_object(L, 1);
     if (*hh) {
         struct mp_graphic_object *h = *hh;
-
         if (mplib_is_S(type, 2)) {
             lua_rawgeti(L, LUA_REGISTRYINDEX, mplib_type_Ses[h->type]);
         } else {
@@ -1888,63 +1954,68 @@ static int mplib_gr_index(lua_State * L)
 }
 
 static const struct luaL_reg mplib_meta[] = {
-    {"__gc", mplib_collect},
-    {"__tostring", mplib_tostring},
-    {NULL, NULL} /* sentinel */
+    { "__gc",       mplib_collect },
+    { "__tostring", mplib_tostring },
+    /*tex sentinel */
+    { NULL,         NULL}
 };
 
 static const struct luaL_reg mplib_fig_meta[] = {
-    {"__gc",         mplib_fig_collect},
-    {"__tostring",   mplib_fig_tostring},
-    {"objects",      mplib_fig_body},
-    {"copy_objects", mplib_fig_copy_body},
-    {"filename",     mplib_fig_filename},
-    {"postscript",   mplib_fig_postscript},
-    {"png",          mplib_fig_png},
-    {"svg",          mplib_fig_svg},
-    {"boundingbox",  mplib_fig_bb},
-    {"width",        mplib_fig_width},
-    {"height",       mplib_fig_height},
-    {"depth",        mplib_fig_depth},
-    {"italcorr",     mplib_fig_italcorr},
-    {"charcode",     mplib_fig_charcode},
-    {NULL, NULL}                /* sentinel */
+    { "__gc",         mplib_fig_collect },
+    { "__tostring",   mplib_fig_tostring },
+    { "objects",      mplib_fig_body },
+    { "copy_objects", mplib_fig_copy_body },
+    { "filename",     mplib_fig_filename },
+    { "postscript",   mplib_fig_postscript },
+    { "png",          mplib_fig_png },
+    { "svg",          mplib_fig_svg },
+    { "boundingbox",  mplib_fig_bb },
+    { "width",        mplib_fig_width },
+    { "height",       mplib_fig_height },
+    { "depth",        mplib_fig_depth },
+    { "italcorr",     mplib_fig_italcorr },
+    { "charcode",     mplib_fig_charcode },
+    /*tex sentinel */
+    { NULL,           NULL}
 };
 
 static const struct luaL_reg mplib_gr_meta[] = {
-    {"__gc", mplib_gr_collect},
-    {"__tostring", mplib_gr_tostring},
-    {"__index", mplib_gr_index},
-    {NULL, NULL} /* sentinel */
+    { "__gc",       mplib_gr_collect},
+    { "__tostring", mplib_gr_tostring},
+    { "__index",    mplib_gr_index},
+    /*tex sentinel */
+    { NULL,         NULL}
 };
 
 static const struct luaL_reg mplib_d[] = {
-    {"execute", mplib_execute},
-    {"finish", mplib_finish},
-    {"char_width", mplib_charwidth},
-    {"char_height", mplib_charheight},
-    {"char_depth", mplib_chardepth},
-    {"statistics", mplib_statistics},
-    {"solve_path", mplib_solve_path},
-    {"get_numeric", mplib_get_numeric},
-    {"get_number", mplib_get_numeric},
-    {"get_boolean", mplib_get_boolean},
-    {"get_string", mplib_get_string},
-    {"get_path", mplib_get_path},
-    {NULL, NULL} /* sentinel */
+    { "execute",     mplib_execute },
+    { "finish",      mplib_finish },
+    { "char_width",  mplib_charwidth },
+    { "char_height", mplib_charheight },
+    { "char_depth",  mplib_chardepth },
+    { "statistics",  mplib_statistics },
+    { "solve_path",  mplib_solve_path },
+    { "get_numeric", mplib_get_numeric },
+    { "get_number",  mplib_get_numeric },
+    { "get_boolean", mplib_get_boolean },
+    { "get_string",  mplib_get_string },
+    { "get_path",    mplib_get_path },
+    /*tex sentinel */
+    {NULL,           NULL }
 };
 
 static const struct luaL_reg mplib_m[] = {
-    {"new", mplib_new},
-    {"version",    mplib_version},
-    {"fields", mplib_gr_fields},
-    {"pen_info", mplib_gr_peninfo},
-    {"get_numeric", mplib_get_numeric},
-    {"get_number", mplib_get_numeric},
-    {"get_boolean", mplib_get_boolean},
-    {"get_string", mplib_get_string},
-    {"get_path", mplib_get_path},
-    {NULL, NULL} /* sentinel */
+    { "new",         mplib_new },
+    { "version",     mplib_version },
+    { "fields",      mplib_gr_fields },
+    { "pen_info",    mplib_gr_peninfo },
+    { "get_numeric", mplib_get_numeric },
+    { "get_number",  mplib_get_numeric },
+    { "get_boolean", mplib_get_boolean },
+    { "get_string",  mplib_get_string },
+    { "get_path",    mplib_get_path },
+    /*tex sentinel */
+    { NULL, NULL}
 };
 
 int luaopen_mplib(lua_State * L)
@@ -1952,22 +2023,23 @@ int luaopen_mplib(lua_State * L)
     mplib_init_Ses(L);
 
     luaL_newmetatable(L, MPLIB_GR_METATABLE);
-    lua_pushvalue(L, -1);                       /* push metatable */
-    lua_setfield(L, -2, "__index");             /* metatable.__index = metatable */
-    luaL_register(L, NULL, mplib_gr_meta);      /* object meta methods */
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    luaL_register(L, NULL, mplib_gr_meta);
     lua_pop(L, 1);
 
     luaL_newmetatable(L, MPLIB_FIG_METATABLE);
-    lua_pushvalue(L, -1);                       /* push metatable */
-    lua_setfield(L, -2, "__index");             /* metatable.__index = metatable */
-    luaL_register(L, NULL, mplib_fig_meta);     /* figure meta methods */
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    luaL_register(L, NULL, mplib_fig_meta);
     lua_pop(L, 1);
 
     luaL_newmetatable(L, MPLIB_METATABLE);
-    lua_pushvalue(L, -1);                       /* push metatable */
-    lua_setfield(L, -2, "__index");             /* metatable.__index = metatable */
-    luaL_register(L, NULL, mplib_meta);         /* meta methods */
-    luaL_register(L, NULL, mplib_d);            /* dict methods */
-    luaL_register(L, "mplib", mplib_m);         /* module functions */
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    luaL_register(L, NULL, mplib_meta);
+    luaL_register(L, NULL, mplib_d);
+    luaL_register(L, "mplib", mplib_m);
+
     return 1;
 }

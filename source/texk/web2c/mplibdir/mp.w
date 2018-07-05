@@ -19864,6 +19864,7 @@ is less than |loop_text|.
 @ @<Run a script@>=
 if (s != NULL) {
     int k ;
+    mp_value new_expr;
     size_t size = strlen(s);
     memset(&new_expr,0,sizeof(mp_value));
     new_number(new_expr.data.n);
@@ -19879,7 +19880,6 @@ if (s != NULL) {
     }
     limit = (halfword) k;
     (void) memcpy ((mp->buffer + mp->first), s, size);
-    free(s);
     mp->buffer[limit] = xord ('%');
     mp->first = (size_t) (limit + 1);
     loc = start;
@@ -19910,9 +19910,9 @@ if (s != NULL) {
     } else {
         mp_back_input (mp);
         if (cur_exp_str ()->len > 0) {
-            mp_value new_expr;
             char *s = mp->run_script(mp,(const char*) cur_exp_str()->str) ;
             @<Run a script@>
+            free(s);
         }
     }
 }
@@ -19927,7 +19927,6 @@ line and preceded by a space or at the beginning of a line.
 
 @<Pass btex ... etex to script@>=
 {
-    char *s = NULL;
     char *txt = NULL;
     char *ptr = NULL;
     int slin = line;
@@ -19936,8 +19935,7 @@ line and preceded by a space or at the beginning of a line.
     int mode = round_unscaled(internal_value(mp_texscriptmode)) ; /* default: 1 */
     int verb = cur_mod() == verbatim_code;
     int first;
-    mp_value new_expr;
-        /* we had a (mandate) trailing space */
+    /* we had a (mandate) trailing space */
     if (loc <= limit && mp->char_class[mp->buffer[loc]] == space_class) {
         incr(loc);
     } else {
@@ -19966,9 +19964,9 @@ line and preceded by a space or at the beginning of a line.
                             if (done) {
                                 if ((loc + 1) <= limit) {
                                     quarterword c = mp->char_class[mp->buffer[loc + 1]] ;
-                                    if (c == semicolon_class || c == space_class || c == percent_class) {
-                                        /* when we have a trailing space, semicolon or percent we're ok */
+                                    if (c != letter_class) {
                                         incr(loc) ;
+                                        /* we're past the 'x' */
                                         break;
                                     } else {
                                         /* this is no valid etex */
@@ -19977,17 +19975,17 @@ line and preceded by a space or at the beginning of a line.
                                 } else {
                                     /* when we're at the end of a line we're ok */
                                     incr(loc) ;
+                                    /* we're past the 'x' */
                                     break;
                                 }
                             }
-
                         }
                     }
                 }
             }
         }
         /* no etex seen (yet) */
-        if (loc == limit) {
+        if (loc >= limit) {
             if (size) {
                 txt = realloc(txt, size + limit - first + 1);
             } else {
@@ -20016,25 +20014,30 @@ line and preceded by a space or at the beginning of a line.
         }
     }
     if (done) {
-        int l = loc - 4 ;
+        /* we're past the 'x' */
+        int l = loc - 5 ; // 4
+        int n = l - first + 1 ;
+        /* we're before the 'etex' */
         if (done == 2) {
-            /* we had a (mandate) leading space */
-            l = l - 1;
+            /* we had ' etex' */
+            l -= 1;
+            n -= 1;
+            /* we're before the ' etex' */
         }
         if (size) {
-            txt = realloc(txt, size + l - first + 1);
+            txt = realloc(txt, size + n + 1);
         } else {
-            txt = malloc(l - first + 1);
+            txt = malloc(n + 1);
         }
-        (void) memcpy (txt + size, mp->buffer + first, l - first);
-        size += l - first + 1;
+        (void) memcpy (txt + size, mp->buffer + first, n); /* 0 */
+        size += n;
         if (verb && mode >= 3) {
             /* don't strip verbatimtex */
-            txt[size - 1] = '\0';
+            txt[size] = '\0';
             ptr = txt;
         } else if (mode >= 4) {
             /* don't strip btex */
-            txt[size - 1] = '\0';
+            txt[size] = '\0';
             ptr = txt;
         } else {
             /* strip trailing whitespace, we have a \0 so we're one off  */
@@ -20042,7 +20045,7 @@ line and preceded by a space or at the beginning of a line.
                 decr(size);
             }
             /* prune the string */
-            txt[size - 1] = '\0';
+            txt[size] = '\0';
             /* strip leading whitespace */
             ptr = txt;
             while ((size > 1) && (mp->char_class[(ASCII_code) ptr[0]] == space_class || ptr[0] == '\n')) {
@@ -20051,9 +20054,14 @@ line and preceded by a space or at the beginning of a line.
             }
         }
         /* action */
-        s = mp->make_text(mp,ptr,verb) ;
-        @<Run a script@>
+        {
+            char *s = mp->make_text(mp,ptr,verb) ;
+            @<Run a script@>
+            free(s);
+        }
         free(txt);
+        /* really needed */
+        mp_get_next(mp);
         return;
     }
     /*
@@ -20086,7 +20094,7 @@ line and preceded by a space or at the beginning of a line.
         mp_value new_expr;
         const char *hlp[] = {
            "I'm going to flush this expression, since",
-           "makete should be followed by a known string.",
+           "maketext should be followed by a known string.",
            NULL };
         memset(&new_expr,0,sizeof(mp_value));
         new_number(new_expr.data.n);
@@ -20098,9 +20106,9 @@ line and preceded by a space or at the beginning of a line.
     } else {
         mp_back_input (mp);
         if (cur_exp_str ()->len > 0) {
-            mp_value new_expr;
             char *s = mp->make_text(mp,(const char*) cur_exp_str()->str,0) ;
             @<Run a script@>
+            free(s);
         }
     }
 }
