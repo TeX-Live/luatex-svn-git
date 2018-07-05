@@ -2008,6 +2008,15 @@ static const struct luaL_reg mplib_m[] = {
     { "new",         mplib_new },
     { "version",     mplib_version },
     { "fields",      mplib_gr_fields },
+    /* indirect */
+    { "execute",     mplib_execute },
+    { "finish",      mplib_finish },
+    { "char_width",  mplib_charwidth },
+    { "char_height", mplib_charheight },
+    { "char_depth",  mplib_chardepth },
+    { "statistics",  mplib_statistics },
+    { "solve_path",  mplib_solve_path },
+    /* helpers */
     { "pen_info",    mplib_gr_peninfo },
     { "get_numeric", mplib_get_numeric },
     { "get_number",  mplib_get_numeric },
@@ -2015,7 +2024,7 @@ static const struct luaL_reg mplib_m[] = {
     { "get_string",  mplib_get_string },
     { "get_path",    mplib_get_path },
     /*tex sentinel */
-    { NULL, NULL}
+    { NULL,          NULL}
 };
 
 int luaopen_mplib(lua_State * L)

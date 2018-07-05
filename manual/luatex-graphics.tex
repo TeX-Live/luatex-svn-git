@@ -1,12 +1,14 @@
 % language=uk
 
+% mp solve_path
+
 \environment luatex-style
 
 \startcomponent luatex-graphics
 
 \startchapter[reference=graphics,title={The graphic libraries}]
 
-\section{The \type {img} library}
+\startsection[title={The \type {img} library}][library=img]
 
 \topicindex {images}
 \topicindex {images+library}
@@ -18,6 +20,8 @@ The \type {img} library can be used as an alternative to \orm {pdfximage} and
 \type {image} command listed in~\in {section} [virtualfonts].
 
 \subsection{\type {new}}
+
+\libindex{new}
 
 \startfunctioncall
 <image> var = img.new()
@@ -77,10 +81,12 @@ invalid images and we cannot guarantee side effects. A zero dimension image is
 still included when requested. No special flags are set. A proper workflow will
 not rely in such a catch but make sure that images are valid.
 
-\subsection{\type {keys}}
+\subsection{\type {fields}}
+
+\libindex{fields}
 
 \startfunctioncall
-<table> keys = img.keys()
+<table> keys = img.fields()
 \stopfunctioncall
 
 This function returns a list of all the possible \type {image_spec} keys, both
@@ -175,6 +181,8 @@ then use it by \LUATEX. If a \PDF\ file to be embedded already contains a \type
 
 \subsection{\type {scan}}
 
+\libindex{scan}
+
 \startfunctioncall
 <image> var = img.scan(<image> var)
 <image> var = img.scan(<table> image_spec)
@@ -204,6 +212,8 @@ the PDF, and the used memory will be cleaned up automatically.
 
 \subsection{\type {copy}}
 
+\libindex{copy}
+
 \startfunctioncall
 <image> var = img.copy(<image> var)
 <image> var = img.copy(<table> image_spec)
@@ -217,7 +227,15 @@ Afterwards, \type {a} and \type {b} still reference the same actual image
 dictionary, but the dimensions for \type {b} can now be changed from their
 initial values that were just copies from \type {a}.
 
-\subsection{\type {write}}
+\subsection{\type {write}, \type {immediatewrite}, \type {immediatewriteobject}}
+
+\topicindex {images+injection}
+\topicindex {images+immediate}
+\topicindex {images+object}
+
+\libindex{write}
+\libindex{immediatewrite}
+\libindex{immediatewriteobject}
 
 \startfunctioncall
 <image> var = img.write(<image> var)
@@ -237,16 +255,7 @@ img.write { filename = "foo.png" }
 \stoptyping
 
 The \type {<image>} variable is returned in case you want it for later
-processing.
-
-\subsection{\type {immediatewrite}}
-
-\topicindex {images+immediate}
-
-\startfunctioncall
-<image> var = img.immediatewrite(<image> var)
-<image> var = img.immediatewrite(<table> image_spec)
-\stopfunctioncall
+processing. You can also write an object.
 
 By \type {img.immediatewrite(a)} a \PDF\ object number is allocated, and the
 image file for image \type {a} is written out immediately into the \PDF\ file as
@@ -257,6 +266,13 @@ key. No \type {pdf_refximage} whatsit node is generated. You will need an
 page, or reference it by another trick; else you will have a dangling image
 object in the \PDF\ file.
 
+\startfunctioncall
+<image> var = img.immediatewrite(<image> var)
+<image> var = img.immediatewrite(<table> image_spec)
+<image> var = img.immediatewriteobject(<image> var)
+<image> var = img.immediatewriteobject(<table> image_spec)
+\stopfunctioncall
+
 Also here you can do a terse call like
 
 \starttyping
@@ -266,6 +282,8 @@ a = img.immediatewrite { filename = "foo.png" }
 The \type {<image>} variable is returned and you will most likely need it.
 
 \subsection{\type {node}}
+
+\libindex{node}
 
 \startfunctioncall
 <node> n = img.node(<image> var)
@@ -291,6 +309,8 @@ node.write(img.node{filename="foo.png"})
 
 \topicindex {images+types}
 
+\libindex{types}
+
 \startfunctioncall
 <table> types = img.types()
 \stopfunctioncall
@@ -300,6 +320,8 @@ these are \type {pdf}, \type {png}, \type {jpg}, \type {jp2} (JPEG~2000), and
 \type {jbig2}.
 
 \subsection{\type {boxes}}
+
+\libindex{boxes}
 
 \startfunctioncall
 <table> boxes = img.boxes()
@@ -331,17 +353,23 @@ close after inclusion.
 \directlua{img.write(img.scan{ file = "foo.pdf", keepopen = true })} % kept open
 \stoptyping
 
-\section{The \type {mplib} library}
+\stopsection
+
+\startsection[title={The \type {mplib} library}][library=mplib]
 
 \topicindex {\METAPOST}
 \topicindex {\METAPOST+mplib}
 \topicindex {images+mplib}
 \topicindex {images+\METAPOST}
 
+\libindex{version}
+
 The \MP\ library interface registers itself in the table \type {mplib}. It is
 based on \MPLIB\ version \ctxlua {context(mplib.version())}.
 
 \subsection{\type {new}}
+
+\libindex{new}
 
 To create a new \METAPOST\ instance, call
 
@@ -395,20 +423,7 @@ cannot be found.
 
 Note that the new version of \MPLIB\ no longer uses binary mem files, so the way
 to preload a set of macros is simply to start off with an \type {input} command
-in the first \type {mp:execute()} call.
-
-When you're in a scriptrun the handler assigned to \type {run_script} can fetch
-variables from \METAPOST\ by name, given that they are accessible.
-
-\starttyping
-<number>  = get_numeric("foo")
-<boolean> = get_boolean("foo")
-<string>  = get_string ("foo")
-<table>   = get_path   ("foo")
-\stoptyping
-
-A path table has entries that themselves are tables of six numbers. The table
-also has a \type {cycle} key indicating if we're dealing with a cycle.
+in the first \type {execute} call.
 
 When you are processing a snippet of text starting with \type {btex} and
 ending with either \type {etex} or \type {verbatimtex}, the \METAPOST\
@@ -430,7 +445,9 @@ That way the \LUA\ handler (assigned to \type {make_text}) can do what it likes.
 An \type {etex} has to be followed by a space or \type {;} or be at the end of a
 line and preceded by a space or at the beginning of a line.
 
-\subsection{\type {mp:statistics}}
+\subsection{\type {statistics}}
+
+\libindex{statistics}
 
 You can request statistics with:
 
@@ -456,12 +473,14 @@ Note that in the new version of \MPLIB, this is informational only. The objects
 are all allocated dynamically, so there is no chance of running out of space
 unless the available system memory is exhausted.
 
-\subsection{\type {mp:execute}}
+\subsection{\type {execute}}
+
+\libindex{execute}
 
 You can ask the \METAPOST\ interpreter to run a chunk of code by calling
 
 \startfunctioncall
-<table> rettable = mp:execute('metapost language chunk')
+<table> rettable = execute(mp,"metapost code")
 \stopfunctioncall
 
 for various bits of \METAPOST\ language input. Be sure to check the \type
@@ -475,21 +494,25 @@ instance, you cannot split a single statement over multiple chunks.
 In contrast with the normal stand alone \type {mpost} command, there is
 \notabene {no} implied \quote{input} at the start of the first chunk.
 
-\subsection{\type {mp:finish}}
+\subsection{\type {finish}}
+
+\libindex{finish}
 
 \startfunctioncall
-<table> rettable = mp:finish()
+<table> rettable = finish(mp)
 \stopfunctioncall
 
 If for some reason you want to stop using an \MPLIB\ instance while processing is
-not yet actually done, you can call \type {mp:finish}. Eventually, used memory
+not yet actually done, you can call \type finish}. Eventually, used memory
 will be freed and open files will be closed by the \LUA\ garbage collector, but
-an explicit \type {mp:finish} is the only way to capture the final part of the
+an explicit \type finish} is the only way to capture the final part of the
 output streams.
 
 \subsection{Result table}
 
-The return value of \type {mp:execute} and \type {mp:finish} is a table with a
+\libindex {fields}
+
+The return value of \type {execute} and \type {finish} is a table with a
 few possible keys (only \type {status} is always guaranteed to be present).
 
 \starttabulate[|l|l|p|]
@@ -582,23 +605,6 @@ point number, unless stated otherwise. Field values that are of type \type
 \stoptabulate
 
 The entries \type {htap} and \type {pen} are optional.
-
-There is helper function (\type {mplib.pen_info(obj)}) that returns a table
-containing a bunch of vital characteristics of the used pen (all values are
-floats):
-
-\starttabulate[|l|l|p|]
-\DB field  \BC type \BC explanation \NC \NR
-\TB
-\NC \type{width} \NC number \NC width of the pen \NC \NR
-\NC \type{sx}    \NC number \NC $x$ scale        \NC \NR
-\NC \type{rx}    \NC number \NC $xy$ multiplier  \NC \NR
-\NC \type{ry}    \NC number \NC $yx$ multiplier  \NC \NR
-\NC \type{sy}    \NC number \NC $y$ scale        \NC \NR
-\NC \type{tx}    \NC number \NC $x$ offset       \NC \NR
-\NC \type{ty}    \NC number \NC $y$ offset       \NC \NR
-\LL
-\stoptabulate
 
 \subsubsection{outline}
 
@@ -736,28 +742,78 @@ representation of the dashlist. \type {dashes} is an array of \quote {on} and
 \LL
 \stoptabulate
 
+\subsection{Pens and \type {pen_info}}
+
+\libindex{pen_info}
+
+There is helper function (\type {pen_info(obj)}) that returns a table containing
+a bunch of vital characteristics of the used pen (all values are floats):
+
+\starttabulate[|l|l|p|]
+\DB field  \BC type \BC explanation \NC \NR
+\TB
+\NC \type{width} \NC number \NC width of the pen \NC \NR
+\NC \type{sx}    \NC number \NC $x$ scale        \NC \NR
+\NC \type{rx}    \NC number \NC $xy$ multiplier  \NC \NR
+\NC \type{ry}    \NC number \NC $yx$ multiplier  \NC \NR
+\NC \type{sy}    \NC number \NC $y$ scale        \NC \NR
+\NC \type{tx}    \NC number \NC $x$ offset       \NC \NR
+\NC \type{ty}    \NC number \NC $y$ offset       \NC \NR
+\LL
+\stoptabulate
+
 \subsection{Character size information}
 
 These functions find the size of a glyph in a defined font. The \type {fontname}
 is the same name as the argument to \type {infont}; the \type {char} is a glyph
 id in the range 0 to 255; the returned \type {w} is in AFM units.
 
-\subsubsection{\type {mp:char_width}}
+\subsubsection{\type {char_width}}
+
+\libindex{char_width}
 
 \startfunctioncall
-<number> w = mp:char_width(<string> fontname, <number> char)
+<number> w = char_width(mp,<string> fontname, <number> char)
 \stopfunctioncall
 
-\subsubsection{\type {mp:char_height}}
+\subsubsection{\type {char_height}}
+
+\libindex{char_height}
 
 \startfunctioncall
-<number> w = mp:char_height(<string> fontname, <number> char)
+<number> w = char_height(mp,<string> fontname, <number> char)
 \stopfunctioncall
 
-\subsubsection{\type {mp:char_depth}}
+\subsubsection{\type {char_depth}}
+
+\libindex{char_depth}
 
 \startfunctioncall
-<number> w = mp:char_depth(<string> fontname, <number> char)
+<number> w = char_depth(mp,<string> fontname, <number> char)
 \stopfunctioncall
+
+\subsubsection{\type {get[boolean|numeric|string|path]}}
+
+\libindex{get_boolean}
+\libindex{get_numeric}
+\libindex{get_path}
+\libindex{get_string}
+
+When a script call brings you from the \METAPOST\ run (temporarily) back to
+\LUA\ you can access variables, but only if they are known (so for instance
+anonymous capsules like loop variables are not accessible).
+
+\startfunctioncall
+<boolean> w = getboolean(mp,<string> name)
+<number>  n = getnumeric(mp,<string> name)
+<string>  s = getstring (mp,<string> name)
+<table>   p = getpath   (mp,<string> name)
+\stopfunctioncall
+
+The path is returned a a table with subtables that have six numbers: the
+coordinates of the point, pre- and postcontrol. A \type {cycle} fields indicates
+if a path is cyclic.
+
+\stopsection
 
 \stopchapter

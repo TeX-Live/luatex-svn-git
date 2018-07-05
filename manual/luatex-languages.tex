@@ -6,7 +6,7 @@
 
 \startchapter[reference=languages,title={Languages, characters, fonts and glyphs}]
 
-\section {Introduction}
+\startsection[title={Introduction}]
 
 \topicindex {languages}
 
@@ -51,7 +51,9 @@ font information in the whole list (creating ligatures and adjusting kerning),
 and finally it adjusts all the subtype identifiers so that the records are \quote
 {glyph nodes} from now on.
 
-\section[charsandglyphs]{Characters, glyphs and discretionaries}
+\stopsection
+
+\startsection[title={Characters, glyphs and discretionaries},reference=charsandglyphs]
 
 \topicindex {characters}
 \topicindex {glyphs}
@@ -390,7 +392,9 @@ command has a more verbose primitive version in \lpr {explicitdiscretionary}
 and the normally intercepted in the hyphenator character \type {-} (or whatever
 is configured) is available as \lpr {automaticdiscretionary}.
 
-\section{The main control loop}
+\stopsection
+
+\startsection[title={The main control loop}]
 
 \topicindex {main loop}
 \topicindex {hyphenation}
@@ -526,7 +530,9 @@ resulting from an \prm {exhyphenchar}:
 
 other values do what we always did in \LUATEX: insert \prm {exhyphenpenalty}.
 
-\section[patternsexceptions]{Loading patterns and exceptions}
+\stopsection
+
+\startsection[title={Loading patterns and exceptions},reference=patternsexceptions]
 
 \topicindex {hyphenation}
 \topicindex {hyphenation+patterns}
@@ -644,7 +650,9 @@ effectively we get 30000 in the example.
 \ShowSample{z{a-}{-b}{z}{a-}{-b}{z}{a-}{-b}{z}{a-}{-b}{z}z}{zzzzzz}
 \ShowSample{z{a-}{-b}{z}{a-}{-b}{z}[3]{a-}{-b}{z}[1]{a-}{-b}{z}z}{zzzzzz}
 
-\section{Applying hyphenation}
+\stopsection
+
+\startsection[title={Applying hyphenation}]
 
 \topicindex {hyphenation+how it works}
 \topicindex {hyphenation+discretionaries}
@@ -750,7 +758,9 @@ that this function expects to receive a list of \quote {character} nodes. It wil
 not operate properly in the presence of \quote {glyph}, \quote {ligature}, or
 \quote {ghost} nodes, nor does it know how to deal with kerning.
 
-\section{Applying ligatures and kerning}
+\stopsection
+
+\startsection[title={Applying ligatures and kerning}]
 
 \topicindex {ligatures}
 \topicindex {kerning}
@@ -889,7 +899,9 @@ mapping a sequence of glyphs onto one glyph, but also by selective replacement a
 kerning. This means that the above examples are just representing the traditional
 approach.
 
-\section{Breaking paragraphs into lines}
+\stopsection
+
+\startsection[title={Breaking paragraphs into lines}]
 
 \topicindex {linebreaks}
 \topicindex {paragraphs}
@@ -915,11 +927,16 @@ The combined effect of these two differences is that \LUATEX\ does not always us
 all of the potential breakpoints in a paragraph, especially when fonts with many
 ligatures are used. Of course kerning also complicates matters here.
 
-\section{The \type {lang} library}
+\stopsection
 
-\subsection {\type {lang.new} and \type {lang.id}}
+\startsection[title={The \type {lang} library}][library=lang]
+
+\subsection {\type {new} and \type {id}}
 
 \topicindex {languages+library}
+
+\libindex {new}
+\libindex {id}
 
 This library provides the interface to \LUATEX's structure representing a
 language, and the associated functions.
@@ -942,7 +959,9 @@ the internal language with that id number.
 
 The number returned is the internal \prm {language} id number this object refers to.
 
-\subsection {\type {lang.hyphenation}}
+\subsection {\type {hyphenation}}
+
+\libindex {hyphenation}
 
 You can hyphenate a string directly with:
 
@@ -951,7 +970,10 @@ You can hyphenate a string directly with:
 lang.hyphenation(<language> l, <string> n)
 \stopfunctioncall
 
-\subsection {\type {lang.clear_hyphenation} and \type {lang.clean}}
+\subsection {\type {clear_hyphenation} and \type {clean}}
+
+\libindex {clear_hyphenation}
+\libindex {clean}
 
 This either returns the current hyphenation exceptions for this language, or adds
 new ones. The syntax of the string is explained in~\in {section}
@@ -973,7 +995,10 @@ syntax of the argument string is explained in \in {section} [patternsexceptions]
 This function is useful if you want to do something else based on the words in a
 dictionary file, like spell|-|checking.
 
-\subsection {\type {lang.patterns} and \type {lang.clear_patterns}}
+\subsection {\type {patterns} and \type {clear_patterns}}
+
+\libindex {patterns}
+\libindex {clear_patterns}
 
 \startfunctioncall
 <string> n = lang.patterns(<language> l)
@@ -990,7 +1015,24 @@ lang.clear_patterns(<language> l)
 
 This can be used to clear the pattern dictionary for a language.
 
-\subsection {\type {lang.[pre|post]hyphenchar}}
+\subsection {\type {hyphenationmin}}
+
+\libindex {hyphenationmin}
+
+This function sets (or gets) the value of the \TEX\ parameter
+\type {\hyphenationmin}.
+
+\startfunctioncall
+n = lang.hyphenationmin(<language> l)
+lang.hyphenationmin(<language> l, <number> n)
+\stopfunctioncall
+
+\subsection {\type {[pre|post][ex|]hyphenchar}}
+
+\libindex {prehyphenchar}
+\libindex {posthyphenchar}
+\libindex {preexhyphenchar}
+\libindex {postexhyphenchar}
 
 \startfunctioncall
 <number> n = lang.prehyphenchar(<language> l)
@@ -1016,7 +1058,9 @@ These gets or set the \quote {pre|-|break} and \quote {post|-|break} hyphen
 characters for explicit hyphenation in this language. Both are initially
 decimal~0 (indicating emptiness).
 
-\subsection {\type {lang.hyphenate}}
+\subsection {\type {hyphenate}}
+
+\libindex {hyphenate}
 
 The next call inserts hyphenation points (discretionary nodes) in a node list. If
 \type {tail} is given as argument, processing stops on that node. Currently,
@@ -1033,7 +1077,10 @@ nodes with the node subtype having the value \type {1}. Glyph modes with
 different subtypes are not processed. See \in {section} [charsandglyphs] for
 more details.
 
-\subsection {\type {lang.[set|get]hjcode}}
+\subsection {\type {[set|get]hjcode}}
+
+\libindex {sethjcode}
+\libindex {gethjcode}
 
 The following two commands can be used to set or query hj codes:
 
@@ -1044,6 +1091,8 @@ lang.sethjcode(<language> l, <number> char, <number> usedchar)
 
 When you set a hjcode the current sets get initialized unless the set was already
 initialized due to \prm {savinghyphcodes} being larger than zero.
+
+\stopsection
 
 \stopchapter
 

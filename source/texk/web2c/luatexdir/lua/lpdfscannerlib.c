@@ -141,10 +141,7 @@ static void *priv_xmalloc(size_t size)
 {
     void *new_mem = (void *) malloc(size);
     if (new_mem == NULL) {
-        fprintf(stderr,
-            "fatal: memory exhausted (priv_xmalloc of %lu bytes).\n",
-            (unsigned long) size);
-        exit(1);
+        luaL_error(Luas, "no room for <pdfscanned> stream");
     }
     return new_mem;
 }
@@ -153,10 +150,7 @@ static void *priv_xrealloc(void *old_ptr, size_t size)
 {
     void *new_mem = (void *) realloc(old_ptr, size);
     if (new_mem == NULL) {
-        fprintf(stderr,
-            "fatal: memory exhausted (realloc of %lu bytes).\n",
-            (unsigned long) size);
-        exit(EXIT_FAILURE);
+        luaL_error(Luas, "no room for <pdfscanned> stream");
     }
     return new_mem;
 }
@@ -700,8 +694,8 @@ static int scanner_scan(lua_State * L)
     self->uses_stream = 1;
     if (lua_type(L, 1) == LUA_TSTRING) {
       /*tex
-	We could make a temporary copy on the stack (or in the registry)
-	which saves memory.
+            We could make a temporary copy on the stack (or in the registry)
+            which saves memory.
       */
       char *buf = NULL;
       const char *s = lua_tolstring(L, 1, &self->size);
@@ -934,7 +928,8 @@ static void push_token(lua_State * L, scannerdata * self)
     if (token->type == pdf_string || token->type == pdf_name) {
         lua_pushlstring(L, token->string, token->value);
     } else if (token->type == pdf_real || token->type == pdf_integer) {
-        lua_pushnumber(L, token->value);	/* integer or float */
+        /*tex This is an integer or float. */
+        lua_pushnumber(L, token->value);
     } else if (token->type == pdf_boolean) {
         lua_pushboolean(L, (int) token->value);
     } else if (token->type == pdf_startarray) {
@@ -1078,20 +1073,29 @@ static const luaL_Reg scannerlib_meta[] = {
 };
 
 static const struct luaL_Reg scannerlib_m[] = {
-    {"done", scanner_done},
-    {"popNumber", scanner_popnumber},
-    {"popName", scanner_popname},
-    {"popString", scanner_popstring},
-    {"popArray", scanner_poparray},
-    {"popDict", scanner_popdictionary},
-    {"popBool", scanner_popboolean},
-    {"pop", scanner_popany},
-    {NULL, NULL}
+    { "done",          scanner_done },
+    { "pop",           scanner_popany },
+    { "popnumber",     scanner_popnumber },
+    { "popname",       scanner_popname },
+    { "popstring",     scanner_popstring },
+    { "poparray",      scanner_poparray },
+    { "popdictionary", scanner_popdictionary },
+    { "popboolean",    scanner_popboolean },
+    /*tex For old times sake: */
+    { "popNumber",     scanner_popnumber },
+    { "popName",       scanner_popname },
+    { "popString",     scanner_popstring },
+    { "popArray",      scanner_poparray },
+    { "popDict",       scanner_popdictionary },
+    { "popBool",       scanner_popboolean },
+    /*tex Sentinel: */
+    { NULL,            NULL }
 };
 
 static const luaL_Reg scannerlib[] = {
-    {"scan", scanner_scan},
-    {NULL, NULL}
+    { "scan", scanner_scan },
+    /*tex Sentinel: */
+    { NULL,   NULL }
 };
 
 LUALIB_API int luaopen_pdfscanner(lua_State * L)

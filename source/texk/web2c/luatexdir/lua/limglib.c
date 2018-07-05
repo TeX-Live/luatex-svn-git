@@ -320,9 +320,11 @@ static const struct luaL_Reg imglib_f[] = {
     { "immediatewrite", l_immediatewrite_image },
     { "immediatewriteobject", l_immediatewrite_image_object },
     { "node", l_image_node },
-    { "keys", l_image_keys },
+    { "fields", l_image_keys },
     { "types", l_image_types },
     { "boxes", l_image_boxes },
+    /* for a while: */
+    { "keys", l_image_keys },
     { NULL, NULL }
 };
 

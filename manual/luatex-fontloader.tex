@@ -17,9 +17,11 @@ information about it. The tables returned by the loader are not that far from th
 standard. We have no plans to extend the loader (it may even become an external
 module at some time).
 
-\section{Getting quick information on a font}
+\startsection[title={Getting quick information on a font}][library=fontloader]
 
 \topicindex {fonts+information}
+
+\libindex{info}
 
 When you want to locate font by name you need some basic information that is
 hidden in the font files. For that reason we provide an efficient helper that
@@ -54,10 +56,16 @@ Getting information through this function is (sometimes much) more efficient tha
 loading the font properly, and is therefore handy when you want to create a
 dictionary of available fonts based on a directory contents.
 
-\section{Loading an \OPENTYPE\ or \TRUETYPE\ file}
+\stopsection
+
+\startsection[title={Loading an \OPENTYPE\ or \TRUETYPE\ file}][library=fontloader]
 
 \topicindex {\OPENTYPE}
 \topicindex {\TRUETYPE}
+
+\libindex{open}
+\libindex{close}
+\libindex{to_table}
 
 If you want to use an \OPENTYPE\ font, you have to get the metric information
 from somewhere. Using the \type {fontloader} library, the simplest way to get
@@ -108,8 +116,8 @@ to \LUATEX, otherwise the font inclusion backend will not be able to find the
 correct font in the collection.
 
 See \in {section} [fontloadertables] for details on the userdata object returned
-by \type {fontloader.open()} and the layout of the \type {metrics} table returned
-by \type {fontloader.to_table()}.
+by \type {fontloader.open} and the layout of the \type {metrics} table returned
+by \type {fontloader.to_table}.
 
 The font file is parsed and partially interpreted by the font loading routines
 from \FONTFORGE. The file format can be \OPENTYPE, \TRUETYPE, \TRUETYPE\
@@ -149,7 +157,11 @@ A loaded font is discarded with:
 fontloader.close(<userdata> font)
 \stopfunctioncall
 
-\section{Applying a \quote{feature file}}
+\stopsection
+
+\startsection[title={Applying a \quote{feature file}}][library=fontloader]
+
+\libindex{apply_featurefile}
 
 You can apply a \quote{feature file} to a loaded font:
 
@@ -176,9 +188,13 @@ If the function fails, the return value is a table containing any errors reporte
 by fontloader while applying the feature file. On success, \type {nil} is
 returned.
 
-\section{Applying an \quote{\AFM\ file}}
+\stopsection
+
+\startsection[title={Applying an \quote{\AFM\ file}}][library=fontloader]
 
 \topicindex {\TYPEONE}
+
+\libindex{apply_afmfile}
 
 You can apply an \quote {\AFM\ file} to a loaded font:
 
@@ -195,7 +211,7 @@ ftp://ftp.math.utah.edu/u/ma/hohn/linux/postscript/5004.AFM_Spec.pdf
 
 for more information about \AFM\ files.
 
-Note: If you \type {fontloader.open()} a \TYPEONE\ file named \type {font.pfb},
+Note: If you \type {fontloader.open} a \TYPEONE\ file named \type {font.pfb},
 the library will automatically search for and apply \type {font.afm} if it exists
 in the same directory as the file \type {font.pfb}. In that case, there is no
 need for an explicit call to \type {apply_afmfile()}.
@@ -203,18 +219,22 @@ need for an explicit call to \type {apply_afmfile()}.
 If the function fails, the return value is a table containing any errors reported
 by fontloader while applying the AFM file. On success, \type {nil} is returned.
 
-\section[fontloadertables]{Fontloader font tables}
+\stopsection
+
+\startsection[title={Fontloader font tables},reference=fontloadertables][library=fontloader]
 
 \topicindex {fontloader+tables}
 
-As mentioned earlier, the return value of \type {fontloader.open()} is a userdata
+\libindex{fields}
+
+As mentioned earlier, the return value of \type {fontloader.open} is a userdata
 object. One way to have access to the actual metrics is to call \type
-{fontloader.to_table()} on this object, returning the table structure that is
+{fontloader.to_table} on this object, returning the table structure that is
 explained in the following sections. In teh following sections we will not
 explain each field in detail. Most fields are self descriptive and for the more
 technical aspects you need to consult the relevant font references.
 
-It turns out that the result from \type {fontloader.to_table()} sometimes needs
+It turns out that the result from \type {fontloader.to_table} sometimes needs
 very large amounts of memory (depending on the font's complexity and size) so it
 is possible to access the userdata object directly.
 
@@ -279,7 +299,9 @@ local fields = fontloader.fields(f)
 local fields = fontloader.fields(f.glyphs[0])
 \stopfunctioncall
 
-\section{Table types}
+\stopsection
+
+\startsection[title={Table types}][library=fontloader]
 
 \subsection{The main table}
 
@@ -1083,7 +1105,7 @@ for coverage:
 \LL
 \stoptabulate
 
-and for reversecoverage:
+and for reverse coverage:
 
 \starttabulate[|l|l|p|]
 \DB key                 \BC type   \BC explanation \NC \NR
@@ -1094,6 +1116,8 @@ and for reversecoverage:
 \NC \type{replacements} \NC string \NC             \NC \NR
 \LL
 \stoptabulate
+
+\stopsection
 
 \stopchapter
 

@@ -6,9 +6,13 @@
 
 \startchapter[reference=callbacks,title={\LUA\ callbacks}]
 
-\section {Registering callbacks}
+\startsection[title={Registering callbacks}][library=callback]
 
 \topicindex{callbacks}
+
+\libindex{register}
+\libindex{list}
+\libindex{find}
 
 This library has functions that register, find and list callbacks. Callbacks are
 \LUA\ functions that are called in well defined places. There are two kind of
@@ -25,11 +29,11 @@ The first thing you need to do is registering a callback:
 
 \startfunctioncall
 id, error =
-    callback.register (<string> callback_name, <function> func)
+    callback.register(<string> callback_name, <function> func)
 id, error =
-    callback.register (<string> callback_name, nil)
+    callback.register(<string> callback_name, nil)
 id, error =
-    callback.register (<string> callback_name, false)
+    callback.register(<string> callback_name, false)
 \stopfunctioncall
 
 Here the \syntax {callback_name} is a predefined callback name, see below. The
@@ -58,12 +62,14 @@ The keys in the table are the known callback names, the value is a boolean where
 \type {true} means that the callback is currently set (active).
 
 \startfunctioncall
-<function> f = callback.find (callback_name)
+<function> f = callback.find(callback_name)
 \stopfunctioncall
 
-If the callback is not set, \type {callback.find} returns \type {nil}.
+If the callback is not set, \type {find} returns \type {nil}.
 
-\section{File discovery callbacks}
+\stopsection
+
+\startsection[title={File discovery callbacks}][library=callback]
 
 The behaviour documented in this subsection is considered stable in the sense that
 there will not be backward|-|incompatible changes any more.
@@ -359,7 +365,9 @@ The list of functions is:
 \LL
 \stoptabulate
 
-\section{Data processing callbacks}
+\stopsection
+
+\startsection[title={Data processing callbacks}][library=callback]
 
 \subsection{\cbk {process_input_buffer}}
 
@@ -416,7 +424,9 @@ inside this function or infinite recursion may occur. If you return \type {nil},
 \LUATEX\ will pretend your callback never happened. This callback does not
 replace any internal code.
 
-\section{Node list processing callbacks}
+\stopsection
+
+\startsection[title={Node list processing callbacks}][library=callback]
 
 The description of nodes and node lists is in~\in{chapter}[nodes].
 
@@ -829,7 +839,9 @@ penalties have to be inserted in this list, \type {false} otherwise.
 Setting this callback to \type {false} is bad, it will almost certainly result in
 an endless loop.
 
-\section{Information reporting callbacks}
+\stopsection
+
+\startsection[title={Information reporting callbacks}][library=callback]
 
 \subsection{\cbk {pre_dump}}
 
@@ -993,7 +1005,9 @@ after a run when native synctex is not enabled).
 This callback is called after the \PDF\ and log files are closed. Use it at your own
 risk.
 
-\section{PDF-related callbacks}
+\stopsection
+
+\startsection[title={\PDF\ related callbacks}][library=callback]
 
 \subsection{\cbk {finish_pdffile}}
 
@@ -1022,7 +1036,9 @@ end
 This callback is called after the \PDF\ page stream has been assembled and before
 the page object gets finalized.
 
-\section{Font-related callbacks}
+\stopsection
+
+\startsection[title={Font-related callbacks}][library=callback]
 
 \subsection{\cbk {define_font}}
 
@@ -1072,6 +1088,8 @@ function(<number> id, <number> char)
     -- do something with font id and char code
 end
 \stopfunctioncall
+
+\stopsection
 
 \stopchapter
 

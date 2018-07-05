@@ -617,55 +617,30 @@ static int l_set_xformresources (lua_State * L) { l_set_pdf_value(xformresources
 static int l_set_xformattributes(lua_State * L) { l_set_pdf_value(xformattributes); }
 static int l_set_trailerid      (lua_State * L) { l_set_pdf_value(trailerid); }
 
-/*
-
-static int setpdf(lua_State * L)
+static int getpdfobjtype(lua_State * L)
 {
-    const char *s ;
-    if (lua_gettop(L) != 3) {
-        return 0;
-    }
-    if (lua_type(L, -2) == LUA_TSTRING) {
-        s = lua_tostring(L, -1);
-        if (valid_pdf_key) {
-            lua_get_metatablelua(pdf_data);
-            lua_replace(L, -4);
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        int n = (int) lua_tointeger(L, 1);
+        if (n > 0 && n <= static_pdf->obj_ptr) {
+            lua_pushstring(L, pdf_obj_typenames[obj_type(static_pdf, n)]);
+            return 1;
         }
     }
-    lua_rawset(L, -3);
-    return 0;
-}
-
-*/
-
-static int l_objtype(lua_State * L)
-{
-    int n = lua_gettop(L);
-    if (n != 1)
-        luaL_error(L, "pdf.objtype() needs exactly 1 argument");
-    n = (int) luaL_checkinteger(L, 1);
-    if (n < 0 || n > static_pdf->obj_ptr)
-        lua_pushnil(L);
-    else
-        lua_pushstring(L, pdf_obj_typenames[obj_type(static_pdf, n)]);
+    lua_pushnil(L);
     return 1;
 }
 
-static int l_maxobjnum(lua_State * L)
+static int getpdfmaxobjnum(lua_State * L)
 {
-    int n = lua_gettop(L);
-    if (n != 0)
-        luaL_error(L, "pdf.maxobjnum() needs 0 arguments");
     lua_pushinteger(L, static_pdf->obj_ptr);
     return 1;
 }
 
 static int l_mapfile(lua_State * L)
 {
-    char *s;
     const char *st;
-    if ((lua_type(L,-1) == LUA_TSTRING) && (st = lua_tostring(L, -1)) != NULL) {
-        s = xstrdup(st);
+    if ((lua_type(L, 1) == LUA_TSTRING) && (st = lua_tostring(L, 1)) != NULL) {
+        char *s = xstrdup(st);
         process_map_item(s, MAPFILE);
         free(s);
     }
@@ -674,27 +649,13 @@ static int l_mapfile(lua_State * L)
 
 static int l_mapline(lua_State * L)
 {
-    char *s;
     const char *st;
-    if ((lua_type(L,-1) == LUA_TSTRING) && (st = lua_tostring(L, -1)) != NULL) {
-        s = xstrdup(st);
+    if ((lua_type(L, 1) == LUA_TSTRING) && (st = lua_tostring(L, 1)) != NULL) {
+        char *s = xstrdup(st);
         process_map_item(s, MAPLINE);
         free(s);
     }
     return 0;
-}
-
-static int l_pageref(lua_State * L)
-{
-    int n = lua_gettop(L);
-    if (n != 1)
-        luaL_error(L, "pdf.pageref() needs exactly 1 argument");
-    n = (int) luaL_checkinteger(L, 1);
-    if (n <= 0)
-        luaL_error(L, "pdf.pageref() needs page number > 0");
-    n = pdf_get_obj(static_pdf, obj_type_page, n, false);
-    lua_pushinteger(L, n);
-    return 1;
 }
 
 static int l_getpos(lua_State * L)
@@ -954,20 +915,18 @@ static int getpdffontsize(lua_State * L)
     return 1 ;
 }
 
-/*
-
 static int getpdfpageref(lua_State * L)
 {
     if (lua_type(L, 1) == LUA_TNUMBER) {
         int c = (int) lua_tointeger(L, 1);
-        lua_pushinteger(L, (pdf_get_obj(static_pdf, obj_type_page, c, false)));
-    } else {
-        lua_pushnil(L);
+        if (c > 0) {
+            lua_pushinteger(L, (pdf_get_obj(static_pdf, obj_type_page, c, false)));
+            return 1;
+        }
     }
+    lua_pushnil(L);
     return 1 ;
 }
-
-*/
 
 static int getpdfxformname(lua_State * L)
 {
@@ -978,12 +937,6 @@ static int getpdfxformname(lua_State * L)
     } else {
         lua_pushnil(L);
     }
-    return 1 ;
-}
-
-static int getpdfversion(lua_State * L)
-{
-    lua_pushinteger(L,1);
     return 1 ;
 }
 
@@ -1206,7 +1159,6 @@ static int l_set_font_attributes(lua_State * L)
     return 0;
 }
 
-
 static const struct luaL_Reg pdflib[] = {
     { "gethpos", l_gethpos },
     { "getvpos", l_getvpos },
@@ -1216,11 +1168,10 @@ static const struct luaL_Reg pdflib[] = {
     { "registerannot", l_registerannot },
     { "reserveobj", l_reserveobj },
     { "getpos", l_getpos },
- /* { "pageref", getpdfpageref }, */
-    { "maxobjnum", l_maxobjnum },
-    { "pageref", l_pageref },
+    { "getpageref", getpdfpageref },
+    { "getmaxobjnum", getpdfmaxobjnum },
     { "print", luapdfprint },
-    { "objtype", l_objtype },
+    { "getobjtype", getpdfobjtype },
     { "getmatrix", l_getmatrix },
     { "hasmatrix", l_hasmatrix },
     { "setfontattributes", l_set_font_attributes },
@@ -1260,12 +1211,10 @@ static const struct luaL_Reg pdflib[] = {
     { "setpkresolution", l_set_pk_resolution },
     { "getsuppressoptionalinfo", l_get_suppress_optional_info },
     { "setsuppressoptionalinfo", l_set_suppress_optional_info },
-    /* moved from tex table */
-    { "fontname", getpdffontname },
-    { "fontobjnum", getpdffontobjnum },
-    { "fontsize", getpdffontsize },
-    { "xformname", getpdfxformname },
-    { "getversion", getpdfversion },
+    { "getfontname", getpdffontname },
+    { "getfontobjnum", getpdffontobjnum },
+    { "getfontsize", getpdffontsize },
+    { "getxformname", getpdfxformname },
     { "getcreationdate", getpdfcreationdate },
     { "getmajorversion", getpdfmajorversion },
     { "setmajorversion", setpdfmajorversion },
@@ -1294,6 +1243,14 @@ static const struct luaL_Reg pdflib[] = {
     { "setomitcidset", setpdfomitcidset },
     { "mapfile", l_mapfile },
     { "mapline", l_mapline },
+    /* for a while */
+    { "maxobjnum", getpdfmaxobjnum },
+    { "pageref", getpdfpageref },
+    { "objtype", getpdfobjtype },
+    { "fontname", getpdffontname },
+    { "fontobjnum", getpdffontobjnum },
+    { "fontsize", getpdffontsize },
+    { "xformname", getpdfxformname },
     /* sentinel */
     {NULL, NULL}
 };

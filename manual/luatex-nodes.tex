@@ -6,9 +6,13 @@
 
 \startchapter[reference=nodes,title={Nodes}]
 
-\section{\LUA\ node representation}
+\startsection[title={\LUA\ node representation}][library=node]
 
 \topicindex {nodes}
+
+\libindex {fields}
+\libindex {subtypes}
+\libindex {values}
 
 \TEX's nodes are represented in \LUA\ as userdata objects with a variable set of
 fields. In the following syntax tables, such as the type of such a userdata object
@@ -32,17 +36,17 @@ names as in traditional \ETEX. Keep in mind that these \ETEX\ node numbers are
 different from the real internal ones and that there are more \ETEX\ node types
 than~15.
 
-You can ask for a list of fields with the \type {node.fields} and for valid
-subtypes with \type {node.subtypes}.
+You can ask for a list of fields with \type {node.fields} and for valid subtypes
+with \type {node.subtypes}. The \type {node.values} function reports some used
+values. Valid arguments are \nod {dir}, \type {direction}, \nod {glue}, \whs
+{pdf_literal}, \whs {pdf_action}, \whs {pdf_window} and \whs {color_stack}. Keep
+in mind that the setters normally expect a number, but this helper gives you a
+list of what numbers matter. For practical reason the \type {pagestate} values
+are also reported with this helper.
 
-The \type {node.values} function reports some used values. Valid arguments are
-\nod {dir}, \type {direction}, \nod {glue}, \whs {pdf_literal}, \whs
-{pdf_action}, \whs {pdf_window} and \whs {color_stack}. Keep in mind that the
-setters normally expect a number, but this helper gives you a list of what
-numbers matter. For practical reason the \type {pagestate} values are also
-reported with this helper.
+\stopsection
 
-\section{Main text nodes}
+\startsection[title={Main text nodes}]
 
 \topicindex {nodes+text}
 
@@ -552,7 +556,9 @@ Margin kerns result from protrusion.
 \LL
 \stoptabulate
 
-\section{Math noads}
+\stopsection
+
+\startsection[title={Math noads}]
 
 \topicindex {nodes+math}
 \topicindex {math+nodes}
@@ -769,10 +775,12 @@ can result.
 Warning: some of these fields are used by the renderer and might get adapted in
 the process.
 
-\section{whatsit nodes}
+\stopsection
+
+\startsection[title={Front|-|end whatsits}]
 
 Whatsit nodes come in many subtypes that you can ask for them by running
-\type {node.whatsits()}:
+\type {node.whatsits}:
 \startluacode
     for id, name in table.sortedpairs(node.whatsits()) do
         context.type(name)
@@ -783,7 +791,9 @@ Whatsit nodes come in many subtypes that you can ask for them by running
 \stopluacode
 . % period
 
-\section{Front|-|end whatsits}
+Some of them are generic and independent of the output mode and others are
+specific to the chosen backend: \DVI\ or \PDF. Here we discuss the generic
+font|-|end nodes nodes.
 
 \subsection{\whs {open}}
 
@@ -879,7 +889,9 @@ The difference between \type {data} and \type {string} is that on assignment, th
 \type {data} field is converted to a token list, cf.\ use as \lpr {latelua}. The
 \type {string} version is treated as a literal string.
 
-\section{\DVI\ backend whatsits}
+\stopsection
+
+\startsection[title={\DVI\ backend whatsits}]
 
 \subsection{\whs {special}}
 
@@ -894,7 +906,9 @@ output file.
 \LL
 \stoptabulate
 
-\section{\PDF\ backend whatsits}
+\stopsection
+
+\startsection[title={\PDF\ backend whatsits}]
 
 \subsection{\whs {pdf_literal}}
 
@@ -1111,7 +1125,9 @@ Valid window types are:
 \LL
 \stoptabulate
 
-\section{The \type {node} library}
+\stopsection
+
+\startsection[title={The \type {node} library}][library=node]
 
 \subsection {Introduction}
 
@@ -1171,9 +1187,11 @@ and getters handle this for you.
 There are statistics available with regards to the allocated node memory, which
 can be handy for tracing.
 
-\subsection{\type {node.is_node}}
+\subsection{\type {is_node}}
 
 \topicindex {nodes+functions}
+
+\libindex {is_node}
 
 \startfunctioncall
 <boolean|integer> t =
@@ -1183,59 +1201,70 @@ can be handy for tracing.
 This function returns a number (the internal index of the node) if the argument
 is a userdata object of type \type {<node>} and false when no node is passed.
 
-\subsection{\type {node.types}}
+\subsection{\type {types} and \type {whatsits}}
+
+\libindex {types}
+\libindex {whatsits}
+
+This function returns an array that maps node id numbers to node type strings,
+providing an overview of the possible top|-|level \type {id} types.
 
 \startfunctioncall
 <table> t =
     node.types()
 \stopfunctioncall
 
-This function returns an array that maps node id numbers to node type strings,
-providing an overview of the possible top|-|level \type {id} types.
-
-\subsection{\type {node.whatsits}}
+\TEX's \quote {whatsits} all have the same \type {id}. The various subtypes are
+defined by their \type {subtype} fields. The function is much like \type {types},
+except that it provides an array of \type {subtype} mappings.
 
 \startfunctioncall
 <table> t =
     node.whatsits()
 \stopfunctioncall
 
-\TEX's \quote {whatsits} all have the same \type {id}. The various subtypes are
-defined by their \type {subtype} fields. The function is much like \type
-{node.types}, except that it provides an array of \type {subtype} mappings.
+\subsection{\type {id}}
 
-\subsection{\type {node.id}}
+\libindex{id}
+
+This converts a single type name to its internal numeric representation.
 
 \startfunctioncall
 <number> id =
     node.id(<string> type)
 \stopfunctioncall
 
-This converts a single type name to its internal numeric representation.
+\subsection{\type {type} and \type {subtype}}
 
-\subsection{\type {node.subtype}}
+\libindex {type}
+\libindex {subtype}
 
-\startfunctioncall
-<number> subtype =
-    node.subtype(<string> type)
-\stopfunctioncall
-
-This converts a single whatsit name to its internal numeric representation (\type
-{subtype}).
-
-\subsection{\type {node.type}}
+In the argument is a number, then the next function converts an internal numeric
+representation to an external string representation. Otherwise, it will return
+the string \type {node} if the object represents a node, and \type {nil}
+otherwise.
 
 \startfunctioncall
 <string> type =
     node.type(<any> n)
 \stopfunctioncall
 
-In the argument is a number, then this function converts an internal numeric
-representation to an external string representation. Otherwise, it will return
-the string \type {node} if the object represents a node, and \type {nil}
-otherwise.
+This next one converts a single whatsit name to its internal numeric
+representation (\type {subtype}).
 
-\subsection{\type {node.fields}}
+\startfunctioncall
+<number> subtype =
+    node.subtype(<string> type)
+\stopfunctioncall
+
+\subsection{\type {fields}}
+
+\libindex {fields}
+
+This function returns an array of valid field names for a particular type of
+node. If you want to get the valid fields for a \quote {whatsit}, you have to
+supply the second argument also. In other cases, any given second argument will
+be silently ignored.
 
 \startfunctioncall
 <table> t =
@@ -1244,24 +1273,29 @@ otherwise.
     node.fields(<number> id, <number> subtype)
 \stopfunctioncall
 
-This function returns an array of valid field names for a particular type of
-node. If you want to get the valid fields for a \quote {whatsit}, you have to
-supply the second argument also. In other cases, any given second argument will
-be silently ignored.
+The function accepts string \type {id} and \type {subtype} values as well.
 
-This function accepts string \type {id} and \type {subtype} values as well.
+\subsection{\type {has_field}}
 
-\subsection{\type {node.has_field}}
+\libindex {has_field}
+
+This function returns a boolean that is only true if \type {n} is
+actually a node, and it has the field.
 
 \startfunctioncall
 <boolean> t =
     node.has_field(<node> n, <string> field)
 \stopfunctioncall
 
-This function returns a boolean that is only true if \type {n} is
-actually a node, and it has the field.
+\subsection{\type {new}}
 
-\subsection{\type {node.new}}
+\libindex{new}
+
+The \type {new} function creates a new node. All its fields are initialized to
+either zero or \type {nil} except for \type {id} and \type {subtype}. Instead of
+numbers you can also use strings (names). If you create a new \nod {whatsit} node
+the second argument is required. As with all node functions, this function
+creates a node at the \TEX\ level.
 
 \startfunctioncall
 <node> n =
@@ -1270,13 +1304,16 @@ actually a node, and it has the field.
     node.new(<number> id, <number> subtype)
 \stopfunctioncall
 
-The \type {new} function creates a new node. All its fields are initialized to
-either zero or \type {nil} except for \type {id} and \type {subtype}. Instead of
-numbers you can also use strings (names). If you create a new \nod {whatsit} node
-the second argument is required. As with all node functions, this function
-creates a node at the \TEX\ level.
+\subsection{\type {free}, \type {flush_node} and \type {flush_list}}
 
-\subsection{\type {node.free} and \type {node.flush_node}}
+\libindex{free}
+\libindex{flush_node}
+\libindex{flush_list}
+
+The next one the node \type {n} from \TEX's memory. Be careful: no checks are
+done on whether this node is still pointed to from a register or some \type
+{next} field: it is up to you to make sure that the internal data structures
+remain correct.
 
 \startfunctioncall
 <node> next =
@@ -1284,35 +1321,33 @@ creates a node at the \TEX\ level.
 flush_node(<node> n)
 \stopfunctioncall
 
-Removes the node \type {n} from \TEX's memory. Be careful: no checks are done on
-whether this node is still pointed to from a register or some \type {next} field:
-it is up to you to make sure that the internal data structures remain correct.
-
 The \type {free} function returns the next field of the freed node, while the
 \type {flush_node} alternative returns nothing.
 
-\subsection{\type {node.flush_list}}
+A list starting with node \type {n} can be flushed from \TEX's memory too. Be
+careful: no checks are done on whether any of these nodes is still pointed to
+from a register or some \type {next} field: it is up to you to make sure that the
+internal data structures remain correct.
 
 \startfunctioncall
 node.flush_list(<node> n)
 \stopfunctioncall
 
-Removes the node list \type {n} and the complete node list following \type {n}
-from \TEX's memory. Be careful: no checks are done on whether any of these nodes
-is still pointed to from a register or some \type {next} field: it is up to you
-to make sure that the internal data structures remain correct.
+\subsection{\type {copy} and \type {copy_list}}
 
-\subsection{\type {node.copy}}
+\libindex{copy}
+\libindex{copy_list}
+
+This creates a deep copy of node \type {n}, including all nested lists as in the case
+of a hlist or vlist node. Only the \type {next} field is not copied.
 
 \startfunctioncall
 <node> m =
     node.copy(<node> n)
 \stopfunctioncall
 
-Creates a deep copy of node \type {n}, including all nested lists as in the case
-of a hlist or vlist node. Only the \type {next} field is not copied.
-
-\subsection{\type {node.copy_list}}
+A deep copy of the node list that starts at \type {n} can be created too. If
+\type {m} is also given, the copy stops just before node \type {m}.
 
 \startfunctioncall
 <node> m =
@@ -1321,41 +1356,36 @@ of a hlist or vlist node. Only the \type {next} field is not copied.
     node.copy_list(<node> n, <node> m)
 \stopfunctioncall
 
-Creates a deep copy of the node list that starts at \type {n}. If \type {m} is
-also given, the copy stops just before node \type {m}.
+Note that you cannot copy attribute lists this way. However, there is normally no
+need to copy attribute lists as when you do assignments to the \type {attr} field
+or make changes to specific attributes, the needed copying and freeing takes
+place automatically.
 
-Note that you cannot copy attribute lists this way, specialized functions for
-dealing with attribute lists will be provided later but are not there yet.
-However, there is normally no need to copy attribute lists as when you do
-assignments to the \type {attr} field or make changes to specific attributes, the
-needed copying and freeing takes place automatically.
+\subsection{\type {prev} and \type{next}}
 
-\subsection{\type {node.next}}
+\libindex{prev}
+\libindex{next}
+
+These returns the node preceding or following the given node, or \type {nil} if
+there is no such node.
 
 \startfunctioncall
 <node> m =
     node.next(<node> n)
-\stopfunctioncall
-
-Returns the node following this node, or \type {nil} if there is no such node.
-
-\subsection{\type {node.prev}}
-
-\startfunctioncall
 <node> m =
     node.prev(<node> n)
 \stopfunctioncall
 
-Returns the node preceding this node, or \type {nil} if there is no such node.
+\subsection{\type {current_attr}}
 
-\subsection{\type {node.current_attr}}
+\libindex{current_attr}
+
+This returns the currently active list of attributes, if there is one.
 
 \startfunctioncall
 <node> m =
     node.current_attr()
 \stopfunctioncall
-
-Returns the currently active list of attributes, if there is one.
 
 The intended usage of \type {current_attr} is as follows:
 
@@ -1386,7 +1416,16 @@ attribute list, not a copy thereof. Therefore, changing any of the attributes in
 the list will change these values for all nodes that have the current attribute
 list assigned to them.
 
-\subsection{\type {node.hpack}}
+\subsection{\type {hpack}}
+
+\libindex {hpack}
+
+This function creates a new hlist by packaging the list that begins at node \type
+{n} into a horizontal box. With only a single argument, this box is created using
+the natural width of its components. In the three argument form, \type {info}
+must be either \type {additional} or \type {exactly}, and \type {w} is the
+additional (\type {\hbox spread}) or exact (\type {\hbox to}) width to be used.
+The second return value is the badness of the generated box.
 
 \startfunctioncall
 <node> h, <number> b =
@@ -1397,21 +1436,22 @@ list assigned to them.
     node.hpack(<node> n, <number> w, <string> info, <string> dir)
 \stopfunctioncall
 
-This function creates a new hlist by packaging the list that begins at node \type
-{n} into a horizontal box. With only a single argument, this box is created using
-the natural width of its components. In the three argument form, \type {info}
+Caveat: there can be unexpected side|-|effects to this function, like updating
+some of the \prm {marks} and \type {\inserts}. Also note that the content of
+\type {h} is the original node list \type {n}: if you call \type {node.free(h)}
+you will also free the node list itself, unless you explicitly set the \type
+{list} field to \type {nil} beforehand. And in a similar way, calling \type
+{node.free(n)} will invalidate \type {h} as well!
+
+\subsection{\type {vpack}}
+
+\libindex {vpack}
+
+This function creates a new vlist by packaging the list that begins at node \type
+{n} into a vertical box. With only a single argument, this box is created using
+the natural height of its components. In the three argument form, \type {info}
 must be either \type {additional} or \type {exactly}, and \type {w} is the
-additional (\type {\hbox spread}) or exact (\type {\hbox to}) width to be used.
-The second return value is the badness of the generated box.
-
-Caveat: at this moment, there can be unexpected side|-|effects to this function,
-like updating some of the \prm {marks} and \type {\inserts}. Also note that the
-content of \type {h} is the original node list \type {n}: if you call \type
-{node.free(h)} you will also free the node list itself, unless you explicitly set
-the \type {list} field to \type {nil} beforehand. And in a similar way, calling
-\type {node.free(n)} will invalidate \type {h} as well!
-
-\subsection{\type {node.vpack}}
+additional (\type {\vbox spread}) or exact (\type {\vbox to}) height to be used.
 
 \startfunctioncall
 <node> h, <number> b =
@@ -1422,17 +1462,26 @@ the \type {list} field to \type {nil} beforehand. And in a similar way, calling
     node.vpack(<node> n, <number> w, <string> info, <string> dir)
 \stopfunctioncall
 
-This function creates a new vlist by packaging the list that begins at node \type
-{n} into a vertical box. With only a single argument, this box is created using
-the natural height of its components. In the three argument form, \type {info}
-must be either \type {additional} or \type {exactly}, and \type {w} is the
-additional (\type {\vbox spread}) or exact (\type {\vbox to}) height to be used.
+The second return value is the badness of the generated box. See the description
+of \type {hpack} for a few memory allocation caveats.
 
-The second return value is the badness of the generated box.
+\subsection{\type {prepend_prevdepth}}
 
-See the description of \type {node.hpack()} for a few memory allocation caveats.
+\libindex {prepend_prevdepth}
 
-\subsection{\type {node.dimensions}, \type {node.rangedimensions}}
+This function is somewhat special in the sense that it is an experimental helper
+that adds the interlinespace to a line keeping the baselineskip and lineskip into
+account.
+
+\startfunctioncall
+<node> n, <number> delta =
+    node.prepend_prevdepth(<node> n,<number> prevdepth)
+\stopfunctioncall
+
+\subsection{\type {dimensions} and \type {rangedimensions}}
+
+\libindex{dimensions}
+\libindex{rangedimensions}
 
 \startfunctioncall
 <number> w, <number> h, <number> d  =
@@ -1497,7 +1546,9 @@ cases:
     node.rangedimensions(<node> parent, <node> first, <node> last)
 \stopfunctioncall
 
-\subsection{\type {node.mlist_to_hlist}}
+\subsection{\type {mlist_to_hlist}}
+
+\libindex {mlist_to_hlist}
 
 \startfunctioncall
 <node> h =
@@ -1508,7 +1559,7 @@ This runs the internal mlist to hlist conversion, converting the math list in
 \type {n} into the horizontal list \type {h}. The interface is exactly the same
 as for the callback \cbk {mlist_to_hlist}.
 
-\subsection{\type {node.slide}}
+\subsection{\type {slide}}
 
 \startfunctioncall
 <node> m =
@@ -1519,7 +1570,9 @@ Returns the last node of the node list that starts at \type {n}. As a
 side|-|effect, it also creates a reverse chain of \type {prev} pointers between
 nodes.
 
-\subsection{\type {node.tail}}
+\subsection{\type {tail}}
+
+\libindex {tail}
 
 \startfunctioncall
 <node> m =
@@ -1528,7 +1581,10 @@ nodes.
 
 Returns the last node of the node list that starts at \type {n}.
 
-\subsection{\type {node.length}}
+\subsection{\type {length} and type {count}}
+
+\libindex {length}
+\libindex {count}
 
 \startfunctioncall
 <number> i =
@@ -1541,8 +1597,6 @@ Returns the number of nodes contained in the node list that starts at \type {n}.
 If \type {m} is also supplied it stops at \type {m} instead of at the end of the
 list. The node \type {m} is not counted.
 
-\subsection{\type {node.count}}
-
 \startfunctioncall
 <number> i =
     node.count(<number> id, <node> n)
@@ -1553,11 +1607,26 @@ list. The node \type {m} is not counted.
 Returns the number of nodes contained in the node list that starts at \type {n}
 that have a matching \type {id} field. If \type {m} is also supplied, counting
 stops at \type {m} instead of at the end of the list. The node \type {m} is not
-counted.
+counted. This function also accept string \type {id}'s.
 
-This function also accept string \type {id}'s.
+\subsection{\type {is_char} and \type {is_glyph}}
 
-\subsection{\type {node.traverse}}
+\libindex {is_char}
+\libindex {is_glyph}
+
+The subtype of a glyph node signals if the glyph is already turned into a character reference
+or not.
+
+\startfunctioncall
+<boolean> b =
+    node.is_char(<node> n)
+<boolean> b =
+    node.is_glyph(<node> n)
+\stopfunctioncall
+
+\subsection{\type {traverse}}
+
+\libindex {traverse}
 
 \startfunctioncall
 <node> t, id, subtype =
@@ -1603,7 +1672,9 @@ pointers remain valid.
 If the above is unclear to you, see the section \quote {For Statement} in the
 \LUA\ Reference Manual.
 
-\subsection{\type {node.traverse_id}}
+\subsection{\type {traverse_id}}
+
+\libindex {traverse_id}
 
 \startfunctioncall
 <node> t, subtype =
@@ -1631,26 +1702,30 @@ See the previous section for details. The change is in the local function \type
  end
 \stoptyping
 
-\subsection{\type {node.traverse_char}}
+\subsection{\type {traverse_char} and \type {traverse_glyph}}
 
-This iterator loops over the \nod {glyph} nodes in a list. Only nodes with a
-subtype less than 256 are seen.
+\libindex {traverse_char}
+\libindex {traverse_glyph}
+
+The \type{traverse_char} iterator loops over the \nod {glyph} nodes in a list.
+Only nodes with a subtype less than 256 are seen.
 
 \startfunctioncall
 <node> n, font, char =
     node.traverse_char(<node> n)
 \stopfunctioncall
 
-\subsection{\type {node.traverse_glyph}}
-
-This iterator loops over a list and returns the list and filters all glyphs:
+The \type{traverse_glyph} iterator loops over a list and returns the list and
+filters all glyphs:
 
 \startfunctioncall
 <node> n, font, char =
     node.traverse_glyph(<node> n)
 \stopfunctioncall
 
-\subsection{\type {node.traverse_list}}
+\subsection{\type {traverse_list}}
+
+\libindex {traverse_list}
 
 This iterator loops over the \nod {hlist} and \nod {vlist} nodes in a list.
 
@@ -1663,7 +1738,9 @@ The four return values can save some time compared to fetching these fields but
 in practice you seldom need them all. So consider it a (side effect of
 experimental) convenience.
 
-\subsection{\type {node.has_glyph}}
+\subsection{\type {has_glyph}}
+
+\libindex {has_glyph}
 
 This function returns the first glyph or disc node in the given list:
 
@@ -1672,7 +1749,9 @@ This function returns the first glyph or disc node in the given list:
     node.has_glyph(<node> n)
 \stopfunctioncall
 
-\subsection{\type {node.end_of_math}}
+\subsection{\type {end_of_math}}
+
+\libindex {end_of_math}
 
 \startfunctioncall
 <node> t =
@@ -1684,7 +1763,9 @@ the given node is a math end node this helper returns that node, else it follows
 the list and returns the next math endnote. If no such node is found nil is
 returned.
 
-\subsection{\type {node.remove}}
+\subsection{\type {remove}}
+
+\libindex {remove}
 
 \startfunctioncall
 <node> head, current =
@@ -1700,7 +1781,9 @@ no such node). The returned \type {head} is more important, because if the
 function is called with \type {current} equal to \type {head}, it will be
 changed.
 
-\subsection{\type {node.insert_before}}
+\subsection{\type {insert_before}}
+
+\libindex {insert_before}
 
 \startfunctioncall
 <node> head, new =
@@ -1714,7 +1797,9 @@ mutated) \type {head} and the node \type {new}, set up to be part of the list
 (with correct \type {next} field). If \type {head} is initially \type {nil}, it
 will become \type {new}.
 
-\subsection{\type {node.insert_after}}
+\subsection{\type {insert_after}}
+
+\libindex {insert_after}
 
 \startfunctioncall
 <node> head, new =
@@ -1727,7 +1812,9 @@ following \type {head}. It is your responsibility to make sure that \type
 the node \type {new}, set up to be part of the list (with correct \type {next}
 field). If \type {head} is initially \type {nil}, it will become \type {new}.
 
-\subsection{\type {node.first_glyph}}
+\subsection{\type {first_glyph}}
+
+\libindex {first_glyph}
 
 \startfunctioncall
 <node> n =
@@ -1741,7 +1828,9 @@ with a subtype indicating it is a glyph, or \type {nil}. If \type {m} is given,
 processing stops at (but including) that node, otherwise processing stops at the
 end of the list.
 
-\subsection{\type {node.ligaturing}}
+\subsection{\type {ligaturing}}
+
+\libindex {ligaturing}
 
 \startfunctioncall
 <node> h, <node> t, <boolean> success =
@@ -1754,7 +1843,9 @@ Apply \TEX-style ligaturing to the specified nodelist. The tail node \type {m} i
 optional. The two returned nodes \type {h} and \type {t} are the new head and
 tail (both \type {n} and \type {m} can change into a new ligature).
 
-\subsection{\type {node.kerning}}
+\subsection{\type {kerning}}
+
+\libindex {kerning}
 
 \startfunctioncall
 <node> h, <node> t, <boolean> success =
@@ -1768,7 +1859,10 @@ optional. The two returned nodes \type {h} and \type {t} are the head and tail
 (either one of these can be an inserted kern node, because special kernings with
 word boundaries are possible).
 
-\subsection{\type {node.unprotect_glyphs} and \type {node.unprotect_glyph}}
+\subsection{\type {unprotect_glyph[s]}}
+
+\libindex {unprotect_glyphs}
+\libindex {unprotect_glyph}
 
 \startfunctioncall
 node.unprotect_glyph(<node> n)
@@ -1779,7 +1873,10 @@ Subtracts 256 from all glyph node subtypes. This and the next function are
 helpers to convert from \type {characters} to \type {glyphs} during node
 processing. The second argument is optional and indicates the end of a range.
 
-\subsection{\type {node.protect_glyphs} and \type {node.protect_glyph}}
+\subsection{\type {protect_glyph[s]}}
+
+\libindex {protect_glyphs}
+\libindex {protect_glyph}
 
 \startfunctioncall
 node.protect_glyph(<node> n)
@@ -1792,7 +1889,9 @@ that \type {characters} will become \type {glyphs} after subtraction of 256. A
 single character can be marked by the singular call. The second argument is
 optional and indicates the end of a range.
 
-\subsection{\type {node.last_node}}
+\subsection{\type {last_node}}
+
+\libindex {last_node}
 
 \startfunctioncall
 <node> n =
@@ -1802,7 +1901,9 @@ optional and indicates the end of a range.
 This function pops the last node from \TEX's \quote{current list}. It returns
 that node, or \type {nil} if the current list is empty.
 
-\subsection{\type {node.write}}
+\subsection{\type {write}}
+
+\libindex {write}
 
 \startfunctioncall
 node.write(<node> n)
@@ -1812,7 +1913,9 @@ This function that will append a node list to \TEX's \quote {current list}. The
 node list is not deep|-|copied! There is no error checking either! You mignt need
 to enforce horizontal mode in order for this to work as expected.
 
-\subsection{\type {node.protrusion_skippable}}
+\subsection{\type {protrusion_skippable}}
+
+\libindex {protrusion_skippable}
 
 \startfunctioncall
 <boolean> skippable =
@@ -1822,9 +1925,13 @@ to enforce horizontal mode in order for this to work as expected.
 Returns \type {true} if, for the purpose of line boundary discovery when
 character protrusion is active, this node can be skipped.
 
-\section{Glue handling}
+\stopsection
 
-\subsection{\type {node.setglue}}
+\startsection[title={Glue handling}][library=node]
+
+\subsection{\type {setglue}}
+
+\libindex {setglue}
 
 You can set the properties of a glue in one go. If you pass no values, the glue
 will become a zero glue.
@@ -1844,7 +1951,9 @@ will only adapt the width and shrink.
 
 When a list node is passed, you set the glue, order and sign instead.
 
-\subsection{\type {node.getglue}}
+\subsection{\type {getglue}}
+
+\libindex {getglue}
 
 The next call will return 5 values or nothing when no glue is passed.
 
@@ -1859,7 +1968,9 @@ with \type {tex.get}).
 When a list node is passed, you get back the glue that is set, the order of that
 glue and the sign.
 
-\subsection{\type {node.is_zero_glue}}
+\subsection{\type {is_zero_glue}}
+
+\libindex {is_zero_glue}
 
 This function returns \type {true} when the width, stretch and shrink properties
 are zero.
@@ -1869,7 +1980,9 @@ are zero.
     node.is_zero_glue(<node> n)
 \stopfunctioncall
 
-\section{Attribute handling}
+\stopsection
+
+\startsection[title={Attribute handling}][library=node]
 
 \subsection{Attributes}
 
@@ -1885,7 +1998,7 @@ Attributes appear as linked list of userdata objects in the \type {attr} field o
 individual nodes. They can be handled individually, but it is much safer and more
 efficient to use the dedicated functions associated with them.
 
-\subsection{attribute_list nodes}
+\subsection{\nod {attribute_list} nodes}
 
 \topicindex {nodes+attributes}
 
@@ -1919,7 +2032,9 @@ As mentioned it's better to use the official helpers rather than edit these
 fields directly. For instance the \type {prev} field is used for other purposes
 and there is no double linked list.
 
-\subsection{\type {node.has_attribute}}
+\subsection{\type {has_attribute}}
+
+\libindex {has_attribute}
 
 \startfunctioncall
 <number> v =
@@ -1932,7 +2047,9 @@ Tests if a node has the attribute with number \type {id} set. If \type {val} is
 also supplied, also tests if the value matches \type {val}. It returns the value,
 or, if no match is found, \type {nil}.
 
-\subsection{\type {node.get_attribute}}
+\subsection{\type {get_attribute}}
+
+\libindex {get_attribute}
 
 \startfunctioncall
 <number> v =
@@ -1943,7 +2060,9 @@ Tests if a node has an attribute with number \type {id} set. It returns the
 value, or, if no match is found, \type {nil}. If no \type {id} is given then the
 zero attributes is assumed.
 
-\subsection{\type {node.find_attribute}}
+\subsection{\type {find_attribute}}
+
+\libindex {find_attribute}
 
 \startfunctioncall
 <number> v, <node> n =
@@ -1953,7 +2072,9 @@ zero attributes is assumed.
 Finds the first node that has attribute with number \type {id} set. It returns
 the value and the node if there is a match and otherwise nothing.
 
-\subsection{\type {node.set_attribute}}
+\subsection{\type {set_attribute}}
+
+\libindex {set_attribute}
 
 \startfunctioncall
 node.set_attribute(<node> n, <number> id, <number> val)
@@ -1962,7 +2083,9 @@ node.set_attribute(<node> n, <number> id, <number> val)
 Sets the attribute with number \type {id} to the value \type {val}. Duplicate
 assignments are ignored.
 
-\subsection{\type {node.unset_attribute}}
+\subsection{\type {unset_attribute}}
+
+\libindex {unset_attribute}
 
 \startfunctioncall
 <number> v =
@@ -1978,7 +2101,9 @@ attributes or attribute|-|value pairs are ignored.
 If the attribute was actually deleted, returns its old value. Otherwise, returns
 \type {nil}.
 
-\subsection{\type {node.slide}}
+\subsection{\type {slide}}
+
+\libindex {slide}
 
 This helper makes sure that the node lists is double linked and returns the found
 tail node.
@@ -1995,13 +2120,16 @@ pointers but your other callbacks might expect proper \type {prev} pointers too.
 Future versions of \LUATEX\ can add more checking but this will not influence
 usage.
 
-\subsection{\type {node.check_discretionary} and \type {node.check_discretionaries}}
+\subsection{\type {check_discretionary}, \type {check_discretionaries}}
+
+\libindex{check_discretionary}
+\libindex{check_discretionaries}
 
 When you fool around with disc nodes you need to be aware of the fact that they
 have a special internal data structure. As long as you reassign the fields when
 you have extended the lists it's ok because then the tail pointers get updated,
 but when you add to list without reassigning you might end up in trouble when
-the linebreak routien kicks in. You can call this function to check the list for
+the linebreak routine kicks in. You can call this function to check the list for
 issues with disc nodes.
 
 \startfunctioncall
@@ -2012,7 +2140,9 @@ node.check_discretionaries(<node> head)
 The plural variant runs over all disc nodes in a list, the singular variant
 checks one node only (it also checks if the node is a disc node).
 
-\subsection{\type {node.flatten_discretionaries}}
+\subsection{\type {flatten_discretionaries}}
+
+\libindex {flatten_discretionaries}
 
 This function will remove the discretionaries in the list and inject the replace
 field when set.
@@ -2021,7 +2151,9 @@ field when set.
 <node> head, count = node.flatten_discretionaries(<node> n)
 \stopfunctioncall
 
-\subsection{\type {node.family_font}}
+\subsection{\type {family_font}}
+
+\libindex {family_font}
 
 When you pass a proper family identifier the next helper will return the font
 currently associated with it. You can normally also access the font with the
@@ -2033,37 +2165,37 @@ noads.
     node.family_font(<integer> fam)
 \stopfunctioncall
 
-\subsection{\type {node.set_synctex_fields} and \type {node.get_synctex_fields}}
+\stopsection
 
-You can set and query the synctex fields, a file number aka tag and a line
-number, for a glue, kern, hlist, vlist, rule and math nodes as well as glyph
-nodes (although this last one is not used in native synctex).
-
-\startfunctioncall
-node.set_synctex_fields(<integer> f, <integer> l)
-<integer> f, <integer> l =
-    node.get_synctex_fields(<node> n)
-\stopfunctioncall
-
-Of course you need to know what you're doing as no checking on sane values takes
-place. Also, the synctex interpreter used in editors is rather peculiar and has
-some assumptions (heuristics).
-
-\section{Two access models}
+\startsection[title={Two access models}][library=node]
 
 \topicindex{nodes+direct}
 \topicindex{direct nodes}
+
+\libindex {todirect}
+\libindex {tonode}
+\libindex {tostring}
 
 Deep down in \TEX\ a node has a number which is a numeric entry in a memory
 table. In fact, this model, where \TEX\ manages memory is real fast and one of
 the reasons why plugging in callbacks that operate on nodes is quite fast too.
 Each node gets a number that is in fact an index in the memory table and that
-number often is reported when you print node related information.
+number often is reported when you print node related information. You go from
+userdata nodes and there numeric references and back with:
 
-There are two access models, a robust one using a so called user data object that
-provides a virtual interface to the internal nodes, and a more direct access which
-uses the node numbers directly. The first model provides key based access while
-the second always accesses fields via functions:
+\startfunctioncall
+<integer> d = node.todirect(<node> n))
+<node> n = node.tonode(<integer> d))
+\stopfunctioncall
+
+The userdata model is rather robust as it is a virtual interface with some
+additional checking while the more direct access which uses the node numbers
+directly. However, even with userdata you can get into troubles when you free
+nodes that are no longer allocated or mess up lists. if you apply \type
+{tostring} to a node you see its internal (direct) number and id.
+
+The first model provides key based access while the second always accesses fields
+via functions:
 
 \starttyping
 nodeobject.char
@@ -2166,133 +2298,146 @@ consistency. You can of course always define additional accessors using \type
 
 \def\yes{$+$} \def\nop{$-$}
 
+\def\supported#1#2#3%
+ {\NC \type{#1}
+  \NC \ifx#2\yes\libidx{node}       {#1}\fi #2
+  \NC \ifx#3\yes\libidx{node.direct}{#1}\fi #3 \NC
+  \NR}
+
 \starttabulate[|l|c|c|]
-\DB function                     \BC node \BC direct \NC \NR
+\DB function \BC node \BC direct \NC \NR
 \TB
-%NC \type {do_ligature_n}        \NC \yes \NC \yes  \NC \NR % was never documented and experimental
-\NC \type {check_discretionaries}\NC \yes \NC \yes  \NC \NR
-\NC \type {copy_list}            \NC \yes \NC \yes  \NC \NR
-\NC \type {copy}                 \NC \yes \NC \yes  \NC \NR
-\NC \type {count}                \NC \yes \NC \yes  \NC \NR
-\NC \type {current_attr}         \NC \yes \NC \yes  \NC \NR
-\NC \type {dimensions}           \NC \yes \NC \yes  \NC \NR
-\NC \type {effective_glue}       \NC \yes \NC \yes  \NC \NR
-\NC \type {end_of_math}          \NC \yes \NC \yes  \NC \NR
-\NC \type {family_font}          \NC \yes \NC \nop  \NC \NR
-\NC \type {fields}               \NC \yes \NC \nop  \NC \NR
-\NC \type {find_attribute}       \NC \yes \NC \yes  \NC \NR
-\NC \type {first_glyph}          \NC \yes \NC \yes  \NC \NR
-\NC \type {flush_list}           \NC \yes \NC \yes  \NC \NR
-\NC \type {flush_node}           \NC \yes \NC \yes  \NC \NR
-\NC \type {free}                 \NC \yes \NC \yes  \NC \NR
-\NC \type {get_attribute}        \NC \yes \NC \yes  \NC \NR
-\NC \type {getattributelist}     \NC \nop \NC \yes  \NC \NR
-\NC \type {getboth}              \NC \yes \NC \yes  \NC \NR
-\NC \type {getbox}               \NC \nop \NC \yes  \NC \NR
-\NC \type {getchar}              \NC \yes \NC \yes  \NC \NR
-\NC \type {getcomponents}        \NC \nop \NC \yes  \NC \NR
-\NC \type {getdepth}             \NC \nop \NC \yes  \NC \NR
-\NC \type {getdir}               \NC \nop \NC \yes  \NC \NR
-\NC \type {getdisc}              \NC \yes \NC \yes  \NC \NR
-\NC \type {getfam}               \NC \nop \NC \yes  \NC \NR
-\NC \type {getfield}             \NC \yes \NC \yes  \NC \NR
-\NC \type {getfont}              \NC \yes \NC \yes  \NC \NR
-\NC \type {getglue}              \NC \yes \NC \yes  \NC \NR
-\NC \type {getheight}            \NC \nop \NC \yes  \NC \NR
-\NC \type {getid}                \NC \yes \NC \yes  \NC \NR
-\NC \type {getkern}              \NC \nop \NC \yes  \NC \NR
-\NC \type {getlang}              \NC \nop \NC \yes  \NC \NR
-\NC \type {getleader}            \NC \yes \NC \yes  \NC \NR
-\NC \type {getlist}              \NC \yes \NC \yes  \NC \NR
-\NC \type {getnext}              \NC \yes \NC \yes  \NC \NR
-\NC \type {getnucleus}           \NC \nop \NC \yes  \NC \NR
-\NC \type {getoffsets}           \NC \nop \NC \yes  \NC \NR
-\NC \type {getpenalty}           \NC \nop \NC \yes  \NC \NR
-\NC \type {getprev}              \NC \yes \NC \yes  \NC \NR
-\NC \type {getproperty}          \NC \yes \NC \yes  \NC \NR
-\NC \type {getshift}             \NC \nop \NC \yes  \NC \NR
-\NC \type {getwidth}             \NC \nop \NC \yes  \NC \NR
-\NC \type {getwhd}               \NC \nop \NC \yes  \NC \NR
-\NC \type {getsub}               \NC \nop \NC \yes  \NC \NR
-\NC \type {getsubtype}           \NC \yes \NC \yes  \NC \NR
-\NC \type {getsup}               \NC \nop \NC \yes  \NC \NR
-\NC \type {has_attribute}        \NC \yes \NC \yes  \NC \NR
-\NC \type {has_field}            \NC \yes \NC \yes  \NC \NR
-\NC \type {has_glyph}            \NC \yes \NC \yes  \NC \NR
-\NC \type {hpack}                \NC \yes \NC \yes  \NC \NR
-\NC \type {id}                   \NC \yes \NC \nop  \NC \NR
-\NC \type {insert_after}         \NC \yes \NC \yes  \NC \NR
-\NC \type {insert_before}        \NC \yes \NC \yes  \NC \NR
-\NC \type {is_char}              \NC \yes \NC \yes  \NC \NR
-\NC \type {is_direct}            \NC \nop \NC \yes  \NC \NR
-\NC \type {is_glue_zero}         \NC \yes \NC \yes  \NC \NR
-\NC \type {is_glyph}             \NC \yes \NC \yes  \NC \NR
-\NC \type {is_node}              \NC \yes \NC \yes  \NC \NR
-\NC \type {kerning}              \NC \yes \NC \yes  \NC \NR
-\NC \type {last_node}            \NC \yes \NC \yes  \NC \NR
-\NC \type {length}               \NC \yes \NC \yes  \NC \NR
-\NC \type {ligaturing}           \NC \yes \NC \yes  \NC \NR
-\NC \type {mlist_to_hlist}       \NC \yes \NC \nop  \NC \NR
-\NC \type {new}                  \NC \yes \NC \yes  \NC \NR
-\NC \type {next}                 \NC \yes \NC \nop  \NC \NR
-\NC \type {prev}                 \NC \yes \NC \nop  \NC \NR
-\NC \type {protect_glyphs}       \NC \yes \NC \yes  \NC \NR
-\NC \type {protect_glyph}        \NC \yes \NC \yes  \NC \NR
-\NC \type {protrusion_skippable} \NC \yes \NC \yes  \NC \NR
-\NC \type {rangedimensions}      \NC \yes \NC \yes  \NC \NR
-\NC \type {remove}               \NC \yes \NC \yes  \NC \NR
-\NC \type {set_attribute}        \NC \nop \NC \yes  \NC \NR
-\NC \type {setattributelist}     \NC \nop \NC \yes  \NC \NR
-\NC \type {setboth}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setbox}               \NC \nop \NC \yes  \NC \NR
-\NC \type {setchar}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setcomponents}        \NC \nop \NC \yes  \NC \NR
-\NC \type {setdepth}             \NC \nop \NC \yes  \NC \NR
-\NC \type {setdir}               \NC \nop \NC \yes  \NC \NR
-\NC \type {setdisc}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setfield}             \NC \yes \NC \yes  \NC \NR
-\NC \type {setfont}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setglue}              \NC \yes \NC \yes  \NC \NR
-\NC \type {setheight}            \NC \nop \NC \yes  \NC \NR
-\NC \type {setid}                \NC \nop \NC \yes  \NC \NR
-\NC \type {setkern}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setlang}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setleader}            \NC \nop \NC \yes  \NC \NR
-\NC \type {setlist}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setnext}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setnucleus}           \NC \nop \NC \yes  \NC \NR
-\NC \type {setoffsets}           \NC \nop \NC \yes  \NC \NR
-\NC \type {setpenalty}           \NC \nop \NC \yes  \NC \NR
-\NC \type {setprev}              \NC \nop \NC \yes  \NC \NR
-\NC \type {setproperty}          \NC \nop \NC \yes  \NC \NR
-\NC \type {setshift}             \NC \nop \NC \yes  \NC \NR
-\NC \type {setwidth}             \NC \nop \NC \yes  \NC \NR
-\NC \type {setwhd}               \NC \nop \NC \yes  \NC \NR
-\NC \type {setsub}               \NC \nop \NC \yes  \NC \NR
-\NC \type {setsubtype}           \NC \nop \NC \yes  \NC \NR
-\NC \type {setsup}               \NC \nop \NC \yes  \NC \NR
-\NC \type {slide}                \NC \yes \NC \yes  \NC \NR
-\NC \type {subtypes}             \NC \yes \NC \nop  \NC \NR
-\NC \type {subtype}              \NC \yes \NC \nop  \NC \NR
-\NC \type {tail}                 \NC \yes \NC \yes  \NC \NR
-\NC \type {todirect}             \NC \yes \NC \yes  \NC \NR
-\NC \type {tonode}               \NC \yes \NC \yes  \NC \NR
-\NC \type {tostring}             \NC \yes \NC \yes  \NC \NR
-\NC \type {traverse_char}        \NC \yes \NC \yes  \NC \NR
-\NC \type {traverse_id}          \NC \yes \NC \yes  \NC \NR
-\NC \type {traverse}             \NC \yes \NC \yes  \NC \NR
-\NC \type {types}                \NC \yes \NC \nop  \NC \NR
-\NC \type {type}                 \NC \yes \NC \nop  \NC \NR
-\NC \type {unprotect_glyphs}     \NC \yes \NC \yes  \NC \NR
-\NC \type {unset_attribute}      \NC \yes \NC \yes  \NC \NR
-\NC \type {usedlist}             \NC \yes \NC \yes  \NC \NR
-\NC \type {uses_font}            \NC \yes \NC \yes  \NC \NR
-\NC \type {vpack}                \NC \yes \NC \yes  \NC \NR
-\NC \type {whatsitsubtypes}      \NC \yes \NC \nop  \NC \NR
-\NC \type {whatsits}             \NC \yes \NC \nop  \NC \NR
-\NC \type {write}                \NC \yes \NC \yes  \NC \NR
-\NC \type {set_synctex_fields}   \NC \yes \NC \yes  \NC \NR
-\NC \type {get_synctex_fields}   \NC \yes \NC \yes  \NC \NR
+\supported {check_discretionaries}   \yes \yes
+\supported {check_discretionary}     \yes \yes
+\supported {copy_list}               \yes \yes
+\supported {copy}                    \yes \yes
+\supported {count}                   \yes \yes
+\supported {current_attr}            \yes \yes
+\supported {dimensions}              \yes \yes
+\supported {effective_glue}          \yes \yes
+\supported {end_of_math}             \yes \yes
+\supported {family_font}             \yes \nop
+\supported {fields}                  \yes \nop
+\supported {find_attribute}          \yes \yes
+\supported {first_glyph}             \yes \yes
+\supported {flatten_discretionaries} \yes \yes
+\supported {flush_list}              \yes \yes
+\supported {flush_node}              \yes \yes
+\supported {free}                    \yes \yes
+\supported {get_attribute}           \yes \yes
+\supported {get_synctex_fields}      \nop \yes
+\supported {getattributelist}        \nop \yes
+\supported {getboth}                 \yes \yes
+\supported {getbox}                  \nop \yes
+\supported {getchar}                 \yes \yes
+\supported {getcomponents}           \nop \yes
+\supported {getdepth}                \nop \yes
+\supported {getdirection}            \nop \yes
+\supported {getdir}                  \nop \yes
+\supported {getdisc}                 \yes \yes
+\supported {getfam}                  \nop \yes
+\supported {getfield}                \yes \yes
+\supported {getfont}                 \yes \yes
+\supported {getglue}                 \yes \yes
+\supported {getheight}               \nop \yes
+\supported {getid}                   \yes \yes
+\supported {getkern}                 \nop \yes
+\supported {getlang}                 \nop \yes
+\supported {getleader}               \yes \yes
+\supported {getlist}                 \yes \yes
+\supported {getnext}                 \yes \yes
+\supported {getnucleus}              \nop \yes
+\supported {getoffsets}              \nop \yes
+\supported {getpenalty}              \nop \yes
+\supported {getprev}                 \yes \yes
+\supported {getproperty}             \yes \yes
+\supported {getshift}                \nop \yes
+\supported {getsubtype}              \yes \yes
+\supported {getsub}                  \nop \yes
+\supported {getsup}                  \nop \yes
+\supported {getwhd}                  \yes \yes
+\supported {getwidth}                \nop \yes
+\supported {has_attribute}           \yes \yes
+\supported {has_field}               \yes \yes
+\supported {has_glyph}               \yes \yes
+\supported {hpack}                   \yes \yes
+\supported {id}                      \yes \nop
+\supported {insert_after}            \yes \yes
+\supported {insert_before}           \yes \yes
+\supported {is_char}                 \yes \yes
+\supported {is_direct}               \nop \yes
+\supported {is_glyph}                \yes \yes
+\supported {is_node}                 \yes \yes
+\supported {is_zero_glue}            \yes \yes
+\supported {kerning}                 \yes \yes
+\supported {last_node}               \yes \yes
+\supported {length}                  \yes \yes
+\supported {ligaturing}              \yes \yes
+\supported {mlist_to_hlist}          \yes \nop
+\supported {new}                     \yes \yes
+\supported {next}                    \yes \nop
+\supported {prepend_prevdepth}       \nop \yes
+\supported {prev}                    \yes \nop
+\supported {protect_glyphs}          \yes \yes
+\supported {protect_glyph}           \yes \yes
+\supported {protrusion_skippable}    \yes \yes
+\supported {rangedimensions}         \yes \yes
+\supported {remove}                  \yes \yes
+\supported {set_attribute}           \yes \yes
+\supported {set_synctex_fields}      \nop \yes
+\supported {setattributelist}        \nop \yes
+\supported {setboth}                 \nop \yes
+\supported {setbox}                  \nop \yes
+\supported {setchar}                 \nop \yes
+\supported {setcomponents}           \nop \yes
+\supported {setdepth}                \nop \yes
+\supported {setdirection}            \nop \yes
+\supported {setdir}                  \nop \yes
+\supported {setdisc}                 \nop \yes
+\supported {setfam}                  \nop \yes
+\supported {setfield}                \yes \yes
+\supported {setfont}                 \nop \yes
+\supported {setglue}                 \yes \yes
+\supported {setheight}               \nop \yes
+\supported {setkern}                 \nop \yes
+\supported {setlang}                 \nop \yes
+\supported {setleader}               \nop \yes
+\supported {setlink}                 \nop \yes
+\supported {setlist}                 \nop \yes
+\supported {setnext}                 \nop \yes
+\supported {setnucleus}              \nop \yes
+\supported {setoffsets}              \nop \yes
+\supported {setpenalty}              \nop \yes
+\supported {setprev}                 \nop \yes
+\supported {setproperty}             \yes \yes
+\supported {setshift}                \nop \yes
+\supported {setsplit}                \nop \yes
+\supported {setsubtype}              \nop \yes
+\supported {setsub}                  \nop \yes
+\supported {setsup}                  \nop \yes
+\supported {setwhd}                  \nop \yes
+\supported {setwidth}                \nop \yes
+\supported {slide}                   \yes \yes
+\supported {subtypes}                \yes \nop
+\supported {subtype}                 \yes \nop
+\supported {tail}                    \yes \yes
+\supported {todirect}                \yes \yes
+\supported {tonode}                  \yes \yes
+\supported {tostring}                \yes \yes
+\supported {traverse_char}           \yes \yes
+\supported {traverse_glyph}          \yes \yes
+\supported {traverse_id}             \yes \yes
+\supported {traverse}                \yes \yes
+\supported {types}                   \yes \nop
+\supported {type}                    \yes \nop
+\supported {unprotect_glyphs}        \yes \yes
+\supported {unprotect_glyph}         \yes \yes
+\supported {unset_attribute}         \yes \yes
+\supported {usedlist}                \yes \yes
+\supported {uses_font}               \yes \yes
+\supported {vpack}                   \yes \yes
+\supported {whatsits}                \yes \nop
+\supported {write}                   \yes \yes
 \LL
 \stoptabulate
 
@@ -2309,6 +2454,196 @@ accessor. So, \type {getfont} and \type {.font} can be used on them. The same is
 true for the \type {width}, \type {height} and \type {depth} of glue nodes. These
 actually access the spec node properties, and here we can set as well as get the
 values.
+
+In some places \LUATEX\ can do a bit of extra checking for valid node lists and
+you can enable that with:
+
+\startfunctioncall
+node.fix_node_lists(<boolean> b)
+\stopfunctioncall
+
+You can set and query the synctex fields, a file number aka tag and a line
+number, for a glue, kern, hlist, vlist, rule and math nodes as well as glyph
+nodes (although this last one is not used in native synctex).
+
+\startfunctioncall
+node.set_synctex_fields(<integer> f, <integer> l)
+<integer> f, <integer> l =
+    node.get_synctex_fields(<node> n)
+\stopfunctioncall
+
+Of course you need to know what you're doing as no checking on sane values takes
+place. Also, the synctex interpreter used in editors is rather peculiar and has
+some assumptions (heuristics).
+
+\stopsection
+
+\startsection[title={Properties}][library=node]
+
+\topicindex {nodes+properties}
+\topicindex {properties}
+
+\libindex{flush_properties_table}
+\libindex{get_properties_table}
+\libindex{set_properties_mode}
+
+Attributes are a convenient way to relate extra information to a node. You can
+assign them at the \TEX\ end as well as at the \LUA\ end and and consult them at
+the \LUA\ end. One big advantage is that they obey grouping. They are linked
+lists and normally checking for them is pretty efficient, even if you use a lot
+of them. A macro package has to provide some way to manage these attributes at the
+\TEX\ end because otherwise clashes in their usage can occur.
+
+Each node also can have a properties table and you can assign values to this
+table using the \type {setproperty} function and get properties using the \type
+{getproperty} function. Managing properties is way more demanding than managing
+attributes.
+
+Take the following example:
+
+\starttyping
+\directlua {
+    local n = node.new("glyph")
+
+    node.setproperty(n,"foo")
+    print(node.getproperty(n))
+
+    node.setproperty(n,"bar")
+    print(node.getproperty(n))
+
+    node.free(n)
+}
+\stoptyping
+
+This will print \type {foo} and \type {bar} which in itself is not that useful
+when multiple mechanisms want to use this feature. A variant is:
+
+\starttyping
+\directlua {
+    local n = node.new("glyph")
+
+    node.setproperty(n,{ one = "foo", two = "bar" })
+    print(node.getproperty(n).one)
+    print(node.getproperty(n).two)
+
+    node.free(n)
+}
+\stoptyping
+
+This time we store two properties with the node. It really makes sense to have a
+table as property because that way we can store more. But in order for that to
+work well you need to do it this way:
+
+\starttyping
+\directlua {
+    local n = node.new("glyph")
+
+    local t = node.getproperty(n)
+
+    if not t then
+        t = { }
+        node.setproperty(n,t)
+    end
+    t.one = "foo"
+    t.two = "bar"
+
+    print(node.getproperty(n).one)
+    print(node.getproperty(n).two)
+
+    node.free(n)
+}
+\stoptyping
+
+Here our own properties will not overwrite other users properties unless of
+course they use the same keys. So, eventually you will end up with something:
+
+\starttyping
+\directlua {
+    local n = node.new("glyph")
+
+    local t = node.getproperty(n)
+
+    if not t then
+        t = { }
+        node.setproperty(n,t)
+    end
+    t.myself = { one = "foo", two = "bar" }
+
+    print(node.getproperty(n).myself.one)
+    print(node.getproperty(n).myself.two)
+
+    node.free(n)
+}
+\stoptyping
+
+This assumes that only you use \type {myself} as subtable. The possibilities are
+endless but care is needed. For instance, the generic font handler that ships
+with \CONTEXT\ uses the \type {injections} subtable and you should not mess with
+that one!
+
+There are a few helper functions that you normally should not touch as user: \typ
+{flush_properties_table} will wipe the table (normally a bad idea), \typ
+{get_properties_table} and will give the table that stores properties (using
+direct entries) and you can best not mess too much with that one either because
+\LUATEX\ itself will make sure that entries related to nodes will get wiped when
+nodes get freed, so that the \LUA\ garbage collector can do its job. In fact, the
+main reason why we have this mechanism is that it saves the user (or macro
+package) some work. One can easily write a property mechanism in \LUA\ where
+after a shipout properties gets cleaned up but it's not entirely trivial to make
+sure that with each freed node also its properties get freed, due to the fact
+that there can be nodes left over for a next page. And having a callback bound to
+the node deallocator would add way to much overhead.
+
+Managing properties in the node (de)allocator functions is disabled by default
+and is enabled by:
+
+\starttyping
+node.set_properties_mode(true)
+\stoptyping
+
+When we copy a node list that has a table as property, there are several possibilities: we do the same as
+a new node, we copy the entry to the table in properties (a reference), we do
+a deep copy of a table in the properties, we create a new table and give it
+the original one as a metatable. After some experiments (that also included
+timing) with these scenarios we decided that a deep copy made no sense, nor
+did nilling. In the end both the shallow copy and the metatable variant were
+both ok, although the second one is slower. The most important aspect to keep
+in mind is that references to other nodes in properties no longer can be
+valid for that copy. We could use two tables (one unique and one shared) or
+metatables but that only complicates matters.
+
+When defining a new node, we could already allocate a table but it is rather easy
+to do that at the lua end e.g.\ using a metatable \type {__index} method. That
+way it is under macro package control. When deleting a node, we could keep the
+slot (e.g. setting it to false) but it could make memory consumption raise
+unneeded when we have temporary large node lists and after that only small lists.
+Both are not done.
+
+So in the end this is what happens now: when a node is copied, and it has a table
+as property, the new node will share that table. If the second argument of \typ
+{set_properties_mode} is \type {true} then a metatable approach is chosen: the
+copy gets its own table with the original table as metatable. If you use the
+generic font loader the mode is enabled that way.
+
+A few more xperiments were done. For instance: copy attributes to the properties
+so that we have fast access at the \LUA\ end. In the end the overhead is not
+compensated by speed and convenience, in fact, attributes are not that slow when
+it comes to accessing them. So this was rejected.
+
+Another experiment concerned a bitset in the node but again the gain compared to
+attributes was neglectable and given the small amount of available bits it also
+demands a pretty strong agreement over what bit represents what, and this is
+unlikely to succeed in the \TEX\ community. It doesn't pay off.
+
+Just in case one wonders why properties make sense: it is not so much speed that
+we gain, but more convenience: storing all kind of (temporary) data in attributes
+is no fun and this mechanism makes sure that properties are cleaned up when a
+node is freed. Also, the advantage of a more or less global properties table is
+that we stay at the \LUA\ end. An alternative is to store a reference in the node
+itself but that is complicated by the fact that the register has some limitations
+(no numeric keys) and we also don't want to mess with it too much.
+
+\stopsection
 
 \stopchapter
 

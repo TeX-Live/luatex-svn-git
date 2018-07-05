@@ -6,7 +6,7 @@
 
 \startchapter[reference=backend,title={The backend libraries}]
 
-\section{The \type {pdf} library}
+\startsection[title={The \type {pdf} library}][library=pdf]
 
 \topicindex{backend}
 \topicindex{\PDF}
@@ -29,7 +29,7 @@ These two functions can be used to replace primitives \orm {pdfmapfile} and
 \orm {pdfmapline} inherited from \PDFTEX. They expect a string as only
 parameter and have no return value. The first character in a map line can be
 \type {-}, \type {+} or \type {=} which means as much as remove, add or replace
-this line.
+this line. They are not state setters but act immediately.
 
 \subsection {\type {[set|get][catalog|info|names|trailer]}}
 
@@ -37,11 +37,20 @@ this line.
 \topicindex{\PDF+catalog}
 \topicindex{\PDF+info}
 
+\libindex{setcatalog} \libindex{getcatalog}
+\libindex{setinfo}    \libindex{getinfo}
+\libindex{setnames}   \libindex{getnames}
+\libindex{settrailer} \libindex{gettrailer}
+
 These functions complement the corresponding \PDF\ backend token lists dealing
 with metadata. The value types are strings and they are written to the \PDF\
 file directly after the token registers set at the \TEX\ end are written.
 
 \subsection {\type {[set|get][pageattributes|pageresources|pagesattributes]}}
+
+\libindex{setpageattributes}  \libindex{getpageattributes}
+\libindex{setpageresources}   \libindex{getpageresources}
+\libindex{setpagesattributes} \libindex{getpagesattributes}
 
 \topicindex{\PDF+page attributes}
 \topicindex{\PDF+page resources}
@@ -53,6 +62,9 @@ token registers set at the \TEX\ end are written.
 
 \subsection{\type {[set|get][xformattributes|xformresources]}}
 
+\libindex{setxformattributes} \libindex{getxformattributes}
+\libindex{setxformresources}  \libindex{getxformresources}
+
 \topicindex{\PDF+xform attributes}
 \topicindex{\PDF+xform resources}
 
@@ -61,79 +73,86 @@ with reuseable boxes and images. The variables have no interaction with the
 corresponding \PDF\ backend token register. They are written to the \PDF\
 file directly after the token registers set at the \TEX\ end are written.
 
-\subsection{\type {getversion} and \type {[set|get]minorversion}}
+\subsection{\type {[set|get][major|minor]version}}
 
 \topicindex{\PDF+version}
 
-The version is frozen in the binary but you can set the minor version. What minor
-version you set depends on what \PDF\ features you use. This is out of control
-of \LUATEX.
+\libindex{getmajorversion} \libindex{setmajorversion}
+\libindex{getminorversion} \libindex{setminorversion}
+
+You can set both the major and minor version of the output. The major version is
+normally~1 but when set to~2 some data will not be written to the file in order
+to comply with the standard. What minor version you set depends on what \PDF\
+features you use. This is out of control of \LUATEX.
 
 \subsection{\type {getcreationdate}}
 
 \topicindex{\PDF+date}
 
+\libindex{getcreationdate}
+
 This function returns a string with the date in the format that ends up in the
 \PDF\ file, in this case it's: {\tttf \cldcontext{pdf.getcreationdate()}}.
 
-\subsection{\type {[set|get]inclusionerrorlevel}, \type {[set|get]ignoreunknownimages}}
+\subsection{\type {[set|get]inclusionerrorlevel} and \type {[set|get]ignoreunknownimages}}
 
 \topicindex{\PDF+options}
+
+\libindex{getinclusionerrorlevel} \libindex{setinclusionerrorlevel}
+\libindex{getignoreunknownimages} \libindex{setignoreunknownimages}
 
 These variable control how error in included image are treated. They are modeled
 after the \PDFTEX\ equivalents.
 
-\subsection{\type {[set|get]suppressoptionalinfo}}
+\subsection{\type {[set|get]suppressoptionalinfo}, \type {[set|get]trailerid}
+and \type {[set|get]omitcidset}}
 
 \topicindex{\PDF+options}
-
-This bitset determines what kind of info gets flushed. By default we flush all.
-
-\subsection{\type {[set|get]trailerid}}
-
 \topicindex{\PDF+trailer}
 
-You can set your own trailer id. This has to be a valid array string
-with checksums.
+\libindex{getsuppressoptionalinfo} \libindex{setsuppressoptionalinfo}
+\libindex{gettrailerid}            \libindex{settrailerid}
+\libindex{getomitcidset}           \libindex{setomitcidset}
 
-\subsection{\type {[set|get]compresslevel}}
+This optional info bitset (a number) determines what kind of info gets flushed.
+By default we flush all.
 
-\topicindex{\PDF+compression}
+You can set your own trailer id. This has to be string containing valid \PDF\
+array content with checksums.
 
-These two functions set the level of compression. The minimum value is~0,
-the maximum is~9.
+This cidset flag (a number) disables inclusion of a so called CIDSet which can be
+handy when aiming at some of the many \PDF\ substandards.
 
-\subsection{\type {[set|get]objcompresslevel}}
-
-\topicindex{\PDF+compression}
-
-These two functions set the level of compression. The minimum value is~0,
-the maximum is~9.
-
-\subsection{\type {[set|get]recompress}}
+\subsection{\type {[set|get][obj|]compresslevel} and \type {[set|get]recompress}}
 
 \topicindex{\PDF+compression}
 
-When set to~1 compressed objects will be decompressed and when compresslevel is
-larger than zero be recompressed. This is mostly a debugging feature and should
-not be relied upon.
+\libindex{getcompresslevel}    \libindex{setcompresslevel}
+\libindex{getobjcompresslevel} \libindex{setobjcompresslevel}
+\libindex{getrecompress}       \libindex{setrecompress}
+
+These functions set the level stream compression. When object compression is
+enabled multiple objects will be packed in a compressed stream which saves space.
+The minimum values are~0, the maxima are~9.
+
+When recompression is to~1 compressed objects will be decompressed and when
+compresslevel is larger than zero they will then be recompressed. This is mostly
+a debugging feature and should not be relied upon.
 
 \subsection{\type {[set|get]gentounicode}}
 
 \topicindex{\PDF+unicode}
 
-This flag enables tounicode generation (like in \PDFTEX).
+\libindex{getgentounicode} \libindex{setgentounicode}
 
-\subsection{\type {[set|get]omitcidset}}
-
-\topicindex{\PDF+options}
-
-This flag disables inclusion of a so called CIDSet which can be handy when aiming
-at some of the many \PDF\ substandards.
+This flag enables tounicode generation (like in \PDFTEX). Normally the values are
+provided by the font loader.
 
 \subsection{\type {[set|get]decimaldigits}}
 
 \topicindex{\PDF+precision}
+
+\libindex{getdecimaldigits} \libindex{setdecimaldigits}
 
 These two functions set the accuracy of floats written to the \PDF file. You can
 set any value but the backend will not go below~3 and above~6.
@@ -141,6 +160,8 @@ set any value but the backend will not go below~3 and above~6.
 \subsection{\type {[set|get]pkresolution}}
 
 \topicindex{\PDF+resolution}
+
+\libindex{getpkresolution} \libindex{setpkresolution}
 
 These setter takes two arguments: the resolution and an optional zero or one that
 indicates if this is a fixed one. The getter returns these two values.
@@ -150,20 +171,32 @@ indicates if this is a fixed one. The getter returns these two values.
 \topicindex{\PDF+objects}
 \topicindex{\PDF+annotations}
 
+\libindex{getlastobj}   \libindex{setlastobj}
+\libindex{getlastlink}  \libindex{setlastlink}
+\libindex{getlastannot} \libindex{setlastannot}
+\libindex{getretval}
+
 These status variables are similar to the ones traditionally used in the backend
 interface at the \TEX\ end.
 
-\subsection{\type {maxobjnum} and \type {objtype}, \type {fontname}, \type {fontobjnum},
-\type {fontsize}, \type {xformname}}.
+\subsection{\type {getmaxobjnum} and \type {getobjtype}, \type {getfontname},
+\type {getfontobjnum}, \type {getfontsize}, \type {getxformname}}.
 
-These (and some other) introspective helpers were moved from the \type {tex}
-namespace to the \type {pdf} namespace but kept their original names. They are
-mostly used when you construct \PDF\ objects yourself and need for instance
-information about a (to be) embedded font.
+\libindex{getmaxobjnum}
+\libindex{getobjtype}
+\libindex{getfontname}
+\libindex{getfontobjnum}
+\libindex{getfontsize}
+\libindex{getxformname}
+
+These introspective helpers are mostly used when you construct \PDF\ objects
+yourself and need for instance information about a (to be) embedded font.
 
 \subsection{\type {[set|get]origin}}
 
 \topicindex{\PDF+positioning}
+
+\libindex{setorigin} \libindex{getorigin}
 
 This one is used to set the horizonal and|/|or vertical offset, a traditional
 backend property.
@@ -180,6 +213,8 @@ The counterpart of this function returns two values.
 
 \topicindex{\PDF+resolution}
 
+\libindex{setimageresolution} \libindex{getimageresolution}
+
 These two functions relate to the imageresolution that is used when the image
 itself doesn't provide a non|-|zero x or y resolution.
 
@@ -187,12 +222,22 @@ itself doesn't provide a non|-|zero x or y resolution.
 
 \topicindex{\PDF+margins}
 
+\libindex{getlinkmargin}   \libindex{setlinkmargin}
+\libindex{getdestmargin}   \libindex{setdestmargin}
+\libindex{getthreadmargin} \libindex{setthreadmargin}
+\libindex{getxformmargin}  \libindex{setxformmargin}
+\libindex{getmarginmargin} \libindex{setmarginmargin}
+
 These functions can be used to set and retrieve the margins that are added to the
 natural bounding boxes of the respective objects.
 
 \subsection {\type {get[pos|hpos|vpos]}}
 
 \topicindex{\PDF+positions}
+
+\libindex{getpos}
+\libindex{gethpos}
+\libindex{getvpos}
 
 These functions get current location on the output page, measured from its lower
 left corner. The values return scaled points as units.
@@ -204,6 +249,8 @@ local h, v = pdf.getpos()
 \subsection {\type {[has|get]matrix}}
 
 \topicindex{\PDF+matrix}
+
+\libindex{getmatrix} \libindex{hasmatrix}
 
 The current matrix transformation is available via the \type {getmatrix} command,
 which returns 6 values: \type {sx}, \type {rx}, \type {ry}, \type {sy}, \type
@@ -221,6 +268,8 @@ end
 
 \topicindex{\PDF+print to}
 
+\libindex{print}
+
 You can print a string to the \PDF\ document from within a \lpr {latelua} call.
 This function is not to be used inside \prm {directlua} unless you know {\it
 exactly} what you are doing.
@@ -236,6 +285,8 @@ The optional parameter can be used to mimic the behavior of \PDF\ literals: the
 \subsection {\type {immediateobj}}
 
 \topicindex{\PDF+objects}
+
+\libindex{immediateobj}
 
 This function creates a \PDF\ object and immediately writes it to the \PDF\ file.
 It is modelled after \PDFTEX's \prm {immediate} \orm {pdfobj} primitives. All
@@ -280,6 +331,8 @@ reserved \PDF\ object.
 \subsection{\type{obj}}
 
 \topicindex{\PDF+objects}
+
+\libindex{obj}
 
 This function creates a \PDF\ object, which is written to the \PDF\ file only
 when referenced, e.g., by \type {refobj()}.
@@ -342,6 +395,8 @@ can't have both \type {string} and \type {file} at the same time.
 
 \topicindex{\PDF+objects}
 
+\libindex{refobj}
+
 This function, the \LUA\ version of the \orm {pdfrefobj} primitive, references an
 object by its object number, so that the object will be written to the \PDF\ file.
 
@@ -361,6 +416,8 @@ This function has no return values.
 
 \topicindex{\PDF+objects}
 
+\libindex{reserveobj}
+
 This function creates an empty \PDF\ object and returns its number.
 
 \startfunctioncall
@@ -368,7 +425,24 @@ This function creates an empty \PDF\ object and returns its number.
 <number> n = pdf.reserveobj("annot")
 \stopfunctioncall
 
+\subsection {\type {getpageref}}
+
+\topicindex{\PDF+pages}
+
+\libindex{getpageref}
+
+The object number of a page can be fetched with this function. This can be a
+forward reference so when you ask for a future page, you do get a number back.
+
+\startfunctioncall
+<number> n = pdf.getpageref(123)
+\stopfunctioncall
+
 \subsection {\type {registerannot}}
+
+\topicindex{\PDF+annotations}
+
+\libindex{registerannot}
 
 This function adds an object number to the \type {/Annots} array for the current
 page without doing anything else. This function can only be used from within
@@ -382,6 +456,8 @@ pdf.registerannot (<number> objnum)
 
 \topicindex{\PDF+color stack}
 
+\libindex{newcolorstack}
+
 This function allocates a new color stack and returns it's id. The arguments
 are the same as for the similar backend extension primitive.
 
@@ -393,6 +469,8 @@ pdf.newcolorstack("0 g","page",true) -- page|direct|origin
 
 \topicindex{\PDF+fonts}
 
+\libindex{setfontattributes}
+
 This function will force some additional code into the font resource. It can for
 instance be used to add a custom \type {ToUnicode} vector to a bitmap file.
 
@@ -400,7 +478,9 @@ instance be used to add a custom \type {ToUnicode} vector to a bitmap file.
 pdf.setfontattributes(<number> font id, <string> pdf code)
 \stopfunctioncall
 
-\section{The \type {pdfe} library}
+\stopsection
+
+\startsection[title={The \type {pdfe} library}][library=pdfe]
 
 \subsection{Introduction}
 
@@ -439,6 +519,13 @@ The regular getters return these \LUA\ data types but one can also get more
 detailed information.
 
 \subsection {\type {open}, \type {new}, \type {status}, \type {close}, \type {unencrypt}}
+
+\libindex {open}
+\libindex {new}
+\libindex {new}
+\libindex {status}
+\libindex {close}
+\libindex {unencrypt}
 
 A document is loaded from a file or string
 
@@ -480,6 +567,11 @@ pdfe.unencrypt(<pdfe document>,userpassword,ownerpassword)
 
 \subsection {\type {size}, \type {version}, \type {nofobjects}, \type {nofpages}}
 
+\libindex {size}
+\libindex {version}
+\libindex {nofobjects}
+\libindex {nofpages}
+
 A successfully opened document can provide some information:
 
 \starttyping
@@ -491,6 +583,10 @@ bytes, waste = nofpages(<pdfe document>)
 \stoptyping
 
 \subsection {\type {get[catalog|trailer|info}}
+
+\libindex {getcatalog}
+\libindex {gettrailer}
+\libindex {getinfo}
 
 For accessing the document structure you start with the so called catalog, a
 dictionary:
@@ -508,6 +604,9 @@ The other two root dictionaries are accessed with:
 
 \subsection {\type {getpage}, \type {getbox}}
 
+\libindex {getpage}
+\libindex {getbox}
+
 A specific page can conveniently be reached with the next command, which
 returns a dictionary.
 
@@ -523,7 +622,13 @@ is \type {MediaBox}.
 pages = pdfe.getbox(<pdfe document>,boxname)
 \stoptyping
 
-\subsection {\type {get[string|integer|number|boolean|string]}}
+\subsection {\type {get[string|integer|number|boolean|name]}}
+
+\libindex {getstring}
+\libindex {getinteger}
+\libindex {getnumber}
+\libindex {getboolean}
+\libindex {getname}
 
 Common values in dictionaries and arrays are strings, integers, floats, booleans
 and names (which are also strings) and these are also normal \LUA\ objects:
@@ -537,6 +642,10 @@ n = getname   (<pdfe array|dictionary>,index|key)
 \stoptyping
 
 \subsection {\type {get[from][dictionary|array|stream]}}
+
+\libindex {getdictionary} \libindex {getfromdictionary}
+\libindex {getarray}      \libindex {getfromarray}
+\libindex {getstream}     \libindex {getfromstream}
 
 Normally you will use an index in an array and key in a dictionary but dictionaries
 also accept an index. The size of an array or dictionary is available with the
@@ -566,6 +675,13 @@ and \type {Pages}, so this is also okay:
 print(pdfe.open("foo.pdf").Pages[1])
 \stoptyping
 
+\subsection {\type {[open|close|readfrom][whole|]stream}}
+
+\libindex {openstream}
+\libindex {closestream}
+\libindex {readfromstream}
+\libindex {readfromwholestream}
+
 Streams are sort of special. When your index or key hits a stream you get back a
 stream object and dictionary object. The dictionary you can access in the usual
 way and for the stream there are the following methods:
@@ -589,6 +705,11 @@ pass a boolean that indicates if the stream has to be decompressed.
 % pdfe.objectcodes      = objectcodes
 % pdfe.stringcodes      = stringcodes
 % pdfe.encryptioncodes  = encryptioncodes
+
+\subsection {\type {getfrom[dictionary|array]}}
+
+\libindex {getfromdictionary}
+\libindex {getfromarray}
 
 In addition to the interface described before, there is also a bit lower level
 interface available.
@@ -619,6 +740,9 @@ strings are bounded by \type {<>}.
 
 \subsection {\type {[dictionary|array]totable}}
 
+\libindex {dictionarytotable}
+\libindex {arraytotable}
+
 All entries in a dictionary or table can be fetched with the following commands
 where the return values are a hashed or indexed table.
 
@@ -635,6 +759,8 @@ You can get a list of pages with:
 
 \subsection {\type {getfromreference}}
 
+\libindex {getfromreference}
+
 Because you can have unresolved references, a reference object can be resolved
 with:
 
@@ -642,9 +768,13 @@ with:
 <pdfe dictionary|array|stream> = getfromreference(<pdfe reference>)
 \stoptyping
 
-\section {Memory streams}
+\stopsection
+
+\startsection[title={Memory streams}][library=pdfe]
 
 \topicindex{\PDF+memory streams}
+
+\libindex {new}
 
 The \type {pdfe.new} that takes three arguments:
 
@@ -682,9 +812,13 @@ permits conversion in memory and passing the result directly to the backend. Thi
 might save some runtime in one|-|pass workflows. This feature is currently not
 meant for production and we might come up with a better implementation.
 
-\section {The \type {pdfscanner} library}
+\stopsection
+
+\startsection[title={The \type {pdfscanner} library}][library=pdfscanner]
 
 \topicindex{\PDF+scanner}
+
+\libindex {scan}
 
 The \type {pdfscanner} library allows interpretation of \PDF\ content streams and
 \type {/ToUnicode} (cmap) streams. You can get those streams from the \type
@@ -821,25 +955,34 @@ In case of \type {array}, the table content is a list of \type {pop} return
 values and in case of \type {dict}, the table keys are \PDF\ name strings and the
 values are \type {pop} return values.
 
+\libindex{pop}
+\libindex{popnumber}
+\libindex{popname}
+\libindex{popstring}
+\libindex{poparray}
+\libindex{popdictionary}
+\libindex{popboolean}
+\libindex{done}
+
 There are a few more methods defined that you can ask \type {scanner}:
 
 \starttabulate[|l|p|]
-\DB method           \BC explanation \NC \NR
+\DB method               \BC explanation \NC \NR
 \TB
-\NC \type{pop}       \NC see above \NC \NR
-\NC \type{popNumber} \NC return only the value of a \type {real} or \type {integer} \NC \NR
-\NC \type{popName}   \NC return only the value of a \type {name} \NC \NR
-\NC \type{popString} \NC return only the value of a \type {string} \NC \NR
-\NC \type{popArray}  \NC return only the value of a \type {array} \NC \NR
-\NC \type{popDict}   \NC return only the value of a \type {dict} \NC \NR
-\NC \type{popBool}   \NC return only the value of a \type {boolean} \NC \NR
-\NC \type{done}      \NC abort further processing of this \type {scan()} call \NC \NR
+\NC \type{pop}           \NC see above \NC \NR
+\NC \type{popnumber}     \NC return only the value of a \type {real} or \type {integer} \NC \NR
+\NC \type{popname}       \NC return only the value of a \type {name} \NC \NR
+\NC \type{popstring}     \NC return only the value of a \type {string} \NC \NR
+\NC \type{poparray}      \NC return only the value of a \type {array} \NC \NR
+\NC \type{popdictionary} \NC return only the value of a \type {dict} \NC \NR
+\NC \type{popboolean}    \NC return only the value of a \type {boolean} \NC \NR
+\NC \type{done}          \NC abort further processing of this \type {scan()} call \NC \NR
 \LL
 \stoptabulate
 
-The \type {popXXX} are convenience functions, and come in handy when you know the
+The \type {pop*} are convenience functions, and come in handy when you know the
 type of the operands beforehand (which you usually do, in \PDF). For example, the
-\type {Do} function could have used \type {local name = scanner:popName()}
+\type {Do} function could have used \type {local name = scanner:popname()}
 instead, because the single operand to the \type {Do} operator is always a \PDF\
 name object.
 
@@ -848,6 +991,11 @@ have learned everything you want to learn. This comes in handy while parsing
 \type {/ToUnicode}, because there usually is trailing garbage that you are not
 interested in. Without \type {done}, processing only ends at the end of the
 stream, possibly wasting \CPU\ cycles.
+
+{\em We keep the older names \type {popNumber}, \type {popName}, \type
+{popString}, \type {popArray}, \type {popDict} and \type {popBool} around.}
+
+\stopsection
 
 \stopchapter
 

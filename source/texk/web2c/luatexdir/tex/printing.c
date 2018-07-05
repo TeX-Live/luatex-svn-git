@@ -2,7 +2,7 @@
 
 printing.w
 
-Copyright 2009-2013 Taco Hoekwater <taco@@luatex.org>
+Copyright 2009-2013 Taco Hoekwater <taco@luatex.org>
 
 This file is part of LuaTeX.
 
@@ -947,10 +947,10 @@ always makes sense.
 0   \foo xyz
 1   \foo (bar)
 2   <bar> xyz
-3   <bar @@ ..> xyz
+3   <bar @ ..> xyz
 4   <id>
 5   <id: bar>
-6   <id: bar @@ ..> xyz
+6   <id: bar @ ..> xyz
 \stoptyping
 
 */
@@ -965,7 +965,7 @@ void print_font_identifier(internal_font_number f)
         if (tracing_fonts_par >= 2 && tracing_fonts_par <= 3) {
             print_font_name(f);
             if (tracing_fonts_par >= 3 || font_size(f) != font_dsize(f)) {
-                tprint(" @@ ");
+                tprint(" @ ");
                 print_scaled(font_size(f));
                 tprint("pt");
             }
@@ -975,7 +975,7 @@ void print_font_identifier(internal_font_number f)
                 tprint(": ");
                 print_font_name(f);
                 if (tracing_fonts_par >= 6 || font_size(f) != font_dsize(f)) {
-                    tprint(" @@ ");
+                    tprint(" @ ");
                     print_scaled(font_size(f));
                     tprint("pt");
                 }
@@ -994,7 +994,7 @@ void print_font_identifier(internal_font_number f)
             tprint(" (");
             print_font_name(f);
             if (font_size(f) != font_dsize(f)) {
-                tprint("@@");
+                tprint("@");
                 print_scaled(font_size(f));
                 tprint("pt");
             }
