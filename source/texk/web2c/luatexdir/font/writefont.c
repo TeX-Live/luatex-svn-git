@@ -548,14 +548,16 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
         } else {
             if (is_subsetted(fd->fm) && is_type1(fd->fm)) {
                 /*tex |/CharSet| is optional; names may appear in any order */
-                avl_t_init(&t, fd->gl_tree);
-                pdf_add_name(pdf, "CharSet");
-                pdf_out(pdf, '(');
-                for (glyph = (char *) avl_t_first(&t, fd->gl_tree);
-                     glyph != NULL; glyph = (char *) avl_t_next(&t))
-                    pdf_add_name(pdf, glyph);
-                pdf_out(pdf, ')');
-                pdf->cave = 0;
+                if ((! pdf->omit_charset) && (pdf->major_version == 1)) {
+                    avl_t_init(&t, fd->gl_tree);
+                    pdf_add_name(pdf, "CharSet");
+                    pdf_out(pdf, '(');
+                    for (glyph = (char *) avl_t_first(&t, fd->gl_tree); glyph != NULL; glyph = (char *) avl_t_next(&t)) {
+                        pdf_add_name(pdf, glyph);
+                    }
+                    pdf_out(pdf, ')');
+                    pdf->cave = 0;
+                }
             }
             if (is_type1(fd->fm))
                 pdf_dict_add_ref(pdf, "FontFile", (int) fd->ff_objnum);

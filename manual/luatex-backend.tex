@@ -113,15 +113,17 @@ and \type {[set|get]omitcidset}}
 \libindex{getsuppressoptionalinfo} \libindex{setsuppressoptionalinfo}
 \libindex{gettrailerid}            \libindex{settrailerid}
 \libindex{getomitcidset}           \libindex{setomitcidset}
+\libindex{getomitcharset}          \libindex{setomitcharset}
 
-This optional info bitset (a number) determines what kind of info gets flushed.
-By default we flush all.
+The optional info bitset (a number) determines what kind of info gets flushed.
+By default we flush all. See \in {section} [sec:pdfextensions] for more details.
 
 You can set your own trailer id. This has to be string containing valid \PDF\
 array content with checksums.
 
-This cidset flag (a number) disables inclusion of a so called CIDSet which can be
-handy when aiming at some of the many \PDF\ substandards.
+The cidset and charset flags (numbers) disables inclusion of a so called \type
+{CIDSet} and \type {CharSet} entries, which can be handy when aiming at some of
+the many \PDF\ substandards.
 
 \subsection{\type {[set|get][obj|]compresslevel} and \type {[set|get]recompress}}
 
