@@ -3,6 +3,7 @@
 #define PP_CRYPT_H
 
 #include "ppfilter.h"
+#include "utilcrypt.h"
 #include "utilcryptdef.h"
 
 typedef struct {

@@ -349,6 +349,6 @@ extern const float float_decimal_negpower10[];
 UTILAPI size_t bytes_to_hex_lc (const void *input, size_t size, uint8_t *output);
 UTILAPI size_t bytes_to_hex_uc (const void *input, size_t size, uint8_t *output);
 UTILAPI size_t hex_to_bytes (const void *input, size_t size, uint8_t *output);
-UTILAPI void print_hex (const void *input, size_t bytes);
+UTILAPI void print_as_hex (const void *input, size_t bytes);
 
 #endif

@@ -18,8 +18,8 @@ rc4_state * rc4_state_initialize (rc4_state *state, rc4_map *map, const void *vk
 {
   int i, j;
   uint8_t tmp;
-  uint8_t *key;
-  key = (uint8_t *)vkey;
+  const uint8_t *key;
+  key = (const uint8_t *)vkey;
   if (keylength == 0 || keylength > 256)
     return NULL;
   state->flags = 0;
@@ -124,14 +124,15 @@ size_t rc4_crypt_data (const void *input, size_t length, void *output, const voi
 
 size_t rc4_crypt_state_data (rc4_state *state, const void *input, size_t length, void *output)
 { /* state assumed to be initialized and with the proper state of smap */
-  uint8_t r, *inp, *out;
+  const uint8_t *inp;
+  uint8_t r, *out;
   size_t size;
-  inp = (uint8_t *)input;
+  inp = (const uint8_t *)input;
   out = (uint8_t *)output;
-  for (size = 0; size < length; ++size)
+  for (size = 0; size < length; ++size, ++inp, ++out)
   {
     r = rc4_next_random_byte(state);
-    out[size] = r ^ inp[size];
+    *out = r ^ *inp;
   }
   return length;
 }
@@ -376,7 +377,7 @@ aes_state * aes_encode_initialize (aes_state *state, aes_keyblock *keyblock, con
   }
   state->keyblock = keyblock;
   if (key != NULL) /* if NULL we assume keyblock is given and already expanded */
-    key_expansion(state, (uint8_t *)key);
+    key_expansion(state, (const uint8_t *)key);
   state->flush = 0;
   return state;
 }
@@ -400,7 +401,7 @@ aes_state * aes_decode_initialize (aes_state *state, aes_keyblock *keyblock, con
   }
   state->keyblock = keyblock;
   if (key != NULL) /* otherwise keyblock is assumed present and properly initialized */
-    key_expansion(state, (uint8_t *)key);
+    key_expansion(state, (const uint8_t *)key);
   state->flush = 0;
   return state;
 }
@@ -756,10 +757,11 @@ size_t aes_encode_data (const void *input, size_t length, void *output, const vo
 
 size_t aes_encode_state_data (aes_state *state, const void *input, size_t length, void *output)
 {
-  uint8_t *inp, *out, tail, t;
+  const uint8_t *inp;
+  uint8_t *out, tail, t;
   size_t size;
 
-  inp = (uint8_t *)input;
+  inp = (const uint8_t *)input;
   out = (uint8_t *)output;
 
   if (!(state->flags & AES_HAS_IV))
@@ -806,10 +808,11 @@ size_t aes_decode_data (const void *input, size_t length, void *output, const vo
 
 size_t aes_decode_state_data (aes_state *state, const void *input, size_t length, void *output)
 {
-  uint8_t *inp, *out, lastlength;
+  const uint8_t *inp;
+  uint8_t *out, lastlength;
   size_t size;
 
-  inp = (uint8_t *)input;
+  inp = (const uint8_t *)input;
   out = (uint8_t *)output;
 
   if ((state->flags & AES_INLINE_IV) && !(state->flags & AES_CONTINUE))
@@ -862,6 +865,200 @@ void random_bytes (uint8_t *output, size_t size)
 void aes_generate_iv (uint8_t output[16])
 {
   random_bytes(output, 16);
+}
+
+/* filters */
+
+// rc4 decoder function
+
+static size_t rc4_decoder (iof *F, iof_mode mode)
+{
+  rc4_state *state;
+  iof_status status;
+  size_t tail;
+
+  state = iof_filter_state(rc4_state *, F);
+  switch(mode)
+  {
+    case IOFLOAD:
+    case IOFREAD:
+      if (F->flags & IOF_STOPPED)
+        return 0;
+      tail = iof_tail(F);
+      F->pos = F->buf + tail;
+      F->end = F->buf + F->space;
+      do {
+        status = rc4_decode_state(F->next, F, state);
+      } while (mode == IOFLOAD && status == IOFFULL && iof_resize_buffer(F));
+      return iof_decoder_retval(F, "rc4", status);
+    case IOFCLOSE:
+      rc4_state_close(state);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// rc4 encoder function
+
+static size_t rc4_encoder (iof *F, iof_mode mode)
+{
+  rc4_state *state;
+  iof_status status;
+
+  state = iof_filter_state(rc4_state *, F);
+  switch (mode)
+  {
+    case IOFFLUSH:
+      state->flush = 1;
+      // fall through
+    case IOFWRITE:
+      F->end = F->pos;
+      F->pos = F->buf;
+      status = rc4_encode_state(F, F->next, state);
+      return iof_encoder_retval(F, "rc4", status);
+    case IOFCLOSE:
+      if (!state->flush)
+        rc4_encoder(F, IOFFLUSH);
+      rc4_state_close(state);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// aes decoder function
+
+static size_t aes_decoder (iof *F, iof_mode mode)
+{
+  aes_state *state;
+  iof_status status;
+  size_t tail;
+
+  state = iof_filter_state(aes_state *, F);
+  switch(mode)
+  {
+    case IOFLOAD:
+    case IOFREAD:
+      if (F->flags & IOF_STOPPED)
+        return 0;
+      tail = iof_tail(F);
+      F->pos = F->buf + tail;
+      F->end = F->buf + F->space;
+      do {
+        status = aes_decode_state(F->next, F, state);
+      } while (mode == IOFLOAD && status == IOFFULL && iof_resize_buffer(F));
+      return iof_decoder_retval(F, "aes", status);
+    case IOFCLOSE:
+      aes_state_close(state);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// aes encoder function
+
+static size_t aes_encoder (iof *F, iof_mode mode)
+{
+  aes_state *state;
+  iof_status status;
+
+  state = iof_filter_state(aes_state *, F);
+  switch (mode)
+  {
+    case IOFFLUSH:
+      state->flush = 1;
+      // fall through
+    case IOFWRITE:
+      F->end = F->pos;
+      F->pos = F->buf;
+      status = aes_encode_state(F, F->next, state);
+      return iof_encoder_retval(F, "aes", status);
+    case IOFCLOSE:
+      if (!state->flush)
+        aes_encoder(F, IOFFLUSH);
+      aes_state_close(state);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+iof * iof_filter_rc4_decoder (iof *N, const void *key, size_t keylength)
+{
+  iof *I;
+  rc4_state *state;
+
+  I = iof_filter_reader(rc4_decoder, sizeof(rc4_state), &state);
+  iof_setup_next(I, N);
+  if (rc4_state_init(state, key, keylength) == NULL)
+  {
+    iof_discard(I);
+    return NULL;
+  }
+  state->flush = 1;
+  return I;
+}
+
+iof * iof_filter_rc4_encoder (iof *N, const void *key, size_t keylength)
+{
+  iof *O;
+  rc4_state *state;
+
+  O = iof_filter_writer(rc4_encoder, sizeof(rc4_state), &state);
+  iof_setup_next(O, N);
+  if (rc4_state_init(state, key, keylength) == NULL)
+  {
+    iof_discard(O);
+    return NULL;
+  }
+  // state->flush = 1;
+  return O;
+}
+
+/* aes crypt filters */
+
+iof * iof_filter_aes_decoder (iof *N, const void *key, size_t keylength)
+{
+  iof *I;
+  aes_state *state;
+
+  I = iof_filter_reader(aes_decoder, sizeof(aes_state), &state);
+  iof_setup_next(I, N);
+  if (aes_decode_init(state, key, keylength) == NULL)
+  {
+    iof_discard(I);
+    return NULL;
+  }
+  aes_pdf_mode(state);
+  state->flush = 1;
+  return I;
+}
+
+iof * iof_filter_aes_encoder (iof *N, const void *key, size_t keylength)
+{
+  iof *O;
+  aes_state *state;
+
+  O = iof_filter_writer(aes_encoder, sizeof(aes_state), &state);
+  iof_setup_next(O, N);
+  if (aes_encode_init(state, key, keylength) == NULL)
+  {
+    iof_discard(O);
+    return NULL;
+  }
+  aes_pdf_mode(state);
+  // state->flush = 1;
+  return O;
 }
 
 /* test */

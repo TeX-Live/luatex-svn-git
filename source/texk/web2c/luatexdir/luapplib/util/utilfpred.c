@@ -2,7 +2,6 @@
 
 #include "utilmem.h"
 #include "utilfpred.h"
-#include "utilfpreddef.h"
 
 /*
 Here we implement predictor filters used with flate and lzw compressions in PDF streams. The main idea of data prediction
@@ -59,6 +58,42 @@ Up-left pixel byte is accessed via state->rowup, but with state->pixelsize offse
 at the left edge of the row). Both state->rowup and state->rowsave has a safe span of pixelsize bytes on the left,
 that are permanently \0.
 */
+
+#define predictor_component_t unsigned short
+#define predictor_pixel1b_t unsigned int
+
+typedef struct predictor_state {
+  int default_predictor;                      /* default predictor indicator */
+  int current_predictor;                      /* current predictor, possibly taken from algorithm marker in PNG data */
+  int rowsamples;                             /* number of pixels in a scanline (/DecodeParms << /Columns ... >>) */
+  int compbits;                               /* number of bits per component (/DecodeParms << /BitsPerComponent ... >>) */
+  int components;                             /* number of components (/DecodeParms << /Colors ... >>) */
+  uint8_t *buffer;                            /* temporary private buffer area */
+  uint8_t *rowin;                             /* an input row buffer position */
+  int rowsize;                                /* size of a current scanline in bytes (rounded up) */
+  int rowend;                                 /* an input buffer end position */
+  int rowindex;                               /* an output buffer position */
+  union {
+    struct {                                  /* used by PNG predictor codecs */
+      uint8_t *rowup, *rowsave;               /* previous scanline buffers */
+      int predictorbyte;                      /* flag indicating that algorithm byte is read/written */
+      int pixelsize;                          /* number of bytes per pixel (rounded up) */
+    };
+    struct {                                  /* used by TIFF predictor codecs */
+      union {
+        predictor_component_t *prevcomp;      /* an array of left pixel components */
+        predictor_pixel1b_t *prevpixel;       /* left pixel value stored on a single integer (for 1bit color-depth) */
+      };
+      int compin, compout;                    /* bit stream buffers */
+      int bitsin, bitsout;                    /* bit stream counters */
+      int sampleindex;                        /* pixel counter */
+      int compindex;                          /* component counter */
+      int pixbufsize;                         /* size of pixel buffer in bytes */
+    };
+  };
+  int flush;
+  int status;
+} predictor_state;
 
 enum {
   STATUS_LAST = 0,
@@ -635,4 +670,97 @@ iof_status predictor_encode (iof *I, iof *O, int predictor, int rowsamples, int 
   ret = predictor_encode_state(I, O, &state);
   predictor_encoder_close(&state);
   return ret;
+}
+
+/* filters */
+
+// predictor decoder function
+
+static size_t predictor_decoder (iof *F, iof_mode mode)
+{
+  predictor_state *state;
+  iof_status status;
+  size_t tail;
+
+  state = iof_filter_state(predictor_state *, F);
+  switch(mode)
+  {
+    case IOFLOAD:
+    case IOFREAD:
+      if (F->flags & IOF_STOPPED)
+        return 0;
+      tail = iof_tail(F);
+      F->pos = F->buf + tail;
+      F->end = F->buf + F->space;
+      do {
+        status = predictor_decode_state(F->next, F, state);
+      } while (mode == IOFLOAD && status == IOFFULL && iof_resize_buffer(F));
+      return iof_decoder_retval(F, "predictor", status);
+    case IOFCLOSE:
+      predictor_decoder_close(state);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// predictor encoder function
+
+static size_t predictor_encoder (iof *F, iof_mode mode)
+{
+  predictor_state *state;
+  iof_status status;
+
+  state = iof_filter_state(predictor_state *, F);
+  switch (mode)
+  {
+    case IOFFLUSH:
+      state->flush = 1;
+      // fall through
+    case IOFWRITE:
+      F->end = F->pos;
+      F->pos = F->buf;
+      status = predictor_encode_state(F, F->next, state);
+      return iof_encoder_retval(F, "predictor", status);
+    case IOFCLOSE:
+      if (!state->flush)
+        predictor_encoder(F, IOFFLUSH);
+      predictor_encoder_close(state);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+iof * iof_filter_predictor_decoder (iof *N, int predictor, int rowsamples, int components, int compbits)
+{
+  iof *I;
+  predictor_state *state;
+  I = iof_filter_reader(predictor_decoder, sizeof(predictor_state), &state);
+  iof_setup_next(I, N);
+  if (predictor_decoder_init(state, predictor, rowsamples, components, compbits) == NULL)
+  {
+    iof_discard(I);
+    return NULL;
+  }
+  state->flush = 1;
+  return I;
+}
+
+iof * iof_filter_predictor_encoder (iof *N, int predictor, int rowsamples, int components, int compbits)
+{
+  iof *O;
+  predictor_state *state;
+  O = iof_filter_writer(predictor_encoder, sizeof(predictor_state), &state);
+  iof_setup_next(O, N);
+  if (predictor_encoder_init(state, predictor, rowsamples, components, compbits) == NULL)
+  {
+    iof_discard(O);
+    return NULL;
+  }
+  return O;
 }

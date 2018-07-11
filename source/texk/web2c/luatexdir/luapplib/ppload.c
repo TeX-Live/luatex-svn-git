@@ -23,6 +23,28 @@ static const char * ppref_str (ppuint refnumber, ppuint refversion)
 	return buffer;
 }
 
+/* ppmess */
+
+static struct {
+  pplogger_callback logger;
+  void *alien;
+  char buffer[256];
+} pplogger = { 0, NULL, { 0 } };
+
+void pplog_callback (pplogger_callback logger, void *alien)
+{
+  pplogger.logger = logger;
+  pplogger.alien = alien;
+}
+
+#define pplog_prefix "pplib: "
+#define pplog_suffix "\n"
+
+#define pplog() (pplogger.logger != NULL ? (pplogger.logger(pplogger.buffer, pplogger.alien), 0) : (printf(pplog_prefix "%s" pplog_suffix, pplogger.buffer), 0))
+#define PPLOG(message) (sprintf(pplogger.buffer, message), pplog())
+#define PPLOG1(message, a) (sprintf(pplogger.buffer, message, a), pplog())
+#define PPLOG2(message, a, b) (sprintf(pplogger.buffer, message, a, b), pplog())
+
 /* name */
 
 // pdf name delimiters: 0..32, ()<>[]{}/%
@@ -148,14 +170,14 @@ static ppname ppexec_internal (const void *data, size_t size, ppheap **pheap)
 
 ppname ppname_decoded (ppname name)
 {
-  _ppname *ghost;
+  const _ppname *ghost;
   ghost = _ppname_ghost(name);
   return (ghost->flags & PPNAME_ENCODED) ? ppname_get_alter_ego(name) : name;
 }
 
 ppname ppname_encoded (ppname name)
 {
-  _ppname *ghost;
+  const _ppname *ghost;
   ghost = _ppname_ghost(name);
   return (ghost->flags & PPNAME_DECODED) ? ppname_get_alter_ego(name) : name;
 }
@@ -407,7 +429,7 @@ const char ppstring_byte_escape[] = { /* -1 escaped with octal, >0 escaped with 
 };
 
 
-ppstring ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap **pheap)
+static ppstring ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap **pheap)
 {
   int c, b, balance, encode;
   iof *O;
@@ -533,7 +555,7 @@ ppstring ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap **pheap)
 }
 
 
-ppstring ppscan_crypt_base16 (iof *I, ppcrypt *crypt, ppheap **pheap)
+static ppstring ppscan_crypt_base16 (iof *I, ppcrypt *crypt, ppheap **pheap)
 {
   int c, v1, v2;
   iof *O;
@@ -591,14 +613,14 @@ ppstring ppscan_crypt_base16 (iof *I, ppcrypt *crypt, ppheap **pheap)
 
 ppstring ppstring_decoded (ppstring string)
 {
-  _ppstring *ghost;
+  const _ppstring *ghost;
   ghost = _ppstring_ghost(string);
   return (ghost->flags & PPSTRING_ENCODED) ? ppstring_get_alter_ego(string) : string;
 }
 
 ppstring ppstring_encoded (ppstring string)
 {
-  _ppstring *ghost;
+  const _ppstring *ghost;
   ghost = _ppstring_ghost(string);
   return (ghost->flags & PPSTRING_DECODED) ? ppstring_get_alter_ego(string) : string;
 }
@@ -839,8 +861,8 @@ static ppobj * ppscan_obj (iof *I, ppdoc *pdf, ppxref *xref)
         { /* pdf spec page 64: unresolvable reference is not an error, should just be treated as a reference to null.
              we also need this to read trailer, where refs can't be resolved yet */
           refversion = (obj + 1)->integer;
-          if (xref != NULL) // not a trailer? mess for a while
-            PPMESS("unresolved reference %s\n", ppref_str(refnumber, refversion));
+          //if (xref != NULL)
+          //  PPLOG1("unresolved reference %s", ppref_str(refnumber, refversion));
           ref = ppref_unresolved(stack->pheap, refnumber, refversion);
         }
         obj->type = PPREF;
@@ -1236,6 +1258,7 @@ static iof * ppdoc_reader (ppdoc *pdf, size_t offset, size_t length)
   I = &pdf->reader;
   if (iof_file_seek(input, offset, SEEK_SET) != 0)
     return NULL;
+  I->flags &= ~IOF_STOPPED;
   if (input->flags & IOF_DATA)
   {
     I->buf = I->pos = input->pos;
@@ -1362,7 +1385,7 @@ static int ppscan_start_stream (iof *I, ppdoc *pdf, size_t *streamoffset)
 }
 
 static ppxref * ppxref_load (ppdoc *pdf, size_t xrefoffset);
-static int ppxref_load_prev (ppdoc *pdf, ppxref *xref);
+static ppxref * ppxref_load_chain (ppdoc *pdf, ppxref *xref);
 
 /* Parsing xref table
 
@@ -1456,7 +1479,7 @@ static ppxref * ppxref_load_table (iof *I, ppdoc *pdf, size_t xrefoffset)
   }
   /* sort section */
   if (!ppxref_sort(xref))
-    return NULL; // xref->size == 0
+    ; // case of xref->size == 0 handled by ppxref_load_chain()
   /* get trailer ignoring refs */
   if (!ppscan_key(I, "trailer"))
     return NULL;
@@ -1467,10 +1490,7 @@ static ppxref * ppxref_load_table (iof *I, ppdoc *pdf, size_t xrefoffset)
   if (obj->type != PPDICT)
     return NULL;
   xref->trailer = *obj;
-  /* load older xref (recursive. some check for insane cyclic offsets?) */
-  if (!ppxref_load_prev(pdf, xref))
-    return NULL;
-  return xref;
+  return ppxref_load_chain(pdf, xref);
 }
 
 /* Parsing xref stream
@@ -1619,34 +1639,46 @@ static ppxref * ppxref_load_stream (iof *I, ppdoc *pdf, size_t xrefoffset)
   }
   /* sort sections */
   if (!ppxref_sort(xref))
-    return NULL;
+    ; // case of xref->size == 0 handled by ppxref_load_chain()
   /* close the stream _before_ loading prev xref */
   ppstream_done(xrefstream);
-  /* load prev xref */
-  if (!ppxref_load_prev(pdf, xref))
-    return NULL;
-  return xref;
+  /* load prev and return */
+  return ppxref_load_chain(pdf, xref);
 xref_stream_error:
   ppstream_done(xrefstream);
   return NULL;
 }
 
-static int ppxref_load_prev (ppdoc *pdf, ppxref *xref)
+/*
+The following procedure loads xref /Prev, links xref->prev and typically returns xref.
+Some docs contain empty xref (one section with zero objects) that is actually a proxy
+to xref stream referred as /XRefStm (genuine concept of xrefs old/new style xrefs in
+the same doc). In case of 0-length xref we ignore the proxy and return the target xref
+(otherwise we would need annoying sanity check for xref->size > 0 on every ref search).
+*/
+
+static ppxref * ppxref_load_chain (ppdoc *pdf, ppxref *xref)
 {
   ppdict *trailer;
   ppuint xrefoffset;
   ppxref *prevxref, *nextxref;
-  if ((trailer = ppxref_trailer(xref)) == NULL) // sanity
-    return 0;
+
+  trailer = ppxref_trailer(xref);
   if (!ppdict_get_uint(trailer, "Prev", &xrefoffset)) // XRefStm is useless
-    return 1; // missing /Prev is obviously ok
+    return xref; // missing /Prev is obviously ok
   for (nextxref = pdf->xref; nextxref != NULL; nextxref = nextxref->prev)
     if (nextxref->offset == xrefoffset) // insane
-      return 0;
+      return NULL;
   if ((prevxref = ppxref_load(pdf, (size_t)xrefoffset)) == NULL)
-    return 0;
-  xref->prev = prevxref;
-  return 1;
+    return NULL;
+  if (xref->size > 0)
+  {
+    xref->prev = prevxref;
+    return xref;
+  }
+  if (pdf->xref == xref)
+    pdf->xref = prevxref;
+  return prevxref;
 }
 
 static ppxref * ppxref_load (ppdoc *pdf, size_t xrefoffset)
@@ -1823,7 +1855,7 @@ static void ppdoc_load_entries (ppdoc *pdf)
     }
     if (ref->xref->trailer.type == PPSTREAM && (type = ppdict_get_name(stream->dict, "Type")) != NULL && ppname_is(type, "ObjStm")) // somewhat dummy..
       if (!ppdoc_load_objstm(stream, pdf, ref->xref))
-        PPMESS("invalid objects stream %s at offset " PPSIZEF "\n", ppref_str(ref->number, ref->version), ref->offset);
+        PPLOG2("invalid objects stream %s at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
   }
   pp_free(offmap);
 }
@@ -1842,14 +1874,14 @@ ppobj * ppdoc_load_entry (ppdoc *pdf, ppref *ref)
   length = ref->length > 0 ? ref->length : PP_LENGTH_UNKNOWN; // estimated or unknown
   if ((I = ppdoc_reader(pdf, ref->offset, length)) == NULL || !ppscan_start_entry(I, ref))
   {
-    PPMESS("invalid %s offset " PPSIZEF "\n", ppref_str(ref->number, ref->version), ref->offset);
+    PPLOG2("invalid %s offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
     return &ref->object; // PPNONE
   }
   stack = &pdf->stack;
   xref = ref->xref; // to resolve indirects properly
   if ((obj = ppscan_obj(I, pdf, xref)) == NULL)
   {
-    PPMESS("invalid %s object at offset " PPSIZEF "\n", ppref_str(ref->number, ref->version), ref->offset);
+    PPLOG2("invalid %s object at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
     return &ref->object; // PPNONE
   }
   ref->object = *obj;
@@ -1927,13 +1959,13 @@ static int ppdoc_load_objstm (ppstream *stream, ppdoc *pdf, ppxref *xref)
       goto invalid_objstm;
     if ((ref = ppxref_find_local(xref, objnum)) == NULL || ref->object.type != PPNONE)
     {
-      PPMESS("invalid compressed object number " PPUINTF " at position " PPUINTF "\n", objnum, i);
+      PPLOG2("invalid compressed object number " PPUINTF " at position " PPUINTF, objnum, i);
       ++invalid;
       continue;
     }
     if (firstdata + offset >= I->end)
     {
-      PPMESS("invalid compressed object offset " PPUINTF " at position " PPUINTF "\n", offset, i);
+      PPLOG2("invalid compressed object offset " PPUINTF " at position " PPUINTF, offset, i);
       ++invalid;
       continue;
     }
@@ -1949,7 +1981,7 @@ static int ppdoc_load_objstm (ppstream *stream, ppdoc *pdf, ppxref *xref)
     else
     {
       ++invalid;
-      PPMESS("invalid compressed object %s at stream offset " PPUINTF, ppref_str(objnum, 0), offset);
+      PPLOG2("invalid compressed object %s at stream offset " PPUINTF, ppref_str(objnum, 0), offset);
     }
     I->pos = indexdata; // restore position and read next from index
   }
@@ -2008,7 +2040,7 @@ static ppdoc * ppdoc_read (ppdoc *pdf, iof_file *input)
     case PPCRYPT_PASS: // the user needs to check ppdoc_crypt_status() and call ppdoc_crypt_pass()
       break;
     case PPCRYPT_FAIL: // hopeless
-      //PPMESS("decryption failed\n");
+      //PPLOG("decryption failed");
       //return NULL;
       break;
   }
@@ -2054,7 +2086,7 @@ ppdoc * ppdoc_mem (const void *data, size_t size)
 {
 	iof_file input;
 	iof_file_rdata_init(&input, data, size);
-	input.flags |= IOF_BUFFER_ISALLOC; // todo: 3 modes: borrow, take over, copy
+	input.flags |= IOF_BUFFER_ALLOC; // todo: 3 modes: borrow, take over, copy?
 	return ppdoc_create(&input);
 }
 

@@ -1064,21 +1064,40 @@ const float float_decimal_negpower10[] = {
 
 /* double to decimal */
 
-static char double_buffer[512];
-#define float_buffer double_buffer
+static char number_buffer[512];
+
+#define ieee_copy_special_string(special, p, _p) \
+  for (p = (char *)number_buffer, _p = special; ; ++p, ++_p) { \
+    if ((*p = *_p) == '\0') break; \
+  }
+
+#define ieee_copy_special_string_re(special, p, _p, r, e) \
+  for (p = (char *)number_buffer, _p = special; ; ++p, ++_p) { \
+    if ((*p = *_p) == '\0') { \
+    	if (r != NULL) *r = NULL; \
+    	if (e != NULL) *e = p; \
+      break; \
+    } \
+  }
 
 char * double_to_string (double number, int digits)
 {
   ieee_double ieee_number;
   int exponent10;
-  char *s, *p;
-  s = p = double_buffer + 1;
+  char *s, *p; const char *_p;
   ieee_double_init(ieee_number, number);
   ieee_double_sign(ieee_number);
   if (ieee_double_is_zero(ieee_number)) // to avoid crash on log10(number)
-    return ieee_double_zero_string(ieee_number);
+  {
+    ieee_copy_special_string(ieee_double_zero_string(ieee_number), p, _p);
+    return (char *)number_buffer;
+  }
   if (ieee_double_special_case(ieee_number))
-    return ieee_double_special_string(ieee_number);
+  {
+    ieee_copy_special_string(ieee_double_special_string(ieee_number), p, _p);
+    return (char *)number_buffer;
+  }
+  s = p = number_buffer + 1;
   ieee_double_exp10(ieee_number, exponent10);
   ieee_double_decimal(ieee_number, exponent10, digits, p);
   ieee_double_round(ieee_number, exponent10, s, p);
@@ -1090,14 +1109,20 @@ char * double_as_string (double number, int digits, char **r, char **e)
 {
   ieee_double ieee_number;
   int exponent10;
-  char *s, *p;
-  s = p = double_buffer + 1;
+  char *s, *p; const char *_p;
+  s = p = number_buffer + 1;
   ieee_double_init(ieee_number, number);
   ieee_double_sign(ieee_number);
   if (ieee_double_is_zero(ieee_number)) // to avoid crash on log10(number)
-    return ieee_double_zero_string(ieee_number);
+  {
+    ieee_copy_special_string_re(ieee_double_zero_string(ieee_number), p, _p, r, e);
+    return (char *)number_buffer;
+  }
   if (ieee_double_special_case(ieee_number))
-    return ieee_double_special_string(ieee_number);
+  {
+    ieee_copy_special_string_re(ieee_double_special_string(ieee_number), p, _p, r, e);
+    return (char *)number_buffer;
+  }
   ieee_double_exp10(ieee_number, exponent10);
   ieee_double_decimal_dot(ieee_number, exponent10, digits, p, r);
   ieee_double_round(ieee_number, exponent10, s, p);
@@ -1112,14 +1137,20 @@ char * float_to_string (float number, int digits)
 {
   ieee_float ieee_number;
   int exponent10;
-  char *s, *p;
-  s = p = float_buffer + 1;
+  char *s, *p; const char *_p;
   ieee_float_init(ieee_number, number);
   ieee_float_sign(ieee_number);
   if (ieee_float_is_zero(ieee_number))
-    return ieee_float_zero_string(ieee_number);
+  {
+    ieee_copy_special_string(ieee_float_zero_string(ieee_number), p, _p);
+    return (char *)number_buffer;
+  }
   if (ieee_float_special_case(ieee_number))
-    return ieee_float_special_string(ieee_number);
+  {
+    ieee_copy_special_string(ieee_float_special_string(ieee_number), p, _p);
+    return (char *)number_buffer;
+  }
+  s = p = number_buffer + 1;
   ieee_float_exp10(ieee_number, exponent10);
   ieee_float_decimal(ieee_number, exponent10, digits, p);
   ieee_float_round(ieee_number, exponent10, s, p);
@@ -1131,14 +1162,20 @@ char * float_as_string (float number, int digits, char **r, char **e)
 {
   ieee_float ieee_number;
   int exponent10;
-  char *s, *p;
-  s = p = float_buffer + 1;
+  char *s, *p; const char *_p;
+  s = p = number_buffer + 1;
   ieee_float_init(ieee_number, number);
   ieee_float_sign(ieee_number);
   if (ieee_float_is_zero(ieee_number))
-    return ieee_float_zero_string(ieee_number);
+  {
+    ieee_copy_special_string_re(ieee_float_zero_string(ieee_number), p, _p, r, e);
+    return (char *)number_buffer;
+  }
   if (ieee_float_special_case(ieee_number))
-    return ieee_float_special_string(ieee_number);
+  {
+    ieee_copy_special_string_re(ieee_float_special_string(ieee_number), p, _p, r, e);
+    return (char *)number_buffer;
+  }
   ieee_float_exp10(ieee_number, exponent10);
   ieee_float_decimal_dot(ieee_number, exponent10, digits, p, r);
   ieee_float_round(ieee_number, exponent10, s, p);
@@ -1238,12 +1275,11 @@ const char * convert_to_float (const char *s, float *number)
 size_t bytes_to_hex_lc (const void *input, size_t size, unsigned char *output)
 {
   size_t i;
-  unsigned char c, *p = (unsigned char *)input;
-  for (i = 0; i < size; ++i)
+  const unsigned char *p;
+  for (i = 0, p = (const unsigned char *)input; i < size; ++i, ++p)
   {
-    c = p[i];
-    *output++ = base16_lc_digit1(c);
-    *output++ = base16_lc_digit2(c);
+    *output++ = base16_lc_digit1(*p);
+    *output++ = base16_lc_digit2(*p);
   }
   *output = '\0';
   return 2*size + 1;
@@ -1252,12 +1288,11 @@ size_t bytes_to_hex_lc (const void *input, size_t size, unsigned char *output)
 size_t bytes_to_hex_uc (const void *input, size_t size, unsigned char *output)
 {
   size_t i;
-  unsigned char c, *p = (unsigned char *)input;
-  for (i = 0; i < size; ++i)           
+  const unsigned char *p;
+  for (i = 0, p = (const unsigned char *)input; i < size; ++i, ++p)           
   {
-    c = p[i];
-    *output++ = base16_uc_digit1(c);
-    *output++ = base16_uc_digit2(c);
+    *output++ = base16_uc_digit1(*p);
+    *output++ = base16_uc_digit2(*p);
   }
   *output = '\0';
   return 2*size + 1;
@@ -1267,11 +1302,13 @@ size_t hex_to_bytes (const void *input, size_t size, unsigned char *output)
 {
   size_t i;
   int c1, c2;
-  unsigned char *p = (unsigned char *)input;
-  for (i = 0; i < size; i += 2)
+  const unsigned char *p;
+  for (i = 1, p = (const unsigned char *)input; i < size; i += 2)
   {
-    c1 = base16_value(p[i]);
-    c2 = base16_value(p[i + 1]);
+    c1 = base16_value(*p);
+    ++p;
+    c2 = base16_value(*p);
+    ++p;
     if (c1 >= 0 && c2 >= 0)
       *output++ = (unsigned char)((c1<<4)|c2);
     else
@@ -1280,9 +1317,9 @@ size_t hex_to_bytes (const void *input, size_t size, unsigned char *output)
   return i >> 1;
 }
 
-void print_hex (const void *input, size_t bytes)
+void print_as_hex (const void *input, size_t bytes)
 {
-  unsigned char *p = (unsigned char *)input;
-  for (; bytes > 0; --bytes, ++p)
+  const unsigned char *p;
+  for (p = (const unsigned char *)input; bytes > 0; --bytes, ++p)
     printf("%02x", *p);
 }

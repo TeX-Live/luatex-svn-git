@@ -24,4 +24,7 @@ iof_status lzw_decode_state (iof *I, iof *O, lzw_state *state);
 iof_status lzw_encode (iof *I, iof *O, int flags);
 iof_status lzw_decode (iof *I, iof *O, int flags);
 
+iof * iof_filter_lzw_decoder (iof *N, int flags);
+iof * iof_filter_lzw_encoder (iof *N, int flags);
+
 #endif

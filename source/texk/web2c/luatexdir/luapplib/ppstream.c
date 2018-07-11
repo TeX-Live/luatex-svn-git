@@ -296,3 +296,15 @@ void ppstream_done (ppstream *stream)
     stream->I = NULL;
   }
 }
+
+/* */
+
+void ppstream_init_buffers (void)
+{
+	iof_filters_init();
+}
+
+void ppstream_free_buffers (void)
+{
+	iof_filters_free();
+}

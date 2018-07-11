@@ -17,4 +17,7 @@ iof_status predictor_encode_state (iof *I, iof *O, predictor_state *state);
 iof_status predictor_decode (iof *I, iof *O, int predictor, int rowsamples, int components, int compbits);
 iof_status predictor_encode (iof *I, iof *O, int predictor, int rowsamples, int components, int compbits);
 
+iof * iof_filter_predictor_decoder (iof *N, int predictor, int rowsamples, int components, int compbits);
+iof * iof_filter_predictor_encoder (iof *N, int predictor, int rowsamples, int components, int compbits);
+
 #endif

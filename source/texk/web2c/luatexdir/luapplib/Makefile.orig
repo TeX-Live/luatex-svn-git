@@ -23,12 +23,14 @@ else
 endif
 
 CC=gcc
-CFLAGS=-Wall -O2
+W=-Wall -Wunused -Wimplicit -Wreturn-type -Wdeclaration-after-statement -Wno-unknown-pragmas -Wmissing-prototypes -Wmissing-declarations -Wparentheses -Wswitch -Wtrigraphs -Wcast-qual -Wcast-align -Wwrite-strings -Wold-style-definition
+#W=-Wall
+CFLAGS=$(W) -O2
 
 OBJEXT=$(BUILDSUFFIX).o
 
-PPUTILS=utilmem utilpool utilnumber utiliof utilmd5 utilsha utilcrypt
-PPFILTERS=utilbasexx utilflate utillzw utilfpred utilfilter
+PPUTILS=utilmem utilnumber utiliof utilmd5 utilsha utilcrypt
+PPFILTERS=utilbasexx utilflate utillzw utilfpred
 PPMODULES=ppheap pparray ppdict ppstream ppcrypt ppxref ppload
 
 OUTDIR=build
@@ -64,7 +66,7 @@ $(PPSTATICUTILSOBJ): $(OUTDIR)/%$(OBJEXT): $(UTILSDIR)/%.c $(UTILSDIR)/%.h
 	$(CC) $(CFLAGS) $(STATICCOPTS) $(INC) -o $@ -c $<
 
 $(PPSTATICFILTERSOBJ): $(OUTDIR)/%$(OBJEXT): $(UTILSDIR)/%.c $(UTILSDIR)/%.h
-	$(CC) $(CFLAGS) -D NO_IMAGE_FILTER $(STATICCOPTS) $(INC) $(AUX) -o $@ -c $<
+	$(CC) $(CFLAGS) $(STATICCOPTS) $(INC) $(AUX) -o $@ -c $<
 
 $(PPSTATICLIB): $(PPSTATICOBJ) $(PPSTATICUTILSOBJ) $(PPSTATICFILTERSOBJ)
 	ar rcs $@ $^
@@ -79,4 +81,4 @@ $(PPTEST2): $(PPSTATICLIB) pptest2.c
 	$(CC) -static-libgcc $(CFLAGS) -o $(PPTEST2) $(OUTDIR)/pptest2$(OBJEXT) $(PPSTATICLIB) $(PPSTATICDEPS) $(LIBS)
 
 clean:
-	rm -f $(OUTDIR)/*$(OBJEXT) $(PPTEST1) $(PPTEST2) $(PACK)
+	rm -f $(OUTDIR)/*$(OBJEXT) $(OUTDIR)/*.a $(OUTDIR)/*$(EXEEXT)

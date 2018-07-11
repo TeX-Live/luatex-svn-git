@@ -1,6 +1,7 @@
 
+#include "utilmem.h"
 #include "utilflate.h"
-#include "utilflatedef.h"
+#include <zlib.h>
 
 /* flate codec */
 
@@ -73,6 +74,13 @@ critical, but makes the filter running according to the scheme described above. 
 to updated avail_in / avail_out values, just after a call to inflate() / deflate(). So no matter what have happens
 between handler calls, zlib input buffer is in sync with ours.
 */
+
+struct flate_state {
+  z_stream z;
+  int flush;
+  int status;
+  int level; /* encoder compression level -1..9 */
+};
 
 enum {
   FLATE_IN,
@@ -214,4 +222,97 @@ void flate_decoder_close (flate_state *state)
 void flate_encoder_close (flate_state *state)
 {
   deflateEnd(&state->z);
+}
+
+/* filter */
+
+// flate decoder function
+
+static size_t flate_decoder (iof *F, iof_mode mode)
+{
+  flate_state *state;
+  iof_status status;
+  size_t tail;
+
+  state = iof_filter_state(flate_state *, F);
+  switch(mode)
+  {
+    case IOFLOAD:
+    case IOFREAD:
+      if (F->flags & IOF_STOPPED)
+        return 0;
+      tail = iof_tail(F);
+      F->pos = F->buf + tail;
+      F->end = F->buf + F->space;
+      do {
+        status = flate_decode_state(F->next, F, state);
+      } while (mode == IOFLOAD && status == IOFFULL && iof_resize_buffer(F));
+      return iof_decoder_retval(F, "flate", status);
+    case IOFCLOSE:
+      flate_decoder_close(state);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// flate encoder function
+
+static size_t flate_encoder (iof *F, iof_mode mode)
+{
+  flate_state *state;
+  iof_status status;
+
+  state = iof_filter_state(flate_state *, F);
+  switch (mode)
+  {
+    case IOFFLUSH:
+      state->flush = 1;
+      // fall through
+    case IOFWRITE:
+      F->end = F->pos;
+      F->pos = F->buf;
+      status = flate_encode_state(F, F->next, state);
+      return iof_encoder_retval(F, "flate", status);
+    case IOFCLOSE:
+      if (!state->flush)
+        flate_encoder(F, IOFFLUSH);
+      flate_encoder_close(state);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+iof * iof_filter_flate_decoder (iof *N)
+{
+  iof *I;
+  flate_state *state;
+  I = iof_filter_reader(flate_decoder, sizeof(flate_state), &state);
+  iof_setup_next(I, N);
+  if (flate_decoder_init(state) == NULL)
+  {
+    iof_discard(I);
+    return NULL;
+  }
+  state->flush = 1;
+  return I;
+}
+
+iof * iof_filter_flate_encoder (iof *N)
+{
+  iof *O;
+  flate_state *state;
+  O = iof_filter_writer(flate_encoder, sizeof(flate_state), &state);
+  iof_setup_next(O, N);
+  if (flate_encoder_init(state) == NULL)
+  {
+    iof_discard(O);
+    return NULL;
+  }
+  return O;
 }

@@ -8,7 +8,7 @@
 
 #include "ppconf.h"
 
-#define pplib_version "v0.9"
+#define pplib_version "v0.96"
 #define pplib_author "p.jackowski@gust.org.pl"
 
 /* types */
@@ -17,8 +17,8 @@ typedef int64_t ppint;
 typedef size_t ppuint; // machine word
 
 typedef double ppnum;
-typedef const char *ppname;
-typedef const char *ppstring;
+typedef char * ppname;
+typedef char * ppstring;
 
 typedef struct {
   size_t size;
@@ -133,12 +133,16 @@ typedef struct ppdoc ppdoc;
 #define ppobj_rget_stream(o) ((o)->type == PPSTREAM ? (o)->stream : ((o)->type == PPREF ? ppobj_get_stream(ppref_obj((o)->ref)) : NULL))
 #define ppobj_rget_ref(o) ((o)->type == PPREF ? (o)->ref : ((o)->type == PPREF ? ppobj_get_ref(ppref_obj((o)->ref)) : NULL))
 
+#define ppobj_get_bool_value(o) ((o)->type == PPBOOL ? ((o)->integer != 0) : 0)
+#define ppobj_get_int_value(o) ((o)->type == PPINT ? (o)->integer : 0)
+#define ppobj_get_num_value(o) ((o)->type == PPNUM  ? (o)->number : ((o)->type == PPINT  ? (ppnum)((o)->integer) : 0.0))
+
 /* name */
 
 #define ppname_is(name, s) (memcmp(name, s, sizeof("" s) - 1) == 0)
 #define ppname_eq(name, n) (memcmp(name, s, ppname_size(name)) == 0)
 
-#define _ppname_ghost(name) (((_ppname *)(name)) - 1)
+#define _ppname_ghost(name) (((const _ppname *)(name)) - 1)
 #define ppname_size(name) (_ppname_ghost(name)->size)
 #define ppname_exec(name) (_ppname_ghost(name)->flags & PPNAME_EXEC)
 
@@ -151,7 +155,7 @@ PPAPI ppname ppname_encoded (ppname name);
 
 /* string */
 
-#define _ppstring_ghost(string) (((_ppstring *)(string)) - 1)
+#define _ppstring_ghost(string) (((const _ppstring *)(string)) - 1)
 #define ppstring_size(string) (_ppstring_ghost(string)->size)
 
 #define PPSTRING_ENCODED (1 << 0)
@@ -239,12 +243,15 @@ PPAPI ppref * ppdict_rget_ref (ppdict *dict, const char *name);
 
 /* stream */
 
-#define ppstream_dict(stream) ((ppdict *)(stream))
+#define ppstream_dict(stream) ((stream)->dict)
 
-uint8_t * ppstream_first (ppstream *stream, size_t *size, int decode);
-uint8_t * ppstream_next (ppstream *stream, size_t *size);
-uint8_t * ppstream_all (ppstream *stream, size_t *size, int decode);
-void ppstream_done (ppstream *stream);
+PPAPI uint8_t * ppstream_first (ppstream *stream, size_t *size, int decode);
+PPAPI uint8_t * ppstream_next (ppstream *stream, size_t *size);
+PPAPI uint8_t * ppstream_all (ppstream *stream, size_t *size, int decode);
+PPAPI void ppstream_done (ppstream *stream);
+
+PPAPI void ppstream_init_buffers (void);
+PPAPI void ppstream_free_buffers (void);
 
 /* ref */
 
@@ -335,6 +342,9 @@ PPAPI ppmatrix * pparray_to_matrix (pparray *array, ppmatrix *matrix);
 PPAPI ppmatrix * ppdict_get_matrix (ppdict *dict, const char *name, ppmatrix *matrix);
 
 /* stats and debug */
+
+typedef void (*pplogger_callback) (const char *message, void *alien);
+PPAPI void pplog_callback (pplogger_callback logger, void *alien);
 
 PPAPI const char * ppdoc_version_string (ppdoc *pdf);
 PPAPI int ppdoc_version_number (ppdoc *pdf, int *minor);

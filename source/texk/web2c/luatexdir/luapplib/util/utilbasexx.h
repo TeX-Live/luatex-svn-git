@@ -16,18 +16,6 @@ typedef struct basexx_state basexx_state;
 void basexx_state_init_ln (basexx_state *state, size_t line, size_t maxline);
 #define basexx_state_init(state) basexx_state_init_ln(state, 0, BASEXX_MAXLINE)
 
-#define base16_state basexx_state
-#define base64_state basexx_state
-#define base85_state basexx_state
-
-#define base16_state_init_ln basexx_state_init_ln
-#define base64_state_init_ln basexx_state_init_ln
-#define base85_state_init_ln basexx_state_init_ln
-
-#define base16_state_init basexx_state_init
-#define base64_state_init basexx_state_init
-#define base85_state_init basexx_state_init
-
 /* base16 */
 
 int base16_getc (iof *I);
@@ -51,11 +39,11 @@ iof_status base16_decode (iof *I, iof *O);
 #define base16_encode base16_encode_uc
 #define base16_encode_ln base16_encode_uc_ln
 
-iof_status base16_encode_state_uc (iof *I, iof *O, base16_state *state);
-iof_status base16_encode_state_lc (iof *I, iof *O, base16_state *state);
-iof_status base16_encode_state_uc_ln (iof *I, iof *O, base16_state *state);
-iof_status base16_encode_state_lc_ln (iof *I, iof *O, base16_state *state);
-iof_status base16_decode_state (iof *I, iof *O, base16_state *state);
+iof_status base16_encode_state_uc (iof *I, iof *O, basexx_state *state);
+iof_status base16_encode_state_lc (iof *I, iof *O, basexx_state *state);
+iof_status base16_encode_state_uc_ln (iof *I, iof *O, basexx_state *state);
+iof_status base16_encode_state_lc_ln (iof *I, iof *O, basexx_state *state);
+iof_status base16_decode_state (iof *I, iof *O, basexx_state *state);
 
 #define base16_encode_state base16_encode_state_uc
 #define base16_encode_state_ln base16_encode_state_uc_ln
@@ -72,9 +60,9 @@ iof_status base64_encode (iof *I, iof *O);
 iof_status base64_encode_ln (iof *I, iof *O, size_t line, size_t maxline);
 iof_status base64_decode (iof *I, iof *O);
 
-iof_status base64_encode_state (iof *I, iof *O, base64_state *state);
-iof_status base64_encode_state_ln (iof *I, iof *O, base64_state *state);
-iof_status base64_decode_state (iof *I, iof *O, base64_state *state);
+iof_status base64_encode_state (iof *I, iof *O, basexx_state *state);
+iof_status base64_encode_state_ln (iof *I, iof *O, basexx_state *state);
+iof_status base64_decode_state (iof *I, iof *O, basexx_state *state);
 
 /* base85 */
 
@@ -88,9 +76,9 @@ iof_status base85_encode (iof *I, iof *O);
 iof_status base85_encode_ln (iof *I, iof *O, size_t line, size_t maxline);
 iof_status base85_decode (iof *I, iof *O);
 
-iof_status base85_encode_state (iof *I, iof *O, base64_state *state);
-iof_status base85_encode_state_ln (iof *I, iof *O, base85_state *state);
-iof_status base85_decode_state (iof *I, iof *O, base85_state *state);
+iof_status base85_encode_state (iof *I, iof *O, basexx_state *state);
+iof_status base85_encode_state_ln (iof *I, iof *O, basexx_state *state);
+iof_status base85_decode_state (iof *I, iof *O, basexx_state *state);
 
 /* run length */
 
@@ -121,5 +109,25 @@ iof_status eexec_encode_state (iof *I, iof *O, eexec_state *state);
 
 iof_status type1_charstring_decode (void *data, size_t size, void *outdata, uint8_t leniv);
 iof_status type1_charstring_encode (void *data, size_t size, void *outdata, uint8_t leniv);
+
+/* filters */
+
+int iof_filter_basexx_encoder_ln (iof *N, size_t line, size_t maxline);
+
+iof * iof_filter_base16_decoder (iof *N);
+iof * iof_filter_base16_encoder (iof *N);
+
+iof * iof_filter_base64_decoder (iof *N);
+iof * iof_filter_base64_encoder (iof *N);
+
+iof * iof_filter_base85_decoder (iof *N);
+iof * iof_filter_base85_encoder (iof *N);
+
+iof * iof_filter_runlength_decoder (iof *N);
+iof * iof_filter_runlength_encoder (iof *N);
+
+iof * iof_filter_eexec_decoder (iof *N);
+iof * iof_filter_eexec_encoder (iof *N);
+
 
 #endif

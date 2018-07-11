@@ -523,9 +523,7 @@ am__objects_3 = luatexdir/luapplib/liblua53pplib_a-pptest2.$(OBJEXT) \
 	luatexdir/luapplib/util/liblua53pplib_a-utiliof.$(OBJEXT) \
 	luatexdir/luapplib/util/liblua53pplib_a-utilflate.$(OBJEXT) \
 	luatexdir/luapplib/util/liblua53pplib_a-utilnumber.$(OBJEXT) \
-	luatexdir/luapplib/util/liblua53pplib_a-utilfilter.$(OBJEXT) \
 	luatexdir/luapplib/util/liblua53pplib_a-utilfpred.$(OBJEXT) \
-	luatexdir/luapplib/util/liblua53pplib_a-utilpool.$(OBJEXT) \
 	luatexdir/luapplib/util/liblua53pplib_a-utilbasexx.$(OBJEXT) \
 	luatexdir/luapplib/util/liblua53pplib_a-utilmd5.$(OBJEXT) \
 	luatexdir/luapplib/util/liblua53pplib_a-utilmem.$(OBJEXT) \
@@ -717,9 +715,7 @@ am__objects_9 = luatexdir/luapplib/libluajitpplib_a-pptest2.$(OBJEXT) \
 	luatexdir/luapplib/util/libluajitpplib_a-utiliof.$(OBJEXT) \
 	luatexdir/luapplib/util/libluajitpplib_a-utilflate.$(OBJEXT) \
 	luatexdir/luapplib/util/libluajitpplib_a-utilnumber.$(OBJEXT) \
-	luatexdir/luapplib/util/libluajitpplib_a-utilfilter.$(OBJEXT) \
 	luatexdir/luapplib/util/libluajitpplib_a-utilfpred.$(OBJEXT) \
-	luatexdir/luapplib/util/libluajitpplib_a-utilpool.$(OBJEXT) \
 	luatexdir/luapplib/util/libluajitpplib_a-utilbasexx.$(OBJEXT) \
 	luatexdir/luapplib/util/libluajitpplib_a-utilmd5.$(OBJEXT) \
 	luatexdir/luapplib/util/libluajitpplib_a-utilmem.$(OBJEXT) \
@@ -900,9 +896,7 @@ am__objects_13 = luatexdir/luapplib/libluapplib_a-pptest2.$(OBJEXT) \
 	luatexdir/luapplib/util/libluapplib_a-utiliof.$(OBJEXT) \
 	luatexdir/luapplib/util/libluapplib_a-utilflate.$(OBJEXT) \
 	luatexdir/luapplib/util/libluapplib_a-utilnumber.$(OBJEXT) \
-	luatexdir/luapplib/util/libluapplib_a-utilfilter.$(OBJEXT) \
 	luatexdir/luapplib/util/libluapplib_a-utilfpred.$(OBJEXT) \
-	luatexdir/luapplib/util/libluapplib_a-utilpool.$(OBJEXT) \
 	luatexdir/luapplib/util/libluapplib_a-utilbasexx.$(OBJEXT) \
 	luatexdir/luapplib/util/libluapplib_a-utilmd5.$(OBJEXT) \
 	luatexdir/luapplib/util/libluapplib_a-utilmem.$(OBJEXT) \
@@ -4157,13 +4151,13 @@ libluapplib_a_DEPENDENCIES = $(ZLIB_DEPEND)
 liblua53pplib_a_DEPENDENCIES = $(ZLIB_DEPEND)
 libluajitpplib_a_DEPENDENCIES = $(ZLIB_DEPEND)
 libluapplib_a_CPPFLAGS = \
-	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUA_INCLUDES)
+	-I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUA_INCLUDES)
 
 liblua53pplib_a_CPPFLAGS = \
-	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUA_LUA53_INCLUDES)
+	-I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUA_LUA53_INCLUDES)
 
 libluajitpplib_a_CPPFLAGS = \
-	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUAJIT_INCLUDES)
+	-I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUAJIT_INCLUDES)
 
 libluapplib_a_CFLAGS = # $(WARNING_CFLAGS)
 libluajitpplib_a_CFLAGS = # $(WARNING_CFLAGS)
@@ -4192,25 +4186,17 @@ libluapplib_sources = \
 	luatexdir/luapplib/util/utilflate.h \
 	luatexdir/luapplib/util/utilcryptdef.h \
 	luatexdir/luapplib/util/utilflate.c \
-	luatexdir/luapplib/util/utilpool.h \
 	luatexdir/luapplib/util/utilnumber.c \
-	luatexdir/luapplib/util/utillzwdef.h \
 	luatexdir/luapplib/util/utilmem.h \
-	luatexdir/luapplib/util/utilfilter.c \
 	luatexdir/luapplib/util/utilbasexx.h \
 	luatexdir/luapplib/util/utillzw.h \
 	luatexdir/luapplib/util/utilplat.h \
 	luatexdir/luapplib/util/utilfpred.c \
-	luatexdir/luapplib/util/utilfilter.h \
 	luatexdir/luapplib/util/utiliof.h \
-	luatexdir/luapplib/util/utilflatedef.h \
 	luatexdir/luapplib/util/utilcrypt.h \
 	luatexdir/luapplib/util/utilnumber.h \
-	luatexdir/luapplib/util/utilpool.c \
 	luatexdir/luapplib/util/utilbasexx.c \
-	luatexdir/luapplib/util/utilfpreddef.h \
 	luatexdir/luapplib/util/utilsha.h \
-	luatexdir/luapplib/util/utilbasexxdef.h \
 	luatexdir/luapplib/util/utilmd5.c \
 	luatexdir/luapplib/util/utilmem.c \
 	luatexdir/luapplib/util/utilfpred.h \
@@ -4959,13 +4945,7 @@ luatexdir/luapplib/util/liblua53pplib_a-utilflate.$(OBJEXT):  \
 luatexdir/luapplib/util/liblua53pplib_a-utilnumber.$(OBJEXT):  \
 	luatexdir/luapplib/util/$(am__dirstamp) \
 	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
-luatexdir/luapplib/util/liblua53pplib_a-utilfilter.$(OBJEXT):  \
-	luatexdir/luapplib/util/$(am__dirstamp) \
-	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/util/liblua53pplib_a-utilfpred.$(OBJEXT):  \
-	luatexdir/luapplib/util/$(am__dirstamp) \
-	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
-luatexdir/luapplib/util/liblua53pplib_a-utilpool.$(OBJEXT):  \
 	luatexdir/luapplib/util/$(am__dirstamp) \
 	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/util/liblua53pplib_a-utilbasexx.$(OBJEXT):  \
@@ -5551,13 +5531,7 @@ luatexdir/luapplib/util/libluajitpplib_a-utilflate.$(OBJEXT):  \
 luatexdir/luapplib/util/libluajitpplib_a-utilnumber.$(OBJEXT):  \
 	luatexdir/luapplib/util/$(am__dirstamp) \
 	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
-luatexdir/luapplib/util/libluajitpplib_a-utilfilter.$(OBJEXT):  \
-	luatexdir/luapplib/util/$(am__dirstamp) \
-	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/util/libluajitpplib_a-utilfpred.$(OBJEXT):  \
-	luatexdir/luapplib/util/$(am__dirstamp) \
-	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
-luatexdir/luapplib/util/libluajitpplib_a-utilpool.$(OBJEXT):  \
 	luatexdir/luapplib/util/$(am__dirstamp) \
 	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/util/libluajitpplib_a-utilbasexx.$(OBJEXT):  \
@@ -6060,13 +6034,7 @@ luatexdir/luapplib/util/libluapplib_a-utilflate.$(OBJEXT):  \
 luatexdir/luapplib/util/libluapplib_a-utilnumber.$(OBJEXT):  \
 	luatexdir/luapplib/util/$(am__dirstamp) \
 	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
-luatexdir/luapplib/util/libluapplib_a-utilfilter.$(OBJEXT):  \
-	luatexdir/luapplib/util/$(am__dirstamp) \
-	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/util/libluapplib_a-utilfpred.$(OBJEXT):  \
-	luatexdir/luapplib/util/$(am__dirstamp) \
-	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
-luatexdir/luapplib/util/libluapplib_a-utilpool.$(OBJEXT):  \
 	luatexdir/luapplib/util/$(am__dirstamp) \
 	luatexdir/luapplib/util/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/util/libluapplib_a-utilbasexx.$(OBJEXT):  \
@@ -7720,7 +7688,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppxref.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilbasexx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilcrypt.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfilter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilflate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfpred.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utiliof.Po@am__quote@
@@ -7728,11 +7695,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilmd5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilmem.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilnumber.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilpool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilsha.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilbasexx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilcrypt.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfilter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilflate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfpred.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utiliof.Po@am__quote@
@@ -7740,11 +7705,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilmd5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilmem.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilnumber.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilpool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilsha.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilbasexx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilcrypt.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfilter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilflate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfpred.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utiliof.Po@am__quote@
@@ -7752,7 +7715,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilmd5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilmem.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilnumber.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilpool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilsha.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luasocket/src/$(DEPDIR)/liblua53socket_a-auxiliar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luasocket/src/$(DEPDIR)/liblua53socket_a-buffer.Po@am__quote@
@@ -9059,20 +9021,6 @@ luatexdir/luapplib/util/liblua53pplib_a-utilnumber.obj: luatexdir/luapplib/util/
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/liblua53pplib_a-utilnumber.obj `if test -f 'luatexdir/luapplib/util/utilnumber.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilnumber.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilnumber.c'; fi`
 
-luatexdir/luapplib/util/liblua53pplib_a-utilfilter.o: luatexdir/luapplib/util/utilfilter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/liblua53pplib_a-utilfilter.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfilter.Tpo -c -o luatexdir/luapplib/util/liblua53pplib_a-utilfilter.o `test -f 'luatexdir/luapplib/util/utilfilter.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilfilter.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfilter.Tpo luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfilter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilfilter.c' object='luatexdir/luapplib/util/liblua53pplib_a-utilfilter.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/liblua53pplib_a-utilfilter.o `test -f 'luatexdir/luapplib/util/utilfilter.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilfilter.c
-
-luatexdir/luapplib/util/liblua53pplib_a-utilfilter.obj: luatexdir/luapplib/util/utilfilter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/liblua53pplib_a-utilfilter.obj -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfilter.Tpo -c -o luatexdir/luapplib/util/liblua53pplib_a-utilfilter.obj `if test -f 'luatexdir/luapplib/util/utilfilter.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilfilter.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilfilter.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfilter.Tpo luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfilter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilfilter.c' object='luatexdir/luapplib/util/liblua53pplib_a-utilfilter.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/liblua53pplib_a-utilfilter.obj `if test -f 'luatexdir/luapplib/util/utilfilter.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilfilter.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilfilter.c'; fi`
-
 luatexdir/luapplib/util/liblua53pplib_a-utilfpred.o: luatexdir/luapplib/util/utilfpred.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/liblua53pplib_a-utilfpred.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfpred.Tpo -c -o luatexdir/luapplib/util/liblua53pplib_a-utilfpred.o `test -f 'luatexdir/luapplib/util/utilfpred.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilfpred.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfpred.Tpo luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilfpred.Po
@@ -9086,20 +9034,6 @@ luatexdir/luapplib/util/liblua53pplib_a-utilfpred.obj: luatexdir/luapplib/util/u
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilfpred.c' object='luatexdir/luapplib/util/liblua53pplib_a-utilfpred.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/liblua53pplib_a-utilfpred.obj `if test -f 'luatexdir/luapplib/util/utilfpred.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilfpred.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilfpred.c'; fi`
-
-luatexdir/luapplib/util/liblua53pplib_a-utilpool.o: luatexdir/luapplib/util/utilpool.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/liblua53pplib_a-utilpool.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilpool.Tpo -c -o luatexdir/luapplib/util/liblua53pplib_a-utilpool.o `test -f 'luatexdir/luapplib/util/utilpool.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilpool.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilpool.Tpo luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilpool.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilpool.c' object='luatexdir/luapplib/util/liblua53pplib_a-utilpool.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/liblua53pplib_a-utilpool.o `test -f 'luatexdir/luapplib/util/utilpool.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilpool.c
-
-luatexdir/luapplib/util/liblua53pplib_a-utilpool.obj: luatexdir/luapplib/util/utilpool.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/liblua53pplib_a-utilpool.obj -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilpool.Tpo -c -o luatexdir/luapplib/util/liblua53pplib_a-utilpool.obj `if test -f 'luatexdir/luapplib/util/utilpool.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilpool.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilpool.Tpo luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilpool.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilpool.c' object='luatexdir/luapplib/util/liblua53pplib_a-utilpool.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/liblua53pplib_a-utilpool.obj `if test -f 'luatexdir/luapplib/util/utilpool.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilpool.c'; fi`
 
 luatexdir/luapplib/util/liblua53pplib_a-utilbasexx.o: luatexdir/luapplib/util/utilbasexx.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/liblua53pplib_a-utilbasexx.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilbasexx.Tpo -c -o luatexdir/luapplib/util/liblua53pplib_a-utilbasexx.o `test -f 'luatexdir/luapplib/util/utilbasexx.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilbasexx.c
@@ -11383,20 +11317,6 @@ luatexdir/luapplib/util/libluajitpplib_a-utilnumber.obj: luatexdir/luapplib/util
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluajitpplib_a-utilnumber.obj `if test -f 'luatexdir/luapplib/util/utilnumber.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilnumber.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilnumber.c'; fi`
 
-luatexdir/luapplib/util/libluajitpplib_a-utilfilter.o: luatexdir/luapplib/util/utilfilter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluajitpplib_a-utilfilter.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfilter.Tpo -c -o luatexdir/luapplib/util/libluajitpplib_a-utilfilter.o `test -f 'luatexdir/luapplib/util/utilfilter.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilfilter.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfilter.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfilter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilfilter.c' object='luatexdir/luapplib/util/libluajitpplib_a-utilfilter.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluajitpplib_a-utilfilter.o `test -f 'luatexdir/luapplib/util/utilfilter.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilfilter.c
-
-luatexdir/luapplib/util/libluajitpplib_a-utilfilter.obj: luatexdir/luapplib/util/utilfilter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluajitpplib_a-utilfilter.obj -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfilter.Tpo -c -o luatexdir/luapplib/util/libluajitpplib_a-utilfilter.obj `if test -f 'luatexdir/luapplib/util/utilfilter.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilfilter.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilfilter.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfilter.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfilter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilfilter.c' object='luatexdir/luapplib/util/libluajitpplib_a-utilfilter.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluajitpplib_a-utilfilter.obj `if test -f 'luatexdir/luapplib/util/utilfilter.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilfilter.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilfilter.c'; fi`
-
 luatexdir/luapplib/util/libluajitpplib_a-utilfpred.o: luatexdir/luapplib/util/utilfpred.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluajitpplib_a-utilfpred.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfpred.Tpo -c -o luatexdir/luapplib/util/libluajitpplib_a-utilfpred.o `test -f 'luatexdir/luapplib/util/utilfpred.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilfpred.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfpred.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilfpred.Po
@@ -11410,20 +11330,6 @@ luatexdir/luapplib/util/libluajitpplib_a-utilfpred.obj: luatexdir/luapplib/util/
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilfpred.c' object='luatexdir/luapplib/util/libluajitpplib_a-utilfpred.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluajitpplib_a-utilfpred.obj `if test -f 'luatexdir/luapplib/util/utilfpred.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilfpred.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilfpred.c'; fi`
-
-luatexdir/luapplib/util/libluajitpplib_a-utilpool.o: luatexdir/luapplib/util/utilpool.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluajitpplib_a-utilpool.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilpool.Tpo -c -o luatexdir/luapplib/util/libluajitpplib_a-utilpool.o `test -f 'luatexdir/luapplib/util/utilpool.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilpool.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilpool.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilpool.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilpool.c' object='luatexdir/luapplib/util/libluajitpplib_a-utilpool.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluajitpplib_a-utilpool.o `test -f 'luatexdir/luapplib/util/utilpool.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilpool.c
-
-luatexdir/luapplib/util/libluajitpplib_a-utilpool.obj: luatexdir/luapplib/util/utilpool.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluajitpplib_a-utilpool.obj -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilpool.Tpo -c -o luatexdir/luapplib/util/libluajitpplib_a-utilpool.obj `if test -f 'luatexdir/luapplib/util/utilpool.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilpool.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilpool.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilpool.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilpool.c' object='luatexdir/luapplib/util/libluajitpplib_a-utilpool.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluajitpplib_a-utilpool.obj `if test -f 'luatexdir/luapplib/util/utilpool.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilpool.c'; fi`
 
 luatexdir/luapplib/util/libluajitpplib_a-utilbasexx.o: luatexdir/luapplib/util/utilbasexx.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluajitpplib_a-utilbasexx.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluajitpplib_a-utilbasexx.Tpo -c -o luatexdir/luapplib/util/libluajitpplib_a-utilbasexx.o `test -f 'luatexdir/luapplib/util/utilbasexx.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilbasexx.c
@@ -13651,20 +13557,6 @@ luatexdir/luapplib/util/libluapplib_a-utilnumber.obj: luatexdir/luapplib/util/ut
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluapplib_a-utilnumber.obj `if test -f 'luatexdir/luapplib/util/utilnumber.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilnumber.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilnumber.c'; fi`
 
-luatexdir/luapplib/util/libluapplib_a-utilfilter.o: luatexdir/luapplib/util/utilfilter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluapplib_a-utilfilter.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfilter.Tpo -c -o luatexdir/luapplib/util/libluapplib_a-utilfilter.o `test -f 'luatexdir/luapplib/util/utilfilter.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilfilter.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfilter.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfilter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilfilter.c' object='luatexdir/luapplib/util/libluapplib_a-utilfilter.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluapplib_a-utilfilter.o `test -f 'luatexdir/luapplib/util/utilfilter.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilfilter.c
-
-luatexdir/luapplib/util/libluapplib_a-utilfilter.obj: luatexdir/luapplib/util/utilfilter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluapplib_a-utilfilter.obj -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfilter.Tpo -c -o luatexdir/luapplib/util/libluapplib_a-utilfilter.obj `if test -f 'luatexdir/luapplib/util/utilfilter.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilfilter.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilfilter.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfilter.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfilter.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilfilter.c' object='luatexdir/luapplib/util/libluapplib_a-utilfilter.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluapplib_a-utilfilter.obj `if test -f 'luatexdir/luapplib/util/utilfilter.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilfilter.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilfilter.c'; fi`
-
 luatexdir/luapplib/util/libluapplib_a-utilfpred.o: luatexdir/luapplib/util/utilfpred.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluapplib_a-utilfpred.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfpred.Tpo -c -o luatexdir/luapplib/util/libluapplib_a-utilfpred.o `test -f 'luatexdir/luapplib/util/utilfpred.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilfpred.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfpred.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilfpred.Po
@@ -13678,20 +13570,6 @@ luatexdir/luapplib/util/libluapplib_a-utilfpred.obj: luatexdir/luapplib/util/uti
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilfpred.c' object='luatexdir/luapplib/util/libluapplib_a-utilfpred.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluapplib_a-utilfpred.obj `if test -f 'luatexdir/luapplib/util/utilfpred.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilfpred.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilfpred.c'; fi`
-
-luatexdir/luapplib/util/libluapplib_a-utilpool.o: luatexdir/luapplib/util/utilpool.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluapplib_a-utilpool.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilpool.Tpo -c -o luatexdir/luapplib/util/libluapplib_a-utilpool.o `test -f 'luatexdir/luapplib/util/utilpool.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilpool.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilpool.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilpool.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilpool.c' object='luatexdir/luapplib/util/libluapplib_a-utilpool.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluapplib_a-utilpool.o `test -f 'luatexdir/luapplib/util/utilpool.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilpool.c
-
-luatexdir/luapplib/util/libluapplib_a-utilpool.obj: luatexdir/luapplib/util/utilpool.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluapplib_a-utilpool.obj -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilpool.Tpo -c -o luatexdir/luapplib/util/libluapplib_a-utilpool.obj `if test -f 'luatexdir/luapplib/util/utilpool.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilpool.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilpool.Tpo luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilpool.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/util/utilpool.c' object='luatexdir/luapplib/util/libluapplib_a-utilpool.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/util/libluapplib_a-utilpool.obj `if test -f 'luatexdir/luapplib/util/utilpool.c'; then $(CYGPATH_W) 'luatexdir/luapplib/util/utilpool.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/util/utilpool.c'; fi`
 
 luatexdir/luapplib/util/libluapplib_a-utilbasexx.o: luatexdir/luapplib/util/utilbasexx.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/util/libluapplib_a-utilbasexx.o -MD -MP -MF luatexdir/luapplib/util/$(DEPDIR)/libluapplib_a-utilbasexx.Tpo -c -o luatexdir/luapplib/util/libluapplib_a-utilbasexx.o `test -f 'luatexdir/luapplib/util/utilbasexx.c' || echo '$(srcdir)/'`luatexdir/luapplib/util/utilbasexx.c

@@ -26,6 +26,8 @@ Aux flags:
 #  define PPDEF
 #endif
 
+/* platform vs integers */
+
 #if defined(_WIN32) || defined(WIN32)
 #  ifdef _MSC_VER
 #    if defined(_M_64) || defined(_WIN64)
@@ -70,7 +72,5 @@ Aux flags:
 #endif
 
 #define PPSIZEF PPUINTF
-
-#define PPMESS printf
 
 #endif

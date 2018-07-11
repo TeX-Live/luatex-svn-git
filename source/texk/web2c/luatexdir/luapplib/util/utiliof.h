@@ -36,10 +36,13 @@ const char * iof_status_kind (iof_status status);
 typedef struct iof_file {
   union {
     FILE *iofh; // access via iof_file_get_fh / iof_file_set_fh (below)
-    struct { uint8_t *buf, *pos, *end; };
+    union {
+    	struct { uint8_t *buf, *pos, *end; };
+    	struct { const uint8_t *rbuf, *rpos, *rend; }; // only to trick compiler warnings
+    };
   };
   size_t *offset;
-  const char *name;
+  char *name;
   size_t size;
   int refcount;
   int flags;
@@ -55,8 +58,7 @@ typedef size_t (*iof_handler) (iof *I, iof_mode mode);
 #define IOF_MEMBERS \
   union { \
     struct { uint8_t *buf, *pos, *end; }; \
-    struct { uint16_t *hbuf, *hpos, *hend; }; \
-    struct { uint32_t *ibuf, *ipos, *iend; }; \
+    struct { const uint8_t *rbuf, *rpos, *rend; }; \
   }; \
   size_t space; \
   iof_handler more; \
@@ -84,26 +86,29 @@ typedef void (*iof_dump_function) (const void *value, iof *O);
 
 /* flags */
 
-#define IOF_ISALLOC        (1<<0) // iof is allocated
-#define IOF_BUFFER_ISALLOC (1<<1) // buffer allocated
+#define IOF_ALLOC          (1<<0) // iof is allocated
+#define IOF_HEAP           (1<<1) // iof taken from iof heap
+#define IOF_BUFFER_ALLOC   (1<<2) // buffer allocated
+#define IOF_BUFFER_HEAP    (1<<3) // buffer taken from iof heap
 
-#define IOF_SHORT          (1<<2) // buffer uses 16bit integers
-#define IOF_LONG           (1<<3) // buffer uses 32bit integers
+#define IOF_SHORT          (1<<4) // buffer uses 16bit integers
+#define IOF_LONG           (1<<5) // buffer uses 32bit integers
 
-#define IOF_TAIL           (1<<4) // preserve reader tail
-#define IOF_READER         (1<<5) // is reader
-#define IOF_WRITER         (1<<6) // is writer
+#define IOF_TAIL           (1<<6) // preserve reader tail
+#define IOF_READER         (1<<7) // is reader
+#define IOF_WRITER         (1<<8) // is writer
 
-#define IOF_DATA           (1<<7) // binds some memory
-#define IOF_FILE_HANDLE    (1<<8) // links FILE *
-#define IOF_FILE           (1<<9) // links iof_file *
-#define IOF_CLOSE_FILE     (1<<10) // close FILE * on free
-#define IOF_REOPEN_FILE    (1<<11) // close/reopen mode for iof_file
-#define IOF_RECLOSE_FILE   (1<<12) // ditto
+#define IOF_DATA           (1<<9)  // binds some memory
+#define IOF_FILE_HANDLE    (1<<10) // links FILE *
+#define IOF_FILE           (1<<11) // links iof_file *
+#define IOF_NEXT           (1<<12) // links next iof *
+#define IOF_CLOSE_FILE     (1<<13) // close FILE * on free
+#define IOF_REOPEN_FILE    (1<<14) // close/reopen mode for iof_file
+#define IOF_RECLOSE_FILE   (1<<15) // ditto
 
-#define IOF_STOPPED        (1<<13) // stopped
+#define IOF_STOPPED        (1<<16) // stopped
 
-// #define IOF_CUSTOM         (1<<14) // first custom flag
+// #define IOF_CUSTOM         (1<<17) // first custom flag
 
 #define IOF_BUFSIZ (sizeof(iof) + BUFSIZ*sizeof(uint8_t))
 
@@ -121,7 +126,7 @@ and its buffer is to be allocated. In the case of growing output
 buffers we used to check if the memory of the buffer is allocated
 by the handler function using test (O->buf != (O+1)). We don't use
 it any longer not to rely on little secrets. Now there is an explicit
-IOF_BUFFER_ISALLOC flag for that. IOF_ISALLOC tells if the structure
+IOF_BUFFER_ALLOC flag for that. IOF_ALLOC tells if the structure
 itself is taken from malloc (not used so far). Assuming the buffer size
 is way larger the sizeof(iof)
 */
@@ -143,7 +148,6 @@ is way larger the sizeof(iof)
 /* refcount */
 
 #define iof_incref(I) (++(I)->refcount)
-#define iof_ref(I) (iof_incref(I), I)
 #define iof_decref(I) ((void)(--(I)->refcount <= 0 && iof_close(I)))
 #define iof_unref(I) (--(I)->refcount)
 
@@ -161,46 +165,16 @@ is way larger the sizeof(iof)
   ((I)->buf = (I)->pos = (I)->end = (uint8_t *)(buffer), \
    (I)->space = size, (I)->flags = 0|IOF_READER, (I)->refcount = 0)
 
-/* is buffer size in bytes?
-#define iof_hreader_buffer(I, buffer, size) \
-  ((I)->hbuf = (I)->hpos = (I)->hend = (uint16_t *)(buffer), \
-   (I)->space = size, (I)->flags = 0|IOF_READER, (I)->refcount = 0)
-
-#define iof_ireader_buffer(I, buffer, size) \
-  ((I)->ibuf = (I)->ipos = (I)->iend = (uint32_t *)(buffer), \
-   (I)->space = size, (I)->flags = 0|IOF_READER, (I)->refcount = 0)
-*/
-
 #define iof_writer_buffer(O, buffer, size) \
   ((O)->buf = (O)->pos = (uint8_t *)(buffer), \
    (O)->end = (uint8_t *)(buffer) + size, \
    (O)->space = size, (O)->flags = 0|IOF_WRITER, (O)->refcount = 0)
-
-/* is buffer size in bytes?
-#define iof_hwriter_buffer(O, buffer, size) \
-  ((O)->hbuf = (O)->hpos = (uint16_t *)(buffer), \
-   (O)->hend = (uint16_t *)(buffer) + size, \
-   (O)->space = size, (O)->flags = 0|IOF_WRITER, (O)->refcount = 0)
-
-#define iof_iwriter_buffer(O, buffer, size) \
-  ((O)->ibuf = (O)->ipos = (uint32_t *)(buffer), \
-   (O)->iend = (uint32_t *)(buffer) + size, \
-   (O)->space = size, (O)->flags = 0|IOF_WRITER, (O)->refcount = 0)
-*/
 
 /* basics */
 
 #define iof_space(I) ((I)->end - (I)->buf)
 #define iof_left(I)  ((I)->end - (I)->pos)
 #define iof_size(I)  ((I)->pos - (I)->buf)
-
-#define iof_hspace(I) ((I)->hend - (I)->hbuf)
-#define iof_hleft(I)  ((I)->hend - (I)->hpos)
-#define iof_hsize(I)  ((I)->hpos - (I)->hbuf)
-
-#define iof_ispace(I) ((I)->iend - (I)->ibuf)
-#define iof_ileft(I)  ((I)->iend - (I)->ipos)
-#define iof_isize(I)  ((I)->ipos - (I)->ibuf)
 
 #define iof_input(I)  ((I)->more ? (I)->more((I), IOFREAD) : 0lu)
 #define iof_load(I)   ((I)->more ? (I)->more((I), IOFLOAD) : 0lu)
@@ -210,6 +184,8 @@ is way larger the sizeof(iof)
 // flush should be unconditional, because encoders emits EOD markers only on flush
 #define iof_flush(O) ((O)->more ? (O)->more(O, IOFFLUSH) : 0lu)
 #define iof_close(O)  ((O)->more ? (O)->more(O, IOFCLOSE) : 0lu)
+
+#define iof_stop(F) ((void)(F->pos = F->end = F->buf, F->flags |= IOF_STOPPED))
 
 /*
 Rewriting reader tail to the beginning of new data portion; readers reacting on IOFREAD
@@ -296,9 +272,6 @@ int iof_file_flush (iof_file *iofile);
 int iof_file_getc (iof_file *iofile);
 int iof_file_putc (iof_file *iofile, int c);
 
-int iof_file_sync (iof_file *iofile, size_t *offset);
-void iof_file_unsync(iof_file *iofile, size_t *offset);
-
 int iof_file_close_input (iof_file *iofile);
 int iof_file_reopen_input (iof_file *iofile);
 
@@ -320,12 +293,9 @@ long iof_writer_tell (iof *I);
 long iof_tell (iof *I);
 size_t iof_fsize (iof *I);
 
-void iof_close_file (iof *F);
-void iof_close_iofile (iof *F, size_t *offset);
-void iof_reclose_iofile (iof *F, size_t *offset);
-
 #define iof_setup_iofile(I, f) (iof_file_incref(f), (I)->iofile = f, (I)->flags |= IOF_FILE)
 #define iof_setup_file(I, fh) ((I)->file = fh, (I)->flags |= IOF_FILE_HANDLE)
+#define iof_setup_next(I, N) ((I)->next = N, iof_incref(N), (I)->flags |= IOF_NEXT)
 
 /* file handler reader and writer */
 
@@ -369,13 +339,7 @@ extern UTILAPI iof iof_stderr;
 UTILAPI iof * iof_string_reader (iof *I, const void *s, size_t bytes);
 
 #define iof_string(I, s, bytes) \
-  (((I)->buf = (I)->pos = (uint8_t *)s), ((I)->end = (I)->buf + (bytes)), ((I)->flags |= IOF_DATA), (I))
-
-#define iof_harray(I, a, size) \
-  (((I)->hbuf = (I)->hpos = (uint16_t *)a), ((I)->hend = (I)->hbuf + (size)), ((I)->flags |= IOF_DATA), (I))
-
-#define iof_iarray(I, a, size) \
-  (((I)->ibuf = (I)->ipos = (uint32_t *)a), ((I)->iend = (I)->ibuf + (size)), ((I)->flags |= IOF_DATA), (I))
+  (((I)->rbuf = (I)->rpos = (const uint8_t *)s), ((I)->rend = (I)->rbuf + (bytes)), ((I)->flags |= IOF_DATA), (I))
 
 /* dummies */
 
@@ -641,5 +605,64 @@ UTILAPI size_t iof_data_to_file (const void *data, size_t size, const char *file
 UTILAPI size_t iof_result_to_file_handle (iof *F, FILE *file);
 UTILAPI size_t iof_result_to_file (iof *F, const char *filename);
 UTILAPI void iof_debug (iof *I, const char *filename);
+
+/* common filters allocator */
+
+void iof_filters_init (void);
+void iof_filters_free (void);
+
+void * iof_filter_new (size_t size);
+void iof_heap_back (void *data);
+#define iof_filter_free(F) iof_heap_back(F)
+#define iof_filter_buffer_free(data) iof_heap_back(data)
+
+// &((void *)pstate
+
+iof * iof_filter_reader_new (iof_handler handler, size_t statesize, void **pstate);
+#define iof_filter_reader(handler, statesize, pstate) iof_filter_reader_new(handler, statesize, (void **)(pstate))
+iof * iof_filter_reader_with_buffer_new (iof_handler handler, size_t statesize, void **pstate, void *buffer, size_t buffersize);
+#define iof_filter_reader_with_buffer(handler, statesize, pstate, buffer, buffersize) iof_filter_reader_with_buffer_new(handler, statesize, (void **)(pstate), buffer, buffersize)
+iof * iof_filter_writer_new (iof_handler handler, size_t statesize, void **pstate);
+#define iof_filter_writer(handler, statesize, pstate) iof_filter_writer_new(handler, statesize, (void **)(pstate))
+iof * iof_filter_writer_with_buffer_new (iof_handler handler, size_t statesize, void **pstate, void *buffer, size_t buffersize);
+#define iof_filter_writer_with_buffer(handler, statesize, pstate, buffer, buffersize) iof_filter_writer_with_buffer_new(handler, statesize, (void **)(pstate), buffer, buffersize)
+
+#define iof_filter_state(statetype, F) (statetype)((F) + 1)
+
+void iof_free (iof *F);
+void iof_discard (iof *F);
+
+size_t iof_resize_buffer_to (iof *O, size_t space);
+#define iof_resize_buffer(O) iof_resize_buffer_to(O, (O)->space << 1)
+
+size_t iof_decoder_retval (iof *I, const char *type, iof_status status);
+size_t iof_encoder_retval (iof *O, const char *type, iof_status status);
+
+/* filters */
+
+iof * iof_filter_file_handle_reader (FILE *file);
+iof * iof_filter_file_handle_writer (FILE *file);
+
+iof * iof_filter_iofile_reader (iof_file *iofile, size_t offset);
+iof * iof_filter_iofile_writer (iof_file *iofile, size_t offset);
+
+iof * iof_filter_file_reader (const char *filename);
+iof * iof_filter_file_writer (const char *filename);
+
+iof * iof_filter_string_reader (const void *s, size_t length);
+iof * iof_filter_string_writer (const void *s, size_t length);
+
+iof * iof_filter_buffer_writer (size_t size);
+
+iof * iof_filter_stream_reader (FILE *file, size_t offset, size_t length);
+iof * iof_filter_stream_coreader (iof_file *iofile, size_t offset, size_t length);
+
+iof * iof_filter_stream_writer (FILE *file);
+iof * iof_filter_stream_cowriter (iof_file *iofile, size_t offset);
+
+FILE * iof_filter_file_reader_source (iof *I, size_t *poffset, size_t *plength);
+iof_file * iof_filter_file_coreader_source (iof *I, size_t *poffset, size_t *plength);
+iof * iof_filter_reader_replacement (iof *P, iof_handler handler, size_t statesize, void **pstate);
+#define iof_filter_reader_replace(P, handler, statesize, pstate) iof_filter_reader_replacement(P, handler, statesize, (void **)(pstate))
 
 #endif

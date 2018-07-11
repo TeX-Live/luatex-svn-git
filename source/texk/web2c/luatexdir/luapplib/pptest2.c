@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "ppapi.h"
 
-const char * get_file_name (const char *path)
+static const char * get_file_name (const char *path)
 {
   const char *fn, *p;
   for (fn = p = path; *p != '\0'; ++p)
@@ -31,6 +31,11 @@ static int usage (const char *argv0)
 
 #define OUTDIR "."
 
+static void log_callback (const char *message, void *alien)
+{
+	fprintf((FILE *)alien, "\nooops: %s\n", message);
+}
+
 int main (int argc, const char **argv)
 {
   const char *filepath, *filename;
@@ -51,6 +56,8 @@ int main (int argc, const char **argv)
 
   if (argc < 2)
     return usage(argv[0]);
+  ppstream_init_buffers();
+  pplog_callback(log_callback, stderr);
   context = ppcontext_new();
   for (a = 1; a < argc; ++a)
   {
@@ -127,5 +134,6 @@ int main (int argc, const char **argv)
     ppdoc_free(pdf);
   }
   ppcontext_free(context);
+	ppstream_free_buffers();
   return 0;
 }

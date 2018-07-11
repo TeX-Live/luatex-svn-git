@@ -551,7 +551,7 @@ static void SHA256_Update(SHA256_CTX* context, const uint8_t *data, size_t len) 
 	}
 	while (len >= SHA256_BLOCK_LENGTH) {
 		/* Process as many complete blocks as we can */
-		SHA256_Transform(context, (uint32_t*)data);
+		SHA256_Transform(context, (const uint32_t*)data);
 		context->bitcount += SHA256_BLOCK_LENGTH << 3;
 		len -= SHA256_BLOCK_LENGTH;
 		data += SHA256_BLOCK_LENGTH;
@@ -876,7 +876,7 @@ static void SHA512_Update(SHA512_CTX* context, const uint8_t *data, size_t len) 
 	}
 	while (len >= SHA512_BLOCK_LENGTH) {
 		/* Process as many complete blocks as we can */
-		SHA512_Transform(context, (uint64_t*)data);
+		SHA512_Transform(context, (const uint64_t*)data);
 		ADDINC128(context->bitcount, SHA512_BLOCK_LENGTH << 3);
 		len -= SHA512_BLOCK_LENGTH;
 		data += SHA512_BLOCK_LENGTH;
@@ -1091,17 +1091,17 @@ void sha512_init (sha512_state *state)
 
 void sha256_add (sha256_state *state, const void *data, size_t size)
 {
-  SHA256_Update(state, (uint8_t *)data, size);
+  SHA256_Update(state, (const uint8_t *)data, size);
 }
 
 void sha384_add (sha384_state *state, const void *data, size_t size)
 {
-  SHA384_Update(state, (uint8_t *)data, size);
+  SHA384_Update(state, (const uint8_t *)data, size);
 }
 
 void sha512_add (sha512_state *state, const void *data, size_t size)
 {
-  SHA512_Update(state, (uint8_t *)data, size);
+  SHA512_Update(state, (const uint8_t *)data, size);
 }
 
 
@@ -1125,7 +1125,7 @@ void sha256 (const void *data, size_t size, uint8_t digest[SHA256_DIGEST_LENGTH]
 {
   sha256_state state;
   SHA256_Init(&state);
-  SHA256_Update(&state, (uint8_t *)data, size);
+  SHA256_Update(&state, (const uint8_t *)data, size);
   SHA256_Final(digest, &state);
 }
 
@@ -1133,7 +1133,7 @@ void sha384 (const void *data, size_t size, uint8_t digest[SHA384_DIGEST_LENGTH]
 {
   sha384_state state;
   SHA384_Init(&state);
-  SHA384_Update(&state, (uint8_t *)data, size);
+  SHA384_Update(&state, (const uint8_t *)data, size);
   SHA384_Final(digest, &state);
 }
 
@@ -1141,7 +1141,7 @@ void sha512 (const void *data, size_t size, uint8_t digest[SHA512_DIGEST_LENGTH]
 {
   sha512_state state;
   SHA512_Init(&state);
-  SHA512_Update(&state, (uint8_t *)data, size);
+  SHA512_Update(&state, (const uint8_t *)data, size);
   SHA512_Final(digest, &state);
 }
 
@@ -1168,17 +1168,17 @@ void sha512init (void)
 
 void sha256add (const void *data, size_t size)
 {
-  SHA256_Update(&sha256state, (uint8_t *)data, size);
+  SHA256_Update(&sha256state, (const uint8_t *)data, size);
 }
 
 void sha384add (const void *data, size_t size)
 {
-  SHA384_Update(&sha384state, (uint8_t *)data, size);
+  SHA384_Update(&sha384state, (const uint8_t *)data, size);
 }
 
 void sha512add (const void *data, size_t size)
 {
-  SHA512_Update(&sha512state, (uint8_t *)data, size);
+  SHA512_Update(&sha512state, (const uint8_t *)data, size);
 }
 
 

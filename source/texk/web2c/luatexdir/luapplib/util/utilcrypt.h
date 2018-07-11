@@ -79,4 +79,12 @@ UTILAPI size_t aes_decode_state_data (aes_state *state, const void *input, size_
 UTILAPI void random_bytes (uint8_t *output, size_t size);
 UTILAPI void aes_generate_iv (uint8_t output[16]);
 
+/* filters */
+
+iof * iof_filter_rc4_decoder (iof *N, const void *key, size_t keylength);
+iof * iof_filter_rc4_encoder (iof *N, const void *key, size_t keylength);
+
+iof * iof_filter_aes_decoder (iof *N, const void *key, size_t keylength);
+iof * iof_filter_aes_encoder (iof *N, const void *key, size_t keylength);
+
 #endif

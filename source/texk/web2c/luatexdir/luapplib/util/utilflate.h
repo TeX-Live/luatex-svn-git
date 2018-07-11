@@ -14,4 +14,8 @@ iof_status flate_encode_state (iof *I, iof *O, flate_state *state);
 void flate_decoder_close (flate_state *state);
 void flate_encoder_close (flate_state *state);
 
+iof * iof_filter_flate_decoder (iof *N);
+iof * iof_filter_flate_encoder (iof *N);
+
+
 #endif

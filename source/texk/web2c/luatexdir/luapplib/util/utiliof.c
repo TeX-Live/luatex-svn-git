@@ -91,7 +91,7 @@ iof_file * iof_file_new (FILE *file)
   iofile->size = 0;
   iofile->name = NULL;
   iofile->refcount = 0;
-  iofile->flags = IOF_FILE_DEFAULTS|IOF_ISALLOC;
+  iofile->flags = IOF_FILE_DEFAULTS|IOF_ALLOC;
   return iofile;
 }
 
@@ -109,20 +109,20 @@ iof_file * iof_file_init (iof_file *iofile, FILE *file)
 iof_file * iof_file_rdata (const void *data, size_t size)
 {
   iof_file *iofile = (iof_file *)util_malloc(sizeof(iof_file));
-  iofile->buf = iofile->pos = (uint8_t *)data;
-  iofile->end = iofile->buf + size;
+  iofile->rbuf = iofile->rpos = (const uint8_t *)data;
+  iofile->rend = iofile->rbuf + size;
   iofile->offset = NULL;
   iofile->size = 0;
   iofile->name = NULL;
   iofile->refcount = 0;
-  iofile->flags = IOF_FILE_DEFAULTS|IOF_ISALLOC|IOF_DATA;
+  iofile->flags = IOF_FILE_DEFAULTS|IOF_ALLOC|IOF_DATA;
   return iofile;
 }
 
 iof_file * iof_file_rdata_init (iof_file *iofile, const void *data, size_t size)
 {
-  iofile->buf = iofile->pos = (uint8_t *)data;
-  iofile->end = iofile->buf + size;
+  iofile->rbuf = iofile->rpos = (const uint8_t *)data;
+  iofile->rend = iofile->rbuf + size;
   iofile->offset = NULL;
   iofile->size = 0; // letse keep it consequently set to zero (only for user disposal)
   iofile->name = NULL;
@@ -160,7 +160,7 @@ iof_file * iof_file_reader_from_file_handle (iof_file *iofile, const char *filen
       iofile = iof_file_rdata(data, size);
     else
       iof_file_rdata_init(iofile, data, size);
-    iofile->flags |= IOF_BUFFER_ISALLOC;
+    iofile->flags |= IOF_BUFFER_ALLOC;
     if (closefile)
       fclose(file);
   }
@@ -198,9 +198,9 @@ iof_file * iof_file_reader_from_data (iof_file *iofile, const void *data, size_t
       iofile = iof_file_rdata(newdata, size);
     else
       iof_file_rdata_init(iofile, newdata, size);
-    iofile->flags |= IOF_BUFFER_ISALLOC;
-    if (freedata) // hardly makes sense...
-      util_free((void *)data);
+    iofile->flags |= IOF_BUFFER_ALLOC;
+    //if (freedata) // hardly makes sense...  we can't free const void *
+    //  util_free((void *)data);
   }
   else
   {
@@ -209,7 +209,7 @@ iof_file * iof_file_reader_from_data (iof_file *iofile, const void *data, size_t
     else
       iof_file_rdata_init(iofile, data, size);
     if (freedata)
-      iofile->flags |= IOF_BUFFER_ISALLOC;
+      iofile->flags |= IOF_BUFFER_ALLOC;
   }
   return iofile;
 }
@@ -269,16 +269,16 @@ int iof_file_reopen_input (iof_file *iofile)
   return 1;
 }
 
-/**/
+/* freeing iof_file */
 
 void iof_file_free (iof_file *iofile)
 {
   FILE *file;
   if (iofile->flags & IOF_DATA)
   {
-    if (iofile->flags & IOF_BUFFER_ISALLOC)
+    if (iofile->flags & IOF_BUFFER_ALLOC)
     {
-      iofile->flags &= ~IOF_BUFFER_ISALLOC;
+      iofile->flags &= ~IOF_BUFFER_ALLOC;
       if (iofile->buf != NULL)
       {
         util_free(iofile->buf);
@@ -293,19 +293,23 @@ void iof_file_free (iof_file *iofile)
     iof_file_set_fh(iofile, NULL);
   }
   iof_file_set_name(iofile, NULL);
-  if (iofile->flags & IOF_ISALLOC)
+  if (iofile->flags & IOF_ALLOC)
     util_free(iofile);
 }
+
+/* set filename for reopen */
 
 void iof_file_set_name (iof_file *iofile, const char *name)
 {
   if (iofile->name != NULL)
-    util_free((void *)iofile->name);
+    util_free(iofile->name);
   if (name != NULL)
     iofile->name = iof_copy_data(name, strlen(name) + 1);
   else
     iofile->name = NULL;
 }
+
+/* seek */
 
 int iof_file_seek (iof_file *iofile, long offset, int whence)
 {
@@ -339,6 +343,8 @@ int iof_file_seek (iof_file *iofile, long offset, int whence)
   }
   return fseek(iof_file_get_fh(iofile), offset, whence);
 }
+
+/* */
 
 long iof_file_tell (iof_file *iofile)
 {
@@ -392,7 +398,7 @@ static size_t iof_file_data_resizeto (iof_file *iofile, size_t space)
   uint8_t *newbuf;
   size_t size;
   size = iof_size(iofile);
-  if (iofile->flags & IOF_BUFFER_ISALLOC)
+  if (iofile->flags & IOF_BUFFER_ALLOC)
   {
     newbuf = (uint8_t *)util_realloc(iofile->buf, space);
   }
@@ -401,7 +407,7 @@ static size_t iof_file_data_resizeto (iof_file *iofile, size_t space)
     newbuf = (uint8_t *)util_malloc(space);
     if (size > 0)
       memcpy(newbuf, iofile->buf, size);
-    iofile->flags |= IOF_BUFFER_ISALLOC;
+    iofile->flags |= IOF_BUFFER_ALLOC;
   }
   iofile->buf = newbuf;
   iofile->pos = newbuf + size;
@@ -471,7 +477,7 @@ int iof_file_putc (iof_file *iofile, int c)
   return fputc(c, iof_file_get_fh(iofile));
 }
 
-int iof_file_sync (iof_file *iofile, size_t *offset)
+static int iof_file_sync (iof_file *iofile, size_t *offset)
 {
   if (iofile->offset != offset)
   {
@@ -484,35 +490,8 @@ int iof_file_sync (iof_file *iofile, size_t *offset)
   return 0;
 }
 
-void iof_file_unsync (iof_file *iofile, size_t *offset)
-{
-  if (iofile->offset && iofile->offset == offset)
-    iofile->offset = NULL;
-}
-
-
-
-/* iof free*/
-
-/*
-#define iof_buffer_free_(O, free) \
-  ((void)(((O)->flags & IOF_BUFFER_ISALLOC) && (free(O->buf), 0), (O)->flags &= ~IOF_BUFFER_ISALLOC))
-#define iof_buffer_free(O) iof_buffer_free_(O, util_free)
-#define iof_free_(O, free) ((void)(iof_buffer_free_(O, free), ((O->flags & IOF_ISALLOC) && (free(O), 0))))
-#define iof_free(O) iof_free_(O, util_free)
-*/
-
-static void iof_free (iof *O)
-{
-  if (O->flags & IOF_BUFFER_ISALLOC)
-  {
-    O->flags &= ~IOF_BUFFER_ISALLOC;
-    util_free(O->buf);
-    O->buf = NULL;
-  }
-  if (O->flags & IOF_ISALLOC)
-    util_free(O);
-}
+//#define iof_file_unsync(iofile, poffset) (void)((iofile)->offset == poffset && (((iofile)->offset = NULL), 0))
+#define iof_file_unsync(iofile, poffset) ((void)poffset, (iofile)->offset = NULL)
 
 /* iof seek */
 
@@ -607,6 +586,7 @@ static int iof_reader_seek_file (iof *I, long offset, int whence)
 
 int iof_reader_seek (iof *I, long offset, int whence)
 {
+  I->flags &= ~IOF_STOPPED;
   if (I->flags & IOF_FILE)
     return iof_reader_seek_iofile(I, offset, whence);
   if (I->flags & IOF_FILE_HANDLE)
@@ -618,6 +598,7 @@ int iof_reader_seek (iof *I, long offset, int whence)
 
 int iof_reader_reseek (iof *I, long offset, int whence)
 {
+  I->flags &= ~IOF_STOPPED;
   if (I->flags & IOF_FILE)
     return iof_reader_reseek_iofile(I, offset, whence);
   if (I->flags & IOF_FILE_HANDLE)
@@ -634,6 +615,7 @@ static int iof_writer_seek_data (iof *O, long offset, int whence)
   No byte is written before fwirte(). It seems to fill the gap with zeros. Until we really need that,
   no seeking out of bounds for writers.
   */
+  O->flags &= ~IOF_STOPPED;
   return iof_reader_seek_data(O, offset, whence);
 }
 
@@ -691,6 +673,7 @@ static int iof_writer_seek_file (iof *O, long offset, int whence)
 
 int iof_writer_seek (iof *I, long offset, int whence)
 {
+  I->flags &= ~IOF_STOPPED;
   if (I->flags & IOF_FILE)
     return iof_writer_seek_iofile(I, offset, whence);
   if (I->flags & IOF_FILE_HANDLE)
@@ -702,6 +685,7 @@ int iof_writer_seek (iof *I, long offset, int whence)
 
 int iof_writer_reseek (iof *I, long offset, int whence)
 {
+  I->flags &= ~IOF_STOPPED;
   if (I->flags & IOF_FILE)
     return iof_writer_reseek_iofile(I, offset, whence);
   if (I->flags & IOF_FILE_HANDLE)
@@ -765,56 +749,6 @@ size_t iof_fsize (iof *I)
   return (size_t)iof_space(I);
 }
 
-/* closing underlying file handle */
-
-void iof_close_file (iof *F)
-{
-  FILE *file;
-  //if (F->flags & IOF_FILE_HANDLE)
-  //{
-    if ((file = F->file) != NULL)
-    {
-      if (F->flags & IOF_CLOSE_FILE)
-        fclose(F->file);
-      F->file = NULL;
-    }
-  //}
-}
-
-void iof_close_iofile (iof *F, size_t *offset)
-{
-  iof_file *iofile;
-  //if (F->flags & IOF_FILE)
-  //{
-    if ((iofile = F->iofile) != NULL)
-    {
-      iof_file_unsync(iofile, offset);
-      iof_file_decref(iofile);
-      F->iofile = NULL;
-    }
-  //}
-}
-
-/* a very special variant for reader filters initiated with iof_file_reopen(). It also calls
-   iof_file_reclose(), which takes an effect only if previously reopened, but better to keep
-   all this thin ice separated. Used in filters: iofile_reader, iofile_stream_reader, image
-   decoders. */
-
-void iof_reclose_iofile (iof *F, size_t *offset)
-{
-  iof_file *iofile;
-  //if (F->flags & IOF_FILE)
-  //{
-    if ((iofile = F->iofile) != NULL)
-    {
-      iof_file_unsync(iofile, offset);
-      iof_file_reclose(iofile);
-      iof_file_decref(iofile);
-      F->iofile = NULL;
-    }
-  //}
-}
-
 /* save reader tail */
 
 size_t iof_save_tail (iof *I)
@@ -829,22 +763,6 @@ size_t iof_save_tail (iof *I)
   return left;
 }
 
-/*
-uint8_t * iof_tail_data (iof *I, size_t *ptail)
-{
-  size_t size, left;
-  uint8_t *data;
-  if ((I->flags & IOF_TAIL) && (*ptail = iof_left(I)) > 0)
-  {
-    data = (uint8_t *)util_malloc(*ptail);
-    memcpy(data, I->pos, *ptail);
-    return data;
-  }
-  *ptail = 0;
-  return NULL;
-}
-*/
-
 size_t iof_input_save_tail (iof *I, size_t back)
 {
   size_t size;
@@ -858,31 +776,20 @@ size_t iof_input_save_tail (iof *I, size_t back)
 
 /* read from file */
 
-static size_t iof_read_from_file_handle (iof *I, FILE *file)
-{
-  size_t bytes, tail;
-  tail = iof_tail(I);
-  bytes = tail + fread(I->buf + tail, sizeof(uint8_t), I->space - tail, file);
-  if (bytes > 0)
-  {
-    I->pos = I->buf;
-    I->end = I->pos + bytes;
-    return bytes;
-  }
-  return 0;
-}
+/* iof free*/
+
+static size_t file_read (iof *I);
+static size_t file_load (iof *I);
 
 static size_t file_reader (iof *I, iof_mode mode)
 {
-  switch(mode)
+  switch (mode)
   {
     case IOFREAD:
-      return iof_read_from_file_handle(I, I->file);
-    case IOFLOAD: // todo
-      return 0;
+      return file_read(I);
+    case IOFLOAD:
+      return file_load(I);
     case IOFCLOSE:
-      if (I->flags & IOF_CLOSE_FILE)
-        fclose(I->file);
       iof_free(I);
       return 0;
     default:
@@ -918,33 +825,18 @@ iof * iof_setup_file_reader (iof *I, void *buffer, size_t space, const char *fil
 
 /* write to file */
 
-static size_t iof_write_to_file_handle (iof *O, FILE *file)
-{
-  size_t bytes = O->pos - O->buf;
-  if (bytes == fwrite(O->buf, sizeof(uint8_t), bytes, file)) {
-    O->pos = O->buf;
-    return O->space;
-  }
-  iof_fwrite_error();
-  return 0;
-}
+static size_t file_write (iof *O, int flush);
 
 static size_t file_writer (iof *O, iof_mode mode)
 {
   switch (mode)
   {
     case IOFWRITE:
-      return iof_write_to_file_handle(O, O->file);
+      return file_write(O, 0);
     case IOFFLUSH:
-      iof_write_to_file_handle(O, O->file);
-      fflush(O->file);
-      return 0;
+      return file_write(O, 1);
     case IOFCLOSE:
-      iof_write_to_file_handle(O, O->file);
-      if (O->flags & IOF_CLOSE_FILE)
-        fclose(O->file);
-      else
-        fflush(O->file); // ?
+      file_write(O, 1);
       iof_free(O);
       return 0;
     default:
@@ -978,8 +870,7 @@ iof * iof_setup_file_writer (iof *O, void *buffer, size_t space, const char *fil
   return O;
 }
 
-/* a dedicated handler for stdout; allows to avoid iof.file := stdout each time we need to use it
-  (stdout cannot be used when initializing static structure i guess) */
+/* a dedicated handler for stdout/stderr */
 
 static size_t stdout_writer (iof *O, iof_mode mode)
 {
@@ -1035,55 +926,6 @@ iof iof_stdout = IOF_WRITER_STRUCT(stdout_writer, NULL, iof_stdout_buffer, BUFSI
 static uint8_t iof_stderr_buffer[BUFSIZ];
 iof iof_stderr = IOF_WRITER_STRUCT(stderr_writer, NULL, iof_stderr_buffer, BUFSIZ, 0);
 
-/* dummy reader, always returns o -> IOFEOF */
-
-static size_t iof_dummy_reader (iof *I, iof_mode mode)
-{
-  (void)I;
-  (void)mode;
-  return 0;
-}
-
-iof * iof_setup_dummy (iof *I, void *buffer, size_t space)
-{
-  if (I == NULL)
-    iof_setup_reader(I, buffer, space);
-  else
-    iof_reader_buffer(I, buffer, space);
-  I->link = NULL;
-  I->more = iof_dummy_reader;
-  return I;
-}
-
-/* dummy writer, always succeeds */
-
-static size_t iof_dummy_writer (iof *O, iof_mode mode)
-{
-  switch(mode)
-  {
-    case IOFWRITE: {
-      O->pos = O->buf;
-      return O->space;
-    }
-    case IOFCLOSE:
-      iof_free(O);
-      return 0;
-    default:
-      return 0;
-  }
-}
-
-iof * iof_setup_null (iof *O, void *buffer, size_t space)
-{
-  if (O == NULL)
-    iof_setup_writer(O, buffer, space);
-  else
-    iof_writer_buffer(O, buffer, space);
-  O->link = NULL;
-  O->more = iof_dummy_writer;
-  return O;
-}
-
 /* read from somewhere */
 
 iof * iof_reader (iof *I, void *link, iof_handler reader, const void *m, size_t bytes)
@@ -1093,14 +935,12 @@ iof * iof_reader (iof *I, void *link, iof_handler reader, const void *m, size_t 
   I->more = reader;
   I->flags = 0;
   I->refcount = 0;
-  //if (m != NULL && bytes > 0)
   if (m != NULL)
   {
-    I->buf = I->pos = (uint8_t *)m;
-    I->end = (uint8_t *)m + bytes;
+    I->rbuf = I->rpos = (const uint8_t *)m;
+    I->rend = (const uint8_t *)m + bytes;
     return I;
   }
-  // return iof_dummy(I);
   return NULL;
 }
 
@@ -1122,7 +962,7 @@ iof * iof_writer (iof *O, void *link, iof_handler writer, void *m, size_t bytes)
 {
   O->space = 0;
   O->link = link;
-  O->more = (writer != NULL ? writer : iof_dummy_writer);
+  O->more = writer;
   O->flags = 0;
   O->refcount = 0;
   if (m != NULL && bytes > 0)
@@ -1142,28 +982,10 @@ static size_t iof_mem_handler (iof *O, iof_mode mode)
   switch(mode)
   {
     case IOFWRITE:
-    {
-      size_t bytes = O->pos - O->buf;
-      size_t size = 2*bytes;
-      uint8_t *b;
-      if (O->flags & IOF_BUFFER_ISALLOC)
-        b = (uint8_t *)util_realloc(O->buf, size);
-      else
-      {
-        b = (uint8_t *)util_malloc(size);
-        memcpy(b, O->buf, bytes);
-        O->flags |= IOF_BUFFER_ISALLOC;
-      }
-      O->buf = b;
-      O->pos = b + bytes;
-      O->end = b + size;
-      return bytes; // == size - bytes;
-    }
+      return iof_resize_buffer(O);
     case IOFCLOSE:
-    {
       iof_free(O);
       return 0;
-    }
     default:
       return 0;
   }
@@ -1186,7 +1008,7 @@ iof * iof_setup_buffermin (iof *O, void *buffer, size_t space, size_t min)
   if ((O = iof_setup_buffer(O, buffer, space)) != NULL && space < min) // just allocate min now to avoid further rewriting
   {
     O->buf = O->pos = (uint8_t *)util_malloc(min);
-    O->flags |= IOF_BUFFER_ISALLOC;
+    O->flags |= IOF_BUFFER_ALLOC;
     O->end = O->buf + min;
   }
   return O;
@@ -1199,7 +1021,7 @@ iof * iof_buffer_create (size_t space)
   space += sizeof(iof);
   buffer = util_malloc(space);
   if ((O = iof_setup_buffer(NULL, buffer, space)) != NULL)
-    O->flags |= IOF_ISALLOC;
+    O->flags |= IOF_ALLOC;
   return O;
 }
 
@@ -1209,20 +1031,6 @@ int iof_getc (iof *I)
 {
   if (iof_readable(I))
     return *I->pos++;
-  return IOFEOF;
-}
-
-int iof_hgetc (iof *I)
-{
-  if (iof_hreadable(I))
-    return *I->hpos++;
-  return IOFEOF;
-}
-
-int iof_igetc (iof *I)
-{
-  if (iof_ireadable(I))
-    return *I->ipos++;
   return IOFEOF;
 }
 
@@ -1236,58 +1044,12 @@ int iof_putc (iof *O, int u)
   return IOFFULL;
 }
 
-int iof_hputc (iof *O, int u)
-{
-  if (iof_hwritable(O))
-  {
-    iof_hset(O, u);
-    return (uint16_t)u;
-  }
-  return IOFFULL;
-}
-
-int iof_iputc (iof *O, int u)
-{
-  if (iof_iwritable(O))
-  {
-    iof_iset(O, u);
-    return (uint32_t)u;
-  }
-  return IOFFULL;
-}
-
 size_t iof_skip (iof *I, size_t bytes)
 {
   while (bytes)
   {
     if (iof_readable(I))
       ++I->pos;
-    else
-      break;
-    --bytes;
-  }
-  return bytes;
-}
-
-size_t iof_hskip (iof *I, size_t bytes)
-{
-  while (bytes)
-  {
-    if (iof_hreadable(I))
-      ++I->hpos;
-    else
-      break;
-    --bytes;
-  }
-  return bytes;
-}
-
-size_t iof_iskip (iof *I, size_t bytes)
-{
-  while (bytes)
-  {
-    if (iof_ireadable(I))
-      ++I->ipos;
     else
       break;
     --bytes;
@@ -1351,60 +1113,6 @@ size_t iof_read (iof *I, void *to, size_t size)
   {
     memcpy(s, I->pos, size * sizeof(uint8_t));
     I->pos += size;
-    done += size;
-  }
-  return done;
-}
-
-size_t iof_hread (iof *I, void *to, size_t size)
-{
-  size_t leftin, done = 0;
-  short *s = (short *)to;
-  
-  if ((leftin = iof_hleft(I)) == 0)
-    if ((leftin = iof_input(I)) == 0)
-      return done;
-  while (size > leftin)
-  {
-    memcpy(s, I->hpos, leftin * sizeof(uint16_t));
-    size -= leftin;
-    done += leftin;
-    s += leftin;
-    I->hpos = I->hend;
-    if ((leftin = iof_input(I)) == 0)
-      return done;
-  }
-  if (size)
-  {
-    memcpy(s, I->hpos, size * sizeof(uint16_t));
-    I->hpos += size;
-    done += size;
-  }
-  return done;
-}
-
-size_t iof_iread (iof *I, void *to, size_t size)
-{
-  size_t leftin, done = 0;
-  int *s = (int *)to;
-  
-  if ((leftin = iof_ileft(I)) == 0)
-    if ((leftin = iof_input(I)) == 0)
-      return done;
-  while (size > leftin)
-  {
-    memcpy(s, I->hpos, leftin * sizeof(uint32_t));
-    size -= leftin;
-    done += leftin;
-    s += leftin;
-    I->ipos = I->iend;
-    if ((leftin = iof_input(I)) == 0)
-      return done;
-  }
-  if (size)
-  {
-    memcpy(s, I->ipos, size * sizeof(uint32_t));
-    I->ipos += size;
     done += size;
   }
   return done;
@@ -1479,58 +1187,6 @@ size_t iof_write (iof *O, const void *data, size_t size)
   {
     memcpy(O->pos, s, size * sizeof(uint8_t));
     O->pos += size;
-    done += size;
-  }
-  return done;
-}
-
-size_t iof_hwrite (iof *O, const void *data, size_t size)
-{
-  size_t leftout, done = 0;
-  const short *s = (const short *)data;
-  if ((leftout = iof_hleft(O)) == 0)
-    if ((leftout = iof_output(O)) == 0)
-      return done;
-  while (size > leftout)
-  {
-    memcpy(O->hpos, s, leftout * sizeof(uint16_t));
-    size -= leftout;
-    done += leftout;
-    s += leftout;
-    O->hpos = O->hend;
-    if ((leftout = iof_output(O)) == 0)
-      return done;
-  }
-  if (size)
-  {
-    memcpy(O->hpos, s, size * sizeof(uint16_t));
-    O->hpos += size;
-    done += size;
-  }
-  return done;
-}
-
-size_t iof_iwrite (iof *O, const void *data, size_t size)
-{
-  size_t leftout, done = 0;
-  const int *s = (const int *)data;
-  if ((leftout = iof_ileft(O)) == 0)
-    if ((leftout = iof_output(O)) == 0)
-      return done;
-  while (size > leftout)
-  {
-    memcpy(O->ipos, s, leftout * sizeof(uint32_t));
-    size -= leftout;
-    done += leftout;
-    s += leftout;
-    O->ipos = O->iend;
-    if ((leftout = iof_output(O)) == 0)
-      return done;
-  }
-  if (size)
-  {
-    memcpy(O->ipos, s, size * sizeof(uint32_t));
-    O->ipos += size;
     done += size;
   }
   return done;
@@ -2120,10 +1776,10 @@ uint8_t * iof_file_reader_data (iof_file *iofile, size_t *size)
   uint8_t *data;
   if (!(iofile->flags & IOF_DATA) || iofile->pos == NULL || (*size = (size_t)iof_left(iofile)) == 0)
     return NULL;  
-  if (iofile->flags & IOF_BUFFER_ISALLOC)
+  if (iofile->flags & IOF_BUFFER_ALLOC)
   {
     data = iofile->buf; // iofile->pos; // returned must be freeable, makes sense when ->buf == ->pos
-    iofile->flags &= ~IOF_BUFFER_ISALLOC;
+    iofile->flags &= ~IOF_BUFFER_ALLOC;
     iofile->buf = iofile->pos = iofile->end = NULL;
     return data;
   }
@@ -2137,9 +1793,9 @@ uint8_t * iof_file_writer_data (iof_file *iofile, size_t *size)
   uint8_t *data;
   if (!(iofile->flags & IOF_DATA) || iofile->buf == NULL || (*size = (size_t)iof_size(iofile)) == 0)
     return NULL;  
-  if (iofile->flags & IOF_BUFFER_ISALLOC)
+  if (iofile->flags & IOF_BUFFER_ALLOC)
   {
-    iofile->flags &= ~IOF_BUFFER_ISALLOC;
+    iofile->flags &= ~IOF_BUFFER_ALLOC;
     data = iofile->buf;
     iofile->buf = iofile->pos = iofile->end = NULL;
     return data;
@@ -2154,10 +1810,10 @@ uint8_t * iof_reader_data (iof *I, size_t *psize)
 {
   uint8_t *data;
   *psize = (size_t)iof_left(I);
-  if (I->flags & IOF_BUFFER_ISALLOC)
+  if (I->flags & IOF_BUFFER_ALLOC)
   {
     data = I->buf; // actually I->pos, but we have to return something freeable
-    I->flags &= ~IOF_BUFFER_ISALLOC;
+    I->flags &= ~IOF_BUFFER_ALLOC;
     I->buf = NULL;
   }
   else
@@ -2174,10 +1830,10 @@ uint8_t * iof_writer_data (iof *O, size_t *psize)
 {
   uint8_t *data;
   *psize = (size_t)iof_size(O);
-  if (O->flags & IOF_BUFFER_ISALLOC)
+  if (O->flags & IOF_BUFFER_ALLOC)
   {
     data = O->buf;
-    O->flags &= ~IOF_BUFFER_ISALLOC;
+    O->flags &= ~IOF_BUFFER_ALLOC;
     O->buf = NULL;
   }
   else
@@ -2253,3 +1909,1029 @@ void iof_debug (iof *I, const char *filename)
     fclose(file);
   }
 }
+
+/* common filters api */
+
+/* sizes of filter states on x64
+size of iof_filter: 640 (no longer used; sizeof(iof) + sizeof larger state)
+size of file_state: 16
+size of stream_state: 16
+size of flate_state: 104
+size of lzw_state: 56
+size of predictor_state: 104
+size of basexx_state: 48
+size of basexx_state: 48
+size of basexx_state: 48
+size of eexec_state: 40
+size of runlength_state: 24
+size of rc4_state: 24
+size of aes_state: 72
+size of img_state: 576
+size of img: 496
+*/
+
+typedef struct iof_heap iof_heap;
+
+struct iof_heap {
+  uint8_t *data, *pos;
+  size_t size, space;
+  iof_heap *next, *prev;
+  int refcount;
+};
+
+typedef struct {
+  iof_heap *heap;
+} iof_heap_ghost;
+
+static iof_heap * iof_buffers_heap = NULL;
+static iof_heap * iof_filters_heap = NULL;
+
+#define IOF_HEAP_FILTERS_COUNT 4
+#define IOF_BUFFER_SIZE 262144 // (1<<18)
+#define IOF_FILTER_SIZE 1024
+// sizeof(iof_filter) on x64 is now 640, img_state 576, img 496, others 16-104
+#define IOF_BUFFER_HEAP_SIZE (IOF_HEAP_FILTERS_COUNT * (IOF_BUFFER_SIZE + sizeof(iof_heap_ghost)))
+#define IOF_FILTER_HEAP_SIZE (IOF_HEAP_FILTERS_COUNT * (IOF_FILTER_SIZE + sizeof(iof_heap_ghost)))
+
+static iof_heap * iof_heap_new (size_t space)
+{
+  iof_heap *iofheap;
+  iofheap = (iof_heap *)util_malloc(sizeof(iof_heap) + space);
+  iofheap->data = iofheap->pos = (uint8_t *)(iofheap + 1);
+  iofheap->size = iofheap->space = space;
+  iofheap->next = NULL;
+  iofheap->prev = NULL;
+  iofheap->refcount = 0;
+  return iofheap;
+}
+
+#define iof_heap_free(iofheap) util_free(iofheap)
+
+void iof_filters_init (void)
+{
+  if (iof_buffers_heap == NULL)
+    iof_buffers_heap = iof_heap_new(IOF_BUFFER_HEAP_SIZE);
+  if (iof_filters_heap == NULL)
+    iof_filters_heap = iof_heap_new(IOF_FILTER_HEAP_SIZE);
+}
+
+void iof_filters_free (void)
+{
+  iof_heap *heap, *next;
+  for (heap = iof_buffers_heap; heap != NULL; heap = next)
+  {
+    next = heap->next;
+    if (heap->refcount != 0)
+      printf("not closed iof filters left (%d)\n", heap->refcount);
+    if (next != NULL)
+      printf("iof filters heap left\n");
+    iof_heap_free(heap);
+  }
+  iof_buffers_heap = NULL;
+  for (heap = iof_filters_heap; heap != NULL; heap = next)
+  {
+    next = heap->next;
+    if (heap->refcount != 0)
+      printf("not closed iof buffers left (%d)\n", heap->refcount);
+    if (next != NULL)
+      printf("iof buffers heap left\n");
+    iof_heap_free(heap);
+  }
+  iof_filters_heap = NULL;
+}
+
+#define iof_heap_get(hp, ghost, data, siz) \
+ (ghost = (iof_heap_ghost *)((hp)->pos), \
+  ghost->heap = hp, \
+  data = (uint8_t *)(ghost + 1), \
+  (hp)->pos += siz, \
+  (hp)->size -= siz, \
+  ++(hp)->refcount)
+
+
+static void * iof_heap_take (iof_heap **pheap, size_t size)
+{
+  uint8_t *data;
+  iof_heap_ghost *ghost;
+  iof_heap *heap, *newheap, *next;
+
+  heap = *pheap;
+  size += sizeof(iof_heap_ghost);
+  if (heap->size >= size)
+  { /* take cheap mem from main heap */
+    iof_heap_get(heap, ghost, data, size);
+    return data;
+  }
+  if (size <= heap->space >> 1)
+  { /* make new cheap heap, make it front */
+    *pheap = newheap = iof_heap_new(heap->space);
+    newheap->next = heap;
+    heap->prev = newheap;
+    iof_heap_get(newheap, ghost, data, size);
+    return data;
+  }
+  /* size much larger than expected? should not happen.
+     make a single-item heap, keep the front heap intact. */
+  newheap = iof_heap_new(size);
+  if ((next = heap->next) != NULL)
+  {
+    newheap->next = next;
+    next->prev = newheap;
+  }
+  heap->next = newheap;
+  newheap->prev = heap;
+  iof_heap_get(newheap, ghost, data, size);
+  return data;
+}
+
+void iof_heap_back (void *data)
+{
+  iof_heap_ghost *ghost;
+  iof_heap *heap, *next, *prev;
+
+  ghost = ((iof_heap_ghost *)data) - 1;
+  heap = ghost->heap;
+  if (heap->refcount == 0)
+    printf("invalid iof heap\n");
+  if (--heap->refcount <= 0)
+  {
+    if ((prev = heap->prev) != NULL)
+    { /* free the heap */
+      if ((next = heap->next) != NULL)
+        prev->next = next, next->prev = prev;
+      else
+        prev->next = NULL;
+      iof_heap_free(heap);
+    }
+    else
+    { /* this is the front heap, just reset */
+      heap->pos = heap->data;
+      heap->size = heap->space;
+    }
+  }
+}
+
+void * iof_filter_new (size_t size)
+{ // to be removed
+  void *data;
+
+  iof_filters_init();
+  data = iof_heap_take(&iof_filters_heap, size);
+  return memset(data, 0, size);
+}
+
+static uint8_t * iof_filter_buffer_new (size_t *psize)
+{
+  iof_filters_init();
+  *psize = IOF_BUFFER_SIZE;
+  return iof_heap_take(&iof_buffers_heap, IOF_BUFFER_SIZE);
+}
+
+iof * iof_filter_reader_new (iof_handler handler, size_t statesize, void **pstate)
+{
+  iof *F;
+  void *filter;
+  uint8_t *buffer;
+  size_t buffersize;
+
+  iof_filters_init();
+  filter = iof_heap_take(&iof_filters_heap, sizeof(iof) + statesize);
+  F = (iof *)memset(filter, 0, sizeof(iof) + statesize);
+  buffer = iof_filter_buffer_new(&buffersize);
+  iof_reader_buffer(F, buffer, buffersize);
+  F->flags |= IOF_HEAP|IOF_BUFFER_HEAP;
+  F->more = handler;
+  *pstate = (F + 1);
+  return F;
+}
+
+iof * iof_filter_reader_with_buffer_new (iof_handler handler, size_t statesize, void **pstate, void *buffer, size_t buffersize)
+{ // for filters that has own buffer (string, some image filters)
+  iof *F;
+  void *filter;
+  iof_filters_init();
+  filter = iof_heap_take(&iof_filters_heap, sizeof(iof) + statesize);
+  F = (iof *)memset(filter, 0, sizeof(iof) + statesize);
+  iof_reader_buffer(F, buffer, buffersize);
+  F->flags |= IOF_HEAP;
+  F->more = handler;
+  *pstate = (F + 1);
+  return F;
+}
+
+iof * iof_filter_writer_new (iof_handler handler, size_t statesize, void **pstate)
+{
+  iof *F;
+  void *filter;
+  uint8_t *buffer;
+  size_t buffersize;
+
+  iof_filters_init();
+  filter = iof_heap_take(&iof_filters_heap, sizeof(iof) + statesize);
+  F = (iof *)memset(filter, 0, sizeof(iof) + statesize);
+  buffer = iof_filter_buffer_new(&buffersize);
+  iof_writer_buffer(F, buffer, buffersize);
+  F->flags |= IOF_HEAP|IOF_BUFFER_HEAP;
+  F->more = handler;
+  *pstate = (F + 1);
+  return F;
+}
+
+iof * iof_filter_writer_with_buffer_new (iof_handler handler, size_t statesize, void **pstate, void *buffer, size_t size)
+{
+  iof *F;
+  void *filter;
+  size_t buffersize;
+
+  iof_filters_init();
+  filter = iof_heap_take(&iof_filters_heap, sizeof(iof) + statesize);
+  F = (iof *)memset(filter, 0, sizeof(iof) + statesize);
+  buffer = iof_filter_buffer_new(&buffersize);
+  iof_writer_buffer(F, buffer, buffersize);
+  F->flags |= IOF_HEAP;
+  F->more = handler;
+  *pstate = (F + 1);
+  return F;
+}
+
+/* close */
+
+#define iof_close_next(F) ((void)(iof_decref((F)->next), (F)->next = NULL, 0))
+/* when filter creation fails, we should take care to destroy the filter but leave ->next intact */
+#define iof_clear_next(F) ((void)(iof_unref((F)->next), (F)->next = NULL, 0))
+
+#define iof_close_buffer(F) ((void)\
+  ((F)->buf != NULL ? \
+      ((F->flags & IOF_BUFFER_ALLOC) ? (util_free((F)->buf), (F)->buf = NULL, 0) : \
+      ((F->flags & IOF_BUFFER_HEAP) ? (iof_filter_buffer_free((F)->buf), (F)->buf = NULL, 0) : ((F)->buf = NULL, 0))) : 0))
+
+/* closing underlying file handle */
+
+static void iof_close_file (iof *F)
+{
+  FILE *file;
+  //if (F->flags & IOF_FILE_HANDLE)
+  //{
+    if ((file = F->file) != NULL)
+    {
+      if (F->flags & IOF_CLOSE_FILE)
+        fclose(F->file);
+      F->file = NULL;
+    }
+  //}
+}
+
+/* a very special variant for reader filters initiated with iof_file_reopen(). It also calls
+   iof_file_reclose(), which takes an effect only if previously reopened, but better to keep
+   all this thin ice separated. Used in filters: iofile_reader, iofile_stream_reader, image
+   decoders. */
+
+static void iof_close_iofile (iof *F)
+{
+  iof_file *iofile;
+  //if (F->flags & IOF_FILE)
+  //{
+    if ((iofile = F->iofile) != NULL)
+    {
+      iof_file_unsync(iofile, NULL);
+      iof_file_reclose(iofile); // takes an effect iff prevoiusly reopened
+      iof_file_decref(iofile);
+      F->iofile = NULL;
+    }
+  //}
+}
+
+void iof_free (iof *F)
+{
+  if (F->flags & IOF_FILE_HANDLE)
+    iof_close_file(F);
+  else if (F->flags & IOF_FILE)
+    iof_close_iofile(F);
+  else if (F->flags & IOF_NEXT)
+    iof_close_next(F);
+  iof_close_buffer(F);
+  if (F->flags & IOF_HEAP)
+    iof_filter_free(F);
+  else if (F->flags & IOF_ALLOC)
+    util_free(F);
+}
+
+void iof_discard (iof *F)
+{ // so far used only on failed filters creation; as iof_free() but don't dare to release ->next
+  if (F->flags & IOF_FILE_HANDLE)
+    iof_close_file(F);
+  else if (F->flags & IOF_FILE)
+    iof_close_iofile(F);
+  else if (F->flags & IOF_NEXT)
+    iof_close_next(F);
+  iof_close_buffer(F);
+  if (F->flags & IOF_HEAP)
+    iof_filter_free(F);
+  else if (F->flags & IOF_ALLOC)
+    util_free(F);
+}
+
+/* resizing buffer */
+
+size_t iof_resize_buffer_to (iof *O, size_t space)
+{
+  uint8_t *buf;
+
+  if (O->flags & IOF_BUFFER_ALLOC)
+  {
+    buf = (uint8_t *)util_realloc(O->buf, space);
+  }
+  else
+  {
+    buf = (uint8_t *)util_malloc(space);
+    memcpy(buf, O->buf, iof_size(O));
+    if (O->flags & IOF_BUFFER_HEAP)
+    {
+      iof_filter_buffer_free(O->buf);
+      O->flags &= ~IOF_BUFFER_HEAP;
+    }
+    O->flags |= IOF_BUFFER_ALLOC;
+
+  }
+  O->pos = buf + iof_size(O);
+  O->end = buf + space;
+  O->buf = buf;
+  O->space = space;
+  return iof_left(O);
+}
+
+/* */
+
+size_t iof_decoder_retval (iof *I, const char *type, iof_status status)
+{
+  switch (status)
+  {
+    case IOFERR:
+    case IOFEMPTY:             // should never happen as we set state.flush = 1 on decoders init
+      printf("%s decoder error (%d, %s)\n", type, status, iof_status_kind(status));
+      I->flags |= IOF_STOPPED;
+      return 0;
+    case IOFEOF:               // this is the last chunk,
+      I->flags |= IOF_STOPPED; // so stop it and fall
+    case IOFFULL:              // prepare pointers to read from I->buf
+      I->end = I->pos;
+      I->pos = I->buf;
+      return I->end - I->buf;
+  }
+  printf("%s decoder bug, invalid retval %d\n", type, status);
+  return 0;
+}
+
+size_t iof_encoder_retval (iof *O, const char *type, iof_status status)
+{
+  switch (status)
+  {
+    case IOFERR:
+    case IOFFULL:
+      printf("%s encoder error (%d, %s)\n", type, status, iof_status_kind(status));
+      return 0;
+    case IOFEMPTY:
+      O->pos = O->buf;
+      O->end = O->buf + O->space;
+      return O->space;
+    case IOFEOF:
+      return 0;
+  }
+  printf("%s encoder bug, invalid retval %d\n", type, status);
+  return 0;
+}
+
+/* file/stream state */
+
+typedef struct {
+  size_t length;
+  size_t offset;
+} file_state;
+
+
+#define file_state_init(state, off, len) ((state)->offset = off, (state)->length = len)
+
+typedef struct {
+  size_t length;
+  size_t offset;
+} stream_state;
+
+#define stream_state_init(state, off, len) ((state)->offset = off, (state)->length = len)
+
+static size_t file_read (iof *I)
+{
+  size_t bytes, tail;
+  if (I->flags & IOF_STOPPED)
+    return 0;
+  tail = iof_tail(I);
+  if ((bytes = tail + fread(I->buf + tail, sizeof(uint8_t), I->space - tail, I->file)) < I->space)
+    I->flags |= IOF_STOPPED;
+  I->pos = I->buf;
+  I->end = I->buf + bytes;
+  return bytes;
+}
+
+static size_t iofile_read (iof *I, size_t *poffset)
+{
+  size_t bytes, tail;
+  if (I->flags & IOF_STOPPED)
+    return 0;
+  iof_file_sync(I->iofile, poffset);
+  tail = iof_tail(I);
+  if ((bytes = tail + iof_file_read(I->buf + tail, sizeof(uint8_t), I->space - tail, I->iofile)) < I->space)
+  {
+    I->flags |= IOF_STOPPED;
+    iof_file_unsync(I->iofile, poffset);
+  }
+  I->pos = I->buf;
+  I->end = I->buf + bytes;
+  return bytes;
+}
+
+static size_t file_load (iof *I)
+{
+  size_t bytes, left, tail;
+  if (I->flags & IOF_STOPPED)
+    return 0;
+  tail = iof_tail(I);
+  I->pos = I->buf + tail;
+  I->end = I->buf + I->space; /* don't assume its done when initializing the filter */
+  left = I->space - tail;
+  do {
+    bytes = fread(I->pos, sizeof(uint8_t), left, I->file);
+    I->pos += bytes;
+  } while (bytes == left && (left = iof_resize_buffer(I)) > 0);
+  I->flags |= IOF_STOPPED;
+  return iof_loaded(I);
+}
+
+static size_t iofile_load (iof *I, size_t *poffset)
+{
+  size_t bytes, left, tail;
+  if (I->flags & IOF_STOPPED)
+    return 0;
+  tail = iof_tail(I);
+  I->pos = I->buf + tail;
+  I->end = I->buf + I->space; /* don't assume its done when initializing the filter */
+  left = I->space - tail;
+  iof_file_sync(I->iofile, poffset);
+  do {
+    bytes = iof_file_read(I->pos, sizeof(uint8_t), left, I->iofile);
+    I->pos += bytes;
+  } while (bytes == left && (left = iof_resize_buffer(I)) > 0);
+  I->flags |= IOF_STOPPED;
+  iof_file_unsync(I->iofile, poffset);
+  return iof_loaded(I);
+}
+
+static size_t filter_file_reader (iof *I, iof_mode mode)
+{
+  switch (mode)
+  {
+    case IOFREAD:
+      return file_read(I);
+    case IOFLOAD:
+      return file_load(I);
+    case IOFCLOSE:
+      iof_free(I);
+      return 0;
+    default:
+      return 0;
+  }
+}
+
+static size_t filter_iofile_reader (iof *I, iof_mode mode)
+{
+  file_state *state;
+  state = iof_filter_state(file_state *, I);
+  switch (mode)
+  {
+    case IOFREAD:
+      return iofile_read(I, &state->offset);
+    case IOFLOAD:
+      return iofile_load(I, &state->offset);
+    case IOFCLOSE:
+      iof_free(I);
+      return 0;
+    default:
+      return 0;
+  }
+}
+
+static size_t file_write (iof *O, int flush)
+{
+  size_t bytes;
+  if ((bytes = iof_size(O)) > 0)
+    if (bytes != fwrite(O->buf, sizeof(uint8_t), bytes, O->file))
+      return 0;
+  if (flush)
+    fflush(O->file);
+  O->end = O->buf + O->space; // remains intact actually
+  O->pos = O->buf;
+  return O->space;
+}
+
+static size_t iofile_write (iof *O, size_t *poffset, int flush)
+{
+  size_t bytes;
+  iof_file_sync(O->iofile, poffset);
+  if ((bytes = iof_size(O)) > 0)
+  {
+    if (bytes != iof_file_write(O->buf, sizeof(uint8_t), bytes, O->iofile))
+    {
+      iof_file_unsync(O->iofile, poffset);
+      return 0;
+    }
+  }
+  if (flush)
+    iof_file_flush(O->iofile);
+  O->end = O->buf + O->space; // remains intact actually
+  O->pos = O->buf;
+  return O->space;
+}
+
+static size_t filter_file_writer (iof *O, iof_mode mode)
+{
+  switch (mode)
+  {
+    case IOFWRITE:
+      return file_write(O, 0);
+    case IOFFLUSH:
+      return file_write(O, 1);
+    case IOFCLOSE:
+      file_write(O, 1);
+      iof_free(O);
+      return 0;
+    default:
+      return 0;
+  }
+}
+
+static size_t filter_iofile_writer (iof *O, iof_mode mode)
+{
+  file_state *state;
+  state = iof_filter_state(file_state *, O);
+  switch (mode)
+  {
+    case IOFWRITE:
+      return iofile_write(O, &state->offset, 0);
+    case IOFFLUSH:
+      return iofile_write(O, &state->offset, 1);
+    case IOFCLOSE:
+      iofile_write(O, &state->offset, 1);
+      iof_free(O);
+      return 0;
+    default:
+      return 0;
+  }
+}
+
+/* filter from FILE* */
+
+iof * iof_filter_file_handle_reader (FILE *file)
+{
+  iof *I;
+  file_state *state;
+  if (file == NULL)
+    return NULL;
+  I = iof_filter_reader(filter_file_reader, sizeof(file_state), &state);
+  iof_setup_file(I, file);
+  file_state_init(state, 0, 0);
+  return I;
+}
+
+iof * iof_filter_file_handle_writer (FILE *file)
+{
+  iof *O;
+  file_state *state;
+  if (file == NULL)
+    return NULL;
+  O = iof_filter_writer(filter_file_writer, sizeof(file_state), &state);
+  iof_setup_file(O, file);
+  file_state_init(state, 0, 0);
+  return O;
+}
+
+/* filter from iof_file * */
+
+iof * iof_filter_iofile_reader (iof_file *iofile, size_t offset)
+{
+  iof *I;
+  file_state *state;
+  if (!iof_file_reopen(iofile))
+    return NULL;
+  I = iof_filter_reader(filter_iofile_reader, sizeof(file_state), &state);
+  iof_setup_iofile(I, iofile);
+  file_state_init(state, offset, 0);
+  return I;
+}
+
+iof * iof_filter_iofile_writer (iof_file *iofile, size_t offset)
+{
+  iof *O;
+  file_state *state;
+  O = iof_filter_writer(filter_iofile_writer, sizeof(file_state), &state);
+  iof_setup_iofile(O, iofile);
+  file_state_init(state, offset, 0);
+  return O;
+}
+
+/* filter from filename */
+
+iof * iof_filter_file_reader (const char *filename)
+{
+  iof *I;
+  file_state *state;
+  FILE *file;
+  if ((file = fopen(filename, "rb")) == NULL)
+    return NULL;
+  I = iof_filter_reader(filter_file_reader, sizeof(file_state), &state);
+  iof_setup_file(I, file);
+  file_state_init(state, 0, 0);
+  I->flags |= IOF_CLOSE_FILE;
+  return I;
+}
+
+iof * iof_filter_file_writer (const char *filename)
+{
+  iof *O;
+  file_state *state;
+  FILE *file;
+  if ((file = fopen(filename, "wb")) == NULL)
+    return NULL;
+  O = iof_filter_writer(filter_file_writer, sizeof(file_state), &state);
+  iof_setup_file(O, file);
+  file_state_init(state, 0, 0);
+  O->flags |= IOF_CLOSE_FILE;
+  return O;
+}
+
+/* from string */
+
+static size_t dummy_handler (iof *I, iof_mode mode)
+{
+  switch (mode)
+  {
+    case IOFCLOSE:
+      iof_free(I);
+      return 0;
+    default:
+      return 0;
+  }
+}
+
+iof * iof_filter_string_reader (const void *s, size_t length)
+{
+  iof *I;
+  void *dummy;
+  I = iof_filter_reader_with_buffer(dummy_handler, 0, &dummy, NULL, 0);
+  I->rbuf = I->rpos = (const uint8_t *)s;
+  I->rend = (const uint8_t *)s + length;
+  // I->space = length;
+  return I;
+}
+
+iof * iof_filter_string_writer (const void *s, size_t length)
+{
+  iof *O;
+  void *dummy;
+  O = iof_filter_reader_with_buffer(dummy_handler, 0, &dummy, NULL, 0);
+  O->rbuf = O->rpos = (const uint8_t *)s;
+  O->rend = (const uint8_t *)s + length;
+  // O->space = length;
+  return O;
+}
+
+iof * iof_filter_buffer_writer (size_t size)
+{ // filter alternative of iof_buffer_create()
+  iof *O;
+  void *dummy;
+  uint8_t *buffer;
+  if (size > IOF_BUFFER_SIZE)
+  {
+    buffer = (uint8_t *)util_malloc(size);
+    O = iof_filter_writer_with_buffer(iof_mem_handler, 0, &dummy, buffer, size);
+    O->flags |= IOF_BUFFER_ALLOC;
+    return O;
+  }
+	return iof_filter_writer(iof_mem_handler, 0, &dummy);
+}
+
+/* stream */
+
+static size_t file_stream_read (iof *I, size_t *plength)
+{
+  size_t bytes, tail;
+  if (I->flags & IOF_STOPPED || *plength == 0)
+    return 0;
+  tail = iof_tail(I);
+  if (I->space - tail >= *plength)
+  {
+    bytes = tail + fread(I->buf + tail, sizeof(uint8_t), *plength, I->file);
+    I->flags |= IOF_STOPPED;
+    *plength = 0;
+  }
+  else
+  {
+    bytes = tail + fread(I->buf + tail, sizeof(uint8_t), I->space - tail, I->file);
+    *plength -= bytes - tail;
+  }
+  I->pos = I->buf;
+  I->end = I->buf + bytes;
+  return bytes;
+}
+
+static size_t iofile_stream_read (iof *I, size_t *plength, size_t *poffset)
+{
+  size_t bytes, tail;
+  if (I->flags & IOF_STOPPED || *plength == 0)
+    return 0;
+  tail = iof_tail(I);
+  iof_file_sync(I->iofile, poffset);
+  if (I->space - tail >= *plength)
+  {
+    bytes = tail + iof_file_read(I->buf + tail, sizeof(uint8_t), *plength, I->iofile);
+    iof_file_unsync(I->iofile, poffset);
+    I->flags |= IOF_STOPPED;
+    *plength = 0;
+  }
+  else
+  {
+    bytes = tail + iof_file_read(I->buf + tail, sizeof(uint8_t), I->space - tail, I->iofile);
+    *plength -= bytes - tail;
+  }
+  I->pos = I->buf;
+  I->end = I->buf + bytes;
+  return bytes;
+}
+
+static size_t file_stream_load (iof *I, size_t *plength)
+{
+  size_t bytes, tail;
+  if (I->flags & IOF_STOPPED || *plength == 0)
+    return 0;
+  tail = iof_tail(I);
+  if (I->space - tail < *plength)
+    if (iof_resize_buffer_to(I, tail + *plength) == 0)
+      return 0;
+  bytes = tail + fread(I->buf + tail, sizeof(uint8_t), *plength, I->file);
+  I->flags |= IOF_STOPPED;
+  *plength = 0;
+  I->pos = I->buf;
+  I->end = I->buf + bytes;
+  return bytes;
+}
+
+static size_t iofile_stream_load (iof *I, size_t *plength, size_t *poffset)
+{
+  size_t bytes, tail;
+  if (I->flags & IOF_STOPPED || *plength == 0)
+    return 0;
+  iof_file_sync(I->iofile, poffset);
+  tail = iof_tail(I);
+  if (I->space - tail < *plength)
+    if (iof_resize_buffer_to(I, tail + *plength) == 0)
+      return 0;
+  bytes = tail + iof_file_read(I->buf + tail, sizeof(uint8_t), *plength, I->iofile);
+  iof_file_unsync(I->iofile, poffset);
+  I->flags |= IOF_STOPPED;
+  *plength = 0;
+  I->pos = I->buf;
+  I->end = I->buf + bytes;
+  return bytes;
+}
+
+static size_t filter_file_stream_reader (iof *I, iof_mode mode)
+{
+  stream_state *state;
+  state = iof_filter_state(stream_state *, I);
+  switch(mode)
+  {
+    case IOFREAD:
+      return file_stream_read(I, &state->length);
+    case IOFLOAD:
+      return file_stream_load(I, &state->length);
+    case IOFCLOSE:
+      iof_free(I);
+      return 0;
+    default:
+      return 0;
+  }
+}
+
+static size_t filter_iofile_stream_reader (iof *I, iof_mode mode)
+{
+  stream_state *state;
+  state = iof_filter_state(stream_state *, I);
+  switch(mode)
+  {
+    case IOFREAD:
+      return iofile_stream_read(I, &state->length, &state->offset);
+    case IOFLOAD:
+      return iofile_stream_load(I, &state->length, &state->offset);
+    case IOFCLOSE:
+      iof_free(I);
+      return 0;
+    default:
+      return 0;
+  }
+}
+
+iof * iof_filter_stream_reader (FILE *file, size_t offset, size_t length)
+{
+  iof *I;
+  stream_state *state;
+  I = iof_filter_reader(filter_file_stream_reader, sizeof(stream_state), &state);
+  iof_setup_file(I, file);
+  stream_state_init(state, offset, length);
+  fseek(file, (long)offset, SEEK_SET); // or perhaps it should be call in file_stream_read(), like iof_file_sync()?
+  return I;
+}
+
+iof * iof_filter_stream_coreader (iof_file *iofile, size_t offset, size_t length)
+{
+  iof *I;
+  stream_state *state;
+  if (!iof_file_reopen(iofile))
+    return NULL;
+  I = iof_filter_reader(filter_iofile_stream_reader, sizeof(stream_state), &state);
+  iof_setup_iofile(I, iofile);
+  stream_state_init(state, offset, length);
+  return I;
+}
+
+static size_t file_stream_write (iof *O, size_t *plength, int flush)
+{
+  size_t bytes;
+  if ((bytes = iof_size(O)) > 0)
+  {
+    if (bytes != fwrite(O->buf, sizeof(uint8_t), bytes, O->file))
+    {
+      *plength += bytes;
+      return 0;
+    }
+  }
+  if (flush)
+    fflush(O->file);
+  *plength += bytes;
+  O->end = O->buf + O->space; // remains intact
+  O->pos = O->buf;
+  return O->space;
+}
+
+static size_t iofile_stream_write (iof *O, size_t *plength, size_t *poffset, int flush)
+{
+  size_t bytes;
+  if ((bytes = iof_size(O)) > 0)
+  {
+    iof_file_sync(O->iofile, poffset);
+    if (bytes != iof_file_write(O->buf, sizeof(uint8_t), bytes, O->iofile))
+    {
+      *plength += bytes;
+      iof_file_unsync(O->iofile, poffset);
+      return 0;
+    }
+  }
+  if (flush)
+    iof_file_flush(O->iofile);
+  *plength += bytes;
+  O->end = O->buf + O->space; // remains intact
+  O->pos = O->buf;
+  return O->space;
+}
+
+static size_t filter_file_stream_writer (iof *O, iof_mode mode)
+{
+  stream_state *state;
+  state = iof_filter_state(stream_state *, O);
+  switch (mode)
+  {
+    case IOFWRITE:
+      return file_stream_write(O, &state->length, 0);
+    case IOFFLUSH:
+      return file_stream_write(O, &state->length, 1);
+    case IOFCLOSE:
+      file_stream_write(O, &state->length, 1);
+      iof_free(O);
+      return 0;
+    default:
+      return 0;
+  }
+}
+
+static size_t filter_iofile_stream_writer (iof *O, iof_mode mode)
+{
+  stream_state *state;
+  state = iof_filter_state(stream_state *, O);
+  switch (mode)
+  {
+    case IOFWRITE:
+      return iofile_stream_write(O, &state->length, &state->offset, 0);
+    case IOFFLUSH:
+      return iofile_stream_write(O, &state->length, &state->offset, 1);
+    case IOFCLOSE:
+      iofile_stream_write(O, &state->length, &state->offset, 1);
+      iof_free(O);
+      return 0;
+    default:
+      return 0;
+  }
+}
+
+iof * iof_filter_stream_writer (FILE *file)
+{
+  iof *O;
+  stream_state *state;
+  O = iof_filter_writer(filter_file_stream_writer, sizeof(stream_state), &state);
+  iof_setup_file(O, file);
+  stream_state_init(state, 0, 0);
+  return O;
+}
+
+iof * iof_filter_stream_cowriter (iof_file *iofile, size_t offset)
+{
+  iof *O;
+  stream_state *state;
+  O = iof_filter_writer(filter_iofile_stream_writer, sizeof(stream_state), &state);
+  iof_setup_iofile(O, iofile);
+  stream_state_init(state, offset, 0);
+  return O;
+}
+
+/* very specific for images; get input from already created strem filter, exchange the filter but keep the buffer */
+
+FILE * iof_filter_file_reader_source (iof *I, size_t *poffset, size_t *plength)
+{
+  stream_state *sstate;
+  file_state *fstate;
+  if (I->more == filter_file_stream_reader) // I is the result of iof_filter_stream_reader()
+  {
+    sstate = iof_filter_state(stream_state *, I);
+    *poffset = sstate->offset;
+    *plength = sstate->length; // might be 0 but it is ok for file readers
+    return I->file;
+  }
+  if (I->more == filter_file_reader)
+  {
+    fstate = iof_filter_state(file_state *, I);
+    *poffset = fstate->offset;
+    *plength = fstate->length; // might be 0 but it is ok for file readers
+    return I->file;
+  }
+  return NULL;
+}
+
+iof_file * iof_filter_file_coreader_source (iof *I, size_t *poffset, size_t *plength)
+{
+  stream_state *sstate;
+  file_state *fstate;
+  if (I->more == filter_iofile_stream_reader) // I is the result of iof_filter_stream_coreader()
+  {
+    sstate = iof_filter_state(stream_state *, I);
+    *poffset = sstate->offset;
+    *plength = sstate->length;
+    return I->iofile;
+  }
+  if (I->more == filter_iofile_reader)
+  {
+    fstate = iof_filter_state(file_state *, I);
+    *poffset = fstate->offset;
+    *plength = fstate->length;
+    return I->iofile;
+  }
+  return NULL;
+}
+
+iof * iof_filter_reader_replacement (iof *P, iof_handler handler, size_t statesize, void **pstate)
+{ // called after iof_filter_file_reader_source(), no need to check if F is filter from iof heap and if has buffer from iof heap
+  iof *F;
+  F = iof_filter_reader_with_buffer(handler, statesize, pstate, P->buf, P->space);
+  F->flags |= IOF_BUFFER_HEAP;
+  //iof_reader_buffer(P, NULL, 0);
+  //P->flags &= ~IOF_BUFFER_HEAP;
+  iof_filter_free(P);
+  return F;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

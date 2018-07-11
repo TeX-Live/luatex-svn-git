@@ -18,13 +18,13 @@ $(libluajitpplib_a_OBJECTS): $(LUAJIT_DEPEND)
 ## replace -I../../libs/zlib/include $(ZLIB_INCLUDES)
 
 libluapplib_a_CPPFLAGS = \
-	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUA_INCLUDES)
+	-I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUA_INCLUDES)
 
 liblua53pplib_a_CPPFLAGS = \
-	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUA_LUA53_INCLUDES)
+	-I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUA_LUA53_INCLUDES)
 
 libluajitpplib_a_CPPFLAGS = \
-	-DNO_IMAGE_FILTER -I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUAJIT_INCLUDES)
+	-I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUAJIT_INCLUDES)
 
 libluapplib_a_CFLAGS = # $(WARNING_CFLAGS)
 libluajitpplib_a_CFLAGS = # $(WARNING_CFLAGS)
@@ -55,25 +55,17 @@ libluapplib_sources = \
 	luatexdir/luapplib/util/utilflate.h \
 	luatexdir/luapplib/util/utilcryptdef.h \
 	luatexdir/luapplib/util/utilflate.c \
-	luatexdir/luapplib/util/utilpool.h \
 	luatexdir/luapplib/util/utilnumber.c \
-	luatexdir/luapplib/util/utillzwdef.h \
 	luatexdir/luapplib/util/utilmem.h \
-	luatexdir/luapplib/util/utilfilter.c \
 	luatexdir/luapplib/util/utilbasexx.h \
 	luatexdir/luapplib/util/utillzw.h \
 	luatexdir/luapplib/util/utilplat.h \
 	luatexdir/luapplib/util/utilfpred.c \
-	luatexdir/luapplib/util/utilfilter.h \
 	luatexdir/luapplib/util/utiliof.h \
-	luatexdir/luapplib/util/utilflatedef.h \
 	luatexdir/luapplib/util/utilcrypt.h \
 	luatexdir/luapplib/util/utilnumber.h \
-	luatexdir/luapplib/util/utilpool.c \
 	luatexdir/luapplib/util/utilbasexx.c \
-	luatexdir/luapplib/util/utilfpreddef.h \
 	luatexdir/luapplib/util/utilsha.h \
-	luatexdir/luapplib/util/utilbasexxdef.h \
 	luatexdir/luapplib/util/utilmd5.c \
 	luatexdir/luapplib/util/utilmem.c \
 	luatexdir/luapplib/util/utilfpred.h \

@@ -1,7 +1,32 @@
 
 #include "utilnumber.h"
+#include "utilmem.h"
 #include "utilbasexx.h"
-#include "utilbasexxdef.h"
+
+/* filters state structs */
+
+struct basexx_state {
+  size_t line, maxline;
+  size_t left;
+  int tail[5];
+  int flush;
+};
+
+struct runlength_state {
+  int run;
+  int flush;
+  int c1, c2;
+  uint8_t *pos;
+};
+
+struct eexec_state {
+  int key;
+  int flush;
+  int binary;
+  int c1;
+  size_t line, maxline; /* ascii encoder only */
+  const char *initbytes;
+};
 
 /* config */
 
@@ -48,58 +73,50 @@ void basexx_state_init_ln (basexx_state *state, size_t line, size_t maxline)
 
 iof_status base16_encoded_uc (const void *data, size_t size, iof *O)
 {
-  size_t i;
-  uint8_t *s, c;
-  for (i = 0, s = (uint8_t *)data; i < size; ++i)
+  const uint8_t *s, *e;
+  for (s = (const uint8_t *)data, e = s + size; s < e; ++s)
   {
     if (!iof_ensure(O, 2))
       return IOFFULL;
-    c = s[i];
-    iof_set_uc_hex(O, c);
+    iof_set_uc_hex(O, *s);
   }
   return IOFEOF;
 }
 
 iof_status base16_encoded_lc (const void *data, size_t size, iof *O)
 {
-  size_t i;
-  uint8_t *s, c;
-  for (i = 0, s = (uint8_t *)data; i < size; ++i)
+  const uint8_t *s, *e;
+  for (s = (const uint8_t *)data, e = s + size; s < e; ++s)
   {
     if (!iof_ensure(O, 2))
       return IOFFULL;
-    c = s[i];
-    iof_set_lc_hex(O, c);
+    iof_set_lc_hex(O, *s);
   }
   return IOFEOF;
 }
 
 iof_status base16_encoded_uc_ln (const void *data, size_t size, iof *O, size_t line, size_t maxline)
 {
-  size_t i;
-  uint8_t *s, c;
-  for (i = 0, s = (uint8_t *)data; i < size; ++i)
+  const uint8_t *s, *e;
+  for (s = (const uint8_t *)data, e = s + size; s < e; ++s)
   {
     if (!iof_ensure(O, 3))
       return IOFFULL;
-    c = s[i];
     put_nl(O, line, maxline, 2);
-    iof_set_uc_hex(O, c);
+    iof_set_uc_hex(O, *s);
   }
   return IOFFULL;
 }
 
 iof_status base16_encoded_lc_ln (const void *data, size_t size, iof *O, size_t line, size_t maxline)
 {
-  size_t i;
-  uint8_t *s, c;
-  for (i = 0, s = (uint8_t *)data; i < size; ++i)
+  const uint8_t *s, *e;
+  for (s = (const uint8_t *)data, e = s + size; s < e; ++s)
   {
     if (!iof_ensure(O, 3))
       return IOFFULL;
-    c = s[i];
     put_nl(O, line, maxline, 2);
-    iof_set_lc_hex(O, c);
+    iof_set_lc_hex(O, *s);
   }
   return IOFFULL;
 }
@@ -116,7 +133,7 @@ iof_status base16_encode_uc (iof *I, iof *O)
   return IOFFULL;
 }
 
-iof_status base16_encode_state_uc (iof *I, iof *O, base16_state *state)
+iof_status base16_encode_state_uc (iof *I, iof *O, basexx_state *state)
 {
   register int c;
   while (iof_ensure(O, 2))
@@ -140,7 +157,7 @@ iof_status base16_encode_lc (iof *I, iof *O)
   return IOFFULL;
 }
 
-iof_status base16_encode_state_lc (iof *I, iof *O, base16_state *state)
+iof_status base16_encode_state_lc (iof *I, iof *O, basexx_state *state)
 {
   register int c;
   while (iof_ensure(O, 2))
@@ -165,7 +182,7 @@ iof_status base16_encode_uc_ln (iof *I, iof *O, size_t line, size_t maxline)
   return IOFFULL;
 }
 
-iof_status base16_encode_state_uc_ln (iof *I, iof *O, base16_state *state)
+iof_status base16_encode_state_uc_ln (iof *I, iof *O, basexx_state *state)
 {
   register int c;
   while (iof_ensure(O, 3))
@@ -191,7 +208,7 @@ iof_status base16_encode_lc_ln (iof *I, iof *O, size_t line, size_t maxline)
   return IOFFULL;
 }
 
-iof_status base16_encode_state_lc_ln (iof *I, iof *O, base16_state *state)
+iof_status base16_encode_state_lc_ln (iof *I, iof *O, basexx_state *state)
 {
   register int c;
   while (iof_ensure(O, 3))
@@ -260,7 +277,7 @@ iof_status base16_decode (iof *I, iof *O)
   return IOFFULL;
 }
 
-iof_status base16_decode_state (iof *I, iof *O, base16_state *state)
+iof_status base16_decode_state (iof *I, iof *O, basexx_state *state)
 {
   register int c1, c2, d1, d2;
   if (!(iof_ensure(O, 1)))
@@ -339,32 +356,32 @@ const int base64_lookup[] = {
 
 iof_status base64_encoded (const void *data, size_t size, iof *O)
 {
-  size_t i;
-  uint8_t *s, c1, c2, c3;
-  for (i = 0, s = (uint8_t *)data; i + 2 < size; )
+  const uint8_t *s, *e;
+  uint8_t c1, c2, c3;
+  for (s = (const uint8_t *)data, e = s + size; s + 2 < e; )
   {
     if (!iof_ensure(O, 4))
       return IOFFULL;
-    c1 = s[i++];
-    c2 = s[i++];
-    c3 = s[i++];
+    c1 = *s++;
+    c2 = *s++;
+    c3 = *s++;
     base64_encode_word(O, c1, c2, c3);
   }
-  switch (size - i)
+  switch (e - s)
   {
     case 0:
       break;
     case 1:
       if (!iof_ensure(O, 2))
         return IOFFULL;
-      c1 = s[i];
+      c1 = *s;
       base64_encode_tail1(O, c1);
       break;
     case 2:
       if (!iof_ensure(O, 3))
         return IOFFULL;
-      c1 = s[i++];
-      c2 = s[i];
+      c1 = *s++;
+      c2 = *s;
       base64_encode_tail2(O, c1, c2);
       break;
   }
@@ -373,34 +390,34 @@ iof_status base64_encoded (const void *data, size_t size, iof *O)
 
 iof_status base64_encoded_ln (const void *data, size_t size, iof *O, size_t line, size_t maxline)
 {
-  size_t i;
-  uint8_t *s, c1, c2, c3;
-  for (i = 0, s = (uint8_t *)data; i + 2 < size; )
+  const uint8_t *s, *e;
+  uint8_t c1, c2, c3;
+  for (s = (const uint8_t *)data, e = s + size; s + 2 < e; )
   {
     if (!iof_ensure(O, 5))
       return IOFFULL;
-    c1 = s[i++];
-    c2 = s[i++];
-    c3 = s[i++];
+    c1 = *s++;
+    c2 = *s++;
+    c3 = *s++;
     put_nl(O, line, maxline, 4);
     base64_encode_word(O, c1, c2, c3);
   }
-  switch (size - i)
+  switch (e - s)
   {
     case 0:
       break;
     case 1:
       if (!iof_ensure(O, 3))
         return IOFFULL;
-      c1 = s[i];
+      c1 = *s;
       put_nl(O, line, maxline, 2);
       base64_encode_tail1(O, c1);
       break;
     case 2:
       if (!iof_ensure(O, 4))
         return IOFFULL;
-      c1 = s[i++];
-      c2 = s[i];
+      c1 = *s++;
+      c2 = *s;
       put_nl(O, line, maxline, 3);
       base64_encode_tail2(O, c1, c2);
       break;
@@ -430,7 +447,7 @@ iof_status base64_encode (iof *I, iof *O)
   return IOFFULL;
 }
 
-iof_status base64_encode_state (iof *I, iof *O, base64_state *state)
+iof_status base64_encode_state (iof *I, iof *O, basexx_state *state)
 {
   register int c1, c2, c3;
   if (!(iof_ensure(O, 4)))
@@ -482,7 +499,7 @@ iof_status base64_encode_ln (iof *I, iof *O, size_t line, size_t maxline)
   return IOFFULL;
 }
 
-iof_status base64_encode_state_ln (iof *I, iof *O, base64_state *state)
+iof_status base64_encode_state_ln (iof *I, iof *O, basexx_state *state)
 {
   register int c1, c2, c3;
   if (!(iof_ensure(O, 5)))
@@ -556,7 +573,7 @@ iof_status base64_decode (iof *I, iof *O)
   return IOFFULL;
 }
 
-iof_status base64_decode_state (iof *I, iof *O, base64_state *state)
+iof_status base64_decode_state (iof *I, iof *O, basexx_state *state)
 {
   register int c1, c2, c3, c4;
   register int d1, d2, d3, d4;
@@ -666,17 +683,17 @@ const int base85_lookup[] = {
 
 iof_status base85_encoded (const void *data, size_t size, iof *O)
 {
-  size_t i;
   unsigned int code;
-  uint8_t *s, c1, c2, c3, c4;
-  for (i = 0, s = (uint8_t *)data; i + 3 < size; )
+  const uint8_t *s, *e;
+  uint8_t c1, c2, c3, c4;
+  for (s = (const uint8_t *)data, e = s + size; s + 3 < e; )
   {
     if (!iof_ensure(O, 5))
       return IOFFULL;
-    c1 = s[i++];
-    c2 = s[i++];
-    c3 = s[i++];
-    c4 = s[i++];
+    c1 = *s++;
+    c2 = *s++;
+    c3 = *s++;
+    c4 = *s++;
     code = (c1<<24)|(c2<<16)|(c3<<8)|c4;
     if (code == 0)
     {
@@ -685,31 +702,31 @@ iof_status base85_encoded (const void *data, size_t size, iof *O)
     }
     base85_encode_word(O, code);
   }
-  switch (size - i)
+  switch (e - s)
   {
     case 0:
       break;
     case 1:
       if (!iof_ensure(O, 2))
         return IOFFULL;
-      c1 = s[i];
+      c1 = *s;
       code = (c1<<24)/85/85/85;
       base85_encode_tail1(O, code);
       break;
     case 2:
       if (!iof_ensure(O, 3))
         return IOFFULL;
-      c1 = s[i++];
-      c2 = s[i];
+      c1 = *s++;
+      c2 = *s;
       code = ((c1<<24)|(c2<<16))/85/85;
       base85_encode_tail2(O, code);
       break;
     case 3:
       if (!iof_ensure(O, 4))
         return IOFFULL;
-      c1 = s[i++];
-      c2 = s[i++];
-      c3 = s[i];
+      c1 = *s++;
+      c2 = *s++;
+      c3 = *s;
       code = ((c1<<24)|(c2<<16)|(c3<<8))/85;
       base85_encode_tail3(O, code);
       break;
@@ -719,17 +736,17 @@ iof_status base85_encoded (const void *data, size_t size, iof *O)
 
 iof_status base85_encoded_ln (const void *data, size_t size, iof *O, size_t line, size_t maxline)
 {
-  size_t i;
   unsigned int code;
-  uint8_t *s, c1, c2, c3, c4;
-  for (i = 0, s = (uint8_t *)data; i + 3 < size; )
+  const uint8_t *s, *e;
+  uint8_t c1, c2, c3, c4;
+  for (s = (const uint8_t *)data, e = s + size; s + 3 < e; )
   {
     if (!iof_ensure(O, 6))
       return IOFFULL;
-    c1 = s[i++];
-    c2 = s[i++];
-    c3 = s[i++];
-    c4 = s[i++];
+    c1 = *s++;
+    c2 = *s++;
+    c3 = *s++;
+    c4 = *s++;
     code = (c1<<24)|(c2<<16)|(c3<<8)|c4;
     if (code == 0)
     {
@@ -740,14 +757,14 @@ iof_status base85_encoded_ln (const void *data, size_t size, iof *O, size_t line
     put_nl(O, line, maxline, 5);
     base85_encode_word(O, code);
   }
-  switch (size - i)
+  switch (e - s)
   {
     case 0:
       break;
     case 1:
       if (!iof_ensure(O, 3))
         return IOFFULL;
-      c1 = s[i];
+      c1 = *s;
       code = (c1<<24)/85/85/85;
       put_nl(O, line, maxline, 2);
       base85_encode_tail1(O, code);
@@ -755,8 +772,8 @@ iof_status base85_encoded_ln (const void *data, size_t size, iof *O, size_t line
     case 2:
       if (!iof_ensure(O, 4))
         return IOFFULL;
-      c1 = s[i++];
-      c2 = s[i];
+      c1 = *s++;
+      c2 = *s;
       code = ((c1<<24)|(c2<<16))/85/85;
       put_nl(O, line, maxline, 3);
       base85_encode_tail2(O, code);
@@ -764,9 +781,9 @@ iof_status base85_encoded_ln (const void *data, size_t size, iof *O, size_t line
     case 3:
       if (!iof_ensure(O, 5))
         return IOFFULL;
-      c1 = s[i++];
-      c2 = s[i++];
-      c3 = s[i];
+      c1 = *s++;
+      c2 = *s++;
+      c3 = *s;
       code = ((c1<<24)|(c2<<16)|(c3<<8))/85;
       put_nl(O, line, maxline, 4);
       base85_encode_tail3(O, code);
@@ -818,7 +835,7 @@ iof_status base85_encode (iof *I, iof *O)
   return IOFFULL;
 }
 
-iof_status base85_encode_state (iof *I, iof *O, base85_state *state)
+iof_status base85_encode_state (iof *I, iof *O, basexx_state *state)
 {
   register int c1, c2, c3, c4;
   register unsigned int code;
@@ -925,7 +942,7 @@ iof_status base85_encode_ln (iof *I, iof *O, size_t line, size_t maxline)
   return IOFFULL;
 }
 
-iof_status base85_encode_state_ln (iof *I, iof *O, base85_state *state)
+iof_status base85_encode_state_ln (iof *I, iof *O, basexx_state *state)
 {
   register int c1, c2, c3, c4;
   register unsigned int code;
@@ -1055,7 +1072,7 @@ iof_status base85_decode (iof *I, iof *O)
   return IOFFULL;
 }
 
-iof_status base85_decode_state (iof *I, iof *O, base85_state *state)
+iof_status base85_decode_state (iof *I, iof *O, basexx_state *state)
 {
   register int c1, c2, c3, c4, c5;
   register int d1, d2, d3, d4, d5;
@@ -1656,4 +1673,436 @@ int type1_charstring_encode (void *data, size_t size, void *outdata, uint8_t len
     output[i + leniv] = c;
   }
   return 1;
+}
+
+/* filters */
+
+// base16 decoder function
+
+static size_t base16_decoder (iof *F, iof_mode mode)
+{
+  basexx_state *state;
+  iof_status status;
+  size_t tail;
+
+  switch(mode)
+  {
+    case IOFLOAD:
+    case IOFREAD:
+      if (F->flags & IOF_STOPPED)
+        return 0;
+      tail = iof_tail(F);
+      F->pos = F->buf + tail;
+      F->end = F->buf + F->space;
+      state = iof_filter_state(basexx_state *, F);
+      do {
+        status = base16_decode_state(F->next, F, state);
+      } while (mode == IOFLOAD && status == IOFFULL && iof_resize_buffer(F));
+      return iof_decoder_retval(F, "base16", status);
+    case IOFCLOSE:
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// base16 encoder function
+
+static size_t base16_encoder (iof *F, iof_mode mode)
+{
+  basexx_state *state;
+  iof_status status;
+
+  state = iof_filter_state(basexx_state *, F);
+  switch (mode)
+  {
+    case IOFFLUSH:
+      state->flush = 1;
+      // fall through
+    case IOFWRITE:
+      F->end = F->pos;
+      F->pos = F->buf;
+      status = base16_encode_state_ln(F, F->next, state);
+      return iof_encoder_retval(F, "base16", status);
+    case IOFCLOSE:
+      if (!state->flush)
+        base16_encoder(F, IOFFLUSH);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// base64 decoder function
+
+static size_t base64_decoder (iof *F, iof_mode mode)
+{
+  basexx_state *state;
+  iof_status status;
+  size_t tail;
+
+  switch(mode)
+  {
+    case IOFLOAD:
+    case IOFREAD:
+      if (F->flags & IOF_STOPPED)
+        return 0;
+      tail = iof_tail(F);
+      F->pos = F->buf + tail;
+      F->end = F->buf + F->space;
+      state = iof_filter_state(basexx_state *, F);
+      do {
+        status = base64_decode_state(F->next, F, state);
+      } while (mode == IOFLOAD && status == IOFFULL && iof_resize_buffer(F));
+      return iof_decoder_retval(F, "base64", status);
+    case IOFCLOSE:
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// base64 encoder function
+
+static size_t base64_encoder (iof *F, iof_mode mode)
+{
+  basexx_state *state;
+  iof_status status;
+
+  state = iof_filter_state(basexx_state *, F);
+  switch (mode)
+  {
+    case IOFFLUSH:
+      state->flush = 1;
+      // fall through
+    case IOFWRITE:
+      F->end = F->pos;
+      F->pos = F->buf;
+      status = base64_encode_state_ln(F, F->next, state);
+      return iof_encoder_retval(F, "base64", status);
+    case IOFCLOSE:
+      if (!state->flush)
+        base64_encoder(F, IOFFLUSH);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// base85 decoder function
+
+static size_t base85_decoder (iof *F, iof_mode mode)
+{
+  basexx_state *state;
+  iof_status status;
+  size_t tail;
+
+  switch(mode)
+  {
+    case IOFLOAD:
+    case IOFREAD:
+      if (F->flags & IOF_STOPPED)
+        return 0;
+      tail = iof_tail(F);
+      F->pos = F->buf + tail;
+      F->end = F->buf + F->space;
+      state = iof_filter_state(basexx_state *, F);
+      do {
+        status = base85_decode_state(F->next, F, state);
+      } while (mode == IOFLOAD && status == IOFFULL && iof_resize_buffer(F));
+      return iof_decoder_retval(F, "base85", status);
+    case IOFCLOSE:
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// base85 encoder function
+
+static size_t base85_encoder (iof *F, iof_mode mode)
+{
+  basexx_state *state;
+  iof_status status;
+
+  state = iof_filter_state(basexx_state *, F);
+  switch (mode)
+  {
+    case IOFFLUSH:
+      state->flush = 1;
+      // fall through
+    case IOFWRITE:
+      F->end = F->pos;
+      F->pos = F->buf;
+      status = base85_encode_state_ln(F, F->next, state);
+      return iof_encoder_retval(F, "base85", status);
+    case IOFCLOSE:
+      if (!state->flush)
+        base85_encoder(F, IOFFLUSH);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// runlength decoder function
+
+static size_t runlength_decoder (iof *F, iof_mode mode)
+{
+  runlength_state *state;
+  iof_status status;
+  size_t tail;
+
+  switch(mode)
+  {
+    case IOFLOAD:
+    case IOFREAD:
+      if (F->flags & IOF_STOPPED)
+        return 0;
+      tail = iof_tail(F);
+      F->pos = F->buf + tail;
+      F->end = F->buf + F->space;
+      state = iof_filter_state(runlength_state *, F);
+      do {
+        status = runlength_decode_state(F->next, F, state);
+      } while (mode == IOFLOAD && status == IOFFULL && iof_resize_buffer(F));
+      return iof_decoder_retval(F, "runlength", status);
+    case IOFCLOSE:
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// runlength encoder function
+
+static size_t runlength_encoder (iof *F, iof_mode mode)
+{
+  runlength_state *state;
+  iof_status status;
+
+  state = iof_filter_state(runlength_state *, F);
+  switch (mode)
+  {
+    case IOFFLUSH:
+      state->flush = 1;
+      // fall through
+    case IOFWRITE:
+      F->end = F->pos;
+      F->pos = F->buf;
+      status = runlength_encode_state(F, F->next, state);
+      return iof_encoder_retval(F, "runlength", status);
+    case IOFCLOSE:
+      if (!state->flush)
+        runlength_encoder(F, IOFFLUSH);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// eexec decoder function
+
+static size_t eexec_decoder (iof *F, iof_mode mode)
+{
+  eexec_state *state;
+  iof_status status;
+  size_t tail;
+
+  switch(mode)
+  {
+    case IOFLOAD:
+    case IOFREAD:
+      if (F->flags & IOF_STOPPED)
+        return 0;
+      tail = iof_tail(F);
+      F->pos = F->buf + tail;
+      F->end = F->buf + F->space;
+      state = iof_filter_state(eexec_state *, F);
+      do {
+        status = eexec_decode_state(F->next, F, state);
+      } while (mode == IOFLOAD && status == IOFFULL && iof_resize_buffer(F));
+      return iof_decoder_retval(F, "eexec", status);
+    case IOFCLOSE:
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+// eexec encoder function
+
+static size_t eexec_encoder (iof *F, iof_mode mode)
+{
+  eexec_state *state;
+  iof_status status;
+
+  state = iof_filter_state(eexec_state *, F);
+  switch (mode)
+  {
+    case IOFFLUSH:
+      state->flush = 1;
+      // fall through
+    case IOFWRITE:
+      F->end = F->pos;
+      F->pos = F->buf;
+      status = eexec_encode_state(F, F->next, state);
+      return iof_encoder_retval(F, "eexec", status);
+    case IOFCLOSE:
+      if (!state->flush)
+        eexec_encoder(F, IOFFLUSH);
+      iof_free(F);
+      return 0;
+    default:
+      break;
+  }
+  return 0;
+}
+
+//
+
+int iof_filter_basexx_encoder_ln (iof *F, size_t line, size_t maxline)
+{
+  basexx_state *state;
+  if (maxline > 8 && line < maxline)
+  {
+    state = iof_filter_state(basexx_state *, F);
+    state->line = line;
+    state->maxline = maxline;
+    return 1;
+  }
+  return 0;
+}
+
+/* base 16 */
+
+iof * iof_filter_base16_decoder (iof *N)
+{
+  iof *I;
+  basexx_state *state;
+  I = iof_filter_reader(base16_decoder, sizeof(basexx_state), &state);
+  iof_setup_next(I, N);
+  basexx_state_init(state);
+  state->flush = 1; // means N is supposed to be continuous input
+  return I;
+}
+
+iof * iof_filter_base16_encoder (iof *N)
+{
+  iof *O;
+  basexx_state *state;
+  O = iof_filter_writer(base16_encoder, sizeof(basexx_state), &state);
+  iof_setup_next(O, N);
+  basexx_state_init(state);
+  return O;
+}
+
+/* base 64 */
+
+iof * iof_filter_base64_decoder (iof *N)
+{
+  iof *I;
+  basexx_state *state;
+  I = iof_filter_reader(base64_decoder, sizeof(basexx_state), &state);
+  iof_setup_next(I, N);
+  basexx_state_init(state);
+  state->flush = 1;
+  return I;
+}
+
+iof * iof_filter_base64_encoder (iof *N)
+{
+  iof *O;
+  basexx_state *state;
+  O = iof_filter_writer(base64_encoder, sizeof(basexx_state), &state);
+  iof_setup_next(O, N);
+  basexx_state_init(state);
+  return O;
+}
+
+/* base 85 */
+
+iof * iof_filter_base85_decoder (iof *N)
+{
+  iof *I;
+  basexx_state *state;
+  I = iof_filter_reader(base85_decoder, sizeof(basexx_state), &state);
+  iof_setup_next(I, N);
+  basexx_state_init(state);
+  state->flush = 1;
+  return I;
+}
+
+iof * iof_filter_base85_encoder (iof *N)
+{
+  iof *O;
+  basexx_state *state;
+  O = iof_filter_writer(base85_encoder, sizeof(basexx_state), &state);
+  iof_setup_next(O, N);
+  basexx_state_init(state);
+  return O;
+}
+
+/* runlength stream filter */
+
+iof * iof_filter_runlength_decoder (iof *N)
+{
+  iof *I;
+  runlength_state *state;
+  I = iof_filter_reader(runlength_decoder, sizeof(runlength_state), &state);
+  iof_setup_next(I, N);
+  runlength_state_init(state);
+  state->flush = 1;
+  return I;
+}
+
+iof * iof_filter_runlength_encoder (iof *N)
+{
+  iof *O;
+  runlength_state *state;
+  O = iof_filter_writer(runlength_encoder, sizeof(runlength_state), &state);
+  iof_setup_next(O, N);
+  runlength_state_init(state);
+  return O;
+}
+
+/* eexec stream filter, type1 fonts spec p. 63 */
+
+iof * iof_filter_eexec_decoder (iof *N)
+{
+  iof *I;
+  eexec_state *state;
+  I = iof_filter_reader(eexec_decoder, sizeof(eexec_state), &state);
+  iof_setup_next(I, N);
+  eexec_state_init(state);
+  state->flush = 1;
+  return I;
+}
+
+iof * iof_filter_eexec_encoder (iof *N)
+{
+  iof *O;
+  eexec_state *state;
+  O = iof_filter_writer(eexec_encoder, sizeof(eexec_state), &state);
+  iof_setup_next(O, N);
+  eexec_state_init(state);
+  return O;
 }
