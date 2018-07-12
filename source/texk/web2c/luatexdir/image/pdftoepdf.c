@@ -448,16 +448,6 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
     }
 }
 
-#define ppobj_get_bool_value(o) \
-    ((o)->type == PPBOOL ? ((o)->integer != 0) : 0)
-
-#define ppobj_get_int_value(o) \
-    ((o)->type == PPINT  ? (o)->integer : 0)
-
-#define ppobj_get_num_value(o) \
-    ((o)->type == PPNUM  ? (o)->number : \
-    ((o)->type == PPINT  ? (ppnum) (o)->integer : 0))
-
 static void copyObject(PDF pdf, PdfDocument * pdf_doc, ppobj * obj)
 {
     switch (obj->type) {
@@ -465,31 +455,31 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, ppobj * obj)
             pdf_add_null(pdf);
             break;
         case PPBOOL:
-            pdf_add_bool(pdf,ppobj_get_bool_value(obj));
+            pdf_add_bool(pdf,obj->integer);                     /* ppobj_get_bool_value(obj) */
             break;
         case PPINT:
-            pdf_add_int(pdf,ppobj_get_int_value(obj));
+            pdf_add_int(pdf,obj->integer);                      /* ppobj_get_int_value(obj) */
             break;
         case PPNUM:
-            pdf_add_real(pdf,ppobj_get_num_value(obj));
+            pdf_add_real(pdf,obj->number);                      /* ppobj_get_num_value(obj) */
             break;
         case PPNAME:
-            pdf_add_name(pdf, (const char *) ppobj_get_name(obj));
+            pdf_add_name(pdf, (const char *) obj->name);        /* ppobj_get_name(obj) */
             break;
         case PPSTRING:
-            copyString(pdf, ppobj_get_string(obj));
+            copyString(pdf, obj->string);                       /* ppobj_get_string(obj) */
             break;
         case PPARRAY:
-            copyArray(pdf, pdf_doc, ppobj_get_array(obj));
+            copyArray(pdf, pdf_doc, obj->array);                /* ppobj_get_array(obj) */
             break;
         case PPDICT:
-            copyDict(pdf, pdf_doc, ppobj_get_dict(obj));
+            copyDict(pdf, pdf_doc, obj->dict);                  /* ppobj_get_dict(obj) */
             break;
         case PPSTREAM:
-            copyStream(pdf, pdf_doc, ppobj_get_stream(obj));
+            copyStream(pdf, pdf_doc, obj->stream);              /* ppobj_get_stream(obj) */
             break;
         case PPREF:
-            pdf_add_ref(pdf, addInObj(pdf, pdf_doc, ppobj_get_ref(obj)));
+            pdf_add_ref(pdf, addInObj(pdf, pdf_doc, obj->ref)); /* ppobj_get_ref(obj) */
             break;
         default:
             break;

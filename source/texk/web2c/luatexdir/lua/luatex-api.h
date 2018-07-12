@@ -86,6 +86,7 @@ extern int luaopen_zip(lua_State * L);
 extern int luaopen_lfs(lua_State * L);
 extern int luaopen_lpeg(lua_State * L);
 extern int luaopen_md5(lua_State * L);
+extern int luaopen_sha2(lua_State * L);
 
 #ifndef LuajitTeX
  extern int luaopen_ffi(lua_State * L);

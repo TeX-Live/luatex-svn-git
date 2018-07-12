@@ -181,6 +181,7 @@ static const luaL_Reg lualibs[] = {
     { "unicode",   luaopen_unicode },
     { "zip",       luaopen_zip },
     { "md5",       luaopen_md5 },
+    { "sha2",      luaopen_sha2 },
     { "lfs",       luaopen_lfs },
     /*tex extra standard lua libraries */
 #ifdef LuajitTeX

@@ -50,16 +50,6 @@
 
 */
 
-#define ppobj_get_bool_value(o) \
-    ((o)->type == PPBOOL ? ((o)->integer != 0) : 0)
-
-#define ppobj_get_int_value(o) \
-    ((o)->type == PPINT  ? (o)->integer : 0)
-
-#define ppobj_get_num_value(o) \
-    ((o)->type == PPNUM  ? (o)->number : \
-    ((o)->type == PPINT  ? (ppnum) (o)->integer : 0))
-
 #define PDFE_METATABLE            "luatex.pdfe"
 #define PDFE_METATABLE_DICTIONARY "luatex.pdfe.dictionary"
 #define PDFE_METATABLE_ARRAY      "luatex.pdfe.array"
@@ -261,7 +251,7 @@ define_to_string(stream,    "pdfe.stream")
     luaL_getmetatable(L, PDFE_METATABLE_DICTIONARY); \
     lua_setmetatable(L, -2); \
     d->dictionary = dictionary; \
-  } while(0)
+} while(0)
 
 static int pushdictionary(lua_State * L, ppdict *dictionary)
 {
@@ -315,7 +305,7 @@ static int pusharrayonly(lua_State * L, pparray * array)
     s->stream = stream; \
     s->open = 0; \
     s->decode = 0; \
-  } while(0)
+} while(0)
 
 static int pushstream(lua_State * L, ppstream * stream)
 {
@@ -393,40 +383,37 @@ static int pushvalue(lua_State * L, ppobj *object)
             return 1;
             break;
         case PPBOOL:
-            lua_pushboolean(L,ppobj_get_bool_value(object));
+            lua_pushboolean(L,object->integer);
             return 1;
             break;
         case PPINT:
-            lua_pushinteger(L, ppobj_get_int_value(object));
+            lua_pushinteger(L, object-> integer);
             return 1;
             break;
         case PPNUM:
-            lua_pushnumber(L, ppobj_get_num_value(object));
+            lua_pushnumber(L, object->number);
             return 1;
             break;
         case PPNAME:
-            lua_pushstring(L, (const char *) ppname_decoded(ppobj_get_name(object)));
+            lua_pushstring(L, (const char *) ppname_decoded(object->name));
             return 1;
             break;
         case PPSTRING:
-            {
-                ppstring str = ppobj_get_string(object);
-                lua_pushlstring(L,(const char *) str, ppstring_size(str));
-                lua_pushboolean(L, ppstring_hex(str));
-                return 2;
-            }
+            lua_pushlstring(L,(const char *) object->string, ppstring_size(object->string));
+            lua_pushboolean(L, ppstring_hex(object->string));
+            return 2;
             break;
         case PPARRAY:
-            return pusharray(L, ppobj_get_array(object));
+            return pusharray(L, object->array);
             break;
         case PPDICT:
-            return pushdictionary(L, ppobj_get_dict(object));
+            return pushdictionary(L, object->dict);
             break;
         case PPSTREAM:
-            return pushstream(L, ppobj_rget_stream(object));
+            return pushstream(L, object->stream);
             break;
         case PPREF:
-            return pushreference(L, ppobj_get_ref(object));
+            return pushreference(L, object->ref);
             break;
     }
     return 0;
@@ -1398,34 +1385,31 @@ static int pdfelib_pushvalue(lua_State * L, ppobj *object)
             lua_pushnil(L);
             break;
         case PPBOOL:
-            lua_pushboolean(L,ppobj_get_bool_value(object));
+            lua_pushboolean(L, object->integer);
             break;
         case PPINT:
-            lua_pushinteger(L, ppobj_get_int_value(object));
+            lua_pushinteger(L, object->integer);
             break;
         case PPNUM:
-            lua_pushnumber(L, ppobj_get_num_value(object));
+            lua_pushnumber(L, object->number);
             break;
         case PPNAME:
-            lua_pushstring(L, (const char *) ppname_decoded(ppobj_get_name(object)));
+            lua_pushstring(L, (const char *) ppname_decoded(object->name));
             break;
         case PPSTRING:
-            {
-                ppstring str = ppobj_get_string(object);
-                lua_pushlstring(L,(const char *) str, ppstring_size(str));
-            }
+            lua_pushlstring(L,(const char *) object->string, ppstring_size(object->string));
             break;
         case PPARRAY:
-            return pusharrayonly(L, ppobj_get_array(object));
+            return pusharrayonly(L, object->array);
             break;
         case PPDICT:
-            return pushdictionary(L, ppobj_get_dict(object));
+            return pushdictionary(L, object->dict);
             break;
         case PPSTREAM:
-            return pushstream(L, ppobj_rget_stream(object));
+            return pushstream(L, object->stream);
             break;
         case PPREF:
-            pushreference(L, ppobj_get_ref(object));
+            pushreference(L, object->ref);
             break;
         default:
             lua_pushnil(L);
@@ -1640,6 +1624,17 @@ static const struct luaL_Reg pdfelib_m_reference[] = {
 
 */
 
+/*tex
+
+    Here we hook in the error handler.
+
+*/
+
+static void pdfelib_message(const char *message, void *alien)
+{
+    normal_warning("pdfe",message);
+}
+
 int luaopen_pdfe(lua_State * L)
 {
     /*tex First the four userdata object get their metatables defined. */
@@ -1664,6 +1659,8 @@ int luaopen_pdfe(lua_State * L)
     /*tex Last the library opens up itself to the world. */
 
     luaL_openlib(L, "pdfe", pdfelib, 0);
+
+    pplog_callback(pdfelib_message, stderr);
 
     return 1;
 }
