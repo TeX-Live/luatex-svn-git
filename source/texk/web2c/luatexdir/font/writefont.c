@@ -178,11 +178,19 @@ static void write_fontmetrics(PDF pdf, fd_entry * fd)
     fix_fontmetrics(fd);
     pdf_add_name(pdf, font_key[FONTBBOX1_CODE].pdfname);
     pdf_begin_array(pdf);
+    /*
+    pdf_check_space;
     pdf_printf(pdf, "%i %i %i %i",
         (int) fd->font_dim[FONTBBOX1_CODE].val,
         (int) fd->font_dim[FONTBBOX2_CODE].val,
         (int) fd->font_dim[FONTBBOX3_CODE].val,
         (int) fd->font_dim[FONTBBOX4_CODE].val);
+    */
+    pdf_add_int(pdf,(int) fd->font_dim[FONTBBOX1_CODE].val);
+    pdf_add_int(pdf,(int) fd->font_dim[FONTBBOX2_CODE].val);
+    pdf_add_int(pdf,(int) fd->font_dim[FONTBBOX3_CODE].val);
+    pdf_add_int(pdf,(int) fd->font_dim[FONTBBOX4_CODE].val);
+    /* */
     pdf_end_array(pdf);
     for (i = 0; i < GEN_KEY_NUM; i++)
         if (fd->font_dim[i].set)
@@ -556,7 +564,7 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
                         pdf_add_name(pdf, glyph);
                     }
                     pdf_out(pdf, ')');
-                    pdf->cave = 0;
+                    pdf_set_space(pdf);
                 }
             }
             if (is_type1(fd->fm))
@@ -940,9 +948,7 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
             pdf_begin_array(pdf);
             j = glyph->wd;
         }
-        if (glyph->id == (unsigned) (i + 1))
-            pdf_out(pdf, ' ');
-
+        pdf_check_space(pdf);
         if (j < 0) {
             pdf_out(pdf, '-');
             j = -j;
@@ -950,8 +956,8 @@ static void write_cid_charwidth_array(PDF pdf, fo_entry * fo)
         pdf_printf(pdf, "%i", (j / 10));
         if ((j % 10) != 0)
             pdf_printf(pdf, ".%i", (j % 10));
-
         i = (int) glyph->id;
+        pdf_set_space(pdf);
     }
     pdf_end_array(pdf);
     pdf_end_array(pdf);

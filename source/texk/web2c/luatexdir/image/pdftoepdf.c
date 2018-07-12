@@ -25,8 +25,24 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 #include "image/epdf.h"
 
 /* Conflict with pdfgen.h */
+
 #ifndef pdf_out
+
 #define pdf_out(pdf, A) do { pdf_room(pdf, 1); *(pdf->buf->p++) = A; } while (0)
+
+#define pdf_check_space(pdf) do { \
+    if (pdf->cave > 0) { \
+        pdf_out(pdf, ' '); \
+        pdf->cave = 0; \
+    } \
+} while (0)
+
+#define pdf_set_space(pdf) \
+    pdf->cave = 1;
+
+#define pdf_reset_space(pdf) \
+    pdf->cave = 0;
+
 #endif
 
 /* Maintain AVL tree of all PDF files for embedding */
@@ -339,8 +355,7 @@ static void copyObject(PDF, PdfDocument *, ppobj *);
 
 static void copyString(PDF pdf, ppstring str)
 {
-    if (pdf->cave)
-       pdf_out(pdf, ' ');
+    pdf_check_space(pdf);
     switch (ppstring_type(str)) {
         case PPSTRING_PLAIN:
             pdf_out(pdf, '(');
@@ -360,7 +375,7 @@ static void copyString(PDF pdf, ppstring str)
             pdf_out(pdf, '>');
             break;
     }
-    pdf->cave = true;
+    pdf_set_space(pdf);
 }
 
 /*

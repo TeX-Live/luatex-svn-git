@@ -114,6 +114,19 @@ printing ones but the output is going to PDF buffer. Subroutines with suffix
     pdf_out(pdf, '\n'); \
 } while (0)
 
+#define pdf_check_space(pdf) do { \
+    if (pdf->cave > 0) { \
+        pdf_out(pdf, ' '); \
+        pdf->cave = 0; \
+    } \
+} while (0)
+
+#define pdf_set_space(pdf) \
+    pdf->cave = 1;
+
+#define pdf_reset_space(pdf) \
+    pdf->cave = 0;
+
 extern __attribute__ ((format(printf, 2, 3)))
 void pdf_printf(PDF, const char *, ...);
 

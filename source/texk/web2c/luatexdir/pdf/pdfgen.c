@@ -62,7 +62,6 @@ halfword pdf_trailer_toks;
 
 shipping_mode_e global_shipping_mode = NOT_SHIPPING;
 
-
 /*tex
 
     Create a new buffer |strbuf_s| of size |size| and maximum allowed size
@@ -672,9 +671,12 @@ void pdf_end_stream(PDF pdf)
     pdf_out(pdf, '\n');
     pdf_puts(pdf, "endstream");
     /*tex Write the stream |/Length|. */
+
     if (pdf->seek_write_length && pdf->draftmode == 0) {
+        xfseeko(pdf->file, (off_t)pdf->stream_length_offset+12, SEEK_SET, pdf->job_name);
+        fprintf(pdf->file, "  ");
         xfseeko(pdf->file, (off_t)pdf->stream_length_offset, SEEK_SET, pdf->job_name);
-        fprintf(pdf->file, "%" LONGINTEGER_PRI "i", (LONGINTEGER_TYPE) pdf->stream_length);
+        fprintf(pdf->file, "%" LONGINTEGER_PRI "i >>", (LONGINTEGER_TYPE) pdf->stream_length);
         xfseeko(pdf->file, 0, SEEK_END, pdf->job_name);
     }
     pdf->seek_write_length = false;
@@ -764,10 +766,9 @@ void pdf_add_bp(PDF pdf, scaled s)
     pdfstructure *p = pdf->pstruct;
     a.m = i64round(s * p->k1);
     a.e = pdf->decimal_digits;
-    if (pdf->cave > 0)
-        pdf_out(pdf, ' ');
+    pdf_check_space(pdf);
     print_pdffloat(pdf, a);
-    pdf->cave = 1;
+    pdf_set_space(pdf);
 }
 
 typedef struct {
@@ -929,10 +930,9 @@ void pdf_print_toks(PDF pdf, halfword p)
     int len = 0;
     char *s = tokenlist_to_cstring(p, true, &len);
     if (len > 0) {
-        if (pdf->cave > 0)
-            pdf_out(pdf, ' ');
+        pdf_check_space(pdf);
         pdf_puts(pdf, s);
-        pdf->cave = 1;
+        pdf_set_space(pdf);
     }
     xfree(s);
 }
@@ -1139,14 +1139,16 @@ static void pdf_os_write_objstream(PDF pdf)
 
 void pdf_begin_dict(PDF pdf)
 {
+    pdf_check_space(pdf);
     pdf_puts(pdf, "<<");
-    pdf->cave = 0;
+    pdf_set_space(pdf);
 }
 
 void pdf_end_dict(PDF pdf)
 {
+    pdf_check_space(pdf);
     pdf_puts(pdf, ">>");
-    pdf->cave = 0;
+    pdf_set_space(pdf);
 }
 
 void pdf_dict_add_bool(PDF pdf, const char *key, int i)
@@ -1172,9 +1174,7 @@ void pdf_dict_add_string(PDF pdf, const char *key, const char *val)
     if (val == NULL)
         return;
     pdf_add_name(pdf, key);
-    if (pdf->cave > 0)
-        pdf_out(pdf, ' ');
-    pdf->cave = 0;
+    pdf_check_space(pdf);
     pdf_print_str(pdf, val);
 }
 
@@ -1186,61 +1186,56 @@ void pdf_dict_add_ref(PDF pdf, const char *key, int num)
 
 void pdf_add_null(PDF pdf)
 {
-    if (pdf->cave > 0)
-        pdf_out(pdf, ' ');
+    pdf_check_space(pdf);
     pdf_puts(pdf, "null");
-    pdf->cave = 1;
+    pdf_set_space(pdf);
 }
 
 void pdf_add_bool(PDF pdf, int i)
 {
-    if (pdf->cave > 0)
-        pdf_out(pdf, ' ');
+    pdf_check_space(pdf);
     if (i == 0)
         pdf_puts(pdf, "false");
     else
         pdf_puts(pdf, "true");
-    pdf->cave = 1;
+    pdf_set_space(pdf);
 }
 
 void pdf_add_int(PDF pdf, int i)
 {
-    if (pdf->cave > 0)
-        pdf_out(pdf, ' ');
+    pdf_check_space(pdf);
     pdf_print_int(pdf, i);
-    pdf->cave = 1;
+    pdf_set_space(pdf);
 }
 
 void pdf_add_longint(PDF pdf, longinteger n)
 {
-    if (pdf->cave > 0)
-        pdf_out(pdf, ' ');
+    pdf_check_space(pdf);
     pdf_print_int(pdf, n);
-    pdf->cave = 1;
+    pdf_set_space(pdf);
 }
 
 void pdf_add_string(PDF pdf, const char *s)
 {
-    if (pdf->cave > 0)
-        pdf_out(pdf, ' ');
+    pdf_check_space(pdf);
     pdf_print_str(pdf, s);
-    pdf->cave = 1;
+    pdf_set_space(pdf);
 }
 
 void pdf_add_name(PDF pdf, const char *name)
 {
+    pdf_check_space(pdf);
     pdf_out(pdf, '/');
     pdf_puts(pdf, name);
-    pdf->cave = 1;
+    pdf_set_space(pdf);
 }
 
 void pdf_add_ref(PDF pdf, int num)
 {
-    if (pdf->cave > 0)
-        pdf_out(pdf, ' ');
+    pdf_check_space(pdf);
     pdf_print_int(pdf, num);
     pdf_puts(pdf, " 0 R");
-    pdf->cave = 1;
+    pdf_set_space(pdf);
 }
 
 /*tex
@@ -1252,29 +1247,31 @@ void pdf_add_ref(PDF pdf, int num)
 
 void pdf_dict_add_streaminfo(PDF pdf)
 {
-    pdf_add_name(pdf, "Length");
-    pdf->stream_length_offset = pdf_offset(pdf) + 1;
-    /*tex Fill in length at |pdf_end_stream| call. */
-    pdf->seek_write_length = true;
-    /*tex We reserve space for 10 decimal digits. */
-    pdf_puts(pdf, " x         ");
-    pdf->cave = 1;
     if (pdf->compress_level > 0) {
         pdf_dict_add_name(pdf, "Filter", "FlateDecode");
         pdf->stream_deflate = true;
     }
+    pdf_add_name(pdf, "Length");
+    pdf->stream_length_offset = pdf_offset(pdf) + 1;
+    /*tex Fill in length at |pdf_end_stream| call. */
+    pdf->seek_write_length = true;
+    /*tex We reserve space for 10 decimal digits plus space. */
+    pdf_puts(pdf, " x          ");
+    pdf_set_space(pdf);
 }
 
 void pdf_begin_array(PDF pdf)
 {
+    pdf_check_space(pdf);
     pdf_out(pdf, '[');
-    pdf->cave = 0;
+    pdf_set_space(pdf);
 }
 
 void pdf_end_array(PDF pdf)
 {
+    pdf_check_space(pdf);
     pdf_out(pdf, ']');
-    pdf->cave = 0;
+    pdf_set_space(pdf);
 }
 
 void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
@@ -1295,7 +1292,7 @@ void pdf_begin_obj(PDF pdf, int i, int pdf_os_threshold)
         default:
             normal_error("pdf backend","weird begin object");
     }
-    pdf->cave = 0;
+    pdf_reset_space(pdf);
 }
 
 void pdf_end_obj(PDF pdf)
@@ -1445,7 +1442,9 @@ static void print_ID(PDF pdf)
             md5_finish(&state, digest);
             convertStringToHexString((char *) digest, id, 16);
             pdf_begin_array(pdf);
+            pdf_check_space(pdf);
             pdf_printf(pdf, "<%s> <%s>", id, id);
+            pdf_set_space(pdf);
             pdf_end_array(pdf);
         }
     }
@@ -1704,10 +1703,9 @@ void print_pdf_table_string(PDF pdf, const char *s)
     if (lua_type(Luas, -1) == LUA_TSTRING) {
         ls = lua_tolstring(Luas, -1, &len);
         if (len > 0) {
-            if (pdf->cave == 1)
-                pdf_out(pdf, ' ');
+            pdf_check_space(pdf);
             pdf_out_block(pdf, ls, len);
-            pdf->cave = 1;
+            pdf_set_space(pdf);
         }
     }
     lua_pop(Luas, 2);
@@ -2088,18 +2086,18 @@ static int pdf_print_info(PDF pdf, int luatexversion, str_number luatexrevision)
     }
     if (pdf_info_toks != null) {
         if (len > 0) {
-            pdf_out(pdf, '\n');
+            pdf_check_space(pdf);
             pdf_puts(pdf, s);
-            pdf_out(pdf, '\n');
+            pdf_set_space(pdf);
             xfree(s);
         }
         delete_token_ref(pdf_info_toks);
         pdf_info_toks = null;
     }
     if (p && strlen(p) > 0) {
-        pdf_out(pdf, '\n');
+        pdf_check_space(pdf);
         pdf_puts(pdf, p);
-        pdf_out(pdf, '\n');
+        pdf_set_space(pdf);
     }
     if ((pdf_suppress_optional_info & 128) == 0 && !producer_given) {
         pdf_add_name(pdf, "Producer");
@@ -2346,6 +2344,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
             /*tex Output the trailer. */
             if (!pdf->os_enable) {
                 pdf_puts(pdf, "trailer\n");
+                pdf_reset_space(pdf);
                 pdf_begin_dict(pdf);
                 pdf_dict_add_int(pdf, "Size", pdf->obj_ptr + 1);
                 pdf_dict_add_ref(pdf, "Root", root);
@@ -2360,7 +2359,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                 pdf_out(pdf, '\n');
             }
             pdf_puts(pdf, "startxref\n");
-            pdf->cave = 0;
+            pdf_reset_space(pdf);
             if (pdf->os_enable)
                 pdf_add_longint(pdf, (longinteger) obj_offset(pdf, xref_stm));
             else
@@ -2454,8 +2453,7 @@ static pdffloat conv_double_to_pdffloat(double n)
 
 void pdf_add_real(PDF pdf, double d)
 {
-    if (pdf->cave)
-        pdf_out(pdf, ' ');
+    pdf_check_space(pdf);
     print_pdffloat(pdf, conv_double_to_pdffloat(d));
-    pdf->cave = true;
+    pdf_set_space(pdf);
 }

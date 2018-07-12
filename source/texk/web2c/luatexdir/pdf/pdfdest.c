@@ -149,12 +149,11 @@ void write_out_pdf_mark_destinations(PDF pdf)
                         if (pdf_dest_xyz_zoom(i) == null) {
                             pdf_add_null(pdf);
                         } else {
-                            if (pdf->cave == 1)
-                                pdf_out(pdf, ' ');
+                            pdf_check_space(pdf);
                             pdf_print_int(pdf, pdf_dest_xyz_zoom(i) / 1000);
                             pdf_out(pdf, '.');
                             pdf_print_int(pdf, (pdf_dest_xyz_zoom(i) % 1000));
-                            pdf->cave = 1;
+                            pdf_set_space(pdf);
                         }
                         break;
                     case pdf_dest_fit:
