@@ -322,14 +322,20 @@ int visible_last_node_type(int n)
     }
 }
 
-void lua_pdf_literal(PDF pdf, int i)
+void lua_pdf_literal(PDF pdf, int i, int noline)
 {
     const char *s = NULL;
     size_t l = 0;
     lua_rawgeti(Luas, LUA_REGISTRYINDEX, i);
     s = lua_tolstring(Luas, -1, &l);
-    pdf_out_block(pdf, s, l);
-    pdf_out(pdf, 10);
+    if (noline) {
+        pdf_check_space(pdf);
+        pdf_out_block(pdf, s, l);
+        pdf_set_space(pdf);
+    } else {
+        pdf_out_block(pdf, s, l);
+        pdf_out(pdf, 10);
+    }
     lua_pop(Luas, 1);
 }
 

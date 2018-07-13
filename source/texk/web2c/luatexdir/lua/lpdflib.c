@@ -194,7 +194,7 @@ static int table_obj(lua_State * L)
     const_lstring attr, st;
     lstring buf;
     int immediate = 0;          /* default: not immediate */
-    int nolength = 1;
+    int nolength = 0;
     attr.s = st.s = NULL;
     attr.l = 0;
     assert(lua_istable(L, 1));  /* t */
@@ -353,9 +353,13 @@ static int table_obj(lua_State * L)
             } else {
                 pdf_begin_dict(static_pdf);
                 if (attr.s != NULL) {
+pdf_check_space(static_pdf);
                     pdf_out_block(static_pdf, attr.s, attr.l);
+/*
                     if (attr.s[attr.l - 1] != '\n')
                         pdf_out(static_pdf, '\n');
+*/
+pdf_set_space(static_pdf);
                 }
                 if (compress_level > -1)
                     static_pdf->compress_level = compress_level;

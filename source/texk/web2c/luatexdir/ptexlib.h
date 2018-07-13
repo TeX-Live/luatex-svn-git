@@ -254,7 +254,7 @@ int lua_appendtovlist_callback(
     halfword box, int location, halfword prev_depth, boolean is_mirrored,
     halfword * result, int * next_depth, boolean * prev_set);
 
-void lua_pdf_literal(PDF pdf, int i);
+void lua_pdf_literal(PDF pdf, int i, int noline);
 void copy_pdf_literal(pointer r, pointer p);
 void free_pdf_literal(pointer p);
 void show_pdf_literal(pointer p);

@@ -81,7 +81,7 @@ void pdf_out_literal(PDF pdf, halfword p)
                 normal_error("pdf backend","bad literal mode");
                 break;
         }
-        lua_pdf_literal(pdf, pdf_literal_data(p));
+        lua_pdf_literal(pdf, pdf_literal_data(p), 0);
     }
 }
 

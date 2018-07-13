@@ -1653,7 +1653,7 @@ void pdf_begin_page(PDF pdf)
             set_obj_xform_attr(pdf, pdf_cur_form, null);
         }
         if (obj_xform_attr_str(pdf, pdf_cur_form) != null) {
-            lua_pdf_literal(pdf, obj_xform_attr_str(pdf, pdf_cur_form));
+            lua_pdf_literal(pdf, obj_xform_attr_str(pdf, pdf_cur_form),1);
             luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_attr_str(pdf, pdf_cur_form));
             set_obj_xform_attr_str(pdf, pdf_cur_form, null);
         }
@@ -1918,20 +1918,22 @@ void pdf_end_page(PDF pdf)
     /*tex Print additional resources. */
     if (global_shipping_mode == SHIPPING_PAGE) {
         page_resources = pdf_page_resources;
-        if (page_resources != null)
+        if (page_resources != null) {
             pdf_print_toks(pdf, page_resources);
+        }
         print_pdf_table_string(pdf, "pageresources");
     } else {
         xform_resources = pdf_xform_resources;
-        if (xform_resources != null)
+        if (xform_resources != null) {
             pdf_print_toks(pdf, xform_resources);
+        }
         if (obj_xform_resources(pdf, pdf_cur_form) != null) {
             pdf_print_toks(pdf, obj_xform_resources(pdf, pdf_cur_form));
             delete_token_ref(obj_xform_resources(pdf, pdf_cur_form));
             set_obj_xform_resources(pdf, pdf_cur_form, null);
         }
         if (obj_xform_resources_str(pdf, pdf_cur_form) != null) {
-            lua_pdf_literal(pdf, obj_xform_resources_str(pdf, pdf_cur_form));
+            lua_pdf_literal(pdf, obj_xform_resources_str(pdf, pdf_cur_form),1);
             luaL_unref(Luas, LUA_REGISTRYINDEX, obj_xform_resources_str(pdf, pdf_cur_form));
             set_obj_xform_resources_str(pdf, pdf_cur_form, null);
         }
