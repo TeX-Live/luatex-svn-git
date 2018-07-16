@@ -1176,6 +1176,7 @@ void pdf_dict_add_string(PDF pdf, const char *key, const char *val)
     pdf_add_name(pdf, key);
     pdf_check_space(pdf);
     pdf_print_str(pdf, val);
+    pdf_set_space(pdf);
 }
 
 void pdf_dict_add_ref(PDF pdf, const char *key, int num)

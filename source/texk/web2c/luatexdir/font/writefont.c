@@ -249,7 +249,7 @@ void register_fd_entry(fd_entry * fd)
         fd_tree = avl_create(comp_fd_entry, NULL, &avl_xallocator);
     }
     /*tex The font descriptor is not yet registered: */
-	if (lookup_fd_entry(fd->fm->ff_name) == NULL) {
+    if (lookup_fd_entry(fd->fm->ff_name) == NULL) {
         /*tex Is this a problem? */
     } else {
         /*tex The lookup also can create */
@@ -519,12 +519,20 @@ static void write_fontdescriptor(PDF pdf, fd_entry * fd)
     int fd_flags;
     /*tex Possibly updated by |write_fontfile|: */
     cidset = 0;
+    if (fd->fd_objnum == 0) {
+        int n = 0;
+        int callback_id = callback_defined(font_descriptor_objnum_provider_callback);
+        if (callback_id) {
+            run_callback(callback_id, "S->d", fd->fontname, &n);
+        }
+        if (!n) {
+           n = pdf_create_obj(pdf, obj_type_others, 0);
+        }
+        fd->fd_objnum = n;
+    }
     if (is_fontfile(fd->fm) && is_included(fd->fm)) {
         /*tex This will set |fd->ff_found| if font file is found: */
         write_fontfile(pdf, fd);
-    }
-    if (fd->fd_objnum == 0) {
-        fd->fd_objnum = pdf_create_obj(pdf, obj_type_others, 0);
     }
     pdf_begin_obj(pdf, fd->fd_objnum, OBJSTM_ALWAYS);
     pdf_begin_dict(pdf);
@@ -606,7 +614,6 @@ static void write_fontdictionary(PDF pdf, fo_entry * fo)
         if (fo->fe != NULL) {
             fo->tounicode_objnum = write_tounicode(pdf, fo->fe->glyph_names, fo->fe->name);
         } else if (is_type1(fo->fm)) {
-            assert(fo->fd->builtin_glyph_names != NULL);
             fo->tounicode_objnum = write_tounicode(pdf, fo->fd->builtin_glyph_names, fo->fm->tfm_name);
         }
     }
@@ -631,8 +638,9 @@ static void write_fontdictionary(PDF pdf, fo_entry * fo)
     if (fo->tounicode_objnum != 0)
         pdf_dict_add_ref(pdf, "ToUnicode", (int) fo->tounicode_objnum);
     if (pdf_font_attr(fo->tex_font) != get_nullstr() && pdf_font_attr(fo->tex_font) != 0) {
+        pdf_check_space(pdf);
         pdf_print(pdf, pdf_font_attr(fo->tex_font));
-        pdf_out(pdf, '\n');
+        pdf_set_space(pdf);
     }
     pdf_end_dict(pdf);
     pdf_end_obj(pdf);
@@ -645,8 +653,9 @@ static void write_fontdictionaries(PDF pdf)
     if (fo_tree == NULL)
         return;
     avl_t_init(&t, fo_tree);
-    for (fo = (fo_entry *) avl_t_first(&t, fo_tree); fo != NULL; fo = (fo_entry *) avl_t_next(&t))
+    for (fo = (fo_entry *) avl_t_first(&t, fo_tree); fo != NULL; fo = (fo_entry *) avl_t_next(&t)) {
         write_fontdictionary(pdf, fo);
+    }
 }
 
 /*tex

@@ -131,7 +131,7 @@ static boolean font_shareable(internal_font_number f, internal_font_number k)
     We optionally take over slant and extend from map entry, if not already set;
     this should also be the only place where getfontmap() may be called.
 
-    Beware, \LUATEX\ is different from \PDFTEX\ in dealign with expanded and
+    Beware, \LUATEX\ is different from \PDFTEX\ in dealing with expanded and
     slanted fonts and expansion and protrusion as it will use the same font but a
     different transformation which is way more efficient and also cleaner.
 
