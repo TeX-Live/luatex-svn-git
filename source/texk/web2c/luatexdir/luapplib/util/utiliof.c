@@ -5,6 +5,7 @@
 #include <stdarg.h>
 
 #include "utilmem.h"
+#include "utillog.h"
 #include "utiliof.h"
 
 /* commons */
@@ -1982,9 +1983,9 @@ void iof_filters_free (void)
   {
     next = heap->next;
     if (heap->refcount != 0)
-      printf("not closed iof filters left (%d)\n", heap->refcount);
+      loggerf("not closed iof filters left (%d)", heap->refcount);
     if (next != NULL)
-      printf("iof filters heap left\n");
+      loggerf("iof filters heap left");
     iof_heap_free(heap);
   }
   iof_buffers_heap = NULL;
@@ -1992,9 +1993,9 @@ void iof_filters_free (void)
   {
     next = heap->next;
     if (heap->refcount != 0)
-      printf("not closed iof buffers left (%d)\n", heap->refcount);
+      loggerf("not closed iof buffers left (%d)", heap->refcount);
     if (next != NULL)
-      printf("iof buffers heap left\n");
+      loggerf("iof buffers heap left");
     iof_heap_free(heap);
   }
   iof_filters_heap = NULL;
@@ -2052,7 +2053,7 @@ void iof_heap_back (void *data)
   ghost = ((iof_heap_ghost *)data) - 1;
   heap = ghost->heap;
   if (heap->refcount == 0)
-    printf("invalid iof heap\n");
+    loggerf("invalid use of iof heap, refcount < 0");
   if (--heap->refcount <= 0)
   {
     if ((prev = heap->prev) != NULL)
@@ -2268,7 +2269,7 @@ size_t iof_decoder_retval (iof *I, const char *type, iof_status status)
   {
     case IOFERR:
     case IOFEMPTY:             // should never happen as we set state.flush = 1 on decoders init
-      printf("%s decoder error (%d, %s)\n", type, status, iof_status_kind(status));
+      loggerf("%s decoder error (%d, %s)", type, status, iof_status_kind(status));
       I->flags |= IOF_STOPPED;
       return 0;
     case IOFEOF:               // this is the last chunk,
@@ -2278,7 +2279,7 @@ size_t iof_decoder_retval (iof *I, const char *type, iof_status status)
       I->pos = I->buf;
       return I->end - I->buf;
   }
-  printf("%s decoder bug, invalid retval %d\n", type, status);
+  loggerf("%s decoder bug, invalid retval %d", type, status);
   return 0;
 }
 
@@ -2288,7 +2289,7 @@ size_t iof_encoder_retval (iof *O, const char *type, iof_status status)
   {
     case IOFERR:
     case IOFFULL:
-      printf("%s encoder error (%d, %s)\n", type, status, iof_status_kind(status));
+      loggerf("%s encoder error (%d, %s)", type, status, iof_status_kind(status));
       return 0;
     case IOFEMPTY:
       O->pos = O->buf;
@@ -2297,7 +2298,7 @@ size_t iof_encoder_retval (iof *O, const char *type, iof_status status)
     case IOFEOF:
       return 0;
   }
-  printf("%s encoder bug, invalid retval %d\n", type, status);
+  loggerf("%s encoder bug, invalid retval %d", type, status);
   return 0;
 }
 

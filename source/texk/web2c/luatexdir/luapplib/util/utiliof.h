@@ -38,7 +38,7 @@ typedef struct iof_file {
     FILE *iofh; // access via iof_file_get_fh / iof_file_set_fh (below)
     union {
     	struct { uint8_t *buf, *pos, *end; };
-    	struct { const uint8_t *rbuf, *rpos, *rend; }; // only to trick compiler warnings
+    	struct { const uint8_t *rbuf, *rpos, *rend; }; // to trick compiler warnings about cast discarding const
     };
   };
   size_t *offset;
@@ -58,6 +58,8 @@ typedef size_t (*iof_handler) (iof *I, iof_mode mode);
 #define IOF_MEMBERS \
   union { \
     struct { uint8_t *buf, *pos, *end; }; \
+    struct { uint16_t *hbuf, *hpos, *hend; }; \
+    struct { uint32_t *ibuf, *ipos, *iend; }; \
     struct { const uint8_t *rbuf, *rpos, *rend; }; \
   }; \
   size_t space; \
@@ -134,15 +136,14 @@ is way larger the sizeof(iof)
 /* initializers */
 
 #define IOF_READER_STRUCT(handler, file, buffer, size, flags) \
-  { {{ buffer, buffer, buffer }}, size, handler, { file }, flags|IOF_READER, 0 }
+  { {{ (uint8_t *)(buffer), (uint8_t *)(buffer), (uint8_t *)(buffer) }}, size, handler, { file }, flags|IOF_READER, 0 }
 
 #define IOF_WRITER_STRUCT(handler, file, buffer, size, flags) \
-  { {{ buffer, buffer, buffer + size }}, size, handler, { file }, flags|IOF_WRITER, 0 }
+  { {{ (uint8_t *)(buffer), (uint8_t *)(buffer), (uint8_t *)(buffer) + size }}, size, handler, { file }, flags|IOF_WRITER, 0 }
 
 #define IOF_STRING_STRUCT(buffer, size) \
-  { {{ buffer, buffer, buffer + size }}, size, NULL, { NULL }, 0|IOF_READER|IOF_DATA, 0 }
+  { {{ (uint8_t *)(buffer), (uint8_t *)(buffer), (uint8_t *)(buffer) + size }}, size, NULL, { NULL }, 0|IOF_READER|IOF_DATA, 0 }
 
-//#define IOF_STRING IOF_STRING_STRUCT(NULL, 0) /* msvc complains about unknown viod* size */
 #define IOF_STRING() IOF_STRING_STRUCT(0, 0)
 
 /* refcount */

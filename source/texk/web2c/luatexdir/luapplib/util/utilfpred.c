@@ -1,6 +1,7 @@
 /* predictor filters; common for flate and lzw */
 
 #include "utilmem.h"
+#include "utillog.h"
 #include "utilfpred.h"
 
 /*
@@ -221,7 +222,7 @@ static int read_scanline (predictor_state *state, iof *I, int size)
          */
         if (!state->flush)
           return IOFEMPTY;
-        printf("incomplete scanline in predictor filter\n");
+        loggerf("incomplete scanline in predictor filter");
         //return IOFERR;
         state->status = STATUS_LAST;
         state->rowsize -= size - state->rowend;

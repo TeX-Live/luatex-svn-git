@@ -158,8 +158,6 @@ todo:
 - support for LowBitsFirst encoding
 */
 
-#define LZW_DEBUG 0
-
 #include "utilmem.h"
 #include "utillzw.h"
 
@@ -252,9 +250,6 @@ static struct lzw_entry lzw_initial_table[] = {
 
 static lzw_state * lzw_decoder_init_table (lzw_state *state, lzw_entry *table, int flags)
 {
-#if LZW_DEBUG
-  printf("dec BEGIN\n");
-#endif
   state->basebits = lzw_base_bits(flags); // first four bits or flags
   if (!lzw_bit_range(state->basebits))
     return NULL;
@@ -294,10 +289,6 @@ static void lzw_decoder_clear (lzw_state *state)
   state->lastentry = NULL;
   state->tailbytes = 0;
   state->codebits = state->basebits + 1;
-#if LZW_DEBUG
-  printf("dec CLEAR\n");
-#endif
-
 }
 
 void lzw_decoder_close (lzw_state *state)
@@ -305,9 +296,6 @@ void lzw_decoder_close (lzw_state *state)
   lzw_decoder_clear(state);
   if (state->flags & LZW_TABLE_ALLOC)
     lzw_free(state->table);
-#if LZW_DEBUG
-  printf("dec END\n");
-#endif
 }
 
 static int lzw_next_entry (lzw_state *state, lzw_entry *nextentry)
@@ -366,9 +354,6 @@ iof_status lzw_decode_state (iof *I, iof *O, lzw_state *state)
         break;
       }
     }
-#if LZW_DEBUG
-    printf("dec %5d %2d\n", code, state->codebits);
-#endif
     /* interpret the code */
     if (code < state->index)
     { /* single byte code or special marker */
@@ -434,9 +419,6 @@ static lzw_state * lzw_encoder_init_table (lzw_state *state, lzw_node *lookup, i
   state->lastnode = NULL;
   state->lastbyte = 0;
   state->tailbits = 0;
-#if LZW_DEBUG
-  printf("enc BEGIN\n");
-#endif
   return state;
 }
 
@@ -449,10 +431,6 @@ void lzw_encoder_close (lzw_state *state)
 {
   if (state->flags & LZW_TABLE_ALLOC)
     lzw_free(state->lookup);
-#if LZW_DEBUG
-  printf("enc END\n");
-#endif
-
 }
 
 static void lzw_encoder_clear (lzw_state *state)
@@ -469,18 +447,11 @@ static void lzw_encoder_clear (lzw_state *state)
   state->index = lzw_initial_index(state);
   /* reset code bits */
   state->codebits = state->basebits + 1;
-#if LZW_DEBUG
-  printf("enc CLEAR\n");
-#endif
-
 }
 
 static void lzw_put_code (iof *O, lzw_state *state, lzw_index code, int todobits)
 {
   int leftbits, rightbits;
-#if LZW_DEBUG
-  printf("enc %5d %2d\n", code, todobits);
-#endif
   do
   {
     leftbits = 8 - state->tailbits;

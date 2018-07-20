@@ -23,13 +23,13 @@ else
 endif
 
 CC=gcc
-W=-Wall -Wunused -Wimplicit -Wreturn-type -Wdeclaration-after-statement -Wno-unknown-pragmas -Wmissing-prototypes -Wmissing-declarations -Wparentheses -Wswitch -Wtrigraphs -Wcast-qual -Wcast-align -Wwrite-strings -Wold-style-definition
+W=-Wall -Wunused -Wimplicit -Wreturn-type -Wdeclaration-after-statement -Wno-unknown-pragmas -Wmissing-prototypes -Wmissing-declarations -Wparentheses -Wswitch -Wtrigraphs -Wcast-qual -Wcast-align -Wwrite-strings -Wold-style-definition -Wpointer-arith
 #W=-Wall
 CFLAGS=$(W) -O2
 
 OBJEXT=$(BUILDSUFFIX).o
 
-PPUTILS=utilmem utilnumber utiliof utilmd5 utilsha utilcrypt
+PPUTILS=utilmem utillog utilnumber utiliof utilmd5 utilsha utilcrypt
 PPFILTERS=utilbasexx utilflate utillzw utilfpred
 PPMODULES=ppheap pparray ppdict ppstream ppcrypt ppxref ppload
 

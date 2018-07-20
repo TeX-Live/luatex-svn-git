@@ -1,7 +1,7 @@
 
 #include "pplib.h"
 
-#define PPHEAP_BUFFER 0xFFFF // to be tuned
+#define PPHEAP_BUFFER 0xFFFF
 #define PPHEAP_WASTE 0x00FF
 
 #define ppheap_head(heap) ((uint8_t *)((heap) + 1))

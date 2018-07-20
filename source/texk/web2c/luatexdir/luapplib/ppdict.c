@@ -12,7 +12,6 @@ ppdict * ppdict_create (const ppobj *stackpos, size_t size, ppheap **pheap)
 	dict->size = 0;
 	dict->data = data = (ppobj *)(dict + 1);
 	dict->keys = pkey = (ppname *)(dict->data + size);
-	dict->map = NULL; // later
 	for (i = 0; i < size; ++i, stackpos += 2)
 	{
 	  if (stackpos->type != PPNAME) // we need this check at lest for trailer hack

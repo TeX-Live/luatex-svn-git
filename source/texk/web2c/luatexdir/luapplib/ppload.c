@@ -23,28 +23,6 @@ static const char * ppref_str (ppuint refnumber, ppuint refversion)
 	return buffer;
 }
 
-/* ppmess */
-
-static struct {
-  pplogger_callback logger;
-  void *alien;
-  char buffer[256];
-} pplogger = { 0, NULL, { 0 } };
-
-void pplog_callback (pplogger_callback logger, void *alien)
-{
-  pplogger.logger = logger;
-  pplogger.alien = alien;
-}
-
-#define pplog_prefix "pplib: "
-#define pplog_suffix "\n"
-
-#define pplog() (pplogger.logger != NULL ? (pplogger.logger(pplogger.buffer, pplogger.alien), 0) : (printf(pplog_prefix "%s" pplog_suffix, pplogger.buffer), 0))
-#define PPLOG(message) (sprintf(pplogger.buffer, message), pplog())
-#define PPLOG1(message, a) (sprintf(pplogger.buffer, message, a), pplog())
-#define PPLOG2(message, a, b) (sprintf(pplogger.buffer, message, a, b), pplog())
-
 /* name */
 
 // pdf name delimiters: 0..32, ()<>[]{}/%
@@ -862,7 +840,7 @@ static ppobj * ppscan_obj (iof *I, ppdoc *pdf, ppxref *xref)
              we also need this to read trailer, where refs can't be resolved yet */
           refversion = (obj + 1)->integer;
           //if (xref != NULL)
-          //  PPLOG1("unresolved reference %s", ppref_str(refnumber, refversion));
+          //  loggerf("unresolved reference %s", ppref_str(refnumber, refversion));
           ref = ppref_unresolved(stack->pheap, refnumber, refversion);
         }
         obj->type = PPREF;
@@ -1855,7 +1833,7 @@ static void ppdoc_load_entries (ppdoc *pdf)
     }
     if (ref->xref->trailer.type == PPSTREAM && (type = ppdict_get_name(stream->dict, "Type")) != NULL && ppname_is(type, "ObjStm")) // somewhat dummy..
       if (!ppdoc_load_objstm(stream, pdf, ref->xref))
-        PPLOG2("invalid objects stream %s at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
+        loggerf("invalid objects stream %s at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
   }
   pp_free(offmap);
 }
@@ -1874,14 +1852,14 @@ ppobj * ppdoc_load_entry (ppdoc *pdf, ppref *ref)
   length = ref->length > 0 ? ref->length : PP_LENGTH_UNKNOWN; // estimated or unknown
   if ((I = ppdoc_reader(pdf, ref->offset, length)) == NULL || !ppscan_start_entry(I, ref))
   {
-    PPLOG2("invalid %s offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
+    loggerf("invalid %s offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
     return &ref->object; // PPNONE
   }
   stack = &pdf->stack;
   xref = ref->xref; // to resolve indirects properly
   if ((obj = ppscan_obj(I, pdf, xref)) == NULL)
   {
-    PPLOG2("invalid %s object at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
+    loggerf("invalid %s object at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
     return &ref->object; // PPNONE
   }
   ref->object = *obj;
@@ -1959,13 +1937,13 @@ static int ppdoc_load_objstm (ppstream *stream, ppdoc *pdf, ppxref *xref)
       goto invalid_objstm;
     if ((ref = ppxref_find_local(xref, objnum)) == NULL || ref->object.type != PPNONE)
     {
-      PPLOG2("invalid compressed object number " PPUINTF " at position " PPUINTF, objnum, i);
+      loggerf("invalid compressed object number " PPUINTF " at position " PPUINTF, objnum, i);
       ++invalid;
       continue;
     }
     if (firstdata + offset >= I->end)
     {
-      PPLOG2("invalid compressed object offset " PPUINTF " at position " PPUINTF, offset, i);
+      loggerf("invalid compressed object offset " PPUINTF " at position " PPUINTF, offset, i);
       ++invalid;
       continue;
     }
@@ -1981,7 +1959,7 @@ static int ppdoc_load_objstm (ppstream *stream, ppdoc *pdf, ppxref *xref)
     else
     {
       ++invalid;
-      PPLOG2("invalid compressed object %s at stream offset " PPUINTF, ppref_str(objnum, 0), offset);
+      loggerf("invalid compressed object %s at stream offset " PPUINTF, ppref_str(objnum, 0), offset);
     }
     I->pos = indexdata; // restore position and read next from index
   }
@@ -2040,7 +2018,7 @@ static ppdoc * ppdoc_read (ppdoc *pdf, iof_file *input)
     case PPCRYPT_PASS: // the user needs to check ppdoc_crypt_status() and call ppdoc_crypt_pass()
       break;
     case PPCRYPT_FAIL: // hopeless
-      //PPLOG("decryption failed");
+      //loggerf("decryption failed");
       //return NULL;
       break;
   }
@@ -2514,7 +2492,19 @@ ppmatrix * ppdict_get_matrix (ppdict *dict, const char *name, ppmatrix *matrix)
   return (array = ppdict_rget_array(dict, name)) != NULL ? pparray_to_matrix(array, matrix) : NULL;
 }
 
-/* inifo and debug */
+/* logger */
+
+void pplog_callback (pplogger_callback logger, void *alien)
+{
+	logger_callback((logger_function)logger, alien);
+}
+
+int pplog_prefix (const char *prefix)
+{
+	return logger_prefix(prefix);
+}
+
+/* version */
 
 const char * ppdoc_version_string (ppdoc *pdf)
 {
@@ -2526,6 +2516,8 @@ int ppdoc_version_number (ppdoc *pdf, int *minor)
   *minor = pdf->version[2] - '0';
   return pdf->version[0] - '0';
 }
+
+/* doc info */
 
 size_t ppdoc_file_size (ppdoc *pdf)
 {

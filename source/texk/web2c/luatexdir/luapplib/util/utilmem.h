@@ -5,12 +5,6 @@
 #include <stdlib.h> // for size_t and alloc functions
 #include "utildecl.h"
 
-/* debug */
-
-#ifndef util_memerr
-  #define util_memerr(size) { fprintf(stderr, "ooops, not enough memory (%lu)", (unsigned long)(size)); abort(); }
-#endif
-
 UTILAPI void * util_malloc (size_t size);
 UTILAPI void * util_calloc (size_t num, size_t size);
 UTILAPI void * util_realloc (void *m, size_t size);

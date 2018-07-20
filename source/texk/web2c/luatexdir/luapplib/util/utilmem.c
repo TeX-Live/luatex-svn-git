@@ -1,8 +1,16 @@
 
-#include <stdio.h> // for fprintf
 #include <string.h> // for memcpy
 
 #include "utilmem.h"
+#include "utillog.h"
+
+#ifndef util_memerr
+#  if defined(_WIN64) || defined(__MINGW32__)
+#    define util_memerr(size) { loggerf("ooops, not enough memory (%I64u)", ((unsigned long long)(size))); abort(); }
+#  else
+#    define util_memerr(size) { loggerf("ooops, not enough memory (%llu)", ((unsigned long long)(size))); abort(); }
+#  endif
+#endif
 
 void * util_malloc (size_t size)
 {

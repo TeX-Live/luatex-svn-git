@@ -1,5 +1,6 @@
 
 #include "utilmem.h"
+#include "utillog.h"
 #include "utilflate.h"
 #include <zlib.h>
 
@@ -165,7 +166,7 @@ iof_status flate_decode_state (iof *I, iof *O, flate_state *state)
         case Z_STREAM_END:
           break;
         default:
-          printf("flate decoder %s (%d)\n", zmess(zstatus), zstatus);
+          loggerf("flate decoder %s (%d)", zmess(zstatus), zstatus);
           return IOFERR;
       }
     } while (z->avail_out == 0);
@@ -204,7 +205,7 @@ iof_status flate_encode_state (iof *I, iof *O, flate_state *state)
         case Z_STREAM_END:
           break;
         default:
-          printf("flate encoder %s (%d)\n", zmess(zstatus), zstatus);
+          loggerf("flate encoder %s (%d)", zmess(zstatus), zstatus);
           return IOFERR;
       }
     } while (z->avail_out == 0);

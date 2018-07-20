@@ -927,7 +927,7 @@ static void SHA512_Last(SHA512_CTX* context) {
 	//*(uint64_t*)&context->buffer[SHA512_SHORT_BLOCK_LENGTH] = context->bitcount[1]; // aliasing violation warning
 	//*(uint64_t*)&context->buffer[SHA512_SHORT_BLOCK_LENGTH+8] = context->bitcount[0];
   context->buffer64[SHA512_SHORT_BLOCK_LENGTH / sizeof(uint64_t)] = context->bitcount[1];
-  context->buffer64[SHA512_SHORT_BLOCK_LENGTH / sizeof(uint64_t) + 1] = context->bitcount[1];
+  context->buffer64[SHA512_SHORT_BLOCK_LENGTH / sizeof(uint64_t) + 1] = context->bitcount[0];
 
 	/* Final transform: */
 	SHA512_Transform(context, (uint64_t*)context->buffer);

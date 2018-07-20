@@ -8,7 +8,7 @@
 
 #include "ppconf.h"
 
-#define pplib_version "v0.96"
+#define pplib_version "v0.97"
 #define pplib_author "p.jackowski@gust.org.pl"
 
 /* types */
@@ -42,7 +42,6 @@ typedef struct {
   ppobj *data;
 	ppname *keys;
   size_t size;
-	void *map;
 } ppdict;
 
 typedef struct {
@@ -341,13 +340,18 @@ typedef struct {
 PPAPI ppmatrix * pparray_to_matrix (pparray *array, ppmatrix *matrix);
 PPAPI ppmatrix * ppdict_get_matrix (ppdict *dict, const char *name, ppmatrix *matrix);
 
-/* stats and debug */
+/* logger */
 
 typedef void (*pplogger_callback) (const char *message, void *alien);
 PPAPI void pplog_callback (pplogger_callback logger, void *alien);
+PPAPI int pplog_prefix (const char *prefix);
+
+/* version */
 
 PPAPI const char * ppdoc_version_string (ppdoc *pdf);
 PPAPI int ppdoc_version_number (ppdoc *pdf, int *minor);
+
+/* doc info */
 
 PPAPI size_t ppdoc_file_size (ppdoc *pdf);
 PPAPI ppuint ppdoc_objects (ppdoc *pdf);
