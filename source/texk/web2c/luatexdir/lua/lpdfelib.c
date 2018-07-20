@@ -100,7 +100,7 @@ static void pdfe_invalid_object_warning(const char * detail)
 
 static pdfe_document *check_isdocument(lua_State * L, int n)
 {
-    pdfe_document *p = lua_touserdata(L, n);
+    pdfe_document *p = (pdfe_document *)lua_touserdata(L, n);
     if (p != NULL && lua_getmetatable(L, n)) {
         lua_get_metatablelua(luatex_pdfe);
         if (!lua_rawequal(L, -1, -2)) {
@@ -117,7 +117,7 @@ static pdfe_document *check_isdocument(lua_State * L, int n)
 
 static pdfe_dictionary *check_isdictionary(lua_State * L, int n)
 {
-    pdfe_dictionary *p = lua_touserdata(L, n);
+    pdfe_dictionary *p = (pdfe_dictionary *)lua_touserdata(L, n);
     if (p != NULL && lua_getmetatable(L, n)) {
         lua_get_metatablelua(luatex_pdfe_dictionary);
         if (!lua_rawequal(L, -1, -2)) {
@@ -134,7 +134,7 @@ static pdfe_dictionary *check_isdictionary(lua_State * L, int n)
 
 static pdfe_array *check_isarray(lua_State * L, int n)
 {
-    pdfe_array *p = lua_touserdata(L, n);
+    pdfe_array *p = (pdfe_array *)lua_touserdata(L, n);
     if (p != NULL && lua_getmetatable(L, n)) {
         lua_get_metatablelua(luatex_pdfe_array);
         if (!lua_rawequal(L, -1, -2)) {
@@ -151,7 +151,7 @@ static pdfe_array *check_isarray(lua_State * L, int n)
 
 static pdfe_stream *check_isstream(lua_State * L, int n)
 {
-    pdfe_stream *p = lua_touserdata(L, n);
+    pdfe_stream *p = (pdfe_stream *)lua_touserdata(L, n);
     if (p != NULL && lua_getmetatable(L, n)) {
         lua_get_metatablelua(luatex_pdfe_stream);
         if (!lua_rawequal(L, -1, -2)) {
@@ -168,7 +168,7 @@ static pdfe_stream *check_isstream(lua_State * L, int n)
 
 static pdfe_reference *check_isreference(lua_State * L, int n)
 {
-    pdfe_reference *p = lua_touserdata(L, n);
+    pdfe_reference *p = (pdfe_reference *)lua_touserdata(L, n);
     if (p != NULL && lua_getmetatable(L, n)) {
         lua_get_metatablelua(luatex_pdfe_reference);
         if (!lua_rawequal(L, -1, -2)) {
@@ -247,7 +247,7 @@ define_to_string(stream,    "pdfe.stream")
 */
 
 #define pdfe_push_dictionary do { \
-    pdfe_dictionary *d = lua_newuserdata(L, sizeof(pdfe_dictionary)); \
+    pdfe_dictionary *d = (pdfe_dictionary *)lua_newuserdata(L, sizeof(pdfe_dictionary));	\
     luaL_getmetatable(L, PDFE_METATABLE_DICTIONARY); \
     lua_setmetatable(L, -2); \
     d->dictionary = dictionary; \
@@ -273,7 +273,7 @@ static int pushdictionaryonly(lua_State * L, ppdict *dictionary)
 }
 
 #define pdfe_push_array do { \
-    pdfe_array *a = lua_newuserdata(L, sizeof(pdfe_array)); \
+    pdfe_array *a = (pdfe_array *)lua_newuserdata(L, sizeof(pdfe_array));	\
     luaL_getmetatable(L, PDFE_METATABLE_ARRAY); \
     lua_setmetatable(L, -2); \
     a->array = array; \
@@ -299,7 +299,7 @@ static int pusharrayonly(lua_State * L, pparray * array)
 }
 
 #define pdfe_push_stream do { \
-    pdfe_stream *s = lua_newuserdata(L, sizeof(pdfe_stream)); \
+    pdfe_stream *s = (pdfe_stream *)lua_newuserdata(L, sizeof(pdfe_stream));	\
     luaL_getmetatable(L, PDFE_METATABLE_STREAM); \
     lua_setmetatable(L, -2); \
     s->stream = stream; \
@@ -332,7 +332,7 @@ static int pushstreamonly(lua_State * L, ppstream * stream)
 }
 
 #define pdfe_push_reference do { \
-    pdfe_reference *r = lua_newuserdata(L, sizeof(pdfe_reference)); \
+    pdfe_reference *r = (pdfe_reference *)lua_newuserdata(L, sizeof(pdfe_reference));	\
     luaL_getmetatable(L, PDFE_METATABLE_REFERENCE); \
     lua_setmetatable(L, -2); \
     r->reference = reference; \
@@ -509,7 +509,7 @@ static int pdfelib_getfromdictionary(lua_State * L)
 
 static int pdfelib_getfromstream(lua_State * L)
 {
-    pdfe_stream *s = lua_touserdata(L, 1);
+    pdfe_stream *s = (pdfe_stream *)lua_touserdata(L, 1);
     if (s != NULL) {
         ppdict *d = s->stream->dict;
         if (lua_type(L,2) == LUA_TSTRING) {
@@ -1428,7 +1428,7 @@ static int pdfelib_pushvalue(lua_State * L, ppobj *object)
 static int pdfelib_access(lua_State * L)
 {
     if (lua_type(L,2) == LUA_TSTRING) {
-        pdfe_document *p = lua_touserdata(L, 1);
+        pdfe_document *p = (pdfe_document *)lua_touserdata(L, 1);
         const char *s = lua_tostring(L,2);
         if (lua_key_eq(s,catalog) || lua_key_eq(s,Catalog)) {
             return pushdictionaryonly(L,ppdoc_catalog(p->document));
@@ -1446,7 +1446,7 @@ static int pdfelib_access(lua_State * L)
 static int pdfelib_array_access(lua_State * L)
 {
     if (lua_type(L,2) == LUA_TNUMBER) {
-        pdfe_array *p = lua_touserdata(L, 1);
+        pdfe_array *p = (pdfe_array *)lua_touserdata(L, 1);
         ppint index = lua_tointeger(L,2) - 1;
         ppobj *o = pparray_rget_obj(p->array,index);
         if (o != NULL) {
@@ -1458,7 +1458,7 @@ static int pdfelib_array_access(lua_State * L)
 
 static int pdfelib_dictionary_access(lua_State * L)
 {
-    pdfe_dictionary *p = lua_touserdata(L, 1);
+    pdfe_dictionary *p = (pdfe_dictionary *)lua_touserdata(L, 1);
     if (lua_type(L,2) == LUA_TSTRING) {
         ppstring key = lua_tostring(L,2);
         ppobj *o = ppdict_rget_obj(p->dictionary,key);
@@ -1477,7 +1477,7 @@ static int pdfelib_dictionary_access(lua_State * L)
 
 static int pdfelib_stream_access(lua_State * L)
 {
-    pdfe_stream *p = lua_touserdata(L, 1);
+    pdfe_stream *p = (pdfe_stream *)lua_touserdata(L, 1);
     if (lua_type(L,2) == LUA_TSTRING) {
         ppstring key = lua_tostring(L,2);
         ppobj *o = ppdict_rget_obj(p->stream->dict,key);
@@ -1502,21 +1502,21 @@ static int pdfelib_stream_access(lua_State * L)
 
 static int pdfelib_array_size(lua_State * L)
 {
-    pdfe_array *p = lua_touserdata(L, 1);
+    pdfe_array *p = (pdfe_array *)lua_touserdata(L, 1);
     lua_pushinteger(L,p->array->size);
     return 1;
 }
 
 static int pdfelib_dictionary_size(lua_State * L)
 {
-    pdfe_dictionary *p = lua_touserdata(L, 1);
+    pdfe_dictionary *p = (pdfe_dictionary *)lua_touserdata(L, 1);
     lua_pushinteger(L,p->dictionary->size);
     return 1;
 }
 
 static int pdfelib_stream_size(lua_State * L)
 {
-    pdfe_stream *p = lua_touserdata(L, 1);
+    pdfe_stream *p = (pdfe_stream *)lua_touserdata(L, 1);
     lua_pushinteger(L,p->stream->dict->size);
     return 1;
 }
