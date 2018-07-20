@@ -87,7 +87,9 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         }
     }
     if ((tracing_output_par > 0) && shipping_mode == SHIPPING_PAGE) {
-        print_char(']');
+        if (pre_callback_id == 0) {
+            print_char(']');
+        }
         update_terminal();
         begin_diagnostic();
         show_box(p);
