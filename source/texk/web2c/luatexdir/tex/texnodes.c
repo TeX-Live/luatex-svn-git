@@ -2417,7 +2417,7 @@ void flush_node(halfword p)
 /*tex Erase the list of nodes starting at |pp|. */
 
 void flush_node_list(halfword pp)
-{                               
+{
     register halfword p = pp;
     if (p == null) {
         /*tex Legal, but no-op. */
@@ -4762,6 +4762,7 @@ halfword make_local_par_node(int mode)
                 lua_gc(Luas, LUA_GCCOLLECT, 0);
                 Luas = luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
             }
+            lua_settop(Luas, sfix);
         }
     }
     return p;

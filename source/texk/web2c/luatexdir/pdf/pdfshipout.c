@@ -26,8 +26,8 @@ scaledpos shipbox_refpos;
 /*tex
 
     |ship_out| is used to shipout a box to PDF or DVI mode. If |shipping_mode| is
-    set to |SHIPPING_FORM| then the output will be a Form object (only PDF), and
-    if it is set to |SHIPPING_PAGE| it will be a Page object.
+    set to |SHIPPING_FORM| then the output will be a |Form| object (only PDF), and
+    if it is set to |SHIPPING_PAGE| it will be a |Page| object.
 
 */
 

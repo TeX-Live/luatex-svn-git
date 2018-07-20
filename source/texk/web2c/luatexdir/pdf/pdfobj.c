@@ -60,11 +60,10 @@ void pdf_write_obj(PDF pdf, int k)
                 normal_error("pdf backend","invalid object");
             st.s = lua_tolstring(Luas, -1, &li);
             st.l = li;
-pdf_check_space(pdf);
+            lua_pop(Luas,1);
+            pdf_check_space(pdf);
             pdf_out_block(pdf, st.s, st.l);
-/*            if (st.s[st.l - 1] != '\n') */
-/*                pdf_out(pdf, '\n');     */
-pdf_set_space(pdf);
+            pdf_set_space(pdf);
             luaL_unref(Luas, LUA_REGISTRYINDEX, l);
             obj_obj_stream_attr(pdf, k) = LUA_NOREF;
         }
