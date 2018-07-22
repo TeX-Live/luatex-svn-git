@@ -1,6 +1,7 @@
+## $Id: Makefile.am 48174 2018-07-10 16:28:20Z karl $
 ## Makefile.am for the TeX Live subdirectory texk/web2c/man/
-##
-## Copyright (C) 2009-2015 Peter Breitenlohner <tex-live@tug.org>
+## Copyright 2018 Karl Berry <tex-live@tug.org>
+## Copyright 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 man_sources = $(bootstrap_man_sources)
@@ -47,8 +48,14 @@ if PDFTEX
 man_sources += $(pdftex_man_sources)
 man1_links += pdftex:pdflatex
 endif PDFTEX
-EXTRA_DIST += $(pdftex_man_sources)
 pdftex_man_sources = pdftex.man pdftosrc.man ttf2afm.man
+EXTRA_DIST += $(pdftex_man_sources)
+
+if PTEX
+man_sources += ptex.man
+man1_links += ptex:eptex ptex:euptex ptex:uptex
+endif PTEX
+EXTRA_DIST += ptex.man
 
 if LUATEX
 man_sources += luatex.man
@@ -57,9 +64,9 @@ endif LUATEX
 EXTRA_DIST += luatex.man
 
 if XETEX
-man_sources += # xetex.man
+man_sources += xetex.man
 endif XETEX
-EXTRA_DIST += # xetex.man
+EXTRA_DIST += xetex.man
 
 if OTANGLE
 man_sources += $(otangle_man_sources)

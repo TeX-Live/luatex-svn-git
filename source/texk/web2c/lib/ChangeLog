@@ -1,3 +1,39 @@
+2018-06-28  Karl Berry  <karl@freefriends.org>
+
+	* openclose.c (open_input_with_dirname): do not prepend the
+	top-level directory name if the subsidiary aux file being searched
+	for is alrady absolute. Private report from John Collins
+	(22 Jun 2018 14:01:31).
+
+2018-06-14  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c: remove sjisterminal (w32 only).
+
+2018-06-10  TANAKA Takuji  <ttk@t-lab.opal.ne.jp>
+
+	* texmfmp.c: Allow non-ascii file names for pdfTeX
+	with UTF-8 source files (w32 only).
+
+2018-06-09  TANAKA Takuji  <ttk@t-lab.opal.ne.jp>
+
+	* texmfmp.c, openclose.c: Support UTF-8 file names
+	on UTF-8 locale in pTeX (Unix-like platform only).
+
+2018-05-29  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c: Discard the changes for pdfTeX on 2018-05-11,
+	since 'command_line_encoding=utf-8' is not so natural
+	for pdfTeX (w32 only).
+
+2018-05-12  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c: Allow non-ascii file names for pdfTeX (w32 only).
+	Changes on 2018-05-11 were incomplete.
+
+2018-05-11  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c: Allow non-ascii file names for pdfTeX (w32 only).
+
 2018-03-16  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	* texmfmp.c: Remove support of short 8.3 names (w32 only).

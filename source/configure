@@ -4192,6 +4192,7 @@ case $enable_luatex in #(
 esac
 
 test "x$enable_web2c:$enable_luatex" = xyes:yes && {
+  need_poppler=yes
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
@@ -4209,6 +4210,7 @@ case $enable_luatex53 in #(
 esac
 
 test "x$enable_web2c:$enable_luatex53" = xyes:yes && {
+  need_poppler=yes
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
@@ -4226,6 +4228,7 @@ case $enable_luajittex in #(
 esac
 
 test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
+  need_poppler=yes
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
@@ -22650,11 +22653,11 @@ msg_compiling="$msg_compiling
 test "x$srcdir" = x. || msg_compiling="$msg_compiling
       from sources in $kpse_src"
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:
-** Configuration summary for $PACKAGE_STRING (2018$with_banner_add):
+** Configuration summary for $PACKAGE_STRING (2019/dev$with_banner_add):
 
    $msg_compiling" >&5
 $as_echo "
-** Configuration summary for $PACKAGE_STRING (2018$with_banner_add):
+** Configuration summary for $PACKAGE_STRING (2019/dev$with_banner_add):
 
    $msg_compiling" >&6; }
 case $kpse_src$kpse_bld in

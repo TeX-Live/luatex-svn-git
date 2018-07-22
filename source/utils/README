@@ -1,4 +1,4 @@
-$Id: README 47384 2018-04-08 20:08:33Z karl $
+$Id: README 48168 2018-07-09 17:00:10Z karl $
 Public domain.  Originally written 2005 by Karl Berry.
 
 Extra utilities we (optionally) compile for TeX Live.
@@ -16,7 +16,7 @@ devnag - from devanagari package installed in texmf-dist.
 
 lacheck - maintained here, by us
 
-m-tx 0.63 - checked 09jan18
+m-tx 0.63a - checked 29apr18
   http://ctan.org/pkg/m-tx/
 
 pmx 2.8.4 - checked 14feb18
@@ -39,9 +39,9 @@ vlna 1.5 - checked 10may12
 
 xindy - see just below
 
-xpdfopen 0.86 - checked 24may14
+xpdfopen 0.86 - checked 9jul18
   http://ctan.org/pkg/xpdfopen/
-  http://cs.acadiau.ca/~jdiamond/xpdfopen/
+  http://cs.acadiau.ca/~jdiamond/xpdfopen/ (404; no reply from author, 9jul18)
 
 
 xindy 2.5.1 - checked 15sep14
@@ -96,7 +96,7 @@ cd $libiconv_ver
 # foil wrong attempts at dynamic linking, etc.
 (cd $clisp_basedir/clisp-tools/lib && rm -f *.dylib *.la)
 
-clisp_ver=clisp-2.49.92
+clisp_ver=
 cd $clisp_basedir
 $wget https://haible.de/bruno/gnu/$clisp_ver.tar.bz2
 bunzip2 -dc $clisp_ver.tar.bz2 | tar xf -

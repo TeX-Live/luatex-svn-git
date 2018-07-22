@@ -1,4 +1,4 @@
-$Id: README 47119 2018-03-25 22:51:55Z kakuto $
+$Id: README 48223 2018-07-18 23:54:50Z kakuto $
 Copyright 2006-2018 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -34,8 +34,9 @@ chktex 1.7.6 - checked 15sep16
 cjkutils 4.8.4 - checked 18apr15
   http://cjk.ffii.org/cjk-4.8.4.tar.gz
 
-detex 2.8 - checked 10may12
-  http://www.cs.purdue.edu/homes/trinkle/detex/
+detex 2.8.3 - checked 20jun18
+  https://github.com/pkubowicz/opendetex
+    old info: http://www.cs.purdue.edu/homes/trinkle/detex/
 
 dtl - ?
 
@@ -59,8 +60,8 @@ dvipos - maintained here, by us
 
 dvipsk - maintained here, by us
 
-dvisvgm 2.3.5 - checked 24mar18
-  http://dvisvgm.bplaced.net/Downloads
+dvisvgm 2.4.2 - checked 19jul18
+  https://dvisvgm.de/Downloads/
 
 gregorio 5.1.1 - checked 25mar18
   CTAN/support/gregoriotex/gregorio-5.1.1.zip
