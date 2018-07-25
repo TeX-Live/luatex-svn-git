@@ -167,7 +167,7 @@ void scan_obj(PDF pdf)
             k = cur_val;
             check_obj_type(pdf, obj_type_obj, k);
             if (is_obj_scheduled(pdf, k) || obj_data_ptr(pdf, k) != 0)
-                luaL_error(Luas, "object in use");
+                normal_error("pdf backend", "scheduled object is already used");
         } else {
             pdf->obj_count++;
             k = pdf_create_obj(pdf, obj_type_obj, 0);
