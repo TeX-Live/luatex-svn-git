@@ -86,6 +86,8 @@ int vf_packet_bytes(charinfo * co)
         case packet_image_code:
         case packet_node_code:
         case packet_right_code:
+            vfp += 4;
+            break;
         case packet_rule_code:
             vfp += 8;
             break;
