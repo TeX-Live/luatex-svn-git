@@ -1322,6 +1322,45 @@ void pdf_end_obj(PDF pdf)
 }
 
 /*
+    Needed for embedding fonts.
+
+*/
+
+pdf_obj *pdf_new_stream(void)
+{
+    pdf_obj *stream = xmalloc(sizeof(pdf_obj));
+    stream->length = 0;
+    stream->data = NULL;
+    return stream;
+}
+
+void pdf_add_stream(pdf_obj * stream, unsigned char *buf, long len)
+{
+    int i;
+    assert(stream != NULL);
+    if (stream->data == NULL) {
+        stream->data = xmalloc((unsigned) len);
+    } else {
+        stream->data =
+            xrealloc(stream->data, (unsigned) len + (unsigned) stream->length);
+    }
+    for (i = 0; i < len; i++) {
+        *(stream->data + stream->length + i) = *(buf + i);
+    }
+    stream->length += (unsigned) len;
+}
+
+void pdf_release_obj(pdf_obj * stream)
+{
+    if (stream != NULL) {
+        if (stream->data != NULL) {
+            xfree(stream->data);
+        }
+        xfree(stream);
+    }
+}
+
+/*
 
     This one converts any string given in in in an allowed PDF string which can
     be handled by printf et.al.: \.{\\} is escaped to \.{\\\\}, parenthesis are

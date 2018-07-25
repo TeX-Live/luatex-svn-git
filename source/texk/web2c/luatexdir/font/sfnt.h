@@ -28,11 +28,12 @@
 #  endif                        /* HAVE_CONFIG_H_ */
 
 /* Data Types as described in Apple's TTRefMan */
-typedef unsigned char BYTE;
+
+/*typedef unsigned char BYTE;*/ /* defined in pdfgen.h */
 typedef signed char ICHAR;
 typedef unsigned short USHORT;
 typedef signed short SHORT;
-typedef unsigned long ULONG;
+/*typedef unsigned long ULONG;*//* defined in pdfgen.h */
 typedef signed long LONG;
 typedef unsigned long Fixed;    /* 16.16-bit signed fixed-point number */
 typedef short FWord;
@@ -117,11 +118,6 @@ extern ULONG sfnt_locate_table(sfnt * sfont, const char *tag);
 extern void sfnt_set_table(sfnt * sfont,
                            const char *tag, void *data, ULONG length);
 extern int sfnt_require_table(sfnt * sfont, const char *tag, int must_exist);
-
-typedef struct {
-    ULONG length;
-    BYTE *data;
-} pdf_obj;
 
 #define ASSERT(a) assert(a)
 #define RELEASE(a) free(a)

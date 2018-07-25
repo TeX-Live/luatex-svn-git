@@ -154,6 +154,18 @@ extern void pdf_dict_add_streaminfo(PDF);
 extern void pdf_begin_stream(PDF);
 extern void pdf_end_stream(PDF);
 
+typedef unsigned char BYTE;
+typedef unsigned long ULONG;
+
+typedef struct {
+    ULONG length;
+    BYTE *data;
+} pdf_obj;
+
+extern pdf_obj *pdf_new_stream(void);
+extern void pdf_add_stream(pdf_obj * stream, unsigned char *buf, long len);
+extern void pdf_release_obj(pdf_obj * stream);
+
 extern void pdf_add_bp(PDF, scaled);
 
 extern strbuf_s *new_strbuf(size_t size, size_t limit);

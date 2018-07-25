@@ -39,7 +39,7 @@ unsigned long cidtogid_obj = 0;
 
 /*tex
 
-    Low-level helpers:
+    Low-level helpers (a weird place):
 
 */
 
@@ -102,40 +102,6 @@ int do_sfnt_read(unsigned char *dest, int len, sfnt * f)
     return len;
 }
 
-pdf_obj *pdf_new_stream(void)
-{
-    pdf_obj *stream = xmalloc(sizeof(pdf_obj));
-    stream->length = 0;
-    stream->data = NULL;
-    return stream;
-}
-
-void pdf_add_stream(pdf_obj * stream, unsigned char *buf, long len)
-{
-    int i;
-    assert(stream != NULL);
-    if (stream->data == NULL) {
-        stream->data = xmalloc((unsigned) len);
-    } else {
-        stream->data =
-            xrealloc(stream->data, (unsigned) len + (unsigned) stream->length);
-    }
-    for (i = 0; i < len; i++) {
-        *(stream->data + stream->length + i) = *(buf + i);
-    }
-    stream->length += (unsigned) len;
-}
-
-void pdf_release_obj(pdf_obj * stream)
-{
-    if (stream != NULL) {
-        if (stream->data != NULL) {
-            xfree(stream->data);
-        }
-        xfree(stream);
-    }
-}
-
 /*tex
 
     The main function:
@@ -182,9 +148,6 @@ boolean writetype2(PDF pdf, fd_entry * fd)
         report_start_file(filetype_font,cur_file_name);
     /*tex Here is the real work done: */
     ret = make_tt_subset(pdf, fd, ttf_buffer, ttf_size);
-#if 0
-    xfree (dir_tab);
-#endif
     xfree(ttf_buffer);
     if (is_subsetted(fd_cur->fm))
         report_stop_file(filetype_subset);
@@ -284,7 +247,7 @@ boolean make_tt_subset(PDF pdf, fd_entry * fd, unsigned char *buff, int buflen)
     }
     if (sfont->type == SFNT_TYPE_TTC && sfnt_find_table_pos(sfont, "CFF ")) {
         sfnt_close(sfont);
-	return false;
+        return false;
     }
     if (is_subsetted(fd->fm)) {
         /*tex Rebuild the glyph tables and create a fresh cidmap :*/
