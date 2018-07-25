@@ -1050,16 +1050,19 @@ how a list is constructed or in what state it is.
 %libindex{setnest} % only a message
 \libindex{getnest}
 
-The virtual table \type {tex.nest} contains the currently active
-semantic nesting state. It has two main parts: a zero-based array of userdata for
-the semantic nest itself, and the numerical value \type {tex.nest.ptr}, which
-gives the highest available index. Neither the array items in \type {tex.nest[]}
-nor \type {tex.nest.ptr} can be assigned to (as this would confuse the
-typesetting engine beyond repair), but you can assign to the individual values
-inside the array items, e.g.\ \type {tex.nest[tex.nest.ptr].prevdepth}.
+The virtual table \type {nest} contains the currently active semantic nesting
+state. It has two main parts: a zero-based array of userdata for the semantic
+nest itself, and the numerical value \type {ptr}, which gives the highest
+available index. Neither the array items in \type {nest[]} nor \type {ptr} can be
+assigned to (as this would confuse the typesetting engine beyond repair), but you
+can assign to the individual values inside the array items, e.g.\ \type
+{tex.nest[tex.nest.ptr].prevdepth}.
 
-\type {tex.nest[tex.nest.ptr]} is the current nest state, \type {tex.nest[0]} the
-outermost (main vertical list) level. The getter function is \type {tex.getnest}.
+\type {tex.nest[tex.nest.ptr]} is the current nest state, \type {nest[0]} the
+outermost (main vertical list) level. The getter function is \type {getnest}. You
+can pass a number (which gives you a list), nothing or \type {top}, which returns
+the topmost list, or the string \type {ptr} which gives you the index of the
+topmost list.
 
 The known fields are:
 

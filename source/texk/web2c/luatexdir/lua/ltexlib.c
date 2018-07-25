@@ -2229,8 +2229,9 @@ static int gettex(lua_State * L)
 static int getlist(lua_State * L)
 {
     const char *str;
-    if (lua_type(L,2) == LUA_TSTRING) {
-        str = lua_tostring(L, 2);
+    int top = lua_gettop(L);
+    if (lua_type(L,top) == LUA_TSTRING) {
+        str = lua_tostring(L, top);
         if (lua_key_eq(str,page_ins_head)) {
             if (vlink(page_ins_head) == page_ins_head)
                 lua_pushinteger(L, null);
@@ -2291,17 +2292,18 @@ static int getlist(lua_State * L)
 
 static int setlist(lua_State * L)
 {
-    if (lua_type(L,2) == LUA_TSTRING) {
-        const char *str = lua_tostring(L, 2);
+    int top = (lua_type(L,1) == LUA_TTABLE) ? 2 : 1 ;
+    if (lua_type(L,top) == LUA_TSTRING) {
+        const char *str = lua_tostring(L, top);
         if (lua_key_eq(str,best_size)) {
-            best_size = (int) lua_tointeger(L, 3);
+            best_size = (int) lua_tointeger(L, top+1);
         } else if (lua_key_eq(str,least_page_cost)) {
-            least_page_cost = (int) lua_tointeger(L, 3);
+            least_page_cost = (int) lua_tointeger(L, top+1);
         } else {
             halfword *n_ptr;
             halfword n = 0;
-            if (!lua_isnil(L, 3)) {
-                n_ptr = check_isnode(L, 3);
+            if (!lua_isnil(L, top+1)) {
+                n_ptr = check_isnode(L, top+1);
                 n = *n_ptr;
             }
             if (lua_key_eq(str,page_ins_head)) {
@@ -2447,24 +2449,32 @@ static void init_nest_lib(lua_State * L)
 static int getnest(lua_State * L)
 {
     list_state_record **nestitem;
-    int t = lua_type(L, 2);
-    if (t == LUA_TNUMBER) {
-        int ptr = lua_tointeger(L, 2);
-        if (ptr >= 0 && ptr <= nest_ptr) {
-            nestitem = lua_newuserdata(L, sizeof(list_state_record *));
-            *nestitem = &nest[ptr];
-            luaL_getmetatable(L, NEST_METATABLE);
-            lua_setmetatable(L, -2);
-        } else {
-            lua_pushnil(L);
+    int n = lua_gettop(L);
+    int p = -1 ;
+    if (n == 0) {
+        p = nest_ptr;
+    } else {
+        int t = lua_type(L, n);
+        if (t == LUA_TNUMBER) {
+            int ptr = lua_tointeger(L, n);
+            if (ptr >= 0 && ptr <= nest_ptr) {
+                p = ptr;
+            }
+        } else if (t == LUA_TSTRING) {
+            const char *s = lua_tostring(L, n);
+            if (lua_key_eq(s,top)) {
+                p = nest_ptr;
+            } else if (lua_key_eq(s,ptr)) {
+                lua_pushinteger(L, nest_ptr);
+                return 1;
+            }
         }
-    } else if (t == LUA_TSTRING) {
-        const char *s = lua_tostring(L, 2);
-        if (lua_key_eq(s,ptr)) {
-            lua_pushinteger(L, nest_ptr);
-        } else {
-            lua_pushnil(L);
-        }
+    }
+    if (p > -1) {
+        nestitem = lua_newuserdata(L, sizeof(list_state_record *));
+        *nestitem = &nest[p];
+        luaL_getmetatable(L, NEST_METATABLE);
+        lua_setmetatable(L, -2);
     } else {
         lua_pushnil(L);
     }
@@ -2474,7 +2484,7 @@ static int getnest(lua_State * L)
 static int setnest(lua_State * L)
 {
     luaL_error(L, "You can't modify the semantic nest array directly");
-    return 2;
+    return 0;
 }
 
 static int do_integer_error(double m)
