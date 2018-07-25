@@ -1090,10 +1090,10 @@ static int pdfelib_getpages(lua_State * L)
 
 static int pdfelib_getbox(lua_State * L)
 {
-    if (lua_gettop(L) > 0 && lua_type(L,1) == LUA_TSTRING) {
+    if (lua_gettop(L) > 1 && lua_type(L,2) == LUA_TSTRING) {
         pdfe_dictionary *p = check_isdictionary(L, 1);
         if (p != NULL) {
-            const char *key = lua_tostring(L,1);
+            const char *key = lua_tostring(L,2);
             pprect box;
             pprect *r;
             box.lx = box.rx = box.ly = box.ry = 0;
