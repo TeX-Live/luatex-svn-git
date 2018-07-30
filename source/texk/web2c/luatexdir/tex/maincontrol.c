@@ -1634,10 +1634,14 @@ void new_graf(boolean indented)
 {
     halfword p, q, dir_graf_tmp;
     halfword dir_rover;
-    prev_graf_par = 0;
     if ((mode == vmode) || (head != tail)) {
         tail_append(new_param_glue(par_skip_code));
     }
+int callback_id = callback_defined(new_graf_callback);
+if (callback_id > 0) {
+    run_callback(callback_id, "db->b", cur_list.mode_field,indented,&indented);
+}
+    prev_graf_par = 0;
     push_nest();
     mode = hmode;
     space_factor_par = 1000;

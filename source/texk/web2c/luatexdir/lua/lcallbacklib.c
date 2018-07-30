@@ -80,6 +80,7 @@ static const char *const callbacknames[] = {
     "font_descriptor_objnum_provider",
     "finish_synctex",
     "wrapup_run",
+    "new_graf",
     NULL
 };
 
