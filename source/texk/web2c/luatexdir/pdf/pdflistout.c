@@ -25,7 +25,7 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 /*tex The next variable is accessed from \LUA: */
 
-pos_info_structure pos_info;
+/* pos_info_structure pos_info; */
 
 static backend_struct *backend = NULL;
 backend_function *backend_out, *backend_out_whatsit;
@@ -636,12 +636,14 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                         switch (subtype(p)) {
                             case save_pos_node:
                                 last_position = pdf->posstruct->pos;
+                                /*
                                 pos_info.curpos = pdf->posstruct->pos;
                                 pos_info.boxpos.pos = refpos->pos;
                                 pos_info.boxpos.dir = localpos.dir;
                                 pos_info.boxdim.wd = width(this_box);
                                 pos_info.boxdim.ht = height(this_box);
                                 pos_info.boxdim.dp = depth(this_box);
+                                */
                                 break;
                             case user_defined_node:
                                 break;
@@ -1017,12 +1019,14 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                     switch (subtype(p)) {
                         case save_pos_node:
                             last_position = pdf->posstruct->pos;
+                            /*
                             pos_info.curpos = pdf->posstruct->pos;
                             pos_info.boxpos.pos = refpos->pos;
                             pos_info.boxpos.dir = localpos.dir;
                             pos_info.boxdim.wd = width(this_box);
                             pos_info.boxdim.ht = height(this_box);
                             pos_info.boxdim.dp = depth(this_box);
+                            */
                             break;
                         case user_defined_node:
                             break;

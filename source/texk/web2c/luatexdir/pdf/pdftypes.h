@@ -90,10 +90,7 @@ typedef struct {
 typedef struct scaledpos_ {
     int64_t h;
     int64_t v;
- } scaledpos;
-
-
-
+} scaledpos;
 
 typedef struct scaled_whd_ {
     scaled wd; /* TeX width */
@@ -106,11 +103,11 @@ typedef struct posstructure_ {
     int dir;       /* direction of stuff to be put onto the page */
 } posstructure;
 
-typedef struct {
-    scaledpos curpos;    /* \pdflastpos position */
-    posstructure boxpos; /* box dir and position of the box origin on the page */
-    scaled_whd boxdim;   /* box dimensions (in hlist/vlist coordinate system) */
-} pos_info_structure;
+/* typedef struct {         */
+/*     scaledpos curpos;    */ /* \pdflastpos position */
+/*     posstructure boxpos; */ /* box dir and position of the box origin on the page */
+/*     scaled_whd boxdim;   */ /* box dimensions (in hlist/vlist coordinate system) */
+/* } pos_info_structure;    */
 
 typedef enum {
     PMODE_NONE,

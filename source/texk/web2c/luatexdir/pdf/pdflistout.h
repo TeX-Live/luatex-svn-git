@@ -34,7 +34,7 @@ typedef struct {
     backend_function *whatsit_fu;  /* array of whatsit output functions */
 } backend_struct;
 
-extern pos_info_structure pos_info;
+/* extern pos_info_structure pos_info; */
 
 extern backend_function *backend_out;
 extern backend_function *backend_out_whatsit;
