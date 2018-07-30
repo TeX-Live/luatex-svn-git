@@ -221,7 +221,7 @@ typedef enum {
 #  define disc_penalty(a)     vlink((a)+2)
 #  define pre_break(a)        vinfo((a)+3)
 #  define post_break(a)       vlink((a)+3)
-#  define no_break(a)         vlink((a)+4)
+#  define no_break(a)         vlink((a)+4) /* we have vinfo((a)+4) for later usage */
 
 #  define vlink_pre_break(a)  vlink(pre_break_head(a))
 #  define vlink_post_break(a) vlink(post_break_head(a))
@@ -317,7 +317,7 @@ typedef enum {
 #  define x_displace(a)         vinfo((a)+4)
 #  define y_displace(a)         vlink((a)+4)
 #  define ex_glyph(a)           vinfo((a)+5)  /* expansion factor (hz) */
-#  define x_advance(a)          vlink((a)+5)  /* obsolete, can become user field */
+#  define glyph_node_data(a)    vlink((a)+5)
 #  define synctex_tag_glyph(a)  vinfo((a)+6)
 #  define synctex_line_glyph(a) vlink((a)+6)
 

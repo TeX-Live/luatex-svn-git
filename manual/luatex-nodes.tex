@@ -408,11 +408,11 @@ it considers some input to be text.
 \NC \type{components}       \NC node    \NC pointer to ligature components \NC \NR
 \NC \type{xoffset}          \NC number  \NC a virtual displacement in horizontal direction \NC \NR
 \NC \type{yoffset}          \NC number  \NC a virtual displacement in vertical direction \NC \NR
-%NC \type{xadvance}         \NC number  \NC an additional advance after the glyph (experimental) \NC \NR
 \NC \type{width}            \NC number  \NC the (original) width of the character \NC \NR
 \NC \type{height}           \NC number  \NC the (original) height of the character\NC \NR
 \NC \type{depth}            \NC number  \NC the (original) depth of the character\NC \NR
 \NC \type{expansion_factor} \NC number  \NC the to be applied expansion_factor \NC \NR
+\NC \type{data}             \NC number  \NC a general purpose field for users (we had room for it) \NC \NR
 \LL
 \stoptabulate
 
@@ -2355,6 +2355,7 @@ consistency. You can of course always define additional accessors using \type
 \supported {getsubtype}              \yes \yes
 \supported {getsub}                  \nop \yes
 \supported {getsup}                  \nop \yes
+\supported {getdata}                 \nop \yes
 \supported {getwhd}                  \yes \yes
 \supported {getwidth}                \nop \yes
 \supported {has_attribute}           \yes \yes
@@ -2448,6 +2449,13 @@ taken for providing meta information about nodes. Note: The getters do only basi
 checking for valid keys. You should just stick to the keys mentioned in the
 sections that describe node properties.
 
+Some of the getters and setters handle multiple node types, given that the field
+is relevant. In that case, some field names are considered similar (like \type
+{kern} and \type {width}, or \type {data} and \type {value}. In retrospect we
+could have normalized field names better but we decided to stick to the original
+(internal) names as much as possible. After all, at the \LUA\ end one can easily
+create synonyms.
+
 Some nodes have indirect references. For instance a math character refers to a
 family instead of a font. In that case we provide a virtual font field as
 accessor. So, \type {getfont} and \type {.font} can be used on them. The same is
@@ -2462,9 +2470,9 @@ you can enable that with:
 node.fix_node_lists(<boolean> b)
 \stopfunctioncall
 
-You can set and query the synctex fields, a file number aka tag and a line
+You can set and query the \SYNCTEX\ fields, a file number aka tag and a line
 number, for a glue, kern, hlist, vlist, rule and math nodes as well as glyph
-nodes (although this last one is not used in native synctex).
+nodes (although this last one is not used in native \SYNCTEX).
 
 \startfunctioncall
 node.set_synctex_fields(<integer> f, <integer> l)

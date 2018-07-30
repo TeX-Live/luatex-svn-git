@@ -117,8 +117,6 @@ static scaled simple_advance_width(halfword p)
         switch (type(q)) {
             case glyph_node:
                 w += glyph_width(q);
-                /*tex This is experimental and will go away: */
-                w += x_advance(q);
                 break;
             case hlist_node:
             case vlist_node:
@@ -313,8 +311,6 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                 ci = output_one_char(pdf, p);
                 if (textdir_parallel(localpos.dir, dir_TLT)) {
                     cur.h += ci.wd;
-                    /*tex This is experimental and wil go away: */
-                    cur.h += x_advance(p);
                 } else {
                     cur.h += ci.ht + ci.dp;
                 }

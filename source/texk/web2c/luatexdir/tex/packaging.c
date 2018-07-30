@@ -299,7 +299,7 @@ scaled char_stretch(halfword p)
         int c = character(p);
         int ef = get_ef_code(f, c);
         if (ef > 0) {
-            scaled dw = calc_char_width(f, c, m) - char_width(f, c) - x_advance(p);
+            scaled dw = calc_char_width(f, c, m) - char_width(f, c);
             if (dw > 0) {
                 return round_xn_over_d(dw, ef, 1000);
             }
@@ -316,7 +316,7 @@ scaled char_shrink(halfword p)
         int c = character(p);
         int ef = get_ef_code(f, c);
         if (ef > 0) {
-            scaled dw = char_width(f, c) + x_advance(p) - calc_char_width(f, c, -m);
+            scaled dw = char_width(f, c) - calc_char_width(f, c, -m);
             if (dw > 0) {
                 return round_xn_over_d(dw, ef, 1000);
             }

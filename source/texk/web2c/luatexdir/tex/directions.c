@@ -130,8 +130,6 @@ scaled pack_width(int curdir, int pdir, halfword p, boolean isglyph)
         } else {
             wd = glyph_depth(p) + glyph_height(p);
         }
-        /* experimental, will go away */
-        wd += x_advance(p);
     } else {
         if (textdir_parallel(pdir, curdir))
             wd = width(p);

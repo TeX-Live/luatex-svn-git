@@ -96,7 +96,7 @@ field_info node_fields_fence[8];
 field_info node_fields_fraction[10];
 field_info node_fields_glue[8];
 field_info node_fields_glue_spec[6];
-field_info node_fields_glyph[15];
+field_info node_fields_glyph[16];
 field_info node_fields_insert[7];
 field_info node_fields_inserting[9];
 field_info node_fields_kern[4];
@@ -771,7 +771,8 @@ void l_set_node_data(void) {
     init_field_key(node_fields_glyph, 11, height);
     init_field_key(node_fields_glyph, 12, depth);
     init_field_key(node_fields_glyph, 13, expansion_factor);
-    init_field_nop(node_fields_glyph, 14);
+    init_field_key(node_fields_glyph, 14, data);
+    init_field_nop(node_fields_glyph, 15);
 
     init_field_key(node_fields_insert, 0, attr);
     init_field_key(node_fields_insert, 1, cost);
