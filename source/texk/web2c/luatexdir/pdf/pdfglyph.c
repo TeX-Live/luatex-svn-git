@@ -104,7 +104,7 @@ static void set_font(PDF pdf)
     pdf_print_resname_prefix(pdf);
     pdf_out(pdf, ' ');
     print_pdffloat(pdf, p->fs);
-    pdf_puts(pdf, " Tf ");
+    pdf_puts(pdf, " Tf\n");
     p->f_pdf_cur = p->f_pdf;
     p->fs_cur.m = p->fs.m;
     p->need_tf = false;

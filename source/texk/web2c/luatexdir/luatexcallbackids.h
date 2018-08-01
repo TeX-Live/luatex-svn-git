@@ -72,7 +72,8 @@ typedef enum {
     finish_synctex_callback,
     wrapup_run_callback,
     new_graf_callback,
-    total_callbacks
+    page_objnum_provider_callback,
+    total_callbacks,
 } callback_callback_types;
 
 /* lcallbacklib.c */

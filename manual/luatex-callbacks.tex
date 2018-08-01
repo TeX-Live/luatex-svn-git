@@ -1038,6 +1038,37 @@ the page object gets finalized.
 
 \stopsection
 
+\subsection{\cbk {page_objnum_provider}}
+
+\topicindex{callbacks+\PDF\ file}
+
+This is one that experts can use to juggle the page tree, a data structure
+that determines the order in a \PDF\ file:
+
+\startfunctioncall
+function(objnum)
+  return objnum
+end
+\stopfunctioncall
+
+We can for instance swap the first and last page:
+
+\starttyping
+local n = 0
+callback.register("page_objnum_provider",function(objnum)
+    n = n + 1
+    if n == 1 then
+        return pdf.getpageref(tex.count[0])
+    elseif n == tex.count[0] then
+        return pdf.getpageref(1)
+    else
+        return objnum
+    end
+end)
+\stoptyping
+
+When you mess things up \unknown\ don't complain.
+
 \startsection[title={Font-related callbacks}][library=callback]
 
 \subsection{\cbk {define_font}}

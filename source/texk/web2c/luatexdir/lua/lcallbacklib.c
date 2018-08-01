@@ -81,6 +81,7 @@ static const char *const callbacknames[] = {
     "finish_synctex",
     "wrapup_run",
     "new_graf",
+    "page_objnum_provider",
     NULL
 };
 
