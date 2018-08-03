@@ -724,7 +724,7 @@ static int ppscan_keyword (iof *I, const char *keyword, size_t size)
 
 static ppref * ppref_unresolved (ppheap **pheap, ppuint refnumber, ppuint refversion)
 {
-  ppref *ref = ppheap_take(pheap, sizeof(ppref));
+  ppref *ref = (ppref *)ppheap_take(pheap, sizeof(ppref));
   memset(ref, 0, sizeof(ppref));
   ref->object.type = PPNONE;
   ref->number = refnumber;
@@ -1216,7 +1216,7 @@ static void ppdoc_reader_init (ppdoc *pdf, iof_file *input)
   }
   else
   {
-    pdf->buffer = ppheap_take(&pdf->heap, PPDOC_BUFFER);
+    pdf->buffer = (uint8_t *)ppheap_take(&pdf->heap, PPDOC_BUFFER);
     iof_setup_file_handle_reader(I, NULL, 0, iof_file_get_fh(input)); // gets IOF_FILE_HANDLE flag and FILE *
     I->space = PPDOC_BUFFER; // used on refill
   }
@@ -1422,7 +1422,7 @@ static ppxref * ppxref_load_table (iof *I, ppdoc *pdf, size_t xrefoffset)
       continue;
     xref->count += count;
     xrefsection = NULL;
-    ref = ppheap_take(&pdf->heap, count * sizeof(ppref));
+    ref = (ppref *)ppheap_take(&pdf->heap, count * sizeof(ppref));
     for (refindex = 0; refindex < count; ++refindex, ++ref)
     {
       ref->xref = xref;
@@ -1561,7 +1561,7 @@ static ppxref * ppxref_load_stream (iof *I, ppdoc *pdf, size_t xrefoffset)
       continue;
     xref->count += count;
     xrefsection = NULL;
-    ref = ppheap_take(&pdf->heap, count * sizeof(ppref));
+    ref = (ppref *)ppheap_take(&pdf->heap, count * sizeof(ppref));
     for (refindex = 0; refindex < count; ++refindex, ++ref)
     {
       ref->xref = xref;
@@ -2033,7 +2033,7 @@ static ppdoc * ppdoc_create (iof_file *input)
   ppheap *heap;
 
   heap = ppheap_new();
-  pdf = ppheap_take(&heap, sizeof(ppdoc));
+  pdf = (ppdoc *)ppheap_take(&heap, sizeof(ppdoc));
   pdf->flags = 0;
   pdf->heap = heap;
   pdf->xref = NULL;
@@ -2227,7 +2227,7 @@ static ppkids * pppages_push (ppdoc *pdf, pparray *kids)
   if (pages->depth == pages->space)
   {
     pages->space <<= 1;
-    newroot = ppheap_take(&pdf->heap, pages->space * sizeof(ppkids));
+    newroot = (ppkids *)ppheap_take(&pdf->heap, pages->space * sizeof(ppkids));
     memcpy(newroot, pages->root, pages->depth * sizeof(ppkids));
     pages->root = newroot;
   }

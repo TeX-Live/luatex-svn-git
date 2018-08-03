@@ -6,6 +6,13 @@
 
 #define ppheap_head(heap) ((uint8_t *)((heap) + 1))
 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __aarch64__
+# define ARCH_ARM
+#endif
+
+
+
+
 static ppheap * ppheap_create (size_t size)
 {
 	ppheap *heap;
@@ -68,6 +75,11 @@ void * ppheap_take (ppheap **pheap, size_t size)
 	ppheap *heap;
 	uint8_t *data;
 	heap = *pheap;
+#if defined ARCH_ARM
+        if ((size%__SIZEOF_LONG_DOUBLE__)!=0) {
+           size = (size_t)(size-(size%4)+4);
+        }
+#endif
 	if (size <= heap->size)
 	  ;
 	else if (heap->size <= PPHEAP_WASTE && size <= (PPHEAP_BUFFER >> 1))
@@ -185,11 +197,21 @@ void * ppheap_flush (iof *O, size_t *psize) // not from explicit ppheap ** !!!
 {
   ppheap *heap;
   uint8_t *data;
+  size_t size;
   heap = *((ppheap **)(O->link));
   *psize = ppheap_buffer_size(O, heap);
+  size = *psize;
+#if defined ARCH_ARM
+  if ((size%__SIZEOF_LONG_DOUBLE__)!=0){
+    size = (size_t)(size-(size%4)+4);     
+  }
+#endif
   data = heap->data;
-  heap->data += *psize;
+/*  heap->data += *psize;
   heap->size -= *psize;
+*/
+  heap->data += size;
+  heap->size -= size;
   // O->buf = O->pos = O->end = NULL;
   // O->link = NULL;
   // iof_close(O);

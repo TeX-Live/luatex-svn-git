@@ -5,7 +5,7 @@
 ppstream * ppstream_create (ppdoc *pdf, ppdict *dict, size_t offset)
 {
 	ppstream *stream;
-	stream = ppheap_take(&pdf->heap, sizeof(ppstream));
+	stream = (ppstream *)ppheap_take(&pdf->heap, sizeof(ppstream));
 	stream->dict = dict;
 	stream->offset = offset;
 	//if (!ppdict_rget_uint(dict, "Length", &stream->length)) // may be indirect pointing PPNONE at this moment

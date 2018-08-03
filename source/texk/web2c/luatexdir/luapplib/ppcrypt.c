@@ -14,7 +14,7 @@
 static ppcrypt * ppcrypt_create (ppheap **pheap)
 {
   ppcrypt *crypt;
-  crypt = ppheap_take(pheap, sizeof(ppcrypt));
+  crypt = (ppcrypt *)ppheap_take(pheap, sizeof(ppcrypt));
   memset(crypt, 0, sizeof(ppcrypt));
   return crypt;
 }
