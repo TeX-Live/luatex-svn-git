@@ -354,6 +354,8 @@ typedef struct pdf_output_file_ {
     int xform_count;
     int ximage_count;
 
+    int force_file;
+
     pdf_resource_struct *page_resources;
 
     scaledpos page_size;        /* width and height of page being shipped */

@@ -824,6 +824,18 @@ static int setpdfomitcidset(lua_State * L)
     return 0 ;
 }
 
+/* for tracing purposes when no pages are flushed */
+
+static int setforcefile(lua_State * L)
+{
+    if (lua_type(L, 1) == LUA_TBOOLEAN) {
+        static_pdf->force_file = lua_toboolean(L,1);
+    } else {
+        static_pdf->force_file = 0;
+    }
+    return 0 ;
+}
+
 /* accuracy */
 
 static int l_get_decimal_digits(lua_State * L)
@@ -1270,6 +1282,7 @@ static const struct luaL_Reg pdflib[] = {
     { "setignoreunknownimages", setpdfignoreunknownimages },
     { "setgentounicode", setpdfgentounicode },
     { "setomitcidset", setpdfomitcidset },
+    { "setforcefile", setforcefile },
     { "mapfile", l_mapfile },
     { "mapline", l_mapline },
     { "includechar", pdfincludechar },

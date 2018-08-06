@@ -202,6 +202,7 @@ PDF init_pdf_struct(PDF pdf)
     pdf->image_apply_gamma = 0;
     pdf->objcompresslevel = 0;
     pdf->compress_level = 0;
+    pdf->force_file = 0;
     pdf->recompress = 0;
     pdf->draftmode = 0;
     pdf->inclusion_copy_font = 1;
@@ -2194,28 +2195,36 @@ static void build_free_object_list(PDF pdf)
 void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
 {
     int i, j, k;
-    int root, info, xref_stm = 0, outlines, threads, names_tree;
+    int root, info;
+    int xref_stm = 0;
+    int outlines = 0;
+    int threads = 0;
+    int names_tree = 0;
     size_t xref_offset_width;
     int callback_id = callback_defined(stop_run_callback);
     int callback_id1 = callback_defined(finish_pdffile_callback);
-    if (total_pages == 0) {
+    if (total_pages == 0 && !pdf->force_file) {
         if (callback_id == 0) {
             normal_warning("pdf backend","no pages of output.");
         } else if (callback_id > 0) {
             run_callback(callback_id, "->");
         }
-        if (pdf->gone > 0)
+        if (pdf->gone > 0) {
             normal_error("pdf backend","dangling objects discarded, no output file produced.");
+        }
     } else {
         if (pdf->draftmode == 0) {
             /*tex We make sure that the output file name has been already created. */
             pdf_flush(pdf);
             /*tex Flush page 0 objects from JBIG2 images, if any. */
             flush_jbig2_page0_objects(pdf);
-            if (callback_id1 > 0)
+            if (callback_id1 > 0) {
                 run_callback(callback_id1, "->");
-            check_nonexisting_pages(pdf);
-            check_nonexisting_destinations(pdf);
+            }
+            if (total_pages > 0) {
+                check_nonexisting_pages(pdf);
+                check_nonexisting_destinations(pdf);
+            }
             /*tex Output fonts definition. */
             for (k = 1; k <= max_font_id(); k++) {
                 if (font_used(k) && (pdf_font_num(k) < 0)) {
@@ -2242,59 +2251,67 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                 k = obj_link(pdf, k);
             }
             write_fontstuff(pdf);
-            pdf->last_pages = output_pages_tree(pdf);
-            /*tex Output outlines. */
-            outlines = print_outlines(pdf);
-            /*tex
-                The name tree is very similiar to Pages tree so its construction
-                should be certain from Pages tree construction. For intermediate
-                node |obj_info| will be the first name and |obj_link| will be the
-                last name in \.{\\Limits} array. Note that |pdf_dest_names_ptr|
-                will be less than |obj_ptr|, so we test if |k <
-                pdf_dest_names_ptr| then |k| is index of leaf in |dest_names|;
-                else |k| will be index in |obj_tab| of some intermediate node.
-             */
-            names_tree = output_name_tree(pdf);
-            /*tex Output article threads. */
-            if (pdf->head_tab[obj_type_thread] != 0) {
-                threads = pdf_create_obj(pdf, obj_type_others, 0);
-                pdf_begin_obj(pdf, threads, OBJSTM_ALWAYS);
-                pdf_begin_array(pdf);
-                k = pdf->head_tab[obj_type_thread];
-                while (k != 0) {
-                    pdf_add_ref(pdf, k);
-                    k = obj_link(pdf, k);
+            if (total_pages > 0) {
+                pdf->last_pages = output_pages_tree(pdf);
+                /*tex Output outlines. */
+                outlines = print_outlines(pdf);
+                /*tex
+                    The name tree is very similiar to Pages tree so its construction
+                    should be certain from Pages tree construction. For intermediate
+                    node |obj_info| will be the first name and |obj_link| will be the
+                    last name in \.{\\Limits} array. Note that |pdf_dest_names_ptr|
+                    will be less than |obj_ptr|, so we test if |k <
+                    pdf_dest_names_ptr| then |k| is index of leaf in |dest_names|;
+                    else |k| will be index in |obj_tab| of some intermediate node.
+                 */
+                names_tree = output_name_tree(pdf);
+                /*tex Output article threads. */
+                if (pdf->head_tab[obj_type_thread] != 0) {
+                    threads = pdf_create_obj(pdf, obj_type_others, 0);
+                    pdf_begin_obj(pdf, threads, OBJSTM_ALWAYS);
+                    pdf_begin_array(pdf);
+                    k = pdf->head_tab[obj_type_thread];
+                    while (k != 0) {
+                        pdf_add_ref(pdf, k);
+                        k = obj_link(pdf, k);
+                    }
+                    pdf_end_array(pdf);
+                    pdf_end_obj(pdf);
+                    k = pdf->head_tab[obj_type_thread];
+                    while (k != 0) {
+                        out_thread(pdf, k);
+                        k = obj_link(pdf, k);
+                    }
+                } else {
+                    threads = 0;
                 }
-                pdf_end_array(pdf);
-                pdf_end_obj(pdf);
-                k = pdf->head_tab[obj_type_thread];
-                while (k != 0) {
-                    out_thread(pdf, k);
-                    k = obj_link(pdf, k);
-                }
-            } else {
-                threads = 0;
             }
             /*tex Output the |/Catalog| object. */
             root = pdf_create_obj(pdf, obj_type_catalog, 0);
             pdf_begin_obj(pdf, root, OBJSTM_ALWAYS);
             pdf_begin_dict(pdf);
             pdf_dict_add_name(pdf, "Type", "Catalog");
-            pdf_dict_add_ref(pdf, "Pages", pdf->last_pages);
-            if (threads != 0)
-                pdf_dict_add_ref(pdf, "Threads", threads);
-            if (outlines != 0)
-                pdf_dict_add_ref(pdf, "Outlines", outlines);
-            if (names_tree != 0)
-                pdf_dict_add_ref(pdf, "Names", names_tree);
-            if (pdf_catalog_toks != null) {
-                pdf_print_toks(pdf, pdf_catalog_toks);
-                delete_token_ref(pdf_catalog_toks);
-                pdf_catalog_toks = null;
+            if (total_pages > 0) {
+                pdf_dict_add_ref(pdf, "Pages", pdf->last_pages);
+                if (threads != 0) {
+                    pdf_dict_add_ref(pdf, "Threads", threads);
+                }
+                if (outlines != 0) {
+                    pdf_dict_add_ref(pdf, "Outlines", outlines);
+                }
+                if (names_tree != 0) {
+                    pdf_dict_add_ref(pdf, "Names", names_tree);
+                }
+                if (pdf_catalog_toks != null) {
+                    pdf_print_toks(pdf, pdf_catalog_toks);
+                    delete_token_ref(pdf_catalog_toks);
+                    pdf_catalog_toks = null;
+                }
+            }
+            if (pdf_catalog_openaction != 0) {
+                pdf_dict_add_ref(pdf, "OpenAction", pdf_catalog_openaction);
             }
             print_pdf_table_string(pdf, "catalog");
-            if (pdf_catalog_openaction != 0)
-                pdf_dict_add_ref(pdf, "OpenAction", pdf_catalog_openaction);
             pdf_end_dict(pdf);
             pdf_end_obj(pdf);
             info = pdf_print_info(pdf, luatexversion, luatexrevision);
@@ -2423,16 +2440,18 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
             } else if (callback_id > 0) {
                 run_callback(callback_id, "->");
             }
+            if (pdf->gone > 0) {
+                normal_warning("pdf backend","dangling objects discarded");
+            }
+            libpdffinish(pdf);
+            close_file(pdf->file);
         } else {
             if (callback_id > 0) {
                 run_callback(callback_id, "->");
             }
-        }
-        libpdffinish(pdf);
-        if (pdf->draftmode == 0)
-            close_file(pdf->file);
-        else
+            libpdffinish(pdf);
             normal_warning("pdf backend","draftmode enabled, not changing output pdf");
+        }
     }
     if (callback_id == 0) {
         if (log_opened_global) {
