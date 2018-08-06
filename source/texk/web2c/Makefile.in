@@ -638,6 +638,7 @@ am__objects_5 =  \
 	luatexdir/pdf/liblua53tex_a-pdftables.$(OBJEXT) \
 	luatexdir/pdf/liblua53tex_a-pdfthread.$(OBJEXT) \
 	luatexdir/pdf/liblua53tex_a-pdfxform.$(OBJEXT) \
+	luatexdir/tex/liblua53tex_a-backend.$(OBJEXT) \
 	luatexdir/tex/liblua53tex_a-align.$(OBJEXT) \
 	luatexdir/tex/liblua53tex_a-arithmetic.$(OBJEXT) \
 	luatexdir/tex/liblua53tex_a-buildpage.$(OBJEXT) \
@@ -829,6 +830,7 @@ am__objects_11 = luatexdir/luafontloader/src/libluajittex_a-ffdummies.$(OBJEXT) 
 	luatexdir/pdf/libluajittex_a-pdftables.$(OBJEXT) \
 	luatexdir/pdf/libluajittex_a-pdfthread.$(OBJEXT) \
 	luatexdir/pdf/libluajittex_a-pdfxform.$(OBJEXT) \
+	luatexdir/tex/libluajittex_a-backend.$(OBJEXT) \
 	luatexdir/tex/libluajittex_a-align.$(OBJEXT) \
 	luatexdir/tex/libluajittex_a-arithmetic.$(OBJEXT) \
 	luatexdir/tex/libluajittex_a-buildpage.$(OBJEXT) \
@@ -1013,6 +1015,7 @@ am__objects_15 =  \
 	luatexdir/pdf/libluatex_a-pdftables.$(OBJEXT) \
 	luatexdir/pdf/libluatex_a-pdfthread.$(OBJEXT) \
 	luatexdir/pdf/libluatex_a-pdfxform.$(OBJEXT) \
+	luatexdir/tex/libluatex_a-backend.$(OBJEXT) \
 	luatexdir/tex/libluatex_a-align.$(OBJEXT) \
 	luatexdir/tex/libluatex_a-arithmetic.$(OBJEXT) \
 	luatexdir/tex/libluatex_a-buildpage.$(OBJEXT) \
@@ -4052,7 +4055,8 @@ dist_libluatex_sources = luatexdir/luatexcallbackids.h \
 	luatexdir/pdf/pdfsetmatrix.c luatexdir/pdf/pdfshipout.c \
 	luatexdir/pdf/pdftables.c luatexdir/pdf/pdfthread.c \
 	luatexdir/pdf/pdfxform.c luatexdir/tex/align.h \
-	luatexdir/tex/arithmetic.h luatexdir/tex/buildpage.h \
+	luatexdir/tex/arithmetic.h luatexdir/tex/backend.h \
+	luatexdir/tex/backend.c luatexdir/tex/buildpage.h \
 	luatexdir/tex/commands.h luatexdir/tex/conditional.h \
 	luatexdir/tex/directions.h luatexdir/tex/dumpdata.h \
 	luatexdir/tex/equivalents.h luatexdir/tex/errors.h \
@@ -5330,6 +5334,9 @@ luatexdir/tex/$(am__dirstamp):
 luatexdir/tex/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) luatexdir/tex/$(DEPDIR)
 	@: > luatexdir/tex/$(DEPDIR)/$(am__dirstamp)
+luatexdir/tex/liblua53tex_a-backend.$(OBJEXT):  \
+	luatexdir/tex/$(am__dirstamp) \
+	luatexdir/tex/$(DEPDIR)/$(am__dirstamp)
 luatexdir/tex/liblua53tex_a-align.$(OBJEXT):  \
 	luatexdir/tex/$(am__dirstamp) \
 	luatexdir/tex/$(DEPDIR)/$(am__dirstamp)
@@ -5865,6 +5872,9 @@ luatexdir/pdf/libluajittex_a-pdfthread.$(OBJEXT):  \
 luatexdir/pdf/libluajittex_a-pdfxform.$(OBJEXT):  \
 	luatexdir/pdf/$(am__dirstamp) \
 	luatexdir/pdf/$(DEPDIR)/$(am__dirstamp)
+luatexdir/tex/libluajittex_a-backend.$(OBJEXT):  \
+	luatexdir/tex/$(am__dirstamp) \
+	luatexdir/tex/$(DEPDIR)/$(am__dirstamp)
 luatexdir/tex/libluajittex_a-align.$(OBJEXT):  \
 	luatexdir/tex/$(am__dirstamp) \
 	luatexdir/tex/$(DEPDIR)/$(am__dirstamp)
@@ -6371,6 +6381,9 @@ luatexdir/pdf/libluatex_a-pdfthread.$(OBJEXT):  \
 luatexdir/pdf/libluatex_a-pdfxform.$(OBJEXT):  \
 	luatexdir/pdf/$(am__dirstamp) \
 	luatexdir/pdf/$(DEPDIR)/$(am__dirstamp)
+luatexdir/tex/libluatex_a-backend.$(OBJEXT):  \
+	luatexdir/tex/$(am__dirstamp) \
+	luatexdir/tex/$(DEPDIR)/$(am__dirstamp)
 luatexdir/tex/libluatex_a-align.$(OBJEXT):  \
 	luatexdir/tex/$(am__dirstamp) \
 	luatexdir/tex/$(DEPDIR)/$(am__dirstamp)
@@ -7868,6 +7881,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/slnunicode/$(DEPDIR)/libluamisc_a-slnunico.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/liblua53tex_a-align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/liblua53tex_a-arithmetic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/liblua53tex_a-backend.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/liblua53tex_a-buildpage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/liblua53tex_a-commands.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/liblua53tex_a-conditional.Po@am__quote@
@@ -7900,6 +7914,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/liblua53tex_a-textoken.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluajittex_a-align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluajittex_a-arithmetic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluajittex_a-backend.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluajittex_a-buildpage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluajittex_a-commands.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluajittex_a-conditional.Po@am__quote@
@@ -7932,6 +7947,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluajittex_a-textoken.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluatex_a-align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluatex_a-arithmetic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluatex_a-backend.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluatex_a-buildpage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluatex_a-commands.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/tex/$(DEPDIR)/libluatex_a-conditional.Po@am__quote@
@@ -10473,6 +10489,20 @@ luatexdir/pdf/liblua53tex_a-pdfxform.obj: luatexdir/pdf/pdfxform.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/pdf/liblua53tex_a-pdfxform.obj `if test -f 'luatexdir/pdf/pdfxform.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfxform.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfxform.c'; fi`
 
+luatexdir/tex/liblua53tex_a-backend.o: luatexdir/tex/backend.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/tex/liblua53tex_a-backend.o -MD -MP -MF luatexdir/tex/$(DEPDIR)/liblua53tex_a-backend.Tpo -c -o luatexdir/tex/liblua53tex_a-backend.o `test -f 'luatexdir/tex/backend.c' || echo '$(srcdir)/'`luatexdir/tex/backend.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/tex/$(DEPDIR)/liblua53tex_a-backend.Tpo luatexdir/tex/$(DEPDIR)/liblua53tex_a-backend.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/tex/backend.c' object='luatexdir/tex/liblua53tex_a-backend.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/tex/liblua53tex_a-backend.o `test -f 'luatexdir/tex/backend.c' || echo '$(srcdir)/'`luatexdir/tex/backend.c
+
+luatexdir/tex/liblua53tex_a-backend.obj: luatexdir/tex/backend.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/tex/liblua53tex_a-backend.obj -MD -MP -MF luatexdir/tex/$(DEPDIR)/liblua53tex_a-backend.Tpo -c -o luatexdir/tex/liblua53tex_a-backend.obj `if test -f 'luatexdir/tex/backend.c'; then $(CYGPATH_W) 'luatexdir/tex/backend.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/backend.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/tex/$(DEPDIR)/liblua53tex_a-backend.Tpo luatexdir/tex/$(DEPDIR)/liblua53tex_a-backend.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/tex/backend.c' object='luatexdir/tex/liblua53tex_a-backend.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/tex/liblua53tex_a-backend.obj `if test -f 'luatexdir/tex/backend.c'; then $(CYGPATH_W) 'luatexdir/tex/backend.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/backend.c'; fi`
+
 luatexdir/tex/liblua53tex_a-align.o: luatexdir/tex/align.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53tex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/tex/liblua53tex_a-align.o -MD -MP -MF luatexdir/tex/$(DEPDIR)/liblua53tex_a-align.Tpo -c -o luatexdir/tex/liblua53tex_a-align.o `test -f 'luatexdir/tex/align.c' || echo '$(srcdir)/'`luatexdir/tex/align.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/tex/$(DEPDIR)/liblua53tex_a-align.Tpo luatexdir/tex/$(DEPDIR)/liblua53tex_a-align.Po
@@ -12783,6 +12813,20 @@ luatexdir/pdf/libluajittex_a-pdfxform.obj: luatexdir/pdf/pdfxform.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/pdf/libluajittex_a-pdfxform.obj `if test -f 'luatexdir/pdf/pdfxform.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfxform.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfxform.c'; fi`
 
+luatexdir/tex/libluajittex_a-backend.o: luatexdir/tex/backend.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/tex/libluajittex_a-backend.o -MD -MP -MF luatexdir/tex/$(DEPDIR)/libluajittex_a-backend.Tpo -c -o luatexdir/tex/libluajittex_a-backend.o `test -f 'luatexdir/tex/backend.c' || echo '$(srcdir)/'`luatexdir/tex/backend.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/tex/$(DEPDIR)/libluajittex_a-backend.Tpo luatexdir/tex/$(DEPDIR)/libluajittex_a-backend.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/tex/backend.c' object='luatexdir/tex/libluajittex_a-backend.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/tex/libluajittex_a-backend.o `test -f 'luatexdir/tex/backend.c' || echo '$(srcdir)/'`luatexdir/tex/backend.c
+
+luatexdir/tex/libluajittex_a-backend.obj: luatexdir/tex/backend.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/tex/libluajittex_a-backend.obj -MD -MP -MF luatexdir/tex/$(DEPDIR)/libluajittex_a-backend.Tpo -c -o luatexdir/tex/libluajittex_a-backend.obj `if test -f 'luatexdir/tex/backend.c'; then $(CYGPATH_W) 'luatexdir/tex/backend.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/backend.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/tex/$(DEPDIR)/libluajittex_a-backend.Tpo luatexdir/tex/$(DEPDIR)/libluajittex_a-backend.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/tex/backend.c' object='luatexdir/tex/libluajittex_a-backend.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/tex/libluajittex_a-backend.obj `if test -f 'luatexdir/tex/backend.c'; then $(CYGPATH_W) 'luatexdir/tex/backend.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/backend.c'; fi`
+
 luatexdir/tex/libluajittex_a-align.o: luatexdir/tex/align.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajittex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/tex/libluajittex_a-align.o -MD -MP -MF luatexdir/tex/$(DEPDIR)/libluajittex_a-align.Tpo -c -o luatexdir/tex/libluajittex_a-align.o `test -f 'luatexdir/tex/align.c' || echo '$(srcdir)/'`luatexdir/tex/align.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/tex/$(DEPDIR)/libluajittex_a-align.Tpo luatexdir/tex/$(DEPDIR)/libluajittex_a-align.Po
@@ -15036,6 +15080,20 @@ luatexdir/pdf/libluatex_a-pdfxform.obj: luatexdir/pdf/pdfxform.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/pdf/pdfxform.c' object='luatexdir/pdf/libluatex_a-pdfxform.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/pdf/libluatex_a-pdfxform.obj `if test -f 'luatexdir/pdf/pdfxform.c'; then $(CYGPATH_W) 'luatexdir/pdf/pdfxform.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/pdf/pdfxform.c'; fi`
+
+luatexdir/tex/libluatex_a-backend.o: luatexdir/tex/backend.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/tex/libluatex_a-backend.o -MD -MP -MF luatexdir/tex/$(DEPDIR)/libluatex_a-backend.Tpo -c -o luatexdir/tex/libluatex_a-backend.o `test -f 'luatexdir/tex/backend.c' || echo '$(srcdir)/'`luatexdir/tex/backend.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/tex/$(DEPDIR)/libluatex_a-backend.Tpo luatexdir/tex/$(DEPDIR)/libluatex_a-backend.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/tex/backend.c' object='luatexdir/tex/libluatex_a-backend.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/tex/libluatex_a-backend.o `test -f 'luatexdir/tex/backend.c' || echo '$(srcdir)/'`luatexdir/tex/backend.c
+
+luatexdir/tex/libluatex_a-backend.obj: luatexdir/tex/backend.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/tex/libluatex_a-backend.obj -MD -MP -MF luatexdir/tex/$(DEPDIR)/libluatex_a-backend.Tpo -c -o luatexdir/tex/libluatex_a-backend.obj `if test -f 'luatexdir/tex/backend.c'; then $(CYGPATH_W) 'luatexdir/tex/backend.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/backend.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/tex/$(DEPDIR)/libluatex_a-backend.Tpo luatexdir/tex/$(DEPDIR)/libluatex_a-backend.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/tex/backend.c' object='luatexdir/tex/libluatex_a-backend.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/tex/libluatex_a-backend.obj `if test -f 'luatexdir/tex/backend.c'; then $(CYGPATH_W) 'luatexdir/tex/backend.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/tex/backend.c'; fi`
 
 luatexdir/tex/libluatex_a-align.o: luatexdir/tex/align.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluatex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/tex/libluatex_a-align.o -MD -MP -MF luatexdir/tex/$(DEPDIR)/libluatex_a-align.Tpo -c -o luatexdir/tex/libluatex_a-align.o `test -f 'luatexdir/tex/align.c' || echo '$(srcdir)/'`luatexdir/tex/align.c

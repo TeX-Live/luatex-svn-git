@@ -531,6 +531,8 @@ luatex_tex_ctangle = $(ctangle_silent)CWEBINPUTS=$(srcdir)/luatexdir/tex $(ctang
 dist_libluatex_sources += \
 	luatexdir/tex/align.h \
 	luatexdir/tex/arithmetic.h \
+	luatexdir/tex/backend.h \
+	luatexdir/tex/backend.c \
 	luatexdir/tex/buildpage.h \
 	luatexdir/tex/commands.h \
 	luatexdir/tex/conditional.h \
