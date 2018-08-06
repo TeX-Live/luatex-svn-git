@@ -447,7 +447,7 @@ void initialize_commands(void)
     primitive_tex("vtop", make_box_cmd, vtop_code, 0);
     primitive_tex("vbox", make_box_cmd, vtop_code + vmode, 0);
     primitive_tex("hbox", make_box_cmd, vtop_code + hmode, 0);
-    primitive_tex("shipout", leader_ship_cmd, a_leaders - 1, 0);        /* |ship_out_flag=leader_flag-1| */
+    primitive_tex("shipout", leader_ship_cmd, a_leaders - 2, 0);        /* |ship_out_flag=leader_flag-2| */
     primitive_tex("leaders", leader_ship_cmd, a_leaders, 0);
     primitive_tex("cleaders", leader_ship_cmd, c_leaders, 0);
     primitive_tex("xleaders", leader_ship_cmd, x_leaders, 0);

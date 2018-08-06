@@ -979,7 +979,7 @@ static int lua_tokenlib_equal(lua_State * L)
     n = check_istoken(L, 1);
     m = check_istoken(L, 2);
     if (token_info(n->token) == token_info(m->token)) {
-	lua_pushboolean(L,1);
+    lua_pushboolean(L,1);
         return 1;
     }
     lua_pushboolean(L,0);
@@ -1014,6 +1014,19 @@ static int run_scan_token(lua_State * L)
     save_tex_scanner(texstate);
     get_x_token();
     make_new_token(L, cur_cmd, cur_chr, cur_cs);
+    unsave_tex_scanner(texstate);
+    return 1;
+}
+
+static int run_scan_list(lua_State * L)
+{
+    saved_tex_scanner texstate;
+    save_tex_scanner(texstate);
+    /*tex
+        This is s tricky call as we are in \LUA\ and therefore
+        mess with the main loop.
+    */
+    lua_nodelib_push_fast(L, local_scan_box());
     unsave_tex_scanner(texstate);
     return 1;
 }
@@ -1307,6 +1320,7 @@ static const struct luaL_Reg tokenlib[] = {
     { "scan_word", run_scan_word },
     { "scan_csname", run_scan_csname },
     { "scan_token", run_scan_token }, /* expands next token if needed */
+    { "scan_list", run_scan_list },
     /* writers */
     { "put_next", run_put_next },
     { "expand", run_expand },

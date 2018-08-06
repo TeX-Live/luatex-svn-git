@@ -429,7 +429,10 @@ void do_extension(int immediate)
                 do_extension(1);
                 break;
             case end_local_code:
-                local_level -= 1;
+                if (tracing_nesting_par > 2) {
+                    local_control_message("leaving token scanner");
+                }
+                end_local_control();
                 break;
             case use_box_resource_code:
             case use_image_resource_code:

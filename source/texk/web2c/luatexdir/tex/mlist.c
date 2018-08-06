@@ -1813,7 +1813,7 @@ void run_mlist_to_hlist(halfword p, boolean penalties, int mstyle)
             luatex_error(Luas, (i == LUA_ERRRUN ? 0 : 1));
             return;
         }
-        a = nodelist_from_lua(Luas);
+        a = nodelist_from_lua(Luas,-1);
         /* alink(vlink(a)) = null; */
         vlink(temp_head) = a;
         lua_settop(Luas, sfix);

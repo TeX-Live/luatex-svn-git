@@ -1398,7 +1398,7 @@ static int vsetbox(lua_State * L, int is_global)
     } else if (t == LUA_TNIL) {
         j = null;
     } else {
-        j = nodelist_from_lua(L);
+        j = nodelist_from_lua(L,-1);
         if (j != null && type(j) != hlist_node && type(j) != vlist_node) {
             luaL_error(L, "setbox: incompatible node type (%s)\n", get_node_name(type(j), subtype(j)));
             return 0;
@@ -3235,9 +3235,19 @@ static int tex_save_box_resource(lua_State * L)
         margin = lua_tointeger(L, 6);
     }
     /* more or less same as scanner variant */
-    boxdata = box(boxnumber);
-    if (boxdata == null)
-        normal_error("pdf backend", "xforms cannot be used with a void box");
+    if (lua_type(L,1) == LUA_TNUMBER) {
+        halfword boxnumber = lua_tointeger(L,1);
+        boxdata = box(boxnumber);
+        box(boxnumber) = null;
+    } else {
+        boxdata = nodelist_from_lua(L,1);
+        if (type(boxdata) != hlist_node && type(boxdata) != vlist_node) {
+            normal_error("pdf backend", "xforms can only be used with a box or [h|v]list");
+        }
+    }
+    if (boxdata == null) {
+        normal_error("pdf backend", "xforms cannot be used with a void box or empty [h|v]list");
+    }
     static_pdf->xform_count++;
     index = pdf_create_obj(static_pdf, obj_type_xform, static_pdf->xform_count);
     set_obj_data_ptr(static_pdf, index, pdf_get_mem(static_pdf, pdfmem_xform_size));
@@ -3336,6 +3346,12 @@ static int tex_build_page(lua_State * L)
 static int lua_get_page_state(lua_State * L)
 {
     lua_pushinteger(L,page_contents);
+    return 1;
+}
+
+static int lua_get_local_level(lua_State * L)
+{
+    lua_pushinteger(L,current_local_level());
     return 1;
 }
 
@@ -3443,8 +3459,11 @@ static int runtoks(lua_State * L)
         if (luacstrings > 0) {
             lua_string_start();
         }
+        if (tracing_nesting_par > 2) {
+            local_control_message("entering token scanner via function");
+        }
         mode = -hmode;
-        local_control(0);
+        local_control();
         mode = old_mode;
         luaL_unref(L,LUA_REGISTRYINDEX,ref);
     } else {
@@ -3461,8 +3480,11 @@ static int runtoks(lua_State * L)
             if (luacstrings > 0) {
                 lua_string_start();
             }
+            if (tracing_nesting_par > 2) {
+                local_control_message("entering token scanner via register");
+            }
             mode = -hmode;
-            local_control(0);
+            local_control();
             mode = old_mode;
             /* unsave(); */
         }
@@ -3578,6 +3600,7 @@ static const struct luaL_Reg texlib[] = {
     /* just for testing: it will probably stay but maybe with options */
     { "triggerbuildpage", tex_build_page },
     { "getpagestate", lua_get_page_state },
+    { "getlocallevel", lua_get_local_level },
     /* not the best place but better than in node */
     { "set_synctex_mode", lua_set_synctex_mode },
     { "get_synctex_mode", lua_get_synctex_mode },

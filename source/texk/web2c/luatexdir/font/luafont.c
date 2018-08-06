@@ -800,7 +800,7 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                     case packet_node_code:
                         append_packet(cmd);
                         lua_rawgeti(L, -2, 2);
-                        n = copy_node_list(nodelist_from_lua(L));
+                        n = copy_node_list(nodelist_from_lua(L,-1));
                         do_store_four(n);
                         lua_pop(L, 1);
                         break;

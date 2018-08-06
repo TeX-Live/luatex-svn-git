@@ -207,6 +207,10 @@ extern void initialize(void);   /* this procedure gets things started properly *
 
 extern int local_level;
 
-extern void local_control(int l);
+extern void local_control(void);
+extern halfword local_scan_box(void);
+extern int current_local_level(void);
+extern void end_local_control(void);
+extern void local_control_message(const char *s);
 
 #endif

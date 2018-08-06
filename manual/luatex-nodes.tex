@@ -876,12 +876,12 @@ instead of \type {108}).
 \subsection{\whs {late_lua}}
 
 \starttabulate[|l|l|p|]
-\DB field         \BC type     \BC explanation \NC \NR
+\DB field        \BC type               \BC explanation \NC \NR
 \TB
-\NC \type{attr}   \NC node     \NC list of attributes \NC \NR
-\NC \type{data}   \NC string   \NC data to execute \NC \NR
-\NC \type{string} \NC string   \NC data to execute \NC \NR
-\NC \type{name}   \NC string   \NC the name to use for \LUA\ error reporting \NC \NR
+\NC \type{attr}  \NC node               \NC list of attributes \NC \NR
+\NC \type{data}  \NC string or function \NC the to be written information stored as \LUA\ value \NC \NR
+\NC \type{token} \NC string             \NC the to be written information stored as token list \NC \NR
+\NC \type{name}  \NC string             \NC the name to use for \LUA\ error reporting \NC \NR
 \LL
 \stoptabulate
 
@@ -913,11 +913,12 @@ output file.
 \subsection{\whs {pdf_literal}}
 
 \starttabulate[|l|l|p|]
-\DB field       \BC type   \BC explanation \NC \NR
+\DB field        \BC type   \BC explanation \NC \NR
 \TB
-\NC \type{attr} \NC node   \NC list of attributes \NC \NR
-\NC \type{mode} \NC number \NC the \quote {mode} setting of this literal \NC \NR
-\NC \type{data} \NC string \NC the \orm {pdfliteral} information \NC \NR
+\NC \type{attr}  \NC node   \NC list of attributes \NC \NR
+\NC \type{mode}  \NC number \NC the \quote {mode} setting of this literal \NC \NR
+\NC \type{data}  \NC string \NC the to be written information stored as \LUA\ string \NC \NR
+\NC \type{token} \NC string \NC the to be written information stored as token list \NC \NR
 \LL
 \stoptabulate
 
@@ -2398,6 +2399,7 @@ consistency. You can of course always define additional accessors using \type
 \supported {setfam}                  \nop \yes
 \supported {setfield}                \yes \yes
 \supported {setfont}                 \nop \yes
+\supported {setexpansion}            \nop \yes
 \supported {setglue}                 \yes \yes
 \supported {setheight}               \nop \yes
 \supported {setkern}                 \nop \yes

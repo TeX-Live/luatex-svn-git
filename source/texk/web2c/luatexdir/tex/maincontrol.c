@@ -1030,7 +1030,16 @@ We assume a trailing relax: |{...}\relax|, so we don't need a |back_input()| her
 
 int local_level = 0;
 
-void local_control(int l)
+extern void local_control_message(const char *s)
+{
+    tprint("local control level ");
+    print_int(local_level);
+    tprint(": ");
+    tprint(s);
+    tprint_nl("");
+}
+
+void local_control()
 {
     int ll = local_level;
     main_control_state = goto_next;
@@ -1052,12 +1061,88 @@ void local_control(int l)
         (jump_table[(abs(mode) + cur_cmd)])();
         if (local_level <= ll) {
             main_control_state = goto_next;
+            if (tracing_nesting_par > 2) {
+                local_control_message("leaving due to level change");
+            }
             return ;
         } else if (main_control_state == goto_return) {
+            if (tracing_nesting_par > 2) {
+                local_control_message("leaving due to triggering");
+            }
             return;
         }
     }
     return;
+}
+
+void end_local_control()
+{
+    local_level -= 1;
+}
+
+/*tex
+    We need to go back to the main loop. This is rather nasty and dirty
+    and counterintuive code and there might be a cleaner way. Basically
+    we trigger the main control state from here.
+
+    \starttyping
+     0 0       \directlua{token.scan_list()}\hbox{!}
+    -1 0       \setbox0\hbox{x}\directlua{token.scan_list()}\box0
+     1 1       \toks0={\directlua{token.scan_list()}\hbox{x}}\directlua{tex.runtoks(0)}
+     0 0  1 1  \directlua{tex.box[0]=token.scan_list()}\hbox{x\directlua{node.write(token.scan_list())}\hbox{x}}
+     0 0  0 1  \setbox0\hbox{x}\directlua{tex.box[0]=token.scan_list()}\hbox{x\directlua{node.write(token.scan_list())}\box0}
+    \stoptyping
+
+    It's rather fragile code so we added some tracing options.
+
+*/
+
+halfword local_scan_box()
+{
+    int old_mode = mode;
+    int ll = local_level;
+    mode = -hmode;
+    scan_box(lua_scan_flag);
+    if (local_level == ll) {
+        /*tex |\directlua{print(token.scan_list())}\hbox{!}| (n n) */
+        if (tracing_nesting_par > 2) {
+            local_control_message("entering at end of box scanning");
+        }
+        local_control();
+    } else {
+        /*tex |\directlua{print(token.scan_list())}\box0| (n-1 n) */
+        /*
+            if (tracing_nesting_par > 2) {
+                local_control_message("setting level after box scanning");
+            }
+        */
+        local_level = ll;
+    }
+    mode = old_mode;
+    return cur_box;
+}
+
+/*tex
+
+    We have an issue with modes when we quit here because we're coming
+    from and still staying at the \LUA\ end. So, unless we're already
+    nested, we trigger an end_local_level token (an extension code).
+
+*/
+
+static void wrapup_local_scan_box()
+{
+    /*
+    if (tracing_nesting_par > 2) {
+        local_control_message("leaving box scanner");
+    }
+    */
+    local_level -= 1;
+}
+
+int current_local_level()
+{
+    return local_level;
 }
 
 void app_space(void)
@@ -1570,8 +1655,17 @@ void box_end(int box_context)
             eq_define(box_base + box_context - box_flag, box_ref_cmd, cur_box);
         else
             geq_define(box_base + box_context - global_box_flag, box_ref_cmd, cur_box);
+    } else if (box_context == lua_scan_flag) {
+        /*tex
+            We are done with scanning so let's return to the caller.
+        */
+        wrapup_local_scan_box();
     } else if (cur_box != null) {
-        if (box_context > ship_out_flag) {
+        /*tex
+            The leaders contexts come after shipout and luascan contexts.
+        */
+        /* if (box_context > lua_scan_flag) { */
+        if (box_context >= leader_flag) {
             /*tex
                 Append a new leader node that uses |cur_box| and get the next
                 non-blank non-relax...
@@ -1595,6 +1689,9 @@ void box_end(int box_context)
                 flush_node_list(cur_box);
             }
         } else {
+            if (box_context != ship_out_flag) {
+                normal_error("scanner","shipout expected");
+            }
             ship_out(static_pdf, cur_box, SHIPPING_PAGE);
         }
     }
@@ -1627,6 +1724,10 @@ void scan_box(int box_context)
             "your output. But keep trying; you can fix this later."
         );
         back_error();
+        if (box_context == lua_scan_flag) {
+            cur_box = null;
+            box_end(box_context);
+        }
     }
 }
 
@@ -1634,14 +1735,13 @@ void new_graf(boolean indented)
 {
     halfword p, q, dir_graf_tmp;
     halfword dir_rover;
-    int callback_id;
     if ((mode == vmode) || (head != tail)) {
         tail_append(new_param_glue(par_skip_code));
     }
-    callback_id = callback_defined(new_graf_callback);
-if (callback_id > 0) {
-    run_callback(callback_id, "db->b", cur_list.mode_field,indented,&indented);
-}
+    int callback_id = callback_defined(new_graf_callback);
+    if (callback_id > 0) {
+        run_callback(callback_id, "db->b", cur_list.mode_field,indented,&indented);
+    }
     prev_graf_par = 0;
     push_nest();
     mode = hmode;

@@ -86,7 +86,7 @@ void lua_node_filter(int filterid, int extrainfo, halfword head_node, halfword *
         }
     } else {
         /*tex append to old head */
-        start_done = nodelist_from_lua(Luas);
+        start_done = nodelist_from_lua(Luas,-1);
         try_couple_nodes(head_node,start_done);
     }
     /*tex redundant as we set top anyway */
@@ -143,7 +143,7 @@ int lua_linebreak_callback(int is_broken, halfword head_node, halfword * new_hea
     lua_settop(Luas, s_top);
     p = lua_touserdata(Luas, -1);
     if (p != NULL) {
-        a = nodelist_from_lua(Luas);
+        a = nodelist_from_lua(Luas,-1);
         try_couple_nodes(*new_head,a);
         ret = 1;
     }
@@ -232,7 +232,7 @@ halfword lua_hpack_filter(halfword head_node, scaled size, int pack_type, int ex
             ret = null;
         }
     } else {
-        ret = nodelist_from_lua(Luas);
+        ret = nodelist_from_lua(Luas,-1);
     }
     lua_settop(Luas, s_top);
     if (fix_node_lists)
@@ -293,7 +293,7 @@ halfword lua_vpack_filter(halfword head_node, scaled size, int pack_type, scaled
             ret = null;
         }
     } else {
-        ret = nodelist_from_lua(Luas);
+        ret = nodelist_from_lua(Luas,-1);
     }
     lua_settop(Luas, s_top);
     if (fix_node_lists)

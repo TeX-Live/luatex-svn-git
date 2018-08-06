@@ -557,6 +557,36 @@ static int lua_nodelib_direct_setsubtype(lua_State * L)
         return 1;
     }
 
+/* node.direct.getexpansion */
+/* node.direct.setexpansion */
+
+static int lua_nodelib_direct_getexpansion(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if (n != null) {
+        halfword t = type(n);
+        if (t == glyph_node || t == kern_node) {
+            lua_pushinteger(L, ex_glyph(n));
+            return 1;
+        }
+    }
+    lua_pushnil(L);
+    return 1;
+}
+
+static int lua_nodelib_direct_setexpansion(lua_State * L)
+{
+    halfword n = lua_tointeger(L, 1);
+    if ((n) && (type(n) == glyph_node || type(n) == kern_node)) {
+        if (lua_type(L, 2) == LUA_TNUMBER) {
+            ex_glyph(n) = (halfword) lua_tointeger(L, 2);
+        } else {
+            ex_glyph(n) = 0;
+        }
+    }
+    return 0;
+}
+
 /* node.direct.getfont */
 /* node.direct.setfont */
 
@@ -1481,7 +1511,15 @@ static int lua_nodelib_direct_setleader(lua_State * L)
     }                                                                \
 } while (0)
 
-#define set_pdf_literal_direct_value(L,n,i) do {              \
+#define get_pdf_literal_direct_value(L,n) do {                  \
+    if (pdf_literal_type(n) == lua_refid_literal) {             \
+        lua_rawgeti(L, LUA_REGISTRYINDEX, pdf_literal_data(n)); \
+    } else {                                                    \
+        tokenlist_to_luastring(L, pdf_literal_data(n));         \
+    }                                                           \
+} while (0)
+
+#define set_pdf_literal_direct_normal(L,n,i) do {             \
     if (ini_version) {                                        \
         pdf_literal_data(n) = nodelib_gettoks(L, i);          \
     } else {                                                  \
@@ -1491,23 +1529,27 @@ static int lua_nodelib_direct_setleader(lua_State * L)
     }                                                         \
 } while (0)
 
-#define cleanup_late_lua(n) do { \
-    if (late_lua_data(n) != 0) { \
-        if (late_lua_type(n) == normal) { \
-            delete_token_ref(late_lua_data(n)); \
-        } else if (late_lua_type(n) == lua_refid_literal) { \
+#define set_pdf_literal_direct_token(L,n,i) do { \
+    pdf_literal_data(n) = nodelib_gettoks(L, i); \
+} while (0)
+
+#define cleanup_late_lua(n) do {                               \
+    if (late_lua_data(n) != 0) {                               \
+        if (late_lua_type(n) == normal) {                      \
+            delete_token_ref(late_lua_data(n));                \
+        } else if (late_lua_type(n) == lua_refid_literal) {    \
             luaL_unref(L, LUA_REGISTRYINDEX,late_lua_data(n)); \
-        } \
-    } \
+        }                                                      \
+    }                                                          \
 } while (0)
 
-#define cleanup_late_lua_name(n) do { \
-    if (late_lua_name(n) != 0) { \
+#define cleanup_late_lua_name(n) do {       \
+    if (late_lua_name(n) != 0) {            \
         delete_token_ref(late_lua_name(n)); \
-    } \
+    }                                       \
 } while (0)
 
-#define set_late_lua_direct_value(L,n,i) do {              \
+#define set_late_lua_direct_normal(L,n,i) do {             \
     cleanup_late_lua(n) ;                                  \
     if (ini_version) {                                     \
         late_lua_data(n) = nodelib_gettoks(L, i);          \
@@ -1519,17 +1561,51 @@ static int lua_nodelib_direct_setleader(lua_State * L)
     }                                                      \
 } while (0)
 
+#define set_late_lua_direct_token(L,n,i) do { \
+    cleanup_late_lua(n) ;                     \
+    late_lua_data(n) = nodelib_gettoks(L, i); \
+    late_lua_type(n) = normal;                \
+} while (0)
+
+
+#define get_late_lua_direct_value(L,n) do {                  \
+    if (late_lua_type(n) == lua_refid_literal) {             \
+        lua_rawgeti(L, LUA_REGISTRYINDEX, late_lua_data(n)); \
+    } else {                                                 \
+        tokenlist_to_luastring(L, late_lua_data(n));         \
+    }                                                        \
+} while (0)
+
 #define set_special_direct_value(L,n,i) do { \
     write_tokens(n) = nodelib_gettoks(L, i); \
+} while (0)
+
+#define get_special_direct_value(L,n) do {     \
+    tokenlist_to_luastring(L, write_tokens(n)); \
 } while (0)
 
 #define set_write_direct_value(L,n,i) do {   \
     write_tokens(n) = nodelib_gettoks(L, i); \
 } while (0)
 
-#define set_pdfmatrix_data_direct_value(L,n,i) do { \
+#define get_write_direct_value(L,n) do {  \
+    tokenlist_to_lua(L, write_tokens(n)); \
+} while (0)
+
+#define set_pdf_setmatrix_direct_value(L,n,i) do { \
     pdf_setmatrix_data(n) = nodelib_gettoks(L, i);  \
 } while (0)
+
+#define get_pdf_setmatrix_direct_value(L,n) do {     \
+    tokenlist_to_luastring(L, pdf_setmatrix_data(n)); \
+} while (0)
+
+/*tex
+
+    These getter and setter get |data| as well as |value| fields. One can
+    make them equivalent to |getvalue| and |setvalue| if needed.
+
+*/
 
 static int lua_nodelib_direct_getdata(lua_State * L)
 {
@@ -1546,6 +1622,19 @@ static int lua_nodelib_direct_getdata(lua_State * L)
             halfword s = subtype(n);
             if (s == user_defined_node) {
                 get_user_node_direct_value(L, n);
+            } else if (s == pdf_literal_node) {
+                get_pdf_literal_direct_value(L, n);
+                /*tex A bonus. */
+                lua_pushinteger(L,pdf_literal_mode(n));
+                return 2;
+            } else if (s == late_lua_node) {
+                get_late_lua_direct_value(L, n);
+            } else if (s == pdf_setmatrix_node) {
+                get_pdf_setmatrix_direct_value(L, n);
+            } else if (s == special_node) {
+                get_special_direct_value(L, n);
+            } else if (s == write_node) {
+                get_write_direct_value(L, n);
             } else {
                 lua_pushnil(L);
             }
@@ -1570,11 +1659,15 @@ static int lua_nodelib_direct_setdata(lua_State * L) /* data and value */
             if (s == user_defined_node) {
                 set_user_node_direct_value(L, n, 2);
             } else if (s == pdf_literal_node) {
-                set_pdf_literal_direct_value(L, n, 2);
+                set_pdf_literal_direct_normal(L, n, 2);
+                if (lua_type(L,2) == LUA_TNUMBER) {
+                    /*tex A bonus. */
+                    pdf_literal_mode(n) = lua_tointeger(L,2);
+                }
             } else if (s == late_lua_node) {
-                set_late_lua_direct_value(L, n, 2);
-            } else if (t == pdf_setmatrix_node) {
-                set_pdfmatrix_data_direct_value(L, n, 2);
+                set_late_lua_direct_normal(L, n, 2);
+            } else if (s == pdf_setmatrix_node) {
+                set_pdf_setmatrix_direct_value(L, n, 2);
             } else if (s == special_node) {
                 set_special_direct_value(L, n, 2);
             } else if (s == write_node) {
@@ -4254,24 +4347,18 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
             lua_pushnil(L);
         }
     } else if (t == pdf_literal_node) {
+        /*tex The |string| key is obsolete. */
         if (lua_key_eq(s, mode)) {
             lua_pushinteger(L, pdf_literal_mode(n));
-        } else if (lua_key_eq(s, data)) {
-            if (pdf_literal_type(n) == lua_refid_literal) {
-                lua_rawgeti(L, LUA_REGISTRYINDEX, pdf_literal_data(n));
-            } else {
-                tokenlist_to_luastring(L, pdf_literal_data(n));
-            }
+        } else if (lua_key_eq(s, data) || lua_key_eq(s, token) || lua_key_eq(s, string)) {
+            get_pdf_literal_direct_value(L, n);
         } else {
             lua_pushnil(L);
         }
     } else if (t == late_lua_node) {
-        if (lua_key_eq(s, string) || lua_key_eq(s, data)) {
-            if (late_lua_type(n) == lua_refid_literal) {
-                lua_rawgeti(L, LUA_REGISTRYINDEX, late_lua_data(n));
-            } else {
-                tokenlist_to_luastring(L, late_lua_data(n));
-            }
+        /*tex The |string| key is obsolete. */
+        if (lua_key_eq(s, data) || lua_key_eq(s, token) || lua_key_eq(s, string)) {
+            get_late_lua_direct_value(L,n);
         } else if (lua_key_eq(s, name)) {
             tokenlist_to_luastring(L, late_lua_name(n));
         } else {
@@ -4316,7 +4403,7 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
         }
     } else if (t == pdf_setmatrix_node) {
         if (lua_key_eq(s, data)) {
-            tokenlist_to_luastring(L, pdf_setmatrix_data(n));
+            get_pdf_setmatrix_direct_value(L,n);
         } else {
             lua_pushnil(L);
         }
@@ -4340,13 +4427,13 @@ static void lua_nodelib_getfield_whatsit(lua_State * L, int n, const char *s)
         if (lua_key_eq(s, stream)) {
             lua_pushinteger(L, write_stream(n));
         } else if (lua_key_eq(s, data)) {
-            tokenlist_to_lua(L, write_tokens(n));
+            get_write_direct_value(L,n);
         } else {
             lua_pushnil(L);
         }
     } else if (t == special_node) {
         if (lua_key_eq(s, data)) {
-            tokenlist_to_luastring(L, write_tokens(n));
+            get_special_direct_value(L,n);
         } else {
             lua_pushnil(L);
         }
@@ -5032,24 +5119,18 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
             lua_pushnil(L);
         }
     } else if (t == pdf_literal_node) {
+        /*tex The |string| key is obsolete. */
         if (lua_key_eq(s, mode)) {
             lua_pushinteger(L, pdf_literal_mode(n));
-        } else if (lua_key_eq(s, data)) {
-            if (pdf_literal_type(n) == lua_refid_literal) {
-                lua_rawgeti(L, LUA_REGISTRYINDEX, pdf_literal_data(n));
-            } else {
-                tokenlist_to_luastring(L, pdf_literal_data(n));
-            }
+        } else if (lua_key_eq(s, data) || lua_key_eq(s, token) || lua_key_eq(s, string)) {
+            get_pdf_literal_direct_value(L, n);
         } else {
             lua_pushnil(L);
         }
     } else if (t == late_lua_node) {
-        if (lua_key_eq(s, string) || lua_key_eq(s, data)) {
-            if (late_lua_type(n) == lua_refid_literal) {
-                lua_rawgeti(L, LUA_REGISTRYINDEX, late_lua_data(n));
-            } else {
-                tokenlist_to_luastring(L, late_lua_data(n));
-            }
+        /*tex The |string| key is obsolete. */
+        if (lua_key_eq(s, data) || lua_key_eq(s, token) || lua_key_eq(s, string)) {
+            get_late_lua_direct_value(L,n);
         } else if (lua_key_eq(s, name)) {
             tokenlist_to_luastring(L, late_lua_name(n));
         } else {
@@ -5094,7 +5175,7 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
         }
     } else if (t == pdf_setmatrix_node) {
         if (lua_key_eq(s, data)) {
-            tokenlist_to_luastring(L, pdf_setmatrix_data(n));
+            get_pdf_setmatrix_direct_value(L,n);
         } else {
             lua_pushnil(L);
         }
@@ -5118,13 +5199,13 @@ static void lua_nodelib_direct_getfield_whatsit(lua_State * L, int n, const char
         if (lua_key_eq(s, stream)) {
             lua_pushinteger(L, write_stream(n));
         } else if (lua_key_eq(s, data)) {
-            tokenlist_to_lua(L, write_tokens(n));
+            get_write_direct_value(L,n);
         } else {
             lua_pushnil(L);
         }
     } else if (t == special_node) {
         if (lua_key_eq(s, data)) {
-            tokenlist_to_luastring(L, write_tokens(n));
+            get_special_direct_value(L,n);
         } else {
             lua_pushnil(L);
         }
@@ -6350,34 +6431,22 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
     int t = subtype(n);
 
     if (t == pdf_literal_node) {
+        /*tex The |string| key is obsolete. */
         if (lua_key_eq(s, mode)) {
             pdf_literal_mode(n) = (quarterword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, data)) {
-            if (ini_version) {
-                pdf_literal_data(n) = nodelib_gettoks(L, 3);
-            } else {
-                lua_pushvalue(L, 3);
-                pdf_literal_data(n) = luaL_ref(L, LUA_REGISTRYINDEX);
-                pdf_literal_type(n) = lua_refid_literal;
-            }
+        } else if (lua_key_eq(s, data) || lua_key_eq(s, string)) {
+            set_pdf_literal_direct_normal(L, n, 3);
+        } else if (lua_key_eq(s, token)) {
+            set_pdf_literal_direct_token(L, n, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
     } else if (t == late_lua_node) {
-        if (lua_key_eq(s, string)) {
-            cleanup_late_lua(n) ;
-            if (ini_version) {
-                late_lua_data(n) = nodelib_gettoks(L, 3);
-                late_lua_type(n) = normal;
-            } else {
-                lua_pushvalue(L, 3);
-                late_lua_data(n) = luaL_ref(L, LUA_REGISTRYINDEX);
-                late_lua_type(n) = lua_refid_literal;
-            }
-        } else if (lua_key_eq(s, data)) {
-            cleanup_late_lua(n) ;
-            late_lua_data(n) = nodelib_gettoks(L, 3);
-            late_lua_type(n) = normal;
+        /*tex The |string| key is obsolete. */
+        if (lua_key_eq(s, data) || lua_key_eq(s, string)) {
+            set_late_lua_direct_normal(L, n, 3);
+        } else if (lua_key_eq(s, token)) {
+            set_late_lua_direct_token(L, n, 3);
         } else if (lua_key_eq(s, name)) {
             cleanup_late_lua_name(n) ;
             late_lua_name(n) = nodelib_gettoks(L, 3);
@@ -6461,7 +6530,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
         }
     } else if (t == pdf_setmatrix_node) {
         if (lua_key_eq(s, data)) {
-            pdf_setmatrix_data(n) = nodelib_gettoks(L, 3);
+            set_pdf_setmatrix_direct_value(L,n,3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -6491,7 +6560,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
         if (lua_key_eq(s, stream)) {
             write_stream(n) = (halfword) lua_tointeger(L, 3);
         } else if (lua_key_eq(s, data)) {
-            write_tokens(n) = nodelib_gettoks(L, 3);
+            set_write_direct_value(L,n,3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -6547,7 +6616,7 @@ static int lua_nodelib_setfield_whatsit(lua_State * L, int n, const char *s)
         }
     } else if (t == special_node) {
         if (lua_key_eq(s, data)) {
-            write_tokens(n) = nodelib_gettoks(L, 3);
+            set_special_direct_value(L,n,3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -7130,20 +7199,22 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
 {
     int t = subtype(n);
     if (t == pdf_literal_node) {
+        /*tex The |string| key is obsolete. */
         if (lua_key_eq(s, mode)) {
             pdf_literal_mode(n) = (quarterword) lua_tointeger(L, 3);
-        } else if (lua_key_eq(s, data)) {
-            set_pdf_literal_direct_value(L, n, 3);
+        } else if (lua_key_eq(s, data) || lua_key_eq(s, string)) {
+            set_pdf_literal_direct_normal(L, n, 3);
+        } else if (lua_key_eq(s, token)) {
+            set_pdf_literal_direct_token(L, n, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
     } else if (t == late_lua_node) {
-        if (lua_key_eq(s, string)) {
-            set_late_lua_direct_value(L, n, 3);
-        } else if (lua_key_eq(s, data)) {
-            cleanup_late_lua(n) ;
-            late_lua_data(n) = nodelib_gettoks(L, 3);
-            late_lua_type(n) = normal;
+        /*tex The |string| key is obsolete. */
+        if (lua_key_eq(s, data) || lua_key_eq(s, string)) {
+            set_late_lua_direct_normal(L, n, 3);
+        } else if (lua_key_eq(s, token)) {
+            set_late_lua_direct_token(L, n, 3);
         } else if (lua_key_eq(s, name)) {
             cleanup_late_lua_name(n) ;
             late_lua_name(n) = nodelib_gettoks(L, 3);
@@ -7200,7 +7271,7 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
         }
     } else if (t == pdf_setmatrix_node) {
         if (lua_key_eq(s, data)) {
-            set_pdfmatrix_data_direct_value(L, n, 3);
+            set_pdf_setmatrix_direct_value(L, n, 3);
         } else {
             return nodelib_cantset(L, n, s);
         }
@@ -7228,7 +7299,7 @@ static int lua_nodelib_direct_setfield_whatsit(lua_State * L, int n, const char 
         }
     } else if (t == write_node) {
         if (lua_key_eq(s, stream)) {
-            write_stream(n) = (halfword) lua_tointeger(L, 3);
+            set_write_direct_value(L,n,3);
         } else if (lua_key_eq(s, data)) {
             set_write_direct_value(L,n,3);
         } else {
@@ -8629,6 +8700,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"getshift", lua_nodelib_direct_getshift},
     {"getfield", lua_nodelib_direct_getfield},
     {"getfont", lua_nodelib_direct_getfont},
+    {"getexpansion", lua_nodelib_direct_getexpansion},
     {"getfam", lua_nodelib_direct_getfam},
     {"getid", lua_nodelib_direct_getid},
     {"getnext", lua_nodelib_direct_getnext},
@@ -8673,6 +8745,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"setfield", lua_nodelib_direct_setfield},
     {"setchar", lua_nodelib_direct_setchar},
     {"setfont", lua_nodelib_direct_setfont},
+    {"setexpansion", lua_nodelib_direct_setexpansion},
     {"setfam", lua_nodelib_direct_setfam},
     {"setcomponents", lua_nodelib_direct_setcomponents},
     {"setlang", lua_nodelib_direct_setlang},
@@ -8870,12 +8943,12 @@ void nodelist_to_lua(lua_State * L, int n)
     lua_nodelib_push(L);
 }
 
-int nodelist_from_lua(lua_State * L)
+int nodelist_from_lua(lua_State * L, int n)
 {
-    if (lua_isnil(L, -1)) {
+    if (lua_isnil(L, n)) {
         return null;
     } else {
-        halfword n= *check_isnode(L, -1);
-        return (n ? n : null);
+        halfword list = *check_isnode(L, n);
+        return (list ? list : null);
     }
 }

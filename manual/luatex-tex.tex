@@ -895,7 +895,8 @@ The optional second and third arguments are strings, the fourth is a boolean. Th
 fifth argument is a type. When set to non|-|zero the \type {/Type} entry is
 omitted. A value of 1 or 3 still writes a \type {/BBox}, while 2 or 3 will write
 a \type {/Matrix}. The sixth argument is the (virtual) margin that extends beyond
-the effective boundingbox as seen by \TEX.
+the effective boundingbox as seen by \TEX. Instead of a box number one can also
+pass a \type {[h|v]list} node.
 
 You can generate the reference (a rule type) with:
 
@@ -1434,6 +1435,9 @@ tex.runtoks(<token register>)
 tex.runtoks(<lua function>)
 \stopfunctioncall
 
+When the \prm {tracingnesting} parameter is set to a value larger than~2 some
+information is reported about the state of the local loop.
+
 \subsubsection{\type {run}, \type {runtoks}, \type {finish}}
 
 \libindex{forcehmode}
@@ -1726,6 +1730,15 @@ Ships out box number \type {n} to the output file, and clears the box register.
 This helper reports the current page state: \type {empty}, \type {box_there} or
 \type {inserts_only} as integer value.
 
+\subsubsection{\type {getlocallevel}}
+
+\topicindex {nesting}
+
+\libindex{getlocallevel}
+
+This integer reports the current level of the local loop. It's only useful for
+debugging and the (relative state) numbers can change with the implementation.
+
 \subsection{Randomizers}
 
 \libindex{lua_math_random}
@@ -1948,6 +1961,7 @@ what you're doing (or more precise: what \TEX\ is doing with input).
 \libindex{scan_argument}
 \libindex{scan_word}
 \libindex{scan_csname}
+\libindex{scan_list}
 
 The token library provides means to intercept the input and deal with it at the
 \LUA\ level. The library provides a basic scanner infrastructure that can be used
@@ -1978,6 +1992,7 @@ most intriguing.
                                                      (which then get expanded) \NC \NR
 \NC \type{scan_word}      \NC                    \NC returns a sequence of characters with catcode 11 or 12 as string \NC \NR
 \NC \type{scan_csname}    \NC                    \NC returns \type {foo} after scanning \type {\foo} \NC \NR
+\NC \type{scan_list}      \NC                    \NC picks up a box specification and returns a \type {[h|v]list} node \NC \NR
 \LL
 \stoptabulate
 
