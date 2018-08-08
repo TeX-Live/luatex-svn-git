@@ -1963,7 +1963,7 @@ static halfword lua_nodelib_new_node(lua_State * L)
                 j = -1;
             }
         } else if (t == LUA_TSTRING) {
-            j = get_node_subtype_id_from_name(L,2,whatsit_node_data[i].subtypes);
+            j = get_node_type_id_from_name(L,2,whatsit_node_data);
         } else {
             j = -1;
         }

@@ -2210,7 +2210,8 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
             run_callback(callback_id, "->");
         }
         if (pdf->gone > 0) {
-            normal_error("pdf backend","dangling objects discarded, no output file produced.");
+            /* number of bytes gone */
+            normal_error("pdf backend","already written content discarded, no output file produced.");
         }
     } else {
         if (pdf->draftmode == 0) {
@@ -2368,8 +2369,7 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                     } else if (obj_os_idx(pdf, k) == PDF_OS_MAX_OBJS) {
                         /*tex  An object not in object stream: */
                         pdf_out(pdf, 1);
-                        pdf_out_bytes(pdf, obj_offset(pdf, k),
-                                      xref_offset_width);
+                        pdf_out_bytes(pdf, obj_offset(pdf, k), xref_offset_width);
                         pdf_out(pdf, 0);
                     } else {
                         /*tex An object in object stream: */
@@ -2439,9 +2439,6 @@ void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
                 print_ln();
             } else if (callback_id > 0) {
                 run_callback(callback_id, "->");
-            }
-            if (pdf->gone > 0) {
-                normal_warning("pdf backend","dangling objects discarded");
             }
             libpdffinish(pdf);
             close_file(pdf->file);

@@ -889,7 +889,7 @@ static int getpdffontname(lua_State * L)
     int c, ff ;
     if (lua_type(L, 1) == LUA_TNUMBER) {
         c = (int) lua_tointeger(L, 1);
-        pdf_check_vf(c);
+     /* pdf_check_vf(c); */
         if (!font_used(c)) {
             pdf_init_font(static_pdf,c);
         }
@@ -906,7 +906,7 @@ static int getpdffontobjnum(lua_State * L)
     if (lua_type(L, 1) == LUA_TNUMBER) {
         int ff;
         int c = (int) lua_tointeger(L, 1);
-        pdf_check_vf(c);
+     /* pdf_check_vf(c); */
         if (!font_used(c)) {
             pdf_init_font(static_pdf,c);
         }
@@ -1199,6 +1199,50 @@ static int pdfincludefont(lua_State * L)
     return 0;
 }
 
+static int pdfincludeimage(lua_State * L)
+{
+    /*tex How to check for a valid entry? */
+    image_dict *idict = idict_array[lua_tointeger(L,1)];
+    int objnum = img_objnum(idict);
+    if (img_state(idict) < DICT_OUTIMG) {
+        img_state(idict) = DICT_OUTIMG;
+    }
+    if (! is_obj_written(static_pdf, objnum)) {
+        pdf_write_image(static_pdf, objnum);
+    }
+    lua_pushinteger(L,img_type(idict));
+    lua_pushinteger(L,img_xorig(idict));
+    lua_pushinteger(L,img_yorig(idict));
+    lua_pushinteger(L,img_xsize(idict));
+    lua_pushinteger(L,img_ysize(idict));
+    lua_pushinteger(L,img_rotation(idict));
+    lua_pushinteger(L,objnum);
+    if (img_type(idict) == IMG_TYPE_PNG) {
+        lua_pushinteger(L,img_group_ref(idict));
+    } else {
+        lua_pushnil(L);
+    }
+    return 8;
+}
+
+static int getpdfnofobjects(lua_State * L)
+{
+    int k;
+    int written = 0;
+    int dropped = 0;
+    for (k = 1; k <= static_pdf->obj_ptr; k++) {
+        if (is_obj_written(static_pdf, k)) {
+            written += 1;
+        } else {
+            dropped += 1;
+        }
+    }
+    lua_pushinteger(L,written);
+    lua_pushinteger(L,dropped);
+    return 2;
+}
+
+/*tex For normal output see |pdflistout.c|: */
 
 static const struct luaL_Reg pdflib[] = {
     { "gethpos", l_gethpos },
@@ -1287,6 +1331,9 @@ static const struct luaL_Reg pdflib[] = {
     { "mapline", l_mapline },
     { "includechar", pdfincludechar },
     { "includefont", pdfincludefont },
+    /* might go, used when sanitizing backend */
+    { "includeimage", pdfincludeimage },
+    { "getnofobjects", getpdfnofobjects },
     /* for a while */
     { "maxobjnum", getpdfmaxobjnum },
     { "pageref", getpdfpageref },

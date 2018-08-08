@@ -3337,6 +3337,16 @@ static int tex_get_box_resource_dimensions(lua_State * L)
     return 4;
 }
 
+static int tex_get_box_resource_box(lua_State * L)
+{
+    /* no checking yet as this might go */
+    int index = lua_tointeger(L,1);
+    check_obj_type(static_pdf, obj_type_xform, index);
+    halfword b = obj_xform_box(static_pdf, index);
+    nodelist_to_lua(L, b);
+    return 1;
+}
+
 static int tex_build_page(lua_State * L)
 {
     build_page();
@@ -3597,6 +3607,8 @@ static const struct luaL_Reg texlib[] = {
     { "saveboxresource", tex_save_box_resource },
     { "useboxresource", tex_use_box_resource },
     { "getboxresourcedimensions", tex_get_box_resource_dimensions },
+    /* might go, used when sanitizing backend */
+    { "getboxresourcebox", tex_get_box_resource_box },
     /* just for testing: it will probably stay but maybe with options */
     { "triggerbuildpage", tex_build_page },
     { "getpagestate", lua_get_page_state },
