@@ -180,8 +180,8 @@ ppname ppname_encoded (ppname name)
    ghost->size = siz - sizeof(_ppstring) - 1 - sizeof(ppstring *), \
   (ppstring)(ghost + 1))
 
-#define ppstring_utf16be_bom(decoded) (decoded[0] == 0xFE && decoded[1] == 0xFF)
-#define ppstring_utf16le_bom(decoded) (decoded[0] == 0xFF && decoded[1] == 0xFE)
+#define ppstring_utf16be_bom(decoded) (decoded[0] == ((char)0xFE) && decoded[1] == ((char)0xFF) )
+#define ppstring_utf16le_bom(decoded) (decoded[0] == ((char)0xFF) && decoded[1] == ((char)0xFE))
 
 #define ppstring_check_bom(decoded, ghost) ((void)\
   (ghost->size >= 2 ? (ppstring_utf16be_bom(decoded) ? (ghost->flags |= PPSTRING_UTF16BE) : \

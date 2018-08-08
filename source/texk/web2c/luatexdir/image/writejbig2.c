@@ -381,7 +381,7 @@ static void readfilehdr(FILEINFO * fip)
         xfseek(fip->file, 9, SEEK_SET, fip->filepath);
     }
     /*tex Annex D.4.3: Number of pages */
-    if (!(fip->filehdrflags >> 1) & 0x01) {
+    if (( !(fip->filehdrflags >> 1)) & 0x01) {
         /*tex The known number of pages: */
         fip->numofpages = read4bytes(fip->file);
     }

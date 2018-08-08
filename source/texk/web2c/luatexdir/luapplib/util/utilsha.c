@@ -625,7 +625,7 @@ static void SHA256_Final(uint8_t digest[], SHA256_CTX* context) {
 	}
 
 	/* Clean up state data: */
-	MEMSET_BZERO(context, sizeof(context));
+	MEMSET_BZERO(context, sizeof(*context));
 	usedspace = 0;
 }
 
@@ -959,7 +959,7 @@ static void SHA512_Final(uint8_t digest[], SHA512_CTX* context) {
 	}
 
 	/* Zero out state data */
-	MEMSET_BZERO(context, sizeof(context));
+	MEMSET_BZERO(context, sizeof(*context));
 }
 
 /*
@@ -1035,7 +1035,7 @@ static void SHA384_Final(uint8_t digest[], SHA384_CTX* context) {
 	}
 
 	/* Zero out state data */
-	MEMSET_BZERO(context, sizeof(context));
+	MEMSET_BZERO(context, sizeof(*context));
 }
 
 /*

@@ -1460,7 +1460,7 @@ static int pdfelib_dictionary_access(lua_State * L)
 {
     pdfe_dictionary *p = (pdfe_dictionary *)lua_touserdata(L, 1);
     if (lua_type(L,2) == LUA_TSTRING) {
-        ppstring key = lua_tostring(L,2);
+        const char *key = lua_tostring(L,2);
         ppobj *o = ppdict_rget_obj(p->dictionary,key);
         if (o != NULL) {
             return pdfelib_pushvalue(L,o);
@@ -1479,7 +1479,7 @@ static int pdfelib_stream_access(lua_State * L)
 {
     pdfe_stream *p = (pdfe_stream *)lua_touserdata(L, 1);
     if (lua_type(L,2) == LUA_TSTRING) {
-        ppstring key = lua_tostring(L,2);
+        const char *key = lua_tostring(L,2);
         ppobj *o = ppdict_rget_obj(p->stream->dict,key);
         if (o != NULL) {
             return pdfelib_pushvalue(L,o);
