@@ -101,6 +101,7 @@ variable is used, along with a macro to define its values.
 #define goto_return 2
 
 static int main_control_state;
+static int local_level = 0;
 
 /*tex
 
@@ -1028,7 +1029,7 @@ We assume a trailing relax: |{...}\relax|, so we don't need a |back_input()| her
 
 */
 
-int local_level = 0;
+/*int local_level = 0; */
 
 extern void local_control_message(const char *s)
 {
@@ -1039,7 +1040,7 @@ extern void local_control_message(const char *s)
     tprint_nl("");
 }
 
-void local_control()
+void local_control(void)
 {
     int ll = local_level;
     main_control_state = goto_next;
@@ -1075,7 +1076,7 @@ void local_control()
     return;
 }
 
-void end_local_control()
+void end_local_control(void )
 {
     local_level -= 1;
 }
@@ -1097,7 +1098,7 @@ void end_local_control()
 
 */
 
-halfword local_scan_box()
+halfword local_scan_box(void)
 {
     int old_mode = mode;
     int ll = local_level;
@@ -1130,7 +1131,7 @@ halfword local_scan_box()
 
 */
 
-static void wrapup_local_scan_box()
+static void wrapup_local_scan_box(void)
 {
     /*
     if (tracing_nesting_par > 2) {
@@ -1140,7 +1141,7 @@ static void wrapup_local_scan_box()
     local_level -= 1;
 }
 
-int current_local_level()
+int current_local_level(void)
 {
     return local_level;
 }
@@ -1735,10 +1736,11 @@ void new_graf(boolean indented)
 {
     halfword p, q, dir_graf_tmp;
     halfword dir_rover;
+    int callback_id;
     if ((mode == vmode) || (head != tail)) {
         tail_append(new_param_glue(par_skip_code));
     }
-    int callback_id = callback_defined(new_graf_callback);
+    callback_id = callback_defined(new_graf_callback);
     if (callback_id > 0) {
         run_callback(callback_id, "db->b", cur_list.mode_field,indented,&indented);
     }

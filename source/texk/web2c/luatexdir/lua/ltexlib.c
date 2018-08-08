@@ -3340,9 +3340,10 @@ static int tex_get_box_resource_dimensions(lua_State * L)
 static int tex_get_box_resource_box(lua_State * L)
 {
     /* no checking yet as this might go */
+    halfword b;
     int index = lua_tointeger(L,1);
     check_obj_type(static_pdf, obj_type_xform, index);
-    halfword b = obj_xform_box(static_pdf, index);
+    b = obj_xform_box(static_pdf, index);
     nodelist_to_lua(L, b);
     return 1;
 }

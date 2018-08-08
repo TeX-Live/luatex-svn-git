@@ -6,8 +6,11 @@
 
 #define ppheap_head(heap) ((uint8_t *)((heap) + 1))
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __aarch64__
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
 # define ARCH_ARM
+#if !defined(__BIGGEST_ALIGNMENT__)
+ __BIGGEST_ALIGNMENT__ __SIZEOF_LONG_DOUBLE__
+#endif 
 #endif
 
 
@@ -76,8 +79,8 @@ void * ppheap_take (ppheap **pheap, size_t size)
 	uint8_t *data;
 	heap = *pheap;
 #if defined ARCH_ARM
-        if ((size%__SIZEOF_LONG_DOUBLE__)!=0) {
-           size = (size_t)(size-(size%4)+4);
+        if ((size%__BIGGEST_ALIGNMENT__)!=0) {
+           size = (size_t)(size-(size%__BIGGEST_ALIGNMENT__)+__BIGGEST_ALIGNMENT__);
         }
 #endif
 	if (size <= heap->size)
@@ -202,8 +205,8 @@ void * ppheap_flush (iof *O, size_t *psize) // not from explicit ppheap ** !!!
   *psize = ppheap_buffer_size(O, heap);
   size = *psize;
 #if defined ARCH_ARM
-  if ((size%__SIZEOF_LONG_DOUBLE__)!=0){
-    size = (size_t)(size-(size%4)+4);     
+  if ((size%__BIGGEST_ALIGNMENT__)!=0){
+    size = (size_t)(size-(size%__BIGGEST_ALIGNMENT__)+__BIGGEST_ALIGNMENT__);     
   }
 #endif
   data = heap->data;

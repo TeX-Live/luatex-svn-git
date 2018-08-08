@@ -205,7 +205,7 @@ extern void show_whatever(void);
 
 extern void initialize(void);   /* this procedure gets things started properly */
 
-extern int local_level;
+/*extern int local_level;*/
 
 extern void local_control(void);
 extern halfword local_scan_box(void);
