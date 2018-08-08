@@ -515,7 +515,7 @@ img_pageboxes[5] = lua_key_index(art); \
 #define lua_push_img_key(L,key)     lua_rawgeti(L, LUA_REGISTRYINDEX, img_parms[key] );
 #define lua_push_img_pagebox(L,box) lua_rawgeti(L, LUA_REGISTRYINDEX, img_pageboxes[box]);
 
-extern int lua_show_valid_list(lua_State *L, const char **list, int max);
+extern int lua_show_valid_list(lua_State *L, const char **list, int offset, int max);
 extern int lua_show_valid_keys(lua_State *L, int *list, int max);
 
 #define set_make_keys \

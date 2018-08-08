@@ -24,7 +24,7 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#define img_types_max 7
+#define img_types_max 8
 
 const char *img_types[] = {
     "none",
@@ -304,7 +304,7 @@ static int l_image_keys(lua_State * L)
 
 static int l_image_types(lua_State * L)
 {
-    return lua_show_valid_list(L, img_types, img_types_max);
+    return lua_show_valid_list(L, img_types, 0, img_types_max);
 }
 
 static int l_image_boxes(lua_State * L)
