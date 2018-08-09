@@ -21,6 +21,7 @@
 # Options:
 #      --jit       : also build luajittex
 #      --nojit     : don't build luajit 
+#      --buildtag= : build directory <- 'build'-<tag>
 #      --make      : only make, no make distclean; configure
 #      --parallel  : make -j 8 -l 8.0
 #      --nostrip   : do not strip binary
@@ -39,6 +40,7 @@
 #      --debug     : CFLAGS="-g -O0" --warnings=max --nostrip
 #      --debugopt  : CFLAGS="-g -O3" --warnings=max --nostrip
 #      --musl      : use musl libc (EXPERIMENTAL)
+#      --stripbin  : strip program to use (default strip)
 #      --tlopt     : option to pass to TeXLive configure
 $DEBUG
 #export CFLAGS="-D_FORTIFY_SOURCE=2 -O3"
@@ -70,6 +72,7 @@ fi
 BUILDJIT=FALSE
 BUILDLUA52=FALSE
 BUILDLUA53=TRUE
+BUILDTAG=
 ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
 WARNINGS=yes
@@ -84,6 +87,7 @@ JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-8}
 MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-8}
 TARGET_CC=gcc
 TARGET_TCFLAGS=
+STRIPBIN=
 USEMUSL=FALSE
 TEXLIVEOPT=
 
@@ -93,28 +97,30 @@ CXXFLAGS="$CXXFLAGS"
 
 until [ -z "$1" ]; do
   case "$1" in
-    --jit       ) BUILDJIT=TRUE     ;;
-    --nojit     ) BUILDJIT=FALSE     ;;
-    --make      ) ONLY_MAKE=TRUE     ;;
-    --nostrip   ) STRIP_LUATEX=FALSE ;;
-    --debugopt  ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-O3 -g -ggdb3 $CFLAGS" ; CXXFLAGS="-O3 -g -ggdb3 $CXXFLAGS"  ;;
-    --debug     ) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-O0 -g -ggdb3 $CFLAGS" ; CXXFLAGS="-O0 -g -ggdb3 $CXXFLAGS"  ;;
-    --clang     ) export CC=clang; export CXX=clang++ ; TARGET_CC=$CC ; CLANG=TRUE ;;
-    --warnings=*) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
-    --lua52     ) BUILDLUA52=TRUE    ;;
-    --nolua52   ) BUILDLUA52=FALSE   ;;
-    --lua53     ) BUILDLUA53=TRUE    ;;
-    --nolua53   ) BUILDLUA53=FALSE   ;;
-    --mingw     ) MINGWCROSS=TRUE    ;;
-    --mingw32   ) MINGWCROSS=TRUE    ;;
-    --mingw64   ) MINGWCROSS64=TRUE  ;;
-    --host=*    ) CONFHOST="$1"      ;;
-    --build=*   ) CONFBUILD="$1"     ;;
-    --parallel  ) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
-    --arch=*    ) MACCROSS=TRUE; ARCH=`echo $1 | sed 's/--arch=\(.*\)/\1/' ` ;;
-    --musl      ) USEMUSL=TRUE       ;; 
-    --tlopt=*   ) TEXLIVEOPT=`echo $1 | sed 's/--tlopt=\(.*\)/\1/' `      ;;
-    *           ) echo "ERROR: invalid build.sh parameter: $1"; exit 1       ;;
+    --arch=*		) MACCROSS=TRUE; ARCH=`echo $1 | sed 's/--arch=\(.*\)/\1/' ` ;;
+    --build=*		) CONFBUILD="$1"     ;;
+    --buildtag=*	) BUILDTAG="$1"      ;;
+    --clang		) export CC=clang; export CXX=clang++ ; TARGET_CC=$CC ; CLANG=TRUE ;;
+    --debug		) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-O0 -g -ggdb3 $CFLAGS" ; CXXFLAGS="-O0 -g -ggdb3 $CXXFLAGS"  ;;
+    --debugopt		) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-O3 -g -ggdb3 $CFLAGS" ; CXXFLAGS="-O3 -g -ggdb3 $CXXFLAGS"  ;;
+    --host=*		) CONFHOST="$1"      ;;
+    --jit		) BUILDJIT=TRUE      ;;
+    --lua52		) BUILDLUA52=TRUE    ;;
+    --lua53		) BUILDLUA53=TRUE    ;;
+    --make		) ONLY_MAKE=TRUE     ;;
+    --mingw		) MINGWCROSS=TRUE    ;;
+    --mingw32		) MINGWCROSS=TRUE    ;;
+    --mingw64		) MINGWCROSS64=TRUE  ;;
+    --musl		) USEMUSL=TRUE       ;; 
+    --nojit		) BUILDJIT=FALSE     ;;
+    --nolua52		) BUILDLUA52=FALSE   ;;
+    --nolua53		) BUILDLUA53=FALSE   ;;
+    --nostrip		) STRIP_LUATEX=FALSE ;;
+    --parallel		) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
+    --stripbin=*	) STRIPBIN="$1"      ;;
+    --tlopt=*		) TEXLIVEOPT=`echo $1 | sed 's/--tlopt=\(.*\)/\1/' `         ;;
+    --warnings=*	) WARNINGS=`echo $1 | sed 's/--warnings=\(.*\)/\1/' `        ;;
+    *			) echo "ERROR: invalid build.sh parameter: $1"; exit 1       ;;
   esac
   shift
 done
@@ -126,19 +132,19 @@ LUATEXEXE=luatex
 LUATEXEXE53=luatex53
 
 
+
 case `uname` in
-    MINGW*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
-   MINGW64*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
-  MINGW32*   ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
-  CYGWIN*    ) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
-  Darwin     ) STRIP="strip -u -r" ;;
+  CYGWIN*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+  Darwin	) STRIP="strip -u -r" ;;
+  MINGW*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+  MINGW32*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+  MINGW64*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
 esac
 
 WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
 
 B=build
 
-## Useful for cross-compilation for ARM
 if [ "x$CONFHOST" != "x" ]
 then
  B="build-$CONFHOST"
@@ -147,8 +153,14 @@ fi
 
 if [ "$CLANG" = "TRUE" ]
 then
-  B=build-clang
+  B="$B-clang"
 fi
+
+if [ "x$BUILDTAG" != "x" ]
+then
+  B="${BUILDTAG#--buildtag=}"
+fi
+
 
 OLDPATH=$PATH
 if [ "$MINGWCROSS64" = "TRUE" ]
@@ -234,6 +246,12 @@ fi
 # fi
 
 
+if [ "x$STRIPBIN" != "x" ]
+then
+ STRIP="${STRIPBIN#--stripbin=}"
+fi
+
+
 if [ "$STRIP_LUATEX" = "FALSE" ]
 then
     export CFLAGS
@@ -281,7 +299,7 @@ then
   LUA53ENABLE=
 fi
 
-
+#    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
 TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLAGS\
@@ -295,13 +313,11 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --enable-dump-share  \
     --enable-coremp  \
     --enable-web2c  \
-    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
     $LUA52ENABLE  $LUA53ENABLE  $JITENABLE \
     --without-system-cairo  \
     --without-system-pixman \
     --without-system-ptexenc \
     --without-system-kpathsea \
-    --without-system-poppler \
     --without-system-xpdf \
     --without-system-freetype \
     --without-system-freetype2 \
@@ -391,10 +407,8 @@ then
 fi
 if [ "$BUILDLUA52" = "FALSE" ]  && [ "$BUILDLUA53" = "TRUE" ]
 then
-    mv  "$B"/texk/web2c/$LUATEXEXE53 "$B"/texk/web2c/$LUATEXEXE
+    mv   "$B"/texk/web2c/$LUATEXEXE53 "$B"/texk/web2c/$LUATEXEXE
     ls -l "$B"/texk/web2c/$LUATEXEXE
 fi
-
-
 
 

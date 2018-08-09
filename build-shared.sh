@@ -80,6 +80,7 @@ CONFHOST=
 CONFBUILD=
 JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
 MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
+STRIPBIN=
 TARGET_CC=gcc
 TARGET_TCFLAGS=
 
@@ -106,6 +107,7 @@ until [ -z "$1" ]; do
     --host=*    ) CONFHOST="$1"      ;;
     --build=*   ) CONFBUILD="$1"     ;;
     --parallel  ) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
+    --stripbin=*) STRIPBIN="$1"      ;;
     --arch=*    ) MACCROSS=TRUE; ARCH=`echo $1 | sed 's/--arch=\(.*\)/\1/' ` ;;
     *           ) echo "ERROR: invalid build.sh parameter: $1"; exit 1       ;;
   esac
@@ -117,6 +119,10 @@ STRIP=strip
 LUATEXEXEJIT=luajittex
 LUATEXEXE=luatex
 LUATEXEXE53=luatex53
+
+
+
+
 
 case `uname` in
   MINGW64*   ) MINGW=TRUE ; LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
@@ -202,6 +208,13 @@ fi
 # fi
 
 
+if [ "x$STRIPBIN" != "x" ]
+then
+ STRIP="${STRIPBIN#--stripbin=}"
+fi
+
+
+
 if [ "$STRIP_LUATEX" = "FALSE" ]
 then
     export CFLAGS
@@ -273,7 +286,6 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     $LUA52ENABLE  $LUA53ENABLE  $JITENABLE \
     --without-system-ptexenc \
     --without-system-kpathsea \
-    --without-system-poppler \
     --without-system-xpdf \
     --without-system-freetype \
     --without-system-freetype2 \
