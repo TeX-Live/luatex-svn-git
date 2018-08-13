@@ -1143,7 +1143,7 @@ static void font_char_from_lua(lua_State * L, internal_font_number f, int i, int
                 sprintf(s,"%04X",(unsigned int) u);
                 set_charinfo_tounicode(co,s);
             } else {
-                char *s = malloc(9);
+                char *s = malloc(11);
                 u = u - 0x10000;
                 sprintf(s,"%04X%04X",(unsigned int) (floor(u/1024)+0xD800),(unsigned int) (u%1024+0xDC00));
                 set_charinfo_tounicode(co,s);
