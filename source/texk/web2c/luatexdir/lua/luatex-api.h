@@ -399,8 +399,10 @@ extern int l_dir_text_index_cancel [DIR_TEXT_SIZE];
 #define lua_push_dir_text(L,dir,sub) \
     if (dir < 0) { \
         lua_pushnil(L); \
+    } else if (sub) { \
+        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_cancel[dir]); \
     } else { \
-        lua_push_dir_text_normal(L, dir); \
+        lua_rawgeti(L, LUA_REGISTRYINDEX, l_dir_text_index_normal[dir]); \
     }
 
 #define lua_push_string_by_index(L,index)      lua_rawgeti(L, LUA_REGISTRYINDEX, index)

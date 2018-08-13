@@ -174,6 +174,7 @@ void initialize_commands(void)
     primitive_luatex("compoundhyphenmode", assign_int_cmd, int_base + compound_hyphen_mode_code, int_base);
     primitive_luatex("breakafterdirmode", assign_int_cmd, int_base + break_after_dir_mode_code, int_base);
     primitive_luatex("exceptionpenalty", assign_int_cmd, int_base + exception_penalty_code, int_base);
+    primitive_luatex("fixupboxesmode", assign_int_cmd, int_base + fixup_boxes_code, int_base);
 
     /*tex
 

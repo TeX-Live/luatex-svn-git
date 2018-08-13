@@ -307,6 +307,7 @@ the |number_regs| \.{\\dimen} registers.
 
 #  define copy_lua_input_nodes_code 115
 #  define suppress_primitive_error_code 116
+#  define fixup_boxes_code 117
 
 #  define math_option_code (suppress_primitive_error_code+1)
 
@@ -806,6 +807,8 @@ extern halfword last_cs_name;
 
 #define cur_lang_par                       int_par(cur_lang_code)
 #define cur_font_par                       equiv(cur_font_loc)
+
+#define fixup_boxes_par                    int_par(fixup_boxes_code)
 
 /* */
 

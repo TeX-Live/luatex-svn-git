@@ -1441,13 +1441,20 @@ void handle_right_brace(void)
         case math_left_group:
             extra_right_brace();
             break;
+        /*tex
+            When the right brace occurs at the end of an \.{\\hbox} or
+            \.{\\vbox} or \.{\\vtop} construction, the |package| routine
+            comes into action. We might also have to finish a paragraph that
+            hasn't ended.
+        */
         case hbox_group:
-            /*tex
-                When the right brace occurs at the end of an \.{\\hbox} or
-                \.{\\vbox} or \.{\\vtop} construction, the |package| routine
-                comes into action. We might also have to finish a paragraph that
-                hasn't ended.
-            */
+            if (fixup_boxes_par) {
+                /*tex
+                    This is unofficial! Fixing up (also elsewhere) might become default
+                    some day but for a while I will test this in ConTeXt.
+                */
+                fixup_directions_only();
+            }
             package(0);
             break;
         case adjusted_hbox_group:
@@ -3298,6 +3305,30 @@ void fixup_directions(void)
             /*tex Add local paragraph node. */
             tail_append(make_local_par_node(hmode_par_par_code));
         }
+    }
+}
+
+/*tex
+
+    This is experimental and needs more checking!
+
+*/
+
+void fixup_directions_only(void)
+{
+    int temp_no_dirs = no_local_dirs_par;
+    int temporary_dir = text_direction_par;
+    if (dir_level(text_dir_ptr) == cur_level) {
+        /* Remove from |text_dir_ptr|. */
+        halfword text_dir_tmp = vlink(text_dir_ptr);
+        flush_node(text_dir_ptr);
+        text_dir_ptr = text_dir_tmp;
+    }
+    if (temp_no_dirs != 0) {
+        /* Add local dir node. */
+        tail_append(new_dir(text_direction_par));
+        dir_dir(tail) = temporary_dir;
+        subtype(tail) = cancel_dir;
     }
 }
 

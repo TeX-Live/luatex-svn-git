@@ -151,6 +151,7 @@ extern void do_endv(void);
 extern void cs_error(void);
 extern void prefixed_command(void);
 extern void fixup_directions(void);
+extern void fixup_directions_only(void);
 
 
 /* Assignments from Lua need helpers. */
