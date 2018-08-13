@@ -1030,6 +1030,18 @@ static void ensure_pdf_header_written(PDF pdf)
     fix_pdf_draftmode(pdf);
     /*tex Write \PDF\ header */
     pdf_printf(pdf, "%%PDF-%d.%d\n", pdf->major_version, pdf->minor_version);
+    /* Some binary crap. */
+    pdf_out(pdf, '%');
+    pdf_out(pdf, 'L' + 128);
+    pdf_out(pdf, 'U' + 128);
+    pdf_out(pdf, 'A' + 128);
+    pdf_out(pdf, 'T' + 128);
+    pdf_out(pdf, 'E' + 128);
+    pdf_out(pdf, 'X' + 128);
+    pdf_out(pdf, 'P' + 128);
+    pdf_out(pdf, 'D' + 128);
+    pdf_out(pdf, 'F' + 128);
+    pdf_out(pdf, '\n');
 }
 
 void ensure_output_state(PDF pdf, output_state s)
