@@ -3215,8 +3215,21 @@ static int tex_save_box_resource(lua_State * L)
     int type = 0;
     int margin = pdf_xform_margin;
     boolean immediate = false;
+    /* more or less same as scanner variant */
+    if (lua_type(L,1) == LUA_TNUMBER) {
+        halfword boxnumber = lua_tointeger(L,1);
+        boxdata = box(boxnumber);
+        box(boxnumber) = null;
+    } else {
+        boxdata = nodelist_from_lua(L,1);
+        if (type(boxdata) != hlist_node && type(boxdata) != vlist_node) {
+            normal_error("pdf backend", "xforms can only be used with a box or [h|v]list");
+        }
+    }
+    if (boxdata == null) {
+        normal_error("pdf backend", "xforms cannot be used with a void box or empty [h|v]list");
+    }
     /* box attributes resources */
-    halfword boxnumber = lua_tointeger(L,1);
     if (lua_type(L,2) == LUA_TSTRING) {
         lua_pushvalue(L, 2);
         attributes = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -3234,20 +3247,6 @@ static int tex_save_box_resource(lua_State * L)
     if (lua_type(L,6) == LUA_TNUMBER) {
         margin = lua_tointeger(L, 6);
     }
-    /* more or less same as scanner variant */
-    if (lua_type(L,1) == LUA_TNUMBER) {
-        halfword boxnumber = lua_tointeger(L,1);
-        boxdata = box(boxnumber);
-        box(boxnumber) = null;
-    } else {
-        boxdata = nodelist_from_lua(L,1);
-        if (type(boxdata) != hlist_node && type(boxdata) != vlist_node) {
-            normal_error("pdf backend", "xforms can only be used with a box or [h|v]list");
-        }
-    }
-    if (boxdata == null) {
-        normal_error("pdf backend", "xforms cannot be used with a void box or empty [h|v]list");
-    }
     static_pdf->xform_count++;
     index = pdf_create_obj(static_pdf, obj_type_xform, static_pdf->xform_count);
     set_obj_data_ptr(static_pdf, index, pdf_get_mem(static_pdf, pdfmem_xform_size));
@@ -3261,7 +3260,6 @@ static int tex_save_box_resource(lua_State * L)
     set_obj_xform_depth(static_pdf, index, depth(boxdata));
     set_obj_xform_type(static_pdf, index, type);
     set_obj_xform_margin(static_pdf, index, margin);
-    box(boxnumber) = null;
     last_saved_box_index = index;
     lua_pushinteger(L, index);
     if (immediate) {
