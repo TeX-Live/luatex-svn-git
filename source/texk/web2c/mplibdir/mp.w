@@ -34685,8 +34685,9 @@ extreme cases so it may have to be shortened on some systems.
 
 @<Use |c| to compute the file extension |s|@>=
 {
-  s = xmalloc (7, 1);
-  mp_snprintf (s, 7, ".%i", (int) c);
+  s = xmalloc (12, 1);
+  mp_snprintf (s, 12, ".%i", (int) c);
+  s[7]='\0';
 }
 
 

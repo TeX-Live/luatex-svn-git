@@ -910,7 +910,7 @@ void check_outer_validity(void)
                 "you'd better type `E' or `X' now and fix your file.",
                 NULL
             };
-            char errmsg[256];
+            char errmsg[318];
             const char *startmsg;
             const char *scannermsg;
             /*tex
@@ -967,7 +967,7 @@ void check_outer_validity(void)
                     break;
             }
             begin_token_list(p, inserted);
-            snprintf(errmsg, 255, "%s while scanning %s of %s", startmsg, scannermsg, cs_to_string(warning_index));
+            snprintf(errmsg, 318, "%s while scanning %s of %s", startmsg, scannermsg, cs_to_string(warning_index));
             tex_error(errmsg, errhlp);
         } else {
             char errmsg[256];
