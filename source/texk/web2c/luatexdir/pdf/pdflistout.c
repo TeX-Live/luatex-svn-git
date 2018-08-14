@@ -230,6 +230,34 @@ static halfword calculate_width_to_enddir(halfword p, real cur_glue, scaled cur_
 
 */
 
+static void handle_backend_whatsit(PDF pdf, halfword p, halfword parent_box, scaledpos cur)
+{
+    if (output_mode_used == OMODE_PDF) {
+        switch (subtype(p)) {
+            case pdf_literal_node:
+            case pdf_save_node:
+            case pdf_restore_node:
+            case pdf_setmatrix_node:
+            case pdf_colorstack_node:
+            case pdf_refobj_node:
+            case pdf_end_link_node:
+            case pdf_end_thread_node:
+                backend_out_whatsit[subtype(p)](pdf, p);
+                break;
+            case pdf_annot_node:
+            case pdf_start_link_node:
+            case pdf_dest_node:
+            case pdf_start_thread_node:
+            case pdf_thread_node:
+                backend_out_whatsit[subtype(p)](pdf, p, parent_box, cur);
+                break;
+            default:
+                /*tex We ignore bad ones. */
+                break;
+        }
+    }
+}
+
 void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
 {
     /*tex the position structure local within this function */
@@ -658,7 +686,7 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                                 break;
                         }
                     } else {
-                        backend_out_whatsit[subtype(p)] (pdf, p);
+                        handle_backend_whatsit(pdf, p, this_box, cur);
                     }
                     break;
                 case margin_kern_node:
@@ -1041,7 +1069,7 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
                             break;
                     }
                 } else {
-                    backend_out_whatsit[subtype(p)] (pdf, p);
+                    handle_backend_whatsit(pdf, p, this_box, cur);
                 }
                 break;
             case glyph_node:
