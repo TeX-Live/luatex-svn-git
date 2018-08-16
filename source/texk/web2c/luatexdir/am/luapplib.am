@@ -50,8 +50,6 @@ libluapplib_sources = \
 	luatexdir/luapplib/ppload.h \
 	luatexdir/luapplib/ppstream.c \
 	luatexdir/luapplib/ppstream.h \
-	luatexdir/luapplib/pptest1.c \
-	luatexdir/luapplib/pptest2.c \
 	luatexdir/luapplib/ppxref.c \
 	luatexdir/luapplib/ppxref.h \
 	luatexdir/luapplib/util/utilbasexx.c \

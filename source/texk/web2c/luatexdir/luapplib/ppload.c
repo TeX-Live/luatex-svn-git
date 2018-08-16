@@ -19,7 +19,11 @@ const char * ppobj_kind[] = { "none", "null", "bool", "integer", "number", "name
 static const char * ppref_str (ppuint refnumber, ppuint refversion)
 {
 	static char buffer[MAX_INT_DIGITS + 1 + MAX_INT_DIGITS + 1 + 1 + 1];
+#if defined(MSVC64)|| defined(MINGW64)
 	sprintf(buffer, PPUINTF " " PPUINTF " R", refnumber, refversion);
+#else
+	sprintf(buffer, PPUINTF " " PPUINTF " R", (unsigned long)(refnumber), (unsigned long)(refversion));
+#endif
 	return buffer;
 }
 

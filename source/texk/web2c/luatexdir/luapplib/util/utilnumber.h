@@ -42,7 +42,7 @@
 #  define UINTLWF UINT64F
 #else // 32bit or sane 64bit (LP64)
 #  define intlw_t long
-#  define uintlw_t unsigned long
+#  define uintlw_t size_t /*unsigned long*/
 #  define INTLW(N) N##L
 #  define UINTLW(N) N##UL
 #  define INTLWF "%ld"
