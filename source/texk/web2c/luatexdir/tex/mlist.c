@@ -1206,7 +1206,9 @@ static void stack_glue_into_box(pointer b, scaled min, scaled max) {
     halfword p = new_glue(zero_glue);
     width(p) = min;
     stretch(p) = max - min;
-    reset_attributes(p, node_attr(b));
+    if (node_attr(b) != null) {
+        reset_attributes(p, node_attr(b));
+    }
     if (type(b) == vlist_node) {
         try_couple_nodes(p,list_ptr(b));
         list_ptr(b) = p;
@@ -1215,8 +1217,9 @@ static void stack_glue_into_box(pointer b, scaled min, scaled max) {
         if (q == null) {
             list_ptr(b) = p;
         } else {
-            while (vlink(q) != null)
+            while (vlink(q) != null) {
                 q = vlink(q);
+            }
             couple_nodes(q,p);
         }
     }
@@ -1244,8 +1247,30 @@ static void stack_glue_into_box(pointer b, scaled min, scaled max) {
 
 int cur_size;
 
-static pointer get_delim_box(pointer q, extinfo * ext, internal_font_number f, scaled v,
-    pointer att, int cur_style, int boxtype)
+static pointer get_delim_box(internal_font_number fnt, halfword chr, scaled v, scaled min_overlap, int horizontal, halfword att)
+{
+    int callback_id = callback_defined(make_extensible_callback);
+    if (callback_id > 0) {
+        /*tex
+            This call is not optimized as it hardly makes sense to use it ... special
+            and a it of feature creep too.
+        */
+        halfword b = null;
+        run_callback(callback_id, "ddddbN->N",fnt,chr,v,min_overlap,horizontal,att,&b);
+        if (b == null) {
+            /*tex
+                We see this as a signal to do it the \TEX\ way.
+            */
+        } else if (type(b) == hlist_node || type(b) == vlist_node) {
+            return b;
+        } else {
+            formatted_error("fonts","invalid extensible character %i created for font %i, [h|v]list expected",chr,fnt);
+        }
+    }
+    return make_extensible(fnt, chr, v, min_overlap, horizontal, att);
+}
+
+pointer make_extensible(internal_font_number fnt, halfword chr, scaled v, scaled min_overlap, int horizontal, halfword att)
 {
     /*tex new box */
     pointer b;
@@ -1254,7 +1279,8 @@ static pointer get_delim_box(pointer q, extinfo * ext, internal_font_number f, s
     /*tex amount of possible shrink in the stack */
     scaled s_max;
     extinfo *cur;
-    scaled min_overlap, prev_overlap;
+    extinfo *ext;
+    scaled prev_overlap;
     /*tex a temporary counter number of extensible pieces */
     int i;
     /*tex number of times to repeat each repeatable item in |ext| */
@@ -1262,16 +1288,25 @@ static pointer get_delim_box(pointer q, extinfo * ext, internal_font_number f, s
     int num_extenders, num_normal;
     scaled a, c, d;
     b = new_null_box();
-    type(b) = (quarterword) boxtype;
-    reset_attributes(b, att);
-    min_overlap = connector_overlap_min(cur_style);
-    assert(min_overlap >= 0);
     with_extenders = -1;
     num_extenders = 0;
     num_normal = 0;
+    if (min_overlap < 0) {
+        min_overlap = 0;
+    }
+    if (horizontal) {
+        type(b) = (quarterword) hlist_node;
+        ext = get_charinfo_hor_variants(char_info(fnt,chr));
+    } else {
+        type(b) = (quarterword) vlist_node;
+        ext = get_charinfo_vert_variants(char_info(fnt,chr));
+    }
+    if (att != null) {
+        reset_attributes(b,att);
+    }
     cur = ext;
     while (cur != NULL) {
-        if (!char_exists(f, cur->glyph)) {
+        if (!char_exists(fnt, cur->glyph)) {
             const char *hlp[] = {
                 "Each glyph part in an extensible item should exist in the font.",
                 "I will give up trying to find a suitable size for now. Fix your font!",
@@ -1343,11 +1378,14 @@ static pointer get_delim_box(pointer q, extinfo * ext, internal_font_number f, s
                 a = cur->advance;
                 if (a == 0) {
                     /*tex for tfm fonts */
-                    if (boxtype == vlist_node)
-                        a = height_plus_depth(f, cur->glyph);
-                    else
-                        a = char_width(f, cur->glyph);
-                    assert(a >= 0);
+                    if (horizontal) {
+                        a = char_width(fnt, cur->glyph);
+                    } else {
+                        a = height_plus_depth(fnt, cur->glyph);
+                    }
+                    if (a < 0) {
+                        formatted_error("fonts","bad extensible character %i in font %i",chr,fnt);
+                    }
                 }
                 b_max += a - c;
                 prev_overlap = cur->end_overlap;
@@ -1362,11 +1400,14 @@ static pointer get_delim_box(pointer q, extinfo * ext, internal_font_number f, s
                     a = cur->advance;
                     if (a == 0) {
                         /*tex for tfm fonts */
-                        if (boxtype == vlist_node)
-                            a = height_plus_depth(f, cur->glyph);
-                        else
-                            a = char_width(f, cur->glyph);
-                        assert(a >= 0);
+                        if (horizontal) {
+                            a = char_width(fnt, cur->glyph);
+                        } else {
+                            a = height_plus_depth(fnt, cur->glyph);
+                        }
+                        if (a < 0) {
+                            formatted_error("fonts","bad extensible character %i in font %i",chr,fnt);
+                        }
                     }
                     b_max += a - c;
                     prev_overlap = cur->end_overlap;
@@ -1397,7 +1438,7 @@ static pointer get_delim_box(pointer q, extinfo * ext, internal_font_number f, s
                 s_max += (-c) - (-d);
                 b_max -= d;
             }
-            b_max += stack_into_box(b, f, cur->glyph);
+            b_max += stack_into_box(b, fnt, cur->glyph);
             prev_overlap = cur->end_overlap;
             i--;
         } else {
@@ -1414,7 +1455,7 @@ static pointer get_delim_box(pointer q, extinfo * ext, internal_font_number f, s
                     s_max += (-c) - (-d);
                     b_max -= d;
                 }
-                b_max += stack_into_box(b, f, cur->glyph);
+                b_max += stack_into_box(b, fnt, cur->glyph);
                 prev_overlap = cur->end_overlap;
                 i--;
             }
@@ -1432,10 +1473,10 @@ static pointer get_delim_box(pointer q, extinfo * ext, internal_font_number f, s
         glue_set(b) = unfloat(d/(float) s_max);
         b_max += d;
     }
-    if (boxtype == vlist_node) {
-        height(b) = b_max;
-    } else {
+    if (horizontal) {
         width(b) = b_max;
+    } else {
+        height(b) = b_max;
     }
     return b;
 }
@@ -1574,9 +1615,9 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
                        ||  ( flat && (ext = get_charinfo_hor_variants (char_info(f,c))) != NULL))) {
             parts_done = true;
             if (flat) {
-                b = get_delim_box(d, ext, f, v, att, cur_style, hlist_node);
+                b = get_delim_box(f, c, v, connector_overlap_min(cur_style), 1, att);
             } else {
-                b = get_delim_box(d, ext, f, v, att, cur_style, vlist_node);
+                b = get_delim_box(f, c, v, connector_overlap_min(cur_style), 0, att);
             }
             if (delta != NULL) {
                 if (do_new_math(f)) {
@@ -2571,7 +2612,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
         while (1) {
             if ((char_tag(f, c) == ext_tag) && ((ext = get_charinfo_hor_variants(char_info(f, c))) != NULL)) {
                 /*tex a bit weird for an overlay but anyway, here we don't need a factor as we don't step */
-                y = get_delim_box(q, ext, f, w, node_attr(attr_p), cur_style, hlist_node);
+                y = get_delim_box(f, c, w, connector_overlap_min(cur_style), 1, node_attr(attr_p));
                 break;
             } else if (char_tag(f, c) != list_tag) {
                 break;

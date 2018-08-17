@@ -295,6 +295,14 @@ int get_luatexversion(void)
     return luatex_version;
 }
 
+/*tex the number of pages that have been shipped out */
+
+int total_pages = 0;
+
+/*tex recent outputs that didn't ship anything out */
+
+int dead_cycles = 0;
+
 str_number get_luatexrevision(void)
 {
     return luatex_revision;

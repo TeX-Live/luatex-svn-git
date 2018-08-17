@@ -73,6 +73,7 @@ typedef enum {
     wrapup_run_callback,
     new_graf_callback,
     page_objnum_provider_callback,
+    make_extensible_callback,
     total_callbacks,
 } callback_callback_types;
 

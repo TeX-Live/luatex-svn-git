@@ -919,26 +919,10 @@ void char_warning(internal_font_number f, int c)
 
 void wrapup_backend(void) {
     ensure_output_state(static_pdf, ST_OMODE_FIX);
-    switch (output_mode_used) {
-        case OMODE_NONE:
-            print_err(" ==> Fatal error occurred, no FMT file produced!");
-            break;
-        case OMODE_PDF:
-            if (history == fatal_error_stop) {
-                remove_pdffile(static_pdf); /* will become remove_output_file */
-                print_err(" ==> Fatal error occurred, no output PDF file produced!");
-            } else {
-                finish_pdf_file(static_pdf, luatex_version, get_luatexrevision());
-            }
-            break;
-        case OMODE_DVI:
-            if (history == fatal_error_stop) {
-                print_err(" ==> Fatal error occurred, bad output DVI file produced!");
-                finish_dvi_file(static_pdf, luatex_version, get_luatexrevision());
-            } else {
-                finish_dvi_file(static_pdf, luatex_version, get_luatexrevision());
-            }
-            break;
+    if (output_mode_used == OMODE_NONE) {
+        print_err(" ==> Fatal error occurred, no FMT file produced!");
+    } else {
+        backend_out_control[backend_control_finish_file](static_pdf,history == fatal_error_stop);
     }
 }
 

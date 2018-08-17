@@ -46,7 +46,6 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
     ensure_output_state(pdf, ST_HEADER_WRITTEN);
     /*tex This is only for complaining if \.{\\outputmode} has changed: */
     fix_o_mode();
-    init_backend_functionpointers(output_mode_used);
     pdf->f_cur = null_font;
     /*tex
         Start sheet {\sl Sync\TeX} information record. We assume that
@@ -167,20 +166,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
             Think in upright page/paper coordinates (page origin = lower left edge).
             First preset |refpoint.pos| to the DVI origin (near upper left page edge).
         */
-        switch (output_mode_used) {
-            case OMODE_DVI:
-                /*tex (HH) how can we end up here? */
-                refpoint.pos.h = one_true_inch;
-                refpoint.pos.v = pdf->page_size.v - one_true_inch;
-                dvi = refpoint.pos;
-                break;
-            case OMODE_PDF:
-                refpoint.pos.h = pdf_h_origin;
-                refpoint.pos.v = pdf->page_size.v - pdf_v_origin;
-                break;
-            default:
-                normal_error("pdf backend", "unknown output mode");
-        }
+        backend_out_control[backend_control_set_reference_point](pdf,&refpoint);
         /*tex
             Then shift |refpoint.pos| of the DVI origin depending on the
             |page_direction| within the upright (TLT) page coordinate system.
@@ -256,16 +242,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         should go. First we register the poisition for \.{\\gleaders}.
     */
     shipbox_refpos = pdf->posstruct->pos;
-    switch (output_mode_used) {
-        case OMODE_DVI:
-            dvi_begin_page(pdf);
-            break;
-        case OMODE_PDF:
-            pdf_begin_page(pdf);
-            break;
-        default:
-            normal_error("pdf backend", "unknown output mode");
-    }
+    backend_out_control[backend_control_begin_page](pdf);
     rule_callback_id = callback_defined(process_rule_callback);
     switch (type(p)) {
         case vlist_node:
@@ -281,16 +258,7 @@ void ship_out(PDF pdf, halfword p, shipping_mode_e shipping_mode)
         total_pages++;
     cur_s = -1;
     /*tex Finish shipping */
-    switch (output_mode_used) {
-        case OMODE_DVI:
-            dvi_end_page(pdf);
-            break;
-        case OMODE_PDF:
-            pdf_end_page(pdf);
-            break;
-        default:
-            normal_error("pdf backend", "unknown output mode");
-    }
+    backend_out_control[backend_control_end_page](pdf);
   DONE:
     if ((tracing_output_par <= 0) && (post_callback_id == 0) && shipping_mode == SHIPPING_PAGE) {
         print_char(']');

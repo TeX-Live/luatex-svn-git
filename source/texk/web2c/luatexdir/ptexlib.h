@@ -153,7 +153,8 @@ size_t          T##_limit
 #  include "tex/expand.h"
 #  include "tex/conditional.h"
 
-#  include "pdf/pdftypes.h" /* the backend data structure, shared between dvi and pdf */
+#  include "pdf/pdftypes.h" /* the backend data structure, shared between dvi and pdf (might move to |tex/backend| */
+#  include "tex/backend.h"  /* more backend data  */
 
 #  include "synctex.h"
 

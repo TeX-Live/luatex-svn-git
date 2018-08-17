@@ -23,80 +23,15 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 #define kern_width(q) width(q) + ex_kern(q)
 
-/*tex The next variable is accessed from \LUA: */
+#define billion 1000000000.0
 
-/* pos_info_structure pos_info; */
-
-static backend_struct *backend = NULL;
-backend_function *backend_out, *backend_out_whatsit;
-
-static void missing_backend_function(PDF pdf, halfword p)
-{
-    const char *n = get_node_name(type(p), subtype(p));
-    if (type(p) == whatsit_node)
-        formatted_error("pdf backend","no output function for whatsit %s",n);
-    else
-        formatted_error("pdf backend","no output function for node %s",n);
-}
-
-static void init_none_backend_functions(void)
-{
-    backend_struct *p = &backend[OMODE_NONE];
-    p->name = strdup("(None)");
-}
-
-static void init_pdf_backend_functions(void)
-{
-    backend_struct *p = &backend[OMODE_PDF];
-    p->name = strdup("PDF");
-    p->node_fu[rule_node] = &pdf_place_rule;
-    p->node_fu[glyph_node] = &pdf_place_glyph;
-    p->whatsit_fu[special_node] = &pdf_special;
-    p->whatsit_fu[pdf_literal_node] = &pdf_out_literal;
-    p->whatsit_fu[pdf_refobj_node] = &pdf_ref_obj;
-    p->whatsit_fu[pdf_annot_node] = &do_annot;
-    p->whatsit_fu[pdf_start_link_node] = &do_link;
-    p->whatsit_fu[pdf_end_link_node] = &end_link;
-    p->whatsit_fu[pdf_dest_node] = &do_dest;
-    p->whatsit_fu[pdf_thread_node] = &do_thread;
-    p->whatsit_fu[pdf_end_thread_node] = &end_thread;
-    p->whatsit_fu[late_lua_node] = &late_lua;
-    p->whatsit_fu[pdf_colorstack_node] = &pdf_out_colorstack;
-    p->whatsit_fu[pdf_setmatrix_node] = &pdf_out_setmatrix;
-    p->whatsit_fu[pdf_save_node] = &pdf_out_save;
-    p->whatsit_fu[pdf_restore_node] = &pdf_out_restore;
-}
-
-static void init_dvi_backend_functions(void)
-{
-    backend_struct *p = &backend[OMODE_DVI];
-    p->name = strdup("DVI");
-    p->node_fu[rule_node] = &dvi_place_rule;
-    p->node_fu[glyph_node] = &dvi_place_glyph;
-    p->whatsit_fu[special_node] = &dvi_special;
-    p->whatsit_fu[late_lua_node] = &late_lua;
-}
-
-void init_backend_functionpointers(output_mode o_mode)
-{
-    int i, j;
-    if (backend == NULL) {
-        backend = xmalloc((MAX_OMODE + 1) * sizeof(backend_struct));
-        for (i = 0; i <= MAX_OMODE; i++) {
-            backend[i].node_fu = xmalloc((MAX_NODE_TYPE + 1) * sizeof(backend_function));
-            backend[i].whatsit_fu = xmalloc((MAX_WHATSIT_TYPE + 1) * sizeof(backend_function));
-            for (j = 0; j < MAX_NODE_TYPE + 1; j++)
-                backend[i].node_fu[j] = &missing_backend_function;
-            for (j = 0; j < MAX_WHATSIT_TYPE + 1; j++)
-                backend[i].whatsit_fu[j] = &missing_backend_function;
-        }
-        init_none_backend_functions();
-        init_dvi_backend_functions();
-        init_pdf_backend_functions();
-    }
-    backend_out = backend[o_mode].node_fu;
-    backend_out_whatsit = backend[o_mode].whatsit_fu;
-}
+#define vet_glue(A) do {         \
+    glue_temp=A;                 \
+    if (glue_temp>billion)       \
+      glue_temp=billion;         \
+    else if (glue_temp<-billion) \
+      glue_temp=-billion;        \
+  } while (0)
 
 /*tex
 
@@ -279,6 +214,8 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     int g_order;
     /*tex selects type of glue */
     int g_sign;
+    /*tex glue variables */
+    int lq, lr;
     /*tex current position in the hlist */
     halfword p, q;
     /*tex the leader box being replicated */
@@ -299,9 +236,9 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     /*tex index to scan |pdf_link_stack| */
     int i;
     /*tex DVI! \.{DVI} byte location upon entry */
-    int save_loc = 0;
+    int saved_loc = 0;
     /*tex DVI! what |dvi| should pop to */
-    scaledpos save_dvi = { 0, 0 };
+    scaledpos saved_pos = { 0, 0 };
     int synctex = synctex_par ;
     scaled rleft, rright;
     g_order = glue_order(this_box);
@@ -313,21 +250,14 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     localpos.pos = refpos->pos;
     localpos.dir = box_dir(this_box);
     cur_s++;
-    if (cur_s > max_push)
-        max_push = cur_s;
-    if (output_mode_used == OMODE_DVI) {
-        if (cur_s > 0) {
-            dvi_push();
-            save_dvi = dvi;
-        }
-        save_loc = dvi_offset + dvi_ptr;
-    }
+    backend_out_control[backend_control_push_list](pdf,&saved_pos,&saved_loc);
     for (i = 1; i <= pdf->link_stack_ptr; i++) {
         if (pdf->link_stack[i].nesting_level == cur_s)
             append_link(pdf, this_box, cur, (small_number) i);
     }
-    if (synctex)
+    if (synctex) {
         synctexhlist(this_box);
+    }
     while (p != null) {
         if (is_char_node(p)) {
             do {
@@ -765,15 +695,10 @@ void hlist_out(PDF pdf, halfword this_box, int rule_callback_id)
             synch_pos_with_cur(pdf->posstruct, refpos, cur);
         }
     }
-    if (synctex)
+    if (synctex) {
         synctextsilh(this_box);
-    if (output_mode_used == OMODE_DVI) {
-        prune_movements(save_loc);
-        if (cur_s > 0) {
-            dvi_pop(save_loc);
-            dvi = save_dvi;
-        }
     }
+    backend_out_control[backend_control_pop_list](pdf,&saved_pos,&saved_loc);
     cur_s--;
     pdf->posstruct = refpos;
 }
@@ -799,6 +724,8 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     glue_ord g_order;
     /*tex selects type of glue */
     int g_sign;
+    /*tex glue variables */
+    int lq, lr;
     /*tex current position in the vlist */
     halfword p;
     /*tex temp */
@@ -819,9 +746,9 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     scaled cur_g = 0;
     scaled_whd rule;
     /*tex \DVI\ byte location upon entry */
-    int save_loc = 0;
+    int saved_loc = 0;
     /*tex \DVI\ what |dvi| should pop to */
-    scaledpos save_dvi = { 0, 0 };
+    scaledpos saved_pos = { 0, 0 };
     int synctex = synctex_par ;
     int rleft, rright;
     g_order = (glue_ord) glue_order(this_box);
@@ -836,17 +763,10 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
     localpos.dir = box_dir(this_box);
     synch_pos_with_cur(pdf->posstruct, refpos, cur);
     cur_s++;
-    if (cur_s > max_push)
-        max_push = cur_s;
-    if (output_mode_used == OMODE_DVI) {
-        if (cur_s > 0) {
-            dvi_push();
-            save_dvi = dvi;
-        }
-        save_loc = dvi_offset + dvi_ptr;
-    }
-    if (synctex)
+    backend_out_control[backend_control_push_list](pdf,&saved_pos,&saved_loc);
+    if (synctex) {
         synctexvlist(this_box);
+    }
     /*tex Create thread for the current vbox if needed. */
     check_running_thread(pdf, this_box, cur);
     while (p != null) {
@@ -1143,16 +1063,10 @@ void vlist_out(PDF pdf, halfword this_box, int rule_callback_id)
         p = vlink(p);
         synch_pos_with_cur(pdf->posstruct, refpos, cur);
     }
-    if (synctex)
+    if (synctex) {
         synctextsilv(this_box);
-
-    if (output_mode_used == OMODE_DVI) {
-        prune_movements(save_loc);
-        if (cur_s > 0) {
-            dvi_pop(save_loc);
-            dvi = save_dvi;
-        }
     }
+    backend_out_control[backend_control_pop_list](pdf,&saved_pos,&saved_loc);
     cur_s--;
     pdf->posstruct = refpos;
 }

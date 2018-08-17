@@ -217,8 +217,6 @@ extern char *convertStringToPDFString(const char *in, int len);
 extern void initialize_start_time(PDF);
 extern char *getcreationdate(PDF);
 
-extern void check_o_mode(PDF pdf, const char *s, int o_mode, boolean errorflag);
-
 extern void set_job_id(PDF, int, int, int, int);
 extern char *get_resname_prefix(PDF);
 extern void pdf_begin_page(PDF pdf);
@@ -226,6 +224,10 @@ extern void pdf_end_page(PDF pdf);
 extern void print_pdf_table_string(PDF pdf, const char *s);
 extern const char *get_pdf_table_string(const char *s);
 extern int get_pdf_table_bool(PDF, const char *, int);
+
+extern void pdf_open_file(PDF pdf);
+extern void pdf_write_header(PDF pdf);
+extern void pdf_finish_file(PDF pdf, int fatal_error);
 
 extern void ensure_output_state(PDF pdf, output_state s);
 extern PDF init_pdf_struct(PDF pdf);
@@ -236,8 +238,18 @@ extern halfword pdf_catalog_openaction;
 extern halfword pdf_names_toks;         /* additional keys of Names dictionary */
 extern halfword pdf_trailer_toks;       /* additional keys of Trailer dictionary */
 extern void scan_pdfcatalog(PDF pdf);
-extern void finish_pdf_file(PDF pdf, int luatex_version, str_number luatex_revision);
 
 extern shipping_mode_e global_shipping_mode;
+
+extern void pdf_push_list(PDF pdf, scaledpos *saved_pos, int *saved_loc);
+extern void pdf_pop_list(PDF pdf, scaledpos *saved_pos, int *saved_loc);
+
+extern void pdf_set_reference_point(PDF pdf, posstructure *refpoint);
+
+/* not pdf specific */
+
+extern void check_o_mode(PDF pdf, const char *s, int o_mode, boolean errorflag);
+extern void ensure_output_file_open(PDF pdf, const char *ext);
+
 
 #endif

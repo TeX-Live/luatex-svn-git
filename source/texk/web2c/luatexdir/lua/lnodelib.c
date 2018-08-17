@@ -8694,6 +8694,34 @@ static int lua_nodelib_direct_prepend_prevdepth(lua_State * L)
     return 2;
 }
 
+static int lua_nodelib_make_extensible(lua_State * L)
+{
+    int top = lua_gettop(L);
+    if (top >= 3) {
+        halfword fnt = lua_tointeger(L,1);
+        halfword chr = lua_tointeger(L,2);
+        halfword size = lua_tointeger(L,3);
+        halfword overlap = 65536 ;
+        halfword attlist = null;
+        halfword b = null;
+        int horizontal = 0;
+        if (top >= 4) {
+            overlap = lua_tointeger(L,4);
+        }
+        if (top >= 5) {
+            horizontal = lua_toboolean(L,5);
+        }
+        if (top >= 6) {
+            attlist = *check_isnode(L, 6);
+        }
+        b = make_extensible(fnt,chr,size,overlap,horizontal,attlist);
+        nodelib_pushlist(L,b);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
 /* done */
 
 static const struct luaL_Reg nodelib_p[] = {
@@ -8935,9 +8963,9 @@ static const struct luaL_Reg nodelib_f[] = {
     {"unprotect_glyphs", lua_nodelib_unprotect_glyphs},
     {"unprotect_glyph", lua_nodelib_unprotect_glyph},
     {"unset_attribute", lua_nodelib_unset_attribute},
-    {"setglue",lua_nodelib_set_glue},
-    {"getglue",lua_nodelib_get_glue},
-    {"is_zero_glue",lua_nodelib_is_zero_glue},
+    {"setglue", lua_nodelib_set_glue},
+    {"getglue", lua_nodelib_get_glue},
+    {"is_zero_glue", lua_nodelib_is_zero_glue},
     {"usedlist", lua_nodelib_usedlist},
     {"vpack", lua_nodelib_vpack},
     {"whatsits", lua_nodelib_whatsits},
@@ -8945,16 +8973,17 @@ static const struct luaL_Reg nodelib_f[] = {
     /* experiment */
  /* {"attributes_to_table",lua_nodelib_attributes_to_table}, */
     /* experiment */
-    {"set_properties_mode",lua_nodelib_properties_set_mode},
-    {"flush_properties_table",lua_nodelib_properties_flush_table},
-    {"get_properties_table",lua_nodelib_properties_get_table},
+    {"set_properties_mode", lua_nodelib_properties_set_mode},
+    {"flush_properties_table", lua_nodelib_properties_flush_table},
+    {"get_properties_table", lua_nodelib_properties_get_table},
     {"getproperty", lua_nodelib_get_property},
     {"setproperty", lua_nodelib_set_property},
     {"effective_glue", lua_nodelib_effective_glue},
     {"check_discretionary", lua_nodelib_check_discretionary},
     {"check_discretionaries", lua_nodelib_check_discretionaries},
-    {"flatten_discretionaries",lua_nodelib_flatten_discretionaries},
-    {"prepend_prevdepth",lua_nodelib_prepend_prevdepth},
+    {"flatten_discretionaries", lua_nodelib_flatten_discretionaries},
+    {"prepend_prevdepth", lua_nodelib_prepend_prevdepth},
+    {"make_extensible", lua_nodelib_make_extensible},
     /* done */
     {"fix_node_lists", lua_nodelib_fix_node_lists},
     {NULL, NULL} /* sentinel */

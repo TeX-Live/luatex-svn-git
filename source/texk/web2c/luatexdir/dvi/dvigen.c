@@ -662,17 +662,12 @@ needed during recursive calls.
 
 */
 
-int total_pages = 0;            /* the number of pages that have been shipped out */
-scaled max_v = 0;               /* maximum height-plus-depth of pages shipped so far */
-scaled max_h = 0;               /* maximum width of pages shipped so far */
-int max_push = 0;               /* deepest nesting of |push| commands encountered so far */
-int last_bop = -1;              /* location of previous |bop| in the \.{DVI} output */
-int dead_cycles = 0;            /* recent outputs that didn't ship anything out */
-boolean doing_leaders = false;  /* are we inside a leader box? */
-int oval, ocmd;                 /* used by |out_cmd| for generating |set|, |fnt| and |fnt_def| commands */
-pointer g;                      /* current glue specification */
-int lq, lr;                     /* quantities used in calculations for leaders */
-int cur_s = -1;                 /* current depth of output box nesting, initially $-1$ */
+/* Some global variables are defined in |backend| module. */
+
+static int max_push = 0;  /* deepest nesting of |push| commands encountered so far */
+static int last_bop = -1; /* location of previous |bop| in the \.{DVI} output */
+static int oval, ocmd;    /* used by |out_cmd| for generating |set|, |fnt| and |fnt_def| commands */
+pointer g;                /* current glue specification */
 
 /*tex
 
@@ -706,13 +701,128 @@ first fills up.
 
 */
 
-int dvi_buf_size = 800;         /* size of the output buffer; must be a multiple of 8 */
-eight_bits *dvi_buf;            /* buffer for \.{DVI} output */
-dvi_index half_buf = 0;         /* half of |dvi_buf_size| */
-dvi_index dvi_limit = 0;        /* end of the current half buffer */
-dvi_index dvi_ptr = 0;          /* the next available buffer address */
-int dvi_offset = 0;             /* |dvi_buf_size| times the number of times the output buffer has been fully emptied */
-int dvi_gone = 0;               /* the number of bytes already output to |dvi_file| */
+int dvi_buf_size = 800;     /* size of the output buffer; must be a multiple of 8 */
+eight_bits *dvi_buf;        /* buffer for \.{DVI} output */
+static int half_buf = 0;    /* half of |dvi_buf_size| */
+static int dvi_limit = 0;   /* end of the current half buffer */
+static int dvi_ptr = 0;     /* the next available buffer address */
+static int dvi_offset = 0;  /* |dvi_buf_size| times the number of times the output buffer has been fully emptied */
+static int dvi_gone = 0;    /* the number of bytes already output to |dvi_file| */
+
+/*
+To put a byte in the buffer without paying the cost of invoking a procedure
+each time, we use the macro |dvi_out|.
+*/
+
+#define dvi_out(A) do {                 \
+	dvi_buf[dvi_ptr++]=(eight_bits)(A);	\
+    if (dvi_ptr==dvi_limit) dvi_swap(); \
+} while (0)
+
+#define dvi_set(A,B) do {                       \
+    oval=A; ocmd=set1; out_cmd(); dvi.h += (B); \
+} while (0)
+
+#define dvi_put(A)  do {          \
+    oval=A; ocmd=put1; out_cmd(); \
+} while (0)
+
+/*
+The |vinfo| fields in the entries of the down stack or the right stack
+have six possible settings: |y_here| or |z_here| mean that the \.{DVI}
+command refers to |y| or |z|, respectively (or to |w| or |x|, in the
+case of horizontal motion); |yz_OK| means that the \.{DVI} command is
+\\{down} (or \\{right}) but can be changed to either |y| or |z| (or
+to either |w| or |x|); |y_OK| means that it is \\{down} and can be changed
+to |y| but not |z|; |z_OK| is similar; and |d_fixed| means it must stay
+\\{down}.
+
+The four settings |yz_OK|, |y_OK|, |z_OK|, |d_fixed| would not need to
+be distinguished from each other if we were simply solving the
+digit-subscripting problem mentioned above. But in \TeX's case there is
+a complication because of the nested structure of |push| and |pop|
+commands. Suppose we add parentheses to the digit-subscripting problem,
+redefining hits so that $\delta_y\ldots \delta_y$ is a hit if all $y$'s between
+the $\delta$'s are enclosed in properly nested parentheses, and if the
+parenthesis level of the right-hand $\delta_y$ is deeper than or equal to
+that of the left-hand one. Thus, `(' and `)' correspond to `|push|'
+and `|pop|'. Now if we want to assign a subscript to the final 1 in the
+sequence
+$$2_y\,7_d\,1_d\,(\,8_z\,2_y\,8_z\,)\,1$$
+we cannot change the previous $1_d$ to $1_y$, since that would invalidate
+the $2_y\ldots2_y$ hit. But we can change it to $1_z$, scoring a hit
+since the intervening $8_z$'s are enclosed in parentheses.
+*/
+
+typedef enum {
+    y_here = 1,                 /* |vinfo| when the movement entry points to a |y| command */
+    z_here = 2,                 /* |vinfo| when the movement entry points to a |z| command */
+    yz_OK = 3,                  /* |vinfo| corresponding to an unconstrained \\{down} command */
+    y_OK = 4,                   /* |vinfo| corresponding to a \\{down} that can't become a |z| */
+    z_OK = 5,                   /* |vinfo| corresponding to a \\{down} that can't become a |y| */
+    d_fixed = 6,                /* |vinfo| corresponding to a \\{down} that can't change */
+} movement_codes;
+
+/* As we search through the stack, we are in one of three states,
+   |y_seen|, |z_seen|, or |none_seen|, depending on whether we have
+   encountered |y_here| or |z_here| nodes. These states are encoded as
+   multiples of 6, so that they can be added to the |info| fields for quick
+   decision-making. */
+
+#  define none_seen 0           /* no |y_here| or |z_here| nodes have been encountered yet */
+#  define y_seen 6              /* we have seen |y_here| but not |z_here| */
+#  define z_seen 12             /* we have seen |z_here| but not |y_here| */
+
+void movement(scaled w, eight_bits o);
+
+/*
+extern void prune_movements(int l);
+*/
+
+/*
+The actual distances by which we want to move might be computed as the
+sum of several separate movements. For example, there might be several
+glue nodes in succession, or we might want to move right by the width of
+some box plus some amount of glue. More importantly, the baselineskip
+distances are computed in terms of glue together with the depth and
+height of adjacent boxes, and we want the \.{DVI} file to lump these
+three quantities together into a single motion.
+
+Therefore, \TeX\ maintains two pairs of global variables: |dvi.h| and |dvi.v|
+are the |h| and |v| coordinates corresponding to the commands actually
+output to the \.{DVI} file, while |cur.h| and |cur.v| are the coordinates
+corresponding to the current state of the output routines. Coordinate
+changes will accumulate in |cur.h| and |cur.v| without being reflected
+in the output, until such a change becomes necessary or desirable; we
+can call the |movement| procedure whenever we want to make |dvi.h=pos.h|
+or |dvi.v=pos.v|.
+
+The current font reflected in the \.{DVI} output is called |dvi_f|;
+there is no need for a `\\{cur\_f}' variable.
+
+The depth of nesting of |hlist_out| and |vlist_out| is called |cur_s|;
+this is essentially the depth of |push| commands in the \.{DVI} output.
+*/
+
+/*tex A \.{DVI} position in page coordinates, in sync with DVI file: */
+
+static scaledpos dvi;
+
+#  define synch_h(p) do {            \
+    if (p.h != dvi.h) {              \
+      movement(p.h - dvi.h, right1); \
+      dvi.h = p.h;                   \
+    }                                \
+  } while (0)
+
+#  define synch_v(p) do {            \
+    if (p.v != dvi.v) {              \
+      movement(dvi.v - p.v, down1);  \
+      dvi.v = p.v;                   \
+    }                                \
+  } while (0)
+
+#  define synch_dvi_with_pos(p) do {synch_h(p); synch_v(p); } while (0)
 
 /*tex
 
@@ -726,16 +836,16 @@ with one system call.
 
 */
 
-static void write_dvi(dvi_index a, dvi_index b)
+static void write_dvi(int a, int b)
 {
-    dvi_index k;
+    int k;
     for (k = a; k <= b; k++)
         fputc(dvi_buf[k], static_pdf->file);
 }
 
 /*tex This outputs half of the buffer: */
 
-void dvi_swap(void)
+static void dvi_swap(void)
 {
     if (dvi_limit == dvi_buf_size) {
         write_dvi(0, half_buf - 1);
@@ -756,7 +866,7 @@ risking arithmetic overflow.
 
 */
 
-void dvi_four(int x)
+static void dvi_four(int x)
 {
     if (x >= 0) {
         dvi_out(x / 0100000000);
@@ -781,12 +891,12 @@ the new |pop|.
 
 */
 
-void dvi_push(void)
+static void dvi_push(void)
 {
     dvi_out(push);
 }
 
-void dvi_pop(int l)
+static void dvi_pop(int l)
 {
     if ((l == dvi_offset + dvi_ptr) && (dvi_ptr > 0))
         decr(dvi_ptr);
@@ -801,7 +911,7 @@ different fonts per job, so the right font definition command must be selected.
 
 */
 
-void out_cmd(void)
+static void out_cmd(void)
 {
     if ((oval < 0x100) && (oval >= 0)) {
         if ((ocmd != set1) || (oval > 127)) {
@@ -838,7 +948,7 @@ void out_cmd(void)
     dvi_out(oval);
 }
 
-void dvi_font_def(internal_font_number f)
+static void dvi_font_def(internal_font_number f)
 {
     char *fa;
     oval = f - 1;
@@ -923,7 +1033,8 @@ encodes the options for possible change in the \.{DVI} command.
 
 /*tex The heads of the down and right stacks: */
 
-halfword down_ptr = null, right_ptr = null;
+static halfword down_ptr = null;
+static halfword right_ptr = null;
 
 /*tex
 
@@ -1126,7 +1237,7 @@ Here we delete movement nodes with |location>=l|:
 
 */
 
-void prune_movements(int l)
+static void prune_movements(int l)
 {
     pointer p;
     while (down_ptr != null) {
@@ -1144,10 +1255,6 @@ void prune_movements(int l)
         flush_node(p);
     }
 }
-
-/*tex A \.{DVI} position in page coordinates, in sync with DVI file: */
-
-scaledpos dvi;
 
 /*tex
 
@@ -1243,7 +1350,7 @@ out a box of stuff, we shall use the macro |ensure_dvi_open|.
 
 */
 
-void ensure_dvi_header_written(PDF pdf)
+void dvi_write_header(PDF pdf)
 {
     unsigned l;
     /*tex index into |str_pool| */
@@ -1320,12 +1427,17 @@ chaos might ensue.
 
 */
 
-void finish_dvi_file(PDF pdf, int version, int revision)
+void dvi_open_file(PDF pdf) {
+    ensure_output_file_open(pdf, ".dvi");
+}
+
+void dvi_finish_file(PDF pdf, int fatal_error)
 {
     int k;
     int callback_id = callback_defined(stop_run_callback);
-    (void) version;
-    (void) revision;
+    if (fatal_error) {
+        print_err(" ==> Fatal error occurred, bad output DVI file produced!");
+    }
     while (cur_s > -1) {
         if (cur_s > 0) {
             dvi_out(pop);
@@ -1405,4 +1517,42 @@ void finish_dvi_file(PDF pdf, int version, int revision)
         }
         close_file(pdf->file);
     }
+}
+
+void dvi_push_list(PDF pdf, scaledpos *saved_pos, int *saved_loc)
+{
+    if (cur_s > max_push) {
+        max_push = cur_s;
+    }
+    if (cur_s > 0) {
+        dvi_push();
+        *saved_pos = dvi;
+    }
+    *saved_loc = dvi_offset + dvi_ptr;
+}
+
+void dvi_pop_list(PDF pdf, scaledpos *saved_pos, int *saved_loc)
+{
+    prune_movements(*saved_loc);
+    if (cur_s > 0) {
+        dvi_pop(*saved_loc);
+        dvi = *saved_pos;
+    }
+}
+
+void dvi_set_reference_point(PDF pdf, posstructure *refpoint)
+{
+    refpoint->pos.h = one_true_inch;
+    refpoint->pos.v = pdf->page_size.v - one_true_inch;
+    dvi = refpoint->pos;
+}
+
+int dvi_get_status_ptr(PDF pdf)
+{
+    return dvi_ptr;
+}
+
+int dvi_get_status_gone(PDF pdf)
+{
+    return dvi_gone;
 }

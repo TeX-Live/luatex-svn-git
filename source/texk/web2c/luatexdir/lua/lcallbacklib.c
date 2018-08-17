@@ -82,6 +82,7 @@ static const char *const callbacknames[] = {
     "wrapup_run",
     "new_graf",
     "page_objnum_provider",
+    "make_extensible",
     NULL
 };
 

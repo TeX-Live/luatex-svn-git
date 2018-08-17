@@ -240,28 +240,6 @@ int pdf_get_mem(PDF pdf, int s)
     return ret;
 }
 
-output_mode get_o_mode(void)
-{
-    output_mode o_mode;
-    if (output_mode_par > 0) {
-        o_mode = OMODE_PDF;
-    } else
-        o_mode = OMODE_DVI;
-    return o_mode;
-}
-
-void fix_o_mode(void)
-{
-    output_mode o_mode = get_o_mode();
-    if (output_mode_used == OMODE_NONE) {
-        output_mode_used = o_mode;
-        /*tex Used by synctex, we need to use output_mode_used there: */
-        static_pdf->o_mode = output_mode_used;
-    } else if (output_mode_used != o_mode) {
-        normal_error("pdf backend", "\\outputmode can only be changed before anything is written to the output");
-    }
-}
-
 /*tex
 
     This ensures that |pdfmajorversion| and |pdfminorversion| are set only before
@@ -1007,22 +985,7 @@ static void init_pdf_outputparameters(PDF pdf)
 
 */
 
-static void ensure_output_file_open(PDF pdf, const char *ext)
-{
-    char *fn;
-    if (pdf->file_name != NULL)
-        return;
-    if (job_name == 0)
-        open_log_file();
-    fn = pack_job_name(ext);
-    if (pdf->draftmode == 0 || output_mode_used == OMODE_DVI) {
-        while (!lua_b_open_out(&pdf->file, fn))
-            fn = prompt_file_name("file name for output", ext);
-    }
-    pdf->file_name = fn;
-}
-
-static void ensure_pdf_header_written(PDF pdf)
+void pdf_write_header(PDF pdf)
 {
     /*tex Initialize variables for \PDF\ output. */
     fix_pdf_version(pdf);
@@ -1044,38 +1007,25 @@ static void ensure_pdf_header_written(PDF pdf)
     pdf_out(pdf, '\n');
 }
 
+void pdf_open_file(PDF pdf) {
+    ensure_output_file_open(pdf, ".pdf");
+}
+
 void ensure_output_state(PDF pdf, output_state s)
 {
     if (pdf->o_state < s) {
-        if (s > ST_INITIAL)
+        if (s > ST_INITIAL) {
             ensure_output_state(pdf, s - 1);
+        }
         switch (s - 1) {
             case ST_INITIAL:
                 fix_o_mode();
                 break;
             case ST_OMODE_FIX:
-                switch (output_mode_used) {
-                    case OMODE_DVI:
-                        ensure_output_file_open(pdf, ".dvi");
-                        break;
-                    case OMODE_PDF:
-                        ensure_output_file_open(pdf, ".pdf");
-                        break;
-                    default:
-                        normal_error("pdf backend","weird output state");
-                }
+                backend_out_control[backend_control_open_file](pdf);
                 break;
             case ST_FILE_OPEN:
-                switch (output_mode_used) {
-                    case OMODE_DVI:
-                        ensure_dvi_header_written(pdf);
-                        break;
-                    case OMODE_PDF:
-                        ensure_pdf_header_written(pdf);
-                        break;
-                    default:
-                        normal_error("pdf backend","weird output state");
-                }
+                backend_out_control[backend_control_write_header](pdf);
                 break;
             case ST_HEADER_WRITTEN:
                 break;
@@ -1589,7 +1539,7 @@ void remove_pdffile(PDF pdf)
     }
 }
 
-/*tex We use this checker in other modules. */
+/*tex We use this checker in other modules. It is not pdf specific. */
 
 void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
 {
@@ -1624,6 +1574,23 @@ void check_o_mode(PDF pdf, const char *s, int o_mode_bitpattern, boolean strict)
     } else if (strict)
         ensure_output_state(pdf, ST_HEADER_WRITTEN);
 }
+
+void ensure_output_file_open(PDF pdf, const char *ext)
+{
+    char *fn;
+    if (pdf->file_name != NULL)
+        return;
+    if (job_name == 0)
+        open_log_file();
+    fn = pack_job_name(ext);
+    if (pdf->draftmode == 0 || output_mode_used == OMODE_DVI) {
+        while (!lua_b_open_out(&pdf->file, fn))
+            fn = prompt_file_name("file name for output", ext);
+    }
+    pdf->file_name = fn;
+}
+
+/*tex till here */
 
 void set_job_id(PDF pdf, int year, int month, int day, int time)
 {
@@ -2204,280 +2171,286 @@ static void build_free_object_list(PDF pdf)
 
 */
 
-void finish_pdf_file(PDF pdf, int luatexversion, str_number luatexrevision)
-{
-    int i, j, k;
-    int root, info;
-    int xref_stm = 0;
-    int outlines = 0;
-    int threads = 0;
-    int names_tree = 0;
-    size_t xref_offset_width;
-    int callback_id = callback_defined(stop_run_callback);
-    int callback_id1 = callback_defined(finish_pdffile_callback);
-    if (total_pages == 0 && !pdf->force_file) {
-        if (callback_id == 0) {
-            normal_warning("pdf backend","no pages of output.");
-        } else if (callback_id > 0) {
-            run_callback(callback_id, "->");
-        }
-        if (pdf->gone > 0) {
-            /* number of bytes gone */
-            normal_error("pdf backend","already written content discarded, no output file produced.");
-        }
+void pdf_finish_file(PDF pdf, int fatal_error) {
+    if (fatal_error) {
+        remove_pdffile(static_pdf); /* will become remove_output_file */
+        print_err(" ==> Fatal error occurred, no output PDF file produced!");
     } else {
-        if (pdf->draftmode == 0) {
-            /*tex We make sure that the output file name has been already created. */
-            pdf_flush(pdf);
-            /*tex Flush page 0 objects from JBIG2 images, if any. */
-            flush_jbig2_page0_objects(pdf);
-            if (callback_id1 > 0) {
-                run_callback(callback_id1, "->");
-            }
-            if (total_pages > 0) {
-                check_nonexisting_pages(pdf);
-                check_nonexisting_destinations(pdf);
-            }
-            /*tex Output fonts definition. */
-            for (k = 1; k <= max_font_id(); k++) {
-                if (font_used(k) && (pdf_font_num(k) < 0)) {
-                    i = -pdf_font_num(k);
-                    for (j = font_bc(k); j <= font_ec(k); j++)
-                        if (quick_char_exists(k, j) && pdf_char_marked(k, j))
-                            pdf_mark_char(i, j);
-                    if ((pdf_font_attr(i) == 0) && (pdf_font_attr(k) != 0)) {
-                        set_pdf_font_attr(i, pdf_font_attr(k));
-                    } else if ((pdf_font_attr(k) == 0) && (pdf_font_attr(i) != 0)) {
-                        set_pdf_font_attr(k, pdf_font_attr(i));
-                    } else if ((pdf_font_attr(i) != 0) && (pdf_font_attr(k) != 0) && (!str_eq_str(pdf_font_attr(i), pdf_font_attr(k)))) {
-                        formatted_warning("pdf backend","fontattr of font %d and %d are conflicting, %k is used",i,k,i);
-                    }
-                }
-            }
-            pdf->gen_tounicode = pdf_gen_tounicode;
-            pdf->omit_cidset = pdf_omit_cidset;
-            pdf->omit_charset = pdf_omit_charset;
-            k = pdf->head_tab[obj_type_font];
-            while (k != 0) {
-                int f = obj_info(pdf, k);
-                do_pdf_font(pdf, f);
-                k = obj_link(pdf, k);
-            }
-            write_fontstuff(pdf);
-            if (total_pages > 0) {
-                pdf->last_pages = output_pages_tree(pdf);
-                /*tex Output outlines. */
-                outlines = print_outlines(pdf);
-                /*tex
-                    The name tree is very similiar to Pages tree so its construction
-                    should be certain from Pages tree construction. For intermediate
-                    node |obj_info| will be the first name and |obj_link| will be the
-                    last name in \.{\\Limits} array. Note that |pdf_dest_names_ptr|
-                    will be less than |obj_ptr|, so we test if |k <
-                    pdf_dest_names_ptr| then |k| is index of leaf in |dest_names|;
-                    else |k| will be index in |obj_tab| of some intermediate node.
-                 */
-                names_tree = output_name_tree(pdf);
-                /*tex Output article threads. */
-                if (pdf->head_tab[obj_type_thread] != 0) {
-                    threads = pdf_create_obj(pdf, obj_type_others, 0);
-                    pdf_begin_obj(pdf, threads, OBJSTM_ALWAYS);
-                    pdf_begin_array(pdf);
-                    k = pdf->head_tab[obj_type_thread];
-                    while (k != 0) {
-                        pdf_add_ref(pdf, k);
-                        k = obj_link(pdf, k);
-                    }
-                    pdf_end_array(pdf);
-                    pdf_end_obj(pdf);
-                    k = pdf->head_tab[obj_type_thread];
-                    while (k != 0) {
-                        out_thread(pdf, k);
-                        k = obj_link(pdf, k);
-                    }
-                } else {
-                    threads = 0;
-                }
-            }
-            /*tex Output the |/Catalog| object. */
-            root = pdf_create_obj(pdf, obj_type_catalog, 0);
-            pdf_begin_obj(pdf, root, OBJSTM_ALWAYS);
-            pdf_begin_dict(pdf);
-            pdf_dict_add_name(pdf, "Type", "Catalog");
-            if (total_pages > 0) {
-                pdf_dict_add_ref(pdf, "Pages", pdf->last_pages);
-                if (threads != 0) {
-                    pdf_dict_add_ref(pdf, "Threads", threads);
-                }
-                if (outlines != 0) {
-                    pdf_dict_add_ref(pdf, "Outlines", outlines);
-                }
-                if (names_tree != 0) {
-                    pdf_dict_add_ref(pdf, "Names", names_tree);
-                }
-                if (pdf_catalog_toks != null) {
-                    pdf_print_toks(pdf, pdf_catalog_toks);
-                    delete_token_ref(pdf_catalog_toks);
-                    pdf_catalog_toks = null;
-                }
-            }
-            if (pdf_catalog_openaction != 0) {
-                pdf_dict_add_ref(pdf, "OpenAction", pdf_catalog_openaction);
-            }
-            print_pdf_table_string(pdf, "catalog");
-            pdf_end_dict(pdf);
-            pdf_end_obj(pdf);
-            info = pdf_print_info(pdf, luatexversion, luatexrevision);
-            if (pdf->os_enable) {
-                pdf_buffer_select(pdf, OBJSTM_BUF);
-                pdf_os_write_objstream(pdf);
-                pdf_flush(pdf);
-                pdf_buffer_select(pdf, PDFOUT_BUF);
-                /*tex Output the cross-reference stream dictionary. */
-                xref_stm = pdf_create_obj(pdf, obj_type_others, 0);
-                pdf_begin_obj(pdf, xref_stm, OBJSTM_NEVER);
-                if ((obj_offset(pdf, pdf->obj_ptr) / 256) > 16777215)
-                    xref_offset_width = 5;
-                else if (obj_offset(pdf, pdf->obj_ptr) > 16777215)
-                    xref_offset_width = 4;
-                else if (obj_offset(pdf, pdf->obj_ptr) > 65535)
-                    xref_offset_width = 3;
-                else
-                    xref_offset_width = 2;
-                /*tex Build a linked list of free objects. */
-                build_free_object_list(pdf);
-                pdf_begin_dict(pdf);
-                pdf_dict_add_name(pdf, "Type", "XRef");
-                pdf_add_name(pdf, "Index");
-                pdf_begin_array(pdf);
-                pdf_add_int(pdf, 0);
-                pdf_add_int(pdf, pdf->obj_ptr + 1);
-                pdf_end_array(pdf);
-                pdf_dict_add_int(pdf, "Size", pdf->obj_ptr + 1);
-                pdf_add_name(pdf, "W");
-                pdf_begin_array(pdf);
-                pdf_add_int(pdf, 1);
-                pdf_add_int(pdf, (int) xref_offset_width);
-                pdf_add_int(pdf, 1);
-                pdf_end_array(pdf);
-                pdf_dict_add_ref(pdf, "Root", root);
-                pdf_dict_add_ref(pdf, "Info", info);
-                if (pdf_trailer_toks != null) {
-                    pdf_print_toks(pdf, pdf_trailer_toks);
-                    delete_token_ref(pdf_trailer_toks);
-                    pdf_trailer_toks = null;
-                }
-                print_pdf_table_string(pdf, "trailer");
-                print_ID(pdf);
-                pdf_dict_add_streaminfo(pdf);
-                pdf_end_dict(pdf);
-                pdf_begin_stream(pdf);
-                for (k = 0; k <= pdf->obj_ptr; k++) {
-                    if (!is_obj_written(pdf, k)) {
-                        /*tex A free object: */
-                        pdf_out(pdf, 0);
-                        pdf_out_bytes(pdf, obj_link(pdf, k), xref_offset_width);
-                        pdf_out(pdf, 255);
-                    } else if (obj_os_idx(pdf, k) == PDF_OS_MAX_OBJS) {
-                        /*tex  An object not in object stream: */
-                        pdf_out(pdf, 1);
-                        pdf_out_bytes(pdf, obj_offset(pdf, k), xref_offset_width);
-                        pdf_out(pdf, 0);
-                    } else {
-                        /*tex An object in object stream: */
-                        pdf_out(pdf, 2);
-                        pdf_out_bytes(pdf, obj_offset(pdf, k), xref_offset_width);
-                        pdf_out(pdf, obj_os_idx(pdf, k));
-                    }
-                }
-                pdf_end_stream(pdf);
-                pdf_end_obj(pdf);
-                pdf_flush(pdf);
-            } else {
-                /*tex Output the |obj_tab| and build a linked list of free objects. */
-                build_free_object_list(pdf);
-                pdf_save_offset(pdf);
-                pdf_puts(pdf, "xref\n");
-                pdf_puts(pdf, "0 ");
-                pdf_print_int_ln(pdf, pdf->obj_ptr + 1);
-                pdf_print_fw_int(pdf, obj_link(pdf, 0));
-                pdf_puts(pdf, " 65535 f \n");
-                for (k = 1; k <= pdf->obj_ptr; k++) {
-                    if (!is_obj_written(pdf, k)) {
-                        pdf_print_fw_int(pdf, obj_link(pdf, k));
-                        pdf_puts(pdf, " 00000 f \n");
-                    } else {
-                        pdf_print_fw_int(pdf, obj_offset(pdf, k));
-                        pdf_puts(pdf, " 00000 n \n");
-                    }
-                }
-            }
-            /*tex Output the trailer. */
-            if (!pdf->os_enable) {
-                pdf_puts(pdf, "trailer\n");
-                pdf_reset_space(pdf);
-                pdf_begin_dict(pdf);
-                pdf_dict_add_int(pdf, "Size", pdf->obj_ptr + 1);
-                pdf_dict_add_ref(pdf, "Root", root);
-                pdf_dict_add_ref(pdf, "Info", info);
-                if (pdf_trailer_toks != null) {
-                    pdf_print_toks(pdf, pdf_trailer_toks);
-                    delete_token_ref(pdf_trailer_toks);
-                    pdf_trailer_toks = null;
-                }
-                print_ID(pdf);
-                pdf_end_dict(pdf);
-                pdf_out(pdf, '\n');
-            }
-            pdf_puts(pdf, "startxref\n");
-            pdf_reset_space(pdf);
-            if (pdf->os_enable)
-                pdf_add_longint(pdf, (longinteger) obj_offset(pdf, xref_stm));
-            else
-                pdf_add_longint(pdf, (longinteger) pdf->save_offset);
-            pdf_puts(pdf, "\n%%EOF\n");
-            pdf_flush(pdf);
+        int i, j, k;
+        int root, info;
+        int xref_stm = 0;
+        int outlines = 0;
+        int threads = 0;
+        int names_tree = 0;
+        size_t xref_offset_width;
+        int luatexversion = luatex_version;
+        str_number luatexrevision = get_luatexrevision();
+        int callback_id = callback_defined(stop_run_callback);
+        int callback_id1 = callback_defined(finish_pdffile_callback);
+        if (total_pages == 0 && !pdf->force_file) {
             if (callback_id == 0) {
-                tprint_nl("Output written on ");
-                tprint(pdf->file_name);
-                tprint(" (");
-                print_int(total_pages);
-                tprint(" page");
-                if (total_pages != 1)
-                    print_char('s');
-                tprint(", ");
-                print_int(pdf_offset(pdf));
-                tprint(" bytes).");
-                print_ln();
+                normal_warning("pdf backend","no pages of output.");
             } else if (callback_id > 0) {
                 run_callback(callback_id, "->");
             }
-            libpdffinish(pdf);
-            close_file(pdf->file);
+            if (pdf->gone > 0) {
+                /* number of bytes gone */
+                normal_error("pdf backend","already written content discarded, no output file produced.");
+            }
         } else {
-            if (callback_id > 0) {
-                run_callback(callback_id, "->");
+            if (pdf->draftmode == 0) {
+                /*tex We make sure that the output file name has been already created. */
+                pdf_flush(pdf);
+                /*tex Flush page 0 objects from JBIG2 images, if any. */
+                flush_jbig2_page0_objects(pdf);
+                if (callback_id1 > 0) {
+                    run_callback(callback_id1, "->");
+                }
+                if (total_pages > 0) {
+                    check_nonexisting_pages(pdf);
+                    check_nonexisting_destinations(pdf);
+                }
+                /*tex Output fonts definition. */
+                for (k = 1; k <= max_font_id(); k++) {
+                    if (font_used(k) && (pdf_font_num(k) < 0)) {
+                        i = -pdf_font_num(k);
+                        for (j = font_bc(k); j <= font_ec(k); j++)
+                            if (quick_char_exists(k, j) && pdf_char_marked(k, j))
+                                pdf_mark_char(i, j);
+                        if ((pdf_font_attr(i) == 0) && (pdf_font_attr(k) != 0)) {
+                            set_pdf_font_attr(i, pdf_font_attr(k));
+                        } else if ((pdf_font_attr(k) == 0) && (pdf_font_attr(i) != 0)) {
+                            set_pdf_font_attr(k, pdf_font_attr(i));
+                        } else if ((pdf_font_attr(i) != 0) && (pdf_font_attr(k) != 0) && (!str_eq_str(pdf_font_attr(i), pdf_font_attr(k)))) {
+                            formatted_warning("pdf backend","fontattr of font %d and %d are conflicting, %k is used",i,k,i);
+                        }
+                    }
+                }
+                pdf->gen_tounicode = pdf_gen_tounicode;
+                pdf->omit_cidset = pdf_omit_cidset;
+                pdf->omit_charset = pdf_omit_charset;
+                k = pdf->head_tab[obj_type_font];
+                while (k != 0) {
+                    int f = obj_info(pdf, k);
+                    do_pdf_font(pdf, f);
+                    k = obj_link(pdf, k);
+                }
+                write_fontstuff(pdf);
+                if (total_pages > 0) {
+                    pdf->last_pages = output_pages_tree(pdf);
+                    /*tex Output outlines. */
+                    outlines = print_outlines(pdf);
+                    /*tex
+                        The name tree is very similiar to Pages tree so its construction
+                        should be certain from Pages tree construction. For intermediate
+                        node |obj_info| will be the first name and |obj_link| will be the
+                        last name in \.{\\Limits} array. Note that |pdf_dest_names_ptr|
+                        will be less than |obj_ptr|, so we test if |k <
+                        pdf_dest_names_ptr| then |k| is index of leaf in |dest_names|;
+                        else |k| will be index in |obj_tab| of some intermediate node.
+                     */
+                    names_tree = output_name_tree(pdf);
+                    /*tex Output article threads. */
+                    if (pdf->head_tab[obj_type_thread] != 0) {
+                        threads = pdf_create_obj(pdf, obj_type_others, 0);
+                        pdf_begin_obj(pdf, threads, OBJSTM_ALWAYS);
+                        pdf_begin_array(pdf);
+                        k = pdf->head_tab[obj_type_thread];
+                        while (k != 0) {
+                            pdf_add_ref(pdf, k);
+                            k = obj_link(pdf, k);
+                        }
+                        pdf_end_array(pdf);
+                        pdf_end_obj(pdf);
+                        k = pdf->head_tab[obj_type_thread];
+                        while (k != 0) {
+                            out_thread(pdf, k);
+                            k = obj_link(pdf, k);
+                        }
+                    } else {
+                        threads = 0;
+                    }
+                }
+                /*tex Output the |/Catalog| object. */
+                root = pdf_create_obj(pdf, obj_type_catalog, 0);
+                pdf_begin_obj(pdf, root, OBJSTM_ALWAYS);
+                pdf_begin_dict(pdf);
+                pdf_dict_add_name(pdf, "Type", "Catalog");
+                if (total_pages > 0) {
+                    pdf_dict_add_ref(pdf, "Pages", pdf->last_pages);
+                    if (threads != 0) {
+                        pdf_dict_add_ref(pdf, "Threads", threads);
+                    }
+                    if (outlines != 0) {
+                        pdf_dict_add_ref(pdf, "Outlines", outlines);
+                    }
+                    if (names_tree != 0) {
+                        pdf_dict_add_ref(pdf, "Names", names_tree);
+                    }
+                    if (pdf_catalog_toks != null) {
+                        pdf_print_toks(pdf, pdf_catalog_toks);
+                        delete_token_ref(pdf_catalog_toks);
+                        pdf_catalog_toks = null;
+                    }
+                }
+                if (pdf_catalog_openaction != 0) {
+                    pdf_dict_add_ref(pdf, "OpenAction", pdf_catalog_openaction);
+                }
+                print_pdf_table_string(pdf, "catalog");
+                pdf_end_dict(pdf);
+                pdf_end_obj(pdf);
+                info = pdf_print_info(pdf, luatexversion, luatexrevision);
+                if (pdf->os_enable) {
+                    pdf_buffer_select(pdf, OBJSTM_BUF);
+                    pdf_os_write_objstream(pdf);
+                    pdf_flush(pdf);
+                    pdf_buffer_select(pdf, PDFOUT_BUF);
+                    /*tex Output the cross-reference stream dictionary. */
+                    xref_stm = pdf_create_obj(pdf, obj_type_others, 0);
+                    pdf_begin_obj(pdf, xref_stm, OBJSTM_NEVER);
+                    if ((obj_offset(pdf, pdf->obj_ptr) / 256) > 16777215)
+                        xref_offset_width = 5;
+                    else if (obj_offset(pdf, pdf->obj_ptr) > 16777215)
+                        xref_offset_width = 4;
+                    else if (obj_offset(pdf, pdf->obj_ptr) > 65535)
+                        xref_offset_width = 3;
+                    else
+                        xref_offset_width = 2;
+                    /*tex Build a linked list of free objects. */
+                    build_free_object_list(pdf);
+                    pdf_begin_dict(pdf);
+                    pdf_dict_add_name(pdf, "Type", "XRef");
+                    pdf_add_name(pdf, "Index");
+                    pdf_begin_array(pdf);
+                    pdf_add_int(pdf, 0);
+                    pdf_add_int(pdf, pdf->obj_ptr + 1);
+                    pdf_end_array(pdf);
+                    pdf_dict_add_int(pdf, "Size", pdf->obj_ptr + 1);
+                    pdf_add_name(pdf, "W");
+                    pdf_begin_array(pdf);
+                    pdf_add_int(pdf, 1);
+                    pdf_add_int(pdf, (int) xref_offset_width);
+                    pdf_add_int(pdf, 1);
+                    pdf_end_array(pdf);
+                    pdf_dict_add_ref(pdf, "Root", root);
+                    pdf_dict_add_ref(pdf, "Info", info);
+                    if (pdf_trailer_toks != null) {
+                        pdf_print_toks(pdf, pdf_trailer_toks);
+                        delete_token_ref(pdf_trailer_toks);
+                        pdf_trailer_toks = null;
+                    }
+                    print_pdf_table_string(pdf, "trailer");
+                    print_ID(pdf);
+                    pdf_dict_add_streaminfo(pdf);
+                    pdf_end_dict(pdf);
+                    pdf_begin_stream(pdf);
+                    for (k = 0; k <= pdf->obj_ptr; k++) {
+                        if (!is_obj_written(pdf, k)) {
+                            /*tex A free object: */
+                            pdf_out(pdf, 0);
+                            pdf_out_bytes(pdf, obj_link(pdf, k), xref_offset_width);
+                            pdf_out(pdf, 255);
+                        } else if (obj_os_idx(pdf, k) == PDF_OS_MAX_OBJS) {
+                            /*tex  An object not in object stream: */
+                            pdf_out(pdf, 1);
+                            pdf_out_bytes(pdf, obj_offset(pdf, k), xref_offset_width);
+                            pdf_out(pdf, 0);
+                        } else {
+                            /*tex An object in object stream: */
+                            pdf_out(pdf, 2);
+                            pdf_out_bytes(pdf, obj_offset(pdf, k), xref_offset_width);
+                            pdf_out(pdf, obj_os_idx(pdf, k));
+                        }
+                    }
+                    pdf_end_stream(pdf);
+                    pdf_end_obj(pdf);
+                    pdf_flush(pdf);
+                } else {
+                    /*tex Output the |obj_tab| and build a linked list of free objects. */
+                    build_free_object_list(pdf);
+                    pdf_save_offset(pdf);
+                    pdf_puts(pdf, "xref\n");
+                    pdf_puts(pdf, "0 ");
+                    pdf_print_int_ln(pdf, pdf->obj_ptr + 1);
+                    pdf_print_fw_int(pdf, obj_link(pdf, 0));
+                    pdf_puts(pdf, " 65535 f \n");
+                    for (k = 1; k <= pdf->obj_ptr; k++) {
+                        if (!is_obj_written(pdf, k)) {
+                            pdf_print_fw_int(pdf, obj_link(pdf, k));
+                            pdf_puts(pdf, " 00000 f \n");
+                        } else {
+                            pdf_print_fw_int(pdf, obj_offset(pdf, k));
+                            pdf_puts(pdf, " 00000 n \n");
+                        }
+                    }
+                }
+                /*tex Output the trailer. */
+                if (!pdf->os_enable) {
+                    pdf_puts(pdf, "trailer\n");
+                    pdf_reset_space(pdf);
+                    pdf_begin_dict(pdf);
+                    pdf_dict_add_int(pdf, "Size", pdf->obj_ptr + 1);
+                    pdf_dict_add_ref(pdf, "Root", root);
+                    pdf_dict_add_ref(pdf, "Info", info);
+                    if (pdf_trailer_toks != null) {
+                        pdf_print_toks(pdf, pdf_trailer_toks);
+                        delete_token_ref(pdf_trailer_toks);
+                        pdf_trailer_toks = null;
+                    }
+                    print_ID(pdf);
+                    pdf_end_dict(pdf);
+                    pdf_out(pdf, '\n');
+                }
+                pdf_puts(pdf, "startxref\n");
+                pdf_reset_space(pdf);
+                if (pdf->os_enable)
+                    pdf_add_longint(pdf, (longinteger) obj_offset(pdf, xref_stm));
+                else
+                    pdf_add_longint(pdf, (longinteger) pdf->save_offset);
+                pdf_puts(pdf, "\n%%EOF\n");
+                pdf_flush(pdf);
+                if (callback_id == 0) {
+                    tprint_nl("Output written on ");
+                    tprint(pdf->file_name);
+                    tprint(" (");
+                    print_int(total_pages);
+                    tprint(" page");
+                    if (total_pages != 1)
+                        print_char('s');
+                    tprint(", ");
+                    print_int(pdf_offset(pdf));
+                    tprint(" bytes).");
+                    print_ln();
+                } else if (callback_id > 0) {
+                    run_callback(callback_id, "->");
+                }
+                libpdffinish(pdf);
+                close_file(pdf->file);
+            } else {
+                if (callback_id > 0) {
+                    run_callback(callback_id, "->");
+                }
+                libpdffinish(pdf);
+                normal_warning("pdf backend","draftmode enabled, not changing output pdf");
             }
-            libpdffinish(pdf);
-            normal_warning("pdf backend","draftmode enabled, not changing output pdf");
         }
-    }
-    if (callback_id == 0) {
-        if (log_opened_global) {
-            fprintf(log_file, "\nPDF statistics: %d PDF objects out of %d (max. %d)\n",
-                (int) pdf->obj_ptr, (int) pdf->obj_tab_size,
-                (int) sup_obj_tab_size);
-            if (pdf->os->ostm_ctr > 0) {
-                fprintf(log_file, " %d compressed objects within %d object stream%s\n",
-                    (int) pdf->os->o_ctr, (int) pdf->os->ostm_ctr,
-                    (pdf->os->ostm_ctr > 1 ? "s" : ""));
+        if (callback_id == 0) {
+            if (log_opened_global) {
+                fprintf(log_file, "\nPDF statistics: %d PDF objects out of %d (max. %d)\n",
+                    (int) pdf->obj_ptr, (int) pdf->obj_tab_size,
+                    (int) sup_obj_tab_size);
+                if (pdf->os->ostm_ctr > 0) {
+                    fprintf(log_file, " %d compressed objects within %d object stream%s\n",
+                        (int) pdf->os->o_ctr, (int) pdf->os->ostm_ctr,
+                        (pdf->os->ostm_ctr > 1 ? "s" : ""));
+                }
+                fprintf(log_file, " %d named destinations out of %d (max. %d)\n",
+                    (int) pdf->dest_names_ptr, (int) pdf->dest_names_size,
+                    (int) sup_dest_names_size);
+                fprintf(log_file, " %d words of extra memory for PDF output out of %d (max. %d)\n",
+                    (int) pdf->mem_ptr, (int) pdf->mem_size,
+                    (int) sup_pdf_mem_size);
             }
-            fprintf(log_file, " %d named destinations out of %d (max. %d)\n",
-                (int) pdf->dest_names_ptr, (int) pdf->dest_names_size,
-                (int) sup_dest_names_size);
-            fprintf(log_file, " %d words of extra memory for PDF output out of %d (max. %d)\n",
-                (int) pdf->mem_ptr, (int) pdf->mem_size,
-                (int) sup_pdf_mem_size);
         }
     }
 }
@@ -2526,4 +2499,18 @@ void pdf_add_real(PDF pdf, double d)
     pdf_check_space(pdf);
     print_pdffloat(pdf, conv_double_to_pdffloat(d));
     pdf_set_space(pdf);
+}
+
+void pdf_push_list(PDF pdf, scaledpos *saved_pos, int *saved_loc) {
+    /* nothing */
+}
+
+void pdf_pop_list(PDF pdf, scaledpos *saved_pos, int *saved_loc) {
+    /* nothing */
+}
+
+extern void pdf_set_reference_point(PDF pdf, posstructure *refpoint)
+{
+    refpoint->pos.h = pdf_h_origin;
+    refpoint->pos.v = pdf->page_size.v - pdf_v_origin;
 }
