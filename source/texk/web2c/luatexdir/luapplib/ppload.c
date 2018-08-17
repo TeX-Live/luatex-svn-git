@@ -94,9 +94,11 @@ static ppname ppscan_name (iof *I, ppheap **pheap)
   O = ppheap_buffer(pheap, sizeof(_ppname), PPNAME_INIT);
   for (p = encoded, e = encoded + ghost1->size; p < e; ++p)
   {
-    if (*p == '#' && p + 2 < e && (v1 = base16_value(p[1])) >= 0 && (v2 = base16_value(p[2])) >= 0)
+    if (*p == '#' && p + 2 < e ){
+      v1 = base16_value(p[1]);
+      v2 = base16_value(p[2]);
       iof_put(O, ((v1<<4)+v2));
-    else
+    }else
       iof_put(O, *p);
   }
   decoded = ppname_flush_with_ego(O, ghost2, size, 0|PPNAME_DECODED);
@@ -129,9 +131,11 @@ static ppname ppscan_exec (iof *I, ppheap **pheap, int first)
   O = ppheap_buffer(pheap, sizeof(_ppname), PPNAME_INIT);
   for (p = encoded, e = encoded + ghost1->size; p < e; ++p)
   {
-    if (*p == '#' && p + 2 < e && (v1 = base16_value(p[1])) >= 0 && (v2 = base16_value(p[2])) >= 0)
+    if (*p == '#' && p + 2 < e ){
+      v1 = base16_value(p[1]);
+      v2 = base16_value(p[2]);
       iof_put(O, ((v1<<4)+v2));
-    else
+    }else
       iof_put(O, *p);
   }
   decoded = ppname_flush_with_ego(O, ghost2, size, PPNAME_EXEC|PPNAME_DECODED);
