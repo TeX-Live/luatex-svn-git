@@ -829,12 +829,19 @@ static int lua_nodelib_direct_setattributelist(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
     if ((n) && nodetype_has_attributes(type(n))) {
-        if (lua_type(L, 2) == LUA_TNUMBER) {
+        int t = lua_type(L, 2);
+        if (t == LUA_TNUMBER) {
             halfword a =lua_tointeger(L, 2);
             if (type(a) == attribute_list_node) {
                 reassign_attribute(n,a);
             } else if (nodetype_has_attributes(type(a))) {
                 reassign_attribute(n,node_attr(a));
+            } else {
+                reassign_attribute(n,null);
+            }
+        } else if (t == LUA_TBOOLEAN) {
+            if (lua_toboolean(L,2)) {
+                reassign_attribute(n,current_attribute_list());
             } else {
                 reassign_attribute(n,null);
             }
@@ -845,7 +852,6 @@ static int lua_nodelib_direct_setattributelist(lua_State * L)
     }
     return 0;
 }
-
 /* node.direct.getpenalty */
 /* node.direct.setpenalty */
 
