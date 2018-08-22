@@ -594,13 +594,18 @@ void luacall_vf(int p, int f, int c)
 void late_lua(PDF pdf, halfword p)
 {
     (void) pdf;
-    if (late_lua_type(p)==normal) {
+    halfword t = late_lua_type(p);
+    if (t == normal) {
         /*tex sets |def_ref| */
         expand_macros_in_tokenlist(p);
         luacall(def_ref, late_lua_name(p), false);
         flush_list(def_ref);
-    } else {
+    } else if (t == lua_refid_call) {
+        luafunctioncall(late_lua_data(p));
+    } else if (t == lua_refid_literal) {
         luacall(late_lua_data(p), late_lua_name(p), true);
+    } else {
+        /*tex Let's just ignore it, could be some user specific thing. */
     }
 }
 

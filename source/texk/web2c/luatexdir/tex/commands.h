@@ -336,6 +336,7 @@ typedef enum {
     set_random_seed_code,
     save_pos_code,
     late_lua_code,
+    late_lua_call_code,
     expand_font_code,
 } normal_codes;
 

@@ -356,21 +356,21 @@ static void copyObject(PDF, PdfDocument *, ppobj *);
 static void copyString(PDF pdf, ppstring str)
 {
     pdf_check_space(pdf);
-    switch (ppstring_type(str)) {
+    switch (ppstring_type((void *)(str))) {
         case PPSTRING_PLAIN:
             pdf_out(pdf, '(');
-            pdf_out_block(pdf, (const char *) str, ppstring_size(str));
+            pdf_out_block(pdf, (const char *) str, ppstring_size((void *)(str)));
             pdf_out(pdf, ')');
             break;
         case PPSTRING_BASE16:
             pdf_out(pdf, '<');
-            pdf_out_block(pdf, (const char *) str, ppstring_size(str));
+            pdf_out_block(pdf, (const char *) str, ppstring_size((void *)(str)));
             pdf_out(pdf, '>');
             break;
         case PPSTRING_BASE85:
             pdf_out(pdf, '<');
             pdf_out(pdf, '~');
-            pdf_out_block(pdf, (const char *) str, ppstring_size(str));
+            pdf_out_block(pdf, (const char *) str, ppstring_size((void *)(str)));
             pdf_out(pdf, '~');
             pdf_out(pdf, '>');
             break;

@@ -665,6 +665,12 @@ static void run_normal (void) {
             (void) scan_toks(false, false);
             late_lua_data(tail) = def_ref;
             break;
+        case late_lua_call_code:
+            new_whatsit(late_lua_node);
+            late_lua_type(tail) = lua_refid_call;
+            scan_int();
+            late_lua_data(tail) = cur_val;
+            break;
         case expand_font_code:
             read_expand_font();
             break;

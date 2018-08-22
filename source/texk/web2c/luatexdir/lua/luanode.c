@@ -341,12 +341,13 @@ void lua_pdf_literal(PDF pdf, int i, int noline)
 
 void copy_pdf_literal(pointer r, pointer p)
 {
-    pdf_literal_type(r) = pdf_literal_type(p);
+    int t = pdf_literal_type(p);
+    pdf_literal_type(r) = t;
     pdf_literal_mode(r) = pdf_literal_mode(p);
-    if (pdf_literal_type(p) == normal) {
+    if (t == normal) {
         pdf_literal_data(r) = pdf_literal_data(p);
         add_token_ref(pdf_literal_data(p));
-    } else {
+    } else if (t == lua_refid_literal) {
         lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
         pdf_literal_data(r) = luaL_ref(Luas, LUA_REGISTRYINDEX);
     }
@@ -354,13 +355,14 @@ void copy_pdf_literal(pointer r, pointer p)
 
 void copy_late_lua(pointer r, pointer p)
 {
-    late_lua_type(r) = late_lua_type(p);
+    int t = late_lua_type(p);
+    late_lua_type(r) = t;
     if (late_lua_name(p) > 0)
         add_token_ref(late_lua_name(p));
-    if (late_lua_type(p) == normal) {
+    if (t == normal) {
         late_lua_data(r) = late_lua_data(p);
         add_token_ref(late_lua_data(p));
-    } else {
+    } else if (t == lua_refid_literal) {
         lua_rawgeti(Luas, LUA_REGISTRYINDEX, late_lua_data(p));
         late_lua_data(r) = luaL_ref(Luas, LUA_REGISTRYINDEX);
     }
@@ -376,20 +378,22 @@ void copy_user_lua(pointer r, pointer p)
 
 void free_pdf_literal(pointer p)
 {
-    if (pdf_literal_type(p) == normal) {
+    int t = pdf_literal_type(p);
+    if (t == normal) {
         delete_token_ref(pdf_literal_data(p));
-    } else {
+    } else if (t == lua_refid_literal) {
         luaL_unref(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
     }
 }
 
 void free_late_lua(pointer p)
 {
+    int t = late_lua_type(p);
     if (late_lua_name(p) > 0)
         delete_token_ref(late_lua_name(p));
-    if (late_lua_type(p) == normal) {
+    if (t == normal) {
         delete_token_ref(late_lua_data(p));
-    } else {
+    } else if (t == lua_refid_literal) {
         luaL_unref(Luas, LUA_REGISTRYINDEX, late_lua_data(p));
     }
 }
@@ -403,6 +407,7 @@ void free_user_lua(pointer p)
 
 void show_pdf_literal(pointer p)
 {
+    int t = pdf_literal_type(p);
     tprint_esc("pdfliteral");
     switch (pdf_literal_mode(p)) {
         case set_origin:
@@ -421,26 +426,37 @@ void show_pdf_literal(pointer p)
             confusion("literal2");
             break;
     }
-    if (pdf_literal_type(p) == normal) {
+    if (t == normal) {
         print_mark(pdf_literal_data(p));
+    } else if (t == lua_refid_literal) {
+        tprint(" <function ");
+        print_int(pdf_literal_data(p));
+        tprint(">");
+    } else if (t == lua_refid_call) {
+        tprint(" <functioncall ");
+        print_int(late_lua_data(p));
+        tprint(">");
     } else {
-        lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
-        tprint("\"");
-        tprint(lua_tostring(Luas, -1));
-        tprint("\"");
-        lua_pop(Luas, 1);
+        tprint(" <invalid>");
     }
 }
 
 void show_late_lua(pointer p)
 {
+    int t = late_lua_type(p);
     tprint_esc("latelua");
     print_int(late_lua_reg(p));
-    if (late_lua_type(p) == normal) {
+    if (t == normal) {
         print_mark(late_lua_data(p));
-    } else {
+    } else if (t == lua_refid_literal) {
         tprint(" <function ");
         print_int(late_lua_data(p));
         tprint(">");
+    } else if (t == lua_refid_call) {
+        tprint(" <functioncall ");
+        print_int(late_lua_data(p));
+        tprint(">");
+    } else {
+        tprint(" <invalid>");
     }
 }

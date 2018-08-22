@@ -830,6 +830,7 @@ typedef enum {
 /* type of literal data */
 
 #  define lua_refid_literal 1 /* not a |normal| string */
+#  define lua_refid_call    2 /* not a |normal| string */
 
 /* begin of pdf backend nodes */
 

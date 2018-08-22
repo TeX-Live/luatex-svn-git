@@ -2295,7 +2295,8 @@ thereby ignoring \type {nil} entries. The first valid node is returned (beware:
 for good reason it assumes single nodes). For rarely used fields no helpers are
 provided and there are a few that probably are used seldom too but were added for
 consistency. You can of course always define additional accessors using \type
-{getfield} and \type {setfield} with little overhead.
+{getfield} and \type {setfield} with little overhead. When the second argument of
+\type {setattributelist} is \type {true} the current attribute list is assumed.
 
 \def\yes{$+$} \def\nop{$-$}
 

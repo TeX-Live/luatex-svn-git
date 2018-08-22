@@ -399,8 +399,8 @@ static int pushvalue(lua_State * L, ppobj *object)
             return 1;
             break;
         case PPSTRING:
-            lua_pushlstring(L,(const char *) object->string, ppstring_size(object->string));
-            lua_pushboolean(L, ppstring_hex(object->string));
+            lua_pushlstring(L,(const char *) object->string, ppstring_size((void *)object->string));
+            lua_pushboolean(L, ppstring_hex((void *)object->string));
             return 2;
             break;
         case PPARRAY:
@@ -1397,7 +1397,7 @@ static int pdfelib_pushvalue(lua_State * L, ppobj *object)
             lua_pushstring(L, (const char *) ppname_decoded(object->name));
             break;
         case PPSTRING:
-            lua_pushlstring(L,(const char *) object->string, ppstring_size(object->string));
+            lua_pushlstring(L,(const char *) object->string, ppstring_size((void *)object->string));
             break;
         case PPARRAY:
             return pusharrayonly(L, object->array);
