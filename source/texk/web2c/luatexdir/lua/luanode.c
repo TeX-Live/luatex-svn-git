@@ -350,6 +350,9 @@ void copy_pdf_literal(pointer r, pointer p)
     } else if (t == lua_refid_literal) {
         lua_rawgeti(Luas, LUA_REGISTRYINDEX, pdf_literal_data(p));
         pdf_literal_data(r) = luaL_ref(Luas, LUA_REGISTRYINDEX);
+    } else {
+        /* maybe something user, we don't support a call here but best keep it sane anyway. */
+        pdf_literal_data(r) = pdf_literal_data(p);
     }
 }
 
@@ -423,21 +426,17 @@ void show_pdf_literal(pointer p)
             tprint(" raw");
             break;
         default:
-            confusion("literal2");
+            tprint(" <invalid mode>");
             break;
     }
     if (t == normal) {
         print_mark(pdf_literal_data(p));
     } else if (t == lua_refid_literal) {
-        tprint(" <function ");
+        tprint(" <lua data reference ");
         print_int(pdf_literal_data(p));
         tprint(">");
-    } else if (t == lua_refid_call) {
-        tprint(" <functioncall ");
-        print_int(late_lua_data(p));
-        tprint(">");
     } else {
-        tprint(" <invalid>");
+        tprint(" <invalid data>");
     }
 }
 
@@ -449,14 +448,14 @@ void show_late_lua(pointer p)
     if (t == normal) {
         print_mark(late_lua_data(p));
     } else if (t == lua_refid_literal) {
-        tprint(" <function ");
+        tprint(" <function reference ");
         print_int(late_lua_data(p));
         tprint(">");
     } else if (t == lua_refid_call) {
-        tprint(" <functioncall ");
+        tprint(" <functioncall reference ");
         print_int(late_lua_data(p));
         tprint(">");
     } else {
-        tprint(" <invalid>");
+        tprint(" <invalid data>");
     }
 }

@@ -46,8 +46,9 @@ void pdf_out_literal(PDF pdf, halfword p)
 {
     int old_setting;
     str_number s;
+    int t = pdf_literal_type(p);
     pdfstructure *ps = pdf->pstruct;
-    if (pdf_literal_type(p) == normal) {
+    if (t == normal) {
         old_setting = selector;
         selector = new_string;
         show_token_list(token_link(pdf_literal_data(p)), null, -1);
@@ -55,7 +56,7 @@ void pdf_out_literal(PDF pdf, halfword p)
         s = make_string();
         pdf_literal(pdf, s, pdf_literal_mode(p), false);
         flush_str(s);
-    } else {
+    } else if (t == lua_refid_literal) {
         switch (pdf_literal_mode(p)) {
             case set_origin:
                 pdf_goto_pagemode(pdf);

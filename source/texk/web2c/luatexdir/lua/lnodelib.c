@@ -1555,9 +1555,7 @@ static int lua_nodelib_direct_setleader(lua_State * L)
 #define get_pdf_literal_direct_value(L,n) do {                  \
     if (pdf_literal_type(n) == lua_refid_literal) {             \
         lua_rawgeti(L, LUA_REGISTRYINDEX, pdf_literal_data(n)); \
-    } else if (pdf_literal_type(n) == lua_refid_call) {         \
-        lua_pushinteger(L, pdf_literal_data(n));                \
-    } else {                                                    \
+    } else if (pdf_literal_type(n) == lua_refid_literal) {      \
         tokenlist_to_luastring(L, pdf_literal_data(n));         \
     }                                                           \
 } while (0)
@@ -1565,9 +1563,7 @@ static int lua_nodelib_direct_setleader(lua_State * L)
 #define set_pdf_literal_direct_normal(L,n,i) do {             \
     if (ini_version) {                                        \
         pdf_literal_data(n) = nodelib_gettoks(L, i);          \
-    } else if (lua_type(L, i) == LUA_TNUMBER) {               \
-        pdf_literal_data(n) = lua_tointeger(L,i);             \
-        pdf_literal_type(n) = lua_refid_call;                 \
+        pdf_literal_type(n) = normal;                         \
     } else {                                                  \
         lua_pushvalue(L, i);                                  \
         pdf_literal_data(n) = luaL_ref(L, LUA_REGISTRYINDEX); \
@@ -1619,9 +1615,9 @@ static int lua_nodelib_direct_setleader(lua_State * L)
 #define get_late_lua_direct_value(L,n) do {                  \
     if (late_lua_type(n) == lua_refid_literal) {             \
         lua_rawgeti(L, LUA_REGISTRYINDEX, late_lua_data(n)); \
-    } else if (pdf_literal_type(n) == lua_refid_call) {      \
+    } else if (late_lua_type(n) == lua_refid_call) {         \
         lua_pushinteger(L, late_lua_data(n));                \
-    } else {                                                 \
+    } else if (late_lua_type(n) == normal) {                 \
         tokenlist_to_luastring(L, late_lua_data(n));         \
     }                                                        \
 } while (0)
