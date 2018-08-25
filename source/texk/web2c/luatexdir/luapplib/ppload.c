@@ -69,8 +69,28 @@ const char ppname_byte_lookup[] = {
    ghost->size = siz - sizeof(_ppname) - 1 - sizeof(ppname *), \
   (ppname)(ghost + 1))
 
+
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#define ppname_set_alter_ego(name, ghost, ego) do {\
+    ppname temp;\
+    ppname *temp1;\
+    temp =  (name + (ghost)->size + 1) ; \
+    temp1 = (ppname *)((void*)temp); \
+    *temp1= ego; \
+    }while(0)
+#else
 #define ppname_set_alter_ego(name, ghost, ego) (*((ppname *)(name + (ghost)->size + 1)) = ego)
+#endif
+
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#define ppname_get_alter_ego(name) (*((ppname *)( (void*)(name + ppname_size(name) + 1))))
+#else
 #define ppname_get_alter_ego(name) (*((ppname *)(name + ppname_size(name) + 1)))
+#endif
+
+
+
+
 
 static ppname ppscan_name (iof *I, ppheap **pheap)
 {
@@ -199,8 +219,23 @@ ppname ppname_encoded (ppname name)
   (ghost2->size >= 2 ? (ppstring_utf16be_bom(decoded) ? ((ghost1->flags |= PPSTRING_UTF16BE), (ghost2->flags |= PPSTRING_UTF16BE)) : \
                        (ppstring_utf16le_bom(decoded) ? ((ghost1->flags |= PPSTRING_UTF16LE), (ghost2->flags |= PPSTRING_UTF16LE)) : 0)) : 0))
 
+
+
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#define ppstring_set_alter_ego(string, ghost, ego) (*((ppstring *)((void *)(string + (ghost)->size + 1))) = ego)
+#else
 #define ppstring_set_alter_ego(string, ghost, ego) (*((ppstring *)(string + (ghost)->size + 1)) = ego)
+#endif
+
+
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#define ppstring_get_alter_ego(string) (*((ppstring *)((void *)(string + ppstring_size(string) + 1))))
+#else
 #define ppstring_get_alter_ego(string) (*((ppstring *)(string + ppstring_size(string) + 1)))
+#endif
+
+
+
 
 static ppstring ppscan_string (iof *I, ppheap **pheap)
 {

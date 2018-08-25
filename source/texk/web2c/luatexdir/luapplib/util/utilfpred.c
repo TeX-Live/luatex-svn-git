@@ -124,7 +124,23 @@ predictor_state * predictor_decoder_init (predictor_state *state, int predictor,
     state->pixbufsize = (int)(compbuf > pixbuf ? compbuf : pixbuf);
     buffersize = rowsize + state->pixbufsize;
     buffer = (uint8_t *)util_calloc(buffersize, 1);
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+    { /*memory leak */
+      predictor_component_t *c;
+      if (state->pixbufsize%(sizeof(predictor_component_t))) {
+       c = malloc(state->pixbufsize - state->pixbufsize%(sizeof(predictor_component_t)) + sizeof(predictor_component_t) );
+      } else {
+       c = malloc(state->pixbufsize); 
+      }
+      memcpy(c,(state->rowin + rowsize),state->pixbufsize);
+      if (state->prevcomp){
+	free(state->prevcomp);
+      }
+      state->prevcomp = c;
+    }
+#else
     state->prevcomp = (predictor_component_t *)(state->rowin + rowsize);
+#endif			
     state->sampleindex = state->compindex = 0;
     state->bitsin = state->bitsout = 0;
     state->compin = state->compout = 0;

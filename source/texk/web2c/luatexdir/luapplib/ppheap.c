@@ -15,9 +15,9 @@
 
  
 #ifdef PPHEAP_NEED_ALIGNMENT 
-/* Tests shown that long double seems to work: */
-/* For 32bit aligned_data has  algn: 64 as ppxref and ppref, */
-/* the rest algn divide algn: 64, so it's ok.*/
+/* Tests has shown that long double seems to work: */
+/* for 32bit aligned_data has  algn: 64 as ppxref and ppref, */
+/* the other algns divide algn: 64, so it's ok.*/
 /* Hopefully it's ok for aarch64 too */
 
 /* These data are stored in ppheap.c.001t.tu */
@@ -274,6 +274,7 @@ void * ppheap_take (ppheap **pheap, size_t size)
  	heap->data += size;
  	heap->size -= size;
 #ifdef PPHEAP_NEED_ALIGNMENT
+	/* Todo: only if data%sizeof(aligned_data) != 0 */
 	p_aligned_data = malloc(size);
 	memcpy(p_aligned_data,data,size);
 	align_save_into_set(p_aligned_data);
@@ -407,6 +408,7 @@ void * ppheap_flush (iof *O, size_t *psize) // not from explicit ppheap ** !!!
   // O->link = NULL;
   // iof_close(O);
 #ifdef PPHEAP_NEED_ALIGNMENT
+  /* Todo: only if data%sizeof(aligned_data) != 0 */
   p_aligned_data = malloc(size);
   memcpy(p_aligned_data,data,size);
   align_save_into_set(p_aligned_data);

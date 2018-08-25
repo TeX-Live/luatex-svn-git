@@ -1,7 +1,12 @@
 /* sha2 implementation by Aaron D. Gifford (http://www.aarongifford.com) */
 
-#define BYTE_ORDER LITTLE_ENDIAN
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#include <stdlib.h>
+#endif
 
+#ifndef BYTE_ORDER
+#define BYTE_ORDER LITTLE_ENDIAN
+#endif
 /* begin of sha2.c */
 
 /*
@@ -39,6 +44,9 @@
  */
 
 #include <string.h>	/* memcpy()/memset() or bcopy()/bzero() */
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#include <stdlib.h>
+#endif
 #include <assert.h>	/* assert() */
 //#include "sha2.h"
 #include "utilsha.h"
@@ -442,7 +450,12 @@ static void SHA256_Transform(SHA256_CTX* context, const uint32_t* data) {
 	uint32_t	T1, T2, *W256;
 	int		j;
 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+	W256 = (uint32_t*)((void *)context->buffer);
+#else
 	W256 = (uint32_t*)context->buffer;
+#endif
+
 
 	/* Initialize registers with the prev. intermediate value */
 	a = context->state[0];
@@ -539,7 +552,12 @@ static void SHA256_Update(SHA256_CTX* context, const uint8_t *data, size_t len) 
 			context->bitcount += freespace << 3;
 			len -= freespace;
 			data += freespace;
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+			SHA256_Transform(context, (uint32_t*)((void *)context->buffer));
+#else
 			SHA256_Transform(context, (uint32_t*)context->buffer);
+#endif
+
 		} else {
 			/* The buffer is not yet full */
 			MEMCPY_BCOPY(&context->buffer[usedspace], data, len);
@@ -551,7 +569,12 @@ static void SHA256_Update(SHA256_CTX* context, const uint8_t *data, size_t len) 
 	}
 	while (len >= SHA256_BLOCK_LENGTH) {
 		/* Process as many complete blocks as we can */
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+  	        SHA256_Transform(context, (const uint32_t*)(const void *)(data));
+#else
 		SHA256_Transform(context, (const uint32_t*)data);
+#endif
+
 		context->bitcount += SHA256_BLOCK_LENGTH << 3;
 		len -= SHA256_BLOCK_LENGTH;
 		data += SHA256_BLOCK_LENGTH;
@@ -566,12 +589,21 @@ static void SHA256_Update(SHA256_CTX* context, const uint8_t *data, size_t len) 
 }
 
 static void SHA256_Final(uint8_t digest[], SHA256_CTX* context) {
-	uint32_t	*d = (uint32_t*)digest;
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        uint32_t	*d ;
+#else
+        uint32_t	*d = (uint32_t*)digest;
+
+#endif
 	unsigned int	usedspace;
 
 	/* Sanity check: */
 	assert(context != (SHA256_CTX*)0);
-
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        d = malloc(sizeof(uint32_t)*8); /* why  8 ?  see below for loop */
+        assert(d);		   
+#endif
+	
 	/* If no digest buffer is passed, we don't bother doing this: */
 	if (digest != (uint8_t*)0) {
 		usedspace = (context->bitcount >> 3) % SHA256_BLOCK_LENGTH;
@@ -591,7 +623,12 @@ static void SHA256_Final(uint8_t digest[], SHA256_CTX* context) {
 					MEMSET_BZERO(&context->buffer[usedspace], SHA256_BLOCK_LENGTH - usedspace);
 				}
 				/* Do second-to-last transform: */
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+				SHA256_Transform(context, (uint32_t*)(void *)(context->buffer));
+#else
 				SHA256_Transform(context, (uint32_t*)context->buffer);
+#endif
+
 
 				/* And set-up for the last transform: */
 				MEMSET_BZERO(context->buffer, SHA256_SHORT_BLOCK_LENGTH);
@@ -608,7 +645,13 @@ static void SHA256_Final(uint8_t digest[], SHA256_CTX* context) {
     context->buffer64[SHA256_SHORT_BLOCK_LENGTH / sizeof(uint64_t)] = context->bitcount;
 
 		/* Final transform: */
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+                SHA256_Transform(context, (uint32_t*)((void *)(context->buffer)));
+
+#else
 		SHA256_Transform(context, (uint32_t*)context->buffer);
+
+#endif
 
 #if BYTE_ORDER == LITTLE_ENDIAN
 		{
@@ -624,6 +667,11 @@ static void SHA256_Final(uint8_t digest[], SHA256_CTX* context) {
 #endif
 	}
 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        memcpy(digest,d,SHA256_DIGEST_LENGTH);
+        free(d);		   
+#endif
+	
 	/* Clean up state data: */
 	MEMSET_BZERO(context, sizeof(*context));
 	usedspace = 0;
@@ -766,7 +814,7 @@ static void SHA512_Transform(SHA512_CTX* context, const uint64_t* data) {
 
 static void SHA512_Transform(SHA512_CTX* context, const uint64_t* data) {
 	uint64_t	a, b, c, d, e, f, g, h, s0, s1;
-	uint64_t	T1, T2, *W512 = (uint64_t*)context->buffer;
+	uint64_t	T1, T2, *W512 = (uint64_t*)((void *)context->buffer);
 	int		j;
 
 	/* Initialize registers with the prev. intermediate value */
@@ -864,7 +912,11 @@ static void SHA512_Update(SHA512_CTX* context, const uint8_t *data, size_t len) 
 			ADDINC128(context->bitcount, freespace << 3);
 			len -= freespace;
 			data += freespace;
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+			SHA512_Transform(context, (uint64_t*)((void *)context->buffer));
+#else
 			SHA512_Transform(context, (uint64_t*)context->buffer);
+#endif
 		} else {
 			/* The buffer is not yet full */
 			MEMCPY_BCOPY(&context->buffer[usedspace], data, len);
@@ -876,7 +928,11 @@ static void SHA512_Update(SHA512_CTX* context, const uint8_t *data, size_t len) 
 	}
 	while (len >= SHA512_BLOCK_LENGTH) {
 		/* Process as many complete blocks as we can */
-		SHA512_Transform(context, (const uint64_t*)data);
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+  	                SHA512_Transform(context, (uint64_t*)((void *)context->buffer));
+#else
+			SHA512_Transform(context, (uint64_t*)context->buffer);
+#endif
 		ADDINC128(context->bitcount, SHA512_BLOCK_LENGTH << 3);
 		len -= SHA512_BLOCK_LENGTH;
 		data += SHA512_BLOCK_LENGTH;
@@ -911,7 +967,12 @@ static void SHA512_Last(SHA512_CTX* context) {
 				MEMSET_BZERO(&context->buffer[usedspace], SHA512_BLOCK_LENGTH - usedspace);
 			}
 			/* Do second-to-last transform: */
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+			SHA512_Transform(context, (uint64_t*)((void *)context->buffer));
+#else
 			SHA512_Transform(context, (uint64_t*)context->buffer);
+#endif
+
 
 			/* And set-up for the last transform: */
 			MEMSET_BZERO(context->buffer, SHA512_BLOCK_LENGTH - 2);
@@ -930,14 +991,28 @@ static void SHA512_Last(SHA512_CTX* context) {
   context->buffer64[SHA512_SHORT_BLOCK_LENGTH / sizeof(uint64_t) + 1] = context->bitcount[0];
 
 	/* Final transform: */
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        SHA512_Transform(context, (uint64_t*)((void *)context->buffer));
+#else
 	SHA512_Transform(context, (uint64_t*)context->buffer);
+#endif
+
 }
 
 static void SHA512_Final(uint8_t digest[], SHA512_CTX* context) {
-	uint64_t	*d = (uint64_t*)digest;
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        uint64_t	*d ;
+#else
+        uint64_t	*d = (uint64_t*)digest;
+
+#endif
 
 	/* Sanity check: */
 	assert(context != (SHA512_CTX*)0);
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        d = malloc(sizeof(uint64_t)*8); /* why  8 ?  see below for loop */
+        assert(d);		   
+#endif
 
 	/* If no digest buffer is passed, we don't bother doing this: */
 	if (digest != (uint8_t*)0) {
@@ -957,6 +1032,10 @@ static void SHA512_Final(uint8_t digest[], SHA512_CTX* context) {
 		MEMCPY_BCOPY(d, context->state, SHA512_DIGEST_LENGTH);
 #endif
 	}
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        memcpy(digest,d,SHA512_DIGEST_LENGTH);
+        free(d);		   
+#endif
 
 	/* Zero out state data */
 	MEMSET_BZERO(context, sizeof(*context));
@@ -1010,10 +1089,20 @@ static void SHA384_Update(SHA384_CTX* context, const uint8_t* data, size_t len) 
 }
 
 static void SHA384_Final(uint8_t digest[], SHA384_CTX* context) {
-	uint64_t	*d = (uint64_t*)digest;
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        uint64_t	*d;
+#else
+        uint64_t	*d = (uint64_t*)digest;
+#endif
+
+
 
 	/* Sanity check: */
 	assert(context != (SHA384_CTX*)0);
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        d = malloc(sizeof(uint64_t)*6); /* why  6 ?  see below for loop */
+        assert(d);		   
+#endif
 
 	/* If no digest buffer is passed, we don't bother doing this: */
 	if (digest != (uint8_t*)0) {
@@ -1033,7 +1122,10 @@ static void SHA384_Final(uint8_t digest[], SHA384_CTX* context) {
 		MEMCPY_BCOPY(d, context->state, SHA384_DIGEST_LENGTH);
 #endif
 	}
-
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+        memcpy(digest,d,SHA384_DIGEST_LENGTH);
+        free(d);		   
+#endif
 	/* Zero out state data */
 	MEMSET_BZERO(context, sizeof(*context));
 }

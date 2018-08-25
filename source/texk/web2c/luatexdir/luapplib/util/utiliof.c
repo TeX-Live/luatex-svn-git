@@ -2001,6 +2001,15 @@ void iof_filters_free (void)
   iof_filters_heap = NULL;
 }
 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#define iof_heap_get(hp, ghost, data, siz) \
+ (ghost = (iof_heap_ghost *)((void*)((hp)->pos)), \
+  ghost->heap = hp, \
+  data = (uint8_t *)(ghost + 1), \
+  (hp)->pos += siz, \
+  (hp)->size -= siz, \
+  ++(hp)->refcount)
+#else
 #define iof_heap_get(hp, ghost, data, siz) \
  (ghost = (iof_heap_ghost *)((hp)->pos), \
   ghost->heap = hp, \
@@ -2008,6 +2017,8 @@ void iof_filters_free (void)
   (hp)->pos += siz, \
   (hp)->size -= siz, \
   ++(hp)->refcount)
+
+#endif
 
 
 static void * iof_heap_take (iof_heap **pheap, size_t size)
