@@ -590,7 +590,8 @@ static void SHA256_Update(SHA256_CTX* context, const uint8_t *data, size_t len) 
 
 static void SHA256_Final(uint8_t digest[], SHA256_CTX* context) {
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
-        uint32_t	*d ;
+        uint32_t	*d=NULL ;
+        uint32_t	*d0=NULL ;
 #else
         uint32_t	*d = (uint32_t*)digest;
 
@@ -601,6 +602,7 @@ static void SHA256_Final(uint8_t digest[], SHA256_CTX* context) {
 	assert(context != (SHA256_CTX*)0);
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
         d = malloc(sizeof(uint32_t)*8); /* why  8 ?  see below for loop */
+	d0=d;
         assert(d);		   
 #endif
 	
@@ -669,7 +671,8 @@ static void SHA256_Final(uint8_t digest[], SHA256_CTX* context) {
 
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
         memcpy(digest,d,SHA256_DIGEST_LENGTH);
-        free(d);		   
+	/*d=d0*;*/
+        free(d0);		   
 #endif
 	
 	/* Clean up state data: */
@@ -1001,7 +1004,8 @@ static void SHA512_Last(SHA512_CTX* context) {
 
 static void SHA512_Final(uint8_t digest[], SHA512_CTX* context) {
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
-        uint64_t	*d ;
+        uint64_t	*d=NULL ;
+        uint64_t	*d0=NULL ;
 #else
         uint64_t	*d = (uint64_t*)digest;
 
@@ -1011,6 +1015,7 @@ static void SHA512_Final(uint8_t digest[], SHA512_CTX* context) {
 	assert(context != (SHA512_CTX*)0);
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
         d = malloc(sizeof(uint64_t)*8); /* why  8 ?  see below for loop */
+	d0=d;
         assert(d);		   
 #endif
 
@@ -1034,7 +1039,8 @@ static void SHA512_Final(uint8_t digest[], SHA512_CTX* context) {
 	}
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
         memcpy(digest,d,SHA512_DIGEST_LENGTH);
-        free(d);		   
+	/*d=d0*;*/
+        free(d0);		   
 #endif
 
 	/* Zero out state data */
@@ -1090,7 +1096,8 @@ static void SHA384_Update(SHA384_CTX* context, const uint8_t* data, size_t len) 
 
 static void SHA384_Final(uint8_t digest[], SHA384_CTX* context) {
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
-        uint64_t	*d;
+        uint64_t	*d=NULL;
+        uint64_t	*d0=NULL;
 #else
         uint64_t	*d = (uint64_t*)digest;
 #endif
@@ -1101,6 +1108,7 @@ static void SHA384_Final(uint8_t digest[], SHA384_CTX* context) {
 	assert(context != (SHA384_CTX*)0);
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
         d = malloc(sizeof(uint64_t)*6); /* why  6 ?  see below for loop */
+	d0=d;
         assert(d);		   
 #endif
 
@@ -1124,7 +1132,8 @@ static void SHA384_Final(uint8_t digest[], SHA384_CTX* context) {
 	}
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
         memcpy(digest,d,SHA384_DIGEST_LENGTH);
-        free(d);		   
+	/*d=d0*;*/
+        free(d0);		   
 #endif
 	/* Zero out state data */
 	MEMSET_BZERO(context, sizeof(*context));
