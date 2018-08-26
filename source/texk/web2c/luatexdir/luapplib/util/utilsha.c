@@ -670,9 +670,9 @@ static void SHA256_Final(uint8_t digest[], SHA256_CTX* context) {
 	}
 
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+	d=d0;
         memcpy(digest,d,SHA256_DIGEST_LENGTH);
-	/*d=d0*;*/
-        free(d0);		   
+        free(d);		   
 #endif
 	
 	/* Clean up state data: */
@@ -1001,9 +1001,9 @@ static void SHA512_Last(SHA512_CTX* context) {
 #endif
 
 }
-
+#undef NOGO
 static void SHA512_Final(uint8_t digest[], SHA512_CTX* context) {
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if (defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ) && defined(NOGO)
         uint64_t	*d=NULL ;
         uint64_t	*d0=NULL ;
 #else
@@ -1013,7 +1013,7 @@ static void SHA512_Final(uint8_t digest[], SHA512_CTX* context) {
 
 	/* Sanity check: */
 	assert(context != (SHA512_CTX*)0);
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if (defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ) && defined(NOGO)
         d = malloc(sizeof(uint64_t)*8); /* why  8 ?  see below for loop */
 	d0=d;
         assert(d);		   
@@ -1037,10 +1037,10 @@ static void SHA512_Final(uint8_t digest[], SHA512_CTX* context) {
 		MEMCPY_BCOPY(d, context->state, SHA512_DIGEST_LENGTH);
 #endif
 	}
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if( defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__)  && defined(NOGO)
+	d=d0;
         memcpy(digest,d,SHA512_DIGEST_LENGTH);
-	/*d=d0*;*/
-        free(d0);		   
+        free(d);		   
 #endif
 
 	/* Zero out state data */
@@ -1131,9 +1131,9 @@ static void SHA384_Final(uint8_t digest[], SHA384_CTX* context) {
 #endif
 	}
 #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+	d=d0;
         memcpy(digest,d,SHA384_DIGEST_LENGTH);
-	/*d=d0*;*/
-        free(d0);		   
+        free(d);		   
 #endif
 	/* Zero out state data */
 	MEMSET_BZERO(context, sizeof(*context));
