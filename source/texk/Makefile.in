@@ -91,12 +91,10 @@ subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-common.m4 \
 	$(top_srcdir)/../m4/kpse-cxx-hack.m4 \
-	$(top_srcdir)/../m4/kpse-gmp-flags.m4 \
 	$(top_srcdir)/../m4/kpse-kpathsea-flags.m4 \
 	$(top_srcdir)/../m4/kpse-libpng-flags.m4 \
 	$(top_srcdir)/../m4/kpse-lt-hack.m4 \
 	$(top_srcdir)/../m4/kpse-mktex.m4 \
-	$(top_srcdir)/../m4/kpse-mpfr-flags.m4 \
 	$(top_srcdir)/../m4/kpse-options.m4 \
 	$(top_srcdir)/../m4/kpse-pkgs.m4 \
 	$(top_srcdir)/../m4/kpse-setup.m4 \
@@ -111,8 +109,6 @@ am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-common.m4 \
 	$(top_srcdir)/../texk/texlive/ac/withenable.ac \
 	$(top_srcdir)/../texk/texlive/ac/texlive.ac \
 	$(top_srcdir)/../libs/zziplib/ac/withenable.ac \
-	$(top_srcdir)/../libs/mpfr/ac/withenable.ac \
-	$(top_srcdir)/../libs/gmp/ac/withenable.ac \
 	$(top_srcdir)/../libs/libpng/ac/withenable.ac \
 	$(top_srcdir)/../libs/luajit/ac/withenable.ac \
 	$(top_srcdir)/../libs/lua52/ac/withenable.ac \

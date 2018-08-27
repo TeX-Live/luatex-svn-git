@@ -834,12 +834,6 @@ enable_synctex
 enable_texlive
 enable_linked_scripts
 with_system_zziplib
-with_system_mpfr
-with_mpfr_includes
-with_mpfr_libdir
-with_system_gmp
-with_gmp_includes
-with_gmp_libdir
 with_system_libpng
 with_system_zlib
 with_zlib_includes
@@ -1597,13 +1591,6 @@ Optional Packages:
   --with-mf-x-toolkit     use X toolkit for METAFONT
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
-  --with-system-mpfr      use installed mpfr headers and library
-  --with-mpfr-includes=DIR
-                          mpfr headers installed in DIR
-  --with-mpfr-libdir=DIR  mpfr library installed in DIR
-  --with-system-gmp       use installed gmp headers and library
-  --with-gmp-includes=DIR gmp headers installed in DIR
-  --with-gmp-libdir=DIR   gmp library installed in DIR
   --with-system-libpng    use installed libpng headers and library (requires
                           pkg-config)
   --with-system-zlib      use installed zlib headers and library
@@ -4192,7 +4179,6 @@ case $enable_luatex in #(
 esac
 
 test "x$enable_web2c:$enable_luatex" = xyes:yes && {
-  need_poppler=yes
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
@@ -4210,7 +4196,6 @@ case $enable_luatex53 in #(
 esac
 
 test "x$enable_web2c:$enable_luatex53" = xyes:yes && {
-  need_poppler=yes
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
@@ -4228,7 +4213,6 @@ case $enable_luajittex in #(
 esac
 
 test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
-  need_poppler=yes
   need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
@@ -4497,100 +4481,6 @@ fi
 test "x$need_zziplib" = xyes && {
   need_zlib=yes
 }
-
-## libs/mpfr/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/mpfr/
-## configure options and TL libraries required for mpfr
-
-# Check whether --with-system-mpfr was given.
-if test "${with_system_mpfr+set}" = set; then :
-  withval=$with_system_mpfr;
-fi
-
-# Check whether --with-mpfr-includes was given.
-if test "${with_mpfr_includes+set}" = set; then :
-  withval=$with_mpfr_includes;
-fi
-
-# Check whether --with-mpfr-libdir was given.
-if test "${with_mpfr_libdir+set}" = set; then :
-  withval=$with_mpfr_libdir;
-fi
-if test "x$with_system_mpfr" = x; then
-  if test -f $srcdir/libs/mpfr/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`mpfr' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`mpfr' headers and library from TL tree" >&6;}
-    with_system_mpfr=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`mpfr' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`mpfr' headers and library" >&6;}
-    with_system_mpfr=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-mpfr=$with_system_mpfr'"
-elif test "x$with_system_mpfr" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`mpfr' headers and library" >&5
-$as_echo "$as_me: Using installed \`mpfr' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`mpfr' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`mpfr' headers and library from TL tree" >&6;}
-  if test "x$with_system_mpfr" != xno; then
-    with_system_mpfr=no
-    ac_configure_args="$ac_configure_args '--without-system-mpfr'"
-  fi
-fi
-if test "x$with_system_mpfr" = xyes; then
-  if test "x$with_system_gmp" = x; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`gmp' headers and library" >&5
-$as_echo "$as_me:   ->  installed \`gmp' headers and library" >&6;}
-    with_system_gmp=yes
-    ac_configure_args="$ac_configure_args '--with-system-gmp'"
-  elif test "x$with_system_gmp" != xyes; then
-    as_fn_error $? "Sorry, \`--with-system-mpfr' requires \`--with-system-gmp'" "$LINENO" 5
-  fi
-fi
-
-test "x$need_mpfr" = xyes && {
-  need_gmp=yes
-}
-
-## libs/gmp/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/gmp/
-## configure options and TL libraries required for gmp
-
-# Check whether --with-system-gmp was given.
-if test "${with_system_gmp+set}" = set; then :
-  withval=$with_system_gmp;
-fi
-
-# Check whether --with-gmp-includes was given.
-if test "${with_gmp_includes+set}" = set; then :
-  withval=$with_gmp_includes;
-fi
-
-# Check whether --with-gmp-libdir was given.
-if test "${with_gmp_libdir+set}" = set; then :
-  withval=$with_gmp_libdir;
-fi
-if test "x$with_system_gmp" = x; then
-  if test -f $srcdir/libs/gmp/configure; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`gmp' headers and library from TL tree" >&5
-$as_echo "$as_me: Assuming \`gmp' headers and library from TL tree" >&6;}
-    with_system_gmp=no
-  else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`gmp' headers and library" >&5
-$as_echo "$as_me: Assuming installed \`gmp' headers and library" >&6;}
-    with_system_gmp=yes
-  fi
-  ac_configure_args="$ac_configure_args '--with-system-gmp=$with_system_gmp'"
-elif test "x$with_system_gmp" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`gmp' headers and library" >&5
-$as_echo "$as_me: Using installed \`gmp' headers and library" >&6;}
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`gmp' headers and library from TL tree" >&5
-$as_echo "$as_me: Using \`gmp' headers and library from TL tree" >&6;}
-  if test "x$with_system_gmp" != xno; then
-    with_system_gmp=no
-    ac_configure_args="$ac_configure_args '--without-system-gmp'"
-  fi
-fi
 
 ## libs/libpng/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/libpng/
 ## configure options and TL libraries required for libpng
@@ -19930,64 +19820,6 @@ main ()
 {
 png_structp png; png_voidp io; png_rw_ptr fn;
 png_set_read_fn(png, io, fn);
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-
-## libs/gmp/ac/gmp.ac: configure.ac fragment for the TeX Live subdirectory libs/gmp/
-## basic check of system gmp
-if test "x$need_gmp:$with_system_gmp" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`gmp' library" >&5
-$as_echo_n "checking requested system \`gmp' library... " >&6; }
-  CPPFLAGS="$GMP_INCLUDES $CPPFLAGS"
-  LIBS="$GMP_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <gmp.h>
-int
-main ()
-{
-const char *s = gmp_version;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  syslib_used=yes kpse_res=ok
-else
-  syslib_status=no kpse_res=failed
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
-$as_echo "$kpse_res" >&6; }
-fi
-
-## libs/mpfr/ac/mpfr.ac: configure.ac fragment for the TeX Live subdirectory libs/mpfr/
-## basic check of system mpfr
-if test "x$need_mpfr:$with_system_mpfr" = xyes:yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`mpfr' library" >&5
-$as_echo_n "checking requested system \`mpfr' library... " >&6; }
-  CPPFLAGS="$MPFR_INCLUDES $CPPFLAGS"
-  LIBS="$MPFR_LIBS $LIBS"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <mpfr.h>
-int
-main ()
-{
-const char *s = mpfr_get_version();
   ;
   return 0;
 }

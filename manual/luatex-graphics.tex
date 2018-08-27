@@ -387,9 +387,9 @@ of different fields, as follows:
 \NC \type{print_line}  \NC number   \NC line length in ps output \NC 100               \NC \NR
 \NC \type{random_seed} \NC number   \NC the initial random seed  \NC variable          \NC \NR
 \NC \type{math_mode}   \NC string   \NC the number system to use:
-                                        \type {double},
                                         \type {scaled},
-                                        \type {binary} or
+                                        \type {double} or
+                                      % \type {binary} or
                                         \type {decimal}          \NC \type {scaled}    \NC \NR
 \NC \type{interaction} \NC string   \NC the interaction mode:
                                         \type {batch},
@@ -400,6 +400,11 @@ of different fields, as follows:
 \NC \type{find_file}   \NC function \NC a function to find files \NC only local files  \NC \NR
 \LL
 \stoptabulate
+
+The binary mode is no longer available in the \LUATEX\ version of \MPLIB. It
+offers no real advantage and brings a ton of extra libraries with platform
+specific properties that we can now avoid. We might introduce a high resolution
+scaled variant at some point but only when it pays of performance wise.
 
 The \type {find_file} function should be of this form:
 

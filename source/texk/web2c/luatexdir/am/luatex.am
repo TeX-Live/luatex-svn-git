@@ -64,7 +64,8 @@ luatex_LDFLAGS = -export-dynamic
 luatex53_LDFLAGS = -export-dynamic
 luajittex_LDFLAGS = -export-dynamic $(LUAJIT_LDEXTRA)
 
-luatex_postldadd = libmplibcore.a $(MPFR_LIBS) $(GMP_LIBS) 
+#luatex_postldadd = libmplibcore.a $(MPFR_LIBS) $(GMP_LIBS) 
+luatex_postldadd = libmplibcore.a 
 luatex_postldadd += $(ZZIPLIB_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) 
 luatex_postldadd += $(LDADD) libmputil.a libunilib.a libmd5.a $(lua_socketlibs)
 
