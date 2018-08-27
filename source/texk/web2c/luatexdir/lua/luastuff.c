@@ -593,8 +593,8 @@ void luacall_vf(int p, int f, int c)
 
 void late_lua(PDF pdf, halfword p)
 {
+    halfword t;
     (void) pdf;
-    halfword t; = late_lua_type(p);
     t = late_lua_type(p);
     if (t == normal) {
         /*tex sets |def_ref| */
