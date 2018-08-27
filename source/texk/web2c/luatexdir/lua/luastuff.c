@@ -594,7 +594,8 @@ void luacall_vf(int p, int f, int c)
 void late_lua(PDF pdf, halfword p)
 {
     (void) pdf;
-    halfword t = late_lua_type(p);
+    halfword t; = late_lua_type(p);
+    t = late_lua_type(p);
     if (t == normal) {
         /*tex sets |def_ref| */
         expand_macros_in_tokenlist(p);
