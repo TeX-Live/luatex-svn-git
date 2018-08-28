@@ -77,8 +77,12 @@ static const char *const callbacknames[] = {
     "call_edit",
     "build_page_insert",
     "glyph_stream_provider",
+    "font_descriptor_objnum_provider",
     "finish_synctex",
     "wrapup_run",
+    "new_graf",
+    "page_objnum_provider",
+    "make_extensible",
     NULL
 };
 

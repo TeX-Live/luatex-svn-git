@@ -97,8 +97,30 @@ extern halfword do_set_attribute(halfword p, int i, int val);
 #  define list_offset 6
 
 typedef enum {
+    user_skip_glue,
+    line_skip_glue,
+    baseline_skip_glue,
+    par_skip_glue,
+    above_display_skip_glue,
+    below_display_skip_glue,
+    above_display_short_skip_glue,
+    below_display_short_skip_glue,
+    left_skip_glue,
+    right_skip_glue,
+    top_skip_glue,
+    split_top_skip_glue,
+    tab_skip_glue,
+    space_skip_glue,
+    xspace_skip_glue,
+    par_fill_skip_glue,
+    math_skip_glue,
+    thin_mu_skip_glue,
+    med_mu_skip_glue,
+    thick_mu_skip_glue,
+    /* math */
     cond_math_glue = 98,        /* special |subtype| to suppress glue in the next node */
     mu_glue,                    /* |subtype| for math glue */
+    /* leaders */
     a_leaders,                  /* |subtype| for aligned leaders */
     c_leaders,                  /* |subtype| for centered leaders */
     x_leaders,                  /* |subtype| for expanded leaders */
@@ -199,7 +221,7 @@ typedef enum {
 #  define disc_penalty(a)     vlink((a)+2)
 #  define pre_break(a)        vinfo((a)+3)
 #  define post_break(a)       vlink((a)+3)
-#  define no_break(a)         vlink((a)+4)
+#  define no_break(a)         vlink((a)+4) /* we have vinfo((a)+4) for later usage */
 
 #  define vlink_pre_break(a)  vlink(pre_break_head(a))
 #  define vlink_post_break(a) vlink(post_break_head(a))
@@ -264,6 +286,7 @@ typedef enum {
     math_under_rule,
     math_fraction_rule,
     math_radical_rule,
+    outline_rule,
 } rule_subtypes;
 
 #  define rule_node_size       9
@@ -294,7 +317,7 @@ typedef enum {
 #  define x_displace(a)         vinfo((a)+4)
 #  define y_displace(a)         vlink((a)+4)
 #  define ex_glyph(a)           vinfo((a)+5)  /* expansion factor (hz) */
-#  define x_advance(a)          vlink((a)+5)  /* obsolete, can become user field */
+#  define glyph_node_data(a)    vlink((a)+5)
 #  define synctex_tag_glyph(a)  vinfo((a)+6)
 #  define synctex_line_glyph(a) vlink((a)+6)
 
@@ -320,11 +343,15 @@ typedef enum {
 
 /*@# {|subtype| of marginal kerns}*/
 
-#  define left_side  0
-#  define right_side 1
+typedef enum {
+    left_side = 0,
+    right_side
+} margin_kern_subtypes ;
 
-#  define before     0 /* |subtype| for math node that introduces a formula */
-#  define after      1 /* |subtype| for math node that winds up a formula */
+typedef enum {
+    before = 0,
+    after
+} math_subtypes ;
 
 #  define math_node_size       7
 /* define width(a)             vinfo((a)+2) */
@@ -491,6 +518,22 @@ typedef enum {
 
 #  define noad_fam(a)    vlink((a)+6) /* noadextra1 */
 
+typedef enum {
+    ord_noad_type = 0,
+    op_noad_type_normal,
+    op_noad_type_limits,
+    op_noad_type_no_limits,
+    bin_noad_type,
+    rel_noad_type,
+    open_noad_type,
+    close_noad_type,
+    punct_noad_type,
+    inner_noad_type,
+    under_noad_type,
+    over_noad_type,
+    vcenter_noad_type,
+} noad_types;
+
 /* accent noads */
 
 #  define accent_noad_size      8
@@ -498,6 +541,13 @@ typedef enum {
 #  define bot_accent_chr(a)     vlink((a)+6) /* the |bot_accent_chr| field of an accent noad */
 #  define overlay_accent_chr(a) vinfo((a)+7) /* the |overlay_accent_chr| field of an accent noad */
 #  define accentfraction(a)     vlink((a)+7)
+
+typedef enum {
+    bothflexible_accent,
+    fixedtop_accent,
+    fixedbottom_accent,
+    fixedboth_accent,
+} math_accent_subtypes ;
 
 /* left and right noads */
 
@@ -556,10 +606,20 @@ typedef enum {
 
 /* subtype of fence noads */
 
+/*
 #  define left_noad_side   1
 #  define middle_noad_side 2
 #  define right_noad_side  3
 #  define no_noad_side     4
+*/
+
+typedef enum {
+    unset_noad_side  = 0,
+    left_noad_side   = 1,
+    middle_noad_side = 2,
+    right_noad_side  = 3,
+    no_noad_side     = 4,
+} fence_subtypes ;
 
 /* fraction noads */
 
@@ -590,6 +650,16 @@ typedef enum {
 #  define radicalleft(a)      ((radicaloptions(a) & noad_option_left  ) == noad_option_left)
 #  define radicalmiddle(a)    ((radicaloptions(a) & noad_option_middle) == noad_option_middle)
 #  define radicalright(a)     ((radicaloptions(a) & noad_option_right ) == noad_option_right)
+
+typedef enum {
+    radical_noad_type,
+    uradical_noad_type,
+    uroot_noad_type,
+    uunderdelimiter_noad_type,
+    uoverdelimiter_noad_type,
+    udelimiterunder_noad_type,
+    udelimiterover_noad_type,
+} radical_subtypes;
 
 /* accessors for the |nucleus|-style node fields */
 
@@ -667,6 +737,15 @@ typedef enum {
 #  define GLYPH_GHOST         (1 << 2)
 #  define GLYPH_LEFT          (1 << 3)
 #  define GLYPH_RIGHT         (1 << 4)
+
+typedef enum {
+    glyph_unset     = 0,
+    glyph_character = GLYPH_CHARACTER,
+    glyph_ligature  = GLYPH_LIGATURE,
+    glyph_ghost     = GLYPH_GHOST,
+    glyph_left      = GLYPH_LEFT,
+    glyph_right     = GLYPH_RIGHT,
+} glyph_subtypes;
 
 #  define is_character(p)        ((subtype(p)) & GLYPH_CHARACTER)
 #  define is_ligature(p)         ((subtype(p)) & GLYPH_LIGATURE )
@@ -751,6 +830,7 @@ typedef enum {
 /* type of literal data */
 
 #  define lua_refid_literal 1 /* not a |normal| string */
+#  define lua_refid_call    2 /* not a |normal| string */
 
 /* begin of pdf backend nodes */
 
@@ -913,50 +993,60 @@ extern void print_short_node_contents(halfword n);
 extern void show_node_list(int i);
 extern pointer actual_box_width(pointer r, scaled base_width);
 
-/* from luanode.c */
+typedef struct _subtype_info {
+    int id;
+    const char *name;
+    int lua;
+} subtype_info;
+
+typedef struct _field_info {
+    const char *name;
+    int lua;
+} field_info;
 
 typedef struct _node_info {
     int id;
     int size;
-    const char **fields;
+    subtype_info *subtypes;
+    field_info *fields;
     const char *name;
     int etex;
+    int lua;
 } node_info;
 
 extern node_info node_data[];
 extern node_info whatsit_node_data[];
 
-extern const char *node_subtypes_dir[];
-extern const char *node_subtypes_glue[];
-extern const char *node_subtypes_mathglue[];
-extern const char *node_subtypes_leader[];
-extern const char *node_subtypes_fill[];
-extern const char *node_subtypes_boundary[];
-extern const char *node_subtypes_penalty[];
-extern const char *node_subtypes_kern[];
-extern const char *node_subtypes_rule[];
-extern const char *node_subtypes_glyph[];
-extern const char *node_subtypes_disc[];
-extern const char *node_subtypes_marginkern[];
-extern const char *node_subtypes_list[];
-extern const char *node_subtypes_adjust[];
-extern const char *node_subtypes_math[];
-extern const char *node_subtypes_noad[];
-extern const char *node_subtypes_radical[];
-extern const char *node_subtypes_accent[];
-extern const char *node_subtypes_fence[];
+extern subtype_info node_subtypes_dir[];
+extern subtype_info node_subtypes_glue[];
+extern subtype_info node_subtypes_mathglue[];
+extern subtype_info node_subtypes_leader[];
+extern subtype_info node_subtypes_boundary[];
+extern subtype_info node_subtypes_penalty[];
+extern subtype_info node_subtypes_kern[];
+extern subtype_info node_subtypes_rule[];
+extern subtype_info node_subtypes_glyph[];
+extern subtype_info node_subtypes_disc[];
+extern subtype_info node_subtypes_marginkern[];
+extern subtype_info node_subtypes_list[];
+extern subtype_info node_subtypes_adjust[];
+extern subtype_info node_subtypes_math[];
+extern subtype_info node_subtypes_noad[];
+extern subtype_info node_subtypes_radical[];
+extern subtype_info node_subtypes_accent[];
+extern subtype_info node_subtypes_fence[];
 
-extern const char *node_subtypes_pdf_destination[];
-extern const char *node_subtypes_pdf_literal[];
+extern subtype_info node_values_pdf_destination[];
+extern subtype_info node_values_pdf_literal[];
+extern subtype_info node_values_pdf_literal[];
+extern subtype_info node_values_pdf_action[];
+extern subtype_info node_values_pdf_window[];
 
-extern const char *node_values_dir[];
-extern const char *node_values_glue[];
-extern const char *node_values_pdf_literal[];
-extern const char *node_values_pdf_action[];
-extern const char *node_values_pdf_window[];
-extern const char *node_values_color_stack[];
+extern subtype_info node_values_fill[];
+extern subtype_info node_values_dir[];
+extern subtype_info node_values_color_stack[];
 
-extern const char *other_values_page_states[];
+extern subtype_info other_values_page_states[];
 
 extern halfword new_node(int i, int j);
 extern void flush_node_list(halfword);
@@ -982,7 +1072,7 @@ extern void show_node_wrapup_dvi(halfword);
 extern void show_node_wrapup_pdf(halfword);
 
 typedef enum {
-    normal_g = 0,
+    normal_g = 0, /* normal */
     sfi,
     fil,
     fill,
@@ -1060,6 +1150,9 @@ extern int synctex_get_tag(void);
 extern void synctex_set_no_files(int flag);
 extern int synctex_get_no_files(void);
 extern int synctex_get_line(void);
+
+extern void l_set_node_data(void) ;
+extern void l_set_whatsit_data(void) ;
 
 #endif
 

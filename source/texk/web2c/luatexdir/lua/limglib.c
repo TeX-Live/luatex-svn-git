@@ -24,7 +24,7 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#define img_types_max 7
+#define img_types_max 8
 
 const char *img_types[] = {
     "none",
@@ -304,7 +304,7 @@ static int l_image_keys(lua_State * L)
 
 static int l_image_types(lua_State * L)
 {
-    return lua_show_valid_list(L, img_types, img_types_max);
+    return lua_show_valid_list(L, img_types, 0, img_types_max);
 }
 
 static int l_image_boxes(lua_State * L)
@@ -320,9 +320,11 @@ static const struct luaL_Reg imglib_f[] = {
     { "immediatewrite", l_immediatewrite_image },
     { "immediatewriteobject", l_immediatewrite_image_object },
     { "node", l_image_node },
-    { "keys", l_image_keys },
+    { "fields", l_image_keys },
     { "types", l_image_types },
     { "boxes", l_image_boxes },
+    /* for a while: */
+    { "keys", l_image_keys },
     { NULL, NULL }
 };
 
@@ -380,14 +382,10 @@ static int m_img_get(lua_State * L)
         } else {
             lua_pushstring(L, img_filename(d));
         }
-    } else if (lua_key_eq(s,visiblefilename)) {
-        if (img_visiblefilename(d) == NULL || strlen(img_visiblefilename(d)) == 0) {
-            lua_pushnil(L);
-        } else {
-            lua_pushstring(L, img_visiblefilename(d));
-        }
     } else if (lua_key_eq(s,keepopen)) {
         lua_pushboolean(L, img_keepopen(d));
+    } else if (lua_key_eq(s,nolength)) {
+        lua_pushboolean(L, img_nolength(d));
     } else if (lua_key_eq(s,filepath)) {
         if (img_filepath(d) == NULL || strlen(img_filepath(d)) == 0) {
             lua_pushnil(L);
@@ -493,10 +491,28 @@ static int m_img_get(lua_State * L)
         if (img_type(d) != IMG_TYPE_PDFSTREAM
                 || img_pdfstream_ptr(d) == NULL
                 || img_pdfstream_stream(d) == NULL
-                || strlen(img_pdfstream_stream(d)) == 0) {
+                || img_pdfstream_size(d) == 0) {
             lua_pushnil(L);
         } else {
-            lua_pushstring(L, img_pdfstream_stream(d));
+            lua_pushlstring(L, img_pdfstream_stream(d), img_pdfstream_size(d));
+        }
+    } else if (lua_key_eq(s,visiblefilename)) {
+        if (img_visiblefilename(d) == NULL || strlen(img_visiblefilename(d)) == 0) {
+            lua_pushnil(L);
+        } else {
+            lua_pushstring(L, img_visiblefilename(d));
+        }
+    } else if (lua_key_eq(s,userpassword)) {
+        if (img_userpassword(d) == NULL || strlen(img_userpassword(d)) == 0) {
+            lua_pushnil(L);
+        } else {
+            lua_pushstring(L, img_userpassword(d));
+        }
+    } else if (lua_key_eq(s,ownerpassword)) {
+        if (img_ownerpassword(d) == NULL || strlen(img_ownerpassword(d)) == 0) {
+            lua_pushnil(L);
+        } else {
+            lua_pushstring(L, img_ownerpassword(d));
         }
     } else if (lua_key_eq(s,ref_count)) {
         lua_pushinteger(L, img_luaref(d));
@@ -552,7 +568,7 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         if (img_state(d) >= DICT_FILESCANNED) {
             luaL_error(L, "image.filename is now read-only");
         } else if (img_type(d) == IMG_TYPE_PDFSTREAM) {
-            luaL_error(L, "image.filename can't be used with image.stream");
+            /* just ignore */
         } else if (t == LUA_TSTRING) {
             xfree(img_filename(d));
             img_filename(d) = xstrdup(lua_tostring(L, -1));
@@ -563,12 +579,34 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         if (img_state(d) >= DICT_FILESCANNED) {
             luaL_error(L, "image.visiblefilename is now read-only");
         } else if (img_type(d) == IMG_TYPE_PDFSTREAM) {
-            luaL_error(L, "image.visiblefilename can't be used with image.stream");
+            img_visiblefilename(d) = NULL;
         } else if (t == LUA_TSTRING) {
             xfree(img_visiblefilename(d));
             img_visiblefilename(d) = xstrdup(lua_tostring(L, -1));
         } else {
             luaL_error(L, "image.visiblefilename needs string value");
+        }
+    } else if (lua_key_eq(s,userpassword)) {
+        if (img_state(d) >= DICT_FILESCANNED) {
+            luaL_error(L, "image.userpassword is now read-only");
+        } else if (img_type(d) == IMG_TYPE_PDFSTREAM) {
+            img_userpassword(d) = NULL;
+        } else if (t == LUA_TSTRING) {
+            xfree(img_userpassword(d));
+            img_userpassword(d) = xstrdup(lua_tostring(L, -1));
+        } else {
+            luaL_error(L, "image.userpassword needs string value");
+        }
+    } else if (lua_key_eq(s,ownerpassword)) {
+        if (img_state(d) >= DICT_FILESCANNED) {
+            luaL_error(L, "image.ownerpassword is now read-only");
+        } else if (img_type(d) == IMG_TYPE_PDFSTREAM) {
+            img_ownerpassword(d) = NULL;
+        } else if (t == LUA_TSTRING) {
+            xfree(img_ownerpassword(d));
+            img_ownerpassword(d) = xstrdup(lua_tostring(L, -1));
+        } else {
+            luaL_error(L, "image.ownerpassword needs string value");
         }
     } else if (lua_key_eq(s,attr)) {
         if (img_state(d) >= DICT_FILESCANNED) {
@@ -639,6 +677,8 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         } else {
             img_keepopen(d) = lua_toboolean(L, -1);
         }
+    } else if (lua_key_eq(s,nolength)) {
+        img_nolength(d) = lua_toboolean(L, -1);
     } else if (lua_key_eq(s,bbox)) {
         if (img_state(d) >= DICT_FILESCANNED) {
             luaL_error(L, "image.bbox is now read-only");
@@ -668,11 +708,15 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         } else if (img_state(d) >= DICT_FILESCANNED) {
             luaL_error(L, "image.stream is now read-only");
         } else {
+            size_t size = 0;
+            const char *stream = lua_tolstring(L, -1, &size);
             if (img_pdfstream_ptr(d) == NULL) {
                 new_img_pdfstream_struct(d);
             }
             xfree(img_pdfstream_stream(d));
-            img_pdfstream_stream(d) = xstrdup(lua_tostring(L, -1));
+            img_pdfstream_size(d) = size;
+            img_pdfstream_stream(d) = xmalloc(size);
+            memcpy(img_pdfstream_stream(d),stream,size);
             img_type(d) = IMG_TYPE_PDFSTREAM;
         }
     } else {

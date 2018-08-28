@@ -156,7 +156,6 @@ static const char *get_luatexhashtype(void)
 #endif
 }
 
-
 static lua_Number get_pdf_gone(void)
 {
     if (static_pdf != NULL)
@@ -269,8 +268,22 @@ static lua_Number get_development_id(void)
     return (lua_Number) luatex_svn_revision ;
 }
 
+static lua_Number get_dvi_gone(void)
+{
+    if (static_pdf != NULL)
+        return (lua_Number) dvi_get_status_gone(static_pdf);
+    return (lua_Number) 0;
+}
+
+static lua_Number get_dvi_ptr(void)
+{
+    if (static_pdf != NULL)
+        return (lua_Number) dvi_get_status_ptr(static_pdf);
+    return (lua_Number) 0;
+}
 
 /* temp, for backward compat */
+
 static int init_pool_ptr = 0;
 
 static struct statistic stats[] = {
@@ -294,8 +307,9 @@ static struct statistic stats[] = {
 
     {"pdf_gone", 'N', &get_pdf_gone},
     {"pdf_ptr", 'N', &get_pdf_ptr},
-    {"dvi_gone", 'g', &dvi_offset},
-    {"dvi_ptr", 'g', &dvi_ptr},
+    {"dvi_gone", 'g', &get_dvi_gone},
+    {"dvi_ptr", 'g', &get_dvi_ptr},
+
     {"total_pages", 'g', &total_pages},
     {"output_file_name", 'S', (void *) &get_output_file_name},
     {"log_name", 'S', (void *) &getlogname},

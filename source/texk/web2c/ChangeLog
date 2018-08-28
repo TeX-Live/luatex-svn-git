@@ -1,3 +1,30 @@
+2018-07-17  Karl Berry  <karl@freefriends.org>
+
+	* dvicopy.web: typos.
+
+2018-06-14  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* help.h, texmfmp-help.h: remove sjisterminal (w32 only).
+
+2018-06-08  Karl Berry  <karl@freefriends.org>
+
+	* bibtex.ch (142): also try opening subsidiary .aux files
+	via a_open_in_with_dirname.
+	(bib_makecstring): new fn.
+	* cpascal.h (aopeninwithdirname): new #define.
+	* lib/openclose.c (open_input_with_dirname): new fn.
+	* tests/bibtex-auxinclude.test: new test.
+	* tests/auxinclude*.*: files for test.
+	* am/web.am (web_tests): include bibtex-auxinclude.test.
+	Suggestion from John Collins. See thread from
+	http://tug.org/pipermail/tex-live/2018-May/041624.html.
+
+2018-05-03  Karl Berry  <karl@freefriends.org>
+
+	* patgen.ch (trie_size, triec_size): increase greatly.
+	Request/patch from Werner Lemberg, 27 Apr 2018 07:51:29,
+	03 May 2018 13:49:02.
+
 2018-04-14  Karl Berry  <karl@tug.org>
 
 	* TeX Live 2018 release.

@@ -148,7 +148,7 @@ static void (lua_remove)(lua_State *L, int idx) {
 
 /* See ffi.c: replace luaopen_ffi with a stub    */
 /* if FFI_ENABLE_LUATEX_INTERFACE is not defined */
-#if (defined ARCH_X86 || defined ARCH_X64) && (defined OS_CE || defined OS_WIN || defined OS_LINUX || defined OS_BSD || defined OS_POSIX || defined OS_OSX)
+#if (defined ARCH_X86 || defined ARCH_X64 ||defined ARCH_ARM) && (defined OS_CE || defined OS_WIN || defined OS_LINUX || defined OS_BSD || defined OS_POSIX || defined OS_OSX)
 #define FFI_ENABLE_LUATEX_INTERFACE
 #endif 
 /* for the moment */
@@ -404,6 +404,7 @@ static complex_float mk_complex_float(double real, double imag) {
     complex_float ret = { real, imag };
     return ret;
 }
+//#if !defined(__MINGW64__)
 static double creal(complex_double c) {
     return c.real;
 }
@@ -417,6 +418,7 @@ static double cimag(complex_double c) {
 static float cimagf(complex_float c) {
     return c.imag;
 }
+//#endif
 #endif
 
 #define CALLBACK_FUNC_USR_IDX 1

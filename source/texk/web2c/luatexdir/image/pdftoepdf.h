@@ -31,12 +31,6 @@ void unrefPdfDocument(char *);
 void unrefMemStreamPdfDocument(char *);
 void write_epdf(PDF, image_dict *, int suppress_optional_info);
 int write_epdf_object(PDF, image_dict *, int n);
-void epdf_check_mem(void);
-void copyReal(PDF pdf, double d);
-
-int poppler_version_major(void);
-int poppler_version_minor(void);
-int poppler_version_micro(void);
 
 /* epdf.c --- this should go in an own header file */
 

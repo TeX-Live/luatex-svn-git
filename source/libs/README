@@ -1,4 +1,4 @@
-$Id: README 47326 2018-04-06 15:25:15Z karl $
+$Id: README 48239 2018-07-21 07:02:37Z kakuto $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -12,7 +12,7 @@ See also comments in ../texk/README.
 cairo 1.14.12 - checked 07dec17
   http://cairographics.org/releases/
 
-freetype2 2.9.0 - checked 09jan18
+freetype2 2.9.1 - checked 04may18
   http://savannah.nongnu.org/download/freetype/
 
 gd 2.2.5 - checked 30aug17
@@ -24,7 +24,7 @@ gmp 6.1.2 - checked 16dec16
 graphite2 1.3.11 - checked 05mar18
   http://sourceforge.net/projects/silgraphite/files/graphite2/
 
-harfbuzz 1.7.6 - checked 07mar18
+harfbuzz 1.8.4 - checked 18jul18
   http://www.freedesktop.org/software/harfbuzz/release/
 
 icu 61.1 - checked 29mar18
@@ -33,9 +33,8 @@ icu 61.1 - checked 29mar18
 libpaper 1.1.24+nmu2 - checked 24oct13
   ftp://ftp.de.debian.org/debian/pool/main/libp/libpaper/
 
-libpng 1.6.34 - checked 29Sep17
-  http://www.libpng.org/ - used by many
-  http://www.libpng.org/pub/png/pngcode.html
+libpng 1.6.35 - checked 17jul18
+  https://sourceforge.net/projects/libpng/files/ - used by many
 
 lua 5.2.3 - checked 11mar15
   http://www.lua.org/ftp/
@@ -49,7 +48,7 @@ mpfr 4.0.1 - checked 10feb18
 pixman 0.34.0 - checked 04feb16
   http://cairographics.org/releases/
 
-poppler 0.63.0 - checked 18mar18
+poppler 0.67.0 - checked 21jul18
   http://poppler.freedesktop.org/ - used by luatex and xetex
   (requires C++11)
 

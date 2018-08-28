@@ -38,10 +38,10 @@ distinction.
 #  define biggest_reg              65535  /* the largest allowed register number; must be |< max_quarterword| */
 #  define number_regs              65536  /* |biggest_reg+1| */
 #  define number_attrs             65536  /* total numbeer of attributes */
-#  define biggest_char           1114111  /* the largest allowed character number; must be |< max_halfword| */
-#  define too_big_char           1114112  /* |biggest_char+1| */
-#  define special_char           1114113  /* |biggest_char+2| */
-#  define number_chars           1114112  /* |biggest_char+1| */
+#  define biggest_char           1114111  /* 0x10FFFF, the largest allowed character number; must be |< max_halfword| */
+#  define too_big_char   (biggest_char+1) /* 1114112, |biggest_char+1| */
+#  define special_char   (biggest_char+2) /* 1114113, |biggest_char+2| */
+#  define number_chars   (biggest_char+3) /* 1114112, |biggest_char+1| */
 #  define number_fonts (5535-font_base+1)
 #  define biggest_lang             32767
 #  define too_big_lang             32768
@@ -303,8 +303,11 @@ the |number_regs| \.{\\dimen} registers.
 #  define math_script_box_mode_code 111
 #  define math_script_char_mode_code 112
 #  define math_rule_thickness_mode_code 113
+#  define math_flatten_mode_code 114
 
-#  define suppress_primitive_error_code 114
+#  define copy_lua_input_nodes_code 115
+#  define suppress_primitive_error_code 116
+#  define fixup_boxes_code 117
 
 #  define math_option_code (suppress_primitive_error_code+1)
 
@@ -445,7 +448,8 @@ We use the notation |saved(k)| to stand for an item that appears in location
 #  define saved_boxspec 14
 #  define saved_boxdir 15
 #  define saved_boxattr 16
-#  define saved_boxpack 18
+#  define saved_boxpack 17
+#  define saved_attrlist 18
 #  define saved_eqtb 19
 
 extern void print_save_stack(void);
@@ -457,10 +461,9 @@ extern void print_save_stack(void);
 
 typedef enum {
     c_mathoption_old_code = 0,                  /* this one is stable */
-    c_mathoption_no_italic_compensation_code,   /* just for tracing, can change */
-    c_mathoption_no_char_italic_code,           /* just for tracing, can change */
-    c_mathoption_use_old_fraction_scaling_code, /* just for tracing, can change */
-    c_mathoption_umathcode_meaning_code,        /* this one is stable */
+    /*
+    c_mathoption_umathcode_meaning_code,
+    */
 } math_option_codes ;
 
 #  define mathoption_int_par(A) eqtb[mathoption_int_base+(A)].cint
@@ -669,6 +672,7 @@ extern halfword last_cs_name;
 #define math_script_box_mode_par           int_par(math_script_box_mode_code)
 #define math_script_char_mode_par          int_par(math_script_char_mode_code)
 #define math_rule_thickness_mode_par       int_par(math_rule_thickness_mode_code)
+#define math_flatten_mode_par              int_par(math_flatten_mode_code)
 #define null_delimiter_space_par           dimen_par(null_delimiter_space_code)
 #define disable_lig_par                    int_par(disable_lig_code)
 #define disable_kern_par                   int_par(disable_kern_code)
@@ -763,12 +767,13 @@ extern halfword last_cs_name;
 #define suppress_ifcsname_error_par        int_par(suppress_ifcsname_error_code)
 #define suppress_primitive_error_par       int_par(suppress_primitive_error_code)
 #define error_context_lines_par            int_par(error_context_lines_code)
+#define copy_lua_input_nodes_par           int_par(copy_lua_input_nodes_code)
 
 #define math_old_par                       mathoption_int_par(c_mathoption_old_code)
-#define math_no_italic_compensation_par    mathoption_int_par(c_mathoption_no_italic_compensation_code)
-#define math_no_char_italic_par            mathoption_int_par(c_mathoption_no_char_italic_code)
-#define math_use_old_fraction_scaling_par  mathoption_int_par(c_mathoption_use_old_fraction_scaling_code)
+
+/*
 #define math_umathcode_meaning_par         mathoption_int_par(c_mathoption_umathcode_meaning_code)
+*/
 
 #define math_pre_display_gap_factor_par    int_par(math_pre_display_gap_factor_code)
 
@@ -802,6 +807,8 @@ extern halfword last_cs_name;
 
 #define cur_lang_par                       int_par(cur_lang_code)
 #define cur_font_par                       equiv(cur_font_loc)
+
+#define fixup_boxes_par                    int_par(fixup_boxes_code)
 
 /* */
 

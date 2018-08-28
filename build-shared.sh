@@ -80,16 +80,12 @@ CONFHOST=
 CONFBUILD=
 JOBS_IF_PARALLEL=${JOBS_IF_PARALLEL:-3}
 MAX_LOAD_IF_PARALLEL=${MAX_LOAD_IF_PARALLEL:-2}
+STRIPBIN=
 TARGET_CC=gcc
 TARGET_TCFLAGS=
 
 CFLAGS="$CFLAGS"
 CXXFLAGS="$CXXFLAGS"
-
-# poppler 0.55 needs c++11 
-# for the moment we put the flag here
-# export CXXFLAGS="-std=c++11 $CXXFLAGS"
-
 
 until [ -z "$1" ]; do
   case "$1" in
@@ -111,6 +107,7 @@ until [ -z "$1" ]; do
     --host=*    ) CONFHOST="$1"      ;;
     --build=*   ) CONFBUILD="$1"     ;;
     --parallel  ) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
+    --stripbin=*) STRIPBIN="$1"      ;;
     --arch=*    ) MACCROSS=TRUE; ARCH=`echo $1 | sed 's/--arch=\(.*\)/\1/' ` ;;
     *           ) echo "ERROR: invalid build.sh parameter: $1"; exit 1       ;;
   esac
@@ -122,6 +119,10 @@ STRIP=strip
 LUATEXEXEJIT=luajittex
 LUATEXEXE=luatex
 LUATEXEXE53=luatex53
+
+
+
+
 
 case `uname` in
   MINGW64*   ) MINGW=TRUE ; LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
@@ -148,8 +149,8 @@ then
   LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
-  CXXFLAGS="-mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS"
+  CFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
+  CXXFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS"
   : ${CONFHOST:=--host=x86_64-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
@@ -166,13 +167,13 @@ then
   LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
   PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-m32 -mtune=nocona -g -O3 $CFLAGS"
-  CXXFLAGS="-m32 -mtune=nocona -g -O3 $CXXFLAGS"
+  CFLAGS="-Wno-unknown-pragmas -m32 -mtune=nocona -g -O3 $CFLAGS"
+  CXXFLAGS="-Wno-unknown-pragmas -m32 -mtune=nocona -g -O3 $CXXFLAGS"
   : ${CONFHOST:=--host=i686-w64-mingw32}
   : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
   STRIP="${CONFHOST#--host=}-strip"
-  LDFLAGS="-Wl,--large-address-aware -Wl,--stack,2621440 $CFLAGS"
+  LDFLAGS="-Wl,--large-address-aware -Wl,--stack,2621440 -static-libgcc -static-libstdc++ $CFLAGS"
   export CFLAGS CXXFLAGS LDFLAGS BUILDCXX BUILDCC
 fi
 
@@ -207,6 +208,13 @@ fi
 # fi
 
 
+if [ "x$STRIPBIN" != "x" ]
+then
+ STRIP="${STRIPBIN#--stripbin=}"
+fi
+
+
+
 if [ "$STRIP_LUATEX" = "FALSE" ]
 then
     export CFLAGS
@@ -239,14 +247,6 @@ if [ ! -r "$B" ]
 then
   mkdir "$B"
 fi
-#
-# get a new svn version header
-if [ "$WARNINGS" = "max" ]
-then
-    rm -f source/texk/web2c/luatexdir/luatex_svnversion.h
-fi
-## Not used anymore
-##( cd source  ; ./texk/web2c/luatexdir/getluatexsvnversion.sh )
 
 
 JITENABLE=
@@ -269,6 +269,8 @@ fi
 
 cd "$B"
 
+#    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
+
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
 TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
@@ -284,7 +286,6 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     $LUA52ENABLE  $LUA53ENABLE  $JITENABLE \
     --without-system-ptexenc \
     --without-system-kpathsea \
-    --without-system-poppler \
     --without-system-xpdf \
     --without-system-freetype \
     --without-system-freetype2 \
@@ -294,8 +295,8 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --without-system-zlib \
     --without-system-t1lib \
     --without-system-icu \
-    --without-system-graphite \
     --without-system-harfbuzz \
+    --without-system-graphite \
     --without-system-zziplib \
     --without-mf-x-toolkit --without-x \
    || exit 1 
@@ -312,7 +313,6 @@ $MAKE
 (cd libs/zziplib; $MAKE all )
 (cd libs/zlib; $MAKE all )
 (cd libs/libpng; $MAKE all )
-(cd libs/poppler; $MAKE all )
 (cd texk; $MAKE web2c/Makefile)
 (cd texk/kpathsea; $MAKE )
 if [ "$BUILDJIT" = "TRUE" ]
