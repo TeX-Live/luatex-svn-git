@@ -30,9 +30,8 @@
 #      --nolua52   : don't build luatex  with luatex 52
 #      --lua53     : build luatex  with luatex 53
 #      --nolua53   : don't build luatex  with luatex 53
-#      --mingw     : crosscompile for mingw32 from x86_64linux
-#      --mingw32   : crosscompile for mingw32 from x86_64linux
-#      --mingw64   : crosscompile for mingw64 from x86_64linux
+#      --mingw[32] : crosscompile for mingw32
+#      --mingw64   : crosscompile for mingw64
 #      --host=     : target system for mingw32 cross-compilation
 #      --build=    : build system for mingw32 cross-compilation
 #      --arch=     : crosscompile for ARCH on OS X
@@ -77,7 +76,7 @@ ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
 WARNINGS=yes
 MINGW=FALSE
-MINGWCROSS=FALSE
+MINGWCROSS32=FALSE
 MINGWCROSS64=FALSE
 MACCROSS=FALSE
 CLANG=FALSE
@@ -108,8 +107,7 @@ until [ -z "$1" ]; do
     --lua52		) BUILDLUA52=TRUE    ;;
     --lua53		) BUILDLUA53=TRUE    ;;
     --make		) ONLY_MAKE=TRUE     ;;
-    --mingw		) MINGWCROSS=TRUE    ;;
-    --mingw32		) MINGWCROSS=TRUE    ;;
+    --mingw|--mingw32	) MINGWCROSS32=TRUE  ;;
     --mingw64		) MINGWCROSS64=TRUE  ;;
     --musl		) USEMUSL=TRUE       ;; 
     --nojit		) BUILDJIT=FALSE     ;;
@@ -135,10 +133,8 @@ LUATEXEXE53=luatex53
 
 case `uname` in
   CYGWIN*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
-  Darwin	) STRIP="strip -u -r" ;;
   MINGW*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
-  MINGW32*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
-  MINGW64*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+  Darwin	) STRIP="strip -u -r" ;;
 esac
 
 WARNINGFLAGS=--enable-compiler-warnings=$WARNINGS
@@ -163,42 +159,39 @@ fi
 
 
 OLDPATH=$PATH
+if [ "$MINGWCROSS32" = "TRUE" ]
+then
+  B=build-windows32
+  : ${CONFHOST:=--host=i686-w64-mingw32}
+  CFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 $CFLAGS"
+  CXXFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 $CXXFLAGS"
+  LDFLAGS="-Wl,--large-address-aware -Wl,--stack,2621440 $CFLAGS"
+  export CFLAGS CXXFLAGS LDFLAGS
+fi
 if [ "$MINGWCROSS64" = "TRUE" ]
 then
   B=build-windows64
-  LUATEXEXEJIT=luajittex.exe
-  LUATEXEXE=luatex.exe
-  LUATEXEXE53=luatex53.exe
-  PATH=/usr/mingw32/bin:$PATH
-  PATH=`pwd`/extrabin/mingw:$PATH
+  : ${CONFHOST:=--host=x86_64-w64-mingw32}
   CFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
   CXXFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS"
-  : ${CONFHOST:=--host=x86_64-w64-mingw32}
-  : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
-  RANLIB="${CONFHOST#--host=}-ranlib"
-  STRIP="${CONFHOST#--host=}-strip"
   LDFLAGS="${LDFLAGS} -fno-lto -fno-use-linker-plugin -static-libgcc -static-libstdc++"
   export CFLAGS CXXFLAGS LDFLAGS
 fi
-
-if [ "$MINGWCROSS" = "TRUE" ]
+if [ "$MINGWCROSS32" = "TRUE" ] || [ "$MINGWCROSS64" = "TRUE" ]
 then
-  B=build-windows
+  case `uname -s` in
+    Linux)  platform="x86_64-linux"; build_tripple="x86_64-unknown-linux-gnu" ;;
+    Darwin) platform="x86_64-darwin"; build_tripple="x86_64-apple-darwin" ;;
+  esac
+
+  : ${CONFBUILD:=--build=$build_tripple}
+  PATH=`pwd`/extrabin/mingw/$platform:/usr/mingw32/bin:$PATH
   LUATEXEXEJIT=luajittex.exe
   LUATEXEXE=luatex.exe
   LUATEXEXE53=luatex53.exe
-  PATH=/usr/mingw32/bin:$PATH
-  PATH=`pwd`/extrabin/mingw:$PATH
-  CFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 $CFLAGS"
-  CXXFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 $CXXFLAGS"
-  : ${CONFHOST:=--host=i686-w64-mingw32}
-  : ${CONFBUILD:=--build=x86_64-unknown-linux-gnu}
   RANLIB="${CONFHOST#--host=}-ranlib"
   STRIP="${CONFHOST#--host=}-strip"
-  LDFLAGS="-Wl,--large-address-aware -Wl,--stack,2621440 $CFLAGS"
-  export CFLAGS CXXFLAGS LDFLAGS BUILDCXX BUILDCC
 fi
-
 
 if [ "$MACCROSS" = "TRUE" ]
 then
@@ -386,7 +379,7 @@ else
   echo "lua(jit)tex binary not stripped"
 fi
 
-if [ "$MINGWCROSS" = "TRUE" ]
+if [ "$MINGWCROSS32" = "TRUE" ] || [ "$MINGWCROSS64" = "TRUE" ]
 then
   PATH=$OLDPATH
 fi
