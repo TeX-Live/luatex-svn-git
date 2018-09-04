@@ -60,7 +60,7 @@ void pdf_place_rule(PDF pdf, halfword q, scaledpos size, int callback_id)
         if (size.v <= one_bp) {
             pos.v += i64round(0.5 * size.v);
             pdf_set_pos_temp(pdf, pos);
-            pdf_puts(pdf, "[]0 d 0 J ");
+            pdf_puts(pdf, "[] 0 d 0 J ");
             print_pdffloat(pdf, dim.v);
             pdf_puts(pdf, " w 0 0 m ");
             print_pdffloat(pdf, dim.h);
@@ -68,7 +68,7 @@ void pdf_place_rule(PDF pdf, halfword q, scaledpos size, int callback_id)
         } else if (size.h <= one_bp) {
             pos.h += i64round(0.5 * size.h);
             pdf_set_pos_temp(pdf, pos);
-            pdf_puts(pdf, "[]0 d 0 J ");
+            pdf_puts(pdf, "[] 0 d 0 J ");
             print_pdffloat(pdf, dim.h);
             pdf_puts(pdf, " w 0 0 m 0 ");
             print_pdffloat(pdf, dim.v);
@@ -76,7 +76,7 @@ void pdf_place_rule(PDF pdf, halfword q, scaledpos size, int callback_id)
         } else {
             pdf_set_pos_temp(pdf, pos);
             if (s == outline_rule) {
-                pdf_puts(pdf, "[]0 d 10 J ");
+                pdf_puts(pdf, "[] 0 d 0 J ");
                 if (rule_transform(q) > 0) {
                     pdfpos temp ;
                     temp.h.m = i64round(rule_transform(q) * p->k1);
