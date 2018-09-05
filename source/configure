@@ -19456,14 +19456,6 @@ if test "x$with_gd_libdir" != x && test "x$with_gd_libdir" != xyes; then
   GD_LIBS="-L$with_gd_libdir $GD_LIBS"
 fi
 
-if test "x$with_potrace_includes" != x && test "x$with_potrace_includes" != xyes; then
-  POTRACE_INCLUDES="-I$with_potrace_includes"
-fi
-POTRACE_LIBS="-lpotrace"
-if test "x$with_potrace_libdir" != x && test "x$with_potrace_libdir" != xyes; then
-  POTRACE_LIBS="-L$with_potrace_libdir $POTRACE_LIBS"
-fi
-
 if $PKG_CONFIG pixman-1 --atleast-version=0.18; then
   PIXMAN_INCLUDES=`$PKG_CONFIG pixman-1 --cflags`
   PIXMAN_LIBS=`$PKG_CONFIG pixman-1 --libs`
