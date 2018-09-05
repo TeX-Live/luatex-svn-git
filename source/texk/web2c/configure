@@ -18766,7 +18766,6 @@ case $enable_luatex in #(
 esac
 
 test "x$enable_web2c:$enable_luatex" = xyes:yes && {
-  need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
   need_lua52=yes
@@ -18783,7 +18782,6 @@ case $enable_luatex53 in #(
 esac
 
 test "x$enable_web2c:$enable_luatex53" = xyes:yes && {
-  need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
   need_lua53=yes
@@ -18800,7 +18798,6 @@ case $enable_luajittex in #(
 esac
 
 test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
-  need_mpfr=yes
   need_libpng=yes
   need_zziplib=yes
   need_luajit=yes
@@ -19000,10 +18997,7 @@ fi
 
 
 
-if test "x$enable_xetex" = xyes \
-   || test "x$enable_luatex" = xyes \
-   || test "x$enable_luajittex" = xyes \
-   || test "x$enable_luatex53" = xyes; then
+if test "x$enable_xetex" = xyes; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: LuaTeX enabled, requiring C++11 support" >&5
 $as_echo "$as_me: LuaTeX enabled, requiring C++11 support" >&6;}
     ax_cxx_compile_alternatives="11 0x"    ax_cxx_compile_cxx11_required=true

@@ -1396,24 +1396,24 @@ am__DEPENDENCIES_6 = libmplibcore.a $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_2) libmputil.a libunilib.a libmd5.a \
 	$(am__DEPENDENCIES_1)
-luajittex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(luajittex_CXXFLAGS) \
-	$(CXXFLAGS) $(luajittex_LDFLAGS) $(LDFLAGS) -o $@
+luajittex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(luajittex_LDFLAGS) $(LDFLAGS) -o $@
 am__objects_40 = luatexdir/luatex-luatex.$(OBJEXT) \
 	mplibdir/luatex-lmplib.$(OBJEXT)
 nodist_luatex_OBJECTS = $(am__objects_40)
 luatex_OBJECTS = $(nodist_luatex_OBJECTS)
 am__DEPENDENCIES_7 = $(am__DEPENDENCIES_1)
-luatex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(luatex_CXXFLAGS) \
-	$(CXXFLAGS) $(luatex_LDFLAGS) $(LDFLAGS) -o $@
+luatex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(luatex_LDFLAGS) $(LDFLAGS) -o $@
 am__objects_41 = luatexdir/luatex53-luatex.$(OBJEXT) \
 	mplibdir/luatex53-lmplib.$(OBJEXT)
 nodist_luatex53_OBJECTS = $(am__objects_41)
 luatex53_OBJECTS = $(nodist_luatex53_OBJECTS)
-luatex53_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(luatex53_CXXFLAGS) \
-	$(CXXFLAGS) $(luatex53_LDFLAGS) $(LDFLAGS) -o $@
+luatex53_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(luatex53_LDFLAGS) $(LDFLAGS) -o $@
 am_md5main_OBJECTS = libmd5/md5main-md5main.$(OBJEXT)
 md5main_OBJECTS = $(am_md5main_OBJECTS)
 md5main_DEPENDENCIES = libmd5.a
@@ -1810,10 +1810,9 @@ SOURCES = $(libff_a_SOURCES) $(libkanji_a_SOURCES) \
 	$(nodist_euptex_SOURCES) $(gftodvi_SOURCES) \
 	$(nodist_gftodvi_SOURCES) $(nodist_gftopk_SOURCES) \
 	$(nodist_gftype_SOURCES) $(nodist_initex_SOURCES) \
-	$(nodist_luajittex_SOURCES) $(nodist_EXTRA_luajittex_SOURCES) \
-	$(nodist_luatex_SOURCES) $(nodist_EXTRA_luatex_SOURCES) \
-	$(nodist_luatex53_SOURCES) $(nodist_EXTRA_luatex53_SOURCES) \
-	$(md5main_SOURCES) $(dist_mf_SOURCES) $(dist_mf_nowin_SOURCES) \
+	$(nodist_luajittex_SOURCES) $(nodist_luatex_SOURCES) \
+	$(nodist_luatex53_SOURCES) $(md5main_SOURCES) \
+	$(dist_mf_SOURCES) $(dist_mf_nowin_SOURCES) \
 	$(dist_mflua_SOURCES) $(nodist_mflua_nowin_SOURCES) \
 	$(dist_mfluajit_SOURCES) $(nodist_mfluajit_nowin_SOURCES) \
 	$(nodist_mft_SOURCES) $(nodist_mpost_SOURCES) \
@@ -4224,9 +4223,9 @@ liblua53pplib_sources = $(libluapplib_sources)
 libluajitpplib_sources = $(libluapplib_sources)
 
 # Force Automake to use CXXLD for linking
-nodist_EXTRA_luatex_SOURCES = dummy.cxx
-nodist_EXTRA_luatex53_SOURCES = dummy.cxx
-nodist_EXTRA_luajittex_SOURCES = dummy.cxx
+#nodist_EXTRA_luatex_SOURCES = dummy.cxx
+#nodist_EXTRA_luatex53_SOURCES = dummy.cxx
+#nodist_EXTRA_luajittex_SOURCES = dummy.cxx
 luatex_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) 
 luatex_postflags = -I$(srcdir)/libmd5 -DpdfTeX -I$(srcdir)/luatexdir \
 	-I$(srcdir)/mplibdir -Dextra_version_info=`date +-%Y%m%d%H` \
@@ -6995,7 +6994,7 @@ mplibdir/luajittex-lmplib.$(OBJEXT): mplibdir/$(am__dirstamp) \
 
 luajittex$(EXEEXT): $(luajittex_OBJECTS) $(luajittex_DEPENDENCIES) $(EXTRA_luajittex_DEPENDENCIES) 
 	@rm -f luajittex$(EXEEXT)
-	$(AM_V_CXXLD)$(luajittex_LINK) $(luajittex_OBJECTS) $(luajittex_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(luajittex_LINK) $(luajittex_OBJECTS) $(luajittex_LDADD) $(LIBS)
 luatexdir/luatex-luatex.$(OBJEXT): luatexdir/$(am__dirstamp) \
 	luatexdir/$(DEPDIR)/$(am__dirstamp)
 mplibdir/luatex-lmplib.$(OBJEXT): mplibdir/$(am__dirstamp) \
@@ -7003,7 +7002,7 @@ mplibdir/luatex-lmplib.$(OBJEXT): mplibdir/$(am__dirstamp) \
 
 luatex$(EXEEXT): $(luatex_OBJECTS) $(luatex_DEPENDENCIES) $(EXTRA_luatex_DEPENDENCIES) 
 	@rm -f luatex$(EXEEXT)
-	$(AM_V_CXXLD)$(luatex_LINK) $(luatex_OBJECTS) $(luatex_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(luatex_LINK) $(luatex_OBJECTS) $(luatex_LDADD) $(LIBS)
 luatexdir/luatex53-luatex.$(OBJEXT): luatexdir/$(am__dirstamp) \
 	luatexdir/$(DEPDIR)/$(am__dirstamp)
 mplibdir/luatex53-lmplib.$(OBJEXT): mplibdir/$(am__dirstamp) \
@@ -7011,7 +7010,7 @@ mplibdir/luatex53-lmplib.$(OBJEXT): mplibdir/$(am__dirstamp) \
 
 luatex53$(EXEEXT): $(luatex53_OBJECTS) $(luatex53_DEPENDENCIES) $(EXTRA_luatex53_DEPENDENCIES) 
 	@rm -f luatex53$(EXEEXT)
-	$(AM_V_CXXLD)$(luatex53_LINK) $(luatex53_OBJECTS) $(luatex53_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(luatex53_LINK) $(luatex53_OBJECTS) $(luatex53_LDADD) $(LIBS)
 libmd5/md5main-md5main.$(OBJEXT): libmd5/$(am__dirstamp) \
 	libmd5/$(DEPDIR)/$(am__dirstamp)
 
@@ -7336,9 +7335,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmplibcore_a-psout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmplibcore_a-tfmin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmplibextramath_a-mpmathbinary.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/luajittex-dummy.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/luatex-dummy.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/luatex53-dummy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mf-mfextra.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mf-pool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mf0.Po@am__quote@
@@ -18162,48 +18158,6 @@ xetexdir/libxetex_a-XeTeXFontMgr_FC.obj: xetexdir/XeTeXFontMgr_FC.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='xetexdir/XeTeXFontMgr_FC.cpp' object='xetexdir/libxetex_a-XeTeXFontMgr_FC.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libxetex_a_CPPFLAGS) $(CPPFLAGS) $(libxetex_a_CXXFLAGS) $(CXXFLAGS) -c -o xetexdir/libxetex_a-XeTeXFontMgr_FC.obj `if test -f 'xetexdir/XeTeXFontMgr_FC.cpp'; then $(CYGPATH_W) 'xetexdir/XeTeXFontMgr_FC.cpp'; else $(CYGPATH_W) '$(srcdir)/xetexdir/XeTeXFontMgr_FC.cpp'; fi`
-
-luajittex-dummy.o: dummy.cxx
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luajittex_CPPFLAGS) $(CPPFLAGS) $(luajittex_CXXFLAGS) $(CXXFLAGS) -MT luajittex-dummy.o -MD -MP -MF $(DEPDIR)/luajittex-dummy.Tpo -c -o luajittex-dummy.o `test -f 'dummy.cxx' || echo '$(srcdir)/'`dummy.cxx
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/luajittex-dummy.Tpo $(DEPDIR)/luajittex-dummy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dummy.cxx' object='luajittex-dummy.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luajittex_CPPFLAGS) $(CPPFLAGS) $(luajittex_CXXFLAGS) $(CXXFLAGS) -c -o luajittex-dummy.o `test -f 'dummy.cxx' || echo '$(srcdir)/'`dummy.cxx
-
-luajittex-dummy.obj: dummy.cxx
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luajittex_CPPFLAGS) $(CPPFLAGS) $(luajittex_CXXFLAGS) $(CXXFLAGS) -MT luajittex-dummy.obj -MD -MP -MF $(DEPDIR)/luajittex-dummy.Tpo -c -o luajittex-dummy.obj `if test -f 'dummy.cxx'; then $(CYGPATH_W) 'dummy.cxx'; else $(CYGPATH_W) '$(srcdir)/dummy.cxx'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/luajittex-dummy.Tpo $(DEPDIR)/luajittex-dummy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dummy.cxx' object='luajittex-dummy.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luajittex_CPPFLAGS) $(CPPFLAGS) $(luajittex_CXXFLAGS) $(CXXFLAGS) -c -o luajittex-dummy.obj `if test -f 'dummy.cxx'; then $(CYGPATH_W) 'dummy.cxx'; else $(CYGPATH_W) '$(srcdir)/dummy.cxx'; fi`
-
-luatex-dummy.o: dummy.cxx
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luatex_CPPFLAGS) $(CPPFLAGS) $(luatex_CXXFLAGS) $(CXXFLAGS) -MT luatex-dummy.o -MD -MP -MF $(DEPDIR)/luatex-dummy.Tpo -c -o luatex-dummy.o `test -f 'dummy.cxx' || echo '$(srcdir)/'`dummy.cxx
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/luatex-dummy.Tpo $(DEPDIR)/luatex-dummy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dummy.cxx' object='luatex-dummy.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luatex_CPPFLAGS) $(CPPFLAGS) $(luatex_CXXFLAGS) $(CXXFLAGS) -c -o luatex-dummy.o `test -f 'dummy.cxx' || echo '$(srcdir)/'`dummy.cxx
-
-luatex-dummy.obj: dummy.cxx
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luatex_CPPFLAGS) $(CPPFLAGS) $(luatex_CXXFLAGS) $(CXXFLAGS) -MT luatex-dummy.obj -MD -MP -MF $(DEPDIR)/luatex-dummy.Tpo -c -o luatex-dummy.obj `if test -f 'dummy.cxx'; then $(CYGPATH_W) 'dummy.cxx'; else $(CYGPATH_W) '$(srcdir)/dummy.cxx'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/luatex-dummy.Tpo $(DEPDIR)/luatex-dummy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dummy.cxx' object='luatex-dummy.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luatex_CPPFLAGS) $(CPPFLAGS) $(luatex_CXXFLAGS) $(CXXFLAGS) -c -o luatex-dummy.obj `if test -f 'dummy.cxx'; then $(CYGPATH_W) 'dummy.cxx'; else $(CYGPATH_W) '$(srcdir)/dummy.cxx'; fi`
-
-luatex53-dummy.o: dummy.cxx
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luatex53_CPPFLAGS) $(CPPFLAGS) $(luatex53_CXXFLAGS) $(CXXFLAGS) -MT luatex53-dummy.o -MD -MP -MF $(DEPDIR)/luatex53-dummy.Tpo -c -o luatex53-dummy.o `test -f 'dummy.cxx' || echo '$(srcdir)/'`dummy.cxx
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/luatex53-dummy.Tpo $(DEPDIR)/luatex53-dummy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dummy.cxx' object='luatex53-dummy.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luatex53_CPPFLAGS) $(CPPFLAGS) $(luatex53_CXXFLAGS) $(CXXFLAGS) -c -o luatex53-dummy.o `test -f 'dummy.cxx' || echo '$(srcdir)/'`dummy.cxx
-
-luatex53-dummy.obj: dummy.cxx
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luatex53_CPPFLAGS) $(CPPFLAGS) $(luatex53_CXXFLAGS) $(CXXFLAGS) -MT luatex53-dummy.obj -MD -MP -MF $(DEPDIR)/luatex53-dummy.Tpo -c -o luatex53-dummy.obj `if test -f 'dummy.cxx'; then $(CYGPATH_W) 'dummy.cxx'; else $(CYGPATH_W) '$(srcdir)/dummy.cxx'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/luatex53-dummy.Tpo $(DEPDIR)/luatex53-dummy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dummy.cxx' object='luatex53-dummy.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(luatex53_CPPFLAGS) $(CPPFLAGS) $(luatex53_CXXFLAGS) $(CXXFLAGS) -c -o luatex53-dummy.obj `if test -f 'dummy.cxx'; then $(CYGPATH_W) 'dummy.cxx'; else $(CYGPATH_W) '$(srcdir)/dummy.cxx'; fi`
 
 pdftex-dummy.o: dummy.cxx
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pdftex_CPPFLAGS) $(CPPFLAGS) $(pdftex_CXXFLAGS) $(CXXFLAGS) -MT pdftex-dummy.o -MD -MP -MF $(DEPDIR)/pdftex-dummy.Tpo -c -o pdftex-dummy.o `test -f 'dummy.cxx' || echo '$(srcdir)/'`dummy.cxx

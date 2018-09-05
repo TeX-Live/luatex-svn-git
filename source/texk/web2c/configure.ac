@@ -46,11 +46,8 @@ dnl Include additional code for web2c.
 KPSE_WEB2C_PREPARE
 m4_include([ac/web2c.ac])
 
-dnl LuaTeX requires C++11 because poppler does :(.
-if test "x$enable_xetex" = xyes \
-   || test "x$enable_luatex" = xyes \
-   || test "x$enable_luajittex" = xyes \
-   || test "x$enable_luatex53" = xyes; then
+dnl We require C++11 because poppler does :(.
+if test "x$enable_xetex" = xyes; then
   AC_MSG_NOTICE([LuaTeX enabled, requiring C++11 support])
   AX_CXX_COMPILE_STDCXX([11])
 fi
