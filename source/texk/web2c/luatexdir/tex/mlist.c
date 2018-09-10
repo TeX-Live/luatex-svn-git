@@ -3064,7 +3064,7 @@ static scaled make_op(pointer q, int cur_style)
             if (ok_size != undefined_math_parameter) {
                 /*tex creating a temporary delimiter is the cleanest way */
                 y = new_node(delim_node, 0);
-                reset_attributes(y, node_attr(q));
+                reset_attributes(y, node_attr(nucleus(q)));
                 small_fam(y) = math_fam(nucleus(q));
                 small_char(y) = math_character(nucleus(q));
                 x = do_delimiter(q, y, text_size, ok_size, false, cur_style, true, NULL, &delta, NULL);
