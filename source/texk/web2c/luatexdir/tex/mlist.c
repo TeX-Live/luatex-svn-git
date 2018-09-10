@@ -2072,6 +2072,7 @@ static void make_over(pointer q, int cur_style, int cur_size, int cur_fam)
     p = overbar(clean_box(nucleus(q), cramped_style(cur_style), cur_style, math_nucleus_list),
                 overbar_vgap(cur_style), used_thickness, overbar_kern(cur_style),
                 node_attr(nucleus(q)), math_over_rule, cur_size, used_fam);
+    subtype(p) = math_over_list;
     math_list(nucleus(q)) = p;
     type(nucleus(q)) = sub_box_node;
 }
@@ -2112,6 +2113,7 @@ static void make_under(pointer q, int cur_style, int cur_size, int cur_fam)
     couple_nodes(p,r);
     y = vpackage(x, 0, additional, max_dimen, math_direction_par);
     reset_attributes(y, node_attr(q));
+    subtype(y) = math_under_list;
     delta = height(y) + depth(y) + underbar_kern(cur_style);
     height(y) = height(x);
     depth(y) = delta - height(y);
@@ -2248,6 +2250,7 @@ static void make_radical(pointer q, int cur_style)
     shift_amount(y) = (height(y) - theta) - (height(x) + clr);
     h = depth(y) + height(y);
     p = overbar(x, clr, theta, radical_kern(cur_style), node_attr(y), math_radical_rule, cur_size, used_fam);
+    subtype(p) = math_radical_list;
     couple_nodes(y,p);
     if (degree(q) != null) {
         scaled wr, br, ar;
@@ -2731,6 +2734,7 @@ static void do_make_math_accent(pointer q, internal_font_number f, int c, int fl
     }
     r = vpackage(y, 0, additional, max_dimen, math_direction_par);
     reset_attributes(r, node_attr(q));
+    subtype(r) = math_accent_list;
     width(r) = width(x);
     y = r;
     if (flags & (TOP_CODE | OVERLAY_CODE)) {
@@ -3010,6 +3014,8 @@ static void make_fraction(pointer q, int cur_style)
     couple_nodes(v,r);
     y = hpack(l, 0, additional, -1);
     reset_attributes(y, node_attr(q));
+    /*tex There can also be a nested one: */
+    subtype(y) = math_fraction_list;
     assign_new_hlist(q, y);
 }
 
@@ -3926,6 +3932,7 @@ static void make_scripts(pointer q, pointer p, scaled it, int cur_style, scaled 
             /*tex We end up with funny dimensions. */
             x = vpackage(x, 0, additional, max_dimen, math_direction_par);
             reset_attributes(x, node_attr(q));
+            subtype(x) = math_scripts_list;
             shift_amount(x) = shift_down;
         }
     }

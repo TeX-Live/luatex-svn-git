@@ -953,6 +953,7 @@ make_lua_key(outer_call);\
 make_lua_key(outline);\
 make_lua_key(output);\
 make_lua_key(over);\
+make_lua_key(overdelimiter);\
 make_lua_key(overlay_accent);\
 make_lua_key(ownerpassword);\
 make_lua_key(page);\
@@ -1055,6 +1056,7 @@ make_lua_key(rule);\
 make_lua_key(save_pos);\
 make_lua_key(scale);\
 make_lua_key(script);\
+make_lua_key(scripts);\
 make_lua_key(scriptscript);\
 make_lua_key(second);\
 make_lua_key(semi_simple);\
@@ -1164,6 +1166,7 @@ make_lua_key(un_hbox);\
 make_lua_key(un_vbox);\
 make_lua_key(undefined_cs);\
 make_lua_key(under);\
+make_lua_key(underdelimiter);\
 make_lua_key(unhyphenated);\
 make_lua_key(units_per_em);\
 make_lua_key(unknown);\
@@ -1645,6 +1648,7 @@ init_lua_key(outer_call);\
 init_lua_key(outline);\
 init_lua_key(output);\
 init_lua_key(over);\
+init_lua_key(overdelimiter);\
 init_lua_key(overlay_accent);\
 init_lua_key(ownerpassword);\
 init_lua_key(page);\
@@ -1741,6 +1745,7 @@ init_lua_key(rule);\
 init_lua_key(save_pos);\
 init_lua_key(scale);\
 init_lua_key(script);\
+init_lua_key(scripts);\
 init_lua_key(scriptscript);\
 init_lua_key(second);\
 init_lua_key(semi_simple);\
@@ -1849,6 +1854,7 @@ init_lua_key(un_hbox);\
 init_lua_key(un_vbox);\
 init_lua_key(undefined_cs);\
 init_lua_key(under);\
+init_lua_key(underdelimiter);\
 init_lua_key(unhyphenated);\
 init_lua_key(units_per_em);\
 init_lua_key(unknown);\
@@ -2400,6 +2406,7 @@ use_lua_key(outer_call);
 use_lua_key(outline);
 use_lua_key(output);
 use_lua_key(over);
+use_lua_key(overdelimiter);
 use_lua_key(overlay_accent);
 use_lua_key(ownerpassword);
 use_lua_key(page);
@@ -2502,6 +2509,7 @@ use_lua_key(rule);
 use_lua_key(save_pos);
 use_lua_key(scale);
 use_lua_key(script);
+use_lua_key(scripts);
 use_lua_key(scriptscript);
 use_lua_key(second);
 use_lua_key(semi_simple);
@@ -2611,6 +2619,7 @@ use_lua_key(un_hbox);
 use_lua_key(un_vbox);
 use_lua_key(undefined_cs);
 use_lua_key(under);
+use_lua_key(underdelimiter);
 use_lua_key(unhyphenated);
 use_lua_key(units_per_em);
 use_lua_key(unknown);

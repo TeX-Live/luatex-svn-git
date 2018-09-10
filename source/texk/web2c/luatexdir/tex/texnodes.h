@@ -272,6 +272,11 @@ typedef enum {
     math_sup_list             = 21,
     math_sub_list             = 22,
     math_degree_list          = 23,
+    math_scripts_list         = 24,
+    math_over_list            = 25,
+    math_under_list           = 26,
+    math_accent_list          = 27,
+    math_radical_list         = 28,
 } list_subtypes ;
 
 #  define width(a)            varmem[(a)+2].cint

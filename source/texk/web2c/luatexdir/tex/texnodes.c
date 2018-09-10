@@ -369,6 +369,11 @@ subtype_info node_subtypes_list[] = {
     { math_sup_list,             NULL, 0 },
     { math_sub_list,             NULL, 0 },
     { math_degree_list,          NULL, 0 },
+    { math_scripts_list,         NULL, 0 },
+    { math_over_list,            NULL, 0 },
+    { math_under_list,           NULL, 0 },
+    { math_accent_list,          NULL, 0 },
+    { math_radical_list,         NULL, 0 },
     { -1,                        NULL, 0 },
 };
 
@@ -640,8 +645,8 @@ void l_set_node_data(void) {
     init_node_key(node_subtypes_list, math_v_extensible_list,    vextensible)
     init_node_key(node_subtypes_list, math_h_delimiter_list,     hdelimiter)
     init_node_key(node_subtypes_list, math_v_delimiter_list,     vdelimiter)
-    init_node_key(node_subtypes_list, math_over_delimiter_list,  over)
-    init_node_key(node_subtypes_list, math_under_delimiter_list, under)
+    init_node_key(node_subtypes_list, math_over_delimiter_list,  overdelimiter)
+    init_node_key(node_subtypes_list, math_under_delimiter_list, underdelimiter)
     init_node_key(node_subtypes_list, math_numerator_list,       numerator)
     init_node_key(node_subtypes_list, math_denominator_list,     denominator)
     init_node_key(node_subtypes_list, math_limits_list,          limits)
@@ -650,6 +655,11 @@ void l_set_node_data(void) {
     init_node_key(node_subtypes_list, math_sup_list,             sup)
     init_node_key(node_subtypes_list, math_sub_list,             sub)
     init_node_key(node_subtypes_list, math_degree_list,          degree)
+    init_node_key(node_subtypes_list, math_scripts_list,         scripts)
+    init_node_key(node_subtypes_list, math_over_list,            over)
+    init_node_key(node_subtypes_list, math_under_list,           under)
+    init_node_key(node_subtypes_list, math_accent_list,          accent)
+    init_node_key(node_subtypes_list, math_radical_list,         radical)
 
     init_node_key(node_subtypes_math, before, beginmath)
     init_node_key(node_subtypes_math, after,  endmath)
