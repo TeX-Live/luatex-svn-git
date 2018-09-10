@@ -42,9 +42,9 @@ endif LUAJITTEX
 EXTRA_PROGRAMS += luatex luatex53 luajittex
 
 # Force Automake to use CXXLD for linking
-nodist_EXTRA_luatex_SOURCES = dummy.cxx
-nodist_EXTRA_luatex53_SOURCES = dummy.cxx
-nodist_EXTRA_luajittex_SOURCES = dummy.cxx
+#nodist_EXTRA_luatex_SOURCES = dummy.cxx
+#nodist_EXTRA_luatex53_SOURCES = dummy.cxx
+#nodist_EXTRA_luajittex_SOURCES = dummy.cxx
 
 luatex_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) 
 luatex_postflags = -I$(srcdir)/libmd5 -DpdfTeX -I$(srcdir)/luatexdir -I$(srcdir)/mplibdir

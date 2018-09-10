@@ -210,7 +210,7 @@ extern const char *COMPILED_MPFR_VERSION_STRING;
 extern const char* mpfr_get_version (void);
 extern void * mp_initialize_binary_math (MP mp) ;
 extern int COMPILED__GNU_MP_VERSION;
-extern int COMPILED__GNU_MP_VERSION_MINOR; 
+extern int COMPILED__GNU_MP_VERSION_MINOR;
 extern int COMPILED__GNU_MP_VERSION_PATCHLEVEL;
 extern const char * const COMPILED_gmp_version;
 extern const char *COMPILED_PIXMAN_VERSION_STRING;
@@ -20048,7 +20048,8 @@ line and preceded by a space or at the beginning of a line.
             ptr = txt;
         } else {
             /* strip trailing whitespace, we have a \0 so we're one off  */
-            while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-2]] == space_class || txt[size-2] == '\n')) {
+         /* while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-2]] == space_class || txt[size-2] == '\n')) { */
+            while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-1]] == space_class || txt[size-1] == '\n')) {
                 decr(size);
             }
             /* prune the string */
