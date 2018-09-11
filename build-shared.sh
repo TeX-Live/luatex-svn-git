@@ -148,7 +148,7 @@ then
   LUATEXEXE=luatex.exe
   LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
-  PATH=`pwd`/extrabin/mingw:$PATH
+  PATH=`pwd`/extrabin/mingw/x86_64-linux:$PATH
   CFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CFLAGS"
   CXXFLAGS="-Wno-unknown-pragmas -mtune=nocona -g -O3 -fno-lto -fno-use-linker-plugin $CXXFLAGS"
   : ${CONFHOST:=--host=x86_64-w64-mingw32}
@@ -166,7 +166,7 @@ then
   LUATEXEXE=luatex.exe
   LUATEXEXE53=luatex53.exe
   PATH=/usr/mingw32/bin:$PATH
-  PATH=`pwd`/extrabin/mingw:$PATH
+  PATH=`pwd`/extrabin/mingw/x86_64-linux:$PATH
   CFLAGS="-Wno-unknown-pragmas -m32 -mtune=nocona -g -O3 $CFLAGS"
   CXXFLAGS="-Wno-unknown-pragmas -m32 -mtune=nocona -g -O3 $CXXFLAGS"
   : ${CONFHOST:=--host=i686-w64-mingw32}
