@@ -817,7 +817,7 @@ static int lua_nodelib_direct_setlang(lua_State * L)
 static int lua_nodelib_direct_getattributelist(lua_State * L)
 {
     halfword n = lua_tointeger(L, 1);
-    if ((n) && nodetype_has_attributes(type(n))) {
+    if ((n) && nodetype_has_attributes(type(n)) && node_attr(n) != null) {
         lua_pushinteger(L, node_attr(n));
     } else {
         lua_pushnil(L);
@@ -2484,9 +2484,15 @@ static int lua_nodelib_append(lua_State * L)
     for (i = 1; i <= j; i++) {
         n = *check_isnode(L, i);
         tail_append(n);
+        if (nodetype_has_attributes(type(n)) && node_attr(n) == null) {
+            build_attribute_list(n);
+        }
         while (vlink(n) != null) {
             n = vlink(n);
             tail_append(n);
+            if (nodetype_has_attributes(type(n)) && node_attr(n) == null) {
+                build_attribute_list(n);
+            }
         }
     }
     return 0;
@@ -2504,9 +2510,15 @@ static int lua_nodelib_direct_append(lua_State * L)
         if (n != null) {
             m = n ;
             tail_append(m);
+            if (nodetype_has_attributes(type(n)) && node_attr(n) == null) {
+                build_attribute_list(n);
+            }
             while (vlink(m) != null) {
                 m = vlink(m);
                 tail_append(m);
+                if (nodetype_has_attributes(type(n)) && node_attr(n) == null) {
+                    build_attribute_list(n);
+                }
             }
         }
     }

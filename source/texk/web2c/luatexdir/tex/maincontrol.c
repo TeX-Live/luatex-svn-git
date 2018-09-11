@@ -131,9 +131,15 @@ static void run_node (void) {
         n = copy_node_list(n);
     }
     tail_append(n);
+    if (nodetype_has_attributes(type(n)) && node_attr(n) == null) {
+        build_attribute_list(n);
+    }
     while (vlink(n) != null) {
         n = vlink(n);
         tail_append(n);
+        if (nodetype_has_attributes(type(n)) && node_attr(n) == null) {
+            build_attribute_list(n);
+        }
     }
 }
 
