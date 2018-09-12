@@ -70,7 +70,7 @@ const char ppname_byte_lookup[] = {
   (ppname)(ghost + 1))
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__
 #define ppname_set_alter_ego(name, ghost, ego) do {\
     ppname temp;\
     ppname *temp1;\
@@ -82,7 +82,7 @@ const char ppname_byte_lookup[] = {
 #define ppname_set_alter_ego(name, ghost, ego) (*((ppname *)(name + (ghost)->size + 1)) = ego)
 #endif
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__
 #define ppname_get_alter_ego(name) (*((ppname *)( (void*)(name + ppname_size(name) + 1))))
 #else
 #define ppname_get_alter_ego(name) (*((ppname *)(name + ppname_size(name) + 1)))
@@ -221,14 +221,14 @@ ppname ppname_encoded (ppname name)
 
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__
 #define ppstring_set_alter_ego(string, ghost, ego) (*((ppstring *)((void *)(string + (ghost)->size + 1))) = ego)
 #else
 #define ppstring_set_alter_ego(string, ghost, ego) (*((ppstring *)(string + (ghost)->size + 1)) = ego)
 #endif
 
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__
 #define ppstring_get_alter_ego(string) (*((ppstring *)((void *)(string + ppstring_size(string) + 1))))
 #else
 #define ppstring_get_alter_ego(string) (*((ppstring *)(string + ppstring_size(string) + 1)))
@@ -1391,13 +1391,17 @@ static int ppscan_start_stream (iof *I, ppdoc *pdf, size_t *streamoffset)
   int c;
   ppscan_find(I);
   if (ppscan_key(I, "stream"))
-  { // skip 1 or 2 whites (here we shouldn't just gobble all blanks)
+  { // PJ20180912 bugfix: we were gobbling white characters (also null byte), while "stream" may be followed by EOL
+    // pdf spec page 60: "CARRIAGE RETURN and a LINE FEED or just a LINE FEED, and not by a CARRIAGE RETURN alone"
     c = iof_char(I);
-    if (ignored_char(c))
+    if (c == 0x0D)
     {
-      c = iof_next(I);
-      if (ignored_char(c))
+      if (iof_next(I) == 0x0A) // should be
         ++I->pos;
+    }
+    else if (c == 0x0A)
+    {
+      ++I->pos;
     }
     *streamoffset = ppdoc_reader_tell(pdf, I);
     return 1;
