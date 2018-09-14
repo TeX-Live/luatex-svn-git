@@ -1859,6 +1859,32 @@ static void ppdoc_load_entries (ppdoc *pdf)
     }
   }
 
+  // Load Objstm
+  for (offindex = 0, pref = offmap; offindex < objects; ++offindex)
+  {
+    ref = *pref++;
+    obj = &ref->object;
+    if (obj->type != PPSTREAM)
+      continue;
+    stream = obj->stream;
+    if (ref->xref->trailer.type == PPSTREAM && (type = ppdict_get_name(stream->dict, "Type")) != NULL && ppname_is(type, "ObjStm")) // somewhat dummy..
+    {
+       if (crypt != NULL)
+       {
+         ppcrypt_start_ref(crypt, ref);
+         ppstream_info(stream, pdf);
+         ppcrypt_end_ref(crypt);
+       }
+       else
+       {
+         ppstream_info(stream, pdf);
+       }
+       if (!ppdoc_load_objstm(stream, pdf, ref->xref))
+        loggerf("invalid objects stream %s at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
+
+    }
+  }
+
   /* now handle streams; update stream info (eg. /Length), load pdf 1.5 object streams
      we could do earlier but then we would need to struggle with indirects */
   for (offindex = 0, pref = offmap; offindex < objects; ++offindex)
@@ -1868,6 +1894,7 @@ static void ppdoc_load_entries (ppdoc *pdf)
     if (obj->type != PPSTREAM)
       continue;
     stream = obj->stream;
+
     if (crypt != NULL)
     {
       ppcrypt_start_ref(crypt, ref);
@@ -1878,9 +1905,9 @@ static void ppdoc_load_entries (ppdoc *pdf)
     {
       ppstream_info(stream, pdf);
     }
-    if (ref->xref->trailer.type == PPSTREAM && (type = ppdict_get_name(stream->dict, "Type")) != NULL && ppname_is(type, "ObjStm")) // somewhat dummy..
-      if (!ppdoc_load_objstm(stream, pdf, ref->xref))
-        loggerf("invalid objects stream %s at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
+    //if (ref->xref->trailer.type == PPSTREAM && (type = ppdict_get_name(stream->dict, "Type")) != NULL && ppname_is(type, "ObjStm")) // somewhat dummy..
+    //  if (!ppdoc_load_objstm(stream, pdf, ref->xref))
+    //    loggerf("invalid objects stream %s at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
   }
   pp_free(offmap);
 }
