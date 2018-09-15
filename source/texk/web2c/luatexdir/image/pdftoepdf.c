@@ -429,38 +429,57 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
 {
     ppdict *dict = stream->dict; /* bug in: stream_dict(stream) */
     if (pdf->compress_level == 0 || pdf->recompress) {
-        const char *ignoredkeys[] = {
-            "Filter", "Decode", "Length", "DL", NULL
-        };
-        int i;
-        int n = dict->size;
-        pdf_begin_dict(pdf);
-        for (i=0; i<n; ++i) {
-            const char *key = ppdict_key(dict,i);
-            int okay = 1;
+        ppobj * obj = ppdict_get_obj (dict, "Filter");
+        int known = 0;
+        if (obj != NULL && obj->type == PPNAME) {
+            const char *codecs[] = {
+                "ASCIIHexDecode", "ASCII85Decode", "RunLengthDecode",
+                "FlateDecode", "LZWDecode", NULL
+            };
             int k;
-            for (k = 0; ignoredkeys[k] != NULL; k++) {
-                if (strcmp(key,ignoredkeys[k]) == 0) {
-                    okay = 0;
+            const char *val = ppobj_get_name(obj);
+            for (k = 0; codecs[k] != NULL; k++) {
+                if (strcmp(val,codecs[k]) == 0) {
+                    known = 1;
                     break;
                 }
             }
-            if (okay) {
-                pdf_add_name(pdf, key);
-                copyObject(pdf, pdf_doc, ppdict_at(dict,i));
-            }
         }
-        pdf_dict_add_streaminfo(pdf);
-        pdf_end_dict(pdf);
-        pdf_begin_stream(pdf);
-        copyStreamStream(pdf, stream, 1);
-        pdf_end_stream(pdf);
-    } else {
-        copyDict(pdf, pdf_doc, dict);
-        pdf_begin_stream(pdf);
-        copyStreamStream(pdf, stream, 0);
-        pdf_end_stream(pdf);
+        if (known) {
+            /*tex recompress or keep uncompressed */
+            const char *ignoredkeys[] = {
+                "Filter", "Decode", "Length", "DL", NULL
+            };
+            int i;
+            pdf_begin_dict(pdf);
+            for (i=0; i<dict->size; ++i) {
+                const char *key = ppdict_key(dict,i);
+                int copy = 1;
+                int k;
+                for (k = 0; ignoredkeys[k] != NULL; k++) {
+                    if (strcmp(key,ignoredkeys[k]) == 0) {
+                        copy = 0;
+                        break;
+                    }
+                }
+                if (copy) {
+                    pdf_add_name(pdf, key);
+                    copyObject(pdf, pdf_doc, ppdict_at(dict,i));
+                }
+            }
+            pdf_dict_add_streaminfo(pdf);
+            pdf_end_dict(pdf);
+            pdf_begin_stream(pdf);
+            copyStreamStream(pdf, stream, 1);
+            pdf_end_stream(pdf);
+            return ;
+        }
     }
+    /* copy as-is */
+    copyDict(pdf, pdf_doc, dict);
+    pdf_begin_stream(pdf);
+    copyStreamStream(pdf, stream, 0);
+    pdf_end_stream(pdf);
 }
 
 static void copyObject(PDF pdf, PdfDocument * pdf_doc, ppobj * obj)
