@@ -8,7 +8,7 @@
 
 #include "ppconf.h"
 
-#define pplib_version "v0.99"
+#define pplib_version "v1.00"
 #define pplib_author "p.jackowski@gust.org.pl"
 
 /* types */
@@ -64,23 +64,51 @@ typedef struct {
 } ppdict;
 #endif
 
+typedef enum {
+  PPSTREAM_BASE16 = 0,
+  PPSTREAM_BASE85,
+  PPSTREAM_RUNLENGTH,
+  PPSTREAM_FLATE,
+  PPSTREAM_LZW,
+  PPSTREAM_CCITT,
+  PPSTREAM_DCT,
+  PPSTREAM_JBIG2,
+  PPSTREAM_JPX,
+  PPSTREAM_CRYPT
+} ppstreamtp;
+
+typedef struct {
+  ppstreamtp *filters;
+  ppdict **params;
+  size_t count;
+} ppstream_filter;
 
 typedef struct {
   ppdict *dict;
   void *input, *I;
   size_t offset;
   size_t length;
+  ppstream_filter filter;
+  ppobj *filespec;
   ppstring cryptkey;
   int flags;
 } ppstream;
 
-#define PPSTREAM_COMPRESSED (1<<0)
-#define PPSTREAM_ENCRYPTED_AES (1<<1)
-#define PPSTREAM_ENCRYPTED_RC4 (1<<2)
-#define PPSTREAM_ENCRYPTED (PPSTREAM_ENCRYPTED_AES|PPSTREAM_ENCRYPTED_RC4)
-#define PPSTREAM_ENCRYPTED_OWN (1<<3)
+PPDEF extern const char * ppstream_filter_name[];
+PPAPI int ppstream_filter_type (ppname filtername, ppstreamtp *filtertype);
+PPAPI void ppstream_filter_info (ppstream *stream, ppstream_filter *info, int decode);
 
-#define ppstream_compressed(stream) ((stream)->flags & PPSTREAM_COMPRESSED)
+#define PPSTREAM_FILTER (1<<0)
+#define PPSTREAM_IMAGE (1<<1)
+#define PPSTREAM_ENCRYPTED_AES (1<<2)
+#define PPSTREAM_ENCRYPTED_RC4 (1<<3)
+#define PPSTREAM_ENCRYPTED (PPSTREAM_ENCRYPTED_AES|PPSTREAM_ENCRYPTED_RC4)
+#define PPSTREAM_ENCRYPTED_OWN (1<<4)
+#define PPSTREAM_NOT_SUPPORTED (1<<6)
+
+#define ppstream_compressed(stream) ((stream)->flags & (PPSTREAM_FILTER|PPSTREAM_IMAGE))
+#define ppstream_filtered(stream) ((stream)->flags & PPSTREAM_FILTER)
+#define ppstream_image(stream) ((stream)->flags & PPSTREAM_IMAGE)
 #define ppstream_encrypted(stream) ((stream)->flags & PPSTREAM_ENCRYPTED)
 
 typedef enum {

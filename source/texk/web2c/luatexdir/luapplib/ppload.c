@@ -1561,12 +1561,7 @@ static ppxref * ppxref_load_stream (iof *I, ppdoc *pdf, size_t xrefoffset)
   if (obj->type != PPDICT || !ppscan_start_stream(I, pdf, &streamoffset))
     return NULL;
   xrefstream = ppstream_create(pdf, obj->dict, streamoffset);
-  /* All normal streams go through ppstream_info(), but it makes no sense for trailer stream (no crypt allowed, no refs yet).
-     So we just record the length and informative flag. Here we have to expect that /Length and /Filter are not indirects. */
-  if (!ppdict_get_uint(obj->dict, "Length", &xrefstream->length))
-    return NULL;
-  if (ppdict_get_obj(obj->dict, "Filter") != NULL)
-    xrefstream->flags |= PPSTREAM_COMPRESSED;
+  ppstream_info(xrefstream, pdf);
   if ((fieldwidths = ppdict_get_array(xrefstream->dict, "W")) != NULL)
   {
     if (!pparray_get_uint(fieldwidths, 0, &w1)) w1 = 0;
@@ -1780,23 +1775,34 @@ Here is the proc:
     - estimate object length to avoid fread-ing more than necessary (not perfect but enough)
     - fseek() to the proper offset, fread() entry data or its part
     - parse the object with ppscan_obj(I, pdf, xref), where xref is not necessarily top pdf->xref
-    - save the actual ref->length (not sure if we need that?)
+      (since v0.98 xref actually no longer matters, see xref_find() notes)
+    - save the actual ref->length (not used so far, but we keep that so..)
     - make a stream if a dict is followed by "stream" keyword, also save the stream offset
   - free the list
+
+PJ2080916: Luigi and Hans fixeed a bug (rev 6491); a document having a stream with /Length being
+a reference, that was stored in /ObjStm, and therefore not yet resolved when caching /Length key
+value as stream->offset (ppstream_info()). At the end, references were resolved propertly, but
+the stream was no readable; stream->offset == 0. In rev6491 ObjStm streams are loaded before
+others streams.
 */
 
 static int ppdoc_load_objstm (ppstream *stream, ppdoc *pdf, ppxref *xref);
 
+#define ppref_is_objstm(ref, stream, type) \
+  ((ref)->xref->trailer.type == PPSTREAM && (type = ppdict_get_name((stream)->dict, "Type")) != NULL && ppname_is(type, "ObjStm"))
+
+
 static void ppdoc_load_entries (ppdoc *pdf)
 {
   size_t objects, sectionindex, refnumber, offindex;
+  size_t streams = 0, object_streams = 0, redundant_indirections = 0;
   ppnum linearized;
   ppref **offmap, **pref, *ref;
   ppxref *xref;
   ppxsec *xsec;
   ppobj *obj;
   ppname type;
-  int redundant_indirection = 0;
   ppcrypt *crypt;
   ppstream *stream;
 
@@ -1839,37 +1845,42 @@ static void ppdoc_load_entries (ppdoc *pdf)
         if (offindex == 1 && ppdict_get_num(obj->dict, "Linearized", &linearized)) // /Linearized value is a version number, default 1.0
           pdf->flags |= PPDOC_LINEARIZED;
         break;
+      case PPSTREAM:
+        ++streams;
+        if (ppref_is_objstm(ref, obj->stream, type))
+          ++object_streams;
+        break;
       case PPREF:
-        redundant_indirection = 1;
+        ++redundant_indirections;
         break;
       default:
         break;
     }
-    // if pdf->crypt crypt->ref = NULL
   }
 
-  /* refs pointngs refs? cut. */
-  if (redundant_indirection)
+  /* cut references pointing to references (rare). doing for all effectively cuts all insane chains */
+  for (pref = offmap; redundant_indirections > 0; )
   {
-    for (offindex = 0, pref = offmap; offindex < objects; ++offindex)
+    ref = *pref++;
+    if (ref->object.type == PPREF)
     {
-      ref = *pref++;
-      if (ref->object.type == PPREF)
-        ref->object = ref->object.ref->object; // doing for all effectively cuts all insane chains
+      --redundant_indirections;
+      ref->object = ref->object.ref->object;
     }
   }
 
-  // Load Objstm
-  for (offindex = 0, pref = offmap; offindex < objects; ++offindex)
+  /* load pdf 1.5 object streams _before_ other streams */
+  for (pref = offmap; object_streams > 0; )
   {
     ref = *pref++;
     obj = &ref->object;
     if (obj->type != PPSTREAM)
       continue;
     stream = obj->stream;
-    if (ref->xref->trailer.type == PPSTREAM && (type = ppdict_get_name(stream->dict, "Type")) != NULL && ppname_is(type, "ObjStm")) // somewhat dummy..
+    if (ppref_is_objstm(ref, stream, type))
     {
-       if (crypt != NULL)
+      --object_streams;
+      if (crypt != NULL)
        {
          ppcrypt_start_ref(crypt, ref);
          ppstream_info(stream, pdf);
@@ -1885,16 +1896,15 @@ static void ppdoc_load_entries (ppdoc *pdf)
     }
   }
 
-  /* now handle streams; update stream info (eg. /Length), load pdf 1.5 object streams
-     we could do earlier but then we would need to struggle with indirects */
-  for (offindex = 0, pref = offmap; offindex < objects; ++offindex)
+  /* now handle other streams */
+  for (pref = offmap; streams > 0; )
   {
     ref = *pref++;
     obj = &ref->object;
     if (obj->type != PPSTREAM)
       continue;
+    --streams;
     stream = obj->stream;
-
     if (crypt != NULL)
     {
       ppcrypt_start_ref(crypt, ref);
@@ -1905,9 +1915,6 @@ static void ppdoc_load_entries (ppdoc *pdf)
     {
       ppstream_info(stream, pdf);
     }
-    //if (ref->xref->trailer.type == PPSTREAM && (type = ppdict_get_name(stream->dict, "Type")) != NULL && ppname_is(type, "ObjStm")) // somewhat dummy..
-    //  if (!ppdoc_load_objstm(stream, pdf, ref->xref))
-    //    loggerf("invalid objects stream %s at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
   }
   pp_free(offmap);
 }
@@ -1930,7 +1937,7 @@ ppobj * ppdoc_load_entry (ppdoc *pdf, ppref *ref)
     return &ref->object; // PPNONE
   }
   stack = &pdf->stack;
-  xref = ref->xref; // to resolve indirects properly
+  xref = ref->xref;
   if ((obj = ppscan_obj(I, pdf, xref)) == NULL)
   {
     loggerf("invalid %s object at offset " PPSIZEF, ppref_str(ref->number, ref->version), ref->offset);
