@@ -448,7 +448,7 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
         if (known) {
             /*tex recompress or keep uncompressed */
             const char *ignoredkeys[] = {
-                "Filter", "Decode", "Length", "DL", NULL
+                "Filter", "DecodeParms", "Length", "DL", NULL
             };
             int i;
             pdf_begin_dict(pdf);
