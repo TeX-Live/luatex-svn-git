@@ -132,6 +132,7 @@ predictor_state * predictor_decoder_init (predictor_state *state, int predictor,
       } else {
        c = malloc(state->pixbufsize); 
       }
+      assert(c);
       memcpy(c,(state->rowin + rowsize),state->pixbufsize);
       if (state->prevcomp){
 	free(state->prevcomp);
