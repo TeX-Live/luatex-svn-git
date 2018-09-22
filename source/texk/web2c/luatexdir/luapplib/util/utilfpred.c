@@ -1,5 +1,8 @@
 /* predictor filters; common for flate and lzw */
 
+#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__
+#include <assert.h>
+#endif 
 #include "utilmem.h"
 #include "utillog.h"
 #include "utilfpred.h"
