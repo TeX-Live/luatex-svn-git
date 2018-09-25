@@ -312,7 +312,8 @@ to make the encapsulating box fit its dimensions. For instance, in a paragraph
 lines normally have glue representing spaces and these stretch or shrink to make
 the content fit in the available space. The \type {effective_glue} function that
 takes a glue node and a parent (hlist or vlist) returns the effective width of
-that glue item.
+that glue item. When you pass \type {true} as third argument the value will be
+rounded.
 
 A \nod {glue_spec} node is a special kind of node that is used for storing a set
 of glue values in registers. Originally they were also used to store properties

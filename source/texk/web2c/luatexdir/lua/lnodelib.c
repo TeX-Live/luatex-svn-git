@@ -8368,9 +8368,9 @@ static int lua_nodelib_effective_glue(lua_State * L)
     if ((glue == NULL) || (type(*glue) != glue_node)) {
         lua_pushnil(L) ;
     } else {
-        double w = width(*glue) ;
         parent = lua_touserdata(L, 2);
         if ((parent != NULL) && ((type(*parent) == hlist_node) || (type(*parent) == vlist_node))) {
+            double w = width(*glue) ;
             if ((int) glue_sign(*parent) == 1) {
                 if (stretch_order(*glue) == glue_order(*parent)) {
                     w += stretch(*glue) * (double) glue_set(*parent);
@@ -8380,8 +8380,14 @@ static int lua_nodelib_effective_glue(lua_State * L)
                     w -= shrink(*glue) * (double) glue_set(*parent);
                 }
             }
+            if (lua_toboolean(L,3)) {
+                lua_pushinteger(L,round(w));
+            } else {
+                lua_pushnumber(L,w);
+            }
+        } else {
+            lua_pushinteger(L,width(*glue));
         }
-        lua_pushinteger(L,round(w));
     }
     return 1;
 }
@@ -8392,9 +8398,9 @@ static int lua_nodelib_direct_effective_glue(lua_State * L)
     if ((glue == null) || (type(glue) != glue_node)) {
         lua_pushnil(L) ;
     } else {
-        double w = (double) width(glue) ;
         halfword parent = lua_tointeger(L, 2);
         if ((parent != null) && ((type(parent) == hlist_node) || (type(parent) == vlist_node))) {
+            double w = (double) width(glue) ;
             if ((int)glue_sign(parent) == 1) {
                 if (stretch_order(glue) == glue_order(parent)) {
                     w += stretch(glue) * (double) glue_set(parent);
@@ -8404,8 +8410,14 @@ static int lua_nodelib_direct_effective_glue(lua_State * L)
                     w -= shrink(glue) * (double) glue_set(parent);
                 }
             }
+            if (lua_toboolean(L,3)) {
+                lua_pushinteger(L,round(w));
+            } else {
+                lua_pushnumber(L,w);
+            }
+        } else {
+            lua_pushinteger(L,width(glue));
         }
-        lua_pushnumber(L,round(w));
     }
     return 1;
 }
