@@ -133,6 +133,7 @@ extern int luaopen_stats(lua_State * L);
 
 extern int luaopen_font(lua_State * L);
 extern int luaopen_vf(lua_State * L);
+extern int font_parameters_to_lua(lua_State * L, int f);
 extern int font_to_lua(lua_State * L, int f);
 extern int font_from_lua(lua_State * L, int f); /* return is boolean */
 extern int characters_from_lua(lua_State * L, int f); /* return is boolean */
