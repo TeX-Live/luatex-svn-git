@@ -611,7 +611,7 @@ void read_pdf_info(image_dict * idict)
     ppint rotate = 0;
     int pdf_major_version_found = 1;
     int pdf_minor_version_found = 3;
-    float xsize, ysize, xorig, yorig;
+    double xsize, ysize, xorig, yorig;
     if (img_type(idict) == IMG_TYPE_PDF) {
         pdf_doc = refPdfDocument(img_filepath(idict), FE_FAIL, img_userpassword(idict), img_ownerpassword(idict));
     } else if (img_type(idict) == IMG_TYPE_PDFMEMSTREAM) {
