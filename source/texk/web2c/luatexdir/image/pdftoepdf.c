@@ -870,7 +870,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
         Write the Page contents.
     */
     content = ppdict_rget_obj(pageDict, "Contents");
-    if (content->type == PPSTREAM) {
+    if (content && content->type == PPSTREAM) {
         if (pdf->compress_level == 0 || pdf->recompress) {
             pdf_dict_add_streaminfo(pdf);
             pdf_end_dict(pdf);
@@ -908,7 +908,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
             }
         }
         pdf_end_stream(pdf);
-    } else if (content->type == PPARRAY) {
+    } else if (content && content->type == PPARRAY) {
         /* listens to compresslevel */
         pdf_dict_add_streaminfo(pdf);
         pdf_end_dict(pdf);
