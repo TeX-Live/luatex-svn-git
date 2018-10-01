@@ -118,6 +118,7 @@ static ppname ppscan_name (iof *I, ppheap **pheap)
       v1 = base16_value(p[1]);
       v2 = base16_value(p[2]);
       iof_put(O, ((v1<<4)+v2));
+      p+=2;
     }else
       iof_put(O, *p);
   }
