@@ -2274,10 +2274,10 @@ scan_array:
       dict = o->dict;
       if ((kids = pppage_node(dict, &count, &type)) != NULL)
       {
-        if (index <= count){
-	  index = count - index + 1;
+        if (index <= count) {
+          index = count - index + 1;
           goto scan_array;
-	}
+        }
         index -= count;
         continue;
       }

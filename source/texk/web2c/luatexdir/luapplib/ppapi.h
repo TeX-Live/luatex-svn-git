@@ -8,7 +8,7 @@
 
 #include "ppconf.h"
 
-#define pplib_version "v1.01"
+#define pplib_version "v1.02"
 #define pplib_author "p.jackowski@gust.org.pl"
 
 /* types */

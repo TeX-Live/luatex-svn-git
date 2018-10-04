@@ -42,6 +42,14 @@ v1.00
 Fixed streams handling (Luigi); object streams updated before other streams
 Revised streams handling, ppstream API extended
 
+v1.01
+-----
+Fixed names handling (thanks Hans); digits after '#' weren't skipped
+
+v1.02
+-----
+Fixed page finder (thanks Luigi)
+
 TODO
 ====
 - external streams (egzotic)
