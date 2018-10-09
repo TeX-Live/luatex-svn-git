@@ -1036,8 +1036,6 @@ end
 This callback is called after the \PDF\ page stream has been assembled and before
 the page object gets finalized.
 
-\stopsection
-
 \subsection{\cbk {page_objnum_provider}}
 
 \topicindex{callbacks+\PDF\ file}
@@ -1068,6 +1066,30 @@ end)
 \stoptyping
 
 When you mess things up \unknown\ don't complain.
+
+\subsection{\cbk {process_pdf_image_content}}
+
+\topicindex{callbacks+image content}
+
+When a page from a \PDF\ file is embedded its page stream as well as related
+objects are copied to the target file. However, it can be that the page stream
+has operators that assume additional resources, for instance marked text. You can
+decide to filter that for which \LUATEX\ provides a callback. Here is a simple
+demonstration of use:
+
+\starttyping
+pdf.setrecompress(1)
+
+callback.register("process_pdf_image_content",function(s)
+    print(s)
+    return s
+end)
+\stoptyping
+
+You need to explicitly enable recompression because otherwise the content stream
+gets just passed on in its original compressed form.
+
+\stopsection
 
 \startsection[title={Font-related callbacks}][library=callback]
 

@@ -567,21 +567,21 @@ either password you can give \type {nil}:
 pdfe.unencrypt(<pdfe document>,userpassword,ownerpassword)
 \stoptyping
 
-\subsection {\type {size}, \type {version}, \type {nofobjects}, \type {nofpages}}
+\subsection {\type {size}, \type {version}, \type {getnofobjects}, \type {getnofpages}}
 
 \libindex {size}
 \libindex {version}
-\libindex {nofobjects}
-\libindex {nofpages}
+\libindex {getnofobjects}
+\libindex {getnofpages}
 
 A successfully opened document can provide some information:
 
 \starttyping
 bytes = size(<pdfe document>)
 major, minor = version(<pdfe document>)
-n = nofobjects(<pdfe document>)
-n = nofpages(<pdfe document>)
-bytes, waste = nofpages(<pdfe document>)
+n = getnofobjects(<pdfe document>)
+n = getnofpages(<pdfe document>)
+bytes, waste = getnofpages(<pdfe document>)
 \stoptyping
 
 \subsection {\type {get[catalog|trailer|info}}
@@ -610,10 +610,10 @@ The other two root dictionaries are accessed with:
 \libindex {getbox}
 
 A specific page can conveniently be reached with the next command, which
-returns a dictionary.
+returns a dictionary. The first argument is to be a page dictionary.
 
 \starttyping
-<pdfe dictionary> = pdfe.getpage(<pdfe document>,pagenumber)
+<pdfe dictionary> = pdfe.getpage(<pdfe dictionary>,pagenumber)
 \stoptyping
 
 Another convenience command gives you the (bounding) box of a (normally page)
@@ -770,6 +770,8 @@ with:
 <pdfe dictionary|array|stream> = getfromreference(<pdfe reference>)
 \stoptyping
 
+So, you get back a new \type {pdfe} userdata object that you can query.
+
 \stopsection
 
 \startsection[title={Memory streams}][library=pdfe]
@@ -813,6 +815,7 @@ library for \type {graphicmagick}, it can return such a userdata object. This
 permits conversion in memory and passing the result directly to the backend. This
 might save some runtime in one|-|pass workflows. This feature is currently not
 meant for production and we might come up with a better implementation.
+
 
 \stopsection
 

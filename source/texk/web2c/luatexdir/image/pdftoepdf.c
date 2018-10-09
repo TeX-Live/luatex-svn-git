@@ -23,6 +23,11 @@ with LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 #define __STDC_FORMAT_MACROS /* for PRId64 etc.  */
 
 #include "image/epdf.h"
+#include "luatexcallbackids.h"
+
+/* to be sorted out, we cannot include */
+
+#define xfree(a) do { free(a); a = NULL; } while (0)
 
 /* Conflict with pdfgen.h */
 
@@ -408,7 +413,7 @@ static void copyDict(PDF pdf, PdfDocument * pdf_doc, ppdict *dict)
     pdf_end_dict(pdf);
 }
 
-static void copyStreamStream(PDF pdf, ppstream * stream, int decode)
+static void copyStreamStream(PDF pdf, ppstream * stream, int decode, int callback_id)
 {
     uint8_t *data = NULL;
     size_t size = 0;
@@ -419,7 +424,18 @@ static void copyStreamStream(PDF pdf, ppstream * stream, int decode)
     } else {
         data = ppstream_all(stream,&size,decode);
         if (data != NULL) {
-            pdf_out_block(pdf, (const char *) data, size);
+            /*tex We only do this when we recompress in which case we fetch the whole stream. */
+            if (callback_id == 1) {
+                callback_id = callback_defined(process_pdf_image_content_callback);
+            }
+            if (callback_id) {
+                char *result = NULL;
+                run_callback(callback_id, "S->S",(char *) data,&result);
+                pdf_out_block(pdf, (const char *) (uint8_t *) result, size);
+                xfree(result);
+            } else {
+                pdf_out_block(pdf, (const char *) data, size);
+            }
         }
     }
     ppstream_done(stream);
@@ -470,7 +486,7 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
             pdf_dict_add_streaminfo(pdf);
             pdf_end_dict(pdf);
             pdf_begin_stream(pdf);
-            copyStreamStream(pdf, stream, 1);
+            copyStreamStream(pdf, stream, 1, 0);
             pdf_end_stream(pdf);
             return ;
         }
@@ -478,7 +494,7 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
     /* copy as-is */
     copyDict(pdf, pdf_doc, dict);
     pdf_begin_stream(pdf);
-    copyStreamStream(pdf, stream, 0);
+    copyStreamStream(pdf, stream, 0, 0);
     pdf_end_stream(pdf);
 }
 
@@ -875,7 +891,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
             pdf_dict_add_streaminfo(pdf);
             pdf_end_dict(pdf);
             pdf_begin_stream(pdf);
-            copyStreamStream(pdf, content->stream,1); /* decompress */
+            copyStreamStream(pdf, content->stream, 1, 1); /* decompress */
         } else {
             /* copies compressed stream */
             ppstream * stream = content->stream;
@@ -899,12 +915,12 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
                 }
                pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
-                copyStreamStream(pdf, stream,0);
+                copyStreamStream(pdf, stream, 0, 0);
             } else {
                 pdf_dict_add_streaminfo(pdf);
                 pdf_end_dict(pdf);
                 pdf_begin_stream(pdf);
-                copyStreamStream(pdf, stream,1);
+                copyStreamStream(pdf, stream, 1, 0);
             }
         }
         pdf_end_stream(pdf);
@@ -932,7 +948,7 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
                     } else {
                         b = 1;
                     }
-                    copyStreamStream(pdf, (ppstream *) o->stream,1);
+                    copyStreamStream(pdf, (ppstream *) o->stream, 1, 0);
                 }
             }
         }
