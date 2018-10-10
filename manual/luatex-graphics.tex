@@ -136,7 +136,9 @@ user-supplied and automatic ones.
 \NC \type{userpassword}   \NC string   \NC  the userpassword needed for opening a \PDF\ file \NC \NR
 \NC \type{ownerpassword}  \NC string   \NC  the ownerpassword needed for opening a \PDF\ file \NC \NR
 \NC \type{keepopen}       \NC boolean  \NC  keep the \PDF\ file open \NC \NR
+\NC \type{nobbox}         \NC boolean  \NC  don't add a boundingbox specification for streams \NC \NR
 \NC \type{nolength}       \NC boolean  \NC  don't add length key nor compress for streams \NC \NR
+\NC \type{nosize}         \NC boolean  \NC  don't add size fields for streams \NC \NR
 \LL
 \stoptabulate
 
@@ -797,7 +799,7 @@ id in the range 0 to 255; the returned \type {w} is in AFM units.
 <number> w = char_depth(mp,<string> fontname, <number> char)
 \stopfunctioncall
 
-\subsubsection{\type {get[boolean|numeric|string|path]}}
+\subsubsection{\type {get_[boolean|numeric|string|path]}}
 
 \libindex{get_boolean}
 \libindex{get_numeric}
@@ -809,10 +811,10 @@ When a script call brings you from the \METAPOST\ run (temporarily) back to
 anonymous capsules like loop variables are not accessible).
 
 \startfunctioncall
-<boolean> w = getboolean(mp,<string> name)
-<number>  n = getnumeric(mp,<string> name)
-<string>  s = getstring (mp,<string> name)
-<table>   p = getpath   (mp,<string> name)
+<boolean> w = get_boolean(mp,<string> name)
+<number>  n = get_numeric(mp,<string> name)
+<string>  s = get_string (mp,<string> name)
+<table>   p = get_path   (mp,<string> name)
 \stopfunctioncall
 
 The path is returned a a table with subtables that have six numbers: the

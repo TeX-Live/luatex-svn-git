@@ -35,6 +35,7 @@ const char *img_types[] = {
     "jbig2",
     "stream",
     "memstream",
+    "rawstream",
     NULL
 };
 
@@ -386,6 +387,10 @@ static int m_img_get(lua_State * L)
         lua_pushboolean(L, img_keepopen(d));
     } else if (lua_key_eq(s,nolength)) {
         lua_pushboolean(L, img_nolength(d));
+    } else if (lua_key_eq(s,notype)) {
+        lua_pushboolean(L, img_notype(d));
+    } else if (lua_key_eq(s,nobbox)) {
+        lua_pushboolean(L, img_nobbox(d));
     } else if (lua_key_eq(s,filepath)) {
         if (img_filepath(d) == NULL || strlen(img_filepath(d)) == 0) {
             lua_pushnil(L);
@@ -679,6 +684,10 @@ static void lua_to_image(lua_State * L, image * a, image_dict * d)
         }
     } else if (lua_key_eq(s,nolength)) {
         img_nolength(d) = lua_toboolean(L, -1);
+    } else if (lua_key_eq(s,notype)) {
+        img_notype(d) = lua_toboolean(L, -1);
+    } else if (lua_key_eq(s,nobbox)) {
+        img_nobbox(d) = lua_toboolean(L, -1);
     } else if (lua_key_eq(s,bbox)) {
         if (img_state(d) >= DICT_FILESCANNED) {
             luaL_error(L, "img.bbox is now read-only");

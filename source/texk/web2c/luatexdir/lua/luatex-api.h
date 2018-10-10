@@ -913,7 +913,9 @@ make_lua_key(new_graf);\
 make_lua_key(new_window);\
 make_lua_key(next);\
 make_lua_key(no);\
+make_lua_key(nobbox);\
 make_lua_key(nolength);\
+make_lua_key(notype);\
 make_lua_key(no_align);\
 make_lua_key(no_expand);\
 make_lua_key(no_super_sub_script);\
@@ -1610,7 +1612,9 @@ init_lua_key(new_graf);\
 init_lua_key(new_window);\
 init_lua_key(next);\
 init_lua_key(no);\
+init_lua_key(nobbox);\
 init_lua_key(nolength);\
+init_lua_key(notype);\
 init_lua_key(no_align);\
 init_lua_key(no_expand);\
 init_lua_key(no_super_sub_script);\
@@ -2366,7 +2370,9 @@ use_lua_key(new_graf);
 use_lua_key(new_window);
 use_lua_key(next);
 use_lua_key(no);
+use_lua_key(nobbox);
 use_lua_key(nolength);
+use_lua_key(notype);
 use_lua_key(no_align);
 use_lua_key(no_expand);
 use_lua_key(no_super_sub_script);
