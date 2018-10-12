@@ -64,7 +64,7 @@ that are permanently \0.
 */
 
 /* #define predictor_component_t unsigned short */
-#define predictor_component_t uint8_t
+#define predictor_component_t unsigned int
 #define predictor_pixel1b_t unsigned int
 
 typedef struct predictor_state {
@@ -427,7 +427,8 @@ iof_status predictor_decode_state (iof *I, iof *O, predictor_state *state)
               ++state->rowindex;
               d |= row_byte(state);
 	      state->prevcomp = (predictor_component_t *)(state->rowin + state->rowsize);
-	      c = (d + left_pixel_component(state)) & 0xff;
+	      /*c = (d + left_pixel_component(state)) & 0xff;*/
+	      c = (d + left_pixel_component(state)) & 0xffff;
               save_pixel_component(state, c);
               iof_set2(O, c >> 8, c & 0xff);
             }
