@@ -15774,6 +15774,18 @@ static void mp_cubic_intersection (MP mp, mp_knot p, mp_knot pp) {
   @<Initialize for intersections at level zero@>;
 CONTINUE:
   while (1) {
+    /* When we are in arbitrary precision math, low precisions can */
+    /* lead to acces locations beyond the stack_size: in this case */
+    /* we say that there is no intersection.*/               
+    if ( ((x_packet (mp->xy))+4)>bistack_size ||
+         ((u_packet (mp->uv))+4)>bistack_size ||
+	 ((y_packet (mp->xy))+4)>bistack_size ||
+         ((v_packet (mp->uv))+4)>bistack_size ){
+	 set_number_from_scaled (mp->cur_t, 1);
+	 set_number_from_scaled (mp->cur_tt, 1);
+         goto NOT_FOUND;
+    }         
+
     if (number_to_scaled (mp->delx) - mp->tol <=
         number_to_scaled (stack_max (x_packet (mp->xy))) - number_to_scaled (stack_min (u_packet (mp->uv))))
       if (number_to_scaled (mp->delx) + mp->tol >=
