@@ -12,7 +12,9 @@
 # define PPHEAP_NEED_ALIGNMENT
 #endif
 
-
+#if defined(__sun) && defined(__SVR4)
+# define PPHEAP_NEED_ALIGNMENT
+#endif
  
 #ifdef PPHEAP_NEED_ALIGNMENT 
 /* Tests has shown that long double seems to work: */
