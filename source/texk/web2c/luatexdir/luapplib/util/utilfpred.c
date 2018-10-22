@@ -414,7 +414,7 @@ iof_status predictor_decode_state (iof *I, iof *O, predictor_state *state)
             {
               ensure_output_bytes(O, 1);
 	      state->prevcomp = (predictor_component_t *)(state->rowin + state->rowsize);
-	      c = (d + left_pixel_component(state)) & 0xff;
+	      c = (left_pixel_component(state)) & 0xff;
               save_pixel_component(state, c);
               iof_set(O, c);
             }
