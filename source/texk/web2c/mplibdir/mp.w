@@ -4797,7 +4797,7 @@ double mp_get_numeric_value (MP mp, const char *s, size_t l) {
 	   mp_loop_data *s;
            s = mp->loop_ptr;
            while (s != NULL && sym != s->var)
-             s = mp->loop_ptr->link;
+             s = s->link;
            if (s != NULL &&  sym == s->var ){
 	     mp_xfree (ss);
              return number_to_double(s->old_value) ;
