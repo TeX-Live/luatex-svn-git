@@ -15,7 +15,6 @@ $(libluapplib_a_OBJECTS): $(LUA_DEPEND)
 $(liblua53pplib_a_OBJECTS): $(LUA_DEPEND)
 $(libluajitpplib_a_OBJECTS): $(LUAJIT_DEPEND)
 
-## replace -I../../libs/zlib/include $(ZLIB_INCLUDES)
 
 libluapplib_a_CPPFLAGS = \
 	-I$(top_srcdir)/luatexdir/luapplib -I$(top_srcdir)/luatexdir/luapplib/util $(ZLIB_INCLUDES) $(LUA_INCLUDES)
@@ -77,8 +76,6 @@ libluapplib_sources = \
 	luatexdir/luapplib/util/utilplat.h \
 	luatexdir/luapplib/util/utilsha.c \
 	luatexdir/luapplib/util/utilsha.h \
-	luatexdir/luapplib/zlib/zconf.h \
-	luatexdir/luapplib/zlib/zlib.h 
 
 
 
