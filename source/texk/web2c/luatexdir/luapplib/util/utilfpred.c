@@ -1,15 +1,12 @@
 /* predictor filters; common for flate and lzw */
 
-#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__
-#include <assert.h>
-#endif 
 #include "utilmem.h"
 #include "utillog.h"
 #include "utilfpred.h"
 
 /*
 Here we implement predictor filters used with flate and lzw compressions in PDF streams. The main idea of data prediction
-is to compute and output the differences between data records instead of this records. Adjacent pixels in images are usually
+is to compute and output the differences between data records instead of those records. Adjacent pixels in images are usually
 similar, so differences between pixel values tends to be zero. And both Flate and LZW performs better when the input
 is rather smooth. Although a preliminary use of predictors is related to bitmap data, The actual need for predictor filter
 came from the fact that xref streams may also be predicted (usually with PNG up-predictor).
@@ -27,7 +24,7 @@ PDF specification allows to use several predictor algorithms, specified by /Pred
 All PNG predictors works on bytes, regardless the image color-depth. While encoding, every input data byte is decreased
 by the appropriate byte of the previous pixel. Even if the pixel does not fit a full byte, PNG predictors use an artificial
 pixel size rounded up to a full byte. PNG predictors utilizes previous (left) pixel, pixel above and previous to above
-pixel. In case of PNG, the type of the predictor is written on a dedicated byte on the beginning of every scanline. It
+pixel. In case of PNG, the type of the predictor is written on a dedicated byte at the beginning of every scanline. It
 means all predictor functions must maintain and information about left, above and left-above pixels.
 
 Despite the same differencing idea, TIFF predictors are different. The prediction process bases on pixel components,
@@ -41,19 +38,12 @@ input value (or 0 at the beginning of the scanline) and output a difference betw
 previously decoded value (or zero) and outputs their sum. When encoding, the result is cast to the proper unsigned integer,
 when decoding, modulo 256 (or appropriate) is used, which makes encoding and decoding looseless.
 
-Some extra bits trickery is involved in TIFF predictor function, when components doesn't fit bytes boundary. In that case,
-an input is treated as an bits stream. Every input byte is "buffered" in a larger integer, as its lower bits (from right).
+Some extra bits trickery is involved in TIFF predictor function, when components don't fit bytes boundary. In that case,
+an input is treated as a bits stream. Every input byte is "buffered" in a larger integer, as its lower bits (from right).
 Every output value is taken from its higher (left) bits. In a special case of bits-per-component equal 1, we buffer all
 pixel bits and use XOR to compute bits difference between pixels. I've excerpted that trick from poppler, but I'm not
 really sure if it works any better, especially when the number of components per pixel is 1. In that case we do a hard
 bit-by-bit work anyway.
-
-Predictor codecs state keeps a notion of surrounding pixels. PNG predictors uses left, up and upleft
-pixel data, while TIFF predictor (2) only needs the previous (left) pixel. Important to note that PNG
-predictors always work on bytes, no matter of color-depth (bits per component), while TIFF predictor
-works on pixel components, which not necessarily fits into a complete byte. However, for PNG predictor
-the size of a pixel still matters, because 'left' and 'upleft' refers to a corresponding pixel byte,
-not necessarily previous byte.
 
 In PNG prediction, we record every pixel byte (in decoded form) in state->rowsave. At the end of a scanline
 we copy state->rowsave to state->rowup, so that in the next scanline we can access up-pixel byte.
@@ -63,9 +53,9 @@ at the left edge of the row). Both state->rowup and state->rowsave has a safe sp
 that are permanently \0.
 */
 
-/* #define predictor_component_t unsigned short */
-#define predictor_component_t unsigned int
-#define predictor_pixel1b_t unsigned int
+//#define predictor_component_t uint16_t
+#define predictor_component_t uint32_t // uint16_t is enough for algorithm but arm stuff needs 32bit?
+#define predictor_pixel1b_t uint32_t
 
 typedef struct predictor_state {
   int default_predictor;                      /* default predictor indicator */
@@ -102,7 +92,7 @@ typedef struct predictor_state {
 
 enum {
   STATUS_LAST = 0,
-  STATUS_CONTINUE = 1 // any value different then IOFEOF, IOFERR, ...
+  STATUS_CONTINUE = 1 // any value different then IOFEOF, IOFERR, ... which are < 0
 };
 
 predictor_state * predictor_decoder_init (predictor_state *state, int predictor, int rowsamples, int components, int compbits)
@@ -126,29 +116,10 @@ predictor_state * predictor_decoder_init (predictor_state *state, int predictor,
     compbuf = state->components * sizeof(predictor_component_t);
     pixbuf = 1 * sizeof(predictor_pixel1b_t);
     state->pixbufsize = (int)(compbuf > pixbuf ? compbuf : pixbuf);
-    buffersize = rowsize + state->pixbufsize;
+    buffersize = (rowsize + state->pixbufsize) * sizeof(uint8_t);
     buffer = (uint8_t *)util_calloc(buffersize, 1);
-/* #if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__  */
-/*     { /\*memory leak *\/ */
-/*       predictor_component_t *c; */
-/*       if (state->pixbufsize%(sizeof(predictor_component_t))) { */
-/*        c = malloc(state->pixbufsize - state->pixbufsize%(sizeof(predictor_component_t)) + sizeof(predictor_component_t) ); */
-/*       } else { */
-/*        c = malloc(state->pixbufsize);  */
-/*       } */
-/*       assert(c); */
-/*       memcpy(c,(state->rowin + rowsize),state->pixbufsize); */
-/*       if (state->prevcomp){ */
-/* 	free(state->prevcomp); */
-/*       } */
-/*       state->prevcomp = c; */
-/*     } */
-/* #else */
-    state->prevcomp = NULL ; /* will be assigned later */
-    /* if (state->rowin)  */
-    /* 	state->prevcomp = (predictor_component_t *)(state->rowin + rowsize); */
-/* #endif			 */
-    state->sampleindex = state->compindex = 0;
+    state->prevcomp = (predictor_component_t *)((void *)(buffer + rowsize)); // == state->prevpixel
+    state->sampleindex = state->compindex = 0;                               // intermediate (void *) for arm
     state->bitsin = state->bitsout = 0;
     state->compin = state->compout = 0;
   }
@@ -261,20 +232,22 @@ static int read_scanline (predictor_state *state, iof *I, int size)
 
 #define ensure_output_bytes(O, n) if (!iof_ensure(O, n)) return IOFFULL
 
-#define tobyte(c) ((unsigned char)(c))
-#define tocomp(c) ((unsigned short)(c))
+#define tobyte(c) ((uint8_t)(c))
+#define tocomp(c) ((uint16_t)(c))
 
 #define row_byte(state) (state->rowin[state->rowindex])
+
+/* png predictor macros; on bytes */
 
 #define up_pixel_byte(state)     (state->rowup[state->rowindex])
 #define upleft_pixel_byte(state) (state->rowup[state->rowindex - state->pixelsize])
 #define left_pixel_byte(state)   (state->rowsave[state->rowindex - state->pixelsize])
-
 #define save_pixel_byte(state, c) (state->rowsave[state->rowindex] = c)
+
+/* tiff predictor macros; on components */
 
 #define left_pixel_component(state) (state->prevcomp[state->compindex]) // tiff predictor with 2, 4, 8, 16 components
 #define left_pixel_value(state) (state->prevpixel[0])                   // tiff predictor with 1bit components
-
 #define save_pixel_component(state, c) ((void)\
   ((state->prevcomp[state->compindex] = c), \
    (++state->compindex < state->components || (state->compindex = 0))))
@@ -413,8 +386,7 @@ iof_status predictor_decode_state (iof *I, iof *O, predictor_state *state)
             for ( ; state->rowindex < state->rowsize; ++state->rowindex)
             {
               ensure_output_bytes(O, 1);
-	      state->prevcomp = (predictor_component_t *)(state->rowin + state->rowsize);
-	      c = (left_pixel_component(state)) & 0xff;
+              c = (row_byte(state) + left_pixel_component(state)) & 0xff;
               save_pixel_component(state, c);
               iof_set(O, c);
             }
@@ -426,9 +398,7 @@ iof_status predictor_decode_state (iof *I, iof *O, predictor_state *state)
               d = row_byte(state) << 8;
               ++state->rowindex;
               d |= row_byte(state);
-	      state->prevcomp = (predictor_component_t *)(state->rowin + state->rowsize);
-	      /*c = (d + left_pixel_component(state)) & 0xff;*/
-	      c = (d + left_pixel_component(state)) & 0xffff;
+              c = (d + left_pixel_component(state)) & 0xffff;
               save_pixel_component(state, c);
               iof_set2(O, c >> 8, c & 0xff);
             }

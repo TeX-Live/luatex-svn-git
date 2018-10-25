@@ -568,6 +568,9 @@ am__objects_3 = luatexdir/luapplib/liblua53pplib_a-pparray.$(OBJEXT) \
 	luatexdir/luapplib/liblua53pplib_a-ppheap.$(OBJEXT) \
 	luatexdir/luapplib/liblua53pplib_a-ppload.$(OBJEXT) \
 	luatexdir/luapplib/liblua53pplib_a-ppstream.$(OBJEXT) \
+	luatexdir/luapplib/liblua53pplib_a-pptest1.$(OBJEXT) \
+	luatexdir/luapplib/liblua53pplib_a-pptest2.$(OBJEXT) \
+	luatexdir/luapplib/liblua53pplib_a-pptest3.$(OBJEXT) \
 	luatexdir/luapplib/liblua53pplib_a-ppxref.$(OBJEXT) \
 	luatexdir/luapplib/util/liblua53pplib_a-utilbasexx.$(OBJEXT) \
 	luatexdir/luapplib/util/liblua53pplib_a-utilcrypt.$(OBJEXT) \
@@ -759,6 +762,9 @@ am__objects_9 = luatexdir/luapplib/libluajitpplib_a-pparray.$(OBJEXT) \
 	luatexdir/luapplib/libluajitpplib_a-ppheap.$(OBJEXT) \
 	luatexdir/luapplib/libluajitpplib_a-ppload.$(OBJEXT) \
 	luatexdir/luapplib/libluajitpplib_a-ppstream.$(OBJEXT) \
+	luatexdir/luapplib/libluajitpplib_a-pptest1.$(OBJEXT) \
+	luatexdir/luapplib/libluajitpplib_a-pptest2.$(OBJEXT) \
+	luatexdir/luapplib/libluajitpplib_a-pptest3.$(OBJEXT) \
 	luatexdir/luapplib/libluajitpplib_a-ppxref.$(OBJEXT) \
 	luatexdir/luapplib/util/libluajitpplib_a-utilbasexx.$(OBJEXT) \
 	luatexdir/luapplib/util/libluajitpplib_a-utilcrypt.$(OBJEXT) \
@@ -939,6 +945,9 @@ am__objects_13 = luatexdir/luapplib/libluapplib_a-pparray.$(OBJEXT) \
 	luatexdir/luapplib/libluapplib_a-ppheap.$(OBJEXT) \
 	luatexdir/luapplib/libluapplib_a-ppload.$(OBJEXT) \
 	luatexdir/luapplib/libluapplib_a-ppstream.$(OBJEXT) \
+	luatexdir/luapplib/libluapplib_a-pptest1.$(OBJEXT) \
+	luatexdir/luapplib/libluapplib_a-pptest2.$(OBJEXT) \
+	luatexdir/luapplib/libluapplib_a-pptest3.$(OBJEXT) \
 	luatexdir/luapplib/libluapplib_a-ppxref.$(OBJEXT) \
 	luatexdir/luapplib/util/libluapplib_a-utilbasexx.$(OBJEXT) \
 	luatexdir/luapplib/util/libluapplib_a-utilcrypt.$(OBJEXT) \
@@ -2050,6 +2059,9 @@ am__depfiles_remade = ./$(DEPDIR)/aleph-aleph-pool.Po \
 	luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppheap.Po \
 	luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppload.Po \
 	luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppstream.Po \
+	luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Po \
+	luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Po \
+	luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Po \
 	luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppxref.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pparray.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppcrypt.Po \
@@ -2057,6 +2069,9 @@ am__depfiles_remade = ./$(DEPDIR)/aleph-aleph-pool.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppheap.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppload.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppstream.Po \
+	luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Po \
+	luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Po \
+	luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppxref.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pparray.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppcrypt.Po \
@@ -2064,6 +2079,9 @@ am__depfiles_remade = ./$(DEPDIR)/aleph-aleph-pool.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppheap.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppload.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppstream.Po \
+	luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Po \
+	luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Po \
+	luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Po \
 	luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppxref.Po \
 	luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilbasexx.Po \
 	luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilcrypt.Po \
@@ -4904,8 +4922,12 @@ libluapplib_sources = \
 	luatexdir/luapplib/ppload.h \
 	luatexdir/luapplib/ppstream.c \
 	luatexdir/luapplib/ppstream.h \
+	luatexdir/luapplib/pptest1.c \
+	luatexdir/luapplib/pptest2.c \
+	luatexdir/luapplib/pptest3.c \
 	luatexdir/luapplib/ppxref.c \
 	luatexdir/luapplib/ppxref.h \
+	luatexdir/luapplib/util/utilarm.h \
 	luatexdir/luapplib/util/utilbasexx.c \
 	luatexdir/luapplib/util/utilbasexx.h \
 	luatexdir/luapplib/util/utilcrypt.c \
@@ -4930,9 +4952,7 @@ libluapplib_sources = \
 	luatexdir/luapplib/util/utilnumber.h \
 	luatexdir/luapplib/util/utilplat.h \
 	luatexdir/luapplib/util/utilsha.c \
-	luatexdir/luapplib/util/utilsha.h \
-	luatexdir/luapplib/zlib/zconf.h \
-	luatexdir/luapplib/zlib/zlib.h 
+	luatexdir/luapplib/util/utilsha.h
 
 liblua53pplib_sources = $(libluapplib_sources)
 libluajitpplib_sources = $(libluapplib_sources)
@@ -5737,6 +5757,15 @@ luatexdir/luapplib/liblua53pplib_a-ppload.$(OBJEXT):  \
 luatexdir/luapplib/liblua53pplib_a-ppstream.$(OBJEXT):  \
 	luatexdir/luapplib/$(am__dirstamp) \
 	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luapplib/liblua53pplib_a-pptest1.$(OBJEXT):  \
+	luatexdir/luapplib/$(am__dirstamp) \
+	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luapplib/liblua53pplib_a-pptest2.$(OBJEXT):  \
+	luatexdir/luapplib/$(am__dirstamp) \
+	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luapplib/liblua53pplib_a-pptest3.$(OBJEXT):  \
+	luatexdir/luapplib/$(am__dirstamp) \
+	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/liblua53pplib_a-ppxref.$(OBJEXT):  \
 	luatexdir/luapplib/$(am__dirstamp) \
 	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
@@ -6326,6 +6355,15 @@ luatexdir/luapplib/libluajitpplib_a-ppload.$(OBJEXT):  \
 luatexdir/luapplib/libluajitpplib_a-ppstream.$(OBJEXT):  \
 	luatexdir/luapplib/$(am__dirstamp) \
 	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luapplib/libluajitpplib_a-pptest1.$(OBJEXT):  \
+	luatexdir/luapplib/$(am__dirstamp) \
+	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luapplib/libluajitpplib_a-pptest2.$(OBJEXT):  \
+	luatexdir/luapplib/$(am__dirstamp) \
+	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luapplib/libluajitpplib_a-pptest3.$(OBJEXT):  \
+	luatexdir/luapplib/$(am__dirstamp) \
+	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/libluajitpplib_a-ppxref.$(OBJEXT):  \
 	luatexdir/luapplib/$(am__dirstamp) \
 	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
@@ -6824,6 +6862,15 @@ luatexdir/luapplib/libluapplib_a-ppload.$(OBJEXT):  \
 	luatexdir/luapplib/$(am__dirstamp) \
 	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/libluapplib_a-ppstream.$(OBJEXT):  \
+	luatexdir/luapplib/$(am__dirstamp) \
+	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luapplib/libluapplib_a-pptest1.$(OBJEXT):  \
+	luatexdir/luapplib/$(am__dirstamp) \
+	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luapplib/libluapplib_a-pptest2.$(OBJEXT):  \
+	luatexdir/luapplib/$(am__dirstamp) \
+	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
+luatexdir/luapplib/libluapplib_a-pptest3.$(OBJEXT):  \
 	luatexdir/luapplib/$(am__dirstamp) \
 	luatexdir/luapplib/$(DEPDIR)/$(am__dirstamp)
 luatexdir/luapplib/libluapplib_a-ppxref.$(OBJEXT):  \
@@ -8381,6 +8428,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppheap.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppload.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppstream.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppxref.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pparray.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppcrypt.Po@am__quote@ # am--include-marker
@@ -8388,6 +8438,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppheap.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppload.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppstream.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppxref.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pparray.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppcrypt.Po@am__quote@ # am--include-marker
@@ -8395,6 +8448,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppheap.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppload.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppstream.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppxref.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilbasexx.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilcrypt.Po@am__quote@ # am--include-marker
@@ -9644,6 +9700,48 @@ luatexdir/luapplib/liblua53pplib_a-ppstream.obj: luatexdir/luapplib/ppstream.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/ppstream.c' object='luatexdir/luapplib/liblua53pplib_a-ppstream.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/liblua53pplib_a-ppstream.obj `if test -f 'luatexdir/luapplib/ppstream.c'; then $(CYGPATH_W) 'luatexdir/luapplib/ppstream.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/ppstream.c'; fi`
+
+luatexdir/luapplib/liblua53pplib_a-pptest1.o: luatexdir/luapplib/pptest1.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/liblua53pplib_a-pptest1.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Tpo -c -o luatexdir/luapplib/liblua53pplib_a-pptest1.o `test -f 'luatexdir/luapplib/pptest1.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest1.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Tpo luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest1.c' object='luatexdir/luapplib/liblua53pplib_a-pptest1.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/liblua53pplib_a-pptest1.o `test -f 'luatexdir/luapplib/pptest1.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest1.c
+
+luatexdir/luapplib/liblua53pplib_a-pptest1.obj: luatexdir/luapplib/pptest1.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/liblua53pplib_a-pptest1.obj -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Tpo -c -o luatexdir/luapplib/liblua53pplib_a-pptest1.obj `if test -f 'luatexdir/luapplib/pptest1.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest1.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Tpo luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest1.c' object='luatexdir/luapplib/liblua53pplib_a-pptest1.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/liblua53pplib_a-pptest1.obj `if test -f 'luatexdir/luapplib/pptest1.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest1.c'; fi`
+
+luatexdir/luapplib/liblua53pplib_a-pptest2.o: luatexdir/luapplib/pptest2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/liblua53pplib_a-pptest2.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Tpo -c -o luatexdir/luapplib/liblua53pplib_a-pptest2.o `test -f 'luatexdir/luapplib/pptest2.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Tpo luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest2.c' object='luatexdir/luapplib/liblua53pplib_a-pptest2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/liblua53pplib_a-pptest2.o `test -f 'luatexdir/luapplib/pptest2.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest2.c
+
+luatexdir/luapplib/liblua53pplib_a-pptest2.obj: luatexdir/luapplib/pptest2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/liblua53pplib_a-pptest2.obj -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Tpo -c -o luatexdir/luapplib/liblua53pplib_a-pptest2.obj `if test -f 'luatexdir/luapplib/pptest2.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest2.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Tpo luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest2.c' object='luatexdir/luapplib/liblua53pplib_a-pptest2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/liblua53pplib_a-pptest2.obj `if test -f 'luatexdir/luapplib/pptest2.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest2.c'; fi`
+
+luatexdir/luapplib/liblua53pplib_a-pptest3.o: luatexdir/luapplib/pptest3.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/liblua53pplib_a-pptest3.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Tpo -c -o luatexdir/luapplib/liblua53pplib_a-pptest3.o `test -f 'luatexdir/luapplib/pptest3.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest3.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Tpo luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest3.c' object='luatexdir/luapplib/liblua53pplib_a-pptest3.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/liblua53pplib_a-pptest3.o `test -f 'luatexdir/luapplib/pptest3.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest3.c
+
+luatexdir/luapplib/liblua53pplib_a-pptest3.obj: luatexdir/luapplib/pptest3.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/liblua53pplib_a-pptest3.obj -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Tpo -c -o luatexdir/luapplib/liblua53pplib_a-pptest3.obj `if test -f 'luatexdir/luapplib/pptest3.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest3.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest3.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Tpo luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest3.c' object='luatexdir/luapplib/liblua53pplib_a-pptest3.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/liblua53pplib_a-pptest3.obj `if test -f 'luatexdir/luapplib/pptest3.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest3.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest3.c'; fi`
 
 luatexdir/luapplib/liblua53pplib_a-ppxref.o: luatexdir/luapplib/ppxref.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(liblua53pplib_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/liblua53pplib_a-ppxref.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppxref.Tpo -c -o luatexdir/luapplib/liblua53pplib_a-ppxref.o `test -f 'luatexdir/luapplib/ppxref.c' || echo '$(srcdir)/'`luatexdir/luapplib/ppxref.c
@@ -11941,6 +12039,48 @@ luatexdir/luapplib/libluajitpplib_a-ppstream.obj: luatexdir/luapplib/ppstream.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluajitpplib_a-ppstream.obj `if test -f 'luatexdir/luapplib/ppstream.c'; then $(CYGPATH_W) 'luatexdir/luapplib/ppstream.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/ppstream.c'; fi`
 
+luatexdir/luapplib/libluajitpplib_a-pptest1.o: luatexdir/luapplib/pptest1.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluajitpplib_a-pptest1.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Tpo -c -o luatexdir/luapplib/libluajitpplib_a-pptest1.o `test -f 'luatexdir/luapplib/pptest1.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest1.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Tpo luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest1.c' object='luatexdir/luapplib/libluajitpplib_a-pptest1.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluajitpplib_a-pptest1.o `test -f 'luatexdir/luapplib/pptest1.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest1.c
+
+luatexdir/luapplib/libluajitpplib_a-pptest1.obj: luatexdir/luapplib/pptest1.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluajitpplib_a-pptest1.obj -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Tpo -c -o luatexdir/luapplib/libluajitpplib_a-pptest1.obj `if test -f 'luatexdir/luapplib/pptest1.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest1.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Tpo luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest1.c' object='luatexdir/luapplib/libluajitpplib_a-pptest1.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluajitpplib_a-pptest1.obj `if test -f 'luatexdir/luapplib/pptest1.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest1.c'; fi`
+
+luatexdir/luapplib/libluajitpplib_a-pptest2.o: luatexdir/luapplib/pptest2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluajitpplib_a-pptest2.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Tpo -c -o luatexdir/luapplib/libluajitpplib_a-pptest2.o `test -f 'luatexdir/luapplib/pptest2.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Tpo luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest2.c' object='luatexdir/luapplib/libluajitpplib_a-pptest2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluajitpplib_a-pptest2.o `test -f 'luatexdir/luapplib/pptest2.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest2.c
+
+luatexdir/luapplib/libluajitpplib_a-pptest2.obj: luatexdir/luapplib/pptest2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluajitpplib_a-pptest2.obj -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Tpo -c -o luatexdir/luapplib/libluajitpplib_a-pptest2.obj `if test -f 'luatexdir/luapplib/pptest2.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest2.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Tpo luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest2.c' object='luatexdir/luapplib/libluajitpplib_a-pptest2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluajitpplib_a-pptest2.obj `if test -f 'luatexdir/luapplib/pptest2.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest2.c'; fi`
+
+luatexdir/luapplib/libluajitpplib_a-pptest3.o: luatexdir/luapplib/pptest3.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluajitpplib_a-pptest3.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Tpo -c -o luatexdir/luapplib/libluajitpplib_a-pptest3.o `test -f 'luatexdir/luapplib/pptest3.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest3.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Tpo luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest3.c' object='luatexdir/luapplib/libluajitpplib_a-pptest3.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluajitpplib_a-pptest3.o `test -f 'luatexdir/luapplib/pptest3.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest3.c
+
+luatexdir/luapplib/libluajitpplib_a-pptest3.obj: luatexdir/luapplib/pptest3.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluajitpplib_a-pptest3.obj -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Tpo -c -o luatexdir/luapplib/libluajitpplib_a-pptest3.obj `if test -f 'luatexdir/luapplib/pptest3.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest3.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest3.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Tpo luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest3.c' object='luatexdir/luapplib/libluajitpplib_a-pptest3.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluajitpplib_a-pptest3.obj `if test -f 'luatexdir/luapplib/pptest3.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest3.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest3.c'; fi`
+
 luatexdir/luapplib/libluajitpplib_a-ppxref.o: luatexdir/luapplib/ppxref.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluajitpplib_a_CPPFLAGS) $(CPPFLAGS) $(libluajitpplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluajitpplib_a-ppxref.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppxref.Tpo -c -o luatexdir/luapplib/libluajitpplib_a-ppxref.o `test -f 'luatexdir/luapplib/ppxref.c' || echo '$(srcdir)/'`luatexdir/luapplib/ppxref.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppxref.Tpo luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppxref.Po
@@ -14180,6 +14320,48 @@ luatexdir/luapplib/libluapplib_a-ppstream.obj: luatexdir/luapplib/ppstream.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/ppstream.c' object='luatexdir/luapplib/libluapplib_a-ppstream.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluapplib_a-ppstream.obj `if test -f 'luatexdir/luapplib/ppstream.c'; then $(CYGPATH_W) 'luatexdir/luapplib/ppstream.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/ppstream.c'; fi`
+
+luatexdir/luapplib/libluapplib_a-pptest1.o: luatexdir/luapplib/pptest1.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluapplib_a-pptest1.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Tpo -c -o luatexdir/luapplib/libluapplib_a-pptest1.o `test -f 'luatexdir/luapplib/pptest1.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest1.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Tpo luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest1.c' object='luatexdir/luapplib/libluapplib_a-pptest1.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluapplib_a-pptest1.o `test -f 'luatexdir/luapplib/pptest1.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest1.c
+
+luatexdir/luapplib/libluapplib_a-pptest1.obj: luatexdir/luapplib/pptest1.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluapplib_a-pptest1.obj -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Tpo -c -o luatexdir/luapplib/libluapplib_a-pptest1.obj `if test -f 'luatexdir/luapplib/pptest1.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest1.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Tpo luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest1.c' object='luatexdir/luapplib/libluapplib_a-pptest1.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluapplib_a-pptest1.obj `if test -f 'luatexdir/luapplib/pptest1.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest1.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest1.c'; fi`
+
+luatexdir/luapplib/libluapplib_a-pptest2.o: luatexdir/luapplib/pptest2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluapplib_a-pptest2.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Tpo -c -o luatexdir/luapplib/libluapplib_a-pptest2.o `test -f 'luatexdir/luapplib/pptest2.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Tpo luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest2.c' object='luatexdir/luapplib/libluapplib_a-pptest2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluapplib_a-pptest2.o `test -f 'luatexdir/luapplib/pptest2.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest2.c
+
+luatexdir/luapplib/libluapplib_a-pptest2.obj: luatexdir/luapplib/pptest2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluapplib_a-pptest2.obj -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Tpo -c -o luatexdir/luapplib/libluapplib_a-pptest2.obj `if test -f 'luatexdir/luapplib/pptest2.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest2.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Tpo luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest2.c' object='luatexdir/luapplib/libluapplib_a-pptest2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluapplib_a-pptest2.obj `if test -f 'luatexdir/luapplib/pptest2.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest2.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest2.c'; fi`
+
+luatexdir/luapplib/libluapplib_a-pptest3.o: luatexdir/luapplib/pptest3.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluapplib_a-pptest3.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Tpo -c -o luatexdir/luapplib/libluapplib_a-pptest3.o `test -f 'luatexdir/luapplib/pptest3.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest3.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Tpo luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest3.c' object='luatexdir/luapplib/libluapplib_a-pptest3.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluapplib_a-pptest3.o `test -f 'luatexdir/luapplib/pptest3.c' || echo '$(srcdir)/'`luatexdir/luapplib/pptest3.c
+
+luatexdir/luapplib/libluapplib_a-pptest3.obj: luatexdir/luapplib/pptest3.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluapplib_a-pptest3.obj -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Tpo -c -o luatexdir/luapplib/libluapplib_a-pptest3.obj `if test -f 'luatexdir/luapplib/pptest3.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest3.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest3.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Tpo luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='luatexdir/luapplib/pptest3.c' object='luatexdir/luapplib/libluapplib_a-pptest3.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -c -o luatexdir/luapplib/libluapplib_a-pptest3.obj `if test -f 'luatexdir/luapplib/pptest3.c'; then $(CYGPATH_W) 'luatexdir/luapplib/pptest3.c'; else $(CYGPATH_W) '$(srcdir)/luatexdir/luapplib/pptest3.c'; fi`
 
 luatexdir/luapplib/libluapplib_a-ppxref.o: luatexdir/luapplib/ppxref.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libluapplib_a_CPPFLAGS) $(CPPFLAGS) $(libluapplib_a_CFLAGS) $(CFLAGS) -MT luatexdir/luapplib/libluapplib_a-ppxref.o -MD -MP -MF luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppxref.Tpo -c -o luatexdir/luapplib/libluapplib_a-ppxref.o `test -f 'luatexdir/luapplib/ppxref.c' || echo '$(srcdir)/'`luatexdir/luapplib/ppxref.c
@@ -20142,6 +20324,9 @@ distclean: distclean-recursive
 	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppheap.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppload.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppstream.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppxref.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pparray.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppcrypt.Po
@@ -20149,6 +20334,9 @@ distclean: distclean-recursive
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppheap.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppload.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppstream.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppxref.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pparray.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppcrypt.Po
@@ -20156,6 +20344,9 @@ distclean: distclean-recursive
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppheap.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppload.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppstream.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppxref.Po
 	-rm -f luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilbasexx.Po
 	-rm -f luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilcrypt.Po
@@ -20951,6 +21142,9 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppheap.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppload.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppstream.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest1.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest2.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-pptest3.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/liblua53pplib_a-ppxref.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pparray.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppcrypt.Po
@@ -20958,6 +21152,9 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppheap.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppload.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppstream.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest1.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest2.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-pptest3.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluajitpplib_a-ppxref.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pparray.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppcrypt.Po
@@ -20965,6 +21162,9 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppheap.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppload.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppstream.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest1.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest2.Po
+	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-pptest3.Po
 	-rm -f luatexdir/luapplib/$(DEPDIR)/libluapplib_a-ppxref.Po
 	-rm -f luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilbasexx.Po
 	-rm -f luatexdir/luapplib/util/$(DEPDIR)/liblua53pplib_a-utilcrypt.Po

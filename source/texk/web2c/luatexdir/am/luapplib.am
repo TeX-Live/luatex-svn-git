@@ -49,8 +49,12 @@ libluapplib_sources = \
 	luatexdir/luapplib/ppload.h \
 	luatexdir/luapplib/ppstream.c \
 	luatexdir/luapplib/ppstream.h \
+	luatexdir/luapplib/pptest1.c \
+	luatexdir/luapplib/pptest2.c \
+	luatexdir/luapplib/pptest3.c \
 	luatexdir/luapplib/ppxref.c \
 	luatexdir/luapplib/ppxref.h \
+	luatexdir/luapplib/util/utilarm.h \
 	luatexdir/luapplib/util/utilbasexx.c \
 	luatexdir/luapplib/util/utilbasexx.h \
 	luatexdir/luapplib/util/utilcrypt.c \
@@ -75,8 +79,7 @@ libluapplib_sources = \
 	luatexdir/luapplib/util/utilnumber.h \
 	luatexdir/luapplib/util/utilplat.h \
 	luatexdir/luapplib/util/utilsha.c \
-	luatexdir/luapplib/util/utilsha.h \
-
+	luatexdir/luapplib/util/utilsha.h
 
 
 liblua53pplib_sources = $(libluapplib_sources)
