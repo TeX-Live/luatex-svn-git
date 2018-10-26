@@ -279,6 +279,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-all-pkgs \
       $SHAREDENABLE    \
     --disable-largefile \
+    --disable-xetex \
     --disable-ptex \
     --disable-ipc \
     --enable-dump-share  \

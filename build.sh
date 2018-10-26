@@ -293,15 +293,17 @@ then
 fi
 
 #    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
+#      --enable-cxx-runtime-hack \
+
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
 TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLAGS\
-    --enable-cxx-runtime-hack \
     --enable-silent-rules \
     --disable-all-pkgs \
     --disable-shared    \
     --disable-ptex \
     --disable-largefile \
+    --disable-xetex \
     --disable-ipc \
     --enable-dump-share  \
     --enable-coremp  \
