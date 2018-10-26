@@ -88,7 +88,7 @@ $(proglib): ${srcdir}/lib/*.c
 ## Rebuild libz
 @ZLIB_RULE@
 ## Rebuild liblua52
-@LUA52_RULE@
+#@LUA52_RULE@
 ## Rebuild liblua53
 @LUA53_RULE@
 ## Rebuild libluajit
