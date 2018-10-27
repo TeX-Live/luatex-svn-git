@@ -53,9 +53,10 @@ at the left edge of the row). Both state->rowup and state->rowsave has a safe sp
 that are permanently \0.
 */
 
-//#define predictor_component_t uint16_t
-#define predictor_component_t uint32_t // uint16_t is enough for algorithm but arm stuff needs 32bit?
+#define predictor_component_t uint16_t
 #define predictor_pixel1b_t uint32_t
+
+#define MAX_COMPONENTS 8
 
 typedef struct predictor_state {
   int default_predictor;                      /* default predictor indicator */
@@ -64,7 +65,7 @@ typedef struct predictor_state {
   int compbits;                               /* number of bits per component (/DecodeParms << /BitsPerComponent ... >>) */
   int components;                             /* number of components (/DecodeParms << /Colors ... >>) */
   uint8_t *buffer;                            /* temporary private buffer area */
-  uint8_t *rowin;                             /* an input row buffer position */
+  uint8_t *rowin;                             /* an input row buffer position */	
   int rowsize;                                /* size of a current scanline in bytes (rounded up) */
   int rowend;                                 /* an input buffer end position */
   int rowindex;                               /* an output buffer position */
@@ -75,8 +76,9 @@ typedef struct predictor_state {
       int pixelsize;                          /* number of bytes per pixel (rounded up) */
     };
     struct {                                  /* used by TIFF predictor codecs */
+      predictor_component_t compbuffer[MAX_COMPONENTS];
       union {
-        predictor_component_t *prevcomp;      /* an array of left pixel components */
+        predictor_component_t *prevcomp;      /* an array of left pixel components, typically eq ->compbuffer */
         predictor_pixel1b_t *prevpixel;       /* left pixel value stored on a single integer (for 1bit color-depth) */
       };
       int compin, compout;                    /* bit stream buffers */
@@ -95,6 +97,22 @@ enum {
   STATUS_CONTINUE = 1 // any value different then IOFEOF, IOFERR, ... which are < 0
 };
 
+/*
+Predictor type identifiers (pdf spec 76). lpdf doesn't hire the codec if predictor is 1. Predictor 15 indicates
+that the type of PNG prediction algorithm may change in subsequent lines. We always check algorithm marker anyway.
+*/
+
+enum predictor_code {
+  NONE_PREDICTOR = 1,
+  TIFF_PREDICTOR = 2,
+  PNG_NONE_PREDICTOR = 10,
+  PNG_SUB_PREDICTOR = 11,
+  PNG_UP_PREDICTOR = 12,
+  PNG_AVERAGE_PREDICTOR = 13,
+  PNG_PAETH_PREDICTOR = 14,
+  PNG_OPTIMUM_PREDICTOR = 15
+};
+
 predictor_state * predictor_decoder_init (predictor_state *state, int predictor, int rowsamples, int components, int compbits)
 {
   int rowsize, pixelsize;
@@ -110,16 +128,20 @@ predictor_state * predictor_decoder_init (predictor_state *state, int predictor,
   state->components = components;
   state->compbits = compbits;
 
-  if (predictor == 2)
+  if (predictor == TIFF_PREDICTOR)
   { /* tiff predictor */
     size_t compbuf, pixbuf;
-    compbuf = state->components * sizeof(predictor_component_t);
+    compbuf = components * sizeof(predictor_component_t);
     pixbuf = 1 * sizeof(predictor_pixel1b_t);
     state->pixbufsize = (int)(compbuf > pixbuf ? compbuf : pixbuf);
-    buffersize = (rowsize + state->pixbufsize) * sizeof(uint8_t);
+    buffersize = rowsize * sizeof(uint8_t);
     buffer = (uint8_t *)util_calloc(buffersize, 1);
-    state->prevcomp = (predictor_component_t *)((void *)(buffer + rowsize)); // == state->prevpixel
-    state->sampleindex = state->compindex = 0;                               // intermediate (void *) for arm
+    if (state->pixbufsize > sizeof(state->compbuffer)) // components > MAX_COMPONENTS
+    	state->prevcomp = (predictor_component_t *)util_calloc(state->pixbufsize, 1);
+    else
+      state->prevcomp = state->compbuffer;
+    // &state->prevcomp == &state->prevpixel
+    state->sampleindex = state->compindex = 0;
     state->bitsin = state->bitsout = 0;
     state->compin = state->compout = 0;
   }
@@ -151,28 +173,14 @@ predictor_state * predictor_encoder_init (predictor_state *state, int predictor,
 void predictor_decoder_close (predictor_state *state)
 {
   util_free(state->buffer);
+  if (state->default_predictor == TIFF_PREDICTOR && state->prevcomp != NULL && state->prevcomp != state->compbuffer)
+    util_free(state->prevcomp);
 }
 
 void predictor_encoder_close (predictor_state *state)
 {
-  util_free(state->buffer);
+  predictor_decoder_close(state);
 }
-
-/*
-Predictor type identifiers (pdf spec 76). lpdf doesn't hire the codec if predictor is 1. Predictor 15 indicates
-that the type of PNG prediction algorithm may change in subsequent lines. We always check algorithm marker anyway.
-*/
-
-enum predictor_code {
-  NONE_PREDICTOR = 1,
-  TIFF_PREDICTOR = 2,
-  PNG_NONE_PREDICTOR = 10,
-  PNG_SUB_PREDICTOR = 11,
-  PNG_UP_PREDICTOR = 12,
-  PNG_AVERAGE_PREDICTOR = 13,
-  PNG_PAETH_PREDICTOR = 14,
-  PNG_OPTIMUM_PREDICTOR = 15
-};
 
 /*
 All predoctor codecs first read the entire data row into a buffer. This is not crucial for the process,

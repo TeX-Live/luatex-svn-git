@@ -53,6 +53,7 @@
 <li><a class="reference internal" href="#v1-01">v1.01</a></li>
 <li><a class="reference internal" href="#v1-02">v1.02</a></li>
 <li><a class="reference internal" href="#v1-03">v1.03</a></li>
+<li><a class="reference internal" href="#v1-04">v1.04</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#todo">TODO</a></li>
@@ -466,7 +467,7 @@ int main (int argc, const char **argv)
 <span class="n">typedef</span> <span class="n">struct</span> <span class="n">ppref</span> <span class="n">ppref</span><span class="p">;</span>
 
 
-<span class="c1">#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) &amp;&amp; defined(__SVR4))</span>
+<span class="c1">#if ARM_COMPLIANT</span>
 <span class="n">typedef</span> <span class="n">struct</span> <span class="p">{</span>
   <span class="n">ppobj</span> <span class="o">*</span><span class="n">data</span><span class="p">;</span>
   <span class="n">size_t</span> <span class="n">size</span><span class="p">;</span>
@@ -480,7 +481,7 @@ int main (int argc, const char **argv)
 <span class="c1">#endif</span>
 
 
-<span class="c1">#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) &amp;&amp; defined(__SVR4))</span>
+<span class="c1">#if ARM_COMPLIANT</span>
 <span class="n">typedef</span> <span class="n">struct</span> <span class="p">{</span>
   <span class="n">ppobj</span> <span class="o">*</span><span class="n">data</span><span class="p">;</span>
 	<span class="n">ppname</span> <span class="o">*</span><span class="n">keys</span><span class="p">;</span>
@@ -622,7 +623,7 @@ int main (int argc, const char **argv)
 <span class="c1">#define ppname_is(name, s) (memcmp(name, s, sizeof(&quot;&quot; s) - 1) == 0)</span>
 <span class="c1">#define ppname_eq(name, n) (memcmp(name, s, ppname_size(name)) == 0)</span>
 
-<span class="c1">#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) &amp;&amp; defined(__SVR4))</span>
+<span class="c1">#if ARM_COMPLIANT</span>
 <span class="c1">#define _ppname_ghost(name) (((const _ppname *)((void *)name)) - 1)</span>
 <span class="c1">#else</span>
 <span class="c1">#define _ppname_ghost(name) (((const _ppname *)(name)) - 1)</span>
@@ -640,7 +641,7 @@ int main (int argc, const char **argv)
 
 <span class="o">/*</span> <span class="n">string</span> <span class="o">*/</span>
 
-<span class="c1">#if defined __arm__ || defined __ARM__ || defined ARM || defined __ARM || defined __arm || defined __ARM_ARCH ||defined __aarch64__ ||( defined(__sun) &amp;&amp; defined(__SVR4))</span>
+<span class="c1">#if ARM_COMPLIANT</span>
 <span class="c1">#define _ppstring_ghost(string) (((const _ppstring *)((void *)string)) - 1)</span>
 <span class="c1">#else</span>
 <span class="c1">#define _ppstring_ghost(string) (((const _ppstring *)(string)) - 1)</span>
@@ -883,6 +884,10 @@ Revised streams handling, ppstream API extended</p>
 <div class="section" id="v1-03">
 <h2>v1.03<a class="headerlink" href="#v1-03" title="Permalink to this headline">¶</a></h2>
 <p>Fixed TIFF predictor (thanks folks)</p>
+</div>
+<div class="section" id="v1-04">
+<h2>v1.04<a class="headerlink" href="#v1-04" title="Permalink to this headline">¶</a></h2>
+<p>Fixed TIFF predictor for ARM</p>
 </div>
 </div>
 <div class="section" id="todo">
