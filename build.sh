@@ -302,6 +302,7 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --disable-shared    \
     --disable-ptex \
     --disable-largefile \
+    --disable-xetex \
     --disable-ipc \
     --enable-dump-share  \
     --enable-coremp  \
