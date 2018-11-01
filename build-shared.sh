@@ -280,6 +280,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
       $SHAREDENABLE    \
     --disable-largefile \
     --disable-ptex \
+    --disable-xetex \
     --disable-ipc \
     --enable-dump-share  \
     --enable-web2c  \
