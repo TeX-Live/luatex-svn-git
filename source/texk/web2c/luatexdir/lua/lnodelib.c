@@ -1647,8 +1647,18 @@ static int lua_nodelib_direct_setleader(lua_State * L)
     write_tokens(n) = nodelib_gettoks(L, i); \
 } while (0)
 
-#define get_write_direct_value(L,n) do {  \
+#define xget_write_direct_value(L,n) do {  \
     tokenlist_to_lua(L, write_tokens(n)); \
+} while (0)
+
+#define get_write_direct_value(L,n) do {  \
+    int l; \
+    char *s; \
+    expand_macros_in_tokenlist(n); \
+    s = tokenlist_to_cstring(def_ref, 1, &l); \
+    lua_pushlstring(L, s, (size_t) l); \
+    free(s); \
+    flush_list(def_ref); \
 } while (0)
 
 #define set_pdf_setmatrix_direct_value(L,n,i) do { \
