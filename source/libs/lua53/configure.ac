@@ -30,7 +30,7 @@ AC_CONFIG_HEADERS([config.h])[]dnl unused, to avoid zillions of -D's on command 
 
 AM_CONDITIONAL([build], [test "x$enable_build" != xno])
 
-AC_SEARCH_LIBS([sqrt], [m])
+AC_SEARCH_LIBS([pow], [m])
 
 KPSE_LUA53_DEFINES
 KPSE_LARGEFILE([LUA53_DEFINES])
