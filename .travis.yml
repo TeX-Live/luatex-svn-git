@@ -64,6 +64,11 @@ matrix:
 
 before_deploy:
   - if [ -n "$package" ]; then tar czvf ${package} -C build/texk/web2c luajittex luatex ; fi
+  - export LUATEX_VERSION=`grep luatex_version_string source/texk/web2c/luatexdir/luatex.c | cut -d '"' -f 2`
+  - export LUATEX_SVN_REVISION=`grep -Eo "[0-9]+" source/texk/web2c/luatexdir/luatex_svnversion.h`
+  - git config --local user.name "Travis CI"
+  - git config --local user.email "https://travis-ci.org/"
+  - git tag "${LUATEX_VERSION}-svn${LUATEX_SVN_REVISION}"
 
 deploy:
   provider: releases
@@ -71,5 +76,7 @@ deploy:
   file: $package
   skip_cleanup: true
   on:
-    tags: true
+    branch: trunk
+    overwrite: true
+    tags: false
     condition: $package != ""
