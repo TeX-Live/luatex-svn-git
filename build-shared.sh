@@ -248,7 +248,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-xetex \
     --disable-ptex \
     --disable-ipc \
-    --enable-dump-share  \
+    --disable-dump-share \
     --enable-web2c  \
      $LUA53ENABLE  $JITENABLE \
     --without-system-ptexenc \

@@ -308,7 +308,7 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --disable-largefile \
     --disable-xetex \
     --disable-ipc \
-    --enable-dump-share  \
+    --disable-dump-share \
     --enable-coremp  \
     --enable-web2c  \
     $LUA53ENABLE  $JITENABLE \
