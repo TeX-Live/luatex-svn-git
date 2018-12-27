@@ -4724,7 +4724,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             lua_pushinteger(L, depth(n));
         } else if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, box_dir(n));
+            lua_push_direction(L, box_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, box_dir(n));
         } else if (lua_key_eq(s, shift)) {
@@ -4803,7 +4803,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         } else if (lua_key_eq(s, right)) {
             lua_pushinteger(L,rule_right(n));
         } else if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, rule_dir(n));
+            lua_push_direction(L, rule_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, rule_dir(n));
         } else if (lua_key_eq(s, index)) {
@@ -4815,7 +4815,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         }
     } else if (t == dir_node) {
         if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, dir_dir(n));
+            lua_push_direction(L, dir_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_text(L, dir_dir(n),subtype(n));
         } else if (lua_key_eq(s, level)) {
@@ -4831,7 +4831,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         } else if (lua_key_eq(s, pen_broken)) {
             lua_pushinteger(L, local_pen_broken(n));
         } else if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, local_par_dir(n));
+            lua_push_direction(L, local_par_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, local_par_dir(n));
         } else if (lua_key_eq(s, box_left)) {
@@ -5134,7 +5134,7 @@ static int lua_nodelib_fast_getfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             lua_pushinteger(L, depth(n));
         } else if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, box_dir(n));
+            lua_push_direction(L, box_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, box_dir(n));
         } else if (lua_key_eq(s, shrink)) {
@@ -5479,7 +5479,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             lua_pushinteger(L, depth(n));
         } else if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, box_dir(n));
+            lua_push_direction(L, box_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, box_dir(n));
         } else if (lua_key_eq(s, shift)) {
@@ -5548,7 +5548,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         } else if (lua_key_eq(s, right)) {
             lua_pushinteger(L,rule_right(n));
         } else if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, rule_dir(n));
+            lua_push_direction(L, rule_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, rule_dir(n));
         } else if (lua_key_eq(s, index)) {
@@ -5560,7 +5560,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         }
     } else if (t == dir_node) {
         if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, dir_dir(n));
+            lua_push_direction(L, dir_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_text(L, dir_dir(n), subtype(n));
         } else if (lua_key_eq(s, level)) {
@@ -5576,7 +5576,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         } else if (lua_key_eq(s, pen_broken)) {
             lua_pushinteger(L, local_pen_broken(n));
         } else if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, local_par_dir(n));
+            lua_push_direction(L, local_par_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, local_par_dir(n));
         } else if (lua_key_eq(s, box_left)) {
@@ -5820,7 +5820,7 @@ static int lua_nodelib_direct_getfield(lua_State * L)
         } else if (lua_key_eq(s, depth)) {
             lua_pushinteger(L, depth(n));
         } else if (lua_key_eq(s, direction)) {
-            lua_pushinteger(L, box_dir(n));
+            lua_push_direction(L, box_dir(n));
         } else if (lua_key_eq(s, dir)) {
             lua_push_dir_par(L, box_dir(n));
         } else if (lua_key_eq(s, shrink)) {
