@@ -1,3 +1,48 @@
+2019-01-01  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* printversion.c: Update copyright year.
+
+2018-12-17  Igor Liferenko  <igor.liferenko@gmail.com>
+
+	* texmfmp.c (maininit): default to guessing an explicit &dumpname
+	as the "preloaded" (not really) format, if one was specified.
+	tex-k msgs of 23 Sep 2018 12:13:06, 23 Sep 2018 18:36:52.
+	(With comment and formatting tinkering from karl.)
+
+2018-12-17  Andreas Scherer  <https://ascherer.github.io>
+
+	* printversion.c (printversionandexit): Search for PROGNAME
+	in banner independent of 'This is' prefix.
+
+2018-11-19  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c: Remove unused functions for XeTeX.
+	Check kpse_in_name_ok() in getfilesize(), getfiledump(),
+	and getmd5sum().
+
+2018-11-18  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* texmfmp.c: Make necessary changes for XeTeX in
+	getcreationdate(), getfilemoddate(), getfilesize(),
+	and getfiledump().
+
+2018-11-17  Joseph Wright  <joseph.wright@morningstar2.co.uk>
+
+	* texmfmp.c: Support some primitives from pdfTeX in XeTeX.
+
+2018-11-14  Andreas Scherer  <https://ascherer.github.io>
+
+	* printversion.c: free xmalloc'd prog_name.
+
+2018-11-13  Karl Berry  <karl@freefriends.org>
+
+	* texmfmp.c (FORCE_SOURCE_DATE_set, SOURCE_DATE_EPOCH_set): new static.
+	(init_start_time, get_date_and_time): initialize them.
+	(getfilemoddate): use_utc if both vars set.
+	Original suggestion from Ulrike Fischer, tex-live 3 Nov 2018 23:00:48,
+	original patch from Akira Kakuto.
+	(getfilemoddate): also, return nothing if ! kpse_in_name_ok.
+
 2018-11-04  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	* openclose.c: cleanup for non-ascii file names (w32 only)

@@ -716,6 +716,7 @@ enable_aleph
 enable_pdftex
 enable_pdftex_synctex
 enable_luatex
+enable_luatex53
 enable_luajittex
 enable_mp
 enable_pmp
@@ -1416,6 +1417,7 @@ Optional Features:
   --disable-pdftex          do not compile and install pdfTeX
   --disable-pdftex-synctex    build pdfTeX without SyncTeX support
   --disable-luatex          do not compile and install LuaTeX
+  --disable-luatex53        do not compile and install LuaTeX53
   --disable-luajittex       do not compile and install LuaJITTeX
   --disable-mp              do not compile and install MetaPost
   --disable-pmp             do not compile and install pMetaPost
@@ -3359,6 +3361,22 @@ esac
 test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
+  need_lua52=yes
+}
+# Check whether --enable-luatex53 was given.
+if test "${enable_luatex53+set}" = set; then :
+  enableval=$enable_luatex53;
+fi
+case $enable_luatex53 in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_luatex53=yes ;;
+esac
+
+test "x$enable_web2c:$enable_luatex53" = xyes:yes && {
+  need_libpng=yes
+  need_zziplib=yes
   need_lua53=yes
 }
 # Check whether --enable-luajittex was given.
@@ -3495,7 +3513,7 @@ case $enable_mflua_nowin in #(
 esac
 
 test "x$enable_web2c:$enable_mflua" = xyes:yes && {
-  need_lua53=yes
+  need_lua52=yes
 }
 # Check whether --enable-mfluajit was given.
 if test "${enable_mfluajit+set}" = set; then :
@@ -4296,6 +4314,7 @@ else
 fi ;;
 esac
 
+##tldbg KPSE_BASIC: Remember utils () as Kpse_Package (for future messages).
 
 if test "`cd $srcdir && pwd`" != "`pwd`"; then
   # Use -I$(srcdir) only when $(srcdir) != ., so that make's output
@@ -4652,7 +4671,7 @@ WARNING_CFLAGS=$kpse_cv_warning_cflags
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Utils programs to build" >&5
 $as_echo_n "checking for Utils programs to build... " >&6; }
-echo 'dbg:_KPSE_RECURSE called: list=utils, text=Utils programs, cond=test "x$enable_Kpse_pkg" = xyes, prefix=.' >&5
+echo 'tldbg:_KPSE_RECURSE called: list=utils, text=Utils programs, cond=test "x$enable_[]Kpse_pkg" = xyes, prefix=.' >&5
 MAKE_SUBDIRS=
 CONF_SUBDIRS=
 

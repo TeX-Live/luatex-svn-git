@@ -78,6 +78,7 @@ texmf_shell_scripts = \
 	pdfjam/pdfjoin \
 	pdfjam/pdfnup \
 	pdfjam/pdfpun \
+	pdftex-quiet/pdftex-quiet \
 	pdfxup/pdfxup \
 	pst-pdf/ps4pdf \
 	simpdftex/simpdftex \
@@ -214,6 +215,7 @@ texmf_other_scripts = \
 	ulqda/ulqda.pl \
 	urlbst/urlbst \
 	vpe/vpe.pl \
+	xindex/xindex.lua \
 	yplan/yplan
 texmf_context_scripts = \
 	context/stubs/unix/context \

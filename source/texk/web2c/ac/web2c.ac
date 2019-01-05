@@ -35,7 +35,8 @@ m4_define([kpse_tex_progs], [dnl
 [[euptex],    [yes], [yes], [e-upTeX],    [ptexenc]],
 [[aleph],     [yes], [],    [Aleph],      []],
 [[pdftex],    [yes], [yes], [pdfTeX],     [xpdf libpng]],
-[[luatex],    [yes], [],    [LuaTeX],     [libpng zziplib lua53]],
+[[luatex],    [yes], [],    [LuaTeX],     [libpng zziplib lua52]],
+[[luatex53],  [yes], [],    [LuaTeX53],   [libpng zziplib lua53]],
 [[luajittex], [yes], [],    [LuaJITTeX],  [libpng zziplib luajit]],
 [[mp],        [yes], [],    [MetaPost],   [mpfr cairo libpng]],
 [[pmp],       [yes], [],    [pMetaPost],  [mpfr cairo libpng ptexenc]],
@@ -49,7 +50,7 @@ m4_foreach([Kpse_Prog], [kpse_tex_progs],
 dnl [PROG, BUILD-OR-NO, NOWIN-OR-NO, TEXT, REQUIRED-LIBS]
 m4_define([kpse_mf_progs], [dnl
 [[mf],       [yes], [yes], [METAFONT], []],
-[[mflua],    [yes], [no],  [MFLua],    [lua53]],
+[[mflua],    [yes], [no],  [MFLua],    [lua52]],
 [[mfluajit], [yes], [no],  [MFLuaJIT], [luajit]],
 ])[]dnl
 m4_foreach([Kpse_Prog], [kpse_mf_progs],
