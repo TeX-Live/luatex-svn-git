@@ -6074,6 +6074,51 @@ static int font_tex_direct_kerning(lua_State * L)
     return 3;
 }
 
+/*tex
+    It's more consistent to have it here (so we will alias in lang later). Todo:
+    if no glyph then quit.
+*/
+
+static int lang_tex_hyphenating(lua_State * L)
+{
+    halfword t = null;
+    halfword h = *check_isnode(L, 1);
+    if (lua_isuserdata(L, 2)) {
+        t = *check_isnode(L, 2);
+    }
+    if (t == null) {
+        t = h;
+        while (vlink(t) != null) {
+            t = vlink(t);
+        }
+    }
+    hnj_hyphenation(h, t);
+    lua_nodelib_push_fast(L, h);
+    lua_nodelib_push_fast(L, t);
+    lua_pushboolean(L, 1);
+    return 3;
+}
+
+static int lang_tex_direct_hyphenating(lua_State * L)
+{
+    halfword t = null;
+    halfword h = lua_tointeger(L, 1);
+    if (lua_type(L,1) != LUA_TNUMBER) {
+        t = lua_tointeger(L, 2);
+    }
+    if (t == null) {
+        t = h;
+        while (vlink(t) != null) {
+            t = vlink(t);
+        }
+    }
+    hnj_hyphenation(h, t);
+    lua_pushinteger(L, h);
+    lua_pushinteger(L, t);
+    lua_pushboolean(L, 1);
+    return 3;
+}
+
 /* node.protect_glyphs (returns also boolean because that signals callback) */
 /* node.unprotect_glyphs (returns also boolean because that signals callback) */
 
@@ -8853,6 +8898,7 @@ static const struct luaL_Reg direct_nodelib_f[] = {
     {"is_glyph", lua_nodelib_direct_is_glyph},
     {"uses_font", lua_nodelib_direct_uses_font},
     {"hpack", lua_nodelib_direct_hpack},
+    {"hyphenating", lang_tex_direct_hyphenating},
  /* {"id", lua_nodelib_id}, */ /* no node argument */
     {"insert_after", lua_nodelib_direct_insert_after},
     {"insert_before", lua_nodelib_direct_insert_before},
@@ -8983,6 +9029,7 @@ static const struct luaL_Reg nodelib_f[] = {
     {"is_glyph", lua_nodelib_is_glyph},
     {"uses_font", lua_nodelib_uses_font},
     {"hpack", lua_nodelib_hpack},
+    {"hyphenating", lang_tex_hyphenating},
     {"id", lua_nodelib_id},
     {"insert_after", lua_nodelib_insert_after},
     {"insert_before", lua_nodelib_insert_before},
