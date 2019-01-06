@@ -248,7 +248,7 @@ check \type {--progname}, or \type {--ini} and \type {--fmt}, if \type
 
 \stopsection
 
-\startsection{\LUA\ behaviour}
+\startsection[title={\LUA\ behaviour}]
 
 \startsubsection[title={The \LUA\ version}]
 
@@ -347,29 +347,22 @@ returns the name.
 
 \startsubsection[title={Multibyte \type {string} functions}]
 
-\libidx{string}{utfvalues}
-\libidx{string}{utfcharacters}
-\libidx{string}{characters}
-\libidx{string}{characterpairs}
-\libidx{string}{bytes}
-\libidx{string}{bytepairs}
-\libidx{string}{utfvalue}
-\libidx{string}{utfcharacter}
-\libidx{string}{utflength}
-
-The \type {string} library has a few extra functions like \type
-{string.explode(s[,m])}. This function returns an array containing the string
-argument \type {s} split into sub-strings based on the value of the string
-argument \type {m}. The second argument is a string that is either empty (this
-splits the string into characters), a single character (this splits on each
-occurrence of that character, possibly introducing empty strings), or a single
-character followed by the plus sign \type {+} (this special version does not
-create empty sub-strings). The default value for \type {m} is \quote {\type { +}}
-(multiple spaces). Note: \type {m} is not hidden by surrounding braces as it
-would be if this function was written in \TEX\ macros.
+The \type {string} library has a few extra functions, for example \libidx
+{string} {explode}. This function takes upto two arguments: \type
+{string.explode(s[,m])} and returns an array containing the string argument \type
+{s} split into sub-strings based on the value of the string argument \type {m}.
+The second argument is a string that is either empty (this splits the string into
+characters), a single character (this splits on each occurrence of that
+character, possibly introducing empty strings), or a single character followed by
+the plus sign \type {+} (this special version does not create empty sub-strings).
+The default value for \type {m} is \quote {\type { +}} (multiple spaces). Note:
+\type {m} is not hidden by surrounding braces as it would be if this function was
+written in \TEX\ macros.
 
 The \type {string} library also has six extra iterators that return strings
-piecemeal:
+piecemeal: \libidx {string} {utfvalues}, \libidx {string} {utfcharacters},
+\libidx {string} {characters}, \libidx {string} {characterpairs}, \libidx
+{string} {bytes} and \libidx {string} {bytepairs}.
 
 \startitemize
 \startitem
@@ -415,7 +408,8 @@ interpretation of character classes in \type {unicode.utf8} functions refer to
 the library sources at \hyphenatedurl {http://luaforge.net/projects/sln}.
 
 Version 5.3 of \LUA\ provides some native \UTF8 support but we have added a few
-similar helpers too:
+similar helpers too: \libidx {string} {utfvalue}, \libidx {string} {utfcharacter}
+and \libidx {string} {utflength}.
 
 \startitemize
 \startitem
@@ -431,27 +425,18 @@ similar helpers too:
 \stopitem
 \stopitemize
 
-These three functions are relative fast and don't do much checking. They can be used
-as building blocks for other helpers. So, eventually we can decide to drop the
-\type {sln} library, just that you know.
+These three functions are relative fast and don't do much checking. They can be
+used as building blocks for other helpers.
 
 \stopsubsection
 
 \startsubsection[title={Extra \type {os} library functions}]
 
-\libidx{os}{selfdir}
-\libidx{os}{exec}
-\libidx{os}{spawn}
-\libidx{os}{setenv}
-\libidx{os}{env}
-\libidx{os}{gettimeofday}
-\libidx{os}{times}
-\libidx{os}{tmpdir}
-\libidx{os}{type}
-\libidx{os}{name}
-\libidx{os}{uname}
-
-The \type {os} library has a few extra functions and variables:
+The \type {os} library has a few extra functions and variables: \libidx {os}
+{selfdir}, \libidx {os} {exec}, \libidx {os} {spawn}, \libidx {os} {setenv},
+\libidx {os} {env}, \libidx {os} {gettimeofday}, \libidx {os} {times}, \libidx
+{os} {tmpdir}, \libidx {os} {type}, \libidx {os} {name} and \libidx {os} {uname},
+that we will discuss here.
 
 \startitemize
 
@@ -585,24 +570,16 @@ The \type {os} library has a few extra functions and variables:
 
 \startsubsection[title={Binary input from files with \type {fio}}]
 
-\libidx{fio}{readcardinal1}
-\libidx{fio}{readcardinal2}
-\libidx{fio}{readcardinal3}
-\libidx{fio}{readcardinal4}
-\libidx{fio}{readcardinaltable}
-\libidx{fio}{readinteger1}
-\libidx{fio}{readinteger2}
-\libidx{fio}{readinteger3}
-\libidx{fio}{readinteger4}
-\libidx{fio}{readintegertable}
-\libidx{fio}{readfixed2}
-\libidx{fio}{readfixed4}
-\libidx{fio}{read2dot14}
-\libidx{fio}{setposition}
-\libidx{fio}{getposition}
-\libidx{fio}{skipposition}
-\libidx{fio}{readbytes}
-\libidx{fio}{readbytetable}
+There is a whole set of helpers for reading numbers and strings from a file:
+\libidx {fio} {readcardinal1}, \libidx {fio} {readcardinal2}, \libidx {fio}
+{readcardinal3}, \libidx {fio} {readcardinal4}, \libidx {fio}
+{readcardinaltable}, \libidx {fio} {readinteger1}, \libidx {fio} {readinteger2},
+\libidx {fio} {readinteger3}, \libidx {fio} {readinteger4}, \libidx {fio}
+{readintegertable}, \libidx {fio} {readfixed2}, \libidx {fio} {readfixed4},
+\libidx {fio} {read2dot14}, \libidx {fio} {setposition}, \libidx {fio}
+{getposition}, \libidx {fio} {skipposition}, \libidx {fio} {readbytes}, \libidx
+{fio} {readbytetable}. They work on normal \LUA\ file handles.
+
 %libidx{fio}{readline}
 %libidx{fio}{recordfilename}
 %libidx{fio}{checkpermission}
@@ -635,43 +612,31 @@ in addition to the regular \type {io} library functions.
 
 \startsubsection[title={Binary input from strings with \type {sio}}]
 
-\libidx{sio}{readcardinal1}
-\libidx{sio}{readcardinal2}
-\libidx{sio}{readcardinal3}
-\libidx{sio}{readcardinal4}
-\libidx{sio}{readcardinaltable}
-\libidx{sio}{readinteger1}
-\libidx{sio}{readinteger2}
-\libidx{sio}{readinteger3}
-\libidx{sio}{readinteger4}
-\libidx{sio}{readintegertable}
-\libidx{sio}{readfixed2}
-\libidx{sio}{readfixed4}
-\libidx{sio}{read2dot14}
-\libidx{sio}{setposition}
-\libidx{sio}{getposition}
-\libidx{sio}{skipposition}
-\libidx{sio}{readbytes}
-\libidx{sio}{readbytetable}
-
 A similar set of function as in the \type {fio} library is available in the \type
-{sio} library. Here the first argument is a string.
+{sio} library: \libidx {sio} {readcardinal1}, \libidx {sio} {readcardinal2},
+\libidx {sio} {readcardinal3}, \libidx {sio} {readcardinal4}, \libidx {sio}
+{readcardinaltable}, \libidx {sio} {readinteger1}, \libidx {sio} {readinteger2},
+\libidx {sio} {readinteger3}, \libidx {sio} {readinteger4}, \libidx {sio}
+{readintegertable}, \libidx {sio} {readfixed2}, \libidx {sio} {readfixed4},
+\libidx {sio} {read2dot14}, \libidx {sio} {setposition}, \libidx {sio}
+{getposition}, \libidx {sio} {skipposition}, \libidx {sio} {readbytes} and
+\libidx {sio} {readbytetable}. Here the first argument is a string instead of a
+file handle. More details can be found in the previous section.
 
 \stopsubsection
 
 \startsubsection[title={Hashes conform \type {sha2}}]
 
-\libidx{sha2}{digest256}
-\libidx{sha2}{digest384}
-\libidx{sha2}{digest512}
-
 This library is a side effect of the \type {pdfe} library that needs such
-helpers. The \type {digest256}, \type {digest384} and \type {digest512} functions
-accept a string and return a string with the hash.
+helpers. The \libidx{sha2}{digest256}, \libidx{sha2}{digest384} and
+\libidx{sha2}{digest512} functions accept a string and return a string with the
+hash.
 
 \stopsubsection
 
 \startsubsection[title={Locales}]
+
+\index {locales}
 
 In stock \LUA, many things depend on the current locale. In \LUATEX, we can't do
 that, because it makes documents unportable.  While \LUATEX\ is running if

@@ -125,10 +125,15 @@ but there is no support for any of its experimental features. Intermediate
 releases (from trunk) are normally available via the \CONTEXT\ distribution
 channels (the garden and so called minimals).
 
-Future versions will probably become a bit leaner and meaner. Some libraries
-might become external as we don't want to bloat the binary and also don't want to
-add more hard coded solutions. After all, with \LUA\ you can extend the core
-functionality. The less dependencies, the better.
+Version 1.10 is more or less an endpoint in development: this is what you get.
+Because not only \CONTEXT, that we can adapt rather easily, uses \LUATEX, we
+cannot change fundamentals without unforeseen consequences. By now it has been
+proven that \LUA\ can be used to extend the core functionality so there is no
+need to add more, and definitely no hard coded solutions for (not so) common
+problems. Of course there will be bug fixes, maybe some optimization, and there
+might even be some additions or non|-|intrusive improvements, but only after
+testing outside the stable release. After all, the binary is already more than
+large enough and there is not that much to gain.
 
 You might find \LUA\ helpers that are not yet documented. These are considered
 experimental, although when you encounter them in a \CONTEXT\ version that has

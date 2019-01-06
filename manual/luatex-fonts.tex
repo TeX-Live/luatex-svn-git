@@ -6,7 +6,7 @@
 
 \startchapter[reference=fonts,title={Font structure}]
 
-\section {The font tables}
+\startsection[title={The font tables}]
 
 \topicindex {fonts}
 \topicindex {fonts+tables}
@@ -324,7 +324,9 @@ indicates the final insertion point.
 
 The \type {commands} array is explained below.
 
-\section {Real fonts}
+\stopsection
+
+\startsection[title={Real fonts}]
 
 \topicindex {fonts+real}
 \topicindex {fonts+virtual}
@@ -425,7 +427,9 @@ In order to make sure that cut and paste of the final document works okay you ca
 best make sure that there is a \type {tounicode} vector enforced. Not all \PDF\
 viewers handle this right so take \ACROBAT\ as reference.
 
-\section[virtualfonts]{Virtual fonts}
+\stopsection
+
+\startsection[reference=virtualfonts,title={Virtual fonts}]
 
 \subsection{The structure}
 
@@ -632,7 +636,9 @@ Finally, here is a plain \TEX\ input file with a virtual font demonstration:
 
 \typebuffer
 
-\section{The \type {vf} library}
+\stopsection
+
+\startsection[title={The \type {vf} library}]
 
 The \type {vf} library can be used when \LUA\ code, as defined in the \type
 {commands} of the font, is executed. The functions provided are similar as the
@@ -643,7 +649,9 @@ advertised and tested much, if only because it's easy to define an invalid font
 (or mess up the \PDF\ stream). Keep in mind that the \LUA\ snippets are executed
 each time when a character is output.
 
-\section{The \type {font} library}
+\stopsection
+
+\startsection[title={The \type {font} library}]
 
 \topicindex {fonts+library}
 
@@ -842,6 +850,8 @@ This is an iterator over each of the defined \TEX\ fonts. The first returned
 value is the index in \type {font.fonts}, the second the font itself, as a \LUA\
 table. The indices are listed incrementally, but they do not always form an array
 of consecutive numbers: in some cases there can be holes in the sequence.
+
+\stopsection
 
 \stopchapter
 

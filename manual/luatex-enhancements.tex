@@ -53,7 +53,7 @@ chapters on fonts and math we discuss a few more new ones.
 
 \startsubsection[title={Version information}]
 
-\startsubsubsection {\lpr {luatexbanner}, \lpr {luatexversion} and \lpr {luatexrevision}}
+\startsubsubsection[title={\lpr {luatexbanner}, \lpr {luatexversion} and \lpr {luatexrevision}}]
 
 \topicindex{version}
 \topicindex{banner}
@@ -99,7 +99,7 @@ The official \LUATEX\ version is defined as follows:
 
 \stopsubsubsection
 
-\startsubsubsection{\lpr {formatname}}
+\startsubsubsection[title={\lpr {formatname}}]
 
 \topicindex{format}
 
@@ -893,7 +893,8 @@ differences are:
 
 \stopsubsection
 
-\startsubsection[title={\lpr {toksapp}, \lpr {tokspre}, \lpr {etoksapp} and \lpr {etokspre}}]
+\startsubsection[title={\lpr {toksapp}, \lpr {tokspre}, \lpr {etoksapp}, \lpr {etokspre},
+\lpr {gtoksapp}, \lpr {gtokspre}, \lpr {xtoksapp},  \lpr {xtokspre}}]
 
 Instead of:
 
@@ -908,7 +909,7 @@ you can use:
 \stoptyping
 
 The \type {pre} variants prepend instead of append, and the \type {e} variants
-expand the passed general text.
+expand the passed general text. The \type {g} and \type {x} variants are global.
 
 \stopsubsection
 
@@ -989,7 +990,9 @@ This primitive is similar to:
 but faster (only measurable with millions of calls) and probably more convenient
 (after all we also have \type {\gdef}).
 
-\subsubsection{\lpr {expanded}, \lpr {immediateassignment} and \lpr {immediateassigned}}
+\stopsubsection
+
+\startsubsection[title={\lpr {expanded}, \lpr {immediateassignment} and \lpr {immediateassigned}}]
 
 \topicindex {expansion}
 
@@ -1084,7 +1087,9 @@ The possible error messages are the same as using assignments in preambles of
 alignments and after the \prm {accent} command. The supported assignments are the
 so called prefixed commands (except box assignments).
 
-\subsubsection{\lpr {ifcondition}}
+\stopsubsection
+
+\startsubsection[title={\lpr {ifcondition}}]
 
 \topicindex {conditions}
 

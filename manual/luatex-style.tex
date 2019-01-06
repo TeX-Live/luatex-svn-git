@@ -232,7 +232,7 @@
 
 \startuseMPgraphic{luanumber}
   % luaextraangle  := \luaextraangle;
-    luaextraangle  := if (LastPageNumber == 0) : 0 else : (RealPageNumber / LastPageNumber) * 360  fi;
+    luaextraangle  := if (LastPageNumber < 10) : 10 else : (RealPageNumber / LastPageNumber) * 360  fi;
     luaorbitfactor := 0.25 ;
     picture p ; p := lualogo ;
     setbounds p to boundingbox fullcircle ;

@@ -6,7 +6,7 @@
 
 \startchapter[reference=math,title={Math}]
 
-\section {Traditional alongside \OPENTYPE}
+\startsection[title={Traditional alongside \OPENTYPE}]
 
 \topicindex {math}
 
@@ -19,7 +19,9 @@ make it easier to use \OPENTYPE\ math fonts. And finally, there are some
 extensions that have been proposed or considered in the past that are now added
 to the engine.
 
-\section{Unicode math characters}
+\stopsection
+
+\startsection[title={Unicode math characters}]
 
 \topicindex {math+\UNICODE}
 \topicindex {\UNICODE+math}
@@ -128,7 +130,9 @@ sections:
 \LL
 \stoptabulate
 
-\section{Math styles}
+\stopsection
+
+\startsection[title={Math styles}]
 
 \subsection{\lpr {mathstyle}}
 
@@ -350,7 +354,9 @@ Now we get:
 
 \start\getbuffer[setup,demo]\stop
 
-\section{Math parameter settings}
+\stopsection
+
+\startsection[title={Math parameter settings}]
 
 \subsection {Many new \lpr {Umath*} primitives}
 
@@ -568,7 +574,9 @@ Note 9: \type {FractionDelimiterDisplayStyleSize} and \type
 {FractionDelimiterSize} do not actually exist in the \quote {standard} \OPENTYPE\
 math font Cambria, but were useful enough to be added.
 
-\section {Math spacing}
+\stopsection
+
+\startsection[title={Math spacing}]
 
 \subsection{Inline surrounding space}
 
@@ -997,7 +1005,9 @@ use a step to control the size. A value of zero will suppress the gap. The step
 is divided by 1000 which is the usual way to mimmick floating point factors in
 \TEX.
 
-\section {Math constructs}
+\stopsection
+
+\startsection[title={Math constructs}]
 
 \subsection {Unscaled fences}
 
@@ -1337,7 +1347,9 @@ given the \type {noaxis} command can be used to prevent shifting over the axis.
 You can influence the final class with the keyword \type {class} which will
 influence the spacing. The numbers are the same as for character classes.
 
-\section {Extracting values}
+\stopsection
+
+\startsection[title={Extracting values}]
 
 \subsection{Codes}
 
@@ -1394,7 +1406,9 @@ get the length of the last line, the following will often work too:
 \relax}
 \stoptyping
 
-\section {Math mode}
+\stopsection
+
+\startsection[title={Math mode}]
 
 \subsection {Verbose versions of single|-|character math commands}
 
@@ -1454,7 +1468,7 @@ the result of \prm {mathchardef} or \lpr {Umathchardef} are also acceptable in
 the horizontal and vertical modes. In those cases, the \prm {textfont} from the
 requested math family is used.
 
-% \section{Math todo}
+% \startsection[title={Math todo}]
 %
 % The following items are still todo.
 %
@@ -1475,8 +1489,12 @@ requested math family is used.
 %     Support for multi|-|line displays using \MATHML\ style alignment points.
 % \stopitem
 % \stopitemize
+%
+% \stopsection
 
-\section {Goodies}
+\stopsection
+
+\startsection[title={Goodies}]
 
 \subsection {Flattening: \lpr {mathflattenmode}}
 
@@ -1621,6 +1639,8 @@ temporarily introduce with this command this feature is not meant for production
 %
 % This option has been introduced as solution for tracker item 604 for fuzzy cases
 % around either or not present fraction related settings for new fonts.
+
+\stopsection
 
 \stopchapter
 

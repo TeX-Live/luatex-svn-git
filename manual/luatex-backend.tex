@@ -15,7 +15,7 @@ This library contains variables and functions that are related to the \PDF\
 backend. You can find more details about the expected values to setters in \in
 {section} [backendprimitives].
 
-\subsection{\type {mapfile}, \type {mapline}}
+\startsubsection[title={\type {mapfile}, \type {mapline}}]
 
 \topicindex{map files}
 \topicindex{files+map}
@@ -31,7 +31,9 @@ parameter and have no return value. The first character in a map line can be
 \type {-}, \type {+} or \type {=} which means as much as remove, add or replace
 this line. They are not state setters but act immediately.
 
-\subsection {\type {[set|get][catalog|info|names|trailer]}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get][catalog|info|names|trailer]}}]
 
 \topicindex{\PDF+trailer}
 \topicindex{\PDF+catalog}
@@ -46,7 +48,9 @@ These functions complement the corresponding \PDF\ backend token lists dealing
 with metadata. The value types are strings and they are written to the \PDF\
 file directly after the token registers set at the \TEX\ end are written.
 
-\subsection {\type {[set|get][pageattributes|pageresources|pagesattributes]}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get][pageattributes|pageresources|pagesattributes]}}]
 
 \libindex{setpageattributes}  \libindex{getpageattributes}
 \libindex{setpageresources}   \libindex{getpageresources}
@@ -60,7 +64,9 @@ with page resources. The variables have no interaction with the corresponding \P
 backend token register. They are written to the \PDF\ file directly after the
 token registers set at the \TEX\ end are written.
 
-\subsection{\type {[set|get][xformattributes|xformresources]}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get][xformattributes|xformresources]}}]
 
 \libindex{setxformattributes} \libindex{getxformattributes}
 \libindex{setxformresources}  \libindex{getxformresources}
@@ -73,7 +79,9 @@ with reuseable boxes and images. The variables have no interaction with the
 corresponding \PDF\ backend token register. They are written to the \PDF\
 file directly after the token registers set at the \TEX\ end are written.
 
-\subsection{\type {[set|get][major|minor]version}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get][major|minor]version}}]
 
 \topicindex{\PDF+version}
 
@@ -85,7 +93,9 @@ normally~1 but when set to~2 some data will not be written to the file in order
 to comply with the standard. What minor version you set depends on what \PDF\
 features you use. This is out of control of \LUATEX.
 
-\subsection{\type {getcreationdate}}
+\stopsubsection
+
+\startsubsection[title={\type {getcreationdate}}]
 
 \topicindex{\PDF+date}
 
@@ -94,7 +104,9 @@ features you use. This is out of control of \LUATEX.
 This function returns a string with the date in the format that ends up in the
 \PDF\ file, in this case it's: {\tttf \cldcontext{pdf.getcreationdate()}}.
 
-\subsection{\type {[set|get]inclusionerrorlevel} and \type {[set|get]ignoreunknownimages}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get]inclusionerrorlevel} and \type {[set|get]ignoreunknownimages}}]
 
 \topicindex{\PDF+options}
 
@@ -104,8 +116,10 @@ This function returns a string with the date in the format that ends up in the
 These variable control how error in included image are treated. They are modeled
 after the \PDFTEX\ equivalents.
 
-\subsection{\type {[set|get]suppressoptionalinfo}, \type {[set|get]trailerid}
-and \type {[set|get]omitcidset}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get]suppressoptionalinfo}, \type {[set|get]trailerid}
+and \type {[set|get]omitcidset}}]
 
 \topicindex{\PDF+options}
 \topicindex{\PDF+trailer}
@@ -125,7 +139,9 @@ The cidset and charset flags (numbers) disables inclusion of a so called \type
 {CIDSet} and \type {CharSet} entries, which can be handy when aiming at some of
 the many \PDF\ substandards.
 
-\subsection{\type {[set|get][obj|]compresslevel} and \type {[set|get]recompress}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get][obj|]compresslevel} and \type {[set|get]recompress}}]
 
 \topicindex{\PDF+compression}
 
@@ -141,7 +157,9 @@ When recompression is to~1 compressed objects will be decompressed and when
 compresslevel is larger than zero they will then be recompressed. This is mostly
 a debugging feature and should not be relied upon.
 
-\subsection{\type {[set|get]gentounicode}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get]gentounicode}}]
 
 \topicindex{\PDF+unicode}
 
@@ -150,7 +168,9 @@ a debugging feature and should not be relied upon.
 This flag enables tounicode generation (like in \PDFTEX). Normally the values are
 provided by the font loader.
 
-\subsection{\type {[set|get]decimaldigits}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get]decimaldigits}}]
 
 \topicindex{\PDF+precision}
 
@@ -159,7 +179,9 @@ provided by the font loader.
 These two functions set the accuracy of floats written to the \PDF file. You can
 set any value but the backend will not go below~3 and above~6.
 
-\subsection{\type {[set|get]pkresolution}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get]pkresolution}}]
 
 \topicindex{\PDF+resolution}
 
@@ -168,7 +190,9 @@ set any value but the backend will not go below~3 and above~6.
 These setter takes two arguments: the resolution and an optional zero or one that
 indicates if this is a fixed one. The getter returns these two values.
 
-\subsection{\type {getlast[obj|link|annot]} and \type {getretval}}
+\stopsubsection
+
+\startsubsection[title={\type {getlast[obj|link|annot]} and \type {getretval}}]
 
 \topicindex{\PDF+objects}
 \topicindex{\PDF+annotations}
@@ -181,8 +205,10 @@ indicates if this is a fixed one. The getter returns these two values.
 These status variables are similar to the ones traditionally used in the backend
 interface at the \TEX\ end.
 
-\subsection{\type {getmaxobjnum} and \type {getobjtype}, \type {getfontname},
-\type {getfontobjnum}, \type {getfontsize}, \type {getxformname}}.
+\stopsubsection
+
+\startsubsection[title={\type {getmaxobjnum} and \type {getobjtype}, \type {getfontname},
+\type {getfontobjnum}, \type {getfontsize}, \type {getxformname}}]
 
 \libindex{getmaxobjnum}
 \libindex{getobjtype}
@@ -194,7 +220,9 @@ interface at the \TEX\ end.
 These introspective helpers are mostly used when you construct \PDF\ objects
 yourself and need for instance information about a (to be) embedded font.
 
-\subsection{\type {[set|get]origin}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get]origin}}]
 
 \topicindex{\PDF+positioning}
 
@@ -211,7 +239,9 @@ pdf.setorigin(tex.sp("1in"),tex.sp("1in"))
 
 The counterpart of this function returns two values.
 
-\subsection{\type {[set|get]imageresolution}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get]imageresolution}}]
 
 \topicindex{\PDF+resolution}
 
@@ -220,7 +250,9 @@ The counterpart of this function returns two values.
 These two functions relate to the imageresolution that is used when the image
 itself doesn't provide a non|-|zero x or y resolution.
 
-\subsection {\type {[set|get][link|dest|thread|xform]margin}}
+\stopsubsection
+
+\startsubsection[title={\type {[set|get][link|dest|thread|xform]margin}}]
 
 \topicindex{\PDF+margins}
 
@@ -233,7 +265,9 @@ itself doesn't provide a non|-|zero x or y resolution.
 These functions can be used to set and retrieve the margins that are added to the
 natural bounding boxes of the respective objects.
 
-\subsection {\type {get[pos|hpos|vpos]}}
+\stopsubsection
+
+\startsubsection[title={\type {get[pos|hpos|vpos]}}]
 
 \topicindex{\PDF+positions}
 
@@ -248,7 +282,9 @@ left corner. The values return scaled points as units.
 local h, v = pdf.getpos()
 \stoptyping
 
-\subsection {\type {[has|get]matrix}}
+\stopsubsection
+
+\startsubsection[title={\type {[has|get]matrix}}]
 
 \topicindex{\PDF+matrix}
 
@@ -266,7 +302,9 @@ if pdf.hasmatrix() then
 end
 \stoptyping
 
-\subsection {\type {print}}
+\stopsubsection
+
+\startsubsection[title={\type {print}}]
 
 \topicindex{\PDF+print to}
 
@@ -284,7 +322,9 @@ pdf.print(<string> type, <string> s)
 The optional parameter can be used to mimic the behavior of \PDF\ literals: the
 \type {type} is \type {direct} or \type {page}.
 
-\subsection {\type {immediateobj}}
+\stopsubsection
+
+\startsubsection[title={\type {immediateobj}}]
 
 \topicindex{\PDF+objects}
 
@@ -330,7 +370,9 @@ reserved \PDF\ object.
     pdf.immediateobj(<integer> n, "streamfile", <string> filename, <string> attrtext)
 \stopfunctioncall
 
-\subsection{\type{obj}}
+\stopsubsection
+
+\startsubsection[title={\type{obj}}]
 
 \topicindex{\PDF+objects}
 
@@ -373,7 +415,7 @@ The second mode accepts a single argument table with key--value pairs.
 \startfunctioncall
 <number> n = pdf.obj {
     type           = <string>,
-    immmediate     = <boolean>,
+    immediate      = <boolean>,
     objnum         = <number>,
     attr           = <string>,
     compresslevel  = <number>,
@@ -393,7 +435,9 @@ Note: this mode makes \type{obj} look more flexible than it actually is: the
 constraints from the separate parameter version still apply, so for example you
 can't have both \type {string} and \type {file} at the same time.
 
-\subsection {\type {refobj}}
+\stopsubsection
+
+\startsubsection[title={\type {refobj}}]
 
 \topicindex{\PDF+objects}
 
@@ -414,7 +458,9 @@ file. Inside \lpr {latelua} the object will be marked for flushing.
 
 This function has no return values.
 
-\subsection {\type {reserveobj}}
+\stopsubsection
+
+\startsubsection[title={\type {reserveobj}}]
 
 \topicindex{\PDF+objects}
 
@@ -427,7 +473,9 @@ This function creates an empty \PDF\ object and returns its number.
 <number> n = pdf.reserveobj("annot")
 \stopfunctioncall
 
-\subsection {\type {getpageref}}
+\stopsubsection
+
+\startsubsection[title={\type {getpageref}}]
 
 \topicindex{\PDF+pages}
 
@@ -440,7 +488,9 @@ forward reference so when you ask for a future page, you do get a number back.
 <number> n = pdf.getpageref(123)
 \stopfunctioncall
 
-\subsection {\type {registerannot}}
+\stopsubsection
+
+\startsubsection[title={\type {registerannot}}]
 
 \topicindex{\PDF+annotations}
 
@@ -454,7 +504,9 @@ page without doing anything else. This function can only be used from within
 pdf.registerannot (<number> objnum)
 \stopfunctioncall
 
-\subsection {\type {newcolorstack}}
+\stopsubsection
+
+\startsubsection[title={\type {newcolorstack}}]
 
 \topicindex{\PDF+color stack}
 
@@ -467,7 +519,9 @@ are the same as for the similar backend extension primitive.
 pdf.newcolorstack("0 g","page",true) -- page|direct|origin
 \stopfunctioncall
 
-\subsection {\type {setfontattributes}}
+\stopsubsection
+
+\startsubsection[title={\type {setfontattributes}}]
 
 \topicindex{\PDF+fonts}
 
@@ -480,11 +534,13 @@ instance be used to add a custom \type {ToUnicode} vector to a bitmap file.
 pdf.setfontattributes(<number> font id, <string> pdf code)
 \stopfunctioncall
 
+\stopsubsection
+
 \stopsection
 
 \startsection[title={The \type {pdfe} library}][library=pdfe]
 
-\subsection{Introduction}
+\startsubsection[title={Introduction}]
 
 \topicindex{\PDF+objects}
 
@@ -520,7 +576,9 @@ called userdata \LUA\ objects.
 The regular getters return these \LUA\ data types but one can also get more
 detailed information.
 
-\subsection {\type {open}, \type {new}, \type {status}, \type {close}, \type {unencrypt}}
+\stopsubsection
+
+\startsubsection[title={\type {open}, \type {new}, \type {status}, \type {close}, \type {unencrypt}}]
 
 \libindex {open}
 \libindex {new}
@@ -567,7 +625,9 @@ either password you can give \type {nil}:
 pdfe.unencrypt(<pdfe document>,userpassword,ownerpassword)
 \stoptyping
 
-\subsection {\type {size}, \type {version}, \type {getnofobjects}, \type {getnofpages}}
+\stopsubsection
+
+\startsubsection[title={\type {size}, \type {version}, \type {getnofobjects}, \type {getnofpages}}]
 
 \libindex {size}
 \libindex {version}
@@ -584,7 +644,9 @@ n = getnofpages(<pdfe document>)
 bytes, waste = getnofpages(<pdfe document>)
 \stoptyping
 
-\subsection {\type {get[catalog|trailer|info}}
+\stopsubsection
+
+\startsubsection[title={\type {get[catalog|trailer|info]}}]
 
 \libindex {getcatalog}
 \libindex {gettrailer}
@@ -604,7 +666,9 @@ The other two root dictionaries are accessed with:
 <pdfe dictionary> = pdfe.getinfo(<pdfe document>)
 \stoptyping
 
-\subsection {\type {getpage}, \type {getbox}}
+\stopsubsection
+
+\startsubsection[title={\type {getpage}, \type {getbox}}]
 
 \libindex {getpage}
 \libindex {getbox}
@@ -624,7 +688,9 @@ is \type {MediaBox}.
 pages = pdfe.getbox(<pdfe document>,boxname)
 \stoptyping
 
-\subsection {\type {get[string|integer|number|boolean|name]}}
+\stopsubsection
+
+\startsubsection[title={\type {get[string|integer|number|boolean|name]}}]
 
 \libindex {getstring}
 \libindex {getinteger}
@@ -643,7 +709,9 @@ b = getboolean(<pdfe array|dictionary>,index|key)
 n = getname   (<pdfe array|dictionary>,index|key)
 \stoptyping
 
-\subsection {\type {get[from][dictionary|array|stream]}}
+\stopsubsection
+
+\startsubsection[title={\type {get[from][dictionary|array|stream]}}]
 
 \libindex {getdictionary} \libindex {getfromdictionary}
 \libindex {getarray}      \libindex {getfromarray}
@@ -677,7 +745,9 @@ and \type {Pages}, so this is also okay:
 print(pdfe.open("foo.pdf").Pages[1])
 \stoptyping
 
-\subsection {\type {[open|close|readfrom][whole|]stream}}
+\stopsubsection
+
+\startsubsection[title={\type {[open|close|readfrom][whole|]stream}}]
 
 \libindex {openstream}
 \libindex {closestream}
@@ -708,7 +778,9 @@ pass a boolean that indicates if the stream has to be decompressed.
 % pdfe.stringcodes      = stringcodes
 % pdfe.encryptioncodes  = encryptioncodes
 
-\subsection {\type {getfrom[dictionary|array]}}
+\stopsubsection
+
+\startsubsection[title={\type {getfrom[dictionary|array]}}]
 
 \libindex {getfromdictionary}
 \libindex {getfromarray}
@@ -740,7 +812,9 @@ type, value, detail = getfromarray(<pdfe array>,index)
 A \type {hex} string is (in the \PDF\ file) surrounded by \type {<>} while plain
 strings are bounded by \type {<>}.
 
-\subsection {\type {[dictionary|array]totable}}
+\stopsubsection
+
+\startsubsection[title={\type {[dictionary|array]totable}}]
 
 \libindex {dictionarytotable}
 \libindex {arraytotable}
@@ -759,7 +833,9 @@ You can get a list of pages with:
 { { <pdfe dictionary>, size, objnum }, ... } = pagestotable(<pdfe document>)
 \stoptyping
 
-\subsection {\type {getfromreference}}
+\stopsubsection
+
+\startsubsection[title={\type {getfromreference}}]
 
 \libindex {getfromreference}
 
@@ -771,6 +847,8 @@ with:
 \stoptyping
 
 So, you get back a new \type {pdfe} userdata object that you can query.
+
+\stopsubsection
 
 \stopsection
 
@@ -815,7 +893,6 @@ library for \type {graphicmagick}, it can return such a userdata object. This
 permits conversion in memory and passing the result directly to the backend. This
 might save some runtime in one|-|pass workflows. This feature is currently not
 meant for production and we might come up with a better implementation.
-
 
 \stopsection
 

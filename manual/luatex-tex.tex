@@ -10,7 +10,7 @@
 
 \startsection[title={The \type {lua} library}][library=lua]
 
-\subsection{Version information}
+\startsubsection[title={Version information}]
 
 \topicindex{libraries+\type{lua}}
 \topicindex{version}
@@ -26,7 +26,9 @@ This library contains one read|-|only item:
 This returns the \LUA\ version identifier string. The value is currently
 \directlua {tex.print(lua.version)}.
 
-\subsection{Bytecode registers}
+\stopsubsection
+
+\startsubsection[title={Bytecode registers}]
 
 \topicindex{bytecodes}
 \topicindex{registers+bytecodes}
@@ -74,7 +76,9 @@ used in \INITEX. If it contains private information, i.e. the user name, this
 information is then contained in the format file as well. This should be kept in
 mind when preloading files into a bytecode register in \INITEX.
 
-\subsection{Chunk name registers}
+\stopsubsection
+
+\startsubsection[title={Chunk name registers}]
 
 \libindex{name}
 \libindex{setluaname}
@@ -96,7 +100,9 @@ lua.setluaname(<string> s,<number> n])
 <string> s = lua.getluaname(<number> n)
 \stopfunctioncall
 
-\subsection{Introspection}
+\stopsubsection
+
+\startsubsection[title={Introspection}]
 
 \libindex{getstacktop}
 \libindex{getcalllevel}
@@ -104,6 +110,8 @@ lua.setluaname(<string> s,<number> n])
 The \type {getstacktop} and\type {getcalllevel} functions return numbers
 indicating how much nesting is going on. They are only of use as breakpoints when
 checking some mechanism going haywire.
+
+\stopsubsection
 
 \stopsection
 
@@ -217,6 +225,8 @@ function. A return value can be set with \type {setexitcode}.
 
 \startsection[title={The \type {tex} library}][library=tex]
 
+\startsubsection[title={Introduction}]
+
 \topicindex{libraries+\type{tex}}
 
 The \type {tex} table contains a large list of virtual internal \TEX\
@@ -233,7 +243,9 @@ parameters that need extra arguments, like \type {\the\scriptfont}. The subset
 comprising simple integer and dimension registers are writable as well as
 readable (like \prm {tracingcommands} and \prm {parindent}).
 
-\subsection{Internal parameter values, \type {set} and \type {get}}
+\stopsubsection
+
+\startsubsection[title={Internal parameter values, \type {set} and \type {get}}]
 
 \topicindex{parameters+internal}
 
@@ -513,7 +525,9 @@ tex.output
 \stoptyping
 \stopthreecolumns
 
-\subsection{Convert commands}
+\stopsubsection
+
+\startsubsection[title={Convert commands}]
 
 \topicindex{convert commands}
 
@@ -542,7 +556,9 @@ the ones that require only a simple numeric value. The special (\LUA|-|only) cas
 of \type {tex.fontidentifier} returns the \type {csname} string that matches a
 font id number (if there is one).
 
-\subsection{Last item commands}
+\stopsubsection
+
+\startsubsection[title={Last item commands}]
 
 \topicindex{last items}
 
@@ -570,7 +586,9 @@ tex.currentifbranch
 \stoptyping
 \stopthreecolumns
 
-\subsection{Accessing registers: \type {set*}, \type {get*} and \type {is*}}
+\stopsubsection
+
+\startsubsection[title={Accessing registers: \type {set*}, \type {get*} and \type {is*}}]
 
 \topicindex{attributes}
 \topicindex{registers}
@@ -722,7 +740,9 @@ tex.scantoks("global",0,"$\int\limits^1_2$")
 In the function-based interface, it is possible to define values globally by
 using the string \type {global} as the first function argument.
 
-\subsection{Character code registers: \type {[get|set]*code[s]}}
+\stopsubsection
+
+\startsubsection[title={Character code registers: \type {[get|set]*code[s]}}]
 
 \topicindex{characters+codes}
 
@@ -831,7 +851,9 @@ according to \lpr {Udelcode} usage, but the returned table can have values there
 (if the delimiter code was set using \prm {delcode}, for example). Unset \type
 {delcode}'s can be recognized because \type {dval[1]} is $-1$.
 
-\subsection{Box registers: \type {get|set]box}}
+\stopsubsection
+
+\startsubsection[title={Box registers: \type {[get|set]box}}]
 
 \topicindex{registers}
 \topicindex{boxes}
@@ -875,7 +897,9 @@ invalid as well. To prevent this from happening, always use \type
 tex.box[0] = node.copy_list(tex.box[2])
 \stoptyping
 
-\subsection {Reusing boxes: \type {[use|save]boxresource} and \type {getboxresourcedimensions}}
+\stopsubsection
+
+\startsubsection[title={Reusing boxes: \type {[use|save]boxresource} and \type {getboxresourcedimensions}}]
 
 \topicindex{boxes+reuse}
 
@@ -914,7 +938,9 @@ local w, h, d, m = tex.getboxresourcedimensions(n)
 
 This returns the width, height, depth and margin of the resource.
 
-\subsection {\type {triggerbuildpage}}
+\stopsubsection
+
+\startsubsection[title={\type {triggerbuildpage}}]
 
 \topicindex{pages}
 
@@ -925,7 +951,9 @@ often \TEX\ doesn't do much if it thinks nothing has to be done, but it might be
 useful for some applications. It just does as it says it calls the internal
 function that build a page, given that there is something to build.
 
-\subsection {\type {splitbox}}
+\stopsubsection
+
+\startsubsection[title={\type {splitbox}}]
 
 \topicindex{boxes+split}
 
@@ -941,7 +969,9 @@ The remainder is kept in the original box and a packaged vlist is returned. This
 operation is comparable to the \prm {vsplit} operation. The mode can be \type
 {additional} or \type {exactly} and concerns the split off box.
 
-\subsection{Accessing math parameters: \type {[get|set]math}}
+\stopsubsection
+
+\startsubsection[title={Accessing math parameters: \type {[get|set]math}}]
 
 \topicindex{math+parameters}
 \topicindex{parameters+math}
@@ -1011,7 +1041,9 @@ The value is either a number (representing a dimension or number) or a glue spec
 node representing a muskip for \type {ordordspacing} and similar spacing
 parameters.
 
-\subsection{Special list heads: \type {[get|set]list}}
+\stopsubsection
+
+\startsubsection[title={Special list heads: \type {[get|set]list}}]
 
 \topicindex{lists}
 
@@ -1042,7 +1074,9 @@ The getter and setter functions are \type {getlist} and \type {setlist}. You hav
 to be careful with what you set as \TEX\ can have expectations with regards to
 how a list is constructed or in what state it is.
 
-\subsection{Semantic nest levels: \type {getnest} and \type {ptr}}
+\stopsubsection
+
+\startsubsection[title={Semantic nest levels: \type {getnest} and \type {ptr}}]
 
 \topicindex{nesting}
 
@@ -1070,14 +1104,11 @@ The known fields are:
 \starttabulate[|l|l|l|p|]
 \DB key                \BC type    \BC modes \BC explanation \NC \NR
 \TB
-\NC \type{mode}        \NC number  \NC all   \NC a number representing the main mode at this level:
-                                                 \type {0}    = no mode (this happens during \prm {write}),
-                                                 \type {1}    = vertical,
-                                                 \type {127}  = horizontal,
-                                                 \type {253}  = display math,
-                                                 \type {-1}   = internal vertical,
-                                                 \type {-127} = restricted horizontal,
-                                                 \type {-253} = inline math \NC \NR
+\NC \type{mode}        \NC number  \NC all   \NC a string:
+                                                 \type {none} (this happens during \prm {write}),
+                                                 \type {vmode}, \type {hmode}, \type {displaymath},
+                                                 \type {innervmode}, \type {innerhmode}, \type {inlinemath};
+                                                 these fields cannot be set \NC \NR
 \NC \type{modeline}    \NC number  \NC all   \NC source input line where this mode was entered in,
                                                  negative inside the output routine \NC \NR
 \NC \type{head}        \NC node    \NC all   \NC the head of the current list \NC \NR
@@ -1096,7 +1127,9 @@ The known fields are:
 \LL
 \stoptabulate
 
-\subsection[sec:luaprint]{Print functions}
+\stopsubsection
+
+\startsubsection[reference=sec:luaprint,title={Print functions}]
 
 \topicindex{printing}
 
@@ -1273,7 +1306,9 @@ node back to \TEX\, possibly intermixed with regular strings that will be
 tokenized. You have to make sure that you pass the right data because sometimes
 \TEX\ has expectations that need to be met.
 
-\subsection{Helper functions}
+\stopsubsection
+
+\startsubsection[title={Helper functions}]
 
 \subsubsection{\type {round}}
 
@@ -1481,7 +1516,9 @@ Associates \type {csname} with the internal font number \type {fontid}. The
 definition is global if (and only if) \type {global} is specified and true (the
 setting of \type {globaldefs} is not taken into account).
 
-\subsection[luaprimitives]{Functions for dealing with primitives}
+\stopsubsection
+
+\startsubsection[reference=luaprimitives,title={Functions for dealing with primitives}]
 
 \subsubsection{\type {enableprimitives}}
 
@@ -1594,7 +1631,9 @@ primitives \type {-ini} startup. It is exactly equivalent to \type
 
 This function returns a list of all primitives that \LUATEX\ knows about.
 
-\subsection{Core functionality interfaces}
+\stopsubsection
+
+\startsubsection[title={Core functionality interfaces}]
 
 \subsubsection{\type {badness}}
 
@@ -1739,7 +1778,9 @@ This helper reports the current page state: \type {empty}, \type {box_there} or
 This integer reports the current level of the local loop. It's only useful for
 debugging and the (relative state) numbers can change with the implementation.
 
-\subsection{Randomizers}
+\stopsubsection
+
+\startsubsection[title={Randomizers}]
 
 \libindex{lua_math_random}
 \libindex{lua_math_randomseed}
@@ -1763,10 +1804,9 @@ tex.print(tex.uniformdeviate(65536)/65536)
 
 will give a random number between zero and one.
 
-\ctxlua{print(tex.uniformdeviate(65536)/65536)}
+\stopsubsection
 
-
-\subsection[synctex]{Functions related to synctex}
+\startsubsection[reference=synctex,title={Functions related to synctex}]
 
 \topicindex {synctex}
 
@@ -1801,6 +1841,8 @@ plain and \LATEX, so after a decade users expect a certain behaviour.
 The last one is somewhat special. Due to the way files are registered in \SYNCTEX\ we need
 to explicitly disable that feature if we provide our own alternative if we want to avoid
 that overhead. Passing a value of 1 disables registering.
+
+\stopsubsection
 
 \stopsection
 
@@ -1890,7 +1932,7 @@ values from \type {texmf.cnf} are used.
 This library takes care of the low|-|level I/O interface: writing to the log file
 and|/|or console.
 
-\subsection{\type {write}}
+\startsubsection[title={\type {write}}]
 
 \libindex{write}
 
@@ -1909,7 +1951,9 @@ Note: If several strings are given, and if the first of these strings is or migh
 be one of the targets above, the \type {target} must be specified explicitly to
 prevent \LUA\ from interpreting the first string as the target.
 
-\subsection{\type {write_nl}}
+\stopsubsection
+
+\startsubsection[title={\type {write_nl}}]
 
 \libindex{write_nl}
 
@@ -1922,14 +1966,18 @@ This function behaves like \type {texio.write}, but make sure that the given
 strings will appear at the beginning of a new line. You can pass a single empty
 string if you only want to move to the next line.
 
-\subsection{\type {setescape}}
+\stopsubsection
+
+\startsubsection[title={\type {setescape}}]
 
 \libindex{setescape}
 
 You can disable \type {^^} escaping of control characters by passing a value of
 zero.
 
-\subsection{\type {closeinput}}
+\stopsubsection
+
+\startsubsection[title={\type {closeinput}}]
 
 \libindex{closeinput}
 
@@ -1939,11 +1987,13 @@ the \LUA\ end. You can use it to (sort of) force a jump back to \TEX. Normally a
 prints. This function can help you stay at the current level but you need to know
 what you're doing (or more precise: what \TEX\ is doing with input).
 
+\stopsubsection
+
 \stopsection
 
 \startsection[title={The \type {token} library}][library=token]
 
-\subsection{The scanner}
+\startsubsection[title={The scanner}]
 
 \topicindex{libraries+\type{token}}
 \topicindex{tokens}
@@ -2097,7 +2147,9 @@ do) this effect should not be overestimated. For numbers and dimensions it saves
 a bit but for passing strings conversion to and from tokens has to be done anyway
 (although we can probably speed up the process in later versions if needed).
 
-\subsection {Picking up one token}
+\stopsubsection
+
+\startsubsection[title= {Picking up one token}]
 
 \libindex {get_next}
 \libindex {scan_token}
@@ -2115,7 +2167,9 @@ input. This can be quite unpredictable but when you call it you probably know
 enough about \TEX\ not to be too worried about that. It basically is a call to
 the internal expand related function.
 
-\subsection {Creating tokens}
+\stopsubsection
+
+\startsubsection[title={Creating tokens}]
 
 \libindex{create}
 \libindex{new}
@@ -2216,7 +2270,9 @@ local okay = token.is_defined("foo")
 The largest character possible is returned by \type {biggest_char}, just in case you
 need to know that boundary condition.
 
-\subsection{Macros}
+\stopsubsection
+
+\startsubsection[title={Macros}]
 
 \topicindex {macros}
 
@@ -2274,7 +2330,9 @@ This creates a token that refers to a \LUA\ function with an entry in the table
 that you can access with \type {lua.get_functions_table}. It is the companion
 to \lpr {luadef}.
 
-\subsection{Pushing back}
+\stopsubsection
+
+\startsubsection[title={Pushing back}]
 
 \libindex{get_next}
 \libindex{put_next}
@@ -2296,7 +2354,9 @@ When we scan \type {wxyz!} we get \type {yzwx!} back. The argument is either a t
 with tokens or a list of tokens. The \type {token.expand} function will trigger
 expansion but what happens really depends on what you're doing where.
 
-\subsection{Nota bene}
+\stopsubsection
+
+\startsubsection[title={Nota bene}]
 
 When scanning for the next token you need to keep in mind that we're not scanning
 like \TEX\ does: expanding, changing modes and doing things as it goes. When we
@@ -2384,6 +2444,8 @@ So, we do get a unique token because after all we need some kind of \LUA\ object
 that can be used and garbage collected, but it is basically the same one,
 representing an undefined control sequence.
 
+\stopsubsection
+
 \stopsection
 
 \startsection[title={The \type {kpse} library}][library=kpse]
@@ -2395,7 +2457,7 @@ This library provides two separate, but nearly identical interfaces to the
 interface that shares its kpathsea instance with \LUATEX\ itself, and an object
 oriented interface that is completely on its own.
 
-\subsection{\type {set_program_name} and \type {new}}
+\startsubsection[title={\type {set_program_name} and \type {new}}]
 
 \libindex{set_program_name}
 \libindex{default_texmfcnf}
@@ -2438,7 +2500,9 @@ identical. Depending on the chosen interface, you either call \type
 {kpse.find_file} or \type {kpathsea:find_file}, with identical arguments and
 return values.
 
-\subsection{\type {find_file}}
+\stopsubsection
+
+\startsubsection[title={\type {find_file}}]
 
 \topicindex {files+finding}
 
@@ -2544,7 +2608,9 @@ will search the disk as well as the \type {ls-R} databases.
 This is used for the size argument of the formats \type {pk}, \type {gf}, and
 \type {bitmap font}. \stopitemize
 
-\subsection{\type {lookup}}
+\stopsubsection
+
+\startsubsection[title={\type {lookup}}]
 
 \libindex{lookup}
 
@@ -2576,7 +2642,9 @@ The options match commandline arguments from \type {kpsewhich}:
 \LL
 \stoptabulate
 
-\subsection{\type {init_prog}}
+\stopsubsection
+
+\startsubsection[title={\type {init_prog}}]
 
 \topicindex {initialization+bitmaps}
 
@@ -2589,7 +2657,9 @@ kpse.init_prog(<string> prefix, <number> base_dpi, <string> mfmode)
 kpse.init_prog(<string> prefix, <number> base_dpi, <string> mfmode, <string> fallback)
 \stopfunctioncall
 
-\subsection{\type {readable_file}}
+\stopsubsection
+
+\startsubsection[title={\type {readable_file}}]
 
 \libindex{readable_file}
 
@@ -2604,7 +2674,9 @@ name is not always the same as the requested name, due to aliases and
 system|-|specific handling under e.g.\ \MSDOS. Returns \type {nil} if the file
 does not exist or is not readable.
 
-\subsection{\type {expand_path}}
+\stopsubsection
+
+\startsubsection[title={\type {expand_path}}]
 
 \libindex{expand_path}
 
@@ -2614,7 +2686,9 @@ Like kpsewhich's \type {-expand-path}:
 <string> r = kpse.expand_path(<string> s)
 \stopfunctioncall
 
-\subsection{\type {expand_var}}
+\stopsubsection
+
+\startsubsection[title={\type {expand_var}}]
 
 \libindex{expand_var}
 
@@ -2624,7 +2698,9 @@ Like kpsewhich's  \type {-expand-var}:
 <string> r = kpse.expand_var(<string> s)
 \stopfunctioncall
 
-\subsection{\type {expand_braces}}
+\stopsubsection
+
+\startsubsection[title={\type {expand_braces}}]
 
 \libindex{expand_braces}
 
@@ -2634,7 +2710,9 @@ Like kpsewhich's \type {-expand-braces}:
 <string> r = kpse.expand_braces(<string> s)
 \stopfunctioncall
 
-\subsection{\type {show_path}}
+\stopsubsection
+
+\startsubsection[title={\type {show_path}}]
 
 \libindex{show_path}
 
@@ -2644,7 +2722,9 @@ Like kpsewhich's \type {-show-path}:
 <string> r = kpse.show_path(<string> ftype)
 \stopfunctioncall
 
-\subsection{\type {var_value}}
+\stopsubsection
+
+\startsubsection[title={\type {var_value}}]
 
 \libindex{var_value}
 
@@ -2654,7 +2734,9 @@ Like kpsewhich's \type {-var-value}:
 <string> r = kpse.var_value(<string> s)
 \stopfunctioncall
 
-\subsection{\type {version}}
+\stopsubsection
+
+\startsubsection[title={\type {version}}]
 
 \libindex{version}
 
@@ -2663,6 +2745,8 @@ Returns the kpathsea version string.
 \startfunctioncall
 <string> r = kpse.version()
 \stopfunctioncall
+
+\stopsubsection
 
 \stopsection
 

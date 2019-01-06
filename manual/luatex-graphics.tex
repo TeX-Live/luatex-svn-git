@@ -244,11 +244,10 @@ initial values that were just copies from \type {a}.
 <image> var = img.write(<table> image_spec)
 \stopfunctioncall
 
-By \type {img.write(a)} a \PDF\ object number is allocated, and a whatsit node of
-subtype \type {pdf_refximage} is generated and put into the output list. By this
-the image \type {a} is placed into the page stream, and the image file is written
-out into an image stream object after the shipping of the current page is
-finished.
+By \type {img.write(a)} a \PDF\ object number is allocated, and a rule node of
+subtype \type {image} is generated and put into the output list. By this the
+image \type {a} is placed into the page stream, and the image file is written out
+into an image stream object after the shipping of the current page is finished.
 
 Again you can do a terse call like
 
@@ -271,8 +270,6 @@ object in the \PDF\ file.
 \startfunctioncall
 <image> var = img.immediatewrite(<image> var)
 <image> var = img.immediatewrite(<table> image_spec)
-<image> var = img.immediatewriteobject(<image> var)
-<image> var = img.immediatewriteobject(<table> image_spec)
 \stopfunctioncall
 
 Also here you can do a terse call like
@@ -282,6 +279,14 @@ a = img.immediatewrite { filename = "foo.png" }
 \stoptyping
 
 The \type {<image>} variable is returned and you will most likely need it.
+
+The next function is kind of special as it copies an object from a (\PDF) image
+file. This features is experimental and might disappear.
+
+\startfunctioncall
+<integer> objnum = img.immediatewriteobject(<image> var, <integer> objnum)
+<integer> objnum = img.immediatewriteobject(<table> image_spec, <integer> objnum)
+\stopfunctioncall
 
 \subsection{\type {node}}
 
