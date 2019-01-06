@@ -24,7 +24,7 @@ KPSE_LT_VERSION([lua53])
 
 LT_INIT([win32-dll])
 
-KPSE_DLL_NAME([texlua53], [texlua53])
+KPSE_DLL_NAME([texlua], [texlua])
 
 AC_CONFIG_HEADERS([config.h])[]dnl unused, to avoid zillions of -D's on command line
 

@@ -1,4 +1,4 @@
-dnl $Id: configure.ac 48318 2018-07-31 20:52:36Z karl $
+dnl $Id: configure.ac 48591 2018-09-05 21:30:41Z lscarso $
 dnl Process this file with Autoconf to produce a configure script for Web2c.
 dnl
 dnl   Copyright 2018 Karl Berry <tex-live@tug.org>

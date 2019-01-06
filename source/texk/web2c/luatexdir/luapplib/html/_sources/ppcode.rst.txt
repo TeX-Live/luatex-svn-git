@@ -50,6 +50,14 @@ v1.02
 -----
 Fixed page finder (thanks Luigi)
 
+v1.03
+-----
+Fixed TIFF predictor (thanks folks)
+
+v1.04
+-----
+Fixed TIFF predictor for ARM
+
 TODO
 ====
 - external streams (egzotic)

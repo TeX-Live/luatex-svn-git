@@ -202,9 +202,11 @@ extern int include_depth; /* current level of nesting */
 @x common.h l.148 - explicit types.
 extern line[]; /* number of current line in the stacked files */
 extern change_line; /* number of current line in change file */
+extern change_depth; /* where \.{@@y} originated during a change */
 @y
 extern int line[]; /* number of current line in the stacked files */
 extern int change_line; /* number of current line in change file */
+extern int change_depth; /* where \.{@@y} originated during a change */
 @z
 
 @x common.h l.153 - protos now all in cweb.h.
@@ -595,6 +597,12 @@ eight_bits c;
 @y
 static void
 print_cat (eight_bits c)
+@z
+
+@x l.1788
+  printf(cat_name[c]);
+@y
+  printf("%s",cat_name[c]);
 @z
 
 Section 106.

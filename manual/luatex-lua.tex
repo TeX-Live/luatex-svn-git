@@ -4,11 +4,11 @@
 
 \startcomponent luatex-lua
 
-\startchapter[reference=lua,title={\LUA\ general}]
+\startchapter[reference=lua,title={Using \LUATEX}]
 
-\section[init]{Initialization}
+\startsection[title={Initialization},reference=init]
 
-\subsection{\LUATEX\ as a \LUA\ interpreter}
+\startsubsection[title={\LUATEX\ as a \LUA\ interpreter}]
 
 \topicindex {initialization}
 \topicindex {\LUA+interpreter}
@@ -37,7 +37,9 @@ positive values, just like the \LUA\ interpreter.
 in effect, a somewhat bulky stand alone \LUA\ interpreter with a bunch of extra
 preloaded libraries.
 
-\subsection{\LUATEX\ as a \LUA\ byte compiler}
+\stopsubsection
+
+\startsubsection[title={\LUATEX\ as a \LUA\ byte compiler}]
 
 \topicindex {\LUA+byte code}
 
@@ -52,9 +54,11 @@ In this mode, \LUATEX\ is exactly like \type {luac} from the stand alone \LUA\
 distribution, except that it does not have the \type {-l} switch, and that it
 accepts (but ignores) the \type {--luaconly} switch. The current version of \LUA\
 can dump bytecode using \type {string.dump} so we might decide to drop this
-version if \LUATEX.
+version of \LUATEX.
 
-\subsection{Other commandline processing}
+\stopsubsection
+
+\startsubsection[title={Other commandline processing}]
 
 \topicindex {command line}
 
@@ -136,7 +140,7 @@ any other \WEBC|-|based typesetting engine, except that \LUATEX\ has a few extra
 switches and lacks some others. Also, if the \type {--lua} option is present,
 \LUATEX\ will enter an alternative mode of command line processing in comparison
 to the standard \WEBC\ programs. In this mode, a small series of actions is taken
-in order.
+in the following order:
 
 \startitemize[n]
 
@@ -160,6 +164,8 @@ in order.
     \LUA\ commands that can easily be abused by a malicious document. At the
     moment, \type {--safer} \type {nil}s the following functions:
 
+    \blank
+
     \starttabulate[|c|l|]
         \DB library     \BC functions \NC \NR
         \TB
@@ -171,18 +177,20 @@ in order.
         \LL
     \stoptabulate
 
+    \blank
+
     Furthermore, it disables loading of compiled \LUA\ libraries and it makes
     \type {io.open()} fail on files that are opened for anything besides reading.
 \stopitem
 
 \startitem
-    When \LUATEX\ starts it set the locale to a neutral value. If for some reason
-    you use \type {os.locale}, you need to make sure you \type {nil} it
-    afterwards because otherwise it can interfere with code that for instance
-    generates dates. You can nil the locale with
+    When \LUATEX\ starts it sets the \type {locale} to a neutral value. If for
+    some reason you use \type {os.locale}, you need to make sure you \type {nil}
+    it afterwards because otherwise it can interfere with code that for instance
+    generates dates. You can ignore the \type {locale} with:
 
     \starttyping
-    os.setlocale(nil.nil)
+    os.setlocale(nil,nil)
     \stoptyping
 
     The \type {--nosocket} option makes the socket library unavailable, so that \LUA\
@@ -236,10 +244,22 @@ finished: in order to initialize the built|-|in \KPATHSEA\ library properly,
 check \type {--progname}, or \type {--ini} and \type {--fmt}, if \type
 {--progname} is missing.
 
-\section{\LUA\ behaviour}
+\stopsubsection
+
+\stopsection
+
+\startsection[title={\LUA\ behaviour}]
+
+\startsubsection[title={The \LUA\ version}]
 
 \topicindex {\LUA+libraries}
 \topicindex {\LUA+extensions}
+
+We currently use \LUA\ 5.3 and will follow developments of the language but
+normally with some delay. Therefore the user needs to keep an eye on (subtle)
+differences in successive versions of the language. Also, \LUAJITTEX\ lags behind
+in the sense that \LUAJIT\ is not in sync with regular \LUA\ development. Here is
+an example of one aspect.
 
 \LUA s \type {tostring} function (and \type {string.format} may return values in
 scientific notation, thereby confusing the \TEX\ end of things when it is used as
@@ -247,6 +267,11 @@ the right|-|hand side of an assignment to a \prm {dimen} or \prm {count}. The
 output of these serializers also depend on the \LUA\ version, so in \LUA\ 5.3 you
 can get different output than from 5.2.
 
+\stopsubsection
+
+\startsubsection[title={Integration in the \TDS\ ecosystem}]
+
+The main \TEX\ distributions follow the \TEX\ directory structure (\TDS).
 \LUATEX\ is able to use the kpathsea library to find \type {require()}d modules.
 For this purpose, \type {package.searchers[2]} is replaced by a different loader
 function, that decides at runtime whether to use kpathsea or the built|-|in core
@@ -256,6 +281,10 @@ in time, otherwise it reverts to using the normal \type {package.path} loader.
 Initialization of \KPATHSEA\ can happen either implicitly (when \LUATEX\ starts
 up and the startup script has not set \type {texconfig.kpse_init} to false), or
 explicitly by calling the \LUA\ function \type {kpse.set_program_name()}.
+
+\stopsubsection
+
+\startsubsection[title={Loading libraries}]
 
 \LUATEX\ is able to use dynamically loadable \LUA\ libraries, unless
 \type {--safer} was given as an option on the command line. For this purpose,
@@ -286,6 +315,10 @@ at the same time (which will typically happen on \type {win32}, because there is
 one \LUA\ 5.3 inside \LUATEX, and another will likely be linked to the \DLL\ file
 of the module itself).
 
+\stopsubsection
+
+\startsubsection[title={Executing programs}]
+
 In keeping with the other \TEX|-|like programs in \TEXLIVE, the two \LUA\ functions
 \type {os.execute} and \type {io.popen}, as well as the two new functions \type
 {os.exec} and \type {os.spawn} that are explained below, take the value of \type
@@ -296,33 +329,40 @@ the command line option \type {--luaonly} was not given), it will only run the
 four functions above if the matching \type {texmf.cnf} variable(s) or their \type
 {texconfig} (see \in {section} [texconfig]) counterparts allow execution of the
 requested system command. In \quote {script interpreter} runs of \LUATEX, these
-settings have no effect, and all four functions function as normal.
+settings have no effect, and all four functions have their original meaning.
 
-Some libraries have a few more functions, either coded in \CCODE\ or in \LUA.
-For instance, when we started with \LUATEX\ we added some helpers to the \type
+Some libraries have a few more functions, either coded in \CCODE\ or in \LUA. For
+instance, when we started with \LUATEX\ we added some helpers to the \type
 {luafilesystem} namespace \type {lfs}. The two boolean functions \type
 {lfs.isdir} and \type {lfs.isfile} were speedy and better variants of what could
 be done with \type {lfs.attributes}. The additional function \type
 {lfs.shortname} takes a file name and returns its short name on \type {win32}
 platforms. Finally, for non|-|\type {win32} platforms only, we provided \type
 {lfs.readlink} that takes an existing symbolic link as argument and returns its
-name. However, the \type library evolved sop now we dropped these in favour of
-pure \LUA\ variants. The \type {shortname} helper is considered obsolete and now
-just returns the name.
+name. However, the \type library evolved so we have dropped these in favour of
+pure \LUA\ variants. The \type {shortname} helper is obsolete and now just
+returns the name.
 
-The \type {string} library has a few extra functions like \type
-{string.explode(s[,m])}. This function returns an array containing the string
-argument \type {s} split into sub-strings based on the value of the string
-argument \type {m}. The second argument is a string that is either empty (this
-splits the string into characters), a single character (this splits on each
-occurrence of that character, possibly introducing empty strings), or a single
-character followed by the plus sign \type {+} (this special version does not
-create empty sub-strings). The default value for \type {m} is \quote {\type { +}}
-(multiple spaces). Note: \type {m} is not hidden by surrounding braces as it
-would be if this function was written in \TEX\ macros.
+\stopsubsection
+
+\startsubsection[title={Multibyte \type {string} functions}]
+
+The \type {string} library has a few extra functions, for example \libidx
+{string} {explode}. This function takes upto two arguments: \type
+{string.explode(s[,m])} and returns an array containing the string argument \type
+{s} split into sub-strings based on the value of the string argument \type {m}.
+The second argument is a string that is either empty (this splits the string into
+characters), a single character (this splits on each occurrence of that
+character, possibly introducing empty strings), or a single character followed by
+the plus sign \type {+} (this special version does not create empty sub-strings).
+The default value for \type {m} is \quote {\type { +}} (multiple spaces). Note:
+\type {m} is not hidden by surrounding braces as it would be if this function was
+written in \TEX\ macros.
 
 The \type {string} library also has six extra iterators that return strings
-piecemeal:
+piecemeal: \libidx {string} {utfvalues}, \libidx {string} {utfcharacters},
+\libidx {string} {characters}, \libidx {string} {characterpairs}, \libidx
+{string} {bytes} and \libidx {string} {bytepairs}.
 
 \startitemize
 \startitem
@@ -332,7 +372,7 @@ piecemeal:
     \type {string.utfcharacters(s)}: a string with a single \UTF-8 token in it
 \stopitem
 \startitem
-    \type {string.characters(s)}: a string containing one byte
+    \type {string.cWharacters(s)}: a string containing one byte
 \stopitem
 \startitem
     \type {string.characterpairs(s)}: two strings each containing one byte or an
@@ -368,7 +408,8 @@ interpretation of character classes in \type {unicode.utf8} functions refer to
 the library sources at \hyphenatedurl {http://luaforge.net/projects/sln}.
 
 Version 5.3 of \LUA\ provides some native \UTF8 support but we have added a few
-similar helpers too:
+similar helpers too: \libidx {string} {utfvalue}, \libidx {string} {utfcharacter}
+and \libidx {string} {utflength}.
 
 \startitemize
 \startitem
@@ -384,13 +425,18 @@ similar helpers too:
 \stopitem
 \stopitemize
 
-These three functions are relative fast and don't do much checking. They can be used
-as building blocks for other helpers. So, eventually we can decide to drop the
-\type {sln} library, just that you know.
+These three functions are relative fast and don't do much checking. They can be
+used as building blocks for other helpers.
 
-\blank
+\stopsubsection
 
-The \type {os} library has a few extra functions and variables:
+\startsubsection[title={Extra \type {os} library functions}]
+
+The \type {os} library has a few extra functions and variables: \libidx {os}
+{selfdir}, \libidx {os} {exec}, \libidx {os} {spawn}, \libidx {os} {setenv},
+\libidx {os} {env}, \libidx {os} {gettimeofday}, \libidx {os} {times}, \libidx
+{os} {tmpdir}, \libidx {os} {type}, \libidx {os} {name} and \libidx {os} {uname},
+that we will discuss here.
 
 \startitemize
 
@@ -512,13 +558,85 @@ The \type {os} library has a few extra functions and variables:
 \stopitem
 
 \startitem
-    \type {os.uname()} returns a table with specific operating system
+    \type {os.uname} returns a table with specific operating system
     information acquired at runtime. The keys in the returned table are all
-    string valued, and their names are: \type {sysname}, \type {machine}, \type
+    string values, and their names are: \type {sysname}, \type {machine}, \type
     {release}, \type {version}, and \type {nodename}.
 \stopitem
 
 \stopitemize
+
+\stopsubsection
+
+\startsubsection[title={Binary input from files with \type {fio}}]
+
+There is a whole set of helpers for reading numbers and strings from a file:
+\libidx {fio} {readcardinal1}, \libidx {fio} {readcardinal2}, \libidx {fio}
+{readcardinal3}, \libidx {fio} {readcardinal4}, \libidx {fio}
+{readcardinaltable}, \libidx {fio} {readinteger1}, \libidx {fio} {readinteger2},
+\libidx {fio} {readinteger3}, \libidx {fio} {readinteger4}, \libidx {fio}
+{readintegertable}, \libidx {fio} {readfixed2}, \libidx {fio} {readfixed4},
+\libidx {fio} {read2dot14}, \libidx {fio} {setposition}, \libidx {fio}
+{getposition}, \libidx {fio} {skipposition}, \libidx {fio} {readbytes}, \libidx
+{fio} {readbytetable}. They work on normal \LUA\ file handles.
+
+%libidx{fio}{readline}
+%libidx{fio}{recordfilename}
+%libidx{fio}{checkpermission}
+
+This library provides a set of functions for reading numbers from a file and
+in addition to the regular \type {io} library functions.
+
+\starttabulate
+\NC \type{readcardinal1(f)}         \NC a 1 byte unsigned integer \NC \NR
+\NC \type{readcardinal2(f)}         \NC a 2 byte unsigned integer \NC \NR
+\NC \type{readcardinal3(f)}         \NC a 3 byte unsigned integer \NC \NR
+\NC \type{readcardinal4(f)}         \NC a 4 byte unsigned integer \NC \NR
+\NC \type{readcardinaltable(f,n,b)} \NC \type {n} cardinals of \type {b} bytes \NC \NR
+\NC \type{readinteger1(f)}          \NC a 1 byte signed integer \NC \NR
+\NC \type{readinteger2(f)}          \NC a 2 byte signed integer \NC \NR
+\NC \type{readinteger3(f)}          \NC a 3 byte signed integer \NC \NR
+\NC \type{readinteger4(f)}          \NC a 4 byte signed integer \NC \NR
+\NC \type{readintegertable(f,n,b)}  \NC \type {n} integers of \type {b} bytes \NC \NR
+\NC \type{readfixed2(f)}            \NC a 2 byte float (used in font files) \NC \NR
+\NC \type{readfixed4(f)}            \NC a 4 byte float (used in font files) \NC \NR
+\NC \type{read2dot14(f)}            \NC a 2 byte float (used in font files) \NC \NR
+\NC \type{setposition(f,p)}         \NC goto position \type {p} \NC \NR
+\NC \type{getposition(f)}           \NC get the current position \NC \NR
+\NC \type{skipposition(f,n)}        \NC skip \type {n} positions \NC \NR
+\NC \type{readbytes(f,n)}           \NC \type {n} bytes \NC \NR
+\NC \type{readbytetable(f,n)}       \NC \type {n} bytes\NC \NR
+\stoptabulate
+
+\stopsubsection
+
+\startsubsection[title={Binary input from strings with \type {sio}}]
+
+A similar set of function as in the \type {fio} library is available in the \type
+{sio} library: \libidx {sio} {readcardinal1}, \libidx {sio} {readcardinal2},
+\libidx {sio} {readcardinal3}, \libidx {sio} {readcardinal4}, \libidx {sio}
+{readcardinaltable}, \libidx {sio} {readinteger1}, \libidx {sio} {readinteger2},
+\libidx {sio} {readinteger3}, \libidx {sio} {readinteger4}, \libidx {sio}
+{readintegertable}, \libidx {sio} {readfixed2}, \libidx {sio} {readfixed4},
+\libidx {sio} {read2dot14}, \libidx {sio} {setposition}, \libidx {sio}
+{getposition}, \libidx {sio} {skipposition}, \libidx {sio} {readbytes} and
+\libidx {sio} {readbytetable}. Here the first argument is a string instead of a
+file handle. More details can be found in the previous section.
+
+\stopsubsection
+
+\startsubsection[title={Hashes conform \type {sha2}}]
+
+This library is a side effect of the \type {pdfe} library that needs such
+helpers. The \libidx{sha2}{digest256}, \libidx{sha2}{digest384} and
+\libidx{sha2}{digest512} functions accept a string and return a string with the
+hash.
+
+\stopsubsection
+
+\startsubsection[title={Locales}]
+
+\index {locales}
 
 In stock \LUA, many things depend on the current locale. In \LUATEX, we can't do
 that, because it makes documents unportable.  While \LUATEX\ is running if
@@ -530,7 +648,11 @@ LC_COLLATE=C
 LC_NUMERIC=C
 \stoptyping
 
-\section {\LUA\ modules}
+\stopsubsection
+
+\stopsection
+
+\startsection[title={\LUA\ modules}]
 
 \topicindex {\LUA+libraries}
 \topicindex {\LUA+modules}
@@ -593,7 +715,9 @@ Some modules that are normally external to \LUA\ are statically linked in with
 
 \stopitemize
 
-\section{Testing}
+\stopsection
+
+\startsection[title={Testing}]
 
 \topicindex {testing}
 \topicindex {\PDF+date}
@@ -627,7 +751,9 @@ complementary entry \type {use_utc_time} in the \type {texconfig} table.
 
 There is some control possible, for instance prevent filename to be written to
 the \PDF\ file. This is discussed elsewhere. In \CONTEXT\ we provide the command
-line argument \type {--nodates} that does bit more disabling of dates.
+line argument \type {--nodates} that does a bit more disabling of dates.
+
+\stopsection
 
 \stopchapter
 

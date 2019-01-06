@@ -1,11 +1,12 @@
 % macros=mkvi
 
+% \nopdfcompression
+
 % \disabledirectives[vspacing.synchronizepage]
 
 % wsl /data/context/runcontext.sh --global --path=/mnt/c/data/develop/context/manuals/mkiv/external/luatex luatex.tex
 %
 % same runtime as regular context or linux
-
 % author    : Hans Hagen with Taco Hoekwater, Luigi Scarso & Hartmut Henkel
 % copyright : PRAGMA ADE & ConTeXt Development Team
 % license   : Creative Commons Attribution ShareAlike 4.0 International
@@ -29,17 +30,28 @@
 % "context --nodates --nocompression luatex" can be used for comparison
 % runs, not that we do it
 
+% todo: all (sub)section to start/stop
+
 % \enabledirectives[hyphenator.flatten]
 
 % \setupsynctex[state=start,method=max] % adds 5 pct overhead
 
+% compoundhyphenmode      : looks okay
+% endlocalcontrol         : very experimental
+% fixupboxesmode          : very experimental
+% mathflattenmode         : looks okay
+% mathrulethicknessmode   : looks okay
+
 % after adding primitives: context mult-prm.mkiv
 
 \environment luatex-style
-% \environment luatex-book
-\environment luatex-logos
 
-% \switchtobodyfont[small]
+\startmode[book]
+    \environment luatex-style-book
+\stopmode
+
+\environment luatex-logos
+\environment luatex-private
 
 \startmode[export]
 
@@ -49,8 +61,9 @@
 \stopmode
 
 \startdocument
-  [status=experimental,
-   version=1.08.0]
+  [manual=Lua\TeX,
+   status=experimental,
+   version=1.10]
 
 \startnotmode[*export]
     \component luatex-titlepage

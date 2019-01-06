@@ -1,4 +1,4 @@
-$Id: README 48410 2018-08-16 00:59:29Z hironobu $
+$Id: README 49020 2018-10-29 22:11:07Z karl $
 Copyright 2006-2018 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -47,6 +47,10 @@ dvidvi - maintained here
 
 dviljk - maintained here, by Joachim Schrod
 
+dviout-util - by Japanese TeX Development Community (Hironobu, Takuji et al.)
+  https://github.com/texjporg/tex-jp-build
+  but also: https://github.com/aminophen/dviout-util
+
 dvipdfm-x - maintained here, by us, contains
   dvipdfmx
   xdvipdfmx
@@ -60,7 +64,7 @@ dvipos - maintained here, by us
 
 dvipsk - maintained here, by us
 
-dvisvgm 2.4.2 - checked 19jul18
+dvisvgm 2.6.1 - checked 29oct18
   https://dvisvgm.de/Downloads/
 
 gregorio 5.1.1 - checked 25mar18

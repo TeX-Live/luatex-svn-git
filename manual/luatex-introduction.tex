@@ -16,7 +16,7 @@ It took about a decade to reach stable version 1.0, but for good reason.
 Successive versions brought new functionality, more control, some cleanup of
 internals. Experimental features evolved into stable ones or were dropped.
 Already quite early \LUATEX\ could be used for production and it was used on a
-daily basis by the authors. Successive versions sometimes demanded a adaption to
+daily basis by the authors. Successive versions sometimes demanded an adaption to
 the \LUA\ interfacing, but the concepts were unchanged. The current version can
 be considered stable in functionality and there will be no fundamental changes.
 Of course we then can decide to move towards version 2.00 with different
@@ -47,17 +47,17 @@ The organization of the source code is adapted so that it can glue all these
 components together. We continue cleaning up side effects of the accumulated
 code in \TEX\ engines (especially code that is not needed any longer).
 
-\startitemize % [packed]
+\startitemize [unpacked]
     \startitem
         We started out with most of \PDFTEX\ version 1.40.9. The code base was
         converted to \CCODE\ and split in modules. Experimental features were
-        been removed and utility macros are not inherited because their
-        functionality can be programmed in \LUA. The number of backend interface
-        commands has been reduced to a few. The so called extensions are
-        separated from the core (which we try to keep close to the original \TEX\
-        core). Some mechanisms like expansion and protrusion can behave different
-        from the original due to some cleanup and optimization. Some whatsit
-        based functionality (image support and reusable content) is now core
+        removed and utility macros are not inherited because their functionality
+        can be programmed in \LUA. The number of backend interface commands has
+        been reduced to a few. The so called extensions are separated from the
+        core (which we try to keep close to the original \TEX\ core). Some
+        mechanisms like expansion and protrusion can behave different from the
+        original due to some cleanup and optimization. Some whatsit based
+        functionality (image support and reusable content) is now core
         functionality. We don't stay in sync with \PDFTEX\ development.
     \stopitem
     \startitem
@@ -108,29 +108,48 @@ code in \TEX\ engines (especially code that is not needed any longer).
         means that a complete \TEX\ workflow can be built without the need for
         additional programs.
     \stopitem
+    \startitem
+        The versions starting from 1.09 no longer use the poppler library for
+        inclusion but a lightweight dedicated one. This removes a dependency but
+        also makes the inclusion code of \LUATEX\ different from \PDFTEX. In fact
+        it was already much different due to the \LUA\ image interfacing.
+    \stopitem
 \stopitemize
 
 We try to keep upcoming versions compatible but intermediate releases can contain
-experimental features. A general rule is that versions that end up on \TEX live
-and|/|or are released around \CONTEXT\ meetings are stable. Future versions will
-probably become a bit leaner and meaner. Some libraries might become external as
-we don't want to bloat the binary and also don't want to add more hard coded
-solutions. After all, with \LUA\ you can extend the core functionality. The less
-dependencies, the better.
+experimental features. A general rule is that versions that end up on \TEXLIVE\
+and|/|or are released around \CONTEXT\ meetings are stable. Any version between
+the yearly \TEXLIVE\ releases are to be considered beta and in the repository end
+up as trunk releases. We have an experimental branch that we use for development
+but there is no support for any of its experimental features. Intermediate
+releases (from trunk) are normally available via the \CONTEXT\ distribution
+channels (the garden and so called minimals).
+
+Version 1.10 is more or less an endpoint in development: this is what you get.
+Because not only \CONTEXT, that we can adapt rather easily, uses \LUATEX, we
+cannot change fundamentals without unforeseen consequences. By now it has been
+proven that \LUA\ can be used to extend the core functionality so there is no
+need to add more, and definitely no hard coded solutions for (not so) common
+problems. Of course there will be bug fixes, maybe some optimization, and there
+might even be some additions or non|-|intrusive improvements, but only after
+testing outside the stable release. After all, the binary is already more than
+large enough and there is not that much to gain.
 
 You might find \LUA\ helpers that are not yet documented. These are considered
 experimental, although when you encounter them in a \CONTEXT\ version that has
 been around for a while you can assume that they will stay. Of course it can just
 be that we forgot to document them yet.
 
-The \TEXLIVE\ version is to be considered the current stable version. Any version
-between the yearly \TEXLIVE\ releases are to be considered beta and in the
-repository end up as trunk releases. We have an experimental branch that we use
-for development but there is no support for any of its experimental features.
-Intermediate releases (from trunk) are normally available via the \CONTEXT\
-distribution channels (the garden and so called minimals).
+A manual like this is not really meant as tutorial, for that we refer to
+documents that ship with \CONTEXT, articles, etc. It is also never complete
+enough for all readers. We try to keep up but the reader needs to realize that
+it's all volunteer work done in spare time. And for sure, complaining about a bad
+manual or crappy documentation will not really motivate us to spend more time on
+it. That being said, we hope that this document is useful.
 
 \blank[big]
+
+\testpage[5]
 
 \startlines
 Hans Hagen

@@ -17,9 +17,11 @@ information about it. The tables returned by the loader are not that far from th
 standard. We have no plans to extend the loader (it may even become an external
 module at some time).
 
-\section{Getting quick information on a font}
+\startsection[title={Getting quick information on a font}][library=fontloader]
 
 \topicindex {fonts+information}
+
+\libindex{info}
 
 When you want to locate font by name you need some basic information that is
 hidden in the font files. For that reason we provide an efficient helper that
@@ -54,10 +56,16 @@ Getting information through this function is (sometimes much) more efficient tha
 loading the font properly, and is therefore handy when you want to create a
 dictionary of available fonts based on a directory contents.
 
-\section{Loading an \OPENTYPE\ or \TRUETYPE\ file}
+\stopsection
+
+\startsection[title={Loading an \OPENTYPE\ or \TRUETYPE\ file}][library=fontloader]
 
 \topicindex {\OPENTYPE}
 \topicindex {\TRUETYPE}
+
+\libindex{open}
+\libindex{close}
+\libindex{to_table}
 
 If you want to use an \OPENTYPE\ font, you have to get the metric information
 from somewhere. Using the \type {fontloader} library, the simplest way to get
@@ -108,8 +116,8 @@ to \LUATEX, otherwise the font inclusion backend will not be able to find the
 correct font in the collection.
 
 See \in {section} [fontloadertables] for details on the userdata object returned
-by \type {fontloader.open()} and the layout of the \type {metrics} table returned
-by \type {fontloader.to_table()}.
+by \type {fontloader.open} and the layout of the \type {metrics} table returned
+by \type {fontloader.to_table}.
 
 The font file is parsed and partially interpreted by the font loading routines
 from \FONTFORGE. The file format can be \OPENTYPE, \TRUETYPE, \TRUETYPE\
@@ -136,11 +144,6 @@ file ourselves:
     some way.
 \stopitem
 
-\startitem
-    In the future, it may be interesting to allow \LUA\ scripts access to
-    the font program itself, perhaps even creating or changing the font.
-\stopitem
-
 \stopitemize
 
 A loaded font is discarded with:
@@ -149,7 +152,11 @@ A loaded font is discarded with:
 fontloader.close(<userdata> font)
 \stopfunctioncall
 
-\section{Applying a \quote{feature file}}
+\stopsection
+
+\startsection[title={Applying a \quote{feature file}}][library=fontloader]
+
+\libindex{apply_featurefile}
 
 You can apply a \quote{feature file} to a loaded font:
 
@@ -176,9 +183,13 @@ If the function fails, the return value is a table containing any errors reporte
 by fontloader while applying the feature file. On success, \type {nil} is
 returned.
 
-\section{Applying an \quote{\AFM\ file}}
+\stopsection
+
+\startsection[title={Applying an \quote{\AFM\ file}}][library=fontloader]
 
 \topicindex {\TYPEONE}
+
+\libindex{apply_afmfile}
 
 You can apply an \quote {\AFM\ file} to a loaded font:
 
@@ -195,7 +206,7 @@ ftp://ftp.math.utah.edu/u/ma/hohn/linux/postscript/5004.AFM_Spec.pdf
 
 for more information about \AFM\ files.
 
-Note: If you \type {fontloader.open()} a \TYPEONE\ file named \type {font.pfb},
+Note: If you \type {fontloader.open} a \TYPEONE\ file named \type {font.pfb},
 the library will automatically search for and apply \type {font.afm} if it exists
 in the same directory as the file \type {font.pfb}. In that case, there is no
 need for an explicit call to \type {apply_afmfile()}.
@@ -203,18 +214,22 @@ need for an explicit call to \type {apply_afmfile()}.
 If the function fails, the return value is a table containing any errors reported
 by fontloader while applying the AFM file. On success, \type {nil} is returned.
 
-\section[fontloadertables]{Fontloader font tables}
+\stopsection
+
+\startsection[title={Fontloader font tables},reference=fontloadertables][library=fontloader]
 
 \topicindex {fontloader+tables}
 
-As mentioned earlier, the return value of \type {fontloader.open()} is a userdata
+\libindex{fields}
+
+As mentioned earlier, the return value of \type {fontloader.open} is a userdata
 object. One way to have access to the actual metrics is to call \type
-{fontloader.to_table()} on this object, returning the table structure that is
+{fontloader.to_table} on this object, returning the table structure that is
 explained in the following sections. In teh following sections we will not
 explain each field in detail. Most fields are self descriptive and for the more
 technical aspects you need to consult the relevant font references.
 
-It turns out that the result from \type {fontloader.to_table()} sometimes needs
+It turns out that the result from \type {fontloader.to_table} sometimes needs
 very large amounts of memory (depending on the font's complexity and size) so it
 is possible to access the userdata object directly.
 
@@ -279,9 +294,11 @@ local fields = fontloader.fields(f)
 local fields = fontloader.fields(f.glyphs[0])
 \stopfunctioncall
 
-\section{Table types}
+\stopsection
 
-\subsection{Top-level}
+\startsection[title={Table types}][library=fontloader]
+
+\startsubsection[title={The main table}]
 
 The top|-|level keys in the returned table are (the explanations in this part of
 the documentation are not yet finished):
@@ -357,7 +374,6 @@ the documentation are not yet finished):
 \NC \type{creationtime}                 \NC number   \NC \NC \NR
 \NC \type{modificationtime}             \NC number   \NC \NC \NR
 \NC \type{os2_version}                  \NC number   \NC \NC \NR
-\NC \type{sfd_version}                  \NC number   \NC \NC \NR
 \NC \type{math}                         \NC table    \NC \NC \NR
 \NC \type{validation_state}             \NC table    \NC \NC \NR
 \NC \type{horiz_base}                   \NC table    \NC \NC \NR
@@ -367,10 +383,12 @@ the documentation are not yet finished):
 \LL
 \stoptabulate
 
-\subsection{Glyph items}
+\stopsubsection
+
+\startsubsection[title={\type {glyphs}}]
 
 The \type {glyphs} is an array containing the per|-|character
-information (quite a few of these are only present if nonzero).
+information (quite a few of these are only present if non|-|zero).
 
 \starttabulate[|l|l|p|]
 \DB key                      \BC type     \BC explanation \NC \NR
@@ -380,8 +398,8 @@ information (quite a few of these are only present if nonzero).
 \NC \type{boundingbox}       \NC array    \NC array of four numbers, see note below \NC \NR
 \NC \type{width}             \NC number   \NC only for horizontal fonts \NC \NR
 \NC \type{vwidth}            \NC number   \NC only for vertical fonts \NC \NR
-\NC \type{tsidebearing}      \NC number   \NC only for vertical ttf/otf fonts, and only if nonzero \NC \NR
-\NC \type{lsidebearing}      \NC number   \NC only if nonzero and not equal to boundingbox[1] \NC \NR
+\NC \type{tsidebearing}      \NC number   \NC only for vertical ttf/otf fonts, and only if non|-|zero \NC \NR
+\NC \type{lsidebearing}      \NC number   \NC only if non|-|zero and not equal to boundingbox[1] \NC \NR
 \NC \type{class}             \NC string   \NC one of "none", "base", "ligature", "mark", "component"
                                               (if not present, the glyph class is \quote {automatic}) \NC \NR
 \NC \type{kerns}             \NC array    \NC only for horizontal fonts, if set \NC \NR
@@ -482,7 +500,7 @@ The \type {ligatures} is a linear array of small hashes:
 \stoptabulate
 
 The \type {anchor} table is indexed by a string signifying the anchor type, which
-is one of
+is one of:
 
 \starttabulate[|l|l|p|]
 \DB key             \BC type  \BC explanation \NC \NR
@@ -532,7 +550,9 @@ For clarification, an anchor table could for example look like this :
 
 Note: The \type {baselig} table can be sparse!
 
-\subsection{map table}
+\stopsubsection
+
+\startsubsection[title={\type {map}}]
 
 The top|-|level map is a list of encoding mappings. Each of those is a table
 itself.
@@ -576,15 +596,15 @@ The \type {enc} table is a bit more verbose:
 \NC \type{only_1byte}       \NC number \NC \NC \NR
 \NC \type{has_1byte}        \NC number \NC \NC \NR
 \NC \type{has_2byte}        \NC number \NC \NC \NR
-\NC \type{is_unicodebmp}    \NC number \NC only if nonzero\NC \NR
-\NC \type{is_unicodefull}   \NC number \NC only if nonzero\NC \NR
-\NC \type{is_custom}        \NC number \NC only if nonzero\NC \NR
-\NC \type{is_original}      \NC number \NC only if nonzero\NC \NR
-\NC \type{is_compact}       \NC number \NC only if nonzero\NC \NR
-\NC \type{is_japanese}      \NC number \NC only if nonzero\NC \NR
-\NC \type{is_korean}        \NC number \NC only if nonzero\NC \NR
-\NC \type{is_tradchinese}   \NC number \NC only if nonzero [name?]\NC \NR
-\NC \type{is_simplechinese} \NC number \NC only if nonzero\NC \NR
+\NC \type{is_unicodebmp}    \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_unicodefull}   \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_custom}        \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_original}      \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_compact}       \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_japanese}      \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_korean}        \NC number \NC only if non|-|zero\NC \NR
+\NC \type{is_tradchinese}   \NC number \NC only if non|-|zero [name?]\NC \NR
+\NC \type{is_simplechinese} \NC number \NC only if non|-|zero\NC \NR
 \NC \type{low_page}         \NC number \NC \NC \NR
 \NC \type{high_page}        \NC number \NC \NC \NR
 \NC \type{iconv_name}       \NC string \NC \NC \NR
@@ -592,12 +612,16 @@ The \type {enc} table is a bit more verbose:
 \LL
 \stoptabulate
 
-\subsection{private table}
+\stopsubsection
+
+\startsubsection[title={\type {private}}]
 
 This is the font's private \POSTSCRIPT\ dictionary, if any. Keys and values are
 both strings.
 
-\subsection{cidinfo table}
+\stopsubsection
+
+\startsubsection[title={\type {cidinfo}}]
 
 \starttabulate[|l|l|p|]
 \DB key               \BC type   \BC explanation \NC \NR
@@ -609,7 +633,9 @@ both strings.
 \LL
 \stoptabulate
 
-\subsection[fontloaderpfminfotable]{pfminfo table}
+\stopsubsection
+
+\startsubsection[reference=fontloaderpfminfotable,title={\type {pfminfo}}]
 
 The \type {pfminfo} table contains most of the OS/2 information:
 
@@ -688,7 +714,9 @@ The \type {panose} subtable has exactly 10 string keys:
 \LL
 \stoptabulate
 
-\subsection[fontloadernamestable]{names table}
+\stopsubsection
+
+\startsubsection[reference=fontloadernamestable,title={\type {names}}]
 
 Each item has two top|-|level keys:
 
@@ -709,7 +737,9 @@ are: \type {copyright}, \type {family}, \type {subfamily}, \type {uniqueid},
 {sampletext}, \type {cidfindfontname}, \type {wwsfamily} and \type
 {wwssubfamily}.
 
-\subsection{anchor_classes table}
+\stopsubsection
+
+\startsubsection[title={\type {anchor_classes}}]
 
 The anchor_classes classes:
 
@@ -725,7 +755,9 @@ The anchor_classes classes:
 % type is actually a lookup subtype, not a feature name. Officially, these
 % strings should be gpos_mark2mark etc.
 
-\subsection{gpos table}
+\stopsubsection
+
+\startsubsection[title={\type {gpos}}]
 
 The \type {gpos} table has one array entry for each lookup. (The \type {gpos_}
 prefix is somewhat redundant.)
@@ -806,7 +838,9 @@ Note: the kernclass (as far as we can see) always has one entry so it could be o
 deep instead. Also the seconds start at \type {[2]} which is close to the fontforge
 internals so we keep that too.
 
-\subsection{gsub table}
+\stopsubsection
+
+\startsubsection[title={\type {gsub}}]
 
 This has identical layout to the \type {gpos} table, except for the
 type:
@@ -821,7 +855,9 @@ type:
 \LL
 \stoptabulate
 
-\subsection{ttf_tables and ttf_tab_saved tables}
+\stopsubsection
+
+\startsubsection[title={\type {ttf_tables} and \type {ttf_tab_saved}}]
 
 \starttabulate[|l|l|p|]
 \DB key           \BC type   \BC explanation \NC \NR
@@ -833,7 +869,9 @@ type:
 \LL
 \stoptabulate
 
-\subsection{mm table}
+\stopsubsection
+
+\startsubsection[title={\type {mm}}]
 
 \starttabulate[|l|l|p|]
 \DB key                   \BC type   \BC explanation \NC \NR
@@ -862,12 +900,16 @@ The \type {axismaps}:
 \LL
 \stoptabulate
 
-\subsection{mark_classes table}
+\stopsubsection
+
+\startsubsection[title={\type {mark_classes}}]
 
 The keys in this table are mark class names, and the values are a
 space|-|separated string of glyph names in this class.
 
-\subsection{math table}
+\stopsubsection
+
+\startsubsection[title={\type {math}}]
 
 The math table has the variables that are also discussed in the chapter aboout
 math: \type {ScriptPercentScaleDown}, \type {ScriptScriptPercentScaleDown}, \type
@@ -900,11 +942,15 @@ math: \type {ScriptPercentScaleDown}, \type {ScriptScriptPercentScaleDown}, \typ
 {MinConnectorOverlap}, \type {FractionDelimiterSize} and \type
 {FractionDelimiterDisplayStyleSize}.
 
-\subsection{validation_state table}
+\stopsubsection
+
+\startsubsection[title={\type {validation_state}}]
 
 This is just a bonus table with keys: \type {bad_ps_fontname}, \type {bad_glyph_table}, \type {bad_cff_table}, \type {bad_metrics_table}, \type {bad_cmap_table}, \type {bad_bitmaps_table}, \type {bad_gx_table}, \type {bad_ot_table}, \type {bad_os2_version} and \type {bad_sfnt_header}.
 
-\subsection{horiz_base and vert_base table}
+\stopsubsection
+
+\startsubsection[title={\type {horiz_base} and \type {vert_base}}]
 
 \starttabulate[|l|l|p|]
 \DB key            \BC type  \BC explanation \NC \NR
@@ -941,7 +987,9 @@ The \type {lang} subtable:
 The \type {features} points to an array of tables with the same layout except
 that in those nested tables, the tag represents a language.
 
-\subsection{altuni table}
+\stopsubsection
+
+\startsubsection[title={\type {altuni}}]
 
 An array of alternate \UNICODE\ values. Inside that array are hashes with:
 
@@ -953,7 +1001,9 @@ An array of alternate \UNICODE\ values. Inside that array are hashes with:
 \LL
 \stoptabulate
 
-\subsection{vert_variants and horiz_variants table}
+\stopsubsection
+
+\startsubsection[title={\type {vert_variants} and \type {horiz_variants}}]
 
 \starttabulate[|l|l|p|]
 \DB key                      \BC type   \BC explanation \NC \NR
@@ -977,7 +1027,9 @@ The \type {parts} table is an array of smaller tables:
 \LL
 \stoptabulate
 
-\subsection{mathkern table}
+\stopsubsection
+
+\startsubsection[title={\type {mathkern}}]
 
 \starttabulate[|l|l|p|]
 \DB key                 \BC type  \BC explanation \NC \NR
@@ -999,15 +1051,21 @@ Each of the subtables is an array of small hashes with two keys:
 \LL
 \stoptabulate
 
-\subsection{kerns table}
+\stopsubsection
+
+\startsubsection[title={\type {kerns}}]
 
 Substructure is identical to the per|-|glyph subtable.
 
-\subsection{vkerns table}
+\stopsubsection
+
+\startsubsection[title={\type {vkerns}}]
 
 Substructure is identical to the per|-|glyph subtable.
 
-\subsection{texdata table}
+\stopsubsection
+
+\startsubsection[title={\type {texdata}}]
 
 \starttabulate[|l|l|p|]
 \DB key           \BC type   \BC explanation \NC \NR
@@ -1017,7 +1075,9 @@ Substructure is identical to the per|-|glyph subtable.
 \LL
 \stoptabulate
 
-\subsection{lookups table}
+\stopsubsection
+
+\startsubsection[title={\type {lookups}}]
 
 Top|-|level \type {lookups} is quite different from the ones at character level.
 The keys in this hash are strings, the values the actual lookups, represented as
@@ -1083,7 +1143,7 @@ for coverage:
 \LL
 \stoptabulate
 
-and for reversecoverage:
+and for reverse coverage:
 
 \starttabulate[|l|l|p|]
 \DB key                 \BC type   \BC explanation \NC \NR
@@ -1094,6 +1154,10 @@ and for reversecoverage:
 \NC \type{replacements} \NC string \NC             \NC \NR
 \LL
 \stoptabulate
+
+\stopsubsection
+
+\stopsection
 
 \stopchapter
 

@@ -3686,9 +3686,6 @@ test "x$need_libpng" = xyes && {
 ## libs/luajit/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/luajit/
 ## configure options and TL libraries required for luajit
 
-## libs/lua52/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/lua52/
-## configure options and TL libraries required for lua52
-
 ## libs/lua53/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/lua53/
 ## configure options and TL libraries required for lua53
 
@@ -4317,6 +4314,7 @@ else
 fi ;;
 esac
 
+##tldbg KPSE_BASIC: Remember utils () as Kpse_Package (for future messages).
 
 if test "`cd $srcdir && pwd`" != "`pwd`"; then
   # Use -I$(srcdir) only when $(srcdir) != ., so that make's output
@@ -4673,7 +4671,7 @@ WARNING_CFLAGS=$kpse_cv_warning_cflags
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Utils programs to build" >&5
 $as_echo_n "checking for Utils programs to build... " >&6; }
-echo 'dbg:_KPSE_RECURSE called: list=utils, text=Utils programs, cond=test "x$enable_Kpse_pkg" = xyes, prefix=.' >&5
+echo 'tldbg:_KPSE_RECURSE called: list=utils, text=Utils programs, cond=test "x$enable_[]Kpse_pkg" = xyes, prefix=.' >&5
 MAKE_SUBDIRS=
 CONF_SUBDIRS=
 

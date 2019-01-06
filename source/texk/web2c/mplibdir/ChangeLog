@@ -1,3 +1,7 @@
+2019-01-06  Luigi Scarso  <luigi.scarso@gmail.com>
+	* Added r-mpost as an alias for mpost --restricted 
+
+
 2018-10-22  Luigi Scarso  <luigi.scarso@gmail.com>
 	* Fixed a bug in cubic intersection in arbitrary precision math with low precision. 
 	* Raised minimal precision to 2 for decimal and binary mode.
