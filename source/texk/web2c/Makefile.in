@@ -168,7 +168,9 @@ TESTS = tangle.test $(am__EXEEXT_41) ctiedir/ctie.test \
 @MP_TRUE@@WIN32_TRUE@am__append_38 = call_mpost
 @MP_TRUE@@WIN32_TRUE@am__append_39 = install-mpost-links
 @MP_TRUE@@WIN32_TRUE@am__append_40 = uninstall-mpost-links
-@MP_TRUE@@WIN32_FALSE@am__append_41 = mpost$(EXEEXT):dvitomp mpost$(EXEEXT):mfplain
+@MP_TRUE@@WIN32_FALSE@am__append_41 = mpost$(EXEEXT):dvitomp \
+@MP_TRUE@@WIN32_FALSE@	mpost$(EXEEXT):mfplain \
+@MP_TRUE@@WIN32_FALSE@	mpost$(EXEEXT):r-mpost
 @MP_TRUE@am__append_42 = $(mp_tests)
 @MP_TRUE@am__append_43 = mptrap.diffs
 @MP_TRUE@am__append_44 = mptrap-clean
