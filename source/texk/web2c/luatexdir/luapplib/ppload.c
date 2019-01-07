@@ -2190,7 +2190,7 @@ static pparray * pppage_node (ppdict *dict, ppuint *count, ppname *type)
         break;
       case 'C':
         if (ppname_is(key, "Count"))
-          ppobj_get_uint(obj, *count);
+          ppobj_rget_uint(obj, *count);
         break;
       case 'K':
         if (ppname_is(key, "Kids"))
