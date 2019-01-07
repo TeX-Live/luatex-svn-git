@@ -127,13 +127,13 @@ done
 STRIP=strip
 LUATEXEXEJIT=luajittex
 LUATEXEXE=luatex
-LUATEXEXE53=luatex53
+LUATEXEXE53=luatex
 
 
 
 case `uname` in
-  CYGWIN*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
-  MINGW*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex53.exe ;;
+  CYGWIN*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex.exe ;;
+  MINGW*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex.exe ;;
   Darwin	) STRIP="strip -u -r" ;;
 esac
 
@@ -188,7 +188,7 @@ then
   PATH=`pwd`/extrabin/mingw/$platform:/usr/mingw32/bin:$PATH
   LUATEXEXEJIT=luajittex.exe
   LUATEXEXE=luatex.exe
-  LUATEXEXE53=luatex53.exe
+  LUATEXEXE53=luatex.exe
   RANLIB="${CONFHOST#--host=}-ranlib"
   STRIP="${CONFHOST#--host=}-strip"
 fi
@@ -280,23 +280,27 @@ then
   JITENABLE="--enable-luajittex --without-system-luajit "
 fi
 
+BUILDLUA52=FALSE
 LUA52ENABLE=
-if [ "$BUILDLUA52" = "TRUE" ]
-then
-  LUA52ENABLE="--enable-luatex"
-fi
+#if [ "$BUILDLUA52" = "TRUE" ]
+#then
+#  LUA52ENABLE="--enable-luatex"
+#fi
 
-LUA53ENABLE=--enable-luatex53
-if [ "$BUILDLUA53" = "FALSE" ]
-then
-  LUA53ENABLE=
-fi
+#LUA53ENABLE=--enable-luatex53
+BUILDLUA53=TRUE
+LUA53ENABLE=--enable-luatex
+#if [ "$BUILDLUA53" = "FALSE" ]
+#then
+#  LUA53ENABLE=
+#fi
 
 #    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
+#      --enable-cxx-runtime-hack \
+
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
 TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLAGS\
-    --enable-cxx-runtime-hack \
     --enable-silent-rules \
     --disable-all-pkgs \
     --disable-shared    \
@@ -304,10 +308,10 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --disable-largefile \
     --disable-xetex \
     --disable-ipc \
-    --enable-dump-share  \
+    --disable-dump-share \
     --enable-coremp  \
     --enable-web2c  \
-    $LUA52ENABLE  $LUA53ENABLE  $JITENABLE \
+    $LUA53ENABLE  $JITENABLE \
     --without-system-cairo  \
     --without-system-pixman \
     --without-system-ptexenc \
@@ -348,10 +352,10 @@ then
   (cd texk/web2c; $MAKE $LUATEXEXEJIT)
 fi
 
-if [ "$BUILDLUA52" = "TRUE" ]
-then
-  (cd texk/web2c; $MAKE $LUATEXEXE )
-fi
+# if [ "$BUILDLUA52" = "TRUE" ]
+# then
+#   (cd texk/web2c; $MAKE $LUATEXEXE )
+# fi
 
 if [ "$BUILDLUA53" = "TRUE" ]
 then
@@ -368,10 +372,10 @@ then
     then
 	$STRIP "$B"/texk/web2c/$LUATEXEXEJIT
     fi
-    if [ "$BUILDLUA52" = "TRUE" ]
-    then
-	$STRIP "$B"/texk/web2c/$LUATEXEXE
-    fi
+#    if [ "$BUILDLUA52" = "TRUE" ]
+#    then
+#	$STRIP "$B"/texk/web2c/$LUATEXEXE
+#    fi
     if [ "$BUILDLUA53" = "TRUE" ]
     then
 	$STRIP "$B"/texk/web2c/$LUATEXEXE53
@@ -386,23 +390,24 @@ then
 fi
 
 # show the result
+ls -l "$B"/texk/web2c/$LUATEXEXE
 if [ "$BUILDJIT" = "TRUE" ]
 then
 ls -l "$B"/texk/web2c/$LUATEXEXEJIT
 fi
-if [ "$BUILDLUA52" = "TRUE" ] && [ "$BUILDLUA53" = "TRUE" ]
-then
-    ls -l "$B"/texk/web2c/$LUATEXEXE
-    ls -l "$B"/texk/web2c/$LUATEXEXE53
-fi
-if [ "$BUILDLUA52" = "TRUE" ] && [ "$BUILDLUA53" = "FALSE" ]
-then
-    ls -l "$B"/texk/web2c/$LUATEXEXE
-fi
-if [ "$BUILDLUA52" = "FALSE" ]  && [ "$BUILDLUA53" = "TRUE" ]
-then
-    mv   "$B"/texk/web2c/$LUATEXEXE53 "$B"/texk/web2c/$LUATEXEXE
-    ls -l "$B"/texk/web2c/$LUATEXEXE
-fi
+#if [ "$BUILDLUA52" = "TRUE" ] && [ "$BUILDLUA53" = "TRUE" ]
+#then
+#    ls -l "$B"/texk/web2c/$LUATEXEXE
+#    ls -l "$B"/texk/web2c/$LUATEXEXE53
+#fi
+#if [ "$BUILDLUA52" = "TRUE" ] && [ "$BUILDLUA53" = "FALSE" ]
+#then
+#    ls -l "$B"/texk/web2c/$LUATEXEXE
+#fi
+#if [ "$BUILDLUA52" = "FALSE" ]  && [ "$BUILDLUA53" = "TRUE" ]
+#then
+#    mv   "$B"/texk/web2c/$LUATEXEXE53 "$B"/texk/web2c/$LUATEXEXE
+#    ls -l "$B"/texk/web2c/$LUATEXEXE
+#fi
 
 
