@@ -14375,6 +14375,8 @@ esac
 case $host_os:$host_cpu:$CC in #(
   *openbsd*:x86_64:clang) :
     LIBLUAJIT_LDEXTRA='-lc++abi -lpthread' ;; #(
+  *openbsd*:i386:clang) :
+    LIBLUAJIT_LDEXTRA='-lc++abi -lpthread' ;; #(
   *) :
      ;;
 esac
