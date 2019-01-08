@@ -64,8 +64,11 @@ AC_SUBST([LJHOST])
 AC_SUBST([LJVM_MODE])
 
 AS_CASE([$host_os:$host_cpu],
-        [*darwin*:x86_64], [LIBLUAJIT_LDEXTRA='-image_base 7fff04c4a000'])
+        [*darwin*:x86_64],  [LIBLUAJIT_LDEXTRA='-image_base 7fff04c4a000'])
+AS_CASE([$host_os:$host_cpu:$CC],
+        [*openbsd*:x86_64:clang], [LIBLUAJIT_LDEXTRA='-lc++abi -lpthread'])
 AC_SUBST([LIBLUAJIT_LDEXTRA])
+
 
 AM_CONDITIONAL([build], [test "x$enable_build" != xno])
 
