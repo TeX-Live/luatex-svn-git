@@ -274,7 +274,7 @@ fi
 
 cd "$B"
 
-JITENABLE=
+JITENABLE="--enable-luajittex=no --enable-mfluajit=no"
 if [ "$BUILDJIT" = "TRUE" ]
 then
   JITENABLE="--enable-luajittex --without-system-luajit "
