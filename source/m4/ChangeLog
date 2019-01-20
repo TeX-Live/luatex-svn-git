@@ -1,3 +1,19 @@
+2019-01-11  Karl Berry  <karl@freefriends.org>
+
+	* kpse-luajit-flags.m4 (KPSE_LUAJIT_FLAGS): try LIBLUAJIT_LDEXTRA,
+	following (sort of):
+	https://github.com/TeX-Live/luatex/commit/273de1c6308ab9378905a5e1929b19207e2765af
+
+2019-01-10  Karl Berry  <karl@freefriends.org>
+
+	* kpse-luajit-flags.m4 (KPSE_LUAJIT_FLAGS): check for
+	-lc++abi -lpthread, needed with clang on openbsd.
+	Test from Mojca.
+
+2019-01-08  Karl Berry  <karl@tug.org>
+
+	* kpse-pkgs.m4 (KPSE_LIBS_PKGS): lua52 gone.
+
 2018-12-24  Karl Berry  <karl@freefriends.org>
 
 	* kpse-common.m4,
