@@ -68,7 +68,7 @@ before_deploy:
   - export LUATEX_SVN_REVISION=`grep -Eo "[0-9]+" source/texk/web2c/luatexdir/luatex_svnversion.h`
   - git config --local user.name "Travis CI"
   - git config --local user.email "https://travis-ci.org/"
-  - git tag "${LUATEX_VERSION}-svn${LUATEX_SVN_REVISION}"
+  - git tag -f "${LUATEX_VERSION}-svn${LUATEX_SVN_REVISION}"
 
 deploy:
   provider: releases
