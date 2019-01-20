@@ -1265,7 +1265,11 @@ There are several ways to set |TEXMFLOCALEDIR|:
     or \.{TEXMFLOCALEDIR.cweb=\$TEXMFMAIN/locale}.\par}
 
 @<Set locale...@>=
+#if !defined(__MINGW32__)
 setlocale(LC_MESSAGES, setlocale(LC_CTYPE, ""));
+#else
+setlocale(LC_CTYPE, "");
+#endif
 texmf_locale = kpse_var_expand ("${TEXMFLOCALEDIR}");
 
 bindtextdomain("cweb",
