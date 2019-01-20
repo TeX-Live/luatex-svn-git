@@ -217,7 +217,7 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
         | load32 r3, mt
         | mov r2, #0 // -1 - ct_usr
         | mvn r1, #1 // -2 - val
-        | lcall extern check_typed_pointer
+        | lcall extern to_typed_pointer
         | mov DATA, r0
         | mvn r1, #3 // -4 - remove 3 (upval table, ret val, usr value)
         | lcall extern lua_settop
@@ -235,7 +235,7 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
             | load32 r3, mt
             | mvn r2, #0 // -1 - ct_usr
             | mvn r1, #1 // -2 - val
-            | lcall extern check_enum
+            | lcall extern to_enum
             | mov DATA, r0
             | mvn r1, #3 // -4 - remove 3 (upval table, ret val, usr value)
             | lcall extern lua_settop
@@ -271,7 +271,7 @@ cfunction compile_callback(lua_State* L, int fidx, int ct_usr, const struct ctyp
 
         case INTPTR_TYPE:
             | mvn r1, #0 // -1
-            | lcall extern check_uintptr
+            | lcall extern check_intptr
             goto single;
 
         case FLOAT_TYPE:
@@ -393,11 +393,11 @@ void compile_function(lua_State* L, cfunction func, int ct_usr, const struct cty
             | mov r0, L_ARG
 
             if (mt->pointers || mt->is_reference) {
-                | bl extern check_typed_pointer
+                | bl extern to_typed_pointer
             } else if (mt->type == FUNCTION_PTR_TYPE) {
-                | bl extern check_typed_cfunction
+                | bl extern to_typed_function
             } else if (mt->type == ENUM_TYPE) {
-                | bl extern check_enum
+                | bl extern to_enum
             }
 
             | str r0, [DATA], #4
@@ -456,7 +456,7 @@ void compile_function(lua_State* L, cfunction func, int ct_usr, const struct cty
                 break;
 
             case INTPTR_TYPE:
-                | lcall extern check_uintptr
+                | lcall extern check_intptr
                 | str r0, [DATA], #4
                 break;
 
