@@ -1209,15 +1209,15 @@ things for neutral behavior without internationalization.
 @d _(STRING) gettext(STRING)
 
 @<Include files@>=
-#include <locale.h>
-@#
 #ifndef HAVE_GETTEXT
 #define HAVE_GETTEXT 0
 #endif
 @#
 #if HAVE_GETTEXT
+#include <locale.h>
 #include <libintl.h>
 #else
+#define setlocale(A,B) ""
 #define bindtextdomain(A,B) ""
 #define textdomain(A) ""
 #define gettext(A) A
@@ -1265,11 +1265,7 @@ There are several ways to set |TEXMFLOCALEDIR|:
     or \.{TEXMFLOCALEDIR.cweb=\$TEXMFMAIN/locale}.\par}
 
 @<Set locale...@>=
-#if !defined(__MINGW32__)
 setlocale(LC_MESSAGES, setlocale(LC_CTYPE, ""));
-#else
-setlocale(LC_CTYPE, "");
-#endif
 texmf_locale = kpse_var_expand ("${TEXMFLOCALEDIR}");
 
 bindtextdomain("cweb",
