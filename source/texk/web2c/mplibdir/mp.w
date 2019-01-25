@@ -608,7 +608,7 @@ MP mp_initialize (MP_options * opt) {
   mp_reallocate_paths (mp, 1000);
   mp_reallocate_fonts (mp, 8);
   mp->history = mp_fatal_error_stop;    /* in case we quit during initialization */
-  @<Check the ``constant'' values...@>;
+  @<Check the ``constant'' values...@>; /* consider also the raise of the bits for precision */
   if (mp->bad > 0) {
     char ss[256];
     mp_snprintf (ss, 256, "Ouch---my internal constants have been clobbered!\n"
@@ -1333,7 +1333,7 @@ not be typed immediately after~`\.{**}'.)
 
 @c
 boolean mp_init_terminal (MP mp) {                               /* gets the terminal input started */
-  t_open_in();
+   t_open_in();
   if (mp->last != 0) {
     loc = 0;
     mp->first = 0;
@@ -15772,13 +15772,12 @@ and |(pp,mp_link(pp))|, respectively.
 @c
 static void mp_cubic_intersection (MP mp, mp_knot p, mp_knot pp) {
   mp_knot q, qq;        /* |mp_link(p)|, |mp_link(pp)| */
-  mp_number x_two_t;     /* increment bit precision by x bit */
+  mp_number x_two_t;    /* increment bit precision */
   mp->time_to_go = max_patience;
   set_number_from_scaled (mp->max_t, 2);
   new_number (x_two_t);
   number_clone (x_two_t,two_t);
-  number_double(x_two_t); number_double(x_two_t); /* add x=2 bit of precision */
-  number_double(x_two_t);
+  number_double(x_two_t);number_double(x_two_t);  /* added 2 bit of precision */
   @<Initialize for intersections at level zero@>;
 CONTINUE:
   while (1) {
@@ -15803,8 +15802,8 @@ CONTINUE:
           if (number_to_scaled (mp->dely) + mp->tol >=
               number_to_scaled (stack_min (y_packet (mp->xy))) - number_to_scaled (stack_max (v_packet (mp->uv)))) {
             if (number_to_scaled (mp->cur_t) >= number_to_scaled (mp->max_t)) {
-              if (number_equal(mp->max_t, x_two_t)) {   /* we've done 17+x bisections */
-                number_divide_int(mp->cur_t,1<<3);number_divide_int(mp->cur_tt,1<<3);
+              if (number_equal(mp->max_t, x_two_t)) {   /* we've done 17+2 bisections */
+                number_divide_int(mp->cur_t,1<<2);number_divide_int(mp->cur_tt,1<<2); /* restore values due bit precision */ 
                 set_number_from_scaled (mp->cur_t, ((number_to_scaled (mp->cur_t) + 1)/2));
                 set_number_from_scaled (mp->cur_tt, ((number_to_scaled (mp->cur_tt) + 1)/2));
                 return;
