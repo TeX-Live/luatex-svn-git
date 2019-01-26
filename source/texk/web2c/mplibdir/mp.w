@@ -15773,11 +15773,17 @@ and |(pp,mp_link(pp))|, respectively.
 static void mp_cubic_intersection (MP mp, mp_knot p, mp_knot pp) {
   mp_knot q, qq;        /* |mp_link(p)|, |mp_link(pp)| */
   mp_number x_two_t;    /* increment bit precision */
+  mp_number x_two_t_low_precision;    /* check for low precision */
   mp->time_to_go = max_patience;
   set_number_from_scaled (mp->max_t, 2);
   new_number (x_two_t);
+  new_number (x_two_t_low_precision);
+
   number_clone (x_two_t,two_t);
   number_double(x_two_t);number_double(x_two_t);  /* added 2 bit of precision */
+  set_number_from_double (x_two_t_low_precision,-0.5);
+  number_add (x_two_t_low_precision,x_two_t);
+
   @<Initialize for intersections at level zero@>;
 CONTINUE:
   while (1) {
@@ -15792,7 +15798,16 @@ CONTINUE:
     	 set_number_from_scaled (mp->cur_tt, 1);
          goto NOT_FOUND;
     }
-
+    /* Also, low precision can lead to wrong result in comparing   */
+    /* so we check that the level of bisection stay low, and later */
+    /* we will also check that the bisection level are safe from   */
+    /* approximations.                                             */
+    if (number_greater (mp->max_t, x_two_t)){
+    	 set_number_from_scaled (mp->cur_t, 1);
+    	 set_number_from_scaled (mp->cur_tt, 1);
+         goto NOT_FOUND;
+    }
+  
     if (number_to_scaled (mp->delx) - mp->tol <=
         number_to_scaled (stack_max (x_packet (mp->xy))) - number_to_scaled (stack_min (u_packet (mp->uv))))
       if (number_to_scaled (mp->delx) + mp->tol >=
@@ -15802,7 +15817,7 @@ CONTINUE:
           if (number_to_scaled (mp->dely) + mp->tol >=
               number_to_scaled (stack_min (y_packet (mp->xy))) - number_to_scaled (stack_max (v_packet (mp->uv)))) {
             if (number_to_scaled (mp->cur_t) >= number_to_scaled (mp->max_t)) {
-              if (number_equal(mp->max_t, x_two_t)) {   /* we've done 17+2 bisections */
+              if ( number_equal(mp->max_t, x_two_t) || number_greater(mp->max_t,x_two_t_low_precision)) {   /* we've done 17+2 bisections */
                 number_divide_int(mp->cur_t,1<<2);number_divide_int(mp->cur_tt,1<<2); /* restore values due bit precision */ 
                 set_number_from_scaled (mp->cur_t, ((number_to_scaled (mp->cur_t) + 1)/2));
                 set_number_from_scaled (mp->cur_tt, ((number_to_scaled (mp->cur_tt) + 1)/2));
@@ -15818,7 +15833,8 @@ CONTINUE:
     if (mp->time_to_go > 0) {
       decr (mp->time_to_go);
     } else {
-      number_divide_int(mp->appr_t,1<<3);number_divide_int(mp->appr_tt,1<<3);
+      /* we have added 2 bit of precision */
+      number_divide_int(mp->appr_t,1<<2);number_divide_int(mp->appr_tt,1<<2);
       while (number_less (mp->appr_t, unity_t)) {
         number_double(mp->appr_t);
         number_double(mp->appr_tt);
