@@ -1,6 +1,6 @@
 2019-01-26  Luigi Scarso  <luigi.scarso@gmail.com>
 	* Fixed bisection algorithm (overflow of number of bisections in decimal mode with  low precision)
-	* Fixed to 2 the levels to the bisection algorithm for for cubic intersection. Need testing.
+	* Added 2 levels to the bisection algorithm for cubic intersection. Need testing.
 	* Fixed a buffer overflow on command line; for consistency with mp_reallocate_buffer, 
 	  now accepting input from command line  of at most  0xFFFFFFF bytes.
 
