@@ -189,7 +189,7 @@ static int DEBUGENVELOPECOUNTER=0;
 #include "mpmath.h"             /* internal header */
 #include "mpmathdouble.h"       /* internal header */
 #include "mpmathdecimal.h"      /* internal header */
-/*#include "mpmathbinary.h"*/       /* internal header */
+/*|#include "mpmathbinary.h"|*/       /* internal header */
 #include "mpstrings.h"          /* internal header */
 /* BEGIN PATCH */
 mp_number dx_ap;    /* approximation of dx */
@@ -15788,7 +15788,7 @@ static void mp_cubic_intersection (MP mp, mp_knot p, mp_knot pp) {
 CONTINUE:
   while (1) {
     /* When we are in arbitrary precision math, low precisions can */
-    /* lead to acces locations beyond the stack_size: in this case */
+    /* lead to acces locations beyond the |stack_size|: in this case */
     /* we say that there is no intersection.*/
     if ( ((x_packet (mp->xy))+4)>bistack_size ||
          ((u_packet (mp->uv))+4)>bistack_size ||
@@ -20040,10 +20040,10 @@ line and preceded by a space or at the beginning of a line.
             if (mode <= 0) {
                 txt[size - 1] = ' ';
             } else if (verb) {
-                /* modes >= 1 permit a newline in verbatimtex */
+                /* modes $\geq 1$ permit a newline in verbatimtex */
                 txt[size - 1] = '\n';
             } else if (mode >= 2) {
-                /* modes >= 2 permit a newline in btex */
+                /* modes $\geq 2$ permit a newline in btex */
                 txt[size - 1] = '\n';
             } else {
                 txt[size - 1] = ' ';
@@ -20084,8 +20084,8 @@ line and preceded by a space or at the beginning of a line.
             txt[size] = '\0';
             ptr = txt;
         } else {
-            /* strip trailing whitespace, we have a \0 so we're one off  */
-         /* while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-2]] == space_class || txt[size-2] == '\n')) { */
+            /* strip trailing whitespace, we have a |'\0'| so we are off by one */ 
+            /* |while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-2]] == space_class| $\vbv\vbv$ |txt[size-2] == '\n')) | */
             while ((size > 1) && (mp->char_class[(ASCII_code) txt[size-1]] == space_class || txt[size-1] == '\n')) {
                 decr(size);
             }
