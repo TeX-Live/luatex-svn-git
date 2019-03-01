@@ -61,7 +61,11 @@ chapters on fonts and math we discuss a few more new ones.
 There are three new primitives to test the version of \LUATEX:
 
 \unexpanded\def\VersionHack#1% otherwise different luatex and luajittex runs
-  {\cldcontext{(string.gsub(string.match("\luatexbanner","(.+)\letterpercent("),"jit",""))}}
+  {\ctxlua{%
+     local banner = "\luatexbanner"
+     local banner = string.match(banner,"(.+)\letterpercent(") or banner
+     context(string.gsub(banner ,"jit",""))%
+  }}
 
 \starttabulate[|l|l|pl|]
 \DB primitive             \BC value
