@@ -39,6 +39,14 @@ typedef struct quartic {
     double a,b,c,d,e;
 } Quartic;
 
+
+#ifdef HAVE_FABS
+#define FABS(x) fabs((x))
+#else
+#define FABS(x) ((x)>=0?(x):(-(x)))
+#endif
+
+
 /* In an attempt to make allocation more efficient I just keep preallocated */
 /*  lists of certain common sizes. It doesn't seem to make much difference */
 /*  when allocating stuff, but does when freeing. If the extra complexity */
@@ -88,11 +96,6 @@ void chunktest(void) {
 }
 #endif
 
-#ifdef HAVE_FABS
-#define FABS(x) fabs((x))
-#else
-#define FABS(x) ((x)>=0?(x):(-(x)))
-#endif
 
 
 void *chunkalloc(int size) {
@@ -177,6 +180,9 @@ return;
 # endif
 }
 #endif
+
+
+
 
 char *strconcat(const char *str1,const char *str2) {
     int len1 = strlen(str1);
@@ -3115,6 +3121,8 @@ return( 0 );
     }
 return( cnt );
 }
+
+
 
 
 static int Closer(const Spline *s1,const Spline *s2,extended t1,extended t2,extended t1p,extended t2p) {
