@@ -1,3 +1,7 @@
+2019-03-06  Luigi Scarso  <luigi.scarso@gmail.com>
+	* Code clean-up.
+
+
 2019-02-06: Taco Hoekwater <taco@elvenkind.com>
 	* New primitive void: convert a suffix to a boolean. Work in progress.
 
