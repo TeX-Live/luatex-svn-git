@@ -122,9 +122,24 @@ typedef struct pngout_data_struct *pngout_data;
 #ifndef HAVE_BOOLEAN
 typedef int boolean;
 #endif
+
 #ifndef INTEGER_TYPE
 typedef int integer;
+#define MPOST_ABS abs
+#else
+/* See source/texk/web2c/w2c/config.h */
+#if INTEGER_TYPE == long 
+#ifdef HAVE_LABS
+#define MPOST_ABS labs
+#else
+#define MPOST_ABS abs
 #endif
+#else
+#define MPOST_ABS abs
+#endif /* if INTEGER_TYPE == long */
+#endif /* ifndef INTEGER_TYPE */
+
+
 @<Declare helpers@>;
 @<Enumeration types@>;
 @<Types in the outer block@>;
@@ -1783,7 +1798,7 @@ following subroutine is usually called with a parameter in the range |0<=n<=99|.
 
 @c
 static void mp_print_dd (MP mp, integer n) {                               /* prints two least significant digits */
-  n = abs (n) % 100;
+  n = MPOST_ABS (n) % 100;
   mp_print_char (mp, xord ('0' + (n / 10)));
   mp_print_char (mp, xord ('0' + (n % 10)));
 }
@@ -2943,7 +2958,11 @@ void *mp_xmalloc (MP mp, size_t nmem, size_t size) {
 }
 
 @ @<Internal library declarations@>=
-#  define mp_snprintf (void)snprintf
+int mp_snprintf_res ;
+/* Some compilers (i.e. gcc 8.2.0 ) complained with the old */
+/* #define mp_snprintf (void)snprintf                       */
+/* about truncation. For the moment we store the result.    */
+#  define mp_snprintf mp_snprintf_res=snprintf
 
 @* Dynamic memory allocation.
 
@@ -3253,6 +3272,7 @@ mp_begin_group, /* beginning of a group (\&{begingroup}) */
 mp_nullary, /* an operator without arguments (e.g., \&{normaldeviate}) */
 mp_unary, /* an operator with one argument (e.g., \&{sqrt}) */
 mp_str_op, /* convert a suffix to a string (\&{str}) */
+mp_void_op, /* convert a suffix to a boolean (\&{void}) */
 mp_cycle, /* close a cyclic path (\&{cycle}) */
 mp_primary_binary, /* binary operation taking `\&{of}' (e.g., \&{point}) */
 mp_capsule_token, /* a value that has been put into a token list */
@@ -5009,6 +5029,8 @@ mp_primitive (mp, "step", mp_step_token, 0);
 @:step_}{\&{step} primitive@>;
 mp_primitive (mp, "str", mp_str_op, 0);
 @:str_}{\&{str} primitive@>;
+mp_primitive (mp, "void", mp_void_op, 0);
+@:void_}{\&{void} primitive@>;
 mp_primitive (mp, "tension", mp_tension, 0);
 @:tension_}{\&{tension} primitive@>;
 mp_primitive (mp, "to", mp_to_token, 0);
@@ -5140,6 +5162,9 @@ mp_print (mp, "step");
 break;
 case mp_str_op:
 mp_print (mp, "str");
+break;
+case mp_void_op:
+mp_print (mp, "void");
 break;
 case mp_tension:
 mp_print (mp, "tension");
@@ -23732,6 +23757,25 @@ RESTART:
     mp->selector = mp->old_setting;
     mp->cur_exp.type = mp_string_type;
     goto DONE;
+    break;
+  case mp_void_op:
+  {
+    /* Convert a suffix to a boolean */
+    mp_value new_expr;
+    memset(&new_expr,0,sizeof(mp_value));
+    new_number(new_expr.data.n);
+    mp_get_x_next (mp);
+    mp_scan_suffix (mp);
+    if (cur_exp_node() == NULL) {
+        set_number_from_boolean (new_expr.data.n, mp_true_code);
+    } else {
+        set_number_from_boolean (new_expr.data.n, mp_false_code);
+    }
+    mp_flush_cur_exp (mp, new_expr);
+    cur_exp_node() = NULL; /* !! do not replace with |set_cur_exp_node()| !! */
+    mp->cur_exp.type = mp_boolean_type;
+    goto DONE;
+  }
     break;
   case mp_internal_quantity:
     /* Scan an internal numeric quantity */
