@@ -1277,11 +1277,12 @@ tex.cprint(12,"12: $&{\\foo}") tex.print("\\par") -- other characters
 tex.cprint(14,"12: $&{\\foo}") tex.print("\\par") -- comment triggers
 \stopfunctioncall
 
-\subsubsection{\type {write}, \type {twrite}, \type {nwrite}}
+% \subsubsection{\type {write}, \type {twrite}, \type {nwrite}}
+\subsubsection{\type {write}}
 
 \libindex{write}
-\libindex{twrite}
-\libindex{nwrite}
+% \libindex{twrite}
+% \libindex{nwrite}
 
 \startfunctioncall
 tex.write(<string> s, ...)
@@ -1301,10 +1302,10 @@ If there is a table argument instead of a list of strings, this has to be a
 consecutive array of strings to print (the first non-string value will stop the
 printing process).
 
-The functions \type {twrite} and \type {nwrite} can be used to write a token or
-node back to \TEX\, possibly intermixed with regular strings that will be
-tokenized. You have to make sure that you pass the right data because sometimes
-\TEX\ has expectations that need to be met.
+% The functions \type {twrite} and \type {nwrite} can be used to write a token or
+% node back to \TEX\, possibly intermixed with regular strings that will be
+% tokenized. You have to make sure that you pass the right data because sometimes
+% \TEX\ has expectations that need to be met.
 
 \stopsubsection
 
@@ -1440,10 +1441,9 @@ line of error help.
 In case of an error the \type {show_context} function will show the current
 context where we're at (in the expansion).
 
-\subsubsection{\type {run}, \type {runtoks}, \type {finish}}
+\subsubsection{\type {run}, \type {finish}}
 
 \libindex{run}
-\libindex{runtoks}
 \libindex{finish}
 
 These two functions start the interpretations and force its end. A runs normally
@@ -1453,6 +1453,8 @@ comes immediately, sometimes more scanning is needed. Quite often tokens get
 pushed back into the input. This all means that the \TEX\ scanner is constantly
 pushing and popping input states, but in the end after all the action is done
 returns to the main loop.
+
+\subsubsection{\type {runtoks}}
 
 Because of the fact that \TEX\ is in a complex dance of expanding, dealing with
 fonts, typesetting paragraphs, messing around with boxes, building pages, and so
@@ -1473,7 +1475,7 @@ tex.runtoks(<lua function>)
 When the \prm {tracingnesting} parameter is set to a value larger than~2 some
 information is reported about the state of the local loop.
 
-\subsubsection{\type {run}, \type {runtoks}, \type {finish}}
+\subsubsection{\type {forcehmode}}
 
 \libindex{forcehmode}
 
