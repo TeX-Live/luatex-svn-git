@@ -367,7 +367,7 @@ static int pushstreamonly(lua_State * L, ppstream * stream)
 
 static int pushreference(lua_State * L, ppref * reference)
 {
-    if (reference != NULL) {
+    if (reference != NULL && reference->number != 0) {
         pdfe_push_reference;
         lua_pushinteger(L,reference->number);
         return 2;

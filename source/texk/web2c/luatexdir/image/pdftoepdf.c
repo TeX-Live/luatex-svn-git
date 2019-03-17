@@ -553,14 +553,18 @@ static void writeRefs(PDF pdf, PdfDocument * pdf_doc)
     ppxref * xref = ppdoc_xref (pdf_doc->pdfe);
     for (r = pdf_doc->inObjList; r != NULL;) {
         ref = ppxref_find (xref, (ppuint) r->objnum);
-        obj = ppref_obj(ref);
-        if (obj->type == PPSTREAM) {
-            pdf_begin_obj(pdf, r->num, OBJSTM_NEVER);
-        } else {
+        if (ref){
+           obj = ppref_obj(ref);
+           if (obj->type == PPSTREAM) {
+             pdf_begin_obj(pdf, r->num, OBJSTM_NEVER);
+           } else {
             pdf_begin_obj(pdf, r->num, 2);
+           }
+           copyObject(pdf, pdf_doc, obj);
+           pdf_end_obj(pdf);
+        } else {
+           formatted_warning("pdf inclusion","ignoring missing object %i\n",(int) r->objnum);
         }
-        copyObject(pdf, pdf_doc, obj);
-        pdf_end_obj(pdf);
         n = r->next;
         free(r);
         r = n;
