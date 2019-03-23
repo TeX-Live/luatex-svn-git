@@ -578,12 +578,12 @@ detailed information.
 
 \stopsubsection
 
-\startsubsection[title={\type {open}, \type {new}, \type {status}, \type {close}, \type {unencrypt}}]
+\startsubsection[title={\type {open}, \type {new}, \type {getstatus}, \type {close}, \type {unencrypt}}]
 
 \libindex {open}
 \libindex {new}
 \libindex {new}
-\libindex {status}
+\libindex {getstatus}
 \libindex {close}
 \libindex {unencrypt}
 
@@ -603,7 +603,7 @@ pdfe.close(<pdfe document>)
 You can check if a document opened well by:
 
 \starttyping
-pdfe.status(<pdfe document>)
+pdfe.getstatus(<pdfe document>)
 \stoptyping
 
 The returned codes are:
@@ -627,18 +627,18 @@ pdfe.unencrypt(<pdfe document>,userpassword,ownerpassword)
 
 \stopsubsection
 
-\startsubsection[title={\type {size}, \type {version}, \type {getnofobjects}, \type {getnofpages}}]
+\startsubsection[title={\type {getsize}, \type {getversion}, \type {getnofobjects}, \type {getnofpages}}]
 
-\libindex {size}
-\libindex {version}
+\libindex {getsize}
+\libindex {getversion}
 \libindex {getnofobjects}
 \libindex {getnofpages}
 
 A successfully opened document can provide some information:
 
 \starttyping
-bytes = size(<pdfe document>)
-major, minor = version(<pdfe document>)
+bytes = getsize(<pdfe document>)
+major, minor = getversion(<pdfe document>)
 n = getnofobjects(<pdfe document>)
 n = getnofpages(<pdfe document>)
 bytes, waste = getnofpages(<pdfe document>)
