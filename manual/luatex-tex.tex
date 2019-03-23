@@ -2504,6 +2504,23 @@ return values.
 
 \stopsubsection
 
+\startsubsection[title={\type {record_input_file} and \type {record_output_file}}]
+
+\topicindex {files+recording}
+
+\libindex{record_input_file}
+\libindex{record_output_file}
+
+These two function can be used to register used files. Because callbacks can load
+files themselves you might need these helpers (if you use recording at all).
+
+\startfunctioncall
+kpse.record_input_file(<string> name)
+kpse.record_output_file(<string> name)
+\stopfunctioncall
+
+\stopsubsection
+
 \startsubsection[title={\type {find_file}}]
 
 \topicindex {files+finding}
