@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl
-dnl   Copyright (C) 2014, 2015 Peter Breitenlohner <tex-live@tug.org>
+dnl   Copyright 2016-2019 Karl Berry <tex-live@tug.org>
+dnl   Copyright 2014-2015 Peter Breitenlohner <tex-live@tug.org>
 dnl
 dnl   This file is free software; the copyright holder
 dnl   gives unlimited permission to copy and/or distribute it,
@@ -65,10 +66,10 @@ AC_SUBST([LJVM_MODE])
 
 dnl Extra switches
 dnl We support openbsd x86_64 and i386,
-dnl other platforms could be require different switches .
+dnl other platforms could require different switches.
 dnl
 AS_CASE([$host_os:$host_cpu],
-        [*darwin*:x86_64],  [LIBLUAJIT_LDEXTRA='-image_base 7fff04c4a000'])
+        [*darwin*:x86_64], [LIBLUAJIT_LDEXTRA='-image_base 7fff04c4a000'])
 AS_CASE([$host_os:$host_cpu:$CC],
         [*openbsd*:x86_64:clang* | *openbsd*:x86_64:cc], [LIBLUAJIT_LDEXTRA='-lc++abi -lpthread'],
         [*openbsd*:i386:clang* | *openbsd*:i386:cc],   [LIBLUAJIT_LDEXTRA='-lc++abi -lpthread'])

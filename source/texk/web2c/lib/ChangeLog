@@ -1,3 +1,17 @@
+2019-03-30  Akira Kakuto  <kakuto@w32tex.org>
+
+	* texmfmp.c: Improve to record texmf.cnf. (ptex and friends,
+	and w32 only).
+	* openclose.c: Remove "static" in order to use relevant
+	functions externally. (w32 only).
+
+2019-03-23  Akira Kakuto  <kakuto@w32tex.org>
+
+	* texmfmp.c: On windows, xetex and pdftex did not record
+	texmf.cnf in the case of --recorder because of special
+	initializations. Fix this bug. It is not needed to rebuild
+	in other platforms.
+
 2019-01-01  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
 
 	* printversion.c: Update copyright year.
