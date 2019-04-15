@@ -1,0 +1,187 @@
+2019-02-16  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebinputs/c++1xlib.w: Add some C++1x class names.
+
+2019-01-20  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch: Use braced evaluation and save a macro variable.
+
+2019-01-19  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch: Extended notes about NLS activation.
+	* po/web2c-help.pot, po/de/web2c-help.po: Fix typos.
+
+2019-01-18  Andreas Scherer  <https://ascherer.github.io>
+
+	* po/cweb.pot, po/de/cweb.po, po/it/cweb.po:
+	Update NLS references for TP notification.
+
+2019-01-17  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch, comm-w2c.h,
+	* ctang-w2c.ch, ctwill-w2c.ch, cweav-w2c.ch:
+	Translate 'banner' if HAVE_GETTEXT set and cweb-tl.mo available.
+
+2019-01-16  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch: Correct usage of 'kpse_var_expand';
+	skip numeric argument of '-d' flag.
+
+2019-01-15  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch: Provisional 'bindtextdomain' lookup in TDS.
+	* cwebinputs/texinputs: Add prefix 'cweb_' to TeX macros
+	and transliteration files.
+	* po/cweb-tl.pot: Realign NLS modules with texlive changes.
+
+2019-01-05  Andreas Scherer  <https://ascherer.github.io>
+
+	Integration of CWEBbin as the new CWEB in TeX Live,
+	https://github.com/ascherer/cwebbin.
+	
+	Purge cwebboot.h[in] from CWEB build process;
+	see ../ChangeLog for more changes in ../am/, etc.
+	
+	* comm-w2c.h: new file.
+	* ctang-w2c.ch,
+	* cweav-w2c.ch: cwebbin changes for translations and everything else.
+	
+	* ctproofmac.tex,
+	* cttwinxmac.tex,
+	* ctwimac.tex: new macro files.
+	
+	* po/: new subdirectory for translations.
+	* cwebinputs,
+	* texinputs: new subdirs to include entire original cweb distribution.
+	
+	Add CTWILL material on top of CWEAVE.
+	* prod-twill.w,
+	* refsort.w,
+	* twinx.w,
+	* ctwill-w2c.ch: new files.
+
+2018-12-30  Andreas Scherer  <https://ascherer.github.io>
+
+	* cweave.w,
+	* common.w,
+	* common.c,
+	* ../cwebboot.cin: do not change the CWEB sources, use
+	changefile entries instead.
+	* examples: add directory (unchanged) from cweb-3.64c.tar.gz.
+
+2018-11-02  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctang-w2c.ch,
+	* cweav-w2c.ch,
+	* ../ctangleboot.cin: clean build with non-implicit 'int change_depth'.
+	tex-k mail, 2 Nov 2018 18:03:39.
+
+2018-01-18  Karl Berry  <karl@tug.org>
+
+	* cweave.w,
+	* common.w,
+	* common.c,
+	* ../cwebboot.cin: printf %s instead of direct string (from Debian).
+	(Also sent to DEK.)
+
+2017-01-29  Karl Berry  <karl@tug.org>
+
+	* ../cwebboot.cin,
+	* Makefile,
+	* README,
+	* common.c,
+	* common.h,
+	* common.w,
+	* ctang-bs.ch,
+	* ctangle.w,
+	* cweav-bs.ch,
+	* cweav-w2c.ch,
+	* cweave.w,
+	* cweb.el,
+	* cwebmac.tex,
+	* cwebman.tex,
+	* Master/texmf-dist/tex/plain/cweb/cwebmac.tex: sync all with
+	cweb 3.64ai from DEK, http://ctan.org/pkg/cweb.
+	* cweav-w2c.ch: sync @x blocks with 3.64ai.
+
+2014-06-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* comm-w2c.ch, ctang-w2c.ch, cweav-w2c.ch: Avoid useless
+	char subscript warnings.
+
+2014-02-12  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* comm-w2c.ch: Handle input lines with CRLF.
+
+2013-07-02  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* comm-w2c.ch: Include system headers after "cpascal.h".
+
+2013-06-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* comm-w2c.ch, ctang-w2c.ch, cweav-w2c.ch: Include system
+	headers after <kpathsea/kpathsea.h>.
+
+2012-09-05  Akira Kakuto  <kakuto@fuk.kindai.ac.jp>
+
+	* common.w, ctangle.w, cweave.w: copy the original ones in
+	ftp://ftp.cs.stanford.edu/pub/cweb/cweb.tar.gz.
+	* comm-w2c.ch, ctang-w2c.ch, cweav-w2c.ch: move our changes to change
+	files.
+
+2012-09-05  Karl Berry  <karl@tug.org>
+
+	* cweave.w (longest_name): restore to 10000,
+	the value in the Knuth/Levy distribution on CTAN
+	(which matches Knuth, ftp://ftp.cs.stanford.edu/pub/cweb/cweb.tar.gz)
+	Report from Arthur O'Dwyer, 3 Sep 2012 18:06:05.
+	
+	Our cweave.w has many other changes relative to the original.
+	These should be moved to cweav-w2c.ch so our originals are
+	unmodified, but can't do everything right now.
+
+2012-05-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* {comm,ctang,cweav}-w2c.ch: Use binary mode for output files.
+	From Akira Kakuto <kakuto@fuk.kindai.ac.jp> (W32TeX).
+
+2011-04-19  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	Avoid 'differ in signedness' warnings.
+	* cweav-w2c.ch: cast strcpy() arg collate to 'char *'.
+
+2010-01-18  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* {comm,ctang,cweav}-w2c.ch: Move extern declaration of
+	versionstring from {ctangle,cweave}.c to cweb.h.
+
+2009-08-29  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* {comm,ctang,cweav}-w2c.ch: Create a header file cweb.h with
+	prototypes for all functions declared in common.w and used in
+	ctangle.w and cweave.w or vice versa, and #include "cweb.h" in
+	cweb.c, ctangle.c, and cweave.c.
+
+	Avoid maximal compiler warnings.
+	* {comm,ctang,cweav}-w2c.ch (names_match, id_lookup, err_print,
+	fatal, overflow): Constify string params and local vars.
+	* ctang-w2c.ch (Insert the line): Rename inner local var a=>a_l,
+	not to shadow previous local.
+	* cweav-w2c.ch (out_str, app_str): Constify string params.
+	(Print a snapsh...): Rename local var k=>k_l, not to shadow
+	a param.
+	In main(), 'use' print_text() not used somewhere else.
+
+2009-08-28  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* ../am/cweb.am (ctie_CFLAGS, cweave_CFLAGS, tie_CFLAGS),
+	../am/bootstrap.am (ctangle_CFLAGS): Enable compiler warnings.
+	* {comm,ctang,cweav}-w2c.ch: Declare most functions as static.
+	* ctang-w2c.ch, cweav-w2c.ch: Put explicit braces around
+	ambiguous else.
+
+2009-06-23  Peter Breitenlohner  <peb@mppmu.mpg.de>
+
+	* comm-w2c.ch, ctang-w2c.ch, cweav-w2c.ch: drop P?C, P?H macros,
+	use ANSI C function declarations.
+
