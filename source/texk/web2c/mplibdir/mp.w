@@ -3272,6 +3272,7 @@ mp_begin_group, /* beginning of a group (\&{begingroup}) */
 mp_nullary, /* an operator without arguments (e.g., \&{normaldeviate}) */
 mp_unary, /* an operator with one argument (e.g., \&{sqrt}) */
 mp_str_op, /* convert a suffix to a string (\&{str}) */
+mp_void_op, /* convert a suffix to a boolean (\&{void}) */
 mp_cycle, /* close a cyclic path (\&{cycle}) */
 mp_primary_binary, /* binary operation taking `\&{of}' (e.g., \&{point}) */
 mp_capsule_token, /* a value that has been put into a token list */
@@ -5028,6 +5029,8 @@ mp_primitive (mp, "step", mp_step_token, 0);
 @:step_}{\&{step} primitive@>;
 mp_primitive (mp, "str", mp_str_op, 0);
 @:str_}{\&{str} primitive@>;
+mp_primitive (mp, "void", mp_void_op, 0);
+@:void_}{\&{void} primitive@>;
 mp_primitive (mp, "tension", mp_tension, 0);
 @:tension_}{\&{tension} primitive@>;
 mp_primitive (mp, "to", mp_to_token, 0);
@@ -5159,6 +5162,9 @@ mp_print (mp, "step");
 break;
 case mp_str_op:
 mp_print (mp, "str");
+break;
+case mp_void_op:
+mp_print (mp, "void");
 break;
 case mp_tension:
 mp_print (mp, "tension");
@@ -23751,6 +23757,25 @@ RESTART:
     mp->selector = mp->old_setting;
     mp->cur_exp.type = mp_string_type;
     goto DONE;
+    break;
+  case mp_void_op:
+  {
+    /* Convert a suffix to a boolean */
+    mp_value new_expr;
+    memset(&new_expr,0,sizeof(mp_value));
+    new_number(new_expr.data.n);
+    mp_get_x_next (mp);
+    mp_scan_suffix (mp);
+    if (cur_exp_node() == NULL) {
+        set_number_from_boolean (new_expr.data.n, mp_true_code);
+    } else {
+        set_number_from_boolean (new_expr.data.n, mp_false_code);
+    }
+    mp_flush_cur_exp (mp, new_expr);
+    cur_exp_node() = NULL; /* !! do not replace with |set_cur_exp_node()| !! */
+    mp->cur_exp.type = mp_boolean_type;
+    goto DONE;
+  }
     break;
   case mp_internal_quantity:
     /* Scan an internal numeric quantity */
