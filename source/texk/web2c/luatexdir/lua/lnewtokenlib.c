@@ -1045,7 +1045,7 @@ static int run_scan_list(lua_State * L)
 
 static int get_meaning(lua_State * L)
 {
-    const char *name = null;
+    const char *name = NULL;
     size_t lname = 0;
     int cs, cmd;
     if (lua_type(L, 1) == LUA_TSTRING) {
@@ -1065,7 +1065,7 @@ static int get_meaning(lua_State * L)
 
 static int get_macro(lua_State * L)
 {
-    const char *name = null;
+    const char *name = NULL;
     size_t lname = 0;
     int cs, cmd;
     if (lua_type(L, 1) == LUA_TSTRING) {
@@ -1092,8 +1092,8 @@ static int get_macro(lua_State * L)
 
 static int set_lua(lua_State *L)
 {
-    const char *name = null;
-    const char *s  = null;
+    const char *name = NULL;
+    const char *s  = NULL;
     size_t lname = 0;
     int cs;
     int n = lua_gettop(L);
@@ -1105,13 +1105,13 @@ static int set_lua(lua_State *L)
         return 0 ;
     }
     name = lua_tolstring(L, 1, &lname);
-    if (name == null) {
+    if (name == NULL) {
         return 0 ;
     }
     f = lua_tointeger(L, 2);
     if (n > 2)  {
         s = lua_tostring(L, 3);
-        if (s) {
+        if (s != NULL) {
             if (lua_key_eq(s, global)) {
                 a = 4;
             } else if (lua_key_eq(s, protected)) {
@@ -1120,7 +1120,7 @@ static int set_lua(lua_State *L)
         }
         if (n > 3) {
             s = lua_tostring(L, 4);
-            if (s) {
+            if (s != NULL) {
                 if (lua_key_eq(s, global)) {
                     a = 4;
                 } else if (lua_key_eq(s, protected)) {
@@ -1142,9 +1142,9 @@ static int set_lua(lua_State *L)
 
 static int set_macro(lua_State * L)
 {
-    const char *name = null;
-    const char *str = null;
-    const char *s  = null;
+    const char *name = NULL;
+    const char *str = NULL;
+    const char *s  = NULL;
     size_t lname = 0;
     size_t lstr = 0;
     int cs, cc, ct;
@@ -1171,10 +1171,10 @@ static int set_macro(lua_State * L)
         if (n > 2)
             s = lua_tostring(L, 3);
     }
-    if (name == null) {
+    if (name == NULL) {
         return 0 ;
     }
-    if (s && (lua_key_eq(s, global))) {
+    if ((s != NULL) && (lua_key_eq(s, global))) {
         a = 4;
     }
     no_new_control_sequence = false ;
@@ -1261,8 +1261,8 @@ static int set_macro(lua_State * L)
 
 static int set_char(lua_State * L)
 {
-    const char *name = null;
-    const char *s  = null;
+    const char *name = NULL;
+    const char *s  = NULL;
     size_t lname = 0;
     int cs, value;
     int n = lua_gettop(L);
@@ -1278,7 +1278,7 @@ static int set_char(lua_State * L)
         return 0;
     if (n > 2)
         s = lua_tostring(L, 3);
-    if (s && (lua_key_eq(s, global))) {
+    if ((s != NULL) && (lua_key_eq(s, global))) {
         a = 4;
     }
     no_new_control_sequence = false ;
