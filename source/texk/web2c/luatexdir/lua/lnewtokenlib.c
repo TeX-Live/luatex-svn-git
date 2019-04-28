@@ -812,34 +812,40 @@ inline static int lua_tokenlib_get_command(lua_State * L)
 
 inline static int lua_tokenlib_get_index(lua_State * L)
 {
+    int cmd, chr;
     lua_token *n = check_istoken(L, 1);
     halfword t = token_info(n->token);
-    int cmd = (t >= cs_token_flag ? eq_type(t - cs_token_flag) : token_cmd(t));
-    halfword e = equiv(t - cs_token_flag);
+    if (t >= cs_token_flag) {
+        cmd = eq_type(t - cs_token_flag);
+        chr = equiv(t - cs_token_flag);
+    } else {
+        cmd = token_cmd(t);
+        chr = token_chr(t);
+    }
     switch (cmd) {
         case assign_int_cmd:
-            e -= count_base;
+            chr -= count_base;
             break;
         case assign_attr_cmd:
-            e -= attribute_base;
+            chr -= attribute_base;
             break;
         case assign_dimen_cmd:
-            e -= dimen_base;
+            chr -= scaled_base;
             break;
         case assign_glue_cmd:
-            e -= skip_base;
+            chr -= skip_base;
             break;
         case assign_mu_glue_cmd:
-            e -= mu_skip_base;
+            chr -= mu_skip_base;
             break;
         case assign_toks_cmd:
-            e -= toks_base;
+            chr -= toks_base;
             break;
         default:
             break;
     }
-    if ((e >= 0) && (e <= 65535)) {
-        lua_pushinteger(L, e);
+    if (chr >= 0 && chr <= 65535) {
+        lua_pushinteger(L, chr);
     } else {
         lua_pushnil(L);
     }
@@ -1045,7 +1051,7 @@ static int run_scan_list(lua_State * L)
 
 static int get_meaning(lua_State * L)
 {
-    const char *name = NULL;
+    const char *name = null;
     size_t lname = 0;
     int cs, cmd;
     if (lua_type(L, 1) == LUA_TSTRING) {
@@ -1065,7 +1071,7 @@ static int get_meaning(lua_State * L)
 
 static int get_macro(lua_State * L)
 {
-    const char *name = NULL;
+    const char *name = null;
     size_t lname = 0;
     int cs, cmd;
     if (lua_type(L, 1) == LUA_TSTRING) {
@@ -1092,8 +1098,8 @@ static int get_macro(lua_State * L)
 
 static int set_lua(lua_State *L)
 {
-    const char *name = NULL;
-    const char *s  = NULL;
+    const char *name = null;
+    const char *s  = null;
     size_t lname = 0;
     int cs;
     int n = lua_gettop(L);
@@ -1105,13 +1111,13 @@ static int set_lua(lua_State *L)
         return 0 ;
     }
     name = lua_tolstring(L, 1, &lname);
-    if (name == NULL) {
+    if (name == null) {
         return 0 ;
     }
     f = lua_tointeger(L, 2);
     if (n > 2)  {
         s = lua_tostring(L, 3);
-        if (s != NULL) {
+        if (s) {
             if (lua_key_eq(s, global)) {
                 a = 4;
             } else if (lua_key_eq(s, protected)) {
@@ -1120,7 +1126,7 @@ static int set_lua(lua_State *L)
         }
         if (n > 3) {
             s = lua_tostring(L, 4);
-            if (s != NULL) {
+            if (s) {
                 if (lua_key_eq(s, global)) {
                     a = 4;
                 } else if (lua_key_eq(s, protected)) {
@@ -1142,9 +1148,9 @@ static int set_lua(lua_State *L)
 
 static int set_macro(lua_State * L)
 {
-    const char *name = NULL;
-    const char *str = NULL;
-    const char *s  = NULL;
+    const char *name = null;
+    const char *str = null;
+    const char *s  = null;
     size_t lname = 0;
     size_t lstr = 0;
     int cs, cc, ct;
@@ -1171,10 +1177,10 @@ static int set_macro(lua_State * L)
         if (n > 2)
             s = lua_tostring(L, 3);
     }
-    if (name == NULL) {
+    if (name == null) {
         return 0 ;
     }
-    if ((s != NULL) && (lua_key_eq(s, global))) {
+    if (s && (lua_key_eq(s, global))) {
         a = 4;
     }
     no_new_control_sequence = false ;
@@ -1261,8 +1267,8 @@ static int set_macro(lua_State * L)
 
 static int set_char(lua_State * L)
 {
-    const char *name = NULL;
-    const char *s  = NULL;
+    const char *name = null;
+    const char *s  = null;
     size_t lname = 0;
     int cs, value;
     int n = lua_gettop(L);
@@ -1278,7 +1284,7 @@ static int set_char(lua_State * L)
         return 0;
     if (n > 2)
         s = lua_tostring(L, 3);
-    if ((s != NULL) && (lua_key_eq(s, global))) {
+    if (s && (lua_key_eq(s, global))) {
         a = 4;
     }
     no_new_control_sequence = false ;
