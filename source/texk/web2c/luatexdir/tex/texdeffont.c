@@ -226,10 +226,10 @@ void tex_def_font(small_number a)
     if (!d) {
         /*tex We have a new string. */
         cs_text(font_id_base + f) = t;
-    } else if (str_eq_str(d,t)){
-        /*tex We have the same string. */
+    } else if ((d!=t)  && str_eq_str(d,t)){
+        /*tex We have a duplicate string. */
         flush_str(t);
-    } else {
+    } else if (d!=t){
         d = search_string(t);
         if (d) {
             /*tex We have already such a string. */
