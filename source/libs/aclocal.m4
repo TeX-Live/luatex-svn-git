@@ -1171,6 +1171,7 @@ AC_SUBST([am__untar])
 
 m4_include([../m4/kpse-common.m4])
 m4_include([../m4/kpse-cxx-hack.m4])
+m4_include([../m4/kpse-graphite2-flags.m4])
 m4_include([../m4/kpse-harfbuzz-flags.m4])
 m4_include([../m4/kpse-kpathsea-flags.m4])
 m4_include([../m4/kpse-libpng-flags.m4])
