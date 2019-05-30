@@ -1,0 +1,99 @@
+$Id: README 50267 2019-03-06 22:50:00Z karl $
+Public domain.  Originally written 2005 by Karl Berry.
+
+For a high-level overview of building TeX Live, see
+http://tug.org/texlive/build.html.  In brief:
+
+- To configure and make the source tree, run ./Build.
+  This builds in subdirectory Work/, and installs into subdirectory inst/.
+
+- To build (mostly) without optimization, run ./Build --debug.
+
+- If the make fails and you want to rebuild without starting from scratch:
+  cd Work/whatever/subdir && make
+
+Email tlbuild@tug.org if problems.
+
+(Nearly everything the Build script does can be overridden via
+environment variables; just take a look to see the names.)
+
+Many more details about the TL build system, such as configuring to work
+on a single program, adding new programs or libraries, documentation
+about the many pieces of the system, etc., are in the doc/tlbuild*
+document and the sibling README* files here (which are generated from
+that document).
+
+
+Build information for some of the platforms.
+
+aarch64-linux:
+  aarch64 Debian GNU/Linux 9 (stretch)
+  gcc (Debian 6.3.0-18) 6.3.0 20170516
+  ./Build --enable-arm-neon=check
+
+i386-netbsd, amd64-netbsd:
+  gcc version 4.5.3 (NetBSD nb2 20110806)
+  NetBSD/amd64 6.1.3
+  TL_MAKE=gmake CC=gcc CXX=g++ CFLAGS=-D_NETBSD_SOURCE \
+  LDFLAGS='-L/usr/X11R7/lib -Wl,-rpath,/usr/X11R7/lib' \
+  ./Build --enable-xindy CLISP=/usr/local/bin/clisp
+
+i386-freebsd, amd64-freebsd:
+  http://anthesphoria.net/FreeBSD/TeXLive-2018/ has all details.
+
+i386-linux: see travis below.
+
+i386-openbsd, amd64-openbsd:
+  e.g., see CONFIGURE_ARGS in the Makefile in
+  http://cvsweb.openbsd.org/cgi-bin/cvsweb/ports/print/texlive/base/
+
+i386-solaris, x86_64-solaris:
+  Solaris 10, gcc 5.5.  See doc/README.solaris.
+
+i386-cygwin, x86_64-cygwin: gcc-4.8.2, cygwin-1.7.29.
+  ./Build (with --enable-xindy for i386).
+
+x86_64-darwin: See Master/source/mactexdoc.tar.xz.
+
+x86_64-darwinlegacy:
+  Mac OS X 10.6, clang 5.0, libc++ required
+  https://github.com/TeXLive-M/texlive-buildbot
+  http://build.contextgarden.net/waterfall?tag=c/texlive
+  (These links have info on all platforms built by Mojca.)
+
+i386-linux,
+x86_64-linux,
+x86_64-linuxmusl:
+  Alpine 3.1 Docker image with musl libc 1.1.5
+  Binaries are taken from the CI testing on travis-ci
+  see the source/.travis.yaml file for details on how to build,
+  and tlpkg/bin/tl-update-bindir for updating binaries (in general).
+
+x86_64-linux-glibc2.12, on CentOS6:
+#!/bin/sh -x
+# Public domain.
+# in ~/.subversion/config: use-commit-times=yes
+# mkdir /usr/local/src/tl
+# cd !$
+# svn -q co svn://tug.org/texlive/branches/branch2018/Build/source
+# rm -rf source/libs/icu source/libs/poppler # to avoid configuring them
+#
+cd /usr/local/src/tl || exit 1
+#
+debug=-g # for debugging, no optimization
+#
+./Build \
+  $debug \
+  -C \
+  --disable-xetex \
+  --disable-luatex \
+  --disable-luajittex \
+  --disable-luatex53 \
+  --disable-dvisvgm \
+  --disable-bibtexu \
+  --disable-upmendex \
+  --disable-poppler \
+  --without-system-icu \
+  --without-system-poppler \
+  --enable-native-texlive-build \
+exit $?
