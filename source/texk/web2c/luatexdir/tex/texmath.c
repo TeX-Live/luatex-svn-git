@@ -720,7 +720,9 @@ void display_normal_noad(pointer p)
         }
         break;
     case radical_noad:
-        if (subtype(p) == 6)
+        if (subtype(p) == 7)
+            tprint_esc("Uhextensible");
+        else if (subtype(p) == 6)
             tprint_esc("Udelimiterover");
         else if (subtype(p) == 5)
             tprint_esc("Udelimiterunder");
