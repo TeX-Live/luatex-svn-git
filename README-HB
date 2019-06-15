@@ -15,9 +15,22 @@ There is not a schedule, but roughly speaking in steps:
 
 -1) Luatex compile, harfbuzz not even touched
 0)  Luatex compile, harfbuzz too, but not linked
-1*)  Luatex compile, harfbuzz too, linked
-2)  Luatex compile, harfbuzz too, linked, and works ok.
+1)  Luatex compile, harfbuzz too, linked
+2*)  Luatex compile, harfbuzz too, linked, and works ok.
 
 (* means current step)
+
+Test:
+With a full TL 2019
+and files from https://github.com/khaledhosny/harf
+$> luatex -ini lualatex
+$> luatex-hb -fmt=lualatex.fmt  test-latex.tex
+
+seems to work.
+
+Also  
+replacing luatex in a context standalone 
+the luatex manual is compiled.
+
 
 Scarso Luigi
