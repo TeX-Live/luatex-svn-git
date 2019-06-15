@@ -32,7 +32,7 @@ libluatex_a_DEPENDENCIES = libff.a libluamisc.a libluaharfbuzz.a
 #liblua53tex_a_DEPENDENCIES = libff.a liblua53misc.a
 libluajittex_a_DEPENDENCIES = libff.a libluajitmisc.a libluajitharfbuzz.a
 
-libluatex_a_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES)
+libluatex_a_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(HARFBUZZ_INCLUDES)
 libluatex_a_preflags += -I$(srcdir)/libmd5
 libluatex_a_preflags += -DpdfTeX -I$(srcdir)/luatexdir
 libluatex_a_preflags += -I$(srcdir)/luatexdir/unilib

@@ -47,7 +47,7 @@ nodist_EXTRA_luatex_SOURCES = dummy.cxx
 nodist_EXTRA_luatex53_SOURCES = dummy.cxx
 nodist_EXTRA_luajittex_SOURCES = dummy.cxx
 
-luatex_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) 
+luatex_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(HARFBUZZ_INCLUDES)
 luatex_postflags = -I$(srcdir)/libmd5 -DpdfTeX -I$(srcdir)/luatexdir -I$(srcdir)/mplibdir
 luatex_postflags += -Dextra_version_info=`date +-%Y%m%d%H`
 luatex_postflags += -I$(srcdir)/synctexdir -DSYNCTEX_ENGINE_H='<synctex-luatex.h>'
