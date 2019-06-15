@@ -13,9 +13,9 @@ The goal is "add harfbuzz, keeping 100% backward compatible with engines if poss
 
 There is not a schedule, but roughly speaking in steps:
 
--1*) Luatex compile, harfbuzz not even touched
+-1) Luatex compile, harfbuzz not even touched
 0)  Luatex compile, harfbuzz too, but not linked
-1)  Luatex compile, harfbuzz too, linked
+1*)  Luatex compile, harfbuzz too, linked
 2)  Luatex compile, harfbuzz too, linked, and works ok.
 
 (* means current step)

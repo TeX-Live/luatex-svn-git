@@ -117,6 +117,7 @@ static const char *luatexrevision(void)
     return (const char *) (strrchr(luatex_version_string, '.') + 1);
 }
 
+
 static const char *getenginename(void)
 {
     return engine_name;

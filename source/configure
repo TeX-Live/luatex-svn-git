@@ -833,6 +833,7 @@ enable_synctex
 enable_texlive
 enable_linked_scripts
 with_system_harfbuzz
+with_system_graphite2
 with_system_zziplib
 with_system_libpng
 with_system_zlib
@@ -1590,6 +1591,8 @@ Optional Packages:
   --with-mf-x-toolkit     use X toolkit for METAFONT
   --with-system-harfbuzz  use installed harfbuzz headers and library (requires
                           pkg-config)
+  --with-system-graphite2 use installed graphite2 headers and library
+                          (requires pkg-config)
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
   --with-system-libpng    use installed libpng headers and library (requires
@@ -4475,6 +4478,36 @@ test "x$need_harfbuzz" = xyes && {
   need_graphite2=yes
   need_icu=yes
 }
+
+## libs/graphite2/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/graphite2/
+## configure options and TL libraries required for graphite2
+
+# Check whether --with-system-graphite2 was given.
+if test "${with_system_graphite2+set}" = set; then :
+  withval=$with_system_graphite2;
+fi
+if test "x$with_system_graphite2" = x; then
+  if test -f $srcdir/libs/graphite2/configure; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`graphite2' headers and library from TL tree" >&5
+$as_echo "$as_me: Assuming \`graphite2' headers and library from TL tree" >&6;}
+    with_system_graphite2=no
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`graphite2' headers and library" >&5
+$as_echo "$as_me: Assuming installed \`graphite2' headers and library" >&6;}
+    with_system_graphite2=yes
+  fi
+  ac_configure_args="$ac_configure_args '--with-system-graphite2=$with_system_graphite2'"
+elif test "x$with_system_graphite2" = xyes; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Using installed \`graphite2' headers and library" >&5
+$as_echo "$as_me: Using installed \`graphite2' headers and library" >&6;}
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Using \`graphite2' headers and library from TL tree" >&5
+$as_echo "$as_me: Using \`graphite2' headers and library from TL tree" >&6;}
+  if test "x$with_system_graphite2" != xno; then
+    with_system_graphite2=no
+    ac_configure_args="$ac_configure_args '--without-system-graphite2'"
+  fi
+fi
 
 ## libs/zziplib/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/zziplib/
 ## configure options and TL libraries required for zziplib
@@ -19859,11 +19892,11 @@ elif test "x$need_icu:$with_system_icu" = xyes:yes; then
   as_fn_error $? "did not find either pkg-config or icu-config; one is required for system icu library support" "$LINENO" 5
 fi
 
-if $PKG_CONFIG harfbuzz-icu; then
-  HARFBUZZ_INCLUDES=`$PKG_CONFIG harfbuzz-icu --cflags`
-  HARFBUZZ_LIBS=`$PKG_CONFIG harfbuzz-icu --libs`
+if $PKG_CONFIG harfbuzz; then
+  HARFBUZZ_INCLUDES=`$PKG_CONFIG harfbuzz --cflags`
+  HARFBUZZ_LIBS=`$PKG_CONFIG harfbuzz --libs`
 elif test "x$need_harfbuzz:$with_system_harfbuzz" = xyes:yes; then
-  as_fn_error $? "did not find harfbuzz-icu" "$LINENO" 5
+  as_fn_error $? "did not find harfbuzz" "$LINENO" 5
 fi
 
 
@@ -19977,6 +20010,36 @@ int
 main ()
 {
 ZZIP_FILE *z_FILE = zzip_open("file_name", 0);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  syslib_used=yes kpse_res=ok
+else
+  syslib_status=no kpse_res=failed
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $kpse_res" >&5
+$as_echo "$kpse_res" >&6; }
+fi
+
+## libs/graphite2/ac/graphite2.ac: configure.ac fragment for the TeX Live subdirectory libs/graphite2/
+## basic check of system graphite2
+if test "x$need_graphite2:$with_system_graphite2" = xyes:yes; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking requested system \`graphite2' library" >&5
+$as_echo_n "checking requested system \`graphite2' library... " >&6; }
+  CPPFLAGS="$GRAPHITE2_INCLUDES $CPPFLAGS"
+  LIBS="$GRAPHITE2_LIBS $LIBS"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <graphite2/Font.h>
+int
+main ()
+{
+int *nMajor, *nMinor, *nBugFix;
+gr_engine_version(nMajor, nMinor, nBugFix);
   ;
   return 0;
 }

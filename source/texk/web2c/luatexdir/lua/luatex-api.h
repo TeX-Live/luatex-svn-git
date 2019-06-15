@@ -94,6 +94,8 @@ extern int luaopen_sha2(lua_State * L);
  extern int luaopen_ffi(lua_State * L);
 #endif
 
+extern int luaopen_luaharfbuzz(lua_State * L);
+
 extern int luaopen_zlib(lua_State * L);
 extern int luaopen_gzip(lua_State * L);
 extern int luaopen_ff(lua_State * L);

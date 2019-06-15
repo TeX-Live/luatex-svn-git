@@ -337,7 +337,7 @@ boolean lua_a_open_out(alpha_file * f, char *fn, int n)
     boolean ret = false;
     callback_id = callback_defined(find_write_file_callback);
     if (callback_id > 0) {
-        test = run_callback(callback_id, "dS->S", n, fn, &fnam);
+        test = run_callback(callback_id, "dS->R", n, fn, &fnam);
         if ((test) && (fnam != NULL) && (strlen(fnam) > 0)) {
             /*tex
 
@@ -376,7 +376,7 @@ boolean lua_b_open_out(alpha_file * f, char *fn)
     boolean ret = false;
     callback_id = callback_defined(find_output_file_callback);
     if (callback_id > 0) {
-        test = run_callback(callback_id, "S->S", fn, &fnam);
+        test = run_callback(callback_id, "S->R", fn, &fnam);
         if ((test) && (fnam != NULL) && (strlen(fnam) > 0)) {
             ret = open_outfile(f, fnam, FOPEN_WBIN_MODE);
             free(fnam);

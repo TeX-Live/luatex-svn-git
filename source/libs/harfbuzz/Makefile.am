@@ -1,4 +1,4 @@
-## $Id: Makefile.am 51270 2019-05-30 03:43:42Z kakuto $
+## $Id$
 ## Proxy Makefile.am to build harfbuzz for TeX Live.
 ##
 ##   Copyright 2016-2017 Karl Berry <tex-live@tug.org>
