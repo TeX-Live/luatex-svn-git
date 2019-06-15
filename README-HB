@@ -24,7 +24,7 @@ Test:
 With a full TL 2019
 and files from https://github.com/khaledhosny/harf
 $> luatex -ini lualatex
-$> luatex-hb -fmt=lualatex.fmt  test-latex.tex
+$> luatex -fmt=lualatex.fmt  test-latex.tex
 
 seems to work.
 
