@@ -26,4 +26,4 @@ AC_DEFUN([KPSE_HARFBUZZ_OPTIONS], [_KPSE_LIB_OPTIONS([harfbuzz], [$1], [pkg-conf
 # KPSE_HARFBUZZ_SYSTEM_FLAGS
 # --------------------------
 AC_DEFUN([KPSE_HARFBUZZ_SYSTEM_FLAGS], [dnl
-_KPSE_PKG_CONFIG_FLAGS([harfbuzz], [harfbuzz-icu])])
+_KPSE_PKG_CONFIG_FLAGS([harfbuzz], [harfbuzz])])

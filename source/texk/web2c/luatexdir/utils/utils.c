@@ -46,6 +46,7 @@ LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 #include "png.h"
 #include "mplib.h"
+#include "hb.h" 
 
 #define check_nprintf(size_get, size_want) \
     if ((unsigned)(size_get) >= (unsigned)(size_want)) \
@@ -261,12 +262,14 @@ void initversionstring(char **versions)
 #define STR2(tok) #tok
 
     const_string fmt =
+        "Compiled with libharfbuzz %s; using %s\n"
         "Compiled with libpng %s; using %s\n"
         "Compiled with %s\n" /* Lua or LuaJIT */
         "Compiled with mplib version %s\n"
         "Compiled with zlib %s; using %s\n"
         "\nDevelopment id: %s\n";
     size_t len = strlen(fmt)
+               + strlen(HB_VERSION_STRING) + strlen(hb_version_string())
                + strlen(PNG_LIBPNG_VER_STRING) + strlen(png_libpng_ver)
                + strlen(LUA_VER_STRING)
                + strlen(mp_metapost_version())
@@ -280,6 +283,7 @@ void initversionstring(char **versions)
     */
     *versions = xmalloc(len);
     sprintf(*versions, fmt,
+                    HB_VERSION_STRING,hb_version_string(),
                     PNG_LIBPNG_VER_STRING, png_libpng_ver, LUA_VER_STRING,
                     mp_metapost_version(),
                     ZLIB_VERSION, zlib_version,STR(luatex_svn_revision));
