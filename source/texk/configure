@@ -741,6 +741,8 @@ enable_web_progs
 enable_synctex
 enable_texlive
 enable_linked_scripts
+with_system_harfbuzz
+with_system_graphite2
 with_system_zziplib
 with_system_libpng
 with_system_zlib
@@ -1468,6 +1470,10 @@ Optional Packages:
   --with-editor=CMD       invoke CMD from the `e' option [vi +%d '%s'] or
                           [texworks --position=%d "%s"]
   --with-mf-x-toolkit     use X toolkit for METAFONT
+  --with-system-harfbuzz  use installed harfbuzz headers and library (requires
+                          pkg-config)
+  --with-system-graphite2 use installed graphite2 headers and library
+                          (requires pkg-config)
   --with-system-zziplib   use installed zziplib headers and library (requires
                           pkg-config)
   --with-system-libpng    use installed libpng headers and library (requires
@@ -3361,6 +3367,7 @@ test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
   need_lua53=yes
+  need_harfbuzz=yes
 }
 # Check whether --enable-luajittex was given.
 if test "${enable_luajittex+set}" = set; then :
@@ -3377,6 +3384,7 @@ test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
   need_luajit=yes
+  need_harfbuzz=yes
 }
 # Check whether --enable-mp was given.
 if test "${enable_mp+set}" = set; then :
@@ -3597,6 +3605,69 @@ if test "${enable_linked_scripts+set}" = set; then :
   enableval=$enable_linked_scripts;
 fi
 
+
+## libs/harfbuzz/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/harfbuzz/
+## configure options and TL libraries required for harfbuzz
+
+# Check whether --with-system-harfbuzz was given.
+if test "${with_system_harfbuzz+set}" = set; then :
+  withval=$with_system_harfbuzz;
+fi
+if test "x$with_system_harfbuzz" = x; then
+  if test -f $srcdir/../libs/harfbuzz/configure; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`harfbuzz' headers and library from TL tree" >&5
+$as_echo "$as_me: Assuming \`harfbuzz' headers and library from TL tree" >&6;}
+    with_system_harfbuzz=no
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`harfbuzz' headers and library" >&5
+$as_echo "$as_me: Assuming installed \`harfbuzz' headers and library" >&6;}
+    with_system_harfbuzz=yes
+  fi
+  ac_configure_args="$ac_configure_args '--with-system-harfbuzz=$with_system_harfbuzz'"
+fi
+if test "x$with_system_harfbuzz" = xyes; then
+  if test "x$with_system_graphite2" = x; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`graphite2' headers and library" >&5
+$as_echo "$as_me:   ->  installed \`graphite2' headers and library" >&6;}
+    with_system_graphite2=yes
+    ac_configure_args="$ac_configure_args '--with-system-graphite2'"
+  elif test "x$with_system_graphite2" != xyes; then
+    as_fn_error $? "Sorry, \`--with-system-harfbuzz' requires \`--with-system-graphite2'" "$LINENO" 5
+  fi
+  if test "x$with_system_icu" = x; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}:   ->  installed \`icu' headers and library" >&5
+$as_echo "$as_me:   ->  installed \`icu' headers and library" >&6;}
+    with_system_icu=yes
+    ac_configure_args="$ac_configure_args '--with-system-icu'"
+  elif test "x$with_system_icu" != xyes; then
+    as_fn_error $? "Sorry, \`--with-system-harfbuzz' requires \`--with-system-icu'" "$LINENO" 5
+  fi
+fi
+
+test "x$need_harfbuzz" = xyes && {
+  need_graphite2=yes
+  need_icu=yes
+}
+
+## libs/graphite2/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/graphite2/
+## configure options and TL libraries required for graphite2
+
+# Check whether --with-system-graphite2 was given.
+if test "${with_system_graphite2+set}" = set; then :
+  withval=$with_system_graphite2;
+fi
+if test "x$with_system_graphite2" = x; then
+  if test -f $srcdir/../libs/graphite2/configure; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming \`graphite2' headers and library from TL tree" >&5
+$as_echo "$as_me: Assuming \`graphite2' headers and library from TL tree" >&6;}
+    with_system_graphite2=no
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: Assuming installed \`graphite2' headers and library" >&5
+$as_echo "$as_me: Assuming installed \`graphite2' headers and library" >&6;}
+    with_system_graphite2=yes
+  fi
+  ac_configure_args="$ac_configure_args '--with-system-graphite2=$with_system_graphite2'"
+fi
 
 ## libs/zziplib/ac/withenable.ac: configure.ac fragment for the TeX Live subdirectory libs/zziplib/
 ## configure options and TL libraries required for zziplib

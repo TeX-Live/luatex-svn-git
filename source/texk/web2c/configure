@@ -18769,6 +18769,7 @@ test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
   need_lua53=yes
+  need_harfbuzz=yes
 }
 # Check whether --enable-luajittex was given.
 if test "${enable_luajittex+set}" = set; then :
@@ -18785,6 +18786,7 @@ test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
   need_luajit=yes
+  need_harfbuzz=yes
 }
 # Check whether --enable-mp was given.
 if test "${enable_mp+set}" = set; then :
@@ -25795,11 +25797,11 @@ if test "${with_system_harfbuzz+set}" = set; then :
   withval=$with_system_harfbuzz;
 fi
 if test "x$with_system_harfbuzz" = xyes; then
-  if $PKG_CONFIG harfbuzz-icu; then
-  HARFBUZZ_INCLUDES=`$PKG_CONFIG harfbuzz-icu --cflags`
-  HARFBUZZ_LIBS=`$PKG_CONFIG harfbuzz-icu --libs`
+  if $PKG_CONFIG harfbuzz; then
+  HARFBUZZ_INCLUDES=`$PKG_CONFIG harfbuzz --cflags`
+  HARFBUZZ_LIBS=`$PKG_CONFIG harfbuzz --libs`
 elif test "x$need_harfbuzz:$with_system_harfbuzz" = xyes:yes; then
-  as_fn_error $? "did not find harfbuzz-icu" "$LINENO" 5
+  as_fn_error $? "did not find harfbuzz" "$LINENO" 5
 fi
 else
   HARFBUZZ_INCLUDES="-I$kpse_BLD/libs/harfbuzz/include"
