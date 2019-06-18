@@ -44,7 +44,7 @@ EXTRA_PROGRAMS += luatex luajittex
 
 # Force Automake to use CXXLD for linking
 nodist_EXTRA_luatex_SOURCES = dummy.cxx
-nodist_EXTRA_luatex53_SOURCES = dummy.cxx
+#nodist_EXTRA_luatex53_SOURCES = dummy.cxx
 nodist_EXTRA_luajittex_SOURCES = dummy.cxx
 
 luatex_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(HARFBUZZ_INCLUDES)
