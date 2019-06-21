@@ -2620,7 +2620,7 @@ void after_math(void)
             tail_append(new_dir(math_direction_par));
         }
         run_mlist_to_hlist(p, (mode > 0), text_style);
-        vlink(tail) = vlink(temp_head);
+        couple_nodes(tail,vlink(temp_head));
         while (vlink(tail) != null) {
             tail = vlink(tail);
         }
