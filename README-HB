@@ -33,4 +33,10 @@ replacing luatex in a context standalone
 the luatex manual is compiled.
 
 
+2019-06-21 :
+Next step:
+1) "small" luatex -- luatex with a "minimal" binding to harfbuzz (program size <10MB)
+2) "big" luatex -- aka luahbtex, with full binding to harfbuzz (program size estimated  25MB)
+
+
 Scarso Luigi
