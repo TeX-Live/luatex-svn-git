@@ -1,4 +1,4 @@
-## $Id$
+## $Id: Makefile.am 51270 2019-05-30 03:43:42Z kakuto $
 ## Proxy Makefile.am to install harfbuzz headers for TeX Live.
 ##
 ##   Copyright 2015-2016 Karl Berry <tex-live@tug.org>
