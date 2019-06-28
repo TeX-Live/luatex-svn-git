@@ -209,6 +209,10 @@ describe("harfbuzz module", function()
       r, i = face:ot_layout_find_feature(harfbuzz.Tag.new("GSUB"), 0, i, harfbuzz.Tag.new("rlig"))
       assert.True(r)
       assert.are_same(13, i)
+
+      r, i = face:ot_layout_find_feature(harfbuzz.Tag.new("GSUB"), 1, harfbuzz.ot.LAYOUT_DEFAULT_LANGUAGE_INDEX, harfbuzz.Tag.new("rlig"))
+      assert.True(r)
+      assert.are_same(13, i)
     end)
   end)
 
