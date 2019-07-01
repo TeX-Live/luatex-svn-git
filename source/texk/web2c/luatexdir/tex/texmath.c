@@ -2620,9 +2620,6 @@ void after_math(void)
             tail_append(new_dir(math_direction_par));
         }
         run_mlist_to_hlist(p, (mode > 0), text_style);
-	if (!(vlink(temp_head))){
-	  tex_error("Nothing valid found at the end of the mathskip code: check your code",NULL);
-	}
 	try_couple_nodes(tail,vlink(temp_head));
 	
         while (vlink(tail) != null) {
