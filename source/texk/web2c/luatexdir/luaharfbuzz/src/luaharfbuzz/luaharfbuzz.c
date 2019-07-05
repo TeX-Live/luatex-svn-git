@@ -97,7 +97,24 @@ int luaopen_luaharfbuzz (lua_State *L) {
   register_unicode(L);
   lua_setfield(L, -2, "unicode");
 
+#ifdef LuajitTeX
+  /* TODO: we usually dont use require, the module */
+  /* is already in global space  */
+  luaL_register(L,NULL, lib_table);
+  /**/
+  lua_pushvalue(L, -1);
+  lua_setglobal(L,"luaharfbuzz");
+  /**/
+  lua_getglobal(L, "package");
+  lua_getfield(L, -1, "loaded"); 
+  lua_remove(L, -2);
+  lua_pushvalue(L, -2);
+  lua_setfield(L, -2, "luaharfbuzz"); 
+  /**/
+#else
   luaL_setfuncs(L, lib_table, 0);
+#endif
+
 
   return 1;
 }
