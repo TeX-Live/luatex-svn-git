@@ -774,6 +774,10 @@ PMP_FALSE
 PMP_TRUE
 MP_FALSE
 MP_TRUE
+LUAJITHBTEX_FALSE
+LUAJITHBTEX_TRUE
+LUAHBTEX_FALSE
+LUAHBTEX_TRUE
 LUAJITTEX_FALSE
 LUAJITTEX_TRUE
 LUATEX_FALSE
@@ -819,7 +823,6 @@ USE_DLOPEN_FALSE
 USE_DLOPEN_TRUE
 LUAJIT_LDEXTRA
 LUAJIT_DEFINES
-LUA52_DEFINES
 LUA53_DEFINES
 WIN32_CALL_FALSE
 WIN32_CALL_TRUE
@@ -1006,6 +1009,8 @@ enable_pdftex
 enable_pdftex_synctex
 enable_luatex
 enable_luajittex
+enable_luahbtex
+enable_luajithbtex
 enable_mp
 enable_pmp
 enable_upmp
@@ -1736,6 +1741,8 @@ Optional Features:
   --disable-pdftex-synctex  build pdfTeX without SyncTeX support
   --disable-luatex        do not compile and install LuaTeX
   --disable-luajittex     do not compile and install LuaJITTeX
+  --disable-luahbtex      do not compile and install LuaHBTeX
+  --disable-luajithbtex   do not compile and install LuaHBJITTeX
   --disable-mp            do not compile and install MetaPost
   --disable-pmp           do not compile and install pMetaPost
   --disable-upmp          do not compile and install upMetaPost
@@ -18769,7 +18776,6 @@ test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
   need_lua53=yes
-  need_harfbuzz=yes
 }
 # Check whether --enable-luajittex was given.
 if test "${enable_luajittex+set}" = set; then :
@@ -18783,6 +18789,39 @@ case $enable_luajittex in #(
 esac
 
 test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
+  need_libpng=yes
+  need_zziplib=yes
+  need_luajit=yes
+}
+# Check whether --enable-luahbtex was given.
+if test "${enable_luahbtex+set}" = set; then :
+  enableval=$enable_luahbtex;
+fi
+case $enable_luahbtex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_luahbtex=yes ;;
+esac
+
+test "x$enable_web2c:$enable_luahbtex" = xyes:yes && {
+  need_libpng=yes
+  need_zziplib=yes
+  need_lua53=yes
+  need_harfbuzz=yes
+}
+# Check whether --enable-luajithbtex was given.
+if test "${enable_luajithbtex+set}" = set; then :
+  enableval=$enable_luajithbtex;
+fi
+case $enable_luajithbtex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_luajithbtex=yes ;;
+esac
+
+test "x$enable_web2c:$enable_luajithbtex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
   need_luajit=yes
@@ -20413,77 +20452,6 @@ fi
   fi
 fi
 
-LUA52_DEFINES='-DLUA_COMPAT_MODULE -DLUAI_HASHLIMIT=6'
-
-if test "x$kpse_cv_have_win32" = xno; then
-  LUA52_DEFINES="$LUA52_DEFINES -DLUA_USE_POSIX"
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing dlopen" >&5
-$as_echo_n "checking for library containing dlopen... " >&6; }
-if ${ac_cv_search_dlopen+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char dlopen ();
-int
-main ()
-{
-return dlopen ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' dl; do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_search_dlopen=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext
-  if ${ac_cv_search_dlopen+:} false; then :
-  break
-fi
-done
-if ${ac_cv_search_dlopen+:} false; then :
-
-else
-  ac_cv_search_dlopen=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_dlopen" >&5
-$as_echo "$ac_cv_search_dlopen" >&6; }
-ac_res=$ac_cv_search_dlopen
-if test "$ac_res" != no; then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-
-fi
-
-  if test "x$ac_cv_search_dlopen" != xno; then
-    ac_fn_c_check_header_compile "$LINENO" "dlfcn.h" "ac_cv_header_dlfcn_h" "$ac_includes_default
-"
-if test "x$ac_cv_header_dlfcn_h" = xyes; then :
-  LUA52_DEFINES="$LUA52_DEFINES -DLUA_USE_DLOPEN"
-fi
-
-
-  fi
-fi
-
 LUAJIT_DEFINES='-DLUAJIT_ENABLE_LUA52COMPAT -DLUAI_HASHLIMIT=6'
 
 case $host_os:$host_cpu in #(
@@ -20746,14 +20714,14 @@ fi
 
                        enable_luatex=no
 fi
- if test "x$enable_luatex53" = xyes; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no hstrerror(): disabling luatex53" >&5
-$as_echo "$as_me: WARNING: Sorry, no hstrerror(): disabling luatex53" >&2;}
+ if test "x$enable_luahbtex" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no hstrerror(): disabling luahbtex" >&5
+$as_echo "$as_me: WARNING: Sorry, no hstrerror(): disabling luahbtex" >&2;}
 if test "x$enable_missing" = xno; then :
   as_fn_error $? "terminating." "$LINENO" 5
 fi
 
-                       enable_luatex53=no
+                       enable_luahbtex=no
 fi
  ;; #(
   *) :
@@ -20772,14 +20740,14 @@ fi
 
                        enable_luatex=no
 fi
- if test "x$enable_luatex53" = xyes; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no inet_aton(): disabling luatex53" >&5
-$as_echo "$as_me: WARNING: Sorry, no inet_aton(): disabling luatex53" >&2;}
+ if test "x$enable_luahbtex" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no inet_aton(): disabling luahbtex" >&5
+$as_echo "$as_me: WARNING: Sorry, no inet_aton(): disabling luahbtex" >&2;}
 if test "x$enable_missing" = xno; then :
   as_fn_error $? "terminating." "$LINENO" 5
 fi
 
-                       enable_luatex53=no
+                       enable_luahbtex=no
 fi
  ;; #(
   *) :
@@ -20798,14 +20766,14 @@ fi
 
                        enable_luatex=no
 fi
- if test "x$enable_luatex53" = xyes; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no gethostbyname(): disabling luatex53" >&5
-$as_echo "$as_me: WARNING: Sorry, no gethostbyname(): disabling luatex53" >&2;}
+ if test "x$enable_luahbtex" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no gethostbyname(): disabling luahbtex" >&5
+$as_echo "$as_me: WARNING: Sorry, no gethostbyname(): disabling luahbtex" >&2;}
 if test "x$enable_missing" = xno; then :
   as_fn_error $? "terminating." "$LINENO" 5
 fi
 
-                       enable_luatex53=no
+                       enable_luahbtex=no
 fi
  ;; #(
   *) :
@@ -20824,14 +20792,14 @@ fi
 
                        enable_luatex=no
 fi
- if test "x$enable_luatex53" = xyes; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no nanosleep(): disabling luatex53" >&5
-$as_echo "$as_me: WARNING: Sorry, no nanosleep(): disabling luatex53" >&2;}
+ if test "x$enable_luahbtex" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no nanosleep(): disabling luahbtex" >&5
+$as_echo "$as_me: WARNING: Sorry, no nanosleep(): disabling luahbtex" >&2;}
 if test "x$enable_missing" = xno; then :
   as_fn_error $? "terminating." "$LINENO" 5
 fi
 
-                       enable_luatex53=no
+                       enable_luahbtex=no
 fi
  ;; #(
   *) :
@@ -20880,14 +20848,14 @@ fi
 
                        enable_luatex=no
 fi
- if test "x$enable_luatex53" = xyes; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no getaddrinfo(): disabling luatex53" >&5
-$as_echo "$as_me: WARNING: Sorry, no getaddrinfo(): disabling luatex53" >&2;}
+ if test "x$enable_luahbtex" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Sorry, no getaddrinfo(): disabling luahbtex" >&5
+$as_echo "$as_me: WARNING: Sorry, no getaddrinfo(): disabling luahbtex" >&2;}
 if test "x$enable_missing" = xno; then :
   as_fn_error $? "terminating." "$LINENO" 5
 fi
 
-                       enable_luatex53=no
+                       enable_luahbtex=no
 fi
 
 fi
@@ -21329,6 +21297,20 @@ fi
 else
   LUAJITTEX_TRUE='#'
   LUAJITTEX_FALSE=
+fi
+ if test "x$enable_luahbtex" = xyes; then
+  LUAHBTEX_TRUE=
+  LUAHBTEX_FALSE='#'
+else
+  LUAHBTEX_TRUE='#'
+  LUAHBTEX_FALSE=
+fi
+ if test "x$enable_luajithbtex" = xyes; then
+  LUAJITHBTEX_TRUE=
+  LUAJITHBTEX_FALSE='#'
+else
+  LUAJITHBTEX_TRUE='#'
+  LUAJITHBTEX_FALSE=
 fi
  if test "x$enable_mp" = xyes; then
   MP_TRUE=
@@ -26586,6 +26568,14 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LUAJITTEX_TRUE}" && test -z "${LUAJITTEX_FALSE}"; then
   as_fn_error $? "conditional \"LUAJITTEX\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LUAHBTEX_TRUE}" && test -z "${LUAHBTEX_FALSE}"; then
+  as_fn_error $? "conditional \"LUAHBTEX\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LUAJITHBTEX_TRUE}" && test -z "${LUAJITHBTEX_FALSE}"; then
+  as_fn_error $? "conditional \"LUAJITHBTEX\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${MP_TRUE}" && test -z "${MP_FALSE}"; then

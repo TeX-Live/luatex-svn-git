@@ -808,6 +808,8 @@ enable_pdftex
 enable_pdftex_synctex
 enable_luatex
 enable_luajittex
+enable_luahbtex
+enable_luajithbtex
 enable_mp
 enable_pmp
 enable_upmp
@@ -1532,6 +1534,8 @@ Optional Features:
   --disable-pdftex-synctex    build pdfTeX without SyncTeX support
   --disable-luatex          do not compile and install LuaTeX
   --disable-luajittex       do not compile and install LuaJITTeX
+  --disable-luahbtex        do not compile and install LuaHBTeX
+  --disable-luajithbtex     do not compile and install LuaHBJITTeX
   --disable-mp              do not compile and install MetaPost
   --disable-pmp             do not compile and install pMetaPost
   --disable-upmp            do not compile and install upMetaPost
@@ -4187,7 +4191,6 @@ test "x$enable_web2c:$enable_luatex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
   need_lua53=yes
-  need_harfbuzz=yes
 }
 # Check whether --enable-luajittex was given.
 if test "${enable_luajittex+set}" = set; then :
@@ -4201,6 +4204,39 @@ case $enable_luajittex in #(
 esac
 
 test "x$enable_web2c:$enable_luajittex" = xyes:yes && {
+  need_libpng=yes
+  need_zziplib=yes
+  need_luajit=yes
+}
+# Check whether --enable-luahbtex was given.
+if test "${enable_luahbtex+set}" = set; then :
+  enableval=$enable_luahbtex;
+fi
+case $enable_luahbtex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_luahbtex=yes ;;
+esac
+
+test "x$enable_web2c:$enable_luahbtex" = xyes:yes && {
+  need_libpng=yes
+  need_zziplib=yes
+  need_lua53=yes
+  need_harfbuzz=yes
+}
+# Check whether --enable-luajithbtex was given.
+if test "${enable_luajithbtex+set}" = set; then :
+  enableval=$enable_luajithbtex;
+fi
+case $enable_luajithbtex in #(
+  yes | no) :
+     ;; #(
+  *) :
+    enable_luajithbtex=yes ;;
+esac
+
+test "x$enable_web2c:$enable_luajithbtex" = xyes:yes && {
   need_libpng=yes
   need_zziplib=yes
   need_luajit=yes

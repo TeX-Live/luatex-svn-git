@@ -50,12 +50,29 @@ extern void fix_o_mode(void);
 #  include "lualib.h"
 #ifdef LuajitTeX
 #  include "luajit.h"
+#endif 
+
+/* Names */ 
+#ifndef LUATEX_HARFBUZZ_ENABLED
+#ifdef LuajitTeX
 #  define MyName "LuajitTeX"
 #  define my_name "luajittex"
 #else
 #  define MyName "LuaTeX"
 #  define my_name "luatex"
 #endif
+#endif
+
+#ifdef LUATEX_HARFBUZZ_ENABLED
+#ifdef LuajitTeX
+#  define MyName "LuajitHBTeX"
+#  define my_name "luajithbtex"
+#else
+#  define MyName "LuaHBTeX"
+#  define my_name "luahbtex"
+#endif
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,7 +111,9 @@ extern int luaopen_sha2(lua_State * L);
  extern int luaopen_ffi(lua_State * L);
 #endif
 
+#ifdef LUATEX_HARFBUZZ_ENABLED
 extern int luaopen_luaharfbuzz(lua_State * L);
+#endif
 
 extern int luaopen_zlib(lua_State * L);
 extern int luaopen_gzip(lua_State * L);

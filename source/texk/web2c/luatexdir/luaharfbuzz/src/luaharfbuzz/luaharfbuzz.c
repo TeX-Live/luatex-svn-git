@@ -98,8 +98,6 @@ int luaopen_luaharfbuzz (lua_State *L) {
   lua_setfield(L, -2, "unicode");
 
 #ifdef LuajitTeX
-  /* TODO: we usually dont use require, the module */
-  /* is already in global space  */
   luaL_register(L,NULL, lib_table);
   /**/
   lua_pushvalue(L, -1);
