@@ -147,7 +147,7 @@ char *generic_synctex_get_current_name (void)
 }
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #if !IS_pTeX
 FILE *Poptr;
 #endif
@@ -162,11 +162,34 @@ int fsyscp_stat(const char *path, struct stat *buffer)
   int     ret;
   wpath = get_wstring_from_mbstring(file_system_codepage,
           path, wpath = NULL);
+  if (wpath == NULL)
+    return -1;
   ret = _wstat(wpath, buffer);
   free(wpath);
   return ret;
 }
-#endif /* WIN32 */
+#include <sys/stat.h>
+int fsyscp_dir_p(char *path)
+{
+  struct stat stats;
+  int    ret;
+
+  ret = fsyscp_stat(path, &stats) == 0 && S_ISDIR (stats.st_mode);
+  return ret;
+}
+int fsyscp_access(const char *path, int mode)
+{
+  wchar_t *wpath;
+  int     ret;
+  wpath = get_wstring_from_mbstring(file_system_codepage,
+          path, wpath = NULL);
+  if (wpath == NULL)
+    return -1;
+  ret = _waccess(wpath, mode);
+  free(wpath);
+  return ret;
+}
+#endif /* _WIN32 */
 
 #if defined(TeX) || (defined(MF) && defined(WIN32))
 static int
@@ -3094,6 +3117,40 @@ void initstarttime(void)
     }
 }
 
+#if defined(_WIN32)
+#undef access
+#undef dir_p
+#define access fsyscp_access
+#define dir_p fsyscp_dir_p
+#endif /* _WIN32 */
+
+/* Search for an input file. If -output-directory is specified look
+   there first. If that fails, do the regular kpse search. */
+string
+find_input_file(integer s)
+{
+    string filename;
+
+#if defined(XeTeX)
+    filename = gettexstring(s);
+#else
+    filename = makecfilename(s);
+#endif
+    /* Look in -output-directory first, if the filename is not
+       absolute.  This is because we want the pdf* functions to
+       be able to find the same files as \openin */
+    if (output_directory && !kpse_absolute_p (filename, false)) {
+        string pathname;
+
+        pathname = concat3(output_directory, DIR_SEP_STRING, filename);
+        if (!access(pathname, R_OK) && !dir_p (pathname)) {
+            return pathname;
+        }
+        xfree (pathname);
+    }
+    return kpse_find_tex(filename);
+}
+
 #if !defined(XeTeX)
 char *makecstring(integer s)
 {
@@ -3169,20 +3226,15 @@ void getcreationdate(void)
         strpool[poolptr++] = (uint16_t)start_time_str[i];
 #else
     memcpy(&strpool[poolptr], start_time_str, len);
-#endif
     poolptr += len;
+#endif
 }
 
 void getfilemoddate(integer s)
 {
     struct stat file_data;
-#if defined(XeTeX)
-    int i;
-    const_string orig_name = gettexstring(s);
-#else
-    const_string orig_name = makecfilename(s);
-#endif
-    char *file_name = kpse_find_tex(orig_name);
+
+    char *file_name = find_input_file(s);
     if (file_name == NULL) {
         return;                 /* empty string */
     }
@@ -3206,6 +3258,8 @@ void getfilemoddate(integer s)
             /* error by str_toks that calls str_room(1) */
         } else {
 #if defined(XeTeX)
+            int i;
+
             for (i = 0; i < len; i++)
                 strpool[poolptr++] = (uint16_t)time_str[i];
 #else
@@ -3224,11 +3278,7 @@ void getfilesize(integer s)
     struct stat file_data;
     int i;
 
-#if defined(XeTeX)
-    char *file_name = kpse_find_tex(gettexstring(s));
-#else
-    char *file_name = kpse_find_tex(makecfilename(s));
-#endif
+    char *file_name = find_input_file(s);
     if (file_name == NULL) {
         return;                 /* empty string */
     }
@@ -3274,7 +3324,8 @@ void getfiledump(integer s, int offset, int length)
     FILE *f;
     int read, i;
 #if defined(XeTeX)
-    char *readbuffer, strbuf[3];
+    unsigned char *readbuffer;
+    char strbuf[3];
     int j, k;
 #else
     poolpointer data_ptr;
@@ -3294,11 +3345,7 @@ void getfiledump(integer s, int offset, int length)
         return;
     }
 
-#if defined(XeTeX)
-    file_name = kpse_find_tex(gettexstring(s));
-#else
-    file_name = kpse_find_tex(makecfilename(s));
-#endif
+    file_name = find_input_file(s);
     if (file_name == NULL) {
         return;                 /* empty string */
     }
@@ -3318,7 +3365,7 @@ void getfiledump(integer s, int offset, int length)
         return;
     }
 #if defined(XeTeX)
-    readbuffer = (char *)xmalloc (length + 1);
+    readbuffer = (unsigned char *)xmalloc (length + 1);
     read = fread(readbuffer, sizeof(char), length, f);
     fclose(f);
     for (j = 0; j < read; j++) {
@@ -3388,13 +3435,7 @@ void getmd5sum(strnumber s, boolean file)
         FILE *f;
         char *file_name;
 
-#if defined(XeTeX)
-        xname = gettexstring (s);
-        file_name = kpse_find_tex (xname);
-        xfree (xname);
-#else
-        file_name = kpse_find_tex(makecfilename(s));
-#endif
+        file_name = find_input_file(s);
         if (file_name == NULL) {
             return;             /* empty string */
         }

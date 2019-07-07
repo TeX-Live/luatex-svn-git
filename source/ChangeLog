@@ -1,3 +1,40 @@
+2019-06-25  Karl Berry  <karl@freefriends.org>
+
+	* Build: don't call buildinfo from here, the output when the CC
+	etc. envvars are not set is too misleading. Just write UNAME.
+
+2019-06-24  Karl Berry  <karl@freefriends.org>
+
+	* doc/buildinfo.sh (compiler_version): new shell function;
+	 ignore useless first "Configured:" line for gcc->cc on Macs.
+
+2019-06-23  Karl Berry  <karl@freefriends.org>
+
+	* doc/buildinfo.sh: output the compiler/other names
+	that we pass from the buildinfo target.
+	* Makefile.am (buildinfo): pass OBJCXX, not OBJC.
+	* Build: more maintainable exports of TL_*.
+
+2019-06-22  Karl Berry  <karl@freefriends.org>
+
+	* doc/buildinfo.sh: rename from build-info.sh;
+	forget /etc/issue;
+	allow option to omit config.status output;
+	do not dump environment;
+	run lsb_release -a. We'll see ...
+	* Build: use buildinfo.sh instead of inline commands (mostly).
+	* Makefile.am (buildinfo): make dependency of all-recursive
+	so that it runs first; rename from build-info; remove from world.
+
+2019-06-06  Karl Berry  <karl@tug.org>
+
+	* Makefile.am (world): make build-info.
+	(build-info): new target to invoke doc/build-info.sh.
+	(build_info_target): new variable.
+	* Build: export TL_* variables so build-info.sh can report them.
+	* doc/build-info.sh: new script to report compiler versions,
+	dump environment, config.status, etc.
+
 2019-05-03  Karl Berry  <karl@tug.org>
 
 	* version.ac: 2020/dev.
