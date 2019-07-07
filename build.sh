@@ -26,8 +26,6 @@
 #      --parallel  : make -j 8 -l 8.0
 #      --nostrip   : do not strip binary
 #      --warnings= : enable compiler warnings
-#      --lua52     : build luatex  with luatex 52
-#      --nolua52   : don't build luatex  with luatex 52
 #      --lua53     : build luatex  with luatex 53
 #      --nolua53   : don't build luatex  with luatex 53
 #      --mingw[32] : crosscompile for mingw32
@@ -69,7 +67,6 @@ else
 fi
 
 BUILDJIT=FALSE
-BUILDLUA52=FALSE
 BUILDLUA53=TRUE
 BUILDLUAHB=FALSE
 BUILDJITHB=FALSE
@@ -107,7 +104,6 @@ until [ -z "$1" ]; do
     --host=*		) CONFHOST="$1"      ;;
     --jit		) BUILDJIT=TRUE      ;;
     --jithb		) BUILDJITHB=TRUE    ;;
-    --lua52		) BUILDLUA52=TRUE    ;;
     --lua53		) BUILDLUA53=TRUE    ;;
     --luahb		) BUILDLUAHB=TRUE    ;;
     --make		) ONLY_MAKE=TRUE     ;;
@@ -116,7 +112,6 @@ until [ -z "$1" ]; do
     --musl		) USEMUSL=TRUE       ;; 
     --nojit		) BUILDJIT=FALSE     ;;
     --nojithb		) BUILDJITHB=FALSE   ;;
-    --nolua52		) BUILDLUA52=FALSE   ;;
     --nolua53		) BUILDLUA53=FALSE   ;;
     --noluahb		) BUILDLUAHB=FALSE   ;;
     --nostrip		) STRIP_LUATEX=FALSE ;;
@@ -282,24 +277,31 @@ fi
 
 cd "$B"
 
-JITENABLE="--enable-luajittex=no --enable-mfluajit=no"
+JITENABLE="--enable-luajittex=no "
 if [ "$BUILDJIT" = "TRUE" ]
 then
   JITENABLE="--enable-luajittex --without-system-luajit "
 fi
 
-JITHBENABLE="--enable-luajithbtex=no --enable-mfluajit=no"
+JITHBENABLE="--enable-luajithbtex=no "
 if [ "$BUILDJITHB" = "TRUE" ]
 then
   JITHBENABLE="--enable-luajithbtex --without-system-luajit "
 fi
 
+if [ "$BUILDJIT" = "FALSE" ] && [ "$BUILDJITHB" = "FALSE" ]
+then
+  JITENABLE="$JITENABLE --enable-mfluajit=no "
+  JITHBENABLE="$JITHBENABLE --enable-mfluajit=no "
+fi
 
-BUILDLUA52=FALSE
-LUA52ENABLE=
 
-BUILDLUA53=TRUE
 LUA53ENABLE=--enable-luatex
+if [ "$BUILDLUA53" = "FALSE" ]
+then
+  LUAHBENABLE="--enable-luahbtex=no "
+fi
+
 
 LUAHBENABLE=--enable-luahbtex=no
 if [ "$BUILDHB" = "TRUE" ]
@@ -307,11 +309,6 @@ then
   LUAHBENABLE="--enable-luahbtex"
 fi
 
-
-
-
-#    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
-#      --enable-cxx-runtime-hack \
 
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
@@ -424,8 +421,14 @@ then
 fi
 
 # show the result
+if [ "$BUILDLUA53" = "TRUE" ]
+then
 ls -l "$B"/texk/web2c/$LUATEXEXE
+fi    
+if [ "$BUILDLUAHB" = "TRUE" ]
+then
 ls -l "$B"/texk/web2c/$LUAHBTEXEXE
+fi 
 if [ "$BUILDJIT" = "TRUE" ]
 then
 ls -l "$B"/texk/web2c/$LUATEXEXEJIT
