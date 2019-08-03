@@ -105,7 +105,7 @@ static int face_get_table_tags(lua_State *L) {
       count = STATIC_ARRAY_SIZE;
       hb_face_get_table_tags(*f, offset, &count, tags);
       for (i = 0; i < count; i++) {
-        lua_pushnumber(L, i + 1);
+        lua_pushnumber(L, offset + i + 1);
 
         Tag *tp = (Tag *)lua_newuserdata(L, sizeof(*tp));
         luaL_getmetatable(L, "harfbuzz.Tag");
@@ -137,7 +137,7 @@ static int face_ot_layout_get_script_tags(lua_State *L) {
       count = STATIC_ARRAY_SIZE;
       hb_ot_layout_table_get_script_tags(*face, *table, offset, &count, tags);
       for (i = 0; i < count; i++) {
-        lua_pushnumber(L, i + 1);
+        lua_pushnumber(L, offset + i + 1);
 
         Tag *tp = (Tag *)lua_newuserdata(L, sizeof(*tp));
         luaL_getmetatable(L, "harfbuzz.Tag");
@@ -170,7 +170,7 @@ static int face_ot_layout_get_language_tags(lua_State *L) {
       count = STATIC_ARRAY_SIZE;
       hb_ot_layout_script_get_language_tags(*face, *table, script_index, offset, &count, tags);
       for (i = 0; i < count; i++) {
-        lua_pushnumber(L, i + 1);
+        lua_pushnumber(L, offset + i + 1);
 
         Tag *tp = (Tag *)lua_newuserdata(L, sizeof(*tp));
         luaL_getmetatable(L, "harfbuzz.Tag");
@@ -204,7 +204,7 @@ static int face_ot_layout_get_feature_tags(lua_State *L) {
       count = STATIC_ARRAY_SIZE;
       hb_ot_layout_language_get_feature_tags(*face, *table, script_index, language_index, offset, &count, tags);
       for (i = 0; i < count; i++) {
-        lua_pushnumber(L, i + 1);
+        lua_pushnumber(L, offset + i + 1);
 
         Tag *tp = (Tag *)lua_newuserdata(L, sizeof(*tp));
         luaL_getmetatable(L, "harfbuzz.Tag");
@@ -320,7 +320,7 @@ static int face_ot_color_palette_get_colors(lua_State *L) {
       for (i = 0; i < count; i++) {
         hb_color_t color = colors[i];
 
-        lua_pushnumber(L, i+1); // 1-indexed key parent table
+        lua_pushnumber(L, offset + i + 1); // 1-indexed key parent table
         lua_createtable(L, 0, 4); // child table
 
         lua_pushinteger(L, hb_color_get_red(color));
@@ -371,7 +371,7 @@ static int face_ot_color_glyph_get_layers(lua_State *L) {
         if (color_index != 0xFFFF)
           color_index++; // make it 1-indexed
 
-        lua_pushnumber(L, i+1);  // 1-indexed key parent table
+        lua_pushnumber(L, offset + i + 1);  // 1-indexed key parent table
         lua_createtable(L, 0, 2); // child table
 
         lua_pushinteger(L, layer.glyph);
