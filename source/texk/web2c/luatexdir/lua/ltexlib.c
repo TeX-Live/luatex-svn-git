@@ -2066,7 +2066,7 @@ static int tex_setmathparm(lua_State * L)
         }
         i = luaL_checkoption(L, (n - 2), NULL, math_param_names);
         j = luaL_checkoption(L, (n - 1), NULL, math_style_names);
-        if (i<0 && i>=math_param_last) {
+        if (i < 0 || j < 0) {
             /* invalid spec, just ignore it  */
         } else if (i>=math_param_first_mu_glue) {
             p = lua_touserdata(L, n);
@@ -2084,20 +2084,24 @@ static int tex_setmathparm(lua_State * L)
 
 static int tex_getmathparm(lua_State * L)
 {
-    if ((lua_gettop(L) == 2)) {
+    if (lua_gettop(L) == 2) {
         int i = luaL_checkoption(L, 1, NULL, math_param_names);
         int j = luaL_checkoption(L, 2, NULL, math_style_names);
-        scaled k = get_math_param(i, j);
-        if (i<0 && i>=math_param_last) {
+        if (i < 0 || j < 0) {
             lua_pushnil(L);
-        } else if (i>=math_param_first_mu_glue) {
-            if (k <= thick_mu_skip_code) {
-                k = glue_par(k);
-            }
-            lua_nodelib_push_fast(L, k);
         } else {
-            lua_pushinteger(L, k);
+            scaled k = get_math_param(i, j);
+            if (i >= math_param_first_mu_glue) {
+                if (k <= thick_mu_skip_code) {
+                    k = glue_par(k);
+                }
+                lua_nodelib_push_fast(L, k);
+            } else {
+                lua_pushinteger(L, k);
+            }
         }
+    } else {
+        lua_pushnil(L);
     }
     return 1;
 }
