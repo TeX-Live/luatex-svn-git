@@ -1104,11 +1104,12 @@ The known fields are:
 \starttabulate[|l|l|l|p|]
 \DB key                \BC type    \BC modes \BC explanation \NC \NR
 \TB
-\NC \type{mode}        \NC number  \NC all   \NC a string:
-                                                 \type {none} (this happens during \prm {write}),
-                                                 \type {vmode}, \type {hmode}, \type {displaymath},
-                                                 \type {innervmode}, \type {innerhmode}, \type {inlinemath};
-                                                 these fields cannot be set \NC \NR
+\NC \type{mode}        \NC number  \NC all   \NC the meaning of these numbers depends on the engine
+                                                 and sometimes even the version; you can use \typ
+                                                 {tex.getmodevalues()} to get the mapping: positive
+                                                 values signal vertical, horizontal and math mode,
+                                                 while negative values indicate inner and inline
+                                                 variants \NC \NR
 \NC \type{modeline}    \NC number  \NC all   \NC source input line where this mode was entered in,
                                                  negative inside the output routine \NC \NR
 \NC \type{head}        \NC node    \NC all   \NC the head of the current list \NC \NR

@@ -3531,6 +3531,26 @@ static int runtoks(lua_State * L)
     return 0;
 }
 
+/*tex Negative values are internal and inline. */
+
+static int tex_getmodevalues(lua_State * L)
+{
+    lua_newtable(L);
+    lua_pushinteger(L,0);
+    lua_push_string_by_name(L,unset);      /* 0 */
+    lua_rawset(L, -3);
+    lua_pushinteger(L,vmode);
+    lua_push_string_by_name(L,vertical);   /* 1 */
+    lua_rawset(L, -3);
+    lua_pushinteger(L,hmode);
+    lua_push_string_by_name(L,horizontal); /* 127 */
+    lua_rawset(L, -3);
+    lua_pushinteger(L,mmode);
+    lua_push_string_by_name(L,math);       /* 253 */
+    lua_rawset(L, -3);
+    return 1;
+}
+
 /* till here */
 
 void init_tex_table(lua_State * L)
@@ -3655,6 +3675,7 @@ static const struct luaL_Reg texlib[] = {
     /* test */
     { "runtoks", runtoks },
     { "forcehmode", forcehmode },
+    { "getmodevalues", tex_getmodevalues },
     /* sentinel */
     { NULL, NULL }
 };
