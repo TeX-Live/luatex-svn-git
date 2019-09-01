@@ -1057,6 +1057,10 @@ void local_control(void)
     int ll = local_level;
     main_control_state = goto_next;
     local_level += 1;
+    set_saved_record(0, restore_old_value, 0, scanner_status);
+    set_saved_record(1, restore_old_value, 0, def_ref);
+    set_saved_record(2, restore_old_value, 0, warning_index);
+    save_ptr += 3;
     while (1) {
         if (main_control_state == goto_skip_token) {
             main_control_state = goto_next;
@@ -1090,6 +1094,10 @@ void local_control(void)
 
 void end_local_control(void )
 {
+    save_ptr -= 3;
+    scanner_status = saved_value(0);
+    def_ref = saved_value(1);
+    warning_index = saved_value(2);
     local_level -= 1;
 }
 
@@ -3797,8 +3805,8 @@ void open_or_close_in(void)
         if (cur_cmd != left_brace_cmd) {
             /*tex Set |cur_name| to desired file name. */
             scan_file_name();
-            /*if (cur_ext == get_nullstr())*/
-            /*    cur_ext = maketexstring(".tex");*/
+            if (cur_ext == get_nullstr())
+                cur_ext = maketexstring(".tex");
         } else {
             scan_file_name_toks();
         }
