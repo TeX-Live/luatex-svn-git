@@ -3487,12 +3487,12 @@ static int runtoks(lua_State * L)
     if (lua_type(L,1) == LUA_TFUNCTION) {
         int old_mode = mode;
         int ref;
-        pointer r = get_avail();
-        pointer t = get_avail();
-        token_info(r) = token_val(extension_cmd,end_local_code);
+        halfword r = get_avail();
+        halfword t = get_avail();
+        token_info(r) = token_val(end_local_code,0);
         lua_pushvalue(L, 1);
         ref = luaL_ref(L,LUA_REGISTRYINDEX);
-        token_info(t) = token_val(lua_local_call_cmd, ref);
+        token_info(r) = token_val(extension_cmd,end_local_code);
         begin_token_list(r,inserted);
         begin_token_list(t,inserted);
         if (luacstrings > 0) {
@@ -3506,16 +3506,31 @@ static int runtoks(lua_State * L)
         mode = old_mode;
         luaL_unref(L,LUA_REGISTRYINDEX,ref);
     } else {
-        int k = get_item_index(L, lua_gettop(L), toks_base);
-        halfword t = toks(k);
+        halfword t;
+        int k = get_item_index(L, 1, toks_base);
         check_index_range(k, "gettoks");
-        if (t != null) {
+        t = toks(k);
+        if (! t) {
+            /* nothing to do */
+        } else if ((scanner_status != defining) || (lua_toboolean(L,2))) {
+            int grouped = lua_toboolean(L,3);
             int old_mode = mode;
-            pointer r = get_avail();
-            token_info(r) = token_val(extension_cmd,end_local_code);
-            begin_token_list(r,inserted);
-            /* new_save_level(semi_simple_group); */
+            if (grouped) {
+                halfword r = get_avail();
+                token_info(r) = token_val(right_brace_cmd,0);
+                begin_token_list(r,inserted);
+            }
+            {
+                halfword r = get_avail();
+                token_info(r) = token_val(extension_cmd,end_local_code);
+                begin_token_list(r,inserted);
+            }
             begin_token_list(t,local_text);
+            if (grouped) {
+                halfword r = get_avail();
+                token_info(r) = token_val(left_brace_cmd,0);
+                begin_token_list(r,inserted);
+            }
             if (luacstrings > 0) {
                 lua_string_start();
             }
@@ -3526,8 +3541,28 @@ static int runtoks(lua_State * L)
             local_control();
             mode = old_mode;
             /* unsave(); */
+        } else {
+            halfword q;
+            halfword p = temp_token_head;
+            halfword r = token_link(t);
+            set_token_link(p, null);
+            while (r) {
+                fast_store_new_token(token_info(r));
+                r = token_link(r);
+            }
+            ins_list(token_link(temp_token_head));
         }
     }
+    return 0;
+}
+
+static int quittoks(lua_State * L)
+{
+    (void) L;
+    if (tracing_nesting_par > 2) {
+        local_control_message("quitting token scanner");
+    }
+    end_local_control();
     return 0;
 }
 
@@ -3674,6 +3709,7 @@ static const struct luaL_Reg texlib[] = {
     { "get_synctex_line", lua_get_synctex_line },
     /* test */
     { "runtoks", runtoks },
+    { "quittoks", quittoks },
     { "forcehmode", forcehmode },
     { "getmodevalues", tex_getmodevalues },
     /* sentinel */
