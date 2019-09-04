@@ -3489,10 +3489,10 @@ static int runtoks(lua_State * L)
         int ref;
         halfword r = get_avail();
         halfword t = get_avail();
-        token_info(r) = token_val(end_local_code,0);
+        token_info(r) = token_val(extension_cmd,end_local_code);
         lua_pushvalue(L, 1);
         ref = luaL_ref(L,LUA_REGISTRYINDEX);
-        token_info(r) = token_val(extension_cmd,end_local_code);
+        token_info(t) = token_val(lua_local_call_cmd, ref);
         begin_token_list(r,inserted);
         begin_token_list(t,inserted);
         if (luacstrings > 0) {
