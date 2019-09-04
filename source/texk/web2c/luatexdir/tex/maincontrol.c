@@ -991,6 +991,7 @@ static void init_main_control (void) {
  /* any_mode(lua_expandable_call_cmd, run_lua_call); */ /* no! outside jump table anyway, handled in expand() */
     any_mode(node_cmd, run_node);
 
+    any_mode(combine_toks_cmd, combine_the_toks);
 }
 
 /*tex
@@ -1101,8 +1102,7 @@ void local_control(void)
             break;
         }
     }
-    /*tex
-        From the perspective of ending and changing the level this is the
+    /*tex From the perspective of ending and changing the level this is the
         wrong spot, as it should be done in |end_local_control| in which case
         we should use the save stack. Maybe some day.
     */
@@ -1113,7 +1113,6 @@ void local_control(void)
 
 void end_local_control(void )
 {
-printf("!!!!! %i\n",local_level);
     if (local_level > 0) {
         local_level -= 1;
     } else {
