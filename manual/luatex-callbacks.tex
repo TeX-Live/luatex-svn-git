@@ -238,7 +238,9 @@ The \type {asked_name} is an image file. Your return value is used to open a fil
 from the hard disk, so make sure you return something that is considered the name
 of a valid file by your operating system.
 
-\subsection[iocallback]{File reading callbacks}
+\stopsection
+
+\startsection[iocallback][title={File reading callbacks}]
 
 The behavior documented in this subsection is considered stable in the sense that
 there will not be backward-incompatible changes any more.
@@ -1129,18 +1131,32 @@ definition can be reused instead of creating a whole new font structure.
 Setting this callback to \type {false} is pointless as it will prevent font
 loading completely but will nevertheless generate errors.
 
-\subsection{\cbk {glyph_not_found}}
+\subsection{\cbk {glyph_not_found} and \cbk {glyph_info}}
 
 \topicindex{callbacks+fonts}
 
-This callback kicks in when the backend cannot insert a glyph. When no callback
-is defined a message is written to the log.
+The \type {glyph_not_found} callback, when set, kicks in when the backend cannot
+insert a glyph. When no callback is defined a message is written to the log.
 
 \startfunctioncall
 function(<number> id, <number> char)
     -- do something with font id and char code
 end
 \stopfunctioncall
+
+The \type {glyph_info} callback can be set to report a useful representation of a
+glyph.
+
+\startfunctioncall
+function(<node> g)
+    -- return a string or nil
+end
+\stopfunctioncall
+
+When \type {nil} is returned the character code is printed, otherwise the
+returned string is used. By default the \UTF\ representation is shown which is
+not always that useful, especially when there is no real representation. Keep in
+mind that setting this callback can change the log in an incompatible way.
 
 \stopsection
 
