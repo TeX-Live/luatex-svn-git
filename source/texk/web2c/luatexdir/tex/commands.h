@@ -307,6 +307,8 @@ typedef enum {
     current_if_branch_code,               /* code for \.{\\currentifbranch} */
     glue_stretch_order_code,              /* code for \.{\\gluestretchorder} */
     glue_shrink_order_code,               /* code for \.{\\glueshrinkorder} */
+    eTeX_glue_stretch_order_code,         /* code for \.{\\eTeXgluestretchorder} */
+    eTeX_glue_shrink_order_code,          /* code for \.{\\eTeXglueshrinkorder} */
     font_char_wd_code,                    /* code for \.{\\fontcharwd} */
 #  define eTeX_dim font_char_wd_code      /* first of \eTeX\ codes for dimensions */
     font_char_ht_code,                    /* code for \.{\\fontcharht} */
