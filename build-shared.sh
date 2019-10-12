@@ -203,7 +203,7 @@ fi
 SHAREDENABLE="--disable-shared "
 if [ "$ENABLESHARED" = "TRUE" ]
 then
-  SHAREDENABLE="--enable-shared -disable-native-texlive-build "
+  SHAREDENABLE="--enable-shared --disable-native-texlive-build --disable-static"
   if [ ! -r "$B-shared" ]
   then
    mkdir "$B-shared"
@@ -248,6 +248,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --disable-xetex \
     --disable-ptex \
     --disable-ipc \
+    --disable-native-texlive-build \
     --disable-dump-share \
     --enable-web2c  \
      $LUA53ENABLE  $JITENABLE \
@@ -258,6 +259,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --without-system-freetype2 \
     --without-system-gd \
     --without-system-libpng \
+    --without-system-poppler \
     --without-system-teckit \
     --without-system-zlib \
     --without-system-t1lib \

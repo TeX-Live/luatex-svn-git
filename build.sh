@@ -321,6 +321,7 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --disable-xetex \
     --disable-ipc \
     --disable-dump-share \
+    --disable-native-texlive-build \
     --enable-coremp  \
     --enable-web2c  \
     $LUA53ENABLE  $JITENABLE $LUAHBENABLE $JITHBENABLE \
@@ -333,6 +334,7 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --without-system-freetype2 \
     --without-system-gd \
     --without-system-libpng \
+    --without-system-poppler \
     --without-system-teckit \
     --without-system-zlib \
     --without-system-t1lib \
