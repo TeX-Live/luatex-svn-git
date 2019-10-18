@@ -124,6 +124,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/texk/web2c/ac/web2c.ac \
 	$(top_srcdir)/texk/texlive/ac/withenable.ac \
 	$(top_srcdir)/texk/texlive/ac/texlive.ac \
+	$(top_srcdir)/libs/harfbuzz/ac/withenable.ac \
+	$(top_srcdir)/libs/graphite2/ac/withenable.ac \
 	$(top_srcdir)/libs/zziplib/ac/withenable.ac \
 	$(top_srcdir)/libs/libpng/ac/withenable.ac \
 	$(top_srcdir)/libs/luajit/ac/withenable.ac \
@@ -135,6 +137,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/libs/zlib/ac/zlib.ac \
 	$(top_srcdir)/libs/libpng/ac/libpng.ac \
 	$(top_srcdir)/libs/zziplib/ac/zziplib.ac \
+	$(top_srcdir)/libs/graphite2/ac/graphite2.ac \
+	$(top_srcdir)/libs/harfbuzz/ac/harfbuzz.ac \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -436,6 +440,9 @@ CONFIG_AUX = $(recurse_top)subsubdir-conf.cmd
 # at install-data, and fmtutil.cnf won't be there at install-exec,
 # and there is no install-hook or install-local.
 texlinks_dir = texk/texlive/tl_scripts
+
+# should be harmless to run it, but just in case:
+build_info_target = buildinfo
 @cross_FALSE@check_target = check
 
 # Allow for skipping make check if needed.
@@ -952,16 +959,32 @@ $(CONFIG_AUX):
 	@echo "configure in $(recurse_top)auxdir/auxsub failed to create the file $@"
 	exit 1
 
-# This is the default target for the Build script in TeX Live.
+# This (world) is the default target for the ./Build script in TeX Live.
 .PHONY: world
 world: all
+# Serialize 'make all' and 'make install-strip'.
 	@echo "top-level make $@: running install-strip..."
 	$(MAKE) $(AM_MAKEFLAGS) install-strip
-	@echo "top-level make $@: running texlinks in $(texlinks_dir) ..."
+#
+	@echo "top-level make $@: making run-texlinks in $(texlinks_dir) ..."
 	cd $(texlinks_dir) && $(MAKE) $(AM_MAKEFLAGS) run-texlinks
+#
 	@echo "top-level make $@: running $(check_target)..."
 	$(MAKE) $(AM_MAKEFLAGS) $(check_target)
+#
 	@echo "top-level make $@ done."
+
+# create file buildinfo.log in working directory, to record relevant
+# information about the build environment.
+buildinfo:
+	-env MAKE="$(MAKE)" LDFLAGS="$(LDFLAGS)" \
+	    CC="$(CC)" CFLAGS="$(CFLAGS)" \
+	    CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
+	    OBJCXX="$(OBJCXX)" OBJCXXFLAGS="$(OBJCXXFLAGS)" \
+	$(srcdir)/doc/buildinfo.sh >buildinfo.log
+
+# run buildinfo first.
+all-recursive: buildinfo
 
 install-exec-hook:
 	@echo "WARNING: make install does not result in a usable TeX!"

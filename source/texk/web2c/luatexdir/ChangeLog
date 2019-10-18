@@ -1,3 +1,29 @@
+2019-10-18 Luigi Scarso <luigi.scarso@gmail.com>
+	* following https://tug.org/pipermail/tlbuild/2019q3/004553.html
+          we have now define(__sparc)
+
+2019-10-13 Luigi Scarso <luigi.scarso@gmail.com>
+	* additional primitives  \eTeXglue[stretch|shrink]order for querying order the etex way (HH)
+	* extra features runtoks (HH)
+	* tex.getmodenames() (as these can differ per engine/version) (HH)
+	* permit nested runtoks in more complex situations of nesting (HH)
+	* more accurate and correct test for tex.[set|get]math
+	* minor clean-up and bugs fixed
+
+
+
+2019-08-12 Luigi Scarso <luigi.scarso@gmail.com>
+	* Support new option --cnf-line from  kapthsea.
+
+
+2019-07-27 Luigi Scarso <luigi.scarso@gmail.com>
+	* Fixed \opein, to be consistent with pdftex in opening
+	  a file without extension (but not enclosed in {})
+
+2019-07-06 Luigi Scarso <luigi.scarso@gmail.com>
+	* Integration of harfbuzz. 
+	* Splitting of exe into *hbtex variants.
+
 2019-02-19 Luigi Scarso <luigi.scarso@gmail.com>
 	* am/luatex.am ([un]install-lua[jit]tex-links) [MINGW32]:
 	different commands for mingw.

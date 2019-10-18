@@ -12,7 +12,7 @@
 # define PPHEAP_NEED_ALIGNMENT
 #endif
 
-#if defined(__sun) && defined(__SVR4)
+#if defined(__sparc)
 # define PPHEAP_NEED_ALIGNMENT
 #endif
  
@@ -179,6 +179,7 @@ static void align_free_set(void){
 	for(p=1;p<align_set->bucket_pos;p++){
 	  if (align_set->align_data_set[p]) {
 	    free(align_set->align_data_set[p]);
+            align_set->align_data_set[p] = NULL;
 	  }
 	}
 	free(align_set->align_data_set);

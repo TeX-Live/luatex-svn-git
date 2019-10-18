@@ -26,8 +26,6 @@
 #      --parallel  : make -j 8 -l 8.0
 #      --nostrip   : do not strip binary
 #      --warnings= : enable compiler warnings
-#      --lua52     : build luatex  with luatex 52
-#      --nolua52   : don't build luatex  with luatex 52
 #      --lua53     : build luatex  with luatex 53
 #      --nolua53   : don't build luatex  with luatex 53
 #      --mingw[32] : crosscompile for mingw32
@@ -69,8 +67,9 @@ else
 fi
 
 BUILDJIT=FALSE
-BUILDLUA52=FALSE
 BUILDLUA53=TRUE
+BUILDLUAHB=FALSE
+BUILDJITHB=FALSE
 BUILDTAG=
 ONLY_MAKE=FALSE
 STRIP_LUATEX=TRUE
@@ -104,15 +103,17 @@ until [ -z "$1" ]; do
     --debugopt		) STRIP_LUATEX=FALSE; WARNINGS=max ; CFLAGS="-O3 -g -ggdb3 $CFLAGS" ; CXXFLAGS="-O3 -g -ggdb3 $CXXFLAGS"  ;;
     --host=*		) CONFHOST="$1"      ;;
     --jit		) BUILDJIT=TRUE      ;;
-    --lua52		) BUILDLUA52=TRUE    ;;
+    --jithb		) BUILDJITHB=TRUE    ;;
     --lua53		) BUILDLUA53=TRUE    ;;
+    --luahb		) BUILDLUAHB=TRUE    ;;
     --make		) ONLY_MAKE=TRUE     ;;
     --mingw|--mingw32	) MINGWCROSS32=TRUE  ;;
     --mingw64		) MINGWCROSS64=TRUE  ;;
     --musl		) USEMUSL=TRUE       ;; 
     --nojit		) BUILDJIT=FALSE     ;;
-    --nolua52		) BUILDLUA52=FALSE   ;;
+    --nojithb		) BUILDJITHB=FALSE   ;;
     --nolua53		) BUILDLUA53=FALSE   ;;
+    --noluahb		) BUILDLUAHB=FALSE   ;;
     --nostrip		) STRIP_LUATEX=FALSE ;;
     --parallel		) MAKE="$MAKE -j $JOBS_IF_PARALLEL -l $MAX_LOAD_IF_PARALLEL" ;;
     --stripbin=*	) STRIPBIN="$1"      ;;
@@ -128,12 +129,12 @@ STRIP=strip
 LUATEXEXEJIT=luajittex
 LUATEXEXE=luatex
 LUATEXEXE53=luatex
-
-
+LUAHBTEXEXE=luahbtex
+LUAHBTEXEXEJIT=luajithbtex
 
 case `uname` in
-  CYGWIN*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex.exe ;;
-  MINGW*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex.exe ;;
+  CYGWIN*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex.exe ; LUAHBTEXEXEJIT=luajithbtex.exe ; LUAHBTEXEXE=luahbtex.exe ;;
+  MINGW*	) LUATEXEXEJIT=luajittex.exe ; LUATEXEXE=luatex.exe ; LUATEXEXE53=luatex.exe ; LUAHBTEXEXEJIT=luajithbtex.exe ; LUAHBTEXEXE=luahbtex.exe ;;
   Darwin	) STRIP="strip -u -r" ;;
 esac
 
@@ -189,6 +190,8 @@ then
   LUATEXEXEJIT=luajittex.exe
   LUATEXEXE=luatex.exe
   LUATEXEXE53=luatex.exe
+  LUAHBTEXEXEJIT=luajithbtex.exe
+  LUAHBTEXEXE=luahbtex.exe 
   RANLIB="${CONFHOST#--host=}-ranlib"
   STRIP="${CONFHOST#--host=}-strip"
 fi
@@ -274,29 +277,38 @@ fi
 
 cd "$B"
 
-JITENABLE="--enable-luajittex=no --enable-mfluajit=no"
+JITENABLE="--enable-luajittex=no "
 if [ "$BUILDJIT" = "TRUE" ]
 then
   JITENABLE="--enable-luajittex --without-system-luajit "
 fi
 
-BUILDLUA52=FALSE
-LUA52ENABLE=
-#if [ "$BUILDLUA52" = "TRUE" ]
-#then
-#  LUA52ENABLE="--enable-luatex"
-#fi
+JITHBENABLE="--enable-luajithbtex=no "
+if [ "$BUILDJITHB" = "TRUE" ]
+then
+  JITHBENABLE="--enable-luajithbtex --without-system-luajit "
+fi
 
-#LUA53ENABLE=--enable-luatex53
-BUILDLUA53=TRUE
+if [ "$BUILDJIT" = "FALSE" ] && [ "$BUILDJITHB" = "FALSE" ]
+then
+  JITENABLE="$JITENABLE --enable-mfluajit=no "
+  JITHBENABLE="$JITHBENABLE --enable-mfluajit=no "
+fi
+
+
 LUA53ENABLE=--enable-luatex
-#if [ "$BUILDLUA53" = "FALSE" ]
-#then
-#  LUA53ENABLE=
-#fi
+if [ "$BUILDLUA53" = "FALSE" ]
+then
+  LUAHBENABLE="--enable-luahbtex=no "
+fi
 
-#    --enable-dctdecoder=libjpeg --enable-libopenjpeg=openjpeg2 \
-#      --enable-cxx-runtime-hack \
+
+LUAHBENABLE=--enable-luahbtex=no
+if [ "$BUILDHB" = "TRUE" ]
+then
+  LUAHBENABLE="--enable-luahbtex"
+fi
+
 
 if [ "$ONLY_MAKE" = "FALSE" ]
 then
@@ -309,9 +321,10 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --disable-xetex \
     --disable-ipc \
     --disable-dump-share \
+    --disable-native-texlive-build \
     --enable-coremp  \
     --enable-web2c  \
-    $LUA53ENABLE  $JITENABLE \
+    $LUA53ENABLE  $JITENABLE $LUAHBENABLE $JITHBENABLE \
     --without-system-cairo  \
     --without-system-pixman \
     --without-system-ptexenc \
@@ -321,6 +334,7 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --without-system-freetype2 \
     --without-system-gd \
     --without-system-libpng \
+    --without-system-poppler \
     --without-system-teckit \
     --without-system-zlib \
     --without-system-t1lib \
@@ -333,34 +347,48 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
 fi
 
 
-$MAKE
+
+$MAKE 
 
 # the fact that these makes inside libs/ have to be done manually for the cross
 # compiler hints that something is wrong in the --enable/--disable switches above,
 # but I am too lazy to look up what is wrong exactly.
 # (perhaps more files needed to be copied from TL?)
 
-(cd libs; $MAKE all )
-(cd libs/zziplib; $MAKE all )
-(cd libs/zlib; $MAKE all )
-(cd libs/libpng; $MAKE all )
-(cd texk; $MAKE web2c/Makefile)
-(cd texk/kpathsea; $MAKE )
+(cd libs; $MAKE all )  
+(cd libs/zziplib; $MAKE all ) 
+(cd libs/harfbuzz; $MAKE all ) 
+(cd libs/zlib; $MAKE all ) 
+(cd libs/libpng; $MAKE all ) 
+(cd texk; $MAKE all ) 
+(cd texk/kpathsea; $MAKE all ) 
 if [ "$BUILDJIT" = "TRUE" ]
 then
-  (cd libs/luajit; $MAKE all )
-  (cd texk/web2c; $MAKE $LUATEXEXEJIT)
+  (cd libs/luajit; $MAKE all ) 
+  (cd texk/web2c; $MAKE $LUATEXEXEJIT ) 
 fi
 
-# if [ "$BUILDLUA52" = "TRUE" ]
-# then
-#   (cd texk/web2c; $MAKE $LUATEXEXE )
-# fi
+if [ "$BUILDJITHB" = "TRUE" ]
+then
+  (cd libs/luajit; $MAKE all) 
+  (cd texk/web2c; $MAKE $LUAHBTEXEXEJIT ) 
+fi
+
 
 if [ "$BUILDLUA53" = "TRUE" ]
 then
-  (cd texk/web2c; $MAKE $LUATEXEXE53 )
+  (cd texk/web2c; $MAKE $LUATEXEXE53 ) 
 fi
+
+
+if [ "$BUILDLUAHB" = "TRUE" ]
+then
+  (cd texk/web2c; $MAKE $LUAHBTEXEXE ) 
+fi
+
+
+
+
 
 
 # go back
@@ -372,14 +400,19 @@ then
     then
 	$STRIP "$B"/texk/web2c/$LUATEXEXEJIT
     fi
-#    if [ "$BUILDLUA52" = "TRUE" ]
-#    then
-#	$STRIP "$B"/texk/web2c/$LUATEXEXE
-#    fi
     if [ "$BUILDLUA53" = "TRUE" ]
     then
 	$STRIP "$B"/texk/web2c/$LUATEXEXE53
     fi
+    if [ "$BUILDLUAHB" = "TRUE" ]
+    then
+	$STRIP "$B"/texk/web2c/$LUAHBTEXEXE
+    fi
+    if [ "$BUILDJITHB" = "TRUE" ]
+    then
+	$STRIP "$B"/texk/web2c/$LUAHBTEXEXEJIT
+    fi
+
 else
   echo "lua(jit)tex binary not stripped"
 fi
@@ -390,24 +423,22 @@ then
 fi
 
 # show the result
+if [ "$BUILDLUA53" = "TRUE" ]
+then
 ls -l "$B"/texk/web2c/$LUATEXEXE
+fi    
+if [ "$BUILDLUAHB" = "TRUE" ]
+then
+ls -l "$B"/texk/web2c/$LUAHBTEXEXE
+fi 
 if [ "$BUILDJIT" = "TRUE" ]
 then
 ls -l "$B"/texk/web2c/$LUATEXEXEJIT
 fi
-#if [ "$BUILDLUA52" = "TRUE" ] && [ "$BUILDLUA53" = "TRUE" ]
-#then
-#    ls -l "$B"/texk/web2c/$LUATEXEXE
-#    ls -l "$B"/texk/web2c/$LUATEXEXE53
-#fi
-#if [ "$BUILDLUA52" = "TRUE" ] && [ "$BUILDLUA53" = "FALSE" ]
-#then
-#    ls -l "$B"/texk/web2c/$LUATEXEXE
-#fi
-#if [ "$BUILDLUA52" = "FALSE" ]  && [ "$BUILDLUA53" = "TRUE" ]
-#then
-#    mv   "$B"/texk/web2c/$LUATEXEXE53 "$B"/texk/web2c/$LUATEXEXE
-#    ls -l "$B"/texk/web2c/$LUATEXEXE
-#fi
+if [ "$BUILDJITHB" = "TRUE" ]
+then
+ls -l "$B"/texk/web2c/$LUAHBTEXEXEJIT
+fi
+
 
 

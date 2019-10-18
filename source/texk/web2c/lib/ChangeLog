@@ -1,3 +1,59 @@
+2019-08-10  Andreas Scherer  <https://ascherer.github.io>
+
+	* lib.h: add missing prototypes from 'openclose.c' and 'texmfmp.c'.
+
+2019-08-09  Karl Berry  <karl@freefriends.org>
+
+	* texmfmp.c (texmf_yesno): no longer static, since we call it
+	from tex.ch.
+
+	* texmfmp.c: doc fixes; most "fixme"s were nothing that we ever
+	need to fix at this late date.
+
+2019-08-08  Akira Kakuto  <kakuto@w32tex.org>
+
+	* texmfmp.c: This file is not used in lua[jit]tex.
+
+2019-08-07  Akira Kakuto  <kakuto@w32tex.org>
+
+	* texmfmp.c: Improve support of non-ascii path names in
+	synctex. Support -cnf-line=command_line_encoding=value.
+	These changes are for Windows only.
+
+2019-08-06  Karl Berry  <karl@freefriends.org>
+
+	* texmfmp.c (long_options): new option --cnf-line.
+	(user_cnf_lines, user_cnf_nlines): new globals.
+	(maininit): call kpathsea_cnf_line_env_progname
+	on each specified --cnf-line.
+	(parse_options): recognize it and save each arg.
+	Following suggestion from Pavel Sanda on ntg-pdftex,
+	15 Jun 2019 19:02:11.
+
+2019-07-01  Hironobu Yamashita  <h.y.acetaminophen@gmail.com>
+
+	* texmfmp.c (getcreationdate): Fix a wrong conditional (XeTeX only).
+
+2019-06-30  Hironori Kitagawa  <h_kitagawa2001@yahoo.co.jp>
+
+	* texmfmp.c (getfiledump): Change readbuffer to unsigned char*.
+	Without this change, xetexdir/tests/filedump.tex ends up with
+	"!error: snprintf failed: file ../../../texk/web2c/lib/texmfmp.c"
+	(XeTeX only).
+
+2019-05-14  Akira Kakuto  <kakuto@w32tex.org>
+
+	* texmfmp.c: Support non-ascii file names in special cases
+	implemented in a previous change on 2019-05-08 (Windows only).
+
+2019-05-08  Akira Kakuto  <kakuto@w32tex.org>
+
+	* texmfmp.c: Introduce a new function find_input_file(s)
+	to fix a bug that in special cases getfilesize() etc. for
+	image files saved in "output-directory" do not work.
+	A report in tex-k list:
+	https://tug.org/pipermail/tex-k/2019-May/003014.html
+
 2019-03-30  Akira Kakuto  <kakuto@w32tex.org>
 
 	* texmfmp.c: Improve to record texmf.cnf. (ptex and friends,
