@@ -304,7 +304,7 @@ fi
 
 
 LUAHBENABLE=--enable-luahbtex=no
-if [ "$BUILDHB" = "TRUE" ]
+if [ "$BUILDLUAHB" = "TRUE" ]
 then
   LUAHBENABLE="--enable-luahbtex"
 fi
