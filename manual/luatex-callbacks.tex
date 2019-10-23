@@ -1038,7 +1038,7 @@ end
 This callback is called after the \PDF\ page stream has been assembled and before
 the page object gets finalized.
 
-\subsection{\cbk {page_objnum_provider}}
+\subsection{\cbk {page_order_index}}
 
 \topicindex{callbacks+\PDF\ file}
 
@@ -1046,28 +1046,27 @@ This is one that experts can use to juggle the page tree, a data structure
 that determines the order in a \PDF\ file:
 
 \startfunctioncall
-function(objnum)
-  return objnum
+function(pagenumber)
+  return pagenumber
 end
 \stopfunctioncall
 
-We can for instance swap the first and last page:
+Say that we have 12 pages, then we can do this:
 
 \starttyping
-local n = 0
-callback.register("page_objnum_provider",function(objnum)
-    n = n + 1
-    if n == 1 then
-        return pdf.getpageref(tex.count[0])
-    elseif n == tex.count[0] then
-        return pdf.getpageref(1)
-    else
-        return objnum
+callback.register("page_order_index",function(page)
+        if page ==  1 then return 12
+    elseif page ==  2 then return 11
+    elseif page == 11 then return  2
+    elseif page == 12 then return  1
+    else                   return page
     end
 end)
 \stoptyping
 
-When you mess things up \unknown\ don't complain.
+This will swap the first two and last two pages. You need to know the number of
+pages which is a side effect of the implementation. When you mess things up
+\unknown\ don't complain.
 
 \subsection{\cbk {process_pdf_image_content}}
 
