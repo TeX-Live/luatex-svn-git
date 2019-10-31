@@ -1,3 +1,7 @@
+2019-10-31  Luigi Scarso <luigi.scarso@gmail.com>
+    * subfont key in font table (to identify subfint in ttc) plus
+      some cleanup (HH)
+
 2019-10-28 Luigi Scarso <luigi.scarso@gmail.com>
     * New callback lua.getcodepage()  for diagnostic purposes.
 
