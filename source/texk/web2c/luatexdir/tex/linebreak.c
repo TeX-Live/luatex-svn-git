@@ -1811,8 +1811,16 @@ static void ext_try_break(
                 else
                     d += final_hyphen_demerits;
             }
-            if (abs(fit_class - fitness(r)) > 1)
-                d = d + adj_demerits;
+            /* tex 
+
+              Direct calculation of the absolute value of ((|fit_class| - |fitness(r)|) > 1) where 
+              |fitness(r)|  is an unsigned integral type can lead to unexpected results if 
+              |fitness(r)| is not an |int|,  due to the rules of integer promotions.
+              It's better to use the equivalent expanded expression.
+           */
+	    if ( (fit_class>(fitness(r)+1)) || (fitness(r)>(fit_class+1)) )
+                  d = d + adj_demerits;
+             
         }
         if (tracing_paragraphs > 0) {
             print_feasible_break(cur_p, r, b, pi, d, artificial_demerits);
