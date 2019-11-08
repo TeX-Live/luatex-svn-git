@@ -114,9 +114,9 @@ void line_break(boolean d, int line_break_context)
         tail_append(new_penalty(inf_penalty,line_penalty));
     } else {
         halfword t = alink(cur_list.tail_field);
-		flush_node(cur_list.tail_field);
-		cur_list.tail_field = t;
-		tail_append(new_penalty(inf_penalty,line_penalty));
+        flush_node(cur_list.tail_field);
+        cur_list.tail_field = t;
+        tail_append(new_penalty(inf_penalty,line_penalty));
     }
     final_par_glue = new_param_glue(par_fill_skip_code);
     couple_nodes(cur_list.tail_field, final_par_glue);
@@ -1811,7 +1811,7 @@ static void ext_try_break(
                 else
                     d += final_hyphen_demerits;
             }
-            /* tex 
+            /*tex 
 
               Direct calculation of the absolute value of ((|fit_class| - |fitness(r)|) > 1) where 
               |fitness(r)|  is an unsigned integral type can lead to unexpected results if 
