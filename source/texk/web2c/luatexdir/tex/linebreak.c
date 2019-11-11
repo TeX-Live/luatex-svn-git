@@ -1813,9 +1813,9 @@ static void ext_try_break(
             }
             /*tex 
 
-              Direct calculation of the absolute value of ((|fit_class| - |fitness(r)|) > 1) where 
-              |fitness(r)|  is an unsigned integral type can lead to unexpected results if 
-              |fitness(r)| is not an |int|,  due to the rules of integer promotions.
+              Direct calculation of the absolute value in ((|fit_class| - |fitness(r)|) > 1) 
+              can lead to unexpected results due to the signedness of |fit_class|, which is 
+              implementation-defined (see C99 6.7.2.2), and the integer promotion rules for |fitness(r)|.
               It's better to use the equivalent expanded expression.
             */
             if ( (fit_class>(fitness(r)+1)) || (fitness(r)>(fit_class+1)) )
