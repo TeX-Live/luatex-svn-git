@@ -1814,8 +1814,11 @@ static void ext_try_break(
             /*tex 
 
               Direct calculation of the absolute value in ((|fit_class| - |fitness(r)|) > 1) 
-              can lead to unexpected results due to the signedness of |fit_class|, which is 
-              implementation-defined (see C99 6.7.2.2), and the integer promotion rules for |fitness(r)|.
+              can lead to unexpected results even if  the type of |fit_class|, which is |int| 
+              (see C99 6.7.2.2), and the integer promotion rules for |fitness(r)|, whose also 
+              give an |int| type,  should set the type of the expression to |int|. 
+              GCC changes the type of |fit_class| to |unsigned int| (perhaps because the enums are all positives?)
+              and hence the expression is converted to a sum of |unsigned int|, leading to a different result.
               It's better to use the equivalent expanded expression.
             */
             if ( (fit_class>(fitness(r)+1)) || (fitness(r)>(fit_class+1)) )
