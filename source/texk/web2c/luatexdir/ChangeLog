@@ -1,3 +1,7 @@
+2019-12-05  Luigi Scarso <luigi.scarso@gmail.com>
+    * two fixes for lua user nodes (error report of Sigitas Tolusis <sigitas@vtex.lt> )
+
+
 2019-11-08  Luigi Scarso <luigi.scarso@gmail.com>
     * record a few more files (in kpse enabled mode) (HH)
     * better recorder code in wrapped lua
