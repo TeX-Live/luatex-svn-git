@@ -673,7 +673,7 @@ static ppstring ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap **pheap)
         iof_put(O, *p);
         break;
       case -1:
-        iof_put4(O, '\\', (c >> 6) + '0', ((c >> 3) & 7) + '0', (c & 7) + '0');
+        iof_put4(O, '\\', ( (*p) >> 6) + '0', (( (*p) >> 3) & 7) + '0', ( (*p) & 7) + '0');
         break;
       default:
         iof_put2(O, '\\', b);
