@@ -1,0 +1,58 @@
+Windows Subsystem for Linux
+"""
+The Windows Subsystem for Linux lets developers run Linux environments 
+-- including most command-line tools, utilities, and applications -- directly on Windows, 
+unmodified, without the overhead of a virtual machine.
+"""
+https://docs.microsoft.com/en-us/windows/wsl/about
+
+Libtool
+"""
+GNU Libtool simplifies your job by encapsulating both the platform-specific dependencies, 
+and the user interface, in a single script. 
+GNU Libtool is designed so that the complete functionality of 
+each host type is available via a generic interface, but nasty quirks are hidden from the programmer.
+"""
+https://www.gnu.org/software/libtool/manual/libtool.html#Introduction
+
+"""
+15.3.7 File name conversion
+In certain situations, libtool must convert file names and paths between formats appropriate to different platforms. 
+Usually this occurs when cross-compiling, and affects only the ability to launch host platform 
+executables on the build platform using an emulation or API-enhancement environment such as Wine. 
+Failure to convert paths (see File Name Conversion Failure) will cause a warning to be issued, 
+but rarely causes the build to fail—and should have no affect on the compiled products, 
+once installed properly on the host platform. For more information, see Cross compiling.
+However, file name conversion may also occur in another scenario: 
+when using a Unix emulation system on Windows (such as Cygwin or MSYS), 
+combined with a native Windows compiler such as MinGW or MSVC. 
+Only a limited set of such scenarios are currently supported; 
+in other cases file name conversion is skipped. 
+The lack of file name conversion usually means that uninstalled executables can’t be launched, 
+but only rarely causes the build to fail (see File Name Conversion Failure).
+
+libtool supports file name conversion in the following scenarios:
+
+build platform	host platform	Notes
+MinGW (MSYS)	MinGW (Windows)		see Native MinGW File Name Conversion
+Cygwin		MinGW (Windows)		see Cygwin/Windows File Name Conversion
+Unix + Wine	MinGW (Windows)		Requires Wine. See Unix/Windows File Name Conversion.
+MinGW (MSYS)	Cygwin			Requires LT_CYGPATH. See LT_CYGPATH. Provided for testing purposes only.
+Unix + Wine	Cygwin			Requires both Wine and LT_CYGPATH, but does not yet work with Cygwin 1.7.7 and Wine-1.2. See Unix/Windows File Name Conversion, and LT_CYGPATH.
+"""
+https://www.gnu.org/software/libtool/manual/libtool.html#File-name-conversion
+
+
+
+
+As expected, cross-compiling
+in the Windows Subsystem for Linux is not supported by libtool, because it's seen as a native Linux
+and currently in some distro from the store (e.g. Ubuntu) it is 
+not possibile to install winepath.
+In this case the Perl script here simply (and really simply!) 
+takes an input path and mimic the winepath -w under native Linux.
+You should put it under where libtool can read it (e.g. /usr/local/bin).
+
+
+
+

@@ -1,0 +1,78 @@
+
+CC=cl /nologo
+LN=link /nologo
+LIB=lib /nologo
+
+CFLAGS=/W3 /D_CRT_SECURE_NO_DEPRECATE /O2
+#LFLAGS = /NODEFAULTLIB:LIBCMT # produces binary dependent from redistributable
+LFLAGS = /NOIMPLIB
+
+PPALLOC=utilmem.c utilmemheap.c utilmemheapiof.c utilmemstock.c utilmemstockiof.c utilmempool.c utilmeminfo.c
+PPUTILS=utillog.c utilnumber.c utiliof.c utilmd5.c utilsha.c utilcrypt.c
+PPFILTERS=utilbasexx.c utilflate.c utillzw.c utilfpred.c
+PPMODULES=ppheap.c pparray.c ppdict.c ppstream.c ppcrypt.c ppxref.c ppload.c
+
+OUTDIR=build
+UTILSDIR=util
+
+PPSTATICALLOCOBJ=$(PPALLOC:.c=.obj)
+PPSTATICALLOCOBJ=$(PPSTATICALLOCOBJ:util=build\util)
+PPSTATICUTILSOBJ=$(PPUTILS:.c=.obj)
+PPSTATICUTILSOBJ=$(PPSTATICUTILSOBJ:util=build\util)
+PPSTATICFILTERSOBJ=$(PPFILTERS:.c=.obj)
+PPSTATICFILTERSOBJ=$(PPSTATICFILTERSOBJ:util=build\util)
+PPSTATICOBJ=$(PPMODULES:.c=.obj)
+PPSTATICOBJ=$(PPSTATICOBJ:pp=build\pp)
+PPSTATICLIB=build\pp.lib
+
+# dependencies
+FLATEDIR=..\zlib
+FLATELIB=$(FLATEDIR)\zlib.static.lib
+PPSTATICDEPS=$(FLATELIB)
+
+# tests
+TESTDIR=..\..\pplib-tests
+PPTEST1=build\pptest1.exe
+PPTEST2=build\pptest2.exe
+PPTEST3=build\pptest3.exe
+
+# includes
+INC=/I $(UTILSDIR)
+AUX=/I $(FLATEDIR)
+
+default: $(PPSTATICLIB) $(PPTEST1) $(PPTEST2) $(PPTEST3) $(PPTEST4)
+
+$(PPSTATICOBJ): $(*B).c
+  $(CC) $(CFLAGS) $(INC) /Fo:$@ /c $**
+
+$(PPSTATICALLOCOBJ): $(UTILSDIR)\$(*B).c
+  $(CC) $(CFLAGS) $(INC) /Fo:$@ /c $**
+
+$(PPSTATICUTILSOBJ): $(UTILSDIR)\$(*B).c
+  $(CC) $(CFLAGS) $(INC) /Fo:$@ /c $**
+
+$(PPSTATICFILTERSOBJ): $(UTILSDIR)\$(*B).c
+  $(CC) $(CFLAGS) $(INC) $(AUX) /Fo:$@ /c $**
+
+$(PPSTATICLIB): $(PPSTATICOBJ) $(PPSTATICALLOCOBJ) $(PPSTATICUTILSOBJ) $(PPSTATICFILTERSOBJ)
+  $(LIB) /OUT:$@ $**
+
+$(PPTEST1): $(PPSTATICLIB) pptest1.c
+  $(CC) $(CFLAGS) /Fo:build\pptest1.obj /c pptest1.c
+  $(LN) $(LFLAGS) /OUT:$(PPTEST1) build\pptest1.obj $(PPSTATICLIB) $(PPSTATICDEPS) $(LIBS)
+
+$(PPTEST2): $(PPSTATICLIB) pptest2.c
+  $(CC) $(CFLAGS) /Fo:build\pptest2.obj /c pptest2.c
+  $(LN) $(LFLAGS) /OUT:$(PPTEST2) build\pptest2.obj $(PPSTATICLIB) $(PPSTATICDEPS) $(LIBS)
+
+$(PPTEST3): $(PPSTATICLIB) pptest3.c
+  $(CC) $(CFLAGS) /I util /Fo:build\pptest3.obj /c pptest3.c
+  $(LN) $(LFLAGS) /OUT:$(PPTEST3) build\pptest3.obj $(PPSTATICLIB) $(PPSTATICDEPS) $(LIBS)
+
+clean:
+  del /q build\*.obj build\*.lib build\*.exe
+
+test: $(PPTEST1) $(PPTEST2) $(PPTEST3)
+  build\pptest1 $(TESTDIR)\*.pdf $(TESTDIR)/crypt\*.pdf >pptest1.log
+  build\pptest2 $(TESTDIR)\*.pdf $(TESTDIR)/crypt\*.pdf >pptest2.log
+  build\pptest3 $(TESTDIR)\*.pdf $(TESTDIR)/crypt\*.pdf >pptest3.log
