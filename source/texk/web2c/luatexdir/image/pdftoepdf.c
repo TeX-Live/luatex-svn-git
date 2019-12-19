@@ -690,6 +690,9 @@ void read_pdf_info(image_dict * idict)
         get the required page
     */
     pageDict = get_pdf_page_dict(pdfe,img_pagenum(idict));
+    if (pageDict==NULL) {
+      formatted_error("pdf inclusion","unable to retrive dictionary for page '%i'",(int) img_pagenum(idict));
+    }
     /*
         get the pagebox coordinates (media, crop,...) to use
     */
