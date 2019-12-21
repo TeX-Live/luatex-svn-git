@@ -1227,10 +1227,14 @@ static int set_macro(lua_State * L)
                         str += _s ;
                         break ;
                     } else {
+                        if (_lname == 0) {
+                            _lname = _lname + _s ;
+                            str += _s ;
+                        }
                         break ;
                     }
                 }
-                if (_s > 0) {
+                if (_lname > 0) {
                     /* we have a potential \cs */
                     _cs = string_lookup(_name, _lname);
                     if (_cs == undefined_control_sequence) {
