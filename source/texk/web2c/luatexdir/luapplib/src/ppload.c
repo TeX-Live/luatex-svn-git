@@ -38,7 +38,7 @@ This suggests we should accept bytes 128..255 as a part of the name.
 // pdf name delimiters: 0..32, ()<>[]{}/%
 // # treated specially
 // .+- are valid part of name; keep in mind names such as -| | |- .notdef ABCDEF+Font etc.
-static const char ppname_byte_lookup[] = {
+static const uint8_t ppname_byte_lookup[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, '#', 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0,
@@ -65,7 +65,7 @@ otherwise we keep writing byte 255 to the output buffer until not enough memory.
 
 #define ppnamebyte(c) (c >= 0 && ppname_byte_lookup[(uint8_t)(c)])
 
-static const char pphex_byte_lookup[] = {
+static const int8_t pphex_byte_lookup[] = {
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -214,7 +214,7 @@ ppbyte * ppname_encoded_data (ppname *name)
 
 /* string */
 
-const char ppstring_byte_escape[] = { /* -1 escaped with octal, >0 escaped with \\, 0 left intact*/
+const int8_t ppstring_byte_escape[] = { /* -1 escaped with octal, >0 escaped with \\, 0 left intact*/
  -1,-1,-1,-1,-1,-1,-1,-1,'b','t','n',-1,'f','r',-1,-1,
  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
   0, 0, 0, 0, 0, 0, 0, 0,'(',')', 0, 0, 0, 0, 0, 0,
@@ -422,7 +422,7 @@ ppstring * ppstring_internal (const void *data, size_t size, ppheap *heap)
 
 /* base85; local function for that to make that part independent from utilbasexx */
 
-static const char ppstring_base85_lookup[] = {
+static const int8_t ppstring_base85_lookup[] = {
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
   -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,
