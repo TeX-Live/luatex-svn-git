@@ -874,7 +874,7 @@ static int pdfelib_new(lua_State * L)
     if (! memstream) {
         luaL_error(L, "no room for <pdfe> stream");
     }
-    memcpy(memstream, docstream, (streamsize + 1));
+    memcpy(memstream, docstream, streamsize);
     memstream[streamsize]='\0';
     if (lua_gettop(L) == 2) {
         /* we stay at the lua end */
