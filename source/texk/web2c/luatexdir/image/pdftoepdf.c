@@ -253,7 +253,7 @@ PdfDocument *refMemStreamPdfDocument(char *docstream, unsigned long long streams
         free(checksum);
     }
     if (pdf_doc->pdfe == NULL) {
-        pdfe = ppdoc_mem(docstream, streamsize);
+        pdfe = ppdoc_mem(docstream, (size_t) streamsize);
         pdf_doc->pc++;
         if (pdfe == NULL) {
             normal_error("pdf inclusion","reading pdf Stream failed");
@@ -376,18 +376,18 @@ static void copyString(PDF pdf, ppstring *str)
     switch (ppstring_type(str)) {
         case PPSTRING_PLAIN:
             pdf_out(pdf, '(');
-            pdf_out_block(pdf, (const char *) (str->data), ppstring_size(str));
+            pdf_out_block(pdf, ppstring_data(str), ppstring_size(str));
             pdf_out(pdf, ')');
             break;
         case PPSTRING_BASE16:
             pdf_out(pdf, '<');
-            pdf_out_block(pdf, (const char *) (str->data), ppstring_size(str));
+            pdf_out_block(pdf, ppstring_data(str), ppstring_size(str));
             pdf_out(pdf, '>');
             break;
         case PPSTRING_BASE85:
             pdf_out(pdf, '<');
             pdf_out(pdf, '~');
-            pdf_out_block(pdf, (const char *) (str->data), ppstring_size(str));
+            pdf_out_block(pdf, ppstring_data(str), ppstring_size(str));
             pdf_out(pdf, '~');
             pdf_out(pdf, '>');
             break;
@@ -395,12 +395,10 @@ static void copyString(PDF pdf, ppstring *str)
     pdf_set_space(pdf);
 }
 
-/*
 static void copyName(PDF pdf, ppname *name)
 {
-    pdf_add_name(pdf, (const char *) (name->data) );
+    pdf_add_name(pdf, ppname_data(name));
 }
-*/
 
 static void copyArray(PDF pdf, PdfDocument * pdf_doc, pparray * array)
 {
@@ -419,7 +417,8 @@ static void copyDict(PDF pdf, PdfDocument * pdf_doc, ppdict *dict)
     int n = dict->size;
     pdf_begin_dict(pdf);
     for (i=0; i<n; ++i) {
-        pdf_add_name(pdf, (const char *) ((ppdict_key(dict,i))->data) );
+        ppname *key = ppdict_key(dict,i);
+        pdf_add_name(pdf,ppname_data(key));
         copyObject(pdf, pdf_doc, ppdict_at(dict,i));
     }
     pdf_end_dict(pdf);
@@ -465,9 +464,8 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
                 "FlateDecode", "LZWDecode", NULL
             };
             int k;
-            const char *val = (ppobj_get_name(obj))->data;
             for (k = 0; codecs[k] != NULL; k++) {
-                if (strcmp(val,codecs[k]) == 0) {
+                if (strcmp(ppname_data(obj->name),codecs[k]) == 0) {
                     known = 1;
                     break;
                 }
@@ -481,17 +479,17 @@ static void copyStream(PDF pdf, PdfDocument * pdf_doc, ppstream * stream)
             int i;
             pdf_begin_dict(pdf);
             for (i=0; i<dict->size; ++i) {
-                const char *key = (ppdict_key(dict,i))->data;
+                ppname *key = ppdict_key(dict,i);
                 int copy = 1;
                 int k;
                 for (k = 0; ignoredkeys[k] != NULL; k++) {
-                    if (strcmp(key,ignoredkeys[k]) == 0) {
+                    if (strcmp(ppname_data(key),ignoredkeys[k]) == 0) {
                         copy = 0;
                         break;
                     }
                 }
                 if (copy) {
-                    pdf_add_name(pdf, key);
+                    pdf_add_name(pdf, ppname_data(key));
                     copyObject(pdf, pdf_doc, ppdict_at(dict,i));
                 }
             }
@@ -526,7 +524,7 @@ static void copyObject(PDF pdf, PdfDocument * pdf_doc, ppobj * obj)
             pdf_add_real(pdf,obj->number);                      /* ppobj_get_num_value(obj) */
             break;
         case PPNAME:
-            pdf_add_name(pdf, (const char *) ((obj->name)->data) );        /* ppobj_get_name(obj) */
+            copyName(pdf, obj->name);
             break;
         case PPSTRING:
             copyString(pdf, obj->string);                       /* ppobj_get_string(obj) */
@@ -808,6 +806,9 @@ void write_epdf(PDF pdf, image_dict * idict, int suppress_optional_info)
     }
     pdfe = pdf_doc->pdfe;
     pageDict = get_pdf_page_dict(pdfe,img_pagenum(idict));
+    if (pageDict==NULL) {
+      formatted_error("pdf inclusion","unable to retrive dictionary for page '%i'",(int) img_pagenum(idict));
+    }
     /*
         write the Page header
     */

@@ -162,7 +162,7 @@ static int decrypt (lua_State *L) {
 
 /* not now .. doesn't compile anyway
 
-#include "../luapplib/util/utilmd5.h"
+#include "../luapplib/src/util/utilmd5.h"
 
 static int pdfelib_md_5(lua_State * L)
 {
@@ -194,9 +194,7 @@ int luaopen_md5(lua_State *L) {
 
 /* We could use a different file but this is as easy. */
 
-/*#include "../luapplib/util/utilsha.h"*/
 #include "../luapplib/src/util/utilsha.h"
-
 
 static int sha2_256(lua_State * L)
 {
