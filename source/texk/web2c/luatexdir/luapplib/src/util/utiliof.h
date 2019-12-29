@@ -152,21 +152,13 @@ is way larger the sizeof(iof)
 #define iof_decref(I) ((void)(--(I)->refcount <= 0 && iof_close(I)))
 #define iof_unref(I) (--(I)->refcount)
 
-/* setting up iof and buffer from mem buffer of a given size */
-
-#define iof_setup_reader(I, buffer, size) \
-  ((I) = (iof *)(buffer), iof_reader_buffer(I, (I)+1, size - sizeof(iof)))
-
-#define iof_setup_writer(O, buffer, size) \
-  ((O) = (iof *)buffer, iof_writer_buffer(O, (O)+1, size - sizeof(iof)))
-
 /* binding buffer of a given size */
 
-#define iof_reader_buffer(I, buffer, size) \
+#define iof_setup_reader(I, buffer, size) \
   ((I)->buf = (I)->pos = (I)->end = (uint8_t *)(buffer), \
    (I)->space = size, (I)->flags = 0|IOF_READER, (I)->refcount = 0)
 
-#define iof_writer_buffer(O, buffer, size) \
+#define iof_setup_writer(O, buffer, size) \
   ((O)->buf = (O)->pos = (uint8_t *)(buffer), \
    (O)->end = (uint8_t *)(buffer) + size, \
    (O)->space = size, (O)->flags = 0|IOF_WRITER, (O)->refcount = 0)
@@ -305,24 +297,15 @@ size_t iof_fsize (iof *I);
 UTILAPI iof * iof_setup_file_handle_reader (iof *I, void *buffer, size_t space, FILE *f);
 UTILAPI iof * iof_setup_file_handle_writer (iof *O, void *buffer, size_t space, FILE *f);
 
-#define iof_get_file_handle_reader(buffer, space, fh) iof_setup_file_handle_reader(NULL, buffer, space, fh)
-#define iof_get_file_handle_writer(buffer, space, fh) iof_setup_file_handle_writer(NULL, buffer, space, fh)
-
 /* file reader and writer */
 
 UTILAPI iof * iof_setup_file_reader (iof *I, void *buffer, size_t space, const char *filename);
 UTILAPI iof * iof_setup_file_writer (iof *O, void *buffer, size_t space, const char *filename);
 
-#define iof_get_file_reader(buffer, space, filename) iof_setup_file_reader(NULL, buffer, space, filename)
-#define iof_get_file_writer(buffer, space, filename) iof_setup_file_writer(NULL, buffer, space, filename)
-
 /* mem writer */
 
 UTILAPI iof * iof_setup_buffer (iof *O, void *buffer, size_t space);
 UTILAPI iof * iof_setup_buffermin (iof *O, void *buffer, size_t space, size_t min);
-
-#define iof_buffer(buffer, space) iof_setup_buffer(NULL, buffer, space)
-#define iof_buffermin(buffer, space, min) iof_setup_buffermin(NULL, buffer, space, min)
 
 UTILAPI iof * iof_buffer_create (size_t space);
 #define iof_buffer_new() iof_buffer_create(BUFSIZ)

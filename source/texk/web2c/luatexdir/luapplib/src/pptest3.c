@@ -17,7 +17,7 @@ static void print_result_filter (ppstream *stream, int decode)
   size_t i;
 
   ppstream_filter_info(stream, &info, decode);
-  printf("when %s: /Filter [", decode ? "uncompressed" : "compressed");
+  printf("  when %s: /Filter [", decode ? "uncompressed" : "compressed");
   for (i = 0; i < info.count; ++i)
     printf(" /%s", ppstream_filter_name[info.filters[i]]);
   printf(" ]");
@@ -36,9 +36,9 @@ static void print_stream_info (ppref *ref, ppstream *stream)
   size_t length;
   printf("object %lu %lu R\n", (unsigned long)ref->number, (unsigned long)ref->version);
   if (stream->flags & PPSTREAM_FILTER)
-    printf("filtered ");
+    printf("  filtered ");
   else
-    printf("plain ");
+    printf("  plain ");
   if (stream->flags & PPSTREAM_IMAGE)
     printf("image ");
   else
@@ -53,8 +53,28 @@ static void print_stream_info (ppref *ref, ppstream *stream)
   printf("length %lu (/Length %lu)\n", (unsigned long)stream->length, (unsigned long)length);
   print_result_filter(stream, 0);
   print_result_filter(stream, 1);
-  printf("\n");
 }
+
+static void check_stream_chunks (ppstream *stream)
+{
+  size_t sum, size;
+  uint8_t *data;
+  const int decode[2] = {0, 1};
+  int d;
+
+  for (d = 0; d < 2; ++d)
+  {
+    for (sum = 0, data = ppstream_first(stream, &size, decode[d]); data != NULL; data = ppstream_next(stream, &size))
+      sum += size;
+    ppstream_done(stream);
+    ppstream_all(stream, &size, decode[d]);
+    ppstream_done(stream);
+    assert(sum == size);
+    printf("  %s chunks size [%lu]\n", (decode[d] ? "decoded" : "raw"), (unsigned long)size);
+  }
+}
+
+#define USE_BUFFERS_POOL 1
 
 int main (int argc, const char **argv)
 {
@@ -69,6 +89,8 @@ int main (int argc, const char **argv)
 
   if (argc < 2)
     return usage(argv[0]);
+  if (USE_BUFFERS_POOL)
+    ppstream_init_buffers();
   for (a = 1; a < argc; ++a)
   {
     filepath = argv[a];
@@ -89,10 +111,13 @@ int main (int argc, const char **argv)
           if (ref->object.type != PPSTREAM)
             continue;
           print_stream_info(ref, ref->object.stream);
+          check_stream_chunks(ref->object.stream);
         }
       }
     }
     ppdoc_free(pdf);
   }
+  if (USE_BUFFERS_POOL)
+    ppstream_free_buffers();
   return 0;
 }

@@ -61,6 +61,7 @@
 <li><a class="reference internal" href="#v2-01">v2.01</a></li>
 <li><a class="reference internal" href="#v2-02">v2.02</a></li>
 <li><a class="reference internal" href="#v2-03">v2.03</a></li>
+<li><a class="reference internal" href="#v2-04">v2.04</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#todo">TODO</a></li>
@@ -371,7 +372,7 @@ static void print_result_filter (ppstream *stream, int decode)
   size_t i;
 
   ppstream_filter_info(stream, &amp;info, decode);
-  printf(&quot;when %s: /Filter [&quot;, decode ? &quot;uncompressed&quot; : &quot;compressed&quot;);
+  printf(&quot;  when %s: /Filter [&quot;, decode ? &quot;uncompressed&quot; : &quot;compressed&quot;);
   for (i = 0; i &lt; info.count; ++i)
     printf(&quot; /%s&quot;, ppstream_filter_name[info.filters[i]]);
   printf(&quot; ]&quot;);
@@ -390,9 +391,9 @@ static void print_stream_info (ppref *ref, ppstream *stream)
   size_t length;
   printf(&quot;object %lu %lu R\n&quot;, (unsigned long)ref-&gt;number, (unsigned long)ref-&gt;version);
   if (stream-&gt;flags &amp; PPSTREAM_FILTER)
-    printf(&quot;filtered &quot;);
+    printf(&quot;  filtered &quot;);
   else
-    printf(&quot;plain &quot;);
+    printf(&quot;  plain &quot;);
   if (stream-&gt;flags &amp; PPSTREAM_IMAGE)
     printf(&quot;image &quot;);
   else
@@ -407,8 +408,28 @@ static void print_stream_info (ppref *ref, ppstream *stream)
   printf(&quot;length %lu (/Length %lu)\n&quot;, (unsigned long)stream-&gt;length, (unsigned long)length);
   print_result_filter(stream, 0);
   print_result_filter(stream, 1);
-  printf(&quot;\n&quot;);
 }
+
+static void check_stream_chunks (ppstream *stream)
+{
+  size_t sum, size;
+  uint8_t *data;
+  const int decode[2] = {0, 1};
+  int d;
+
+  for (d = 0; d &lt; 2; ++d)
+  {
+    for (sum = 0, data = ppstream_first(stream, &amp;size, decode[d]); data != NULL; data = ppstream_next(stream, &amp;size))
+      sum += size;
+    ppstream_done(stream);
+    ppstream_all(stream, &amp;size, decode[d]);
+    ppstream_done(stream);
+    assert(sum == size);
+    printf(&quot;  %s chunks size [%lu]\n&quot;, (decode[d] ? &quot;decoded&quot; : &quot;raw&quot;), (unsigned long)size);
+  }
+}
+
+#define USE_BUFFERS_POOL 1
 
 int main (int argc, const char **argv)
 {
@@ -423,6 +444,8 @@ int main (int argc, const char **argv)
 
   if (argc &lt; 2)
     return usage(argv[0]);
+  if (USE_BUFFERS_POOL)
+    ppstream_init_buffers();
   for (a = 1; a &lt; argc; ++a)
   {
     filepath = argv[a];
@@ -443,11 +466,14 @@ int main (int argc, const char **argv)
           if (ref-&gt;object.type != PPSTREAM)
             continue;
           print_stream_info(ref, ref-&gt;object.stream);
+          check_stream_chunks(ref-&gt;object.stream);
         }
       }
     }
     ppdoc_free(pdf);
   }
+  if (USE_BUFFERS_POOL)
+    ppstream_free_buffers();
   return 0;
 }
 </pre></div>
@@ -465,7 +491,7 @@ int main (int argc, const char **argv)
 
 <span class="c1">#include &quot;ppconf.h&quot;</span>
 
-<span class="c1">#define pplib_version &quot;v2.03 less toxic i hope&quot;</span>
+<span class="c1">#define pplib_version &quot;v2.04 less toxic i hope&quot;</span>
 <span class="c1">#define pplib_author &quot;p.jackowski@gust.org.pl&quot;</span>
 
 <span class="o">/*</span> <span class="n">types</span> <span class="o">*/</span>
@@ -921,6 +947,14 @@ On Hans request added <code class="docutils literal notranslate"><span class="pr
 <h2>v2.03<a class="headerlink" href="#v2-03" title="Permalink to this headline">¶</a></h2>
 <p>Fixed alloc/free of <code class="docutils literal notranslate"><span class="pre">ppdoc</span></code> heap; <code class="docutils literal notranslate"><span class="pre">ppdoc</span></code> is now mallocated, no longer taken from its own heap. Again, thanks Luigi.
 Fixed warnings about dereferencing type-puned pointers, and some others.</p>
+</div>
+<div class="section" id="v2-04">
+<h2>v2.04<a class="headerlink" href="#v2-04" title="Permalink to this headline">¶</a></h2>
+<p>Byte lookups for names/strings loaders are now int8_t, as char might be signed.
+ppdoc_first_page() / ppdoc_next_page() iterator now handles a case when /Kids array is empty.
+Fixed generating keys for encrypted streams; ppstring_internal() returns the string of the proper size.
+More stream tests in pptest3.c.
+Some rework on md5 and sha2.</p>
 </div>
 </div>
 <div class="section" id="todo">

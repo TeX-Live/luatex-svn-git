@@ -76,12 +76,12 @@ static void ppcrypt_retrieve_userpass (ppcrypt *crypt, const void *ownerkey, siz
 
   md5_digest_init(&md5);
   md5_digest_add(&md5, crypt->ownerpass, 32);
-  md5_digest_put(&md5, rc4key);
+  md5_digest_get(&md5, rc4key, MD5_BYTES);
   if (crypt->algorithm_revision >= 3)
   {
     for (i = 0; i < 50; ++i)
     {
-      md5_digest_from(rc4key, 16, temp);
+      md5_digest(rc4key, 16, temp, MD5_BYTES);
       memcpy(rc4key, temp, 16);
     }
   }
@@ -123,12 +123,12 @@ static void ppcrypt_filekey (ppcrypt *crypt, const void *ownerkey, size_t ownerk
   md5_digest_add(&md5, id, idsize);
   if (crypt->algorithm_revision >= 4 && (crypt->flags & PPCRYPT_NO_METADATA))
     md5_digest_add(&md5, "\xFF\xFF\xFF\xFF", 4);
-  md5_digest_put(&md5, crypt->filekey);
+  md5_digest_get(&md5, crypt->filekey, MD5_BYTES);
   if (crypt->algorithm_revision >= 3)
   {
     for (i = 0; i < 50; ++i)
     {
-      md5_digest_from(crypt->filekey, (size_t)crypt->filekeylength, temp);
+      md5_digest(crypt->filekey, (size_t)crypt->filekeylength, temp, MD5_BYTES);
       memcpy(crypt->filekey, temp, 16);
     }
   }
@@ -152,7 +152,7 @@ static void ppcrypt_userkey (ppcrypt *crypt, const void *id, size_t idsize, uint
     md5_digest_init(&md5);
     md5_digest_add(&md5, padding_string, 32);
     md5_digest_add(&md5, id, idsize);
-    md5_digest_put(&md5, password_hash);
+    md5_digest_get(&md5, password_hash, MD5_BYTES);
     rc4_encode_data(password_hash, 16, password_hash, crypt->filekey, crypt->filekeylength);
     for (i = 1; i <= 19; ++i)
     {
@@ -361,13 +361,13 @@ ppcrypt_status ppdoc_crypt_init (ppdoc *pdf, const void *userpass, size_t userpa
     sha256_digest_init(&sha);
     sha256_digest_add(&sha, crypt->userpass, crypt->userpasslength);
     sha256_digest_add(&sha, validation_salt, 8);
-    sha256_digest_put(&sha, password_hash);
+    sha256_digest_get(&sha, password_hash, SHA_BYTES);
     if (memcmp(userkey->data, password_hash, 32) != 0)
       return PPCRYPT_PASS;
     sha256_digest_init(&sha);
     sha256_digest_add(&sha, crypt->userpass, crypt->userpasslength);
     sha256_digest_add(&sha, key_salt, 8);
-    sha256_digest_put(&sha, password_hash);
+    sha256_digest_get(&sha, password_hash, SHA_BYTES);
     aes_decode_data(userkey_e->data, 32, crypt->filekey, password_hash, 32, nulliv, AES_NULL_PADDING);
     return ppcrypt_authenticate_perms(crypt, perms);
   }
@@ -381,14 +381,14 @@ ppcrypt_status ppdoc_crypt_init (ppdoc *pdf, const void *userpass, size_t userpa
     sha256_digest_add(&sha, crypt->ownerpass, crypt->ownerpasslength);
     sha256_digest_add(&sha, validation_salt, 8);
     sha256_digest_add(&sha, userkey, 48);
-    sha256_digest_put(&sha, password_hash);
+    sha256_digest_get(&sha, password_hash, SHA_BYTES);
     if (memcmp(ownerkey->data, password_hash, 32) != 0)
       return PPCRYPT_PASS;
     sha256_digest_init(&sha);
     sha256_digest_add(&sha, crypt->ownerpass, crypt->ownerpasslength);
     sha256_digest_add(&sha, key_salt, 8);
     sha256_digest_add(&sha, userkey, 48);
-    sha256_digest_put(&sha, password_hash);
+    sha256_digest_get(&sha, password_hash, SHA_BYTES);
     aes_decode_data(ownerkey_e->data, 32, crypt->filekey, password_hash, 32, nulliv, AES_NULL_PADDING);
     return ppcrypt_authenticate_perms(crypt, perms);
   }
@@ -435,7 +435,7 @@ static void ppcrypt_strkey (ppcrypt *crypt, ppref *ref, int aes)
       crypt->filekey[crypt->filekeylength + 8] = 0x54;
     }
 
-    md5_digest_from(crypt->filekey, crypt->filekeylength + (aes ? 9 : 5), crypt->cryptkey);
+    md5_digest(crypt->filekey, crypt->filekeylength + (aes ? 9 : 5), crypt->cryptkey, MD5_BYTES);
     crypt->cryptkeylength = crypt->filekeylength + 5 >= 16 ? 16 : crypt->filekeylength + 5;
   }
   else
@@ -512,7 +512,7 @@ ppstring * ppcrypt_stmkey (ppcrypt *crypt, ppref *ref, int aes, ppheap *heap)
       crypt->filekey[crypt->filekeylength + 8] = 0x54;
     }
 
-    md5_digest_from(crypt->filekey, crypt->filekeylength + (aes ? 9 : 5), crypt->cryptkey);
+    md5_digest(crypt->filekey, crypt->filekeylength + (aes ? 9 : 5), crypt->cryptkey, MD5_BYTES);
     crypt->cryptkeylength = crypt->filekeylength + 5 >= 16 ? 16 : crypt->filekeylength + 5; // how about 256bits AES??
   }
   else

@@ -1,7 +1,7 @@
 
 CC=cl /nologo
 LN=link /nologo
-LIB=lib /nologo
+AR=lib /nologo # LIB variable has a special meaning for msvc
 
 CFLAGS=/W3 /D_CRT_SECURE_NO_DEPRECATE /O2
 #LFLAGS = /NODEFAULTLIB:LIBCMT # produces binary dependent from redistributable
@@ -55,7 +55,7 @@ $(PPSTATICFILTERSOBJ): $(UTILSDIR)\$(*B).c
   $(CC) $(CFLAGS) $(INC) $(AUX) /Fo:$@ /c $**
 
 $(PPSTATICLIB): $(PPSTATICOBJ) $(PPSTATICALLOCOBJ) $(PPSTATICUTILSOBJ) $(PPSTATICFILTERSOBJ)
-  $(LIB) /OUT:$@ $**
+  $(AR) /OUT:$@ $**
 
 $(PPTEST1): $(PPSTATICLIB) pptest1.c
   $(CC) $(CFLAGS) /Fo:build\pptest1.obj /c pptest1.c

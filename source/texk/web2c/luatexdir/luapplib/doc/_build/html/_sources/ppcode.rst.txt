@@ -82,6 +82,14 @@ v2.03
 Fixed alloc/free of ``ppdoc`` heap; ``ppdoc`` is now mallocated, no longer taken from its own heap. Again, thanks Luigi.
 Fixed warnings about dereferencing type-puned pointers, and some others.
 
+v2.04
+-----
+Byte lookups for names/strings loaders are now int8_t, as char might be signed.
+ppdoc_first_page() / ppdoc_next_page() iterator now handles a case when /Kids array is empty.
+Fixed generating keys for encrypted streams; ppstring_internal() returns the string of the proper size.
+More stream tests in pptest3.c.
+Some rework on md5 and sha2.
+
 TODO
 ====
 - external streams (egzotic)

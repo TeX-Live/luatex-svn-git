@@ -1,4 +1,5 @@
-/* md5 implementation by Peter Deutsch (ghost@aladdin.com) with some convenience shorthands  */
+
+/* md5 implementation excerpted from code by Peter Deutsch */
 
 /* begin of md5.c */
 
@@ -55,9 +56,10 @@
   1999-05-03 lpd Original version.
  */
 
-//#include "md5.h"
+#include <string.h> // memcpy
+#include <stdio.h>  // FILE
+
 #include "utilmd5.h"
-#include <string.h>
 
 #undef BYTE_ORDER /* 1 = big-endian, -1 = little-endian, 0 = unknown */
 #ifdef ARCH_IS_BIG_ENDIAN
@@ -132,12 +134,11 @@
 #define T63    0x2ad7d2bb
 #define T64 /* 0xeb86d391 */ (T_MASK ^ 0x14792c6e)
 
-
-static void md5_process(md5_state_t *pms, const uint8_t *data /*[64]*/)
+static void md5_process (md5_state *state, const uint8_t *data /*[64]*/)
 {
   uint32_t
-  a = pms->abcd[0], b = pms->abcd[1],
-  c = pms->abcd[2], d = pms->abcd[3];
+  a = state->words[0], b = state->words[1],
+  c = state->words[2], d = state->words[3];
   uint32_t t;
 #if BYTE_ORDER > 0
   /* Define storage only for big-endian CPUs. */
@@ -306,60 +307,65 @@ static void md5_process(md5_state_t *pms, const uint8_t *data /*[64]*/)
    /* Then perform the following additions. (That is increment each
       of the four registers by the value it had before this block
       was started.) */
-  pms->abcd[0] += a;
-  pms->abcd[1] += b;
-  pms->abcd[2] += c;
-  pms->abcd[3] += d;
+  state->words[0] += a;
+  state->words[1] += b;
+  state->words[2] += c;
+  state->words[3] += d;
 }
 
-void md5_func(init) (md5_state_t *pms)
+/* api */
+
+md5_state * md5_digest_init (md5_state *state)
 {
-    pms->count[0] = pms->count[1] = 0;
-    pms->abcd[0] = 0x67452301;
-    pms->abcd[1] = /*0xefcdab89*/ T_MASK ^ 0x10325476;
-    pms->abcd[2] = /*0x98badcfe*/ T_MASK ^ 0x67452301;
-    pms->abcd[3] = 0x10325476;
+  state->bitcount[0] = state->bitcount[1] = 0;
+  state->words[0] = 0x67452301;
+  state->words[1] = /*0xefcdab89*/ T_MASK ^ 0x10325476;
+  state->words[2] = /*0x98badcfe*/ T_MASK ^ 0x67452301;
+  state->words[3] = 0x10325476;
+  return state;
 }
 
-void md5_func(add) (md5_state_t *pms, const void *input, size_t size)
+void md5_digest_add (md5_state *state, const void *input, size_t size)
 {
   const uint8_t *p = (const uint8_t *)input;
   int nbytes = (int)size; // PJ
   int left = nbytes;
-  int offset = (pms->count[0] >> 3) & 63;
+  int offset = (state->bitcount[0] >> 3) & 63;
   uint32_t nbits = (uint32_t)(nbytes << 3);
 
   if (nbytes <= 0)
     return;
 
   /* Update the message length. */
-  pms->count[1] += nbytes >> 29;
-  pms->count[0] += nbits;
-  if (pms->count[0] < nbits)
-    pms->count[1]++;
+  state->bitcount[1] += nbytes >> 29;
+  state->bitcount[0] += nbits;
+  if (state->bitcount[0] < nbits)
+    state->bitcount[1]++;
 
   /* Process an initial partial block. */
   if (offset) {
     int copy = (offset + nbytes > 64 ? 64 - offset : nbytes);
 
-    memcpy(pms->buf + offset, p, copy);
+    memcpy(state->buffer + offset, p, copy);
     if (offset + copy < 64)
       return;
     p += copy;
     left -= copy;
-    md5_process(pms, pms->buf);
+    md5_process(state, state->buffer);
   }
 
   /* Process full blocks. */
   for (; left >= 64; p += 64, left -= 64)
-    md5_process(pms, p);
+    md5_process(state, p);
 
   /* Process a final partial block. */
   if (left)
-    memcpy(pms->buf, p, left);
+    memcpy(state->buffer, p, left);
 }
 
-void md5_func(put) (md5_state_t *pms, uint8_t digest[16])
+#define md5_digest_byte(state, i) (uint8_t)(state->words[i >> 2] >> ((i & 3) << 3))
+
+void md5_digest_get (md5_state *state, uint8_t digest[], int flags)
 {
   static const uint8_t pad[64] = {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -372,19 +378,70 @@ void md5_func(put) (md5_state_t *pms, uint8_t digest[16])
 
   /* Save the length before padding. */
   for (i = 0; i < 8; ++i)
-    data[i] = (uint8_t)(pms->count[i >> 2] >> ((i & 3) << 3));
+    data[i] = (uint8_t)(state->bitcount[i >> 2] >> ((i & 3) << 3));
   /* Pad to 56 bytes mod 64. */
-  md5_func(add)(pms, pad, ((55 - (pms->count[0] >> 3)) & 63) + 1);
+  md5_digest_add(state, pad, ((55 - (state->bitcount[0] >> 3)) & 63) + 1);
   /* Append the length. */
-  md5_func(add)(pms, data, 8);
-  for (i = 0; i < 16; ++i)
-    digest[i] = (uint8_t)(pms->abcd[i >> 2] >> ((i & 3) << 3));
+  md5_digest_add(state, data, 8);
+
+  /* Output */
+  if (flags & MD5_HEX)
+  { // expected digest buffer size MD5_STRING_LENGTH
+    uint8_t byte;
+    const char *alphabet;
+    alphabet = (flags & MD5_LCHEX) ? "0123456789abcdef" : "0123456789ABCDEF";
+    for (i = 0; i < MD5_DIGEST_LENGTH; ++i)
+    {
+      byte = md5_digest_byte(state, i);
+      *digest++ = (uint8_t)alphabet[byte >> 4];
+      *digest++ = (uint8_t)alphabet[byte & 15];
+    }
+    *digest = 0;
+  }
+  else
+  { // expected digest buffer size MD5_DIGEST_LENGTH
+    for (i = 0; i < MD5_DIGEST_LENGTH; ++i)
+      *digest++ = md5_digest_byte(state, i);
+  }
 }
 
-void md5_func(from) (const void *input, size_t length, uint8_t output[16])
+void md5_digest (const void *input, size_t length, uint8_t digest[], int flags)
 {
   md5_state md5;
-  md5_func(init)(&md5);
-  md5_func(add)(&md5, input, length);
-  md5_func(put)(&md5, output);
+  md5_digest_init(&md5);
+  md5_digest_add(&md5, input, length);
+  md5_digest_get(&md5, digest, flags);
+}
+
+/* file checksum */
+
+#define DIGEST_BUFFER_SIZE 4096
+
+int md5_digest_add_file (md5_state *state, const char *filename)
+{
+  FILE *fh;
+  uint8_t buffer[DIGEST_BUFFER_SIZE];
+  size_t read;
+
+  if ((fh = fopen(filename, "rb")) == NULL)
+    return 0;
+  do {
+    read = fread(buffer, 1, DIGEST_BUFFER_SIZE, fh);
+    md5_digest_add(state, buffer, read);
+  } while (read == DIGEST_BUFFER_SIZE);
+  fclose(fh);
+  return 1;
+}
+
+int md5_digest_file (const char *filename, uint8_t digest[], int flags)
+{
+  md5_state state;
+
+  md5_digest_init(&state);
+  if (md5_digest_add_file(&state, filename))
+  {
+    md5_digest_get(&state, digest, flags);
+    return 1;
+  }
+  return 0;
 }

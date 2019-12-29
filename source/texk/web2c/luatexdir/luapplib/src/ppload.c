@@ -38,7 +38,7 @@ This suggests we should accept bytes 128..255 as a part of the name.
 // pdf name delimiters: 0..32, ()<>[]{}/%
 // # treated specially
 // .+- are valid part of name; keep in mind names such as -| | |- .notdef ABCDEF+Font etc.
-static const uint8_t ppname_byte_lookup[] = {
+static const int8_t ppname_byte_lookup[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, '#', 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0,
@@ -214,7 +214,7 @@ ppbyte * ppname_encoded_data (ppname *name)
 
 /* string */
 
-const int8_t ppstring_byte_escape[] = { /* -1 escaped with octal, >0 escaped with \\, 0 left intact*/
+static const int8_t ppstring_byte_escape[] = { /* -1 escaped with octal, >0 escaped with \\, 0 left intact*/
  -1,-1,-1,-1,-1,-1,-1,-1,'b','t','n',-1,'f','r',-1,-1,
  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
   0, 0, 0, 0, 0, 0, 0, 0,'(',')', 0, 0, 0, 0, 0, 0,
@@ -417,6 +417,7 @@ ppstring * ppstring_internal (const void *data, size_t size, ppheap *heap)
   iof *O;
   O = ppbytes_buffer(heap, size);
   memcpy(O->buf, data, size);
+  O->pos = O->buf + size;
   return ppstring_buffer(O, heap);
 }
 
@@ -2436,7 +2437,7 @@ static void ppdoc_pages_init (ppdoc *pdf)
 {
   pppages *pages;
   pages = &pdf->pages;
-  pages->root = pages->parent = pages->buffer;
+  pages->root = pages->parent = &pages->buffer[0];
   pages->depth = 0;
   pages->space = PPPAGES_STACK_DEPTH;
 }
@@ -2467,11 +2468,14 @@ static ppref * ppdoc_pages_group_first (ppdoc *pdf, ppref *ref)
   pparray *kids;
   ppuint count;
   ppname *type;
+  ppobj *o;
 
   dict = ref->object.dict; // typecheck made by callers
   while ((kids = pppage_node(dict, &count, &type)) != NULL)
   {
-    if ((ref = pparray_get_ref(kids, 0)) == NULL || ref->object.type != PPDICT)
+    if ((o = pparray_get_obj(kids, 0)) == NULL) // empty /Kids
+      return ppdoc_next_page(pdf);
+    if ((ref = ppobj_get_ref(o)) == NULL || ref->object.type != PPDICT)
       return NULL;
     pppages_push(pdf, kids);
     dict = ref->object.dict;

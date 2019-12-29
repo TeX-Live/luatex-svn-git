@@ -836,10 +836,7 @@ static size_t file_reader (iof *I, iof_mode mode)
 
 iof * iof_setup_file_handle_reader (iof *I, void *buffer, size_t space, FILE *f)
 {
-  if (I == NULL)
-    iof_setup_reader(I, buffer, space);
-  else
-    iof_reader_buffer(I, buffer, space);
+  iof_setup_reader(I, buffer, space);
   iof_setup_file(I, f);
   I->more = file_reader;
   return I;
@@ -850,10 +847,7 @@ iof * iof_setup_file_reader (iof *I, void *buffer, size_t space, const char *fil
   FILE *f;
   if ((f = fopen(filename, "rb")) == NULL)
     return NULL;
-  if (I == NULL)
-    iof_setup_reader(I, buffer, space);
-  else
-    iof_reader_buffer(I, buffer, space);
+  iof_setup_reader(I, buffer, space);
   iof_setup_file(I, f);
   I->flags |= IOF_CLOSE_FILE;
   I->more = file_reader;
@@ -883,10 +877,7 @@ static size_t file_writer (iof *O, iof_mode mode)
 
 iof * iof_setup_file_handle_writer (iof *O, void *buffer, size_t space, FILE *f)
 {
-  if (O == NULL)
-    iof_setup_writer(O, buffer, space);
-  else
-    iof_writer_buffer(O, buffer, space);
+  iof_setup_writer(O, buffer, space);
   iof_setup_file(O, f);
   O->more = file_writer;
   return O;
@@ -897,10 +888,7 @@ iof * iof_setup_file_writer (iof *O, void *buffer, size_t space, const char *fil
   FILE *f;
   if ((f = fopen(filename, "wb")) == NULL)
     return NULL;
-  if (O == NULL)
-    iof_setup_writer(O, buffer, space);
-  else
-    iof_writer_buffer(O, buffer, space);
+  iof_setup_writer(O, buffer, space);
   iof_setup_file(O, f);
   O->flags |= IOF_CLOSE_FILE;
   O->more = file_writer;
@@ -1030,10 +1018,7 @@ static size_t iof_mem_handler (iof *O, iof_mode mode)
 
 iof * iof_setup_buffer (iof *O, void *buffer, size_t space)
 {
-  if (O == NULL)
-    iof_setup_writer(O, buffer, space);
-  else
-    iof_writer_buffer(O, buffer, space);
+  iof_setup_writer(O, buffer, space);
   O->link = NULL;
   O->flags |= IOF_DATA;
   O->more = iof_mem_handler;
@@ -1042,7 +1027,8 @@ iof * iof_setup_buffer (iof *O, void *buffer, size_t space)
 
 iof * iof_setup_buffermin (iof *O, void *buffer, size_t space, size_t min)
 {
-  if ((O = iof_setup_buffer(O, buffer, space)) != NULL && space < min) // just allocate min now to avoid further rewriting
+  iof_setup_buffer(O, buffer, space);
+  if (space < min) // allocate min to avoid further rewriting
   {
     O->buf = O->pos = (uint8_t *)util_malloc(min);
     O->flags |= IOF_BUFFER_ALLOC;
@@ -1054,11 +1040,11 @@ iof * iof_setup_buffermin (iof *O, void *buffer, size_t space, size_t min)
 iof * iof_buffer_create (size_t space)
 {
   uint8_t *buffer;
-  iof *O;
-  space += sizeof(iof);
-  buffer = util_malloc(space);
-  if ((O = iof_setup_buffer(NULL, buffer, space)) != NULL)
-    O->flags |= IOF_ALLOC;
+  iof *O;  
+  O = (iof *)util_malloc(space);
+  buffer = (uint8_t *)(O + 1);
+  iof_setup_buffer(O, buffer, space);
+  O->flags |= IOF_ALLOC;
   return O;
 }
 
@@ -2159,7 +2145,7 @@ iof * iof_filter_reader_new (iof_handler handler, size_t statesize, void **pstat
   F = (iof *)memset(filter, 0, sizeof(iof) + statesize);
   buffer = iof_heap_take(&iof_buffers_heap, IOF_BUFFER_SIZE);
   buffersize = IOF_BUFFER_SIZE;
-  iof_reader_buffer(F, buffer, buffersize);
+  iof_setup_reader(F, buffer, buffersize);
   F->flags |= IOF_HEAP|IOF_BUFFER_HEAP;
   F->more = handler;
   *pstate = (F + 1);
@@ -2174,7 +2160,7 @@ iof * iof_filter_reader_with_buffer_new (iof_handler handler, size_t statesize, 
   iof_filters_init();
   filter = iof_heap_take(&iof_filters_heap, sizeof(iof) + statesize);
   F = (iof *)memset(filter, 0, sizeof(iof) + statesize);
-  iof_reader_buffer(F, buffer, buffersize);
+  iof_setup_reader(F, buffer, buffersize);
   F->flags |= IOF_HEAP;
   F->more = handler;
   *pstate = (F + 1);
@@ -2193,7 +2179,7 @@ iof * iof_filter_writer_new (iof_handler handler, size_t statesize, void **pstat
   F = (iof *)memset(filter, 0, sizeof(iof) + statesize);
   buffer = iof_heap_take(&iof_buffers_heap, IOF_BUFFER_SIZE);
   buffersize = IOF_BUFFER_SIZE;
-  iof_writer_buffer(F, buffer, buffersize);
+  iof_setup_writer(F, buffer, buffersize);
   F->flags |= IOF_HEAP|IOF_BUFFER_HEAP;
   F->more = handler;
   *pstate = (F + 1);
@@ -2208,7 +2194,7 @@ iof * iof_filter_writer_with_buffer_new (iof_handler handler, size_t statesize, 
   iof_filters_init();
   filter = iof_heap_take(&iof_filters_heap, sizeof(iof) + statesize);
   F = (iof *)memset(filter, 0, sizeof(iof) + statesize);
-  iof_writer_buffer(F, buffer, buffersize);
+  iof_setup_writer(F, buffer, buffersize);
   F->flags |= IOF_HEAP;
   F->more = handler;
   *pstate = (F + 1);
@@ -2675,7 +2661,7 @@ iof * iof_filter_string_writer (const void *s, size_t length)
 }
 
 iof * iof_filter_buffer_writer (size_t size)
-{ // filter alternative of iof_buffer_create()
+{ // cmp iof_buffer_create()
   iof *O;
   fs_state_pointer dummy;
   uint8_t *buffer;
@@ -2977,7 +2963,7 @@ iof * iof_filter_reader_replacement (iof *P, iof_handler handler, size_t statesi
   iof *F;
   F = iof_filter_reader_with_buffer(handler, statesize, pstate, P->buf, P->space);
   F->flags |= IOF_BUFFER_HEAP;
-  //iof_reader_buffer(P, NULL, 0);
+  //iof_setup_reader(P, NULL, 0);
   //P->flags &= ~IOF_BUFFER_HEAP;
   iof_filter_free(P);
   return F;
