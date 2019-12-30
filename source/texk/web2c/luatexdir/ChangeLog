@@ -1,3 +1,7 @@
+2019-12-19  Luigi Scarso <luigi.scarso@gmail.com>
+    * fixed inclusion of pdf files with a invalid pageDict (exit, don't load it)
+
+
 2019-12-11  Luigi Scarso <luigi.scarso@gmail.com>
     * add catcode table check to set_macro (HH)
 
