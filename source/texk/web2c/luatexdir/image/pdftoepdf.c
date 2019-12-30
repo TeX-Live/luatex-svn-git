@@ -187,6 +187,9 @@ PdfDocument *refPdfDocument(const char *file_path, file_error_mode fe, const cha
             }
         }
         if (pdfe != NULL) {
+            if (ppdoc_crypt_status(pdfe) < 0 && userpassword==NULL) {
+                formatted_error("pdf inclusion","the pdf file '%s' is encrypted, passwords wrong",file_path);
+            }
             if (ppdoc_crypt_status(pdfe) < 0) {
                 ppdoc_crypt_pass(pdfe,userpassword,strlen(userpassword),NULL,0);
             }
