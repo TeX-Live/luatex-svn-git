@@ -262,7 +262,10 @@ backend are decoupled as much as possible.
 \startitem
     When \lpr {adjustspacing} has value~2, hz optimization will be applied to
     glyphs and kerns. When the value is~3, only glyphs will be treated. A value
-    smaller than~2 disables this feature.
+    smaller than~2 disables this feature. With value of 1, font expansion is
+    applied after \TEX's normal paragraph breaking routines have broken the
+    paragraph into lines. In this case, line breaks are identical to standard
+    \TEX\ behavior (as with \PDFTEX).
 \stopitem
 
 \startitem

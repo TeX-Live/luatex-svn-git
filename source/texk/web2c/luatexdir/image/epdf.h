@@ -70,7 +70,6 @@ typedef enum { FE_FAIL, FE_RETURN_NULL } file_error_mode;
 #  include "lua.h"
 #  include "lauxlib.h"
 
-/*# include "luapplib/pplib.h"*/
 # include "luapplib/src/pplib.h"
 
 

@@ -113,18 +113,6 @@ checking some mechanism going haywire.
 
 \stopsubsection
 
-\startsubsection[title={Code page (Windows only)}]
-
-\libindex{getcodepage}
-
-The \type {getcodepage}  returns the value from  \type{GetOEMCP()} 
-(the current original equipment manufacturer (OEM) code page identifier for the operating system)
-and the value from \type{GetACP()} (the current Windows ANSI code page identifier for the operating system).
-
-\stopsubsection
-
-
-
 \stopsection
 
 \startsection[title={The \type {status} library}][library=status]
@@ -1487,6 +1475,23 @@ tex.runtoks(<lua function>)
 
 When the \prm {tracingnesting} parameter is set to a value larger than~2 some
 information is reported about the state of the local loop.
+
+This function has two optional arguments in case a token register is passed:
+
+\startfunctioncall
+tex.runtoks(<token register>,force,grouped)
+\stopfunctioncall
+
+Inside for instance an \type {\edef} the \type {runtoks} function behaves (at
+least tries to) like it were an \type {\the}. This prevents unwanted side
+effects: normally in such an definition tokens remain tokens and (for instance)
+characters don't become nodes. With the second argument you can force the local
+main loop, no matter what. The third argument adds a level of grouping.
+
+You can quit the local loop with \type {\endlocalcontrol} or from the \LUA\ end
+with \type {tex.quittoks}. In that case you end one level up! Of course in the
+end that can mean that you arrive at the main level in which case an extra end
+will trigger a redundancy warning (not an abort!).
 
 \subsubsection{\type {forcehmode}}
 

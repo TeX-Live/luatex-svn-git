@@ -176,7 +176,6 @@ static void dump_math_kerns(lua_State * L, charinfo * co, int l, int id)
     fw = fw * 256 + *(vfp++);   \
 }
 
-/*
 #define set_packet_scaled(fw) { \
     int fw;                     \
     fw = *(vfp++);              \
@@ -187,7 +186,6 @@ static void dump_math_kerns(lua_State * L, charinfo * co, int l, int id)
     fw = fw * 256 + *(vfp++);   \
     fw = fw * 256 + *(vfp++);   \
 }
-*/
 
 static void font_commands_to_lua(lua_State * L, internal_font_number f, charinfo * co)
 {
@@ -242,8 +240,8 @@ static void font_commands_to_lua(lua_State * L, internal_font_number f, charinfo
                 case packet_rule_code:
                     {
                         halfword h, w ;
-                        set_packet_number(h);
-                        set_packet_number(w);
+                        set_packet_scaled(h);
+                        set_packet_scaled(w);
                         lua_createtable(L, 3, 0);
                         lua_push_string_by_name(L,rule);
                         lua_rawseti(L, -2, 1);
@@ -257,7 +255,7 @@ static void font_commands_to_lua(lua_State * L, internal_font_number f, charinfo
                 case packet_right_code:
                     {
                         halfword r ;
-                        set_packet_number(r);
+                        set_packet_scaled(r);
                         lua_createtable(L, 1, 0);
                         lua_push_string_by_name(L,right);
                         lua_rawseti(L, -2, 1);
@@ -269,7 +267,7 @@ static void font_commands_to_lua(lua_State * L, internal_font_number f, charinfo
                 case packet_down_code:
                     {
                         halfword d ;
-                        set_packet_number(d);
+                        set_packet_scaled(d);
                         lua_createtable(L, 1, 0);
                         lua_push_string_by_name(L,down);
                         lua_rawseti(L, -2, 1);
