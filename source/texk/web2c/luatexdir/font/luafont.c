@@ -177,7 +177,6 @@ static void dump_math_kerns(lua_State * L, charinfo * co, int l, int id)
 }
 
 #define set_packet_scaled(fw) { \
-    int fw;                     \
     fw = *(vfp++);              \
     if (fw > 127) {             \
         fw = fw - 256;          \
