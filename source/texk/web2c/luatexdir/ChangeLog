@@ -1,5 +1,10 @@
+2020-01-02  Luigi Scarso <luigi.scarso@gmail.com>
+    * better separation between luatex and luahbtex at build time
+
+
 2019-12-31  Luigi Scarso <luigi.scarso@gmail.com>
     * scaled virtual font (HH)
+
 
 2019-12-19  Luigi Scarso <luigi.scarso@gmail.com>
     * fixed inclusion of pdf files with a invalid pageDict (exit, don't load it)
