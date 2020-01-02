@@ -18,11 +18,8 @@ LUA_DEPEND = $(LUA53_DEPEND)
 EXTRA_LIBRARIES += libluatex.a libluajittex.a libluatexspecific.a  libluajittexspecific.a libluahbtexspecific.a libluajithbtexspecific.a 
 
 
-## it's not true that  luatex depends on libluaharfbuzz.a
-## but for the  moment we keep it
-## 
-libluatex_a_DEPENDENCIES = libff.a libluamisc.a libluaharfbuzz.a
-libluajittex_a_DEPENDENCIES = libff.a libluajitmisc.a libluajitharfbuzz.a
+libluatex_a_DEPENDENCIES = libff.a libluamisc.a 
+libluajittex_a_DEPENDENCIES = libff.a libluajitmisc.a 
 
 libluatex_a_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(HARFBUZZ_INCLUDES)
 libluatex_a_preflags += -I$(srcdir)/libmd5

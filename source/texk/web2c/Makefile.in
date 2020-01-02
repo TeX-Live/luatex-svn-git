@@ -4267,8 +4267,11 @@ libff_a_SOURCES = \
 LUA_INCLUDES = $(LUA53_INCLUDES) $(LUA53_DEFINES)
 LUA_LIBS = $(LUA53_LIBS)
 LUA_DEPEND = $(LUA53_DEPEND)
-libluatex_a_DEPENDENCIES = libff.a libluamisc.a libluaharfbuzz.a
-libluajittex_a_DEPENDENCIES = libff.a libluajitmisc.a libluajitharfbuzz.a
+
+#libluatex_a_DEPENDENCIES = libff.a libluamisc.a libluaharfbuzz.a
+#libluajittex_a_DEPENDENCIES = libff.a libluajitmisc.a libluajitharfbuzz.a
+libluatex_a_DEPENDENCIES = libff.a libluamisc.a 
+libluajittex_a_DEPENDENCIES = libff.a libluajitmisc.a 
 libluatex_a_preflags = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) \
 	$(LIBPNG_INCLUDES) $(HARFBUZZ_INCLUDES) -I$(srcdir)/libmd5 \
 	-DpdfTeX -I$(srcdir)/luatexdir -I$(srcdir)/luatexdir/unilib \
@@ -4727,8 +4730,8 @@ luatex_depend = $(proglib) $(KPATHSEA_DEPEND) $(LIBPNG_DEPEND) libmputil.a libmd
 luatex_DEPENDENCIES = $(luatex_depend) libluatex.a libluatexspecific.a
 luajittex_DEPENDENCIES = $(luatex_depend) libluajittex.a libluajittexspecific.a
 luahbtex_depend = $(proglib) $(KPATHSEA_DEPEND) $(LIBPNG_DEPEND) libmputil.a libmd5.a
-luahbtex_DEPENDENCIES = $(luahbtex_depend) libluatex.a libluahbtexspecific.a
-luajithbtex_DEPENDENCIES = $(luatex_depend) libluajittex.a libluajithbtexspecific.a
+luahbtex_DEPENDENCIES = $(luahbtex_depend) libluatex.a libluahbtexspecific.a libluaharfbuzz.a
+luajithbtex_DEPENDENCIES = $(luatex_depend) libluajittex.a libluajithbtexspecific.a libluajitharfbuzz.a
 nodist_luatex_SOURCES = $(luatex_sources)
 nodist_luajittex_SOURCES = $(luatex_sources)
 nodist_luahbtex_SOURCES = $(luatex_sources)
