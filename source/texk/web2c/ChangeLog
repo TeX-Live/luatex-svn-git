@@ -1,3 +1,43 @@
+2019-12-17  Karl Berry  <karl@freefriends.org>
+
+	* tex.ch (out_what [1374]): always set write_open[j]:=false
+	  if we a_close(write_file[j]), not worrying about the subtype.
+	* tests/tex-closeout.test: new test.
+	* am/texmf.am (tex_tests): add it.
+	
+	* mftraptest.test,
+	triptest.test: rm the .base/.fmt file before remaking it,
+	so we can't find one left over from a previous run.
+
+	* am/web.am (web_tests): add tests/bibtex-bigauth.test (forgot
+	yesterday).
+
+2019-12-16  Karl Berry  <karl@freefriends.org>
+
+	* bibtex.ch (overflow_buffer [46]): more comments.
+	(copy_char [251]): call overflow_buffer (to reallocate)
+	  if field_vl_str (aka ex_buf) is full instead of giving up.
+	Original report from David Williams about a lengthy author list:
+	  https://tug.org/pipermail/texhax/2019-December/024121.html
+	* tests/bibtex-bigauth.{test,tex,bib,aux}: new files.
+
+2019-12-15  Karl Berry  <karl@freefriends.org>
+
+	* bibtex.ch: somehow the WEB module numbers in comments got off
+	by one after module 30 or so. Sigh.
+
+	* bibtex.ch (Open this .aux file [141]): if -terse,
+	only log the "A level-N auxiliary file" message, instead of print.
+
+2019-12-10  Hironori KITAGAWA  <h_kitagawa2001@yahoo.co.jp>
+
+	* ac/web2c.ac (etex, ptex, eptex, uptex, euptex, pdftex): use zlib.
+	* texmfmp.h (FMT_COMPRESS): define if pTeX || epTeX || upTeX || eupTeX
+	|| eTeX || pdfTeX || XeTeX.
+	(wopenin, do_dump, etc.) [FMT_COMPRESS]: change conditional from XeTeX.
+	* zlib-fmt.ch: new file to declare word_file as gzFile
+	instead of file of memory_word.
+
 2019-09-23  Karl Berry  <karl@freefriends.org>
 
 	* patgen.ch (trie_size),
@@ -8400,6 +8440,7 @@ Tue Jan  7 16:09:55 1992  Karl Berry  (karl at hayley)
 
 	* bibtex.ch (10/main program): exit with bad status if history >
 	  warning_message.
+
 Mon Feb 21 14:50:08 1994  Karl Berry  (karl@cs.umb.edu)
 
 	* Makefile.in: srcdir changes from simon.

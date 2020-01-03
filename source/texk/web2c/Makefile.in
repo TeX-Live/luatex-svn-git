@@ -1281,8 +1281,6 @@ am__objects_36 = etex-etexini.$(OBJEXT) etex-etex0.$(OBJEXT)
 nodist_etex_OBJECTS = $(am__objects_36) etex-etex-pool.$(OBJEXT)
 etex_OBJECTS = $(dist_etex_OBJECTS) $(nodist_etex_OBJECTS)
 @ETEX_SYNCTEX_TRUE@am__DEPENDENCIES_4 = $(am__DEPENDENCIES_1)
-etex_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_4)
 am__dist_euptex_SOURCES_DIST = euptexdir/euptexextra.c \
 	euptexdir/euptexextra.h synctexdir/synctex.c \
 	synctexdir/synctex.h synctexdir/synctex-common.h \
@@ -1426,7 +1424,7 @@ am_pbibtex_OBJECTS =
 nodist_pbibtex_OBJECTS = pbibtex-pbibtex.$(OBJEXT)
 pbibtex_OBJECTS = $(am_pbibtex_OBJECTS) $(nodist_pbibtex_OBJECTS)
 am__DEPENDENCIES_10 = libkanji.a $(pproglib) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
 am__dist_pdftex_SOURCES_DIST = pdftexdir/pdftexextra.c \
 	pdftexdir/pdftexextra.h pdftexdir/pdftex_version.h \
 	pdftexdir/etex_version.h synctexdir/synctex.c \
@@ -1542,7 +1540,7 @@ am_upbibtex_OBJECTS =
 nodist_upbibtex_OBJECTS = upbibtex-upbibtex.$(OBJEXT)
 upbibtex_OBJECTS = $(am_upbibtex_OBJECTS) $(nodist_upbibtex_OBJECTS)
 am__DEPENDENCIES_15 = libukanji.a $(pproglib) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
 am_updvitype_OBJECTS =
 nodist_updvitype_OBJECTS = updvitype-updvitype.$(OBJEXT)
 updvitype_OBJECTS = $(am_updvitype_OBJECTS) \
@@ -2624,7 +2622,7 @@ am__EXEEXT_43 = bibtex.test dvicopy.test dvitype.test gftodvi.test \
 	vptovf.test weave.test
 am__EXEEXT_44 = $(am__EXEEXT_43) tests/bibtex-openout-test.pl \
 	tests/bibtex-longline-test.pl tests/bibtex-mem.test \
-	tests/bibtex-auxinclude.test
+	tests/bibtex-bigauth.test tests/bibtex-auxinclude.test
 @WEB_TRUE@am__EXEEXT_45 = $(am__EXEEXT_44)
 TEST_SUITE_LOG = test-suite.log
 am__test_logs1 = $(TESTS:=.log)
@@ -2999,16 +2997,18 @@ EXTRA_DIST = PROJECTS cftests cpascal.h help.h w2c/config.h \
 	triptrap-sh tangle.web tangle.ch tangleboot.pin cwebdir \
 	ctangleboot.cin cwebboot.cin tangle.test $(web_programs:=.web) \
 	$(web_programs:=.ch) $(web_tests) tests/memdata1.bst \
-	tests/memdata2.bst tests/memdata3.bst tests/auxinclude.aux \
-	tests/auxinclude.bbl tests/auxinclude.bib tests/auxinclude.tex \
-	tests/auxinclude2.aux tests/auxinclude2.tex tests/allbib.aux \
-	tests/allbib.tex tests/apalike.bst tests/badpl.pl \
-	tests/badtfm.tfm tests/badvf.tfm tests/badvf.vf \
-	tests/badvpl.vpl tests/batch.tex tests/check.log \
-	tests/cmr10.600gf tests/cmr10.pk tests/cmr10.pl \
-	tests/cmr10.tfm tests/cmr7.tfm tests/cmr8.tfm tests/cmti10.tfm \
-	tests/cmtt10.tfm tests/cmtt8.tfm tests/dict tests/eight.tex \
-	tests/end.tex tests/exampl.aux tests/exampl.tex tests/gray.tfm \
+	tests/memdata2.bst tests/memdata3.bst tests/bibtex-bigauth.aux \
+	tests/bibtex-bigauth.bib tests/bibtex-bigauth.tex \
+	tests/auxinclude.aux tests/auxinclude.bbl tests/auxinclude.bib \
+	tests/auxinclude.tex tests/auxinclude2.aux \
+	tests/auxinclude2.tex tests/allbib.aux tests/allbib.tex \
+	tests/apalike.bst tests/badpl.pl tests/badtfm.tfm \
+	tests/badvf.tfm tests/badvf.vf tests/badvpl.vpl \
+	tests/batch.tex tests/check.log tests/cmr10.600gf \
+	tests/cmr10.pk tests/cmr10.pl tests/cmr10.tfm tests/cmr7.tfm \
+	tests/cmr8.tfm tests/cmti10.tfm tests/cmtt10.tfm \
+	tests/cmtt8.tfm tests/dict tests/eight.tex tests/end.tex \
+	tests/exampl.aux tests/exampl.tex tests/gray.tfm \
 	tests/hello.tex tests/io.mf tests/just.texi tests/label.mp \
 	tests/label.mpx tests/logo8.tfm tests/longline.aux \
 	tests/longline.bib tests/longline.tex tests/longtfm.tex \
@@ -3566,7 +3566,7 @@ web_programs = bibtex dvicopy dvitype gftodvi gftopk gftype mft \
 
 web_tests = $(web_programs:=.test) tests/bibtex-openout-test.pl \
 	tests/bibtex-longline-test.pl tests/bibtex-mem.test \
-	tests/bibtex-auxinclude.test
+	tests/bibtex-bigauth.test tests/bibtex-auxinclude.test
 nodist_bibtex_SOURCES = bibtex.c bibtex.h
 nodist_dvicopy_SOURCES = dvicopy.c dvicopy.h
 nodist_dvitype_SOURCES = dvitype.c dvitype.h
@@ -3616,7 +3616,7 @@ tex_ch_srcs = \
 
 # TeX tests
 #
-tex_tests = triptest.test tests/write18-quote-test.pl
+tex_tests = triptest.test tests/write18-quote-test.pl tests/tex-closeout.test
 call_mf_CPPFLAGS = -DEXEPROG=\"mf.exe\"
 nodist_call_mf_SOURCES = callexe.c
 call_mf_LDADD = 
@@ -3800,10 +3800,11 @@ libmplib_web = mplibdir/mp.w mplibdir/psout.w mplibdir/svgout.w \
 	mplibdir/pngout.w mplibdir/mpmath.w mplibdir/mpmathbinary.w \
 	mplibdir/mpmathdecimal.w mplibdir/mpmathdouble.w \
 	mplibdir/mpstrings.w mplibdir/tfmin.w
-etex_CPPFLAGS = $(AM_CPPFLAGS) $(am__append_129)
+etex_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) $(am__append_129)
 
 # With --enable-ipc, e-TeX may need to link with -lsocket.
-etex_LDADD = $(LDADD) $(ipc_socketlibs) $(am__append_130)
+etex_LDADD = $(LDADD) $(ZLIB_LIBS) $(ipc_socketlibs) $(am__append_130)
+etex_DEPENDENCIES = $(ZLIB_DEPEND)
 
 # e-TeX C sources
 etex_c_h = etexini.c etex0.c etexcoerce.h etexd.h
@@ -3811,7 +3812,8 @@ nodist_etex_SOURCES = $(etex_c_h) etex-pool.c
 dist_etex_SOURCES = etexdir/etexextra.c etexdir/etexextra.h \
 	etexdir/etex_version.h $(am__append_132)
 
-# We must create etexd.h and etexdir/etex_version.h before building the etex_OBJECTS.
+# We must create etexd.h and etexdir/etex_version.h before building the
+# etex_OBJECTS.
 etex_prereq = etexd.h etexdir/etex_version.h $(am__append_131)
 etex_web_srcs = \
 	tex.web \
@@ -3820,6 +3822,7 @@ etex_web_srcs = \
 etex_ch_srcs = \
 	etexdir/tex.ch0 \
 	tex.ch \
+	zlib-fmt.ch \
 	enctex.ch \
 	$(etex_ch_synctex) \
 	etexdir/tex.ch1 \
@@ -3830,9 +3833,9 @@ etex_ch_srcs = \
 # e-TeX Tests
 #
 etex_tests = etexdir/wprob.test etexdir/etriptest.test
-ptex_cppflags = $(PTEXENC_INCLUDES) $(AM_CPPFLAGS)
-ptex_ldadd = libkanji.a $(pproglib) $(PTEXENC_LIBS) $(LDADD)
-ptex_dependencies = libkanji.a $(pproglib) $(PTEXENC_DEPEND) $(default_dependencies)
+ptex_cppflags = $(PTEXENC_INCLUDES) $(AM_CPPFLAGS) $(ZLIB_INCLUDES)
+ptex_ldadd = libkanji.a $(pproglib) $(PTEXENC_LIBS) $(LDADD) $(ZLIB_LIBS)
+ptex_dependencies = libkanji.a $(pproglib) $(PTEXENC_DEPEND) $(ZLIB_DEPEND) $(default_dependencies)
 p_tangle = $(tangle_silent)WEBINPUTS=.:$(srcdir)/ptexdir:$(srcdir) $(buildenv) $(TANGLE)
 pweb_programs = pbibtex pdvitype ppltotf ptftopl
 pproglib = lib/libp.a
@@ -3854,7 +3857,8 @@ dist_ptex_SOURCES = ptexdir/ptexextra.c ptexdir/ptexextra.h \
 ptex_prereq = ptexd.h ptexdir/ptex_version.h $(am__append_135)
 ptex_web_srcs = \
 	tex.web \
-	tex.ch
+	tex.ch \
+	zlib-fmt.ch
 
 ptex_ch_srcs = \
 	ptexdir/ptex-base.ch \
@@ -3892,12 +3896,12 @@ pweb_tests = ptexdir/pbibtex.test ptexdir/pdvitype.test \
 	ptexdir/nissya.test ptexdir/sample.test ptexdir/yokotate.test \
 	ptexdir/skipjfmp.test
 eptex_CPPFLAGS = $(PTEXENC_INCLUDES) $(AM_CPPFLAGS) -I$(srcdir)/libmd5 \
-	$(am__append_141)
+	$(ZLIB_INCLUDES) $(am__append_141)
 
 # With --enable-ipc, e-pTeX may need to link with -lsocket.
 eptex_LDADD = libkanji.a $(pproglib) $(PTEXENC_LIBS) $(LDADD) \
-	$(ipc_socketlibs) libmd5.a $(am__append_142)
-eptex_DEPENDENCIES = libkanji.a $(pproglib) $(PTEXENC_DEPEND) $(default_dependencies) libmd5.a
+	$(ipc_socketlibs) libmd5.a $(ZLIB_LIBS) $(am__append_142)
+eptex_DEPENDENCIES = libkanji.a $(pproglib) $(PTEXENC_DEPEND) $(default_dependencies) libmd5.a $(ZLIB_DEPEND)
 
 # e-pTeX C sources
 eptex_c_h = eptexini.c eptex0.c eptexcoerce.h eptexd.h
@@ -3913,6 +3917,7 @@ eptex_web_srcs = \
 	etexdir/etex.ch \
 	etexdir/tex.ch0 \
 	tex.ch \
+	zlib-fmt.ch \
 	etexdir/tex.ech
 
 eptex_ch_srcs = \
@@ -3930,9 +3935,9 @@ eptex_ch_srcs = \
 # e-pTeX Tests
 #
 eptex_tests = eptexdir/eptriptest.test eptexdir/pdfprimitive.test eptexdir/epver.test
-uptex_cppflags = $(PTEXENC_INCLUDES) $(AM_CPPFLAGS)
-uptex_ldadd = libukanji.a $(pproglib) $(PTEXENC_LIBS) $(LDADD)
-uptex_dependencies = libukanji.a $(pproglib) $(PTEXENC_DEPEND) $(default_dependencies)
+uptex_cppflags = $(PTEXENC_INCLUDES) $(AM_CPPFLAGS) $(ZLIB_INCLUDES)
+uptex_ldadd = libukanji.a $(pproglib) $(PTEXENC_LIBS) $(LDADD) $(ZLIB_LIBS)
+uptex_dependencies = libukanji.a $(pproglib) $(PTEXENC_DEPEND) $(ZLIB_DEPEND) $(default_dependencies)
 up_tangle = $(tangle_silent)WEBINPUTS=.:$(srcdir)/uptexdir:$(srcdir) $(buildenv) $(TANGLE)
 upweb_programs = upbibtex updvitype uppltotf uptftopl
 libukanji_a_SOURCES = uptexdir/kanji.c uptexdir/kanji.h uptexdir/kanji_dump.c
@@ -3954,7 +3959,8 @@ uptex_prereq = uptexd.h ptexdir/ptex_version.h \
 	uptexdir/uptex_version.h $(am__append_139)
 uptex_web_srcs = \
 	tex.web \
-	tex.ch
+	tex.ch \
+	zlib-fmt.ch
 
 uptex_ch_srcs = \
 	ptexdir/ptex-base.ch \
@@ -3996,12 +4002,12 @@ upweb_tests = \
 	uptexdir/gkhuge.test
 
 euptex_CPPFLAGS = $(PTEXENC_INCLUDES) $(AM_CPPFLAGS) \
-	-I$(srcdir)/libmd5 $(am__append_145)
+	-I$(srcdir)/libmd5 $(ZLIB_INCLUDES) $(am__append_145)
 
 # With --enable-ipc, e-upTeX may need to link with -lsocket.
 euptex_LDADD = libukanji.a $(pproglib) $(PTEXENC_LIBS) $(LDADD) \
-	$(ipc_socketlibs) libmd5.a $(am__append_146)
-euptex_DEPENDENCIES = libukanji.a $(pproglib) $(PTEXENC_DEPEND) $(default_dependencies) libmd5.a
+	$(ipc_socketlibs) libmd5.a $(ZLIB_LIBS) $(am__append_146)
+euptex_DEPENDENCIES = libukanji.a $(pproglib) $(PTEXENC_DEPEND) $(default_dependencies) libmd5.a $(ZLIB_DEPEND)
 
 # e-upTeX C sources
 euptex_c_h = euptexini.c euptex0.c euptexcoerce.h euptexd.h
@@ -4018,6 +4024,7 @@ euptex_web_srcs = \
 	etexdir/etex.ch \
 	etexdir/tex.ch0 \
 	tex.ch \
+	zlib-fmt.ch \
 	etexdir/tex.ech
 
 euptex_ch_srcs = \
@@ -4086,6 +4093,7 @@ pdftex_ch_srcs = \
 	pdftexdir/pdftex.web \
 	pdftexdir/tex.ch0 \
 	tex.ch \
+	zlib-fmt.ch \
 	enctex.ch \
 	$(pdftex_ch_synctex) \
 	pdftexdir/pdftex.ch \
@@ -19207,6 +19215,7 @@ bibtex.p: tangle$(EXEEXT) bibtex.web bibtex.ch
 	$(tangle) bibtex bibtex
 bibtex.log tests/bibtex-openout-test.log tests/bibtex-longline-test.log \
 	tests/bibtex-mem.log \
+	tests/bibtex-bigauth.log \
 	tests/bibtex-auxinclude.log: bibtex$(EXEEXT)
 dvicopy.c dvicopy.h: dvicopy-web2c
 	@$(web2c) dvicopy
@@ -19351,7 +19360,7 @@ tex-tangle: tangle$(EXEEXT) tex.web tex-final.ch tangle-sh
 tex-final.ch: tie$(EXEEXT) $(tex_ch_srcs)
 	$(tie_c) $(tex_ch_srcs)
 triptest.log: tex$(EXEEXT) dvitype$(EXEEXT) pltotf$(EXEEXT) tftopl$(EXEEXT)
-tests/write18-quote-test.log: tex$(EXEEXT)
+tests/write18-quote-test.log tests/tex-closeout.test: tex$(EXEEXT)
 
 trip.diffs: tex$(EXEEXT) dvitype$(EXEEXT) pltotf$(EXEEXT) tftopl$(EXEEXT)
 	$(triptrap_diffs) $@
