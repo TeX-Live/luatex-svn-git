@@ -564,6 +564,7 @@ static ppstring * ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap *heap)
   int c, b, balance, encode;
   ppbyte *p, *e;
   size_t size;
+  uint8_t uc;
 
   O = ppbytes_buffer(heap, PPSTRING_INIT);
   for (balance = 0, encode = 0, c = iof_char(I); c >= 0; )
@@ -655,6 +656,7 @@ static ppstring * ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap *heap)
   /* make encoded counterpart */
   if (encode)
   {
+    unsigned char _c;
     O = ppbytes_buffer(heap, decoded->size + 1); // we don't know
     for (p = decoded->data, e = p + decoded->size; p < e; ++p)
     {
@@ -665,8 +667,8 @@ static ppstring * ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap *heap)
           iof_put(O, *p);
           break;
         case -1:
-          c = *p;
-          iof_put4(O, '\\', (c >> 6) + '0', ((c >> 3) & 7) + '0', (c & 7) + '0');
+          uc = (uint8_t)(*p);
+          iof_put4(O, '\\', (uc >> 6) + '0', ((uc >> 3) & 7) + '0', (uc & 7) + '0');
           break;
         default:
           iof_put2(O, '\\', b);
