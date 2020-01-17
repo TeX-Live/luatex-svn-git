@@ -656,7 +656,6 @@ static ppstring * ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap *heap)
   /* make encoded counterpart */
   if (encode)
   {
-    unsigned char _c;
     O = ppbytes_buffer(heap, decoded->size + 1); // we don't know
     for (p = decoded->data, e = p + decoded->size; p < e; ++p)
     {
