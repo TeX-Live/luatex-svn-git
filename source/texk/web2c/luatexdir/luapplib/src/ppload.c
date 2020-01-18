@@ -95,8 +95,8 @@ static ppname * ppscan_name (iof *I, ppheap *heap)
   ppname *encoded, *decoded;
   iof *O;
   int decode, c;
-  ppbyte *p, *e;
-  char h1, h2;
+  uint8_t *p, *e;
+  int8_t h1, h2;
 
   O = ppbytes_buffer(heap, PPNAME_INIT);
   for (decode = 0, c = iof_char(I); ppnamebyte(c); c = iof_next(I))
@@ -109,7 +109,7 @@ static ppname * ppscan_name (iof *I, ppheap *heap)
   if (decode)
   {
     O = ppbytes_buffer(heap, encoded->size); // decoded always a bit smaller
-    for (p = encoded->data, e = p + encoded->size; p < e; ++p)
+    for (p = (uint8_t *)encoded->data, e = p + encoded->size; p < e; ++p)
     {
       if (*p == '#' && p + 2 < e && (h1 = pphex(p[1])) >= 0 && (h2 = pphex(p[2])) >= 0)
       {
@@ -138,8 +138,8 @@ static ppname * ppscan_exec (iof *I, ppheap *heap, uint8_t firstbyte)
   ppname *encoded, *decoded;
   iof *O;
   int decode, c;
-  ppbyte *p, *e;
-  char h1, h2;
+  uint8_t *p, *e;
+  int8_t h1, h2;
 
   O = ppbytes_buffer(heap, PPNAME_INIT);
   iof_put(O, firstbyte);
@@ -153,7 +153,7 @@ static ppname * ppscan_exec (iof *I, ppheap *heap, uint8_t firstbyte)
   if (decode)
   {
     O = ppbytes_buffer(heap, encoded->size);
-    for (p = encoded->data, e = p + encoded->size; p < e; ++p)
+    for (p = (uint8_t *)encoded->data, e = p + encoded->size; p < e; ++p)
     {
       if (*p == '#' && p + 2 < e && (h1 = pphex(p[1])) >= 0 && (h2 = pphex(p[2])) >= 0)
       {
@@ -255,7 +255,7 @@ static ppstring * ppscan_string (iof *I, ppheap *heap)
   ppstring *encoded, *decoded;
   iof *O;
   int c, decode, balance;
-  ppbyte *p, *e;
+  uint8_t *p, *e;
 
   O = ppbytes_buffer(heap, PPSTRING_INIT);
   for (decode = 0, balance = 0, c = iof_char(I); c >= 0; )
@@ -297,7 +297,7 @@ static ppstring * ppscan_string (iof *I, ppheap *heap)
   if (decode)
   {
     O = ppbytes_buffer(heap, encoded->size); // decoded can only be smaller
-    for (p = encoded->data, e = p + encoded->size; p < e; ++p)
+    for (p = (uint8_t *)encoded->data, e = p + encoded->size; p < e; ++p)
     {
       if (*p == '\\')
       {
@@ -362,8 +362,8 @@ static ppstring * ppscan_base16 (iof *I, ppheap *heap)
   ppstring *encoded, *decoded;
   iof *O;
   int c;
-  ppbyte *p, *e;
-  char h1, h2;
+  uint8_t *p, *e;
+  int8_t h1, h2;
 
   O = ppbytes_buffer(heap, PPSTRING_INIT);
   for (c = iof_char(I); (pphex(c) >= 0 || ignored_char(c)); c = iof_next(I))
@@ -374,7 +374,7 @@ static ppstring * ppscan_base16 (iof *I, ppheap *heap)
   encoded->data = ppbytes_flush(heap, O, &encoded->size);
 
   O = ppbytes_buffer(heap, ((encoded->size + 1) >> 1) + 1); // decoded can only be smaller
-  for (p = encoded->data, e = p + encoded->size; p < e; ++p)
+  for (p = (uint8_t *)encoded->data, e = p + encoded->size; p < e; ++p)
   {
     if ((h1 = pphex(*p)) < 0) // ignored
       continue;
@@ -395,13 +395,13 @@ static ppstring * ppscan_base16 (iof *I, ppheap *heap)
 static ppstring * ppstring_buffer (iof *O, ppheap *heap)
 {
   ppstring *encoded, *decoded;
-  ppbyte *p, *e;
+  uint8_t *p, *e;
 
   decoded = (ppstring *)ppstruct_take(heap, sizeof(ppstring));
   decoded->data = ppbytes_flush(heap, O, &decoded->size);
 
   O = ppbytes_buffer(heap, (decoded->size << 1) + 1); // the exact size known
-  for (p = decoded->data, e = p + decoded->size; p < e; ++p)
+  for (p = (uint8_t *)decoded->data, e = p + decoded->size; p < e; ++p)
     iof_set2(O, base16_uc_alphabet[(*p) >> 4], base16_uc_alphabet[(*p) & 0xF]);
   encoded = ppstruct_take(heap, sizeof(ppstring));
   encoded->data = ppbytes_flush(heap, O, &encoded->size);
@@ -450,7 +450,7 @@ static const int8_t ppstring_base85_lookup[] = {
 static iof_status ppscan_base85_decode (iof *I, iof *O)
 {
   int c1, c2, c3, c4, c5;
-  unsigned int code;
+  uint32_t code;
   while (iof_ensure(O, 4))
   {
     do { c1 = iof_get(I); } while (ignored_char(c1));
@@ -562,9 +562,8 @@ static ppstring * ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap *heap)
   ppstring *encoded, *decoded;
   iof *O;
   int c, b, balance, encode;
-  ppbyte *p, *e;
+  uint8_t *p, *e;
   size_t size;
-  uint8_t uc;
 
   O = ppbytes_buffer(heap, PPSTRING_INIT);
   for (balance = 0, encode = 0, c = iof_char(I); c >= 0; )
@@ -657,7 +656,7 @@ static ppstring * ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap *heap)
   if (encode)
   {
     O = ppbytes_buffer(heap, decoded->size + 1); // we don't know
-    for (p = decoded->data, e = p + decoded->size; p < e; ++p)
+    for (p = (uint8_t *)decoded->data, e = p + decoded->size; p < e; ++p)
     {
       b = ppstringesc(*p);
       switch (b)
@@ -666,8 +665,7 @@ static ppstring * ppscan_crypt_string (iof *I, ppcrypt *crypt, ppheap *heap)
           iof_put(O, *p);
           break;
         case -1:
-          uc = (uint8_t)(*p);
-          iof_put4(O, '\\', (uc >> 6) + '0', ((uc >> 3) & 7) + '0', (uc & 7) + '0');
+          iof_put4(O, '\\', ((*p) >> 6) + '0', (((*p) >> 3) & 7) + '0', ((*p) & 7) + '0');
           break;
         default:
           iof_put2(O, '\\', b);
@@ -696,8 +694,8 @@ static ppstring * ppscan_crypt_base16 (iof *I, ppcrypt *crypt, ppheap *heap)
   ppstring *encoded, *decoded;
   iof *O;
   int c;
-  char h1, h2;
-  ppbyte *p, *e;
+  uint8_t *p, *e;
+  int8_t h1, h2;
   size_t size;
 
   O = ppbytes_buffer(heap, PPSTRING_INIT);
@@ -736,7 +734,7 @@ static ppstring * ppscan_crypt_base16 (iof *I, ppcrypt *crypt, ppheap *heap)
   decoded->data = ppbytes_flush(heap, O, &decoded->size);
 
   O = ppbytes_buffer(heap, (decoded->size << 1) + 1);
-  for (p = decoded->data, e = p + decoded->size; p < e; ++p)
+  for (p = (uint8_t *)decoded->data, e = p + decoded->size; p < e; ++p)
     iof_set2(O, base16_uc_alphabet[(*p) >> 4], base16_uc_alphabet[(*p) & 0xF]);
   encoded = (ppstring *)ppstruct_take(heap, sizeof(ppstring));
   encoded->data = ppbytes_flush(heap, O, &encoded->size);

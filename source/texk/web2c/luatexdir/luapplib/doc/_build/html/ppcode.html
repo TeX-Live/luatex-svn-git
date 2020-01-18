@@ -62,6 +62,7 @@
 <li><a class="reference internal" href="#v2-02">v2.02</a></li>
 <li><a class="reference internal" href="#v2-03">v2.03</a></li>
 <li><a class="reference internal" href="#v2-04">v2.04</a></li>
+<li><a class="reference internal" href="#v2-05">v2.05</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#todo">TODO</a></li>
@@ -491,7 +492,7 @@ int main (int argc, const char **argv)
 
 <span class="c1">#include &quot;ppconf.h&quot;</span>
 
-<span class="c1">#define pplib_version &quot;v2.04 less toxic i hope&quot;</span>
+<span class="c1">#define pplib_version &quot;v2.05 less toxic i hope&quot;</span>
 <span class="c1">#define pplib_author &quot;p.jackowski@gust.org.pl&quot;</span>
 
 <span class="o">/*</span> <span class="n">types</span> <span class="o">*/</span>
@@ -955,6 +956,11 @@ ppdoc_first_page() / ppdoc_next_page() iterator now handles a case when /Kids ar
 Fixed generating keys for encrypted streams; ppstring_internal() returns the string of the proper size.
 More stream tests in pptest3.c.
 Some rework on md5 and sha2.</p>
+</div>
+<div class="section" id="v2-05">
+<h2>v2.05<a class="headerlink" href="#v2-05" title="Permalink to this headline">¶</a></h2>
+<p>uint8_t instead of ppbyte in internals; ppbyte intent is “the most natural 8-bit integer”, so it is ‘char’,
+but internally we almost always need uint8_t (char may be signed or not..)</p>
 </div>
 </div>
 <div class="section" id="todo">

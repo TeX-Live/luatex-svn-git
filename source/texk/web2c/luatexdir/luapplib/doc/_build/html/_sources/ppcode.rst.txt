@@ -90,6 +90,11 @@ Fixed generating keys for encrypted streams; ppstring_internal() returns the str
 More stream tests in pptest3.c.
 Some rework on md5 and sha2.
 
+v2.05
+-----
+uint8_t instead of ppbyte in internals; ppbyte intent is "the most natural 8-bit integer", so it is 'char',
+but internally we almost always need uint8_t (char may be signed or not..)
+
 TODO
 ====
 - external streams (egzotic)
