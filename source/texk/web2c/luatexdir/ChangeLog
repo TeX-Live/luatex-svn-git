@@ -1,3 +1,8 @@
+2020-01-25  Luigi Scarso <luigi.scarso@gmail.com>
+    * sync with upstream pplib 
+    * sync with upstream luaharfbuzz 
+
+
 2020-01-11  Luigi Scarso <luigi.scarso@gmail.com>
     * shape fix (HH)
 
