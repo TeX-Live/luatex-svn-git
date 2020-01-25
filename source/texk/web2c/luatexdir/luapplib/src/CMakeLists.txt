@@ -26,12 +26,6 @@ add_library(pplib_utils STATIC
     util/utilmemheap.h
     util/utilmemheapiof.c
     util/utilmemheapiof.h
-    util/utilmemstock.c
-    util/utilmemstock.h
-    util/utilmemstockiof.c
-    util/utilmemstockiof.h
-    util/utilmempool.c
-    util/utilmempool.h
     util/utilmeminfo.c
     util/utilmeminfo.h
     #

@@ -657,7 +657,7 @@ static size_t lzw_encoder (iof *F, iof_mode mode)
   {
     case IOFFLUSH:
       state->flush = 1;
-      // fall through
+      FALLTHRU // fall through
     case IOFWRITE:
       F->end = F->pos;
       F->pos = F->buf;

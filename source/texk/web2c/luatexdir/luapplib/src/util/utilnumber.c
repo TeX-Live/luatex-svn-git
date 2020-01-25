@@ -6,7 +6,7 @@
 
 // todo: lookups can be chars
 // change lookup arrays to some __name to discourage accessing them directly; they always should be accessed via macros; base16_value() base16_digit()
-// 
+//
 
 const int base10_lookup[] = {
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -553,15 +553,15 @@ char * uint64_as_alpha (uint64_t number, int uc, char ibuf[MAX_INTEGER_DIGITS], 
 #define string_scan_alphan(s, c, number, radix) \
   do { \
     number = 0; \
-    if ((c = base26_value(*s)) > 0) { \
+    if ((c = (uint16_t)base26_value(*s)) > 0) { \
       number = c; \
-      while (c == base26_value(*++s)) number += radix; \
+      while (c == (uint16_t)base26_value(*++s)) number += radix; \
     }  \
   } while (0)
 
 const char * alphan_to_uint16 (const char *s, uint16_t *number)
 {
-  int c;
+  uint16_t c;
   string_scan_alphan(s, c, *number, 26);
   return s;
 }
@@ -608,15 +608,16 @@ char * uint16_as_roman (uint16_t number, int uc, char ibuf[MAX_ROMAN_DIGITS], si
   static const uint32_t base_roman_values[] = { 1000, 500, 100, 50, 10, 5, 1 };
   const char *alphabet;
   char *p;
-  uint32_t k, j, v, u;
+  uint32_t k, j, v, u, n;
 
+  n = (uint32_t)number; // uint16_t used to limit leding 'M'
   alphabet = uc ? base_roman_uc_alphabet : base_roman_lc_alphabet;
-  for (p = ibuf, j = 0, v = base_roman_values[0]; number > 0; )
+  for (p = ibuf, j = 0, v = base_roman_values[0]; n > 0; )
   {
-    if (number >= v)
+    if (n >= v)
     {
      *p++ = alphabet[j];
-     number -= v;
+     n -= v;
      continue;
     }
     if (j & 1)
@@ -624,10 +625,10 @@ char * uint16_as_roman (uint16_t number, int uc, char ibuf[MAX_ROMAN_DIGITS], si
     else
       k = j + 2;
     u = base_roman_values[k];
-    if (number + u >= v)
+    if (n + u >= v)
     {
       *p++ = alphabet[k];
-      number += u;
+      n += u;
     }
     else
       v = base_roman_values[++j];
@@ -678,7 +679,6 @@ typedef struct ieee_float {
 
 #define ieee_double_fraction(i) (i & 0x000fffffffffffffull)
 #define ieee_double_exponent(i) ((0x7ff & (i >> 52)) - IEEE_DOUBLE_BIAS)
-#define ieee_double_sign(ieee_number) ((void)((ieee_number.sign = ieee_number.bits >> 63) && (ieee_number.number = -ieee_number.number)))
 #define ieee_double_init(ieee_number, number) \
   ieee_number.number = number, \
   ieee_number.fraction = ieee_double_fraction(ieee_number.bits), \
@@ -686,7 +686,6 @@ typedef struct ieee_float {
 
 #define ieee_float_fraction(i) (i & 0x007fffff)
 #define ieee_float_exponent(i) ((0xff & (i >> 23)) - IEEE_FLOAT_BIAS)
-#define ieee_float_sign(ieee_number) ((void)((ieee_number.sign = ieee_number.bits >> 31) && (ieee_number.number = -ieee_number.number)))
 #define ieee_float_init(ieee_number, number) \
   ieee_number.number = number, \
   ieee_number.fraction = ieee_float_fraction(ieee_number.bits), \
@@ -984,7 +983,8 @@ char * double_as_string (double number, int digits, char nbuf[MAX_NUMBER_DIGITS]
   char *s, *p; const char *_p;
   s = p = nbuf + 1; // for sign/rounding
   ieee_double_init(ieee_number, number);
-  ieee_double_sign(ieee_number);
+  if ((ieee_number.sign = ieee_number.bits >> 63) != 0)
+    ieee_number.number = -ieee_number.number;
   if (ieee_double_is_zero(ieee_number)) // to avoid crash on log10(number)
   {
     ieee_copy_special_string(nbuf, ieee_double_zero_string(ieee_number), p, _p);
@@ -1014,7 +1014,8 @@ char * float_as_string (float number, int digits, char nbuf[MAX_NUMBER_DIGITS], 
   char *s, *p; const char *_p;
   s = p = nbuf + 1; // for sign/rounding
   ieee_float_init(ieee_number, number);
-  ieee_float_sign(ieee_number);
+  if ((ieee_number.sign = ieee_number.bits >> 31) != 0)
+    ieee_number.number = -ieee_number.number;
   if (ieee_float_is_zero(ieee_number))
   {
     ieee_copy_special_string(nbuf, ieee_float_zero_string(ieee_number), p, _p);

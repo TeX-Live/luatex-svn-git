@@ -83,12 +83,6 @@ libluapplib_sources = \
 	luatexdir/luapplib/src/util/utilmemheapiof.h \
 	luatexdir/luapplib/src/util/utilmeminfo.c \
 	luatexdir/luapplib/src/util/utilmeminfo.h \
-	luatexdir/luapplib/src/util/utilmempool.c \
-	luatexdir/luapplib/src/util/utilmempool.h \
-	luatexdir/luapplib/src/util/utilmemstock.c \
-	luatexdir/luapplib/src/util/utilmemstock.h \
-	luatexdir/luapplib/src/util/utilmemstockiof.c \
-	luatexdir/luapplib/src/util/utilmemstockiof.h \
 	luatexdir/luapplib/src/util/utilnumber.c \
 	luatexdir/luapplib/src/util/utilnumber.h \
 	luatexdir/luapplib/src/util/utilplat.h \

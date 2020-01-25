@@ -232,8 +232,8 @@ static void aes_copy_xor (uint8_t *data, const uint8_t *input, const uint8_t *iv
 
 static void key_expansion (aes_state *state, const uint8_t *key)
 {
-  uint32_t i, j, k;
-  uint8_t t[4];
+  uint32_t i, j;
+  uint8_t t[4], temp;
   uint8_t *keydata, keywords, columns;
 
   keywords = (uint8_t)(state->keylength >> 2);
@@ -249,7 +249,6 @@ static void key_expansion (aes_state *state, const uint8_t *key)
   }
 
   /* others derived from the first */
-
   for(columns = AES_COLUMNS * (state->rounds + 1); i < columns; ++i)
   {
     for(j = 0; j < 4; ++j)
@@ -257,11 +256,11 @@ static void key_expansion (aes_state *state, const uint8_t *key)
     if (i % keywords == 0)
     {
       /* rotate the 4 bytes in a word to the left once; [a0,a1,a2,a3] becomes [a1,a2,a3,a0] */
-      k = t[0];
+      temp = t[0];
       t[0] = t[1];
       t[1] = t[2];
       t[2] = t[3];
-      t[3] = k;
+      t[3] = temp;
 
       /* take a four-byte input word and apply the S-box to each of the four bytes to produce an output word */
       t[0] = sbox[t[0]];
@@ -913,7 +912,7 @@ static size_t rc4_encoder (iof *F, iof_mode mode)
   {
     case IOFFLUSH:
       state->flush = 1;
-      // fall through
+      FALLTHRU // fall through
     case IOFWRITE:
       F->end = F->pos;
       F->pos = F->buf;
@@ -975,7 +974,7 @@ static size_t aes_encoder (iof *F, iof_mode mode)
   {
     case IOFFLUSH:
       state->flush = 1;
-      // fall through
+      FALLTHRU // fall through
     case IOFWRITE:
       F->end = F->pos;
       F->pos = F->buf;

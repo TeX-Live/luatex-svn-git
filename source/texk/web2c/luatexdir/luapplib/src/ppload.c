@@ -245,8 +245,8 @@ static const int8_t ppstring_byte_escape[] = { /* -1 escaped with octal, >0 esca
   (decoded->size >= 2 ? (ppstring_utf16be_bom(decoded->data) ? ((decoded->flags |= PPSTRING_UTF16BE), (encoded->flags |= PPSTRING_UTF16BE)) : \
                         (ppstring_utf16le_bom(decoded->data) ? ((decoded->flags |= PPSTRING_UTF16LE), (encoded->flags |= PPSTRING_UTF16LE)) : 0)) : 0))
 
-#define ppstring_utf16be_bom(data) (data[0] == ((ppbyte)0xFE) && data[1] == ((ppbyte)0xFF))
-#define ppstring_utf16le_bom(data) (data[0] == ((ppbyte)0xFF) && data[1] == ((ppbyte)0xFE))
+#define ppstring_utf16be_bom(data) (data[0] == '\xFE' && data[1] == '\xFF')
+#define ppstring_utf16le_bom(data) (data[0] == '\xFF' && data[1] == '\xFE')
 
 #define ppstringesc(c) ppstring_byte_escape[(uint8_t)(c)]
 
@@ -1143,7 +1143,7 @@ static ppobj * ppscan_psobj (iof *I, ppstack *stack)
       ++I->pos;
       /* true false null practically don't occur in streams so it makes sense to assume that we get an operator name here.
          If it happen to be a keyword we could give back those several bytes to the heap but.. heap buffer is tricky enough. */
-      exec = ppscan_exec(I, stack->heap, c);
+      exec = ppscan_exec(I, stack->heap, (uint8_t)c);
       data = exec->data;
       obj = ppstack_push(stack);
       switch (data[0])
@@ -1153,7 +1153,6 @@ static ppobj * ppscan_psobj (iof *I, ppstack *stack)
           {
             obj->type = PPBOOL;
             obj->integer = 1;
-            // todo: drop exec
             return obj;
           }
           break;
@@ -1162,7 +1161,6 @@ static ppobj * ppscan_psobj (iof *I, ppstack *stack)
           {
             obj->type = PPBOOL;
             obj->integer = 0;
-            // todo: drop exec
             return obj;
           }
           break;
@@ -1171,7 +1169,6 @@ static ppobj * ppscan_psobj (iof *I, ppstack *stack)
           {
             obj->type = PPNULL;
             obj->any = NULL;
-            // todo: drop exec
             return obj;
           }
           break;
@@ -1476,7 +1473,7 @@ static int ppdoc_tail (ppdoc *pdf, iof_file *input, size_t *pxrefoffset)
         return 0;
     }
   }
-  return 0;
+  return 0; // never reached
 }
 
 /* xref/body */
@@ -1712,6 +1709,7 @@ static ppxref * ppxref_load_stream (iof *I, ppdoc *pdf, size_t xrefoffset)
   for (sectionindex = 0; sectionindex < sections; ++sectionindex, sectionfirst += 2)
   {
     sectioncount = sectionfirst + 1;
+    first = 0, count = 0; // warnings
     if (!ppobj_get_uint(sectionfirst, first) || !ppobj_get_uint(sectioncount, count))
       goto xref_stream_error;
     if (count == 0)
@@ -2233,7 +2231,7 @@ static void ppdoc_pages_init (ppdoc *pdf);
   ppbytes_buffer_init(&pdf->heap);
   ...
 
-So ppdoc pdf was allocated from the heap owned by the pdf itself. Somewhat tricky, but should work fine, 
+So ppdoc pdf was allocated from the heap owned by the pdf itself. Somewhat tricky, but should work fine,
 as from that point nothing refered to a local heap variable addres. For some reason that causes a crash
 on openbsd.
 */

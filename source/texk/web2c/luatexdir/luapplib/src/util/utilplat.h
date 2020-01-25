@@ -20,4 +20,12 @@
 #  endif
 #endif
 
+#ifdef __GNUC__
+//#  define FALLTHRU [[fallthrough]] // c++17
+//#  define FALLTHRU [[gnu:fallthrough]] // c++14
+#  define FALLTHRU __attribute__((fallthrough)); // C and C++03
+#else
+#  define FALLTHRU
+#endif
+
 #endif

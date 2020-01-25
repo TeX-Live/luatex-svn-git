@@ -2325,7 +2325,7 @@ size_t iof_decoder_retval (iof *I, const char *type, iof_status status)
       return 0;
     case IOFEOF:               // this is the last chunk,
       I->flags |= IOF_STOPPED; // so stop it and fall
-      // fall through
+      FALLTHRU                 // fall through
     case IOFFULL:              // prepare pointers to read from I->buf
       I->end = I->pos;
       I->pos = I->buf;

@@ -252,17 +252,22 @@ static int read_scanline (predictor_state *state, iof *I, int size)
 #define up_pixel_byte(state)     (state->rowup[state->rowindex])
 #define upleft_pixel_byte(state) (state->rowup[state->rowindex - state->pixelsize])
 #define left_pixel_byte(state)   (state->rowsave[state->rowindex - state->pixelsize])
-#define save_pixel_byte(state, c) (state->rowsave[state->rowindex] = c)
+#define save_pixel_byte(state, c) (state->rowsave[state->rowindex] = (uint8_t)(c))
 
 /* tiff predictor macros; on components */
 
 #define left_pixel_component(state) (state->prevcomp[state->compindex]) // tiff predictor with 2, 4, 8, 16 components
 #define left_pixel_value(state) (state->prevpixel[0])                   // tiff predictor with 1bit components
-#define save_pixel_component(state, c) ((void)\
-  ((state->prevcomp[state->compindex] = c), \
-   (++state->compindex < state->components || (state->compindex = 0))))
 
-#define save_pixel_value(state, c) (state->prevpixel[0] = c)
+/* assignment in conditional
+#define save_pixel_component(state, c) ((void)\
+  ((state->prevcomp[state->compindex] = (predictor_component_t)(c)), \
+  ++state->compindex, (state->compindex < state->components || (state->compindex = 0))))
+*/
+#define save_pixel_component(state, c) \
+  do { state->prevcomp[state->compindex] = (predictor_component_t)(c); if (++state->compindex >= state->components) state->compindex = 0; } while (0)
+
+#define save_pixel_value(state, c) (state->prevpixel[0] = (predictor_pixel1b_t)(c))
 
 /* Once the codec function is done with the scanline, we set imaginary left pixel data to zero, and reset row counters to
 zero in order to allow buffering another input scanline. */
@@ -725,7 +730,7 @@ static size_t predictor_encoder (iof *F, iof_mode mode)
   {
     case IOFFLUSH:
       state->flush = 1;
-      // fall through
+      FALLTHRU // fall through
     case IOFWRITE:
       F->end = F->pos;
       F->pos = F->buf;

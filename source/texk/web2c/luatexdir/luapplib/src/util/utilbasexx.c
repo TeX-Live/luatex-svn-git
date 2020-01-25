@@ -36,7 +36,8 @@ typedef union { basexx_state *basexxstate; runlength_state *runlengthstate; void
 #define base64_eof(c) (c == '=' || c < 0)
 
 #define basexx_nl '\x0A'
-#define put_nl(O, line, maxline, n) ((void)((line += n) > maxline && ((line = n), iof_set(O, basexx_nl))))
+//#define put_nl(O, line, maxline, n) ((void)((line += n) > maxline && ((line = n), iof_set(O, basexx_nl)))) // assignment in conditional warning
+#define put_nl(O, line, maxline, n) do { line += n; if (line > maxline) line = n; iof_set(O, basexx_nl); } while (0)
 
 /* tail macros */
 
@@ -512,10 +513,28 @@ iof_status base64_encode_state_ln (iof *I, iof *O, basexx_state *state)
       return (state->flush ? IOFEOF : IOFEMPTY);
     byte1:
     if ((c2 = iof_get(I)) < 0)
-      return (state->flush ? (put_nl(O, state->line, state->maxline, 2), base64_encode_tail1(O, c1), IOFEOF) : (set_tail1(state, c1), IOFEMPTY));
+    {
+      if (state->flush)
+      {
+        put_nl(O, state->line, state->maxline, 2);
+        base64_encode_tail1(O, c1);
+        return IOFEOF;
+      }
+      set_tail1(state, c1);
+      return IOFEMPTY;
+    }
     byte2:
     if ((c3 = iof_get(I)) < 0)
-      return (state->flush ? (put_nl(O, state->line, state->maxline, 3), base64_encode_tail2(O, c1, c2), IOFEOF) : (set_tail2(state, c1, c2), IOFEMPTY));
+    {
+      if (state->flush)
+      {
+        put_nl(O, state->line, state->maxline, 3);
+        base64_encode_tail2(O, c1, c2);
+        return IOFEOF;
+      }
+      set_tail2(state, c1, c2);
+      return IOFEMPTY;
+    }
     put_nl(O, state->line, state->maxline, 4);
     base64_encode_word(O, c1, c2, c3);
   }
@@ -1189,7 +1208,7 @@ iof_status runlength_encode (iof *I, iof *O)
         if ((c1 = iof_get(I)) < 0)
           return (*pos = 128, IOFEOF);
         run = 0;
-        // fall through
+        FALLTHRU // fall through
       case 0: /* `repeat' state; get another byte and compare */
         if ((c2 = iof_get(I)) < 0)
           return (*pos = 0, iof_set2(O, c1, 128), IOFEOF);
@@ -1233,7 +1252,7 @@ iof_status runlength_encode_state (iof *I, iof *O, runlength_state *state)
         if ((state->c1 = iof_get(I)) < 0)
           return (state->flush ? (*state->pos = 128, IOFEOF) : IOFEMPTY);
         state->run = 0;
-        // fall through
+        FALLTHRU // fall through
       case 0: /* `repeat' state; get another byte and compare */
         if ((state->c2 = iof_get(I)) < 0)
           return (state->flush ? (*state->pos = 0, iof_set2(O, state->c1, 128), IOFEOF) : IOFEMPTY);
@@ -1418,7 +1437,7 @@ static size_t base16_encoder (iof *F, iof_mode mode)
   {
     case IOFFLUSH:
       state->flush = 1;
-      // fall through
+      FALLTHRU // fall through
     case IOFWRITE:
       F->end = F->pos;
       F->pos = F->buf;
@@ -1478,7 +1497,7 @@ static size_t base64_encoder (iof *F, iof_mode mode)
   {
     case IOFFLUSH:
       state->flush = 1;
-      // fall through
+      FALLTHRU // fall through
     case IOFWRITE:
       F->end = F->pos;
       F->pos = F->buf;
@@ -1538,7 +1557,7 @@ static size_t base85_encoder (iof *F, iof_mode mode)
   {
     case IOFFLUSH:
       state->flush = 1;
-      // fall through
+      FALLTHRU // fall through
     case IOFWRITE:
       F->end = F->pos;
       F->pos = F->buf;
@@ -1598,7 +1617,7 @@ static size_t runlength_encoder (iof *F, iof_mode mode)
   {
     case IOFFLUSH:
       state->flush = 1;
-      // fall through
+      FALLTHRU // fall through
     case IOFWRITE:
       F->end = F->pos;
       F->pos = F->buf;

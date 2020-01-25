@@ -29,7 +29,7 @@ CFLAGS=$(W) -O3
 
 OBJEXT=$(BUILDSUFFIX).o
 
-PPALLOC=utilmem utilmemheap utilmemheapiof utilmemstock utilmemstockiof utilmempool utilmeminfo
+PPALLOC=utilmem utilmemheap utilmemheapiof utilmeminfo
 PPUTILS=utillog utilnumber utiliof utilmd5 utilsha utilcrypt
 PPFILTERS=utilbasexx utilflate utillzw utilfpred
 PPMODULES=ppheap pparray ppdict ppstream ppcrypt ppxref ppload
