@@ -1,6 +1,6 @@
 #include "luaharfbuzz.h"
 #ifdef LuajitTeX
-int lua_absindex (lua_State *L, int i) {
+static int lua_absindex (lua_State *L, int i) {
   if (i < 0 && i > LUA_REGISTRYINDEX)
     i += lua_gettop(L) + 1;
   return i;

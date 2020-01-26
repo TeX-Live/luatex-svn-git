@@ -1,24 +1,6 @@
 #include "luaharfbuzz.h"
 
 #ifdef LuajitTeX
-static void lua_len (lua_State *L, int i) {
-  switch (lua_type(L, i)) {
-    case LUA_TSTRING:
-      lua_pushnumber(L, (lua_Number)lua_objlen(L, i));
-      break;
-    case LUA_TTABLE:
-      if (!luaL_callmeta(L, i, "__len"))
-        lua_pushnumber(L, (lua_Number)lua_objlen(L, i));
-      break;
-    case LUA_TUSERDATA:
-      if (luaL_callmeta(L, i, "__len"))
-        break;
-      /* FALLTHROUGH */
-    default:
-      luaL_error(L, "attempt to get length of a %s value",
-                 lua_typename(L, lua_type(L, i)));
-  }
-}
 
 static int lua_absindex (lua_State *L, int i) {
   if (i < 0 && i > LUA_REGISTRYINDEX)
@@ -160,6 +142,7 @@ static int buffer_add_codepoints(lua_State *L) {
   Buffer *b = (Buffer *)luaL_checkudata(L, 1, "harfbuzz.Buffer");
   unsigned int item_offset;
   int item_length;
+  int i;
 
   luaL_checktype(L, 2, LUA_TTABLE);
   item_offset = luaL_optinteger(L, 3, 0);
@@ -169,7 +152,7 @@ static int buffer_add_codepoints(lua_State *L) {
 
   hb_codepoint_t *text = (hb_codepoint_t *) malloc(n * sizeof(hb_codepoint_t));
 
-  for (unsigned int i = 0; i != n; ++i) {
+  for (i = 0; i != n; ++i) {
     lua_geti(L, 2, i + 1);
     hb_codepoint_t c = (hb_codepoint_t) luaL_checkinteger(L, -1);
     text[i] = c;
