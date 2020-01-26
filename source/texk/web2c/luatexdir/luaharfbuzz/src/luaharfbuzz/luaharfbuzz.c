@@ -16,13 +16,14 @@ static int lua_geti (lua_State *L, int index, lua_Integer i) {
 int shape_full (lua_State *L) {
   Font *font = (Font *)luaL_checkudata(L, 1, "harfbuzz.Font");
   Buffer *buf = (Buffer *)luaL_checkudata(L, 2, "harfbuzz.Buffer");
+  unsigned int i;
   luaL_checktype(L, 3, LUA_TTABLE);
   luaL_checktype(L, 4, LUA_TTABLE);
 
   unsigned int num_features = lua_rawlen(L, 3);
   Feature *features = (Feature *) malloc (num_features * sizeof(hb_feature_t));
 
-  for (unsigned int i = 0; i != num_features; ++i) {
+  for (i = 0; i != num_features; ++i) {
     lua_geti(L, 3, i + 1);
     Feature* f = (Feature *)luaL_checkudata(L, -1, "harfbuzz.Feature");
     features[i] = *f;
@@ -33,7 +34,7 @@ int shape_full (lua_State *L) {
   size_t num_shapers = lua_rawlen(L, 4);
   if (num_shapers) {
     shapers = (const char**) calloc (num_shapers + 1, sizeof(char*));
-    for (unsigned int i = 0; i != num_shapers; ++i) {
+    for (i = 0; i != num_shapers; ++i) {
       lua_geti(L, 4, i + 1);
       shapers[i] = luaL_checkstring(L, -1);
       lua_pop(L, 1);
