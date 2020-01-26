@@ -284,6 +284,8 @@ texmf_shell_scripts = \
 	pdfxup/pdfxup \
 	pst-pdf/ps4pdf \
 	simpdftex/simpdftex \
+	texlive-extra/allcm.sh \
+	texlive-extra/allneeded.sh \
 	texosquery/texosquery.sh \
 	texosquery/texosquery-jre5.sh \
 	texosquery/texosquery-jre8.sh \
@@ -419,6 +421,7 @@ texmf_other_scripts = \
 	texlive/updmap.pl \
 	texliveonfly/texliveonfly.py \
 	texloganalyser/texloganalyser \
+	texplate/texplate.sh \
 	thumbpdf/thumbpdf.pl \
 	tlcockpit/tlcockpit.sh \
 	tlshell/tlshell.tcl \
@@ -444,6 +447,7 @@ nobase_dist_texmf_scripts_SCRIPTS = \
 	$(texmf_context_scripts)
 
 bin_links = \
+	allcm:allec \
 	cluttex:clxelatex \
 	cluttex:cllualatex \
 	epstopdf:repstopdf \
