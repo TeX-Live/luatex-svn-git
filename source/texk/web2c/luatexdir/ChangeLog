@@ -1,3 +1,7 @@
+2020-02-11  Luigi Scarso <luigi.scarso@gmail.com>
+    * patches for -fno-common (thanks to D. Seifert of Gentoo team)
+
+
 2020-01-25  Luigi Scarso <luigi.scarso@gmail.com>
     * sync with upstream pplib 
     * sync with upstream luaharfbuzz 
