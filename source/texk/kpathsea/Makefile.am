@@ -1,7 +1,7 @@
-## $Id: Makefile.am 51875 2019-08-13 22:43:09Z karl $
+## $Id: Makefile.am 53454 2020-01-19 17:04:02Z karl $
 ## Makefile.am for the TeX Live subdirectory texk/kpathsea/
 ##
-## Copyright 2017-2019 Karl Berry <tex-live@tug.org>
+## Copyright 2015-2019 Karl Berry <tex-live@tug.org>
 ## Copyright 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 
@@ -251,26 +251,10 @@ xdirtest_LDADD = libkpathsea.la
 ## The scripts and their data
 web2cdir = $(datarootdir)/texmf-dist/web2c
 
-dist_web2c_SCRIPTS = mktexdir mktexnam mktexupd
-
-dist_web2c_DATA = mktex.opt mktexdir.opt mktexnam.opt
-
-dist_noinst_SCRIPTS = mktexlsr mktexmf mktexpk mktextfm
-
 dist_noinst_DATA = texmf.cnf
 
-install-exec-local: installdirs-am
-if !WIN32
-	@for f in $(dist_noinst_SCRIPTS); do \
-	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1 \
-	      || test ! -r "$(DESTDIR)$(bindir)/$$f"; then \
-	    echo " $(INSTALL_SCRIPT) '$(srcdir)/$$f' '$(DESTDIR)$(bindir)/$$f'"; \
-	    $(INSTALL_SCRIPT) "$(srcdir)/$$f" "$(DESTDIR)$(bindir)/$$f"; \
-	  else :; fi; \
-	done
-endif !WIN32
-
 install-data-local: installdirs-am
+	$(MKDIR_P) '$(DESTDIR)$(web2cdir)'
 	@for f in $(dist_noinst_DATA); do \
 	  if grep "original $$f --" "$(DESTDIR)$(web2cdir)/$$f" >/dev/null 2>&1 \
 	      || test ! -r "$(DESTDIR)$(web2cdir)/$$f"; then \
@@ -280,14 +264,6 @@ install-data-local: installdirs-am
 	done
 
 uninstall-local:
-if !WIN32
-	@for f in $(dist_noinst_SCRIPTS); do \
-	  if grep "original $$f --" "$(DESTDIR)$(bindir)/$$f" >/dev/null 2>&1; then \
-	    echo " rm -f '$(DESTDIR)$(bindir)/$$f'"; \
-	    rm -f "$(DESTDIR)$(bindir)/$$f"; \
-	  else :; fi; \
-	done
-endif !WIN32
 	@for f in $(dist_noinst_DATA); do \
 	  if grep "original $$f --" "$(DESTDIR)$(web2cdir)/$$f" >/dev/null 2>&1; then \
 	    echo " rm -f '$(DESTDIR)$(web2cdir)/$$f'"; \
@@ -295,23 +271,16 @@ endif !WIN32
 	  else :; fi; \
 	done
 
-bin_links = mktexlsr:texhash
-
-include $(top_srcdir)/../../am/bin_links.am
-
-install-exec-hook: install-bin-links
-
-uninstall-hook: uninstall-bin-links
-
 ## Tests
 AM_TESTS_ENVIRONMENT  = LN_S='$(LN_S)'; export LN_S;
 AM_TESTS_ENVIRONMENT += LT_OBJDIR='$(LT_OBJDIR)'; export LT_OBJDIR;
 #
-TESTS  = tests/cnfline.test tests/cnfnewline.test tests/cnfprog.test
+TESTS  = tests/cnfline.test tests/cnfnewline.test
+TESTS += tests/cnfnull.test tests/cnfprog.test
 TESTS += tests/kpseaccess.test
 TESTS += tests/kpsereadlink.test tests/kpsestat.test tests/kpsewhich.test
 #
-tests/cnfline.log tests/cnfnewline.log tests/cnfprog.log \
+tests/cnfline.log tests/cnfnewline.log tests/cnfnull.log tests/cnfprog.log \
   tests/kpsewhich.log: kpsewhich$(EXEEXT)
 tests/kpseaccess.log: kpseaccess$(EXEEXT)
 tests/kpsereadlink.log: kpsereadlink$(EXEEXT)
@@ -328,6 +297,3 @@ rebuild_target = all-am
 CLEANFILES =
 
 include $(srcdir)/../../am/rebuild.am
-
-## Not used
-EXTRA_DIST += mktex.cnf

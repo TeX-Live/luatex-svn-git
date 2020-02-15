@@ -1,3 +1,71 @@
+2020-01-19  Karl Berry  <karl@freefriends.org>
+
+	* kpsewhich.c (ENSURE_NONEMPTY_STRING): new macro.
+	(read_command_line): ensure nonempty arguments to --format,
+	--safe-{in,out}-name, --var-brace-value, --var-value.
+	Empty args to the other options seem possible.
+
+	* line.c (read_line): silently drop nul (zero) bytes.
+	* tests/cnfnull.test: test for nul bytes in texmf.cnf.
+	* Makefile.am (TESTS),
+	(tests/cnfnull.test): add it.
+
+2020-01-16  Karl Berry  <karl@freefriends.org>
+
+	* doc/kpathsea.texi,
+	* version.ac (kpse_dev): no /dev.
+
+2019-12-31  Akira Kakuto  <kakuto@w32tex.org>
+
+	* access.c: not test x bit on Windows, because access() crashes.
+
+2019-12-29  Karl Berry  <karl@tug.org>
+
+	* mktexlsr,
+	* mktexmf,
+	* mktexpk,
+	* mktextfm: remove; these will now be maintained only in
+	Master/texmf-dist/scripts/texlive, with slave copies in
+	Build/source/texk/texlive/linked_scripts as usual.
+	* Makefile.am (dist_noinst_SCRIPTS): remove, nothing left.
+	(install-exec-local): likewise remove.
+	(uninstall-local): don't uninstall the dist_noinst_SCRIPTS.
+	(bin_links): remove, now also handled in linked_scripts.
+	
+	* man/Makefile.am (man_sources): remove mktex{lsr,mf,pk,tfm}.man;
+	(man1_links): remove; these man pages will now be maintained in
+	Build/source/texk/texlive/tl_scripts.
+
+2019-12-26  Karl Berry  <karl@tug.org>
+
+	* Makefile.am (install-data-local): must mkdir web2cdir here.
+
+	* mktexdir,
+	* mktexnam,
+	* mktexupd,
+	* mktex.opt,
+	* mktexdir.opt,
+	* mktexnam.opt: remove; these will now be maintained
+	 (if changes are needed) only in Master/texmf-dist/web2c.
+	* Makefile.am (dist_web2c_DATA, dist_web2c_SCRIPTS): remove.
+	(All this is primarily so that $Id$ expansions will not be lost;
+	the user-level mktex* scripts will happen in a few days.)
+	
+	* mktex.cnf: remove this unused file.
+	* Makefile.am (EXTRA_DIST): remove it here.
+
+2019-12-22  Karl Berry  <karl@freefriends.org>
+
+	* doc/kpathsea.texi (Path searching): mention translations for TL.
+	(Config files): distinguish special characters at different levels.
+	(Filename database): don't mention talking about 8.3 filenames.
+	
+2019-12-16  Karl Berry  <karl@freefriends.org>
+
+	* texmf.cnf (glob_str_size): increase from 20,000 to 200,000
+	for web2c/tests/bibtex-bigauth.test (q.v.).
+	(ent_str_size, max_strings.bibtex*): increase these while we're here.
+
 2019-11-03  Karl Berry  <karl@tug.org>
 
 	* progname.c: remove nowadays-useless register declarations.

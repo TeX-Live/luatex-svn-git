@@ -4,8 +4,8 @@
 % If you modify this original file, YOUR CHANGES WILL BE LOST when it is
 % updated.  Instead, put your changes -- and only your changes, not an
 % entire copy! -- in ../../texmf.cnf.  That is, if this file is
-% installed in /some/path/to/texlive/2019/texmf-dist/web2c/texmf.cnf,
-% add your custom settings to /some/path/to/texlive/2019/texmf.cnf.
+% installed in /some/path/to/texlive/2020/texmf-dist/web2c/texmf.cnf,
+% add your custom settings to /some/path/to/texlive/2020/texmf.cnf.
 % (Below, we use YYYY in place of the specific year.)
 % 
 % What follows is a super-summary of what this .cnf file can
@@ -84,10 +84,10 @@ TEXMFSYSCONFIG = $TEXMFROOT/texmf-config
 TEXMFHOME = ~/texmf
 
 % TEXMFVAR, where texconfig/updmap/fmtutil store cached runtime data.
-TEXMFVAR = ~/.texlive2019/texmf-var
+TEXMFVAR = ~/.texlive2020/texmf-var
 
 % TEXMFCONFIG, where texconfig/updmap/fmtutil store configuration data.
-TEXMFCONFIG = ~/.texlive2019/texmf-config
+TEXMFCONFIG = ~/.texlive2020/texmf-config
 
 % This is the value manipulated by tlmgr's auxtrees subcommand in the
 % root texmf.cnf. Kpathsea warns about a literally empty string for a
@@ -858,13 +858,13 @@ screen_width.mf = 1664
 screen_depth.mf = 1200
 
 % BibTeX only (max_strings also determines hash_size and hash_prime).
-ent_str_size =  250
-glob_str_size = 20000
-max_strings.bibtex  = 100000
-max_strings.bibtex8 = 100000
-max_strings.bibtexu = 100000
-max_strings.pbibtex = 100000
-max_strings.upbibtex = 100000
+ent_str_size = 500
+glob_str_size = 200000
+max_strings.bibtex  = 200000
+max_strings.bibtex8 = 200000
+max_strings.bibtexu = 200000
+max_strings.pbibtex = 200000
+max_strings.upbibtex= 200000
 
 % GFtype only.
 line_length.gftype = 500

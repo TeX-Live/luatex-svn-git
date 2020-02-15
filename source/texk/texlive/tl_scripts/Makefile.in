@@ -258,8 +258,6 @@ EXTRA_DIST = scripts.lst $(top_builddir)/../../build-aux/relpath \
 # These first variable definitions are what scripts_links.am requires.
 perl_scripts = e2pall
 sh_scripts = \
-	allcm \
-	allneeded \
 	dvi2fax \
 	dvired \
 	fontinst \
@@ -295,6 +293,10 @@ dist_man_MANS = \
 	fontinst.1 \
 	kpsetool.1 \
 	kpsewhere.1 \
+	mktexlsr.1 \
+	mktexmf.1 \
+	mktexpk.1 \
+	mktextfm.1 \
 	ps2frag.1 \
 	pslatex.1 \
 	rubibtex.1 \
@@ -315,6 +317,7 @@ man1_links = \
 	kpsetool:kpsexpand \
 	kpsetool:kpsepath \
 	fmtutil:mktexfmt \
+	mktexlsr:texhash \
 	texconfig:texconfig-sys \
 	updmap:updmap-sys
 

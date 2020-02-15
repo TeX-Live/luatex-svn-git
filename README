@@ -1,24 +1,73 @@
-$Id: README 14724 2009-08-17 16:37:46Z karl $
-Public domain.  Originally written 2006, Karl Berry.
+$Id: README 53479 2020-01-21 17:56:03Z karl $
+Public domain.  Originally written 2005 by Karl Berry.
 
-This Build directory contains sources and tools which are used in
-building TeX Live, but are not part of the live hierarchy.  Each subdir
-has another README with more details.
+For a high-level overview of building TeX Live, see
+http://tug.org/texlive/build.html.  In brief:
 
-logs   - complete logs of all commits to the TL source repositories.
-source - the actual sources for all the executable programs.
-tests  - a testing infrastructure, quiescent for some years
-         but left here in case it gets revived some day.
+- To configure and make the source tree, run ./Build.
+  This builds in subdirectory Work/, and installs into subdirectory inst/.
 
-Directories named tmp.raw and tmp.cooked are also created/used/removed
-here by ctan2tl, ctan2tds, and place.
+- To build (mostly) without optimization, run ./Build --debug.
 
-If you know enough about TeX to be reading this, then you (or your
-institution) should consider joining a TeX user group (there's a list at
-http://tug.org/usergroups.html) -- if you're already a member, thanks
-for your support!
+- If the make fails and you want to rebuild without starting from scratch:
+  cd Work/whatever/subdir && make
 
-The TeX Users Group, the oldest such group, produces the periodicals
-TUGboat (http://tug.org/TUGboat), The PracTeX Journal
-(http://tug.org/pracjourn), sponsors an annual meeting,
-and hosts TeX Live development and distribution.
+Email tlbuild@tug.org if problems.
+
+(Nearly everything the Build script does can be overridden via
+environment variables; just take a look to see the names.)
+
+Many more details about the TL build system, such as configuring to work
+on a single program, adding new programs or libraries, documentation
+about the many pieces of the system, etc., are in the doc/tlbuild*
+document and the sibling README* files here (which are generated from
+that document).
+
+
+Build information for some of the platforms.
+See also Master/tlpkg/bin/tl-update-bindir
+
+aarch64-linux:
+  aarch64 Debian GNU/Linux 10 (buster)
+  gcc (Debian 8.3.0-6) 8.3.0
+  ./Build --enable-arm-neon=check
+
+i386-netbsd, amd64-netbsd:
+  gcc version 4.5.3 (NetBSD nb2 20110806)
+  NetBSD/amd64 6.1.3
+  TL_MAKE=gmake CC=gcc CXX=g++ CFLAGS=-D_NETBSD_SOURCE \
+  LDFLAGS='-L/usr/X11R7/lib -Wl,-rpath,/usr/X11R7/lib' \
+  ./Build --enable-xindy CLISP=/usr/local/bin/clisp
+
+i386-freebsd, amd64-freebsd:
+  http://anthesphoria.net/FreeBSD/TeXLive-2018/ has details for 2018.
+  2019 built on contextgarden, see below.
+
+i386-linux: see travis below.
+
+i386-openbsd, amd64-openbsd:
+  e.g., see CONFIGURE_ARGS in the Makefile in
+  http://cvsweb.openbsd.org/cgi-bin/cvsweb/ports/print/texlive/base/
+
+i386-solaris, x86_64-solaris:
+  Built on contextgarden, see below.
+  Solaris 10, gcc 5.5.  See doc/README.solaris.
+
+i386-cygwin, x86_64-cygwin: gcc-4.8.2, cygwin-1.7.29.
+  ./Build (with --enable-xindy for i386).
+
+x86_64-darwin: See Master/source/mactexdoc.tar.xz.
+
+x86_64-darwinlegacy:
+  Mac OS X 10.6, clang 5.0, libc++ required
+  https://github.com/TeXLive-M/texlive-buildbot
+  http://build.contextgarden.net/waterfall?tag=c/texlive
+  (These links have info on all platforms built by Mojca.)
+
+i386-linux,
+x86_64-linux,
+x86_64-linuxmusl:
+  Alpine 3.1 Docker image with musl libc 1.1.5
+  Binaries are taken from the CI testing on travis-ci
+  see the source/.travis.yaml file for details on how to build,
+  and tlpkg/bin/tl-update-bindir for updating binaries (in general).
