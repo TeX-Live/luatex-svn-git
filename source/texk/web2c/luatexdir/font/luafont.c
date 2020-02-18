@@ -947,8 +947,11 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
     int pc = count_char_packet_bytes(L);
     if (pc <= 0)
         return;
-    while (l_fonts[(max_f + 1)] != 0)
-        max_f++;
+    if (l_fonts != NULL) {
+        while (l_fonts[(max_f + 1)] != 0) {
+            max_f++;
+        }
+    }
     cp = cpackets = xmalloc((unsigned) (pc + 1));
     for (i = 1; i <= (int) lua_rawlen(L, -1); i++) {
         lua_rawgeti(L, -1, i);
@@ -959,8 +962,14 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                 s = lua_tostring(L, -1);
                 cmd = 0;
                 if (lua_key_eq(s, font)) {
+                    if (l_fonts == NULL) {
+                        normal_error("vf command","no font table found");
+                    }
                     cmd = packet_font_code;
                 } else if (lua_key_eq(s, char)) {
+                    if (l_fonts == NULL) {
+                        normal_error("vf command","no font table found");
+                    }
                     cmd = packet_char_code;
                     if (ff == 0) {
                         append_packet(packet_font_code);
@@ -968,6 +977,9 @@ static void read_char_packets(lua_State * L, int *l_fonts, charinfo * co, intern
                         do_store_four(ff);
                     }
                 } else if (lua_key_eq(s, slot)) {
+                    if (l_fonts == NULL) {
+                        normal_error("vf command","no font table found");
+                    }
                     /*tex we could be sparse but no real reason */
                     cmd = packet_nop_code;
                     lua_rawgeti(L, -2, 2);
@@ -1833,6 +1845,8 @@ int font_from_lua(lua_State * L, int f)
         bc = -1;
         /*tex The first key: */
         lua_pushnil(L);
+/*printf("HERE1\n");fflush(stdout);*/
+        formatted_warning("font","checkpoint HERE1");fflush(stdout);
         while (lua_next(L, -2) != 0) {
             if (lua_isnumber(L, -2)) {
                 i = (int) lua_tointeger(L, -2);
