@@ -1,6 +1,12 @@
+2020-03-01 Luigi Scarso <luigi.scarso@gmail.com>
+    * fixed lua stack overflow in run_put_next (M. Kruger)
+
+
+2020-02-29 Luigi Scarso <luigi.scarso@gmail.com>
+    * luahbtex: add (single codepoint) "add" method to buffer (M.Kruger)
+
 2020-02-12  Luigi Scarso <luigi.scarso@gmail.com>
     * restore state for \input delimited with {}
-
 
 2020-02-11  Luigi Scarso <luigi.scarso@gmail.com>
     * patches for -fno-common (thanks to D. Seifert of Gentoo team)
