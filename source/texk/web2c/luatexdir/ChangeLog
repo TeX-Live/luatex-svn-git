@@ -1,6 +1,11 @@
+2020-03-09 Luigi Scarso <luigi.scarso@gmail.com>
+    * --shell-restricted now forbids loadoing of dso (dll/so object)
+
+2020-03-09 Luigi Scarso <luigi.scarso@gmail.com>
+    * append_vlist : node|nil [prevdepth] (fix + extension/warning) (HH)
+
 2020-03-01 Luigi Scarso <luigi.scarso@gmail.com>
     * fixed lua stack overflow in run_put_next (M. Kruger)
-
 
 2020-02-29 Luigi Scarso <luigi.scarso@gmail.com>
     * luahbtex: add (single codepoint) "add" method to buffer (M.Kruger)
