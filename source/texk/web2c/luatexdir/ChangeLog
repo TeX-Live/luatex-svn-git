@@ -1,4 +1,7 @@
 2020-03-09 Luigi Scarso <luigi.scarso@gmail.com>
+    * texluahb / texluahbjit for luahbtex / luajithbtex
+
+2020-03-09 Luigi Scarso <luigi.scarso@gmail.com>
     * --shell-restricted now forbids loadoing of dso (dll/so object)
 
 2020-03-09 Luigi Scarso <luigi.scarso@gmail.com>
