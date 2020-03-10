@@ -324,12 +324,10 @@ static void parse_options(int ac, char **av)
 #ifdef LuajitTeX
     if ((strstr(argv[0], "luajittexlua") != NULL) ||
         (strstr(argv[0], "texluajit") != NULL) ||
-        (strstr(argv[0], "luajithbtexlua") != NULL) ||
         (strstr(argv[0], "texluahbjit") != NULL) ) {
 #else
     if ((strstr(argv[0], "luatexlua") != NULL) ||
         (strstr(argv[0], "texlua") != NULL) ||
-        (strstr(argv[0], "luahbtexlua") != NULL) ||
         (strstr(argv[0], "texluahb") != NULL)) {
 #endif
         lua_only = 1;
