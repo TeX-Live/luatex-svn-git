@@ -627,7 +627,7 @@ pdfe.unencrypt(<pdfe document>,userpassword,ownerpassword)
 
 \stopsubsection
 
-\startsubsection[title={\type {getsize}, \type {getversion}, \type {getnofobjects}, \type {getnofpages}}]
+\startsubsection[title={\type {getsize}, \type {getversion}, \type {getnofobjects}, \type {getnofpages}, \type{getmemoryusage}}]
 
 \libindex {getsize}
 \libindex {getversion}
@@ -641,7 +641,7 @@ bytes = getsize(<pdfe document>)
 major, minor = getversion(<pdfe document>)
 n = getnofobjects(<pdfe document>)
 n = getnofpages(<pdfe document>)
-bytes, waste = getnofpages(<pdfe document>)
+bytes, waste  = getmemoryusage(<pdfe document>)
 \stoptyping
 
 \stopsubsection
@@ -797,7 +797,7 @@ type, value, detail = getfromarray(<pdfe array>,index)
 \DB type       \BC meaning    \BC value            \BC detail \NC \NR
 \NC \type {0}  \NC none       \NC nil              \NC \NC \NR
 \NC \type {1}  \NC null       \NC nil              \NC \NC \NR
-\NC \type {2}  \NC boolean    \NC boolean          \NC \NC \NR
+\NC \type {2}  \NC boolean    \NC 1 or 0           \NC \NC \NR
 \NC \type {3}  \NC integer    \NC integer          \NC \NC \NR
 \NC \type {4}  \NC number     \NC float            \NC \NC \NR
 \NC \type {5}  \NC name       \NC string           \NC \NC \NR

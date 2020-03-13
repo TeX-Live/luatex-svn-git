@@ -1957,15 +1957,16 @@ and|/|or console.
 \libindex{write}
 
 \startfunctioncall
-texio.write(<string> target, <string> s, ...)
+texio.write(<string> target | <integer> stream, <string> s, ...)
 texio.write(<string> s, ...)
 \stopfunctioncall
 
 Without the \type {target} argument, writes all given strings to the same
 location(s) \TEX\ writes messages to at this moment. If \prm {batchmode} is in
 effect, it writes only to the log, otherwise it writes to the log and the
-terminal. The optional \type {target} can be one of three possibilities: \type
-{term}, \type {log} or \type {term and log}.
+terminal. The optional \type {target} can be one of four  possibilities: \type
+{term}, \type {log}, \type {term and log} or a valid integer of a stream 
+opened for writing.
 
 Note: If several strings are given, and if the first of these strings is or might
 be one of the targets above, the \type {target} must be specified explicitly to
