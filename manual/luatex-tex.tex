@@ -689,13 +689,14 @@ We have similar setters for \type {count}, \type {dimen}, \type {muskip}, and
 \type {toks}. Counters and dimen are represented by numbers, skips and muskips by
 nodes, and toks by strings.
 
-Again the glue variants are not using the \nod {glue-spec} userdata nodes. The
+Again the glue variants are not using the \nod {glue_spec} userdata nodes. The
 \type {setglue} function accepts upto 5 arguments: width, stretch, shrink,
-stretch order and shrink order and the \type {getglue} function reports them,
-unless the second argument is \type {false} in which care only the width is
-returned.
+stretch order and shrink order. If you pass no values or if a value is not a
+number the corresponding property will become a zero. The \type {getglue}
+function reports all properties, unless the second argument is \type {false} in
+which care only the width is returned.
 
-Here is an example usign a threesome:
+Here is an example using a threesome:
 
 \startfunctioncall
 local d = tex.getdimen("foo")
@@ -725,7 +726,7 @@ are special because they have to deal with more properties.
 
 As with the general \type {get} and \type {set} function discussed before, for
 the skip registers \type {getskip} returns a node and \type {getglue} returns
-numbers, while \type {setskip} accepts a node and \type {setglue} expects upto 5
+numbers, while \type {setskip} accepts a node and \type {setglue} expects upto five
 numbers. Again, when you pass \type {false} as second argument to \type {getglue}
 you only get the width returned. The same is true for the \type {mu} variants
 \type {getmuskip}, \type {setmuskip}, \type {getmuskip} and\type {setmuskip}.
@@ -737,7 +738,7 @@ tex.scantoks(0,3,"$e=mc^2$")
 tex.scantoks("global",0,"$\int\limits^1_2$")
 \stopfunctioncall
 
-In the function-based interface, it is possible to define values globally by
+In the function|-|based interface, it is possible to define values globally by
 using the string \type {global} as the first function argument.
 
 \stopsubsection
@@ -1614,7 +1615,10 @@ primitives \quote{\tex{ }}, \quote{\tex {/}} and \quote{\type {-}} are defined.
 
 \startluacode
 function document.showprimitives(tag)
-    for k, v in table.sortedpairs(tex.extraprimitives(tag)) do
+    local t = tex.extraprimitives(tag)
+    table.sort(t)
+    for i=1,#t do
+        local v = t[i]
         if v ~= ' ' and v ~= "/" and v ~= "-" then
             context.type(v)
             context.space()
