@@ -1242,6 +1242,31 @@ $\Uhextensible width 1pt middle 0 "2194$
 font metrics are involved we have a different code path for traditional fonts end
 \OPENTYPE\ fonts.
 
+Sometimes you might want to act upon the size of a delimiter, something that is
+not really possible because of the fact that they are calculated {\em after} most
+has been typeset already. In the following example the all|-|zero specification
+is the trigger to make a fake box with the last delimiter dimensions and shift.
+It's an ugly hack but its relative simple and not intrusive implementation has no
+side effects. Any other heuristic solution would not satisfy possible demands
+anyway. Here is a rather low level example:
+
+\startbuffer
+\startformula
+\Uleft  \Udelimiter 5 0 "222B
+\frac{\frac{a}{b}}{\frac{c}{d}}
+\Uright \Udelimiter 5 0 "222B
+\kern-2\fontcharwd\textfont0 "222B
+\mathlimop{\Uvextensible \Udelimiter 0 0 0}_1^2 x
+\stopformula
+\stopbuffer
+
+\typebuffer
+
+The last line, by passing zero values, results in a fake operator that has the
+dimensions of the previous delimiter. We can then backtrack over the (presumed)
+width and the two numbers become limit operators. As said, it's not pretty but it
+works.
+
 \subsection{Fractions}
 
 \topicindex {math+fractions}
