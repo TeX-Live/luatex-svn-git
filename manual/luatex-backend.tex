@@ -690,13 +690,14 @@ pages = pdfe.getbox(<pdfe dictionary>,boxname)
 
 \stopsubsection
 
-\startsubsection[title={\type {get[string|integer|number|boolean|name]}}]
+\startsubsection[title={\type {get[string|integer|number|boolean|name]}, \type{type}}]
 
 \libindex {getstring}
 \libindex {getinteger}
 \libindex {getnumber}
 \libindex {getboolean}
 \libindex {getname}
+\libindex {type}
 
 Common values in dictionaries and arrays are strings, integers, floats, booleans
 and names (which are also strings) and these are also normal \LUA\ objects:
@@ -707,7 +708,12 @@ i = getinteger(<pdfe array|dictionary>,index|key)
 n = getnumber (<pdfe array|dictionary>,index|key)
 b = getboolean(<pdfe array|dictionary>,index|key)
 n = getname   (<pdfe array|dictionary>,index|key)
+s = type      (<pdfe array|dictionary|document|reference|stream)
 \stoptyping
+
+The \type {type} returns a string describing the type of the object,
+i.e. "pdfe.array", "pdfe.dictionary", "pdfe",
+"pdfe.reference", "pdfe.stream".
 
 The \type {getstring} function has two extra variants:
 
