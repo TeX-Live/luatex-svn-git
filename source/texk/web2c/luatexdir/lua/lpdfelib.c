@@ -45,7 +45,7 @@
 # undef output
 # endif
 
-# include "luapplib/src/pplib.h"
+# include "pplib.h"
 
 # include "image/epdf.h"
 

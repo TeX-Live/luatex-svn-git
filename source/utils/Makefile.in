@@ -110,6 +110,7 @@ am__aclocal_m4_deps = $(top_srcdir)/../m4/kpse-common.m4 \
 	$(top_srcdir)/../texk/web2c/ac/web2c.ac \
 	$(top_srcdir)/../texk/texlive/ac/withenable.ac \
 	$(top_srcdir)/../texk/texlive/ac/texlive.ac \
+	$(top_srcdir)/../libs/pplib/ac/withenable.ac \
 	$(top_srcdir)/../libs/harfbuzz/ac/withenable.ac \
 	$(top_srcdir)/../libs/graphite2/ac/withenable.ac \
 	$(top_srcdir)/../libs/zziplib/ac/withenable.ac \
