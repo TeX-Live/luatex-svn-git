@@ -306,6 +306,7 @@ TL_MAKE=$MAKE ../source/configure  $CONFHOST $CONFBUILD  $WARNINGFLAGS\
     --without-system-freetype2 \
     --without-system-gd  \
     --without-system-libpng \
+    --without-system-pplib \
     --without-system-poppler \
     --without-system-gmp \
     --without-system-mpfr \
@@ -330,6 +331,7 @@ $MAKE
 (cd libs; $MAKE all )
 (cd libs/zziplib; $MAKE all )
 (cd libs/zlib; $MAKE all )
+(cd libs/pplib; $MAKE all ) 
 (cd libs/libpng; $MAKE all )
 (cd texk; $MAKE web2c/Makefile)
 (cd texk/kpathsea; $MAKE )

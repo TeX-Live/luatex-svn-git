@@ -334,6 +334,7 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
     --without-system-freetype2 \
     --without-system-gd \
     --without-system-libpng \
+    --without-system-pplib \
     --without-system-poppler \
     --without-system-gmp \
     --without-system-mpfr \
@@ -349,7 +350,6 @@ TL_MAKE=$MAKE ../source/configure  $TEXLIVEOPT $CONFHOST $CONFBUILD  $WARNINGFLA
 fi
 
 
-
 $MAKE 
 
 # the fact that these makes inside libs/ have to be done manually for the cross
@@ -361,6 +361,7 @@ $MAKE
 (cd libs/zziplib; $MAKE all ) 
 (cd libs/harfbuzz; $MAKE all ) 
 (cd libs/zlib; $MAKE all ) 
+(cd libs/pplib; $MAKE all ) 
 (cd libs/libpng; $MAKE all ) 
 (cd texk; $MAKE all ) 
 (cd texk/kpathsea; $MAKE all ) 
