@@ -3321,12 +3321,10 @@ static scaled make_op(pointer q, int cur_style)
             shift_down = limit_below_bgap(cur_style) - height(z);
             if (shift_down < limit_below_vgap(cur_style))
                 shift_down = limit_below_vgap(cur_style);
-            if (shift_down > 0) {
-                p = new_kern(shift_down);
-                reset_attributes(p, node_attr(q));
-                couple_nodes(y,p);
-                couple_nodes(p,z);
-            }
+            p = new_kern(shift_down);
+            reset_attributes(p, node_attr(q));
+            couple_nodes(y,p);
+            couple_nodes(p,z);
             p = new_kern(limit_below_kern(cur_style));
             reset_attributes(p, node_attr(q));
             couple_nodes(z,p);

@@ -1,3 +1,7 @@
+2020-04-27 Luigi Scarso <luigi.scarso@gmail.com>
+    * similar treatment for shiftdown as shiftup in operators (no
+     checking) (HH)
+
 2020-04-07 Luigi Scarso <luigi.scarso@gmail.com>
     * Version 1.13.0. 
       getstring extra argument to pdfe.getstring (triggers unencoded or flag
