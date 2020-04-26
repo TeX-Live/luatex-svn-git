@@ -35,12 +35,11 @@ int main (int argc, string *argv)
 @x l.105 Set up kpathsea stuff
     @<Initialise parameters@>;
 @y
-    @<Set up |PROGNAME| feature and initialize the search path mechanism@>;
+    @<Set up |PROGNAME| feature and initialise the search path mechanism@>;
     @<Initialise parameters@>;
 @z
 
-These are defined by kpathsea; we replace this by the path-searching
-initialisation code taken almost verbatim from comm-w2c.ch.
+boolean and string are defined by kpathsea.
 @x l.116
 @ We include the additional types |boolean| and |string|.  \.{CTIE}
 replaces the complex \.{TIE} character set handling (based on that of
@@ -54,44 +53,18 @@ so uses the |char| type for input and output.
 typedef int boolean;
 typedef char* string;
 @y
-@ The \.{ctie} program from the original \.{CTIE} package uses the
-compile-time default directory or the value of the environment
-variable \.{CWEBINPUTS} as an alternative place to be searched for
-files, if they could not be found in the current directory.
-
-This version uses the \Kpathsea/ mechanism for searching files. 
-The directories to be searched for come from three sources:
-
- (a)~a user-set environment variable \.{CWEBINPUTS}
-    (overriden by \.{CWEBINPUTS\_ctie});\par
- (b)~a line in \Kpathsea/ configuration file \.{texmf.cnf},\hfil\break
-    e.g. \.{CWEBINPUTS=.:$TEXMF/texmf/cweb//}
-    or \.{CWEBINPUTS.ctie=.:$TEXMF/texmf/cweb//};\hangindent=2\parindent\par
- (c)~compile-time default directories \.{.:$TEXMF/texmf/cweb//}
-    (specified in \.{texmf.in}).
-
-@d kpse_find_cweb(name) kpse_find_file(name, kpse_cweb_format, true)
-
-@ The simple file searching is replaced by the `path searching'
-mechanism that the \Kpathsea/ library provides.
-
-We set |kpse_program_name| to |"ctie"|.  This means if the variable
-|CWEBINPUTS.ctie| is present in \.{texmf.cnf} (or |CWEBINPUTS_ctie| in
-the environment) its value will be used as the search path for
-filenames.  This allows different flavors of \.{CTIE} to have
-different search paths.
-
-@<Set up |PROGNAME| feature and initialize the search path mechanism@>=
-kpse_set_program_name(argv[0], "ctie");
-
 @ We include the additional types |boolean| and |string|.  \.{CTIE}
 replaces the complex \.{TIE} character set handling (based on that of
 the original \.{WEB} system) with the standard \.{CWEB} behaviour, and
 so uses the |char| type for input and output.
 
-The |kpathsea| library (version 3.4.5) defines the |true|, |false|,
-|boolean| and |string| types in \.{kpathsea/types.h}, so we do not
-actually need to define them here.
+The |kpathsea| library (version 3.4.5 and higher) defines the |true|, |false|,
+|boolean| and |string| types in \.{kpathsea/types.h}, so we do not actually
+need to define them here.
+
+@s boolean int
+@s string int
+@s const_string int
 @z
 
 @x l.129 The kpathsea include files find the right header file for these.
@@ -115,6 +88,12 @@ the \.{kpathsea} headers do the right thing.
 @d xisupper(c) (isupper(c)&&((unsigned char)c<0200))
 @y
 @d xisupper(c) (isupper((unsigned char)c)&&((unsigned char)c<0200))
+@z
+
+@x l.155
+This variable must be initialized.
+@y
+This variable must be initialised.
 @z
 
 @x l.173 The kpathsea include files must be first.
@@ -143,6 +122,12 @@ too.
 @^system dependencies@>
 @z
 
+@x l.190
+files) are treated the same way.  To organize the
+@y
+files) are treated the same way.  To organise the
+@z
+
 @x l.284 way too short!
 @d max_file_name_length 60
 @y
@@ -157,12 +142,24 @@ static boolean
 get_line (file_index i, boolean do_includes)
 @z
 
+@x l.361
+replacement part of a change file, or in an incomplerte check if the
+@y
+replacement part of a change file, or in an incomplete check if the
+@z
+
 Handle input lines with CRLF
 
 @x l.376
         if ((*(k++) = c) != ' ') inp_desc->limit = k;
 @y
         if ((*(k++) = c) != ' ' && c != '\r') inp_desc->limit = k;
+@z
+
+@x l.386
+    @<Increment the line number and print a progess report at
+@y
+    @<Increment the line number and print a progress report at
 @z
 
 @x l.436
@@ -288,6 +285,12 @@ void pfatal_error (const char *s, const char *t)
     out_file=fopen(out_name, "w");
 @y
     out_file=fopen(out_name, "wb");
+@z
+
+@x l.739
+@ The name of the file and the file desciptor are stored in
+@y
+@ The name of the file and the file descriptor are stored in
 @z
 
 @x l.747 Use the kpathsea library to do this
@@ -498,6 +501,9 @@ print_version_and_exit (const_string name, const_string version)
 }
 @z
 
+We use the path-searching initialisation code
+taken almost verbatim from comm-w2c.ch.
+
 @x l.1267
 @* System-dependent changes.
 This section should be replaced, if necessary, by
@@ -512,5 +518,35 @@ module number.
 @^system dependencies@>
 @y
 @* System-dependent changes.
-There are no additional changes.
+The \.{ctie} program from the original \.{CTIE} package uses the
+compile-time default directory or the value of the environment
+variable \.{CWEBINPUTS} as an alternative place to be searched for
+files, if they could not be found in the current directory.
+
+This version uses the \Kpathsea/ mechanism for searching files.
+The directories to be searched for come from three sources:
+\smallskip
+{\parindent5em
+\item{(a)} a user-set environment variable \.{CWEBINPUTS}
+    (overridden by \.{CWEBINPUTS\_ctie});
+\item{(b)} a line in \Kpathsea/ configuration file \.{texmf.cnf},\hfil\break
+    e.g., \.{CWEBINPUTS=\$TEXMFDOTDIR:\$TEXMF/texmf/cweb//}\hfil\break
+    or \.{CWEBINPUTS.ctie=\$TEXMFDOTDIR:\$TEXMF/texmf/cweb//};
+\item{(c)} compile-time default directories (specified in
+    \.{texmf.in}),\hfil\break
+    i.e., \.{\$TEXMFDOTDIR:\$TEXMF/texmf/cweb//}.\par}
+
+@d kpse_find_cweb(name) kpse_find_file(name, kpse_cweb_format, true)
+
+@ The simple file searching is replaced by the `path searching'
+mechanism that the \Kpathsea/ library provides.
+
+We set |kpse_program_name| to `\.{ctie}'.  This means if the variable
+\.{CWEBINPUTS.ctie} is present in \.{texmf.cnf} (or \.{CWEBINPUTS\_ctie}
+in the environment) its value will be used as the search path for
+filenames.  This allows different flavors of \.{CTIE} to have
+different search paths.
+
+@<Set up |PROGNAME| feature and initialise the search path mechanism@>=
+kpse_set_program_name(argv[0], "ctie");
 @z
