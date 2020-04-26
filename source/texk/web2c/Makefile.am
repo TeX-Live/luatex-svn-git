@@ -1,4 +1,4 @@
-## $Id: Makefile.am 51577 2019-07-08 06:07:11Z lscarso $
+## $Id: Makefile.am 54824 2020-04-21 18:43:36Z lscarso $
 ## Makefile.am for the TeX Live subdirectory texk/web2c/.
 ##
 ## Copyright 2017      Karl Berry <tex-live@tug.org>
