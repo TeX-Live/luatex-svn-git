@@ -1,3 +1,6 @@
+3030-04-28 Luigi Scarso <luigi.scarso@gmail.com>
+    * less strict lastnode testing (HH) 
+
 2020-04-27 Luigi Scarso <luigi.scarso@gmail.com>
     * similar treatment for shiftdown as shiftup in operators (no
      checking) (HH)
