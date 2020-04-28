@@ -1248,13 +1248,6 @@ static void stack_glue_into_box(pointer b, scaled min, scaled max) {
 
 int cur_size = 0;
 
-/*tex A few state variables: */
-
-halfword del_height = 0;
-halfword del_depth = 0;
-halfword del_width = 0;
-halfword del_shift = 0;
-
 static pointer get_delim_box(internal_font_number fnt, halfword chr, scaled v, scaled min_overlap, int horizontal, halfword att)
 {
     int callback_id = callback_defined(make_extensible_callback);
@@ -1549,10 +1542,8 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
     if (d && ! small_fam(d) && ! large_fam(d) && ! small_char(d) && ! large_char(d)) {
         halfword b = new_null_box();
         subtype(b) = math_v_delimiter_list;
-        height(b) = del_height;
-        depth(b) = del_depth;
-        width(b) = del_width;
-        shift_amount(b) = del_shift;
+        if (! flat)
+            width(b) = null_delimiter_space_par;
         node_attr(b) = node_attr(d);
         node_attr(d) = null;
         flush_node(d);
@@ -1709,12 +1700,6 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
     }
     DONE:
     delete_attribute_ref(att);
-
-    del_height = height(b);
-    del_depth = depth(b);
-    del_width = width(b);
-    del_shift = shift_amount(b);
-
     return b;
 }
 
