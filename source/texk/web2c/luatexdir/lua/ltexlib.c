@@ -149,106 +149,6 @@ static int do_luacprint(lua_State * L, int partial, int deftable)
     return 0;
 }
 
-/* the next one writes a raw token (number) */
-
-/*
-
-int luatwrite(lua_State * L)
-{
-    int top = lua_gettop(L);
-    if (top>0) {
-        rope *rn = xmalloc(sizeof(rope)); // overkill
-        int i = 1 ;
-        luacstrings++; // should be luactokens
-        rn->text = NULL;
-        rn->tsize = 0;
-        rn->partial = 0;
-        rn->cattable = DEFAULT_CAT_TABLE;
-        rn->next = NULL;
-        rn->tok = 0;
-        rn->nod = 0;
-        if (write_spindle.head == NULL) {
-            write_spindle.head = rn;
-        } else {
-            write_spindle.tail->next = rn;
-        }
-        write_spindle.tail = rn;
-        write_spindle.complete = 0;
-        while (1) {
-            rn->tok = lua_tointeger(L,i);
-            if (i<top) {
-                rope *r = xmalloc(sizeof(rope)); // overkill
-                r->text = NULL;
-                r->tsize = 0;
-                r->partial = 0;
-                r->cattable = DEFAULT_CAT_TABLE;
-                r->next = NULL;
-                r->tok = 0;
-                r->nod = 0;
-                rn->next = r;
-                rn = r;
-                write_spindle.tail = rn;
-                i++;
-            } else {
-                break;
-            }
-        }
-    }
-    return 0;
-}
-
-*/
-
-/* the next one writes a raw node (number) */
-
-/*
-
-int luanwrite(lua_State * L)
-{
-    int top = lua_gettop(L);
-    if (top>0) {
-        rope *rn = xmalloc(sizeof(rope)); // overkill
-        int i = 1 ;
-        luacstrings++; // should be luactokens
-        rn->text = NULL;
-        rn->tsize = 0;
-        rn->partial = 0;
-        rn->cattable = DEFAULT_CAT_TABLE;
-        rn->next = NULL;
-        rn->tok = 0;
-        rn->nod = 0;
-        if (write_spindle.head == NULL) {
-            write_spindle.head = rn;
-        } else {
-            write_spindle.tail->next = rn;
-        }
-        write_spindle.tail = rn;
-        write_spindle.complete = 0;
-        while (1) {
-            rn->nod = lua_tointeger(L,i);
-            if (i<top) {
-                rope *r = xmalloc(sizeof(rope)); // overkill
-                r->text = NULL;
-                r->tsize = 0;
-                r->partial = 0;
-                r->cattable = DEFAULT_CAT_TABLE;
-                r->next = NULL;
-                r->tok = 0;
-                r->nod = 0;
-                rn->next = r;
-                rn = r;
-                write_spindle.tail = rn;
-                i++;
-            } else {
-                break;
-            }
-        }
-    }
-    return 0;
-}
-
-*/
-
 /* lua.write */
 
 static int luacwrite(lua_State * L)
@@ -2133,17 +2033,49 @@ static int getromannumeral(lua_State * L)
 
 static int get_parshape(lua_State * L)
 {
-    halfword par_shape_ptr = par_shape_par_ptr;
-    if (par_shape_ptr != 0) {
+    halfword ptr = par_shape_par_ptr;
+    if (ptr != null) {
         int m = 1;
-        int n = vinfo(par_shape_ptr + 1);
+        int n = vinfo(ptr + 1);
         lua_createtable(L, n, 0);
         while (m <= n) {
             lua_createtable(L, 2, 0);
-            lua_pushinteger(L, vlink((par_shape_ptr) + (2 * (m - 1)) + 2));
+            lua_pushinteger(L, vlink((ptr) + (2 * (m - 1)) + 2));
             lua_rawseti(L, -2, 1);
-            lua_pushinteger(L, vlink((par_shape_ptr) + (2 * (m - 1)) + 3));
+            lua_pushinteger(L, vlink((ptr) + (2 * (m - 1)) + 3));
             lua_rawseti(L, -2, 2);
+            lua_rawseti(L, -2, m);
+            m++;
+        }
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int get_etex_parshape(lua_State * L, int code)
+{
+    halfword ptr = null;
+    switch (code) {
+        case inter_line_penalties_loc:
+            ptr = inter_line_penalties_par_ptr;
+            break;
+        case club_penalties_loc:
+            ptr = club_penalties_par_ptr;
+            break;
+        case widow_penalties_loc:
+            ptr = widow_penalties_par_ptr;
+            break;
+        case display_widow_penalties_loc:
+            ptr = display_widow_penalties_par_ptr;
+            break;
+    }
+    if (ptr != null) {
+        int m = 1;
+        int n = vinfo(ptr + 1) + 1;
+        lua_createtable(L, n, 0);
+        while (m <= n) {
+            lua_pushinteger(L, penalty(ptr + m));
             lua_rawseti(L, -2, m);
             m++;
         }
@@ -2221,6 +2153,9 @@ static int gettex(lua_State * L)
                 break;
             case set_tex_shape_cmd:
                 retval = get_parshape(L);
+                break;
+            case set_etex_shape_cmd:
+                retval = get_etex_parshape(L, cur_code);
                 break;
             default:
                 lua_pushnil(L);
@@ -3608,10 +3543,6 @@ static const struct luaL_Reg texlib[] = {
     { "sprint", luacsprint },
     { "tprint", luactprint },
     { "cprint", luaccprint },
-    /*
-    { "twrite", luatwrite },
-    { "nwrite", luanwrite },
-    */
     { "error", texerror },
     { "set", settex },
     { "get", gettex },

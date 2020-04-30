@@ -1,3 +1,7 @@
+2020-05-01 Luigi Scarso <luigi.scarso@gmail.com>
+    * added tex.interlinepenalties tex.clubpenalties tex.widowpenalties 
+    tex.displaywidowpenalties to complement tex.parshape (HH)
+
 2020-04-28 Luigi Scarso <luigi.scarso@gmail.com>
     * less strict lastnode testing (HH) 
     * some experimental math delimiter code removed (HH)
