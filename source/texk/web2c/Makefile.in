@@ -383,7 +383,6 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/web2c-disable.m4 \
 	$(top_srcdir)/../../m4/kpse-macos-framework.m4 \
 	$(top_srcdir)/../../m4/kpse-mpfr-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-pixman-flags.m4 \
-	$(top_srcdir)/../../m4/kpse-poppler-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-pplib-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-ptexenc-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-socket-libs.m4 \
@@ -2746,9 +2745,6 @@ PIXMAN_DEPEND = @PIXMAN_DEPEND@
 PIXMAN_INCLUDES = @PIXMAN_INCLUDES@
 PIXMAN_LIBS = @PIXMAN_LIBS@
 PKG_CONFIG = @PKG_CONFIG@
-POPPLER_DEPEND = @POPPLER_DEPEND@
-POPPLER_INCLUDES = @POPPLER_INCLUDES@
-POPPLER_LIBS = @POPPLER_LIBS@
 PPLIB_DEPEND = @PPLIB_DEPEND@
 PPLIB_INCLUDES = @PPLIB_INCLUDES@
 PPLIB_LIBS = @PPLIB_LIBS@
@@ -4643,7 +4639,7 @@ xetex_cppflags = $(AM_CPPFLAGS) -I$(srcdir)/xetexdir $(ICU_INCLUDES) \
 	$(am__append_111)
 xetex_ldadd = $(libxetex) $(HARFBUZZ_LIBS) $(GRAPHITE2_LIBS) \
 	$(ICU_LIBS) $(ICU_LIBS_EXTRA) $(TECKIT_LIBS) $(LIBPNG_LIBS) \
-	$(FREETYPE2_LIBS) $(ZLIB_LIBS) $(PPLIB_LIBS) libmd5.a \
+	$(FREETYPE2_LIBS) $(PPLIB_LIBS) $(ZLIB_LIBS) libmd5.a \
 	$(am__append_112)
 xetex_dependencies = $(proglib) $(KPATHSEA_DEPEND) $(ICU_DEPEND) \
 	$(TECKIT_DEPEND) $(HARFBUZZ_DEPEND) $(GRAPHITE2_DEPEND) \
@@ -17843,7 +17839,6 @@ $(proglib): ${srcdir}/lib/*.c
 @MPFR_RULE@
 @XPDF_RULE@
 @PPLIB_RULE@
-@POPPLER_RULE@
 @ZZIPLIB_RULE@
 @TECKIT_RULE@
 @ICU_RULE@
