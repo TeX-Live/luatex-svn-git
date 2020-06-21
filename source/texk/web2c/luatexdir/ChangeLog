@@ -1,3 +1,7 @@
+2020-06-21 Luigi Scarso <luigi.scarso@gmail.com>
+    * pending better is_defined check plus an extra option in a scanner; also the \cs case. (HH)
+    * tex.getmark(what,wherefrom)  added (HH)
+
 2020-05-01 Luigi Scarso <luigi.scarso@gmail.com>
     * added tex.interlinepenalties tex.clubpenalties tex.widowpenalties 
     tex.displaywidowpenalties to complement tex.parshape (HH)
