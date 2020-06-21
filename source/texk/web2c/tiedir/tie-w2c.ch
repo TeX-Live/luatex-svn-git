@@ -1,14 +1,85 @@
 % Changes to adapt tie to web2c.
-% Copyright 2001 by Olaf Weber
+% Created 2001 by Olaf Weber
+% Updated 2020 by Andreas Scherer
 % This file is in the Public Domain.
 
-@x Already in cpascal.h.
+Limbo
+
+@x l.42
+  \centerline{(CWEB Version 2.4)}
+@y
+  \centerline{(CWEB Version 2.4 [\TeX~Live])}
+@z
+
+@x l.44 -- reformat 'covernote' on table-of-contents page
+\def\botofcontents{
+\null\vfill
+\item{$\copyright$}1989, 1992
+   by Technische Hochschule Darmstadt,\hfill\break
+Fachbereich Informatik, Institut f\"ur Theoretische Informatik\hfill\break
+All rights reserved.\hfill\break
+This program is distributed WITHOUT ANY WARRANTY, express or implied.
+\hfill\break
+Permission is granted to make and distribute verbatim copies of this
+program provided that the copyright notice and this permission notice
+are preserved on all copies.
+\hfill\break
+Permission is granted to copy and distribute modified versions of this
+program under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+}
+@y
+\let\maybe=\iftrue
+\def\covernote{\vbox{\noindent
+Copyright \copyright~1989, 1992
+   by Technische Hochschule Darmstadt,\hfill\break
+Fachbereich Informatik, Institut f\"ur Theoretische Informatik
+\smallskip\noindent
+All rights reserved.
+\bigskip\noindent
+This program is distributed WITHOUT ANY WARRANTY, express or implied.
+\smallskip\noindent
+Permission is granted to make and distribute verbatim copies of this
+program provided that the copyright notice and this permission notice
+are preserved on all copies.
+\smallskip\noindent
+Permission is granted to copy and distribute modified versions of this
+program under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+}}
+\datecontentspage
+@z
+
+Section 1.
+
+@x l.105
+@d banner  "This is TIE, CWEB Version 2.4."
+@y
+@d banner  "This is TIE, CWEB Version 2.4."
+  /* will be extended by the \TeX~Live |versionstring| */
+@z
+
+Section 2
+
+@x l.113 -- improve typography
+@<Global |#include|s@>@;
+@y
+@<Global \&{\#include}s@>@;
+@z
+
+Section 3
+
+@x l.123 -- Already in cpascal.h.
 @d incr(v) v+=1 /* increase a variable by unity */
 @d decr(v) v-=1 /* decrease a variable by unity */
 @y
 @z
 
-@x
+Section 4
+
+@x l.130
 @ Furthermore we include the additional types |boolean| and |string|.
 @d false 0
 @d true 1
@@ -16,13 +87,15 @@
 typedef int boolean;
 typedef char* string;
 @y
-@ Furthermore we include the additional types |boolean| and |string|.
-/* |boolean|, |false|, |true|; |string|; all from \.{<kpathsea/simpletypes.h>} */
+@ The types |@!boolean| (with values |@!false| and |@!true|) and
+|@!string| come from \.{<kpathsea/simpletypes.h>}.
 @s boolean int
 @s string int
 @z
 
-@x -- we need more input files.
+Section 5
+
+@x l.144 -- we need more input files.
 #define max_file_index 9
 /* we don't think that anyone needs more than 9 change files,
 @y
@@ -30,29 +103,64 @@ typedef char* string;
 /* we don't think that anyone needs more than 32 change files,
 @z
 
-@x
+Section 6
+
+l.155
+@x -- replace preprocessor macros
+@d spotless 0
+@d troublesome 1
+@d fatal 2
+
+@<Global variables@>=
+static int history=spotless;
+@y
+@<Global variables@>=
+typedef enum {
+    @!spotless,
+    @!troublesome,
+    @!fatal } return_code;
+static return_code history=spotless;
+@z
+
+Section 15
+
+@x l.461
 @d print(a)  fprintf(term_out,a) /* `|print|' means write on the terminal */
 @y
 @d print(a)  fprintf(term_out,"%s",a) /* `|print|' means write on the terminal */
 @z
 
-@x
+@x l.463 -- function used only for error messages
+@d print3(a,b,c)  fprintf(term_out,a,b,c) /* same with three arguments */
+@y
+@d print3(a,b,c)  fprintf(stderr,a,b,c) /* same with three arguments */
+@z
+
+@x l.468
 @d print_ln(v)  {fprintf(term_out,v);term_new_line;}
 @y
 @d print_ln(v)  {fprintf(term_out,"%s",v);term_new_line;}
 @z
 
-@x -- add to global includes.
+@x l.471 -- used only for error reporting
+@d print3_ln(a,b,c)  {print3(a,b,c);term_new_line;}
+@y
+@d print3_ln(a,b,c)  {print3(a,b,c);new_line(stderr);}
+@z
+
+@x l.478 -- add to global includes.
+@<Global |#include|s@>=
 #include <stdio.h>
 @y
-#include "cpascal.h" /* |decr| and |incr| */
+@<Global \&{\#include}s@>=
+#include "cpascal.h" /* |@!decr| and |@!incr| */
 #include <kpathsea/kpathsea.h>
 #define usage tieusage /* Also redefine |usage| to avoid clash with function from lib. */
 @z
 
-Section 16: Remove redundant #include directives.
+Section 16
 
-@x l.483
+@x l.483 -- Remove redundant #include directives.
 This should cause no trouble in any \Cl\ program.
 @^system dependencies@>
 
@@ -64,8 +172,7 @@ This should cause no trouble in any \Cl\ program.
 #endif
 @y
 This should cause no trouble in any \Cl\ program.
-The \.{kpathsea} include files handle the definition of |malloc()|,
-too.
+The \.{kpathsea} include files handle the definition of |@!malloc|, too.
 @^system dependencies@>
 @z
 
@@ -83,14 +190,14 @@ typedef int in_file_modes; /* should be |enum(search,test,reading,ignore)| */
 typedef int file_types; /* should be |enum(unknown,master,chf)| */
 @y
 typedef enum {
-    search,
-    test,
-    reading,
-    ignore } in_file_modes;
+    @!search,
+    @!test,
+    @!reading,
+    @!ignore } in_file_modes;
 typedef enum {
-    unknown,
-    master,
-    chf } file_types;
+    @!unknown,
+    @!master,
+    @!chf } file_types;
 @z
 
 @x l.548
@@ -100,10 +207,12 @@ typedef enum {
 typedef int out_md_type; /* should be |enum(normal,pre,post)| */
 @y
 typedef enum {
-    normal,
-    pre,
-    post } out_md_type;
+    @!normal,
+    @!pre,
+    @!post } out_md_type;
 @z
+
+Section 24
 
 @x l.617
 void get_line(i)
@@ -113,7 +222,9 @@ static void
 get_line (file_index i)
 @z
 
-@x l.650
+Section 27
+
+@x l.650 -- fix typo
 replacement part of a change file, or in an incomplerte check if the
 @y
 replacement part of a change file, or in an incomplete check if the
@@ -125,6 +236,14 @@ replacement part of a change file, or in an incomplete check if the
    if (c!=@' ' && c!=tab_mark && c!=@'\r')
 @z
 
+Section 31
+
+@x l.742 -- print errors on 'stderr'
+@d err_print(m)  { @+ print_nl(m); error_loc
+@y
+@d err_print(m)  { @+ new_line(stderr); fprintf(stderr,"%s",m); error_loc
+@z
+
 @x l.745
 void err_loc(i) /* prints location of error */
         int i;
@@ -133,11 +252,34 @@ static void
 err_loc (int i) /* prints location of error */
 @z
 
+Section 32
+
+@x l.761 -- print errors on 'stderr'
+         print(m); print_c('.'); history=fatal;
+	 term_new_line; jump_out();
+@y
+         fprintf(stderr,"%s",m);
+         fputc('.',stderr); history=fatal;
+	 new_line(stderr); jump_out();
+@z
+
+Section 33
+
+@x l.774
+@d jump_out() exit(1)
+@y
+@d jump_out() exit(EXIT_FAILURE)
+@z
+
+Section 34
+
 @x l.790 Use binary mode for output files
     out_file=fopen(out_name,"w");
 @y
     out_file=fopen(out_name,"wb");
 @z
+
+Section 36
 
 @x l.811
 	  fopen(input_organization[0]->name_of_file,"r");
@@ -145,13 +287,17 @@ err_loc (int i) /* prints location of error */
 	  kpse_open_file(input_organization[0]->name_of_file, kpse_web_format);
 @z
 
+Section 37
+
 @x l.830
 	fopen(input_organization[i]->name_of_file,"r");
 @y
 	kpse_open_file(input_organization[i]->name_of_file, kpse_web_format);
 @z
 
-@x
+Section 38
+
+@x l.851
 boolean lines_dont_match(i,j)
 	file_index i,j;
 @y
@@ -159,7 +305,9 @@ static boolean
 lines_dont_match (file_index i, file_index j)
 @z
 
-@x
+Section 39
+
+@x l.872
 void init_change_file(i,b)
 	file_index i; boolean b;
 @y
@@ -167,7 +315,9 @@ static void
 init_change_file (file_index i, boolean b)
 @z
 
-@x
+Section 42
+
+@x l.919
 void put_line(j)
 	file_index j;
 @y
@@ -175,7 +325,9 @@ static void
 put_line (file_index j)
 @z
 
-@x
+Section 43
+
+@x l.935
 boolean e_of_ch_module(i)
 	file_index i;
 @y
@@ -183,7 +335,9 @@ static boolean
 e_of_ch_module (file_index i)
 @z
 
-@x
+Section 44
+
+@x l.955
 boolean e_of_ch_preamble(i)
 	file_index i;
 @y
@@ -191,7 +345,9 @@ static boolean
 e_of_ch_preamble (file_index i)
 @z
 
-@x l.1005
+Section 47
+
+@x l.1005 -- fix typo
 a line to write and |test_input| ist set to |none|.
 @y
 a line to write and |test_input| is set to |none|.
@@ -217,7 +373,9 @@ if (prod_chf==chf)
 else
 @z
 
-@x
+Section 55
+
+@x l.1158
 void usage()
 {
    print("Usage: tie -[mc] outfile master changefile(s)");
@@ -228,20 +386,24 @@ void usage (void)
    print("Usage: tie -m|-c outfile master changefile(s)");
 @z
 
-@x l.1169
+Section 56
+
+@x l.1169 -- fix typo
 change files.  The names fo the file parameters will be inserted into
 @y
 change files.  The names of the file parameters will be inserted into
 @z
 
-@x
+Section 59
+
+@x l.1236
 main(argc,argv)
         int argc; string *argv;
 @y
 int main (int argc, string *argv)
 @z
 
-@x
+@x l.1241
   print_ln(banner); /* print a ``banner line'' */
   print_ln(copyright); /* include the copyright notice */
 @y
@@ -251,25 +413,41 @@ int main (int argc, string *argv)
   print_ln(copyright); /* include the copyright notice */
 @z
 
-@x l.1256
+Section 60
+
+@x l.1256 -- fix typo
 Additionaly we report the history to the user, although this may not
 @y
 Additionally we report the history to the user, although this may not
 @z
 
-@x
+@x l.1261 -- rewrite error reporting
 @<Print the job |history|@>=
 {string msg;
+   switch (history) {
+      case spotless: msg="No errors were found"; break;
+      case troublesome: msg="Pardon me, but I think I spotted something wrong.";
+	        break;
+      case fatal: msg="That was a fatal error, my friend";  break;
+      } /* there are no other cases */
+   print2_nl("(%s.)",msg);  term_new_line;
+   exit ( history == spotless  ?  0 : 1 );
+}
 @y
-@s const_string int
-
 @<Print the job |history|@>=
-{const_string msg;
-@z
-
-@x -- silence unitialized warning
-      case fatal: msg="That was a fatal error, my friend";  break;
-@y
+{
+   switch (history) {
+      case spotless: print2_nl("(%s.)", "No errors were found");
+        term_new_line; break;
+      case troublesome: new_line(stderr); fprintf(stderr,
+        "(Pardon me, but I think I spotted something wrong.)");
+        new_line(stderr); break;
+      case fatal:
       default: /* Anything except spotless, troublesome, or fatal is a bug. */
-      case fatal: msg="That was a fatal error, my friend";  break;
+        new_line(stderr);
+        fprintf(stderr, "(That was a fatal error, my friend.)");
+        new_line(stderr); break;
+      }
+   exit ( history == spotless ?  EXIT_SUCCESS : EXIT_FAILURE );
+}
 @z

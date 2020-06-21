@@ -1,6 +1,119 @@
+2020-06-20  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfwebtocfront.tex: Generic solution for the headers in
+	WEB and CWEB programs (with four special cases with their own '\N').
+
+2020-06-20  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch: Clarify triple responsibility.
+
+2020-06-19  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfwebtocfront.tex: Generic 'group title' on the first
+	page after the table-of-contents.
+
+2020-06-16  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfctimac.tex: Bookmarks for "Names of the sections".
+
+2020-06-16  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctang-w2c.ch: Translate another message string.
+	* ctwill-w2c.ch,
+	* prod-twill.w: Page breaks for CWILL format.  Fix final header.
+	* texinputs/pdfctimac.tex: Alternative comment font (9pt).
+	Don't force small borders in standard macros for PDF output.
+
+2020-06-15  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfctimac.tex: Unified color management;
+	code compaction; simplified if-else inside \acro;
+	structured outlines/bookmarks with all supported TeX engines.
+
+2020-06-14  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfctimac.tex: New macros for PDF output with hyperlinks
+	created with 'ctwill +lpdf' followed by 'tex'+'dvipdfm', 'pdftex',
+	or 'xetex' on your CWEB source.
+
+2020-06-13  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* ctang-w2c.ch,
+	* ctwill-w2c.ch,
+	* cweav-w2c.ch: Purge space from 'covernote'.
+
+2020-06-11  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebman-w2c.ch: Add footnotes for TeX Live extensions.
+
+2020-06-10  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctang-w2c.ch: Add short comments to new material.
+
+2020-06-10  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/p+cwebmac.tex: Switch on PDF creation with 'cweave -lp+'
+	followed by 'tex'+'dvipdfm' or 'xetex' on your CWEB source.
+
+2020-06-07  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* ctang-w2c.ch,
+	* cweav-w2c.ch,
+	* ctwill-w2c.ch: Add date to table-of-contents page.
+
+2020-06-07  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctang-w2c.ch: Handle special 'files' as secondary output.
+
+2020-06-07  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* ctang-w2c.ch,
+	* cweav-w2c.ch,
+	* ctwill-w2c.ch: Check accessibility to designated output files.
+
+2020-06-07  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* comm-w2c.h,
+	* ctang-w2c.ch,
+	* cweav-w2c.ch,
+	* ctwill-w2c.ch: Underscore 'enum'erated values in index.
+
+2020-06-06  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch: Add index entries for the CWEBINPUTS envvar.
+
+2020-06-05  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch: Fix newline blunder in case of error.
+
+2020-06-01  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfwebtocfront.tex: Adapt to 'pwebmac.tex 4.5.2'.
+
+2020-05-31  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch: Sanitize command for PDF outlines.
+
+2020-05-26  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfwebtocfront.tex: Fake headline on page after TOC.
+
+2020-05-23  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfwebtocfront.tex: Add treatment for {pdf,xe}tex.web.
+
+2020-05-22  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/Xcwebmac.tex: Activate alternative assignment operator.
+	* texinputs/pdfwebtocfront.tex: Add comments to the macro code.
+
 2020-05-07  Andreas Scherer  <https://ascherer.github.io>
 
-	* texinputs/Xcwebmac.tex: Amend macros from knuth.drv (n
+	* texinputs/Xcwebmac.tex: Amend macros from knuth.drv (in
 	github.com/oberdiek/latex-tds) to move table-of-contents
 	up front in PDF output (on second TeX run).
 

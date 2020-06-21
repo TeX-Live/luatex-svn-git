@@ -78,7 +78,7 @@ procedure initialize;
 @x [8] Constants: increase id lengths, for TeX--XeT and tex2pdf.
 @!buf_size=100; {maximum length of input line}
 @y
-@!buf_size=3000; {maximum length of input line}
+@!buf_size=1000; {maximum length of input line}
 @z
 @x
 @!max_bytes=45000; {|1/ww| times the number of bytes in identifiers,
@@ -93,9 +93,9 @@ procedure initialize;
   strings, and module names; must be less than 65536}
 @!max_toks=65535; {|1/zz| times the number of bytes in compressed \PASCAL\ code;
   must be less than 65536}
-@!max_names=10000; {number of identifiers, strings, module names;
+@!max_names=10239; {number of identifiers, strings, module names;
   must be less than 10240}
-@!max_texts=10000; {number of replacement texts, must be less than 10240}
+@!max_texts=10239; {number of replacement texts, must be less than 10240}
 @z
 
 @x
@@ -242,7 +242,7 @@ the replacement text.
 @d parametric2=4 {second type of parametric macros have this |ilk|}
 @z
 
-@x [50] unambig_length is a variabe now
+@x [50] unambig_length is a variable now
 @!chopped_id:array [0..unambig_length] of ASCII_code; {chopped identifier}
 @y
 @!chopped_id:array [0..max_id_length] of ASCII_code; {chopped identifier}
@@ -670,7 +670,7 @@ begin
     getopt_return_val := getopt_long_only (argc, argv, '', long_options,
                                            address_of (option_index));
     if getopt_return_val = -1 then begin
-      {End of arguments; we exit the loop below.} ;
+      do_nothing; {End of arguments; we exit the loop below.}
 
     end else if getopt_return_val = "?" then begin
       usage (my_name);
@@ -787,7 +787,7 @@ long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr (current_option);
 
-@ Strict comparisions.
+@ Strict comparisons.
 @.-strict@>
 
 @<Define the option...@> =
@@ -797,7 +797,7 @@ long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr (current_option);
 
-@ Loose comparisions.
+@ Loose comparisons.
 @.-loose@>
 
 @<Define the option...@> =
@@ -807,7 +807,7 @@ long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr (current_option);
 
-@ Loose comparisions.
+@ Loose comparisons.
 @.-length@>
 
 @<Define the option...@> =

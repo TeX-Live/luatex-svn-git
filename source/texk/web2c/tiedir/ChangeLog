@@ -1,3 +1,31 @@
+2020-06-20  Andreas Scherer  <https://ascherer.github.io>
+
+	* tie-w2c.ch: Minor change in section 1
+
+2020-06-08  Andreas Scherer  <https://ascherer.github.io>
+
+	* tie-w2c.ch: Put 'date' at the bottom of table-of-contents page.
+
+2020-06-07  Andreas Scherer  <https://ascherer.github.io>
+
+	* tie-w2c.ch: Underscore 'enum'erated values in index.
+
+2020-06-05  Andreas Scherer  <https://ascherer.github.io>
+
+	* tie-w2c.ch: Format changes similar to CWEB.
+
+2020-05-31  Andreas Scherer  <https://ascherer.github.io>
+
+	* tie-w2c.ch: Format title page similar to CWEB.
+
+2020-05-29  Karl Berry  <karl@freefriends.org>
+
+	* tie-w2c.ch: pd not copyright.
+
+2020-05-28  Andreas Scherer  <https://ascherer.github.io>
+
+	* tie-w2c.ch: Incorporated Igor Liferenko's changes.
+
 2020-04-30  Andreas Scherer  <https://ascherer.github.io>
 
 	* tie-w2c.ch: Fix type format in section 60.

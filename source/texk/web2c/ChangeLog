@@ -1,3 +1,100 @@
+2020-06-20  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebboot.cin: Regenerate boot module.
+
+2020-06-16  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin: Regenerate boot module.
+
+2020-06-15  Hironobu Yamashita  <h.y.acetaminophen@gmail.com>
+
+	* gftodvi.ch: Suppress a compiler warning.
+
+2020-06-10  Andreas Scherer  <https://ascherer.github.io>
+
+	* bibtex.ch,
+	* gftodvi.ch,
+	* gftopk.ch,
+	* pktogf.ch,
+	* pltotf.ch,
+	* tftopl.ch,
+	* vftovp.ch: Avoid line breaks in sections with empty TeX part.
+
+2020-06-10  Andreas Scherer  <https://ascherer.github.io>
+
+	* weave.ch: Missing forced line break.
+
+2020-06-09  Andreas Scherer  <https://ascherer.github.io>
+
+	* weave.ch: Max out array sizes similar to CWEB.
+
+2020-06-07  Karl Berry  <karl@freefriends.org>
+
+	* ac/web2c.ac: omit $Id$ from output.
+
+2020-06-07  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: Add date to table-of-contents page.
+
+2020-06-07  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin: Handle special 'files' as secondary output.
+
+2020-06-07  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: Check accessibility to output files.
+
+2020-06-06  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebboot.cin: Add index entries for the CWEBINPUTS envvar.
+
+2020-06-05  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebboot.cin: Fix newline blunder in case of error.
+
+2020-06-04  Andreas Scherer  <https://ascherer.github.io>
+
+	* bibtex.ch: Purge 'active E' chunk completely.
+
+2020-06-02  Andreas Scherer  <https://ascherer.github.io>
+
+	* gftopk.ch: Preserve internal section numbering.
+
+2020-05-30  Andreas Scherer  <https://ascherer.github.io>
+
+	* bibtex.ch,
+	* dvicopy.ch,
+	* dvitype.ch,
+	* gftodvi.ch,
+	* gftopk.ch,
+	* gftype.ch,
+	* mft.ch,
+	* pktogf.ch,
+	* pltotf.ch,
+	* tangle.ch,
+	* tftopl.ch,
+	* vftovp.ch,
+	* vptovf.ch,
+	* weave.ch: 'do_nothing' for something; this improves the
+	typographic output of the WEB sources with changes applied.
+
+2020-05-25  Andreas Scherer  <https://ascherer.github.io>
+
+	* bibtex.ch,
+	* mft.ch,
+	* tangle.ch,
+	* weave.ch: Spell checking with 'aspell -l en_US'.
+
+2020-05-24  Andreas Scherer  <https://ascherer.github.io>
+
+	* dvicopy.web,
+	* patgen.web,
+	* pktogf.web,
+	* pktype.web: Update convention to indicate 'not a titlepage, add
+	headline to table-of-contents page.'
+
 2020-05-14  Karl Berry  <karl@freefriends.org>
 
 	* Makefile.am (POPPLER_RULE): remove.
