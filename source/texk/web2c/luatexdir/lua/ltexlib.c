@@ -1208,6 +1208,39 @@ static int gettoks(lua_State * L)
     return 1;
 }
 
+static int getmark(lua_State *L)
+{
+    if (lua_gettop(L) == 0) {
+        lua_pushinteger(L, biggest_used_mark);
+        return 1;
+    } else if (lua_type(L, 1) == LUA_TSTRING) {
+        int num = luaL_optinteger(L, 2, 0);
+        if (num >= 0 && num <= biggest_used_mark) {
+            int ptr = null;
+            const char *s = lua_tostring(L, 1);
+            if (lua_key_eq(s, top)) {
+                ptr = top_marks_array[num];
+            } else if (lua_key_eq(s, first)) {
+                ptr = first_marks_array[num];
+            } else if (lua_key_eq(s, bottom)) {
+                ptr = bot_marks_array[num];
+            } else if (lua_key_eq(s, splitfirst)) {
+                ptr = split_first_marks_array[num];
+            } else if (lua_key_eq(s, splitbottom)) {
+                ptr = split_bot_marks_array[num];
+            }
+            if (ptr) {
+                char *str = tokenlist_to_cstring(ptr, 1, NULL);
+                lua_pushstring(L, str);
+                free(str);
+                return 1;
+            }
+        }
+    }
+    lua_pushnil(L);
+    return 1;
+}
+
 static int get_box_id(lua_State * L, int i, boolean report)
 {
     const char *s;
@@ -3571,6 +3604,7 @@ static const struct luaL_Reg texlib[] = {
     { "settoks", settoks },
     { "scantoks", scantoks },
     { "gettoks", gettoks },
+    { "getmark", getmark },
     { "isbox", isbox },
     { "setbox", setbox },
     { "getbox", getbox },

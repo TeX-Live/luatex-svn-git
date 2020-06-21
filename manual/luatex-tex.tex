@@ -610,6 +610,8 @@ tex.currentifbranch
 
 \libindex{scantoks}
 
+\libindex{getmark}
+
 \TEX's attributes (\lpr {attribute}), counters (\prm {count}), dimensions (\prm
 {dimen}), skips (\prm {skip}, \prm {muskip}) and token (\prm {toks}) registers
 can be accessed and written to using two times five virtual sub|-|tables of the
@@ -745,6 +747,12 @@ tex.scantoks("global",0,"$\int\limits^1_2$")
 
 In the function|-|based interface, it is possible to define values globally by
 using the string \type {global} as the first function argument.
+
+There is a dedicated getter for marks: \type {getmark} that takes two arguments.
+The first argument is one of \type {top}, \type {bottom}, \type {first}, \type
+{splitbottom} or \type {splitfirst}, and the second argument is a marks class
+number. When no arguments are given the current maximum number of classes is
+returned.
 
 \stopsubsection
 
