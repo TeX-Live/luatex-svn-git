@@ -2988,10 +2988,7 @@ static void make_fraction(pointer q, int cur_style)
         /*tex This also equals |width(z)|. */
         width(v) = width(x);
         reset_attributes(v, node_attr(q));
-        if (thickness(q) == 0) {
-            p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
-            couple_nodes(p,z);
-        } else {
+        if (thickness(q) && ! fractionnorule(q)) {
             y = do_fraction_rule(thickness(q), node_attr(q), math_fraction_rule, cur_size, used_fam);
             p = new_kern((math_axis_size(cur_size) - delta) - (height(z) - shift_down));
             reset_attributes(p, node_attr(q));
@@ -2999,6 +2996,9 @@ static void make_fraction(pointer q, int cur_style)
             couple_nodes(p,z);
             p = new_kern((shift_up - depth(x)) - (math_axis_size(cur_size) + delta));
             couple_nodes(p,y);
+        } else {
+            p = new_kern((shift_up - depth(x)) - (height(z) - shift_down));
+            couple_nodes(p,z);
         }
         reset_attributes(p, node_attr(q));
         couple_nodes(x,p);

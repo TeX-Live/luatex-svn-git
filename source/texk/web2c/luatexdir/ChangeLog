@@ -1,3 +1,8 @@
+2020-07-04 Luigi Scarso <luigi.scarso@gmail.com>
+    * little endian variants for readers. (HH)
+    * The keyword \type {norule} will hide the rule with the above variants while
+      keeping the rule related spacing.  (HH)
+
 2020-06-21 Luigi Scarso <luigi.scarso@gmail.com>
     * pending better is_defined check plus an extra option in a scanner; also the \cs case. (HH)
     * tex.getmark(what,wherefrom)  added (HH)
