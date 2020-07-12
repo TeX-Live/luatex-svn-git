@@ -441,6 +441,21 @@ void error(void)
         /*tex Get user's advice and |return|. */
         while (1) {
           CONTINUE:
+            /*tex  
+             Original reports:
+
+             https://tex.stackexchange.com/questions/551313/
+             https://tug.org/pipermail/tex-live/2020-June/045876.html
+
+            This will probably be fixed by DEK in the 2021 tuneup in a different
+            way (so we'll have to remove or alter this change), but the interaction
+            sequence in the reports above causes a segmentation fault in web2c -
+            writing to the closed \write15 stream because we wrongly decrement
+            selector from 16 to 15 in term_input, due to the lack of this check in
+            recursive error() call.
+            */
+            if (interaction !=error_stop_mode) 
+                return;
             clear_for_error_prompt();
             prompt_input("? ");
             if (last == first)
