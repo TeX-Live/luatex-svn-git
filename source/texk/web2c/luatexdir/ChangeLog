@@ -1,3 +1,7 @@
+2020-07-26 Luigi Scarso <luigi.scarso@gmail.com>
+    * New value for \tracinglostchars: \tracinglostchars>=3 is a fatal error 
+
+
 2020-07-12 Luigi Scarso <luigi.scarso@gmail.com>
     * Original reports:
      https://tex.stackexchange.com/questions/551313/

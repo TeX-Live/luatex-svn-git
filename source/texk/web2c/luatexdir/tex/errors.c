@@ -894,6 +894,8 @@ When \TeX\ wants to typeset a character that doesn't exist, the character node i
 not created; thus the output routine can assume that characters exist when it
 sees them. The following procedure prints a warning message unless the user has
 suppressed it.
+If |tracing_lost_chars_par| (i.e. \.{\\tracinglostchar})  is  greater than 2,
+it's considered as a fatal error.
 
 */
 
@@ -929,6 +931,9 @@ void char_warning(internal_font_number f, int c)
         print_char('!');
         end_diagnostic(false);
         tracing_online_par = old_setting;
+    }
+    if (tracing_lost_chars_par > 2) {
+       normal_error("\\tracinglostchars>=3","exit now.");
     }
 }
 
