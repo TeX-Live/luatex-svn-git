@@ -895,7 +895,7 @@ not created; thus the output routine can assume that characters exist when it
 sees them. The following procedure prints a warning message unless the user has
 suppressed it.
 If |tracing_lost_chars_par| (i.e. \.{\\tracinglostchar})  is  greater than 2,
-it's considered as a fatal error.
+it's considered as an error.
 
 */
 
@@ -933,7 +933,7 @@ void char_warning(internal_font_number f, int c)
         tracing_online_par = old_setting;
     }
     if (tracing_lost_chars_par > 2) {
-       normal_error("\\tracinglostchars>=3","exit now.");
+       error();
     }
 }
 
