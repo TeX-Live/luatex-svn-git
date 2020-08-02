@@ -49,7 +49,7 @@ struct AttachPoint : ArrayOf<HBUINT16>
     TRACE_SUBSET (this);
     auto *out = c->serializer->start_embed (*this);
     if (unlikely (!out)) return_trace (false);
-    
+
     return_trace (out->serialize (c->serializer, + iter ()));
   }
 };
@@ -73,10 +73,9 @@ struct AttachList
 
     if (point_count)
     {
-      hb_array_t<const HBUINT16> array = points.sub_array (start_offset, point_count);
-      unsigned int count = array.length;
-      for (unsigned int i = 0; i < count; i++)
-	point_array[i] = array[i];
+      + points.sub_array (start_offset, point_count)
+      | hb_sink (hb_array (point_array, *point_count))
+      ;
     }
 
     return points.len;
@@ -232,9 +231,9 @@ struct CaretValueFormat3
 struct CaretValue
 {
   hb_position_t get_caret_value (hb_font_t *font,
-					hb_direction_t direction,
-					hb_codepoint_t glyph_id,
-					const VariationStore &var_store) const
+				 hb_direction_t direction,
+				 hb_codepoint_t glyph_id,
+				 const VariationStore &var_store) const
   {
     switch (u.format) {
     case 1: return u.format1.get_caret_value (font, direction);
@@ -583,7 +582,7 @@ struct GDEF
     }
   }
 
-  HB_INTERNAL bool is_blacklisted (hb_blob_t *blob,
+  HB_INTERNAL bool is_blocklisted (hb_blob_t *blob,
 				   hb_face_t *face) const;
 
   struct accelerator_t
@@ -591,7 +590,7 @@ struct GDEF
     void init (hb_face_t *face)
     {
       this->table = hb_sanitize_context_t ().reference_table<GDEF> (face);
-      if (unlikely (this->table->is_blacklisted (this->table.get_blob (), face)))
+      if (unlikely (this->table->is_blocklisted (this->table.get_blob (), face)))
       {
 	hb_blob_destroy (this->table.get_blob ());
 	this->table = hb_blob_get_empty ();

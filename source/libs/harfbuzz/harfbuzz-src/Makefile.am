@@ -26,6 +26,20 @@ EXTRA_DIST = \
 	subprojects/libffi.wrap \
 	subprojects/proxy-libintl.wrap \
 	subprojects/zlib.wrap \
+	subprojects/google-benchmark.wrap \
+	perf/meson.build \
+	perf/perf-draw.hh \
+	perf/perf-extents.hh \
+	perf/perf-shaping.hh \
+	perf/perf.cc \
+	perf/fonts/Amiri-Regular.ttf \
+	perf/fonts/NotoNastaliqUrdu-Regular.ttf \
+	perf/fonts/NotoSansDevanagari-Regular.ttf \
+	perf/fonts/Roboto-Regular.ttf \
+	perf/texts/en-thelittleprince.txt \
+	perf/texts/en-words.txt \
+	perf/texts/fa-monologue.txt \
+	perf/texts/fa-thelittleprince.txt \
 	meson-cc-tests/intel-atomic-primitives-test.c \
 	meson-cc-tests/solaris-atomic-operations.c \
 	$(NULL)
@@ -80,16 +94,5 @@ dist-hook: dist-clear-sticky-bits
 # Clean up any sticky bits we may inherit from parent dir
 dist-clear-sticky-bits:
 	chmod -R a-s $(distdir)
-
-tar_file = $(PACKAGE_TARNAME)-$(VERSION).tar.xz
-sha256_file = $(tar_file).sha256
-gpg_file = $(sha256_file).asc
-$(sha256_file): $(tar_file)
-	sha256sum $^ > $@
-$(gpg_file): $(sha256_file)
-	@echo "Please enter your GPG password to sign the checksum."
-	gpg --armor --sign $^
-
-release-files: $(tar_file) $(sha256_file) $(gpg_file)
 
 -include $(top_srcdir)/git.mk

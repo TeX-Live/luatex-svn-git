@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.0)
 project(harfbuzz)
 
-message("HarfBuzz has a Meson port also and tries to migrate all the other build systems to it, please consider using it.")
+message(WARN "HarfBuzz has a Meson port and tries to migrate all the other build systems to it, please consider using it as we might remove our cmake port soon.")
 
 ## Limit framework build to Xcode generator
 if (BUILD_FRAMEWORK)
@@ -88,7 +88,7 @@ endmacro ()
 if (UNIX)
   list(APPEND CMAKE_REQUIRED_LIBRARIES m)
 endif ()
-check_funcs(atexit mprotect sysconf getpagesize mmap isatty roundf)
+check_funcs(atexit mprotect sysconf getpagesize mmap isatty)
 check_include_file(unistd.h HAVE_UNISTD_H)
 if (${HAVE_UNISTD_H})
   add_definitions(-DHAVE_UNISTD_H)

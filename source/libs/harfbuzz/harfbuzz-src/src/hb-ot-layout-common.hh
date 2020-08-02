@@ -126,7 +126,6 @@ struct hb_subset_layout_context_t :
   const hb_tag_t table_tag;
   const hb_map_t *lookup_index_map;
   const hb_map_t *feature_index_map;
-  unsigned debug_depth;
 
   hb_subset_layout_context_t (hb_subset_context_t *c_,
 			      hb_tag_t tag_,
@@ -136,7 +135,6 @@ struct hb_subset_layout_context_t :
 				table_tag (tag_),
 				lookup_index_map (lookup_map_),
 				feature_index_map (feature_map_),
-				debug_depth (0),
 				script_count (0),
 				langsys_count (0),
 				feature_index_count (0),
@@ -151,9 +149,8 @@ struct hb_subset_layout_context_t :
 };
 
 struct hb_collect_variation_indices_context_t :
-       hb_dispatch_context_t<hb_collect_variation_indices_context_t, hb_empty_t, 0>
+       hb_dispatch_context_t<hb_collect_variation_indices_context_t>
 {
-  const char *get_name () { return "CLOSURE_LAYOUT_VARIATION_IDXES"; }
   template <typename T>
   return_t dispatch (const T &obj) { obj.collect_variation_indices (this); return hb_empty_t (); }
   static return_t default_return_value () { return hb_empty_t (); }
@@ -161,15 +158,13 @@ struct hb_collect_variation_indices_context_t :
   hb_set_t *layout_variation_indices;
   const hb_set_t *glyph_set;
   const hb_map_t *gpos_lookups;
-  unsigned int debug_depth;
 
   hb_collect_variation_indices_context_t (hb_set_t *layout_variation_indices_,
 					  const hb_set_t *glyph_set_,
 					  const hb_map_t *gpos_lookups_) :
 					layout_variation_indices (layout_variation_indices_),
 					glyph_set (glyph_set_),
-					gpos_lookups (gpos_lookups_),
-					debug_depth (0) {}
+					gpos_lookups (gpos_lookups_) {}
 };
 
 template<typename OutputArray>
@@ -350,11 +345,12 @@ struct RecordArrayOf : SortedArrayOf<Record<Type>>
 			 unsigned int *record_count /* IN/OUT */,
 			 hb_tag_t     *record_tags /* OUT */) const
   {
-    if (record_count) {
-      const Record<Type> *arr = this->sub_array (start_offset, record_count);
-      unsigned int count = *record_count;
-      for (unsigned int i = 0; i < count; i++)
-	record_tags[i] = arr[i].tag;
+    if (record_count)
+    {
+      + this->sub_array (start_offset, record_count)
+      | hb_map (&Record<Type>::tag)
+      | hb_sink (hb_array (record_tags, *record_count))
+      ;
     }
     return this->len;
   }
@@ -467,11 +463,11 @@ struct IndexArray : ArrayOf<Index>
 			    unsigned int *_count /* IN/OUT */,
 			    unsigned int *_indexes /* OUT */) const
   {
-    if (_count) {
-      const HBUINT16 *arr = this->sub_array (start_offset, _count);
-      unsigned int count = *_count;
-      for (unsigned int i = 0; i < count; i++)
-	_indexes[i] = arr[i];
+    if (_count)
+    {
+      + this->sub_array (start_offset, _count)
+      | hb_sink (hb_array (_indexes, *_count))
+      ;
     }
     return this->len;
   }
@@ -809,11 +805,16 @@ struct FeatureParamsStylisticSet
 /* https://docs.microsoft.com/en-us/typography/opentype/spec/features_ae#cv01-cv99 */
 struct FeatureParamsCharacterVariants
 {
-  bool sanitize (hb_sanitize_context_t *c) const
+  unsigned
+  get_characters (unsigned start_offset, unsigned *char_count, hb_codepoint_t *chars) const
   {
-    TRACE_SANITIZE (this);
-    return_trace (c->check_struct (this) &&
-		  characters.sanitize (c));
+    if (char_count)
+    {
+      + characters.sub_array (start_offset, char_count)
+      | hb_sink (hb_array (chars, *char_count))
+      ;
+    }
+    return characters.len;
   }
 
   unsigned get_size () const
@@ -823,6 +824,13 @@ struct FeatureParamsCharacterVariants
   {
     TRACE_SUBSET (this);
     return_trace ((bool) c->serializer->embed (*this));
+  }
+
+  bool sanitize (hb_sanitize_context_t *c) const
+  {
+    TRACE_SANITIZE (this);
+    return_trace (c->check_struct (this) &&
+		  characters.sanitize (c));
   }
 
   HBUINT16	format;			/* Format number is set to 0. */
@@ -1289,9 +1297,9 @@ struct CoverageFormat2
   unsigned int get_coverage (hb_codepoint_t glyph_id) const
   {
     const RangeRecord &range = rangeRecord.bsearch (glyph_id);
-    return likely (range.first <= range.last) ?
-	   (unsigned int) range.value + (glyph_id - range.first) :
-	   NOT_COVERED;
+    return likely (range.first <= range.last)
+	 ? (unsigned int) range.value + (glyph_id - range.first)
+	 : NOT_COVERED;
   }
 
   template <typename Iterator,
@@ -1709,7 +1717,7 @@ struct ClassDefFormat1
 
     startGlyph = glyph_min;
     if (unlikely (!classValue.serialize (c, glyph_count))) return_trace (false);
-    for (const hb_pair_t<hb_codepoint_t, unsigned>& gid_klass_pair : + it)
+    for (const hb_pair_t<hb_codepoint_t, unsigned> gid_klass_pair : + it)
     {
       unsigned idx = gid_klass_pair.first - glyph_min;
       classValue[idx] = gid_klass_pair.second;
@@ -2183,7 +2191,7 @@ struct VarRegionAxis
 struct VarRegionList
 {
   float evaluate (unsigned int region_index,
-			 const int *coords, unsigned int coord_len) const
+		  const int *coords, unsigned int coord_len) const
   {
     if (unlikely (region_index >= regionCount))
       return 0.;
@@ -2253,8 +2261,8 @@ struct VarData
   { return itemCount * get_row_size (); }
 
   float get_delta (unsigned int inner,
-			  const int *coords, unsigned int coord_count,
-			  const VarRegionList &regions) const
+		   const int *coords, unsigned int coord_count,
+		   const VarRegionList &regions) const
   {
     if (unlikely (inner >= itemCount))
       return 0.;
@@ -2828,7 +2836,7 @@ struct FeatureVariations
   static constexpr unsigned NOT_FOUND_INDEX = 0xFFFFFFFFu;
 
   bool find_index (const int *coords, unsigned int coord_len,
-			  unsigned int *index) const
+		   unsigned int *index) const
   {
     unsigned int count = varRecords.len;
     for (unsigned int i = 0; i < count; i++)

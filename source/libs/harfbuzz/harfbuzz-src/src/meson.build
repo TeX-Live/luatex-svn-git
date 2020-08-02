@@ -1,13 +1,11 @@
 # Base and default-included sources and headers
-hb_base_sources = [
-  'hb-aat-fdsc-table.hh',
+hb_base_sources = files(
   'hb-aat-layout-ankr-table.hh',
   'hb-aat-layout-bsln-table.hh',
   'hb-aat-layout-common.hh',
   'hb-aat-layout-feat-table.hh',
   'hb-aat-layout-just-table.hh',
   'hb-aat-layout-kerx-table.hh',
-  'hb-aat-layout-lcar-table.hh',
   'hb-aat-layout-morx-table.hh',
   'hb-aat-layout-opbd-table.hh',
   'hb-aat-layout-trak-table.hh',
@@ -19,6 +17,7 @@ hb_base_sources = [
   'hb-algs.hh',
   'hb-array.hh',
   'hb-atomic.hh',
+  'hb-bimap.hh',
   'hb-blob.cc',
   'hb-blob.hh',
   'hb-buffer-serialize.cc',
@@ -46,7 +45,6 @@ hb_base_sources = [
   'hb-machinery.hh',
   'hb-map.cc',
   'hb-map.hh',
-  'hb-bimap.hh',
   'hb-meta.hh',
   'hb-mutex.hh',
   'hb-null.hh',
@@ -56,9 +54,9 @@ hb_base_sources = [
   'hb-open-file.hh',
   'hb-open-type.hh',
   'hb-ot-cff-common.hh',
+  'hb-ot-cff1-std-str.hh',
   'hb-ot-cff1-table.cc',
   'hb-ot-cff1-table.hh',
-  'hb-ot-cff1-std-str.hh',
   'hb-ot-cff2-table.cc',
   'hb-ot-cff2-table.hh',
   'hb-ot-cmap-table.hh',
@@ -68,9 +66,9 @@ hb_base_sources = [
   'hb-ot-color-sbix-table.hh',
   'hb-ot-color-svg-table.hh',
   'hb-ot-color.cc',
+  'hb-ot-face-table-list.hh',
   'hb-ot-face.cc',
   'hb-ot-face.hh',
-  'hb-ot-face-table-list.hh',
   'hb-ot-font.cc',
   'hb-ot-gasp-table.hh',
   'hb-ot-glyf-table.hh',
@@ -158,6 +156,7 @@ hb_base_sources = [
   'hb-shaper.hh',
   'hb-static.cc',
   'hb-string-array.hh',
+  'hb-style.cc',
   'hb-ucd-table.hh',
   'hb-ucd.cc',
   'hb-unicode-emoji-table.hh',
@@ -166,9 +165,9 @@ hb_base_sources = [
   'hb-utf.hh',
   'hb-vector.hh',
   'hb.hh',
-]
+)
 
-hb_base_ragel_generated_sources = [
+hb_base_ragel_generated_sources = files(
   'hb-buffer-deserialize-json.hh',
   'hb-buffer-deserialize-text.hh',
   'hb-number-parser.hh',
@@ -176,7 +175,7 @@ hb_base_ragel_generated_sources = [
   'hb-ot-shape-complex-khmer-machine.hh',
   'hb-ot-shape-complex-myanmar-machine.hh',
   'hb-ot-shape-complex-use-machine.hh',
-]
+)
 hb_base_ragel_sources = [
   'hb-buffer-deserialize-json.rl',
   'hb-buffer-deserialize-text.rl',
@@ -187,7 +186,7 @@ hb_base_ragel_sources = [
   'hb-ot-shape-complex-use-machine.rl',
 ]
 
-hb_base_headers = [
+hb_base_headers = files(
   'hb-aat-layout.h',
   'hb-aat.h',
   'hb-blob.h',
@@ -212,42 +211,43 @@ hb_base_headers = [
   'hb-set.h',
   'hb-shape-plan.h',
   'hb-shape.h',
+  'hb-style.h',
   'hb-unicode.h',
   'hb-version.h',
   'hb.h',
-]
+)
 
 # Optional Sources and Headers with external deps
 
-hb_ft_sources = ['hb-ft.cc']
-hb_ft_headers = ['hb-ft.h']
+hb_ft_sources = files('hb-ft.cc')
+hb_ft_headers = files('hb-ft.h')
 
-hb_glib_sources = ['hb-glib.cc']
-hb_glib_headers = ['hb-glib.h']
+hb_glib_sources = files('hb-glib.cc')
+hb_glib_headers = files('hb-glib.h')
 
-hb_graphite2_sources = ['hb-graphite2.cc']
-hb_graphite2_headers = ['hb-graphite2.h']
+hb_graphite2_sources = files('hb-graphite2.cc')
+hb_graphite2_headers = files('hb-graphite2.h')
 
 # System-dependent sources and headers
 
-hb_coretext_sources = ['hb-coretext.cc']
-hb_coretext_headers = ['hb-coretext.h']
+hb_coretext_sources = files('hb-coretext.cc')
+hb_coretext_headers = files('hb-coretext.h')
 
-hb_directwrite_sources = ['hb-directwrite.cc']
-hb_directwrite_headers = ['hb-directwrite.h']
+hb_directwrite_sources = files('hb-directwrite.cc')
+hb_directwrite_headers = files('hb-directwrite.h')
 
-hb_gdi_sources = ['hb-gdi.cc']
-hb_gdi_headers = ['hb-gdi.h']
+hb_gdi_sources = files('hb-gdi.cc')
+hb_gdi_headers = files('hb-gdi.h')
 
-hb_uniscribe_sources = ['hb-uniscribe.cc']
-hb_uniscribe_headers = ['hb-uniscribe.h']
+hb_uniscribe_sources = files('hb-uniscribe.cc')
+hb_uniscribe_headers = files('hb-uniscribe.h')
 
 # Sources for libharfbuzz-gobject and libharfbuzz-icu
-hb_icu_sources = ['hb-icu.cc']
-hb_icu_headers = ['hb-icu.h']
+hb_icu_sources = files('hb-icu.cc')
+hb_icu_headers = files('hb-icu.h')
 
 # Sources for libharfbuzz-subset
-hb_subset_sources = [
+hb_subset_sources = files(
   'hb-number.cc',
   'hb-number.hh',
   'hb-ot-cff1-table.cc',
@@ -267,69 +267,82 @@ hb_subset_sources = [
   'hb-subset.cc',
   'hb-subset.hh',
   'hb-subset.hh',
-]
+)
 
-hb_subset_headers = ['hb-subset.h']
+hb_subset_headers = files('hb-subset.h')
 
-hb_gobject_sources = [
+hb_gobject_sources = files(
   'hb-gobject-structs.cc'
-]
+)
 
-hb_gobject_headers = [
+hb_gobject_headers = files(
   'hb-gobject.h',
   'hb-gobject-structs.h',
-]
+)
 
 custom_target('hb-version.h',
   build_by_default: true,
   input: 'hb-version.h.in',
   output: 'hb-version.h',
   command: [find_program('gen-hb-version.py'), meson.project_version(),
-            '@INPUT@', meson.current_source_dir() / 'hb-version.h'])
+            '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
+)
 
 ragel = find_program('ragel', required: false)
 if not ragel.found()
   warning('You have to install ragel if you are going to develop HarfBuzz itself')
 else
-  custom_target('ragel header files',
-    build_by_default: true,
-    input: hb_base_ragel_sources,
-    output: '.ragel-artifacts',
-    command: [find_program('gen-ragel-artifacts.py')] + hb_base_ragel_sources)
+  ragel_helper = find_program('gen-ragel-artifacts.py')
+  foreach rl : hb_base_ragel_sources
+    hh = rl.split('.')[0] + '.hh'
+    custom_target('@0@'.format(hh),
+      build_by_default: true,
+      input: rl,
+      output: hh,
+      command: [ragel_helper, '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
+    )
+  endforeach
 endif
 
 custom_target('harfbuzz.cc',
   build_by_default: true,
   output: 'harfbuzz.cc',
+  input: hb_base_sources + hb_glib_sources + hb_ft_sources +
+         hb_graphite2_sources + hb_uniscribe_sources + hb_gdi_sources +
+         hb_directwrite_sources + hb_coretext_sources,
   command: [find_program('gen-harfbuzzcc.py'),
-            meson.source_root() / '@OUTPUT@'] +
-            hb_base_sources + hb_glib_sources + hb_ft_sources +
-            hb_graphite2_sources + hb_uniscribe_sources + hb_gdi_sources +
-            hb_directwrite_sources + hb_coretext_sources)
+            '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
+)
 
 incsrc = include_directories('.')
 
 hb_sources = hb_base_sources + hb_base_ragel_generated_sources
 hb_headers = hb_base_headers
 
+harfbuzz_deps = [thread_dep, m_dep] + harfbuzz_extra_deps
+
 if conf.get('HAVE_FREETYPE', 0) == 1
   hb_sources += hb_ft_sources
   hb_headers += hb_ft_headers
+  harfbuzz_deps += [freetype_dep]
 endif
 
 if conf.get('HAVE_GDI', 0) == 1
   hb_sources += hb_gdi_sources
   hb_headers += hb_gdi_headers
+  harfbuzz_deps += gdi_uniscribe_deps
 endif
 
 if conf.get('HAVE_GRAPHITE2', 0) == 1
   hb_sources += hb_graphite2_sources
   hb_headers += hb_graphite2_headers
+  harfbuzz_deps += [graphite2_dep]
 endif
 
 if conf.get('HAVE_GLIB', 0) == 1
   hb_sources += hb_glib_sources
   hb_headers += hb_glib_headers
+  harfbuzz_deps += [glib_dep]
 endif
 
 if conf.get('HAVE_UNISCRIBE', 0) == 1
@@ -340,16 +353,13 @@ endif
 if conf.get('HAVE_DIRECTWRITE', 0) == 1
   hb_sources += hb_directwrite_sources
   hb_headers += hb_directwrite_headers
+  harfbuzz_deps += directwrite_dep
 endif
 
 if conf.get('HAVE_CORETEXT', 0) == 1
   hb_sources += hb_coretext_sources
   hb_headers += hb_coretext_headers
-endif
-
-if get_option('amalgam')
-  # replace the array if is amalgam build
-  hb_sources = ['harfbuzz.cc']
+  harfbuzz_deps += coretext_deps
 endif
 
 have_icu = conf.get('HAVE_ICU', 0) == 1
@@ -358,14 +368,7 @@ have_icu_builtin = conf.get('HAVE_ICU_BUILTIN', 0) == 1
 if have_icu and have_icu_builtin
   hb_sources += hb_icu_sources
   hb_headers += hb_icu_headers
-  deps += [icu_dep]
-endif
-
-if not get_option('with_libstdcxx')
-  chosen_linker = 'cpp'
-else
-  # Use a C linker, not C++; Don't link to libstdc++
-  chosen_linker = 'c'
+  harfbuzz_deps += [icu_dep]
 endif
 
 # harfbuzz
@@ -382,11 +385,11 @@ harfbuzz_def = custom_target('harfbuzz.def',
     output: 'harfbuzz.def')
 defs_list = [harfbuzz_def]
 
-version = '0.' + '0'.join(meson.project_version().split('.')) + '.0'
+version = '0.@0@.0'.format(hb_version_int)
 
 extra_hb_cpp_args = []
 if cpp.get_id() == 'msvc'
-  if get_option('default_library') == 'shared'
+  if get_option('default_library') != 'static'
     extra_hb_cpp_args += '-DHB_DLL_EXPORT'
   endif
   hb_so_version = ''
@@ -396,18 +399,18 @@ endif
 
 libharfbuzz = library('harfbuzz', hb_sources,
   include_directories: incconfig,
-  dependencies: deps,
+  dependencies: harfbuzz_deps,
   cpp_args: cpp_args + extra_hb_cpp_args,
   soversion: hb_so_version,
   version: version,
   install: true,
-  link_language: chosen_linker,
+  link_language: 'c',
 )
 
 libharfbuzz_dep = declare_dependency(
   link_with: libharfbuzz,
   include_directories: incsrc,
-  dependencies: deps)
+  dependencies: harfbuzz_deps)
 
 # harfbuzz-subset
 harfbuzz_subset_def = custom_target('harfbuzz-subset.def',
@@ -418,19 +421,19 @@ defs_list += [harfbuzz_subset_def]
 
 libharfbuzz_subset = library('harfbuzz-subset', hb_subset_sources,
   include_directories: incconfig,
-  dependencies: deps,
+  dependencies: [m_dep],
   link_with: [libharfbuzz],
   cpp_args: cpp_args + extra_hb_cpp_args,
   soversion: hb_so_version,
   version: version,
   install: true,
-  link_language: chosen_linker,
+  link_language: 'c',
 )
 
 libharfbuzz_subset_dep = declare_dependency(
   link_with: libharfbuzz_subset,
   include_directories: incsrc,
-  dependencies: deps)
+  dependencies: [m_dep])
 
 if get_option('tests').enabled()
   # TODO: MSVC gives the following,
@@ -504,10 +507,12 @@ pkgmod.generate(libharfbuzz,
 
 pkgmod.generate(libharfbuzz_subset,
   description: 'HarfBuzz font subsetter',
+  requires: ['harfbuzz = @0@'.format(meson.project_version())],
   subdirs: [meson.project_name()],
   version: meson.project_version(),
 )
 
+libharfbuzz_icu_dep = null_dep
 if have_icu and not have_icu_builtin
   harfbuzz_icu_def = custom_target('harfbuzz-icu.def',
     command: [gen_def, '@OUTPUT@', '@INPUT@'],
@@ -524,23 +529,22 @@ if have_icu and not have_icu_builtin
     version: version,
     install: true,
     # ICU links to stdc++ anyway so the default linker is good
-    # link_language: chosen_linker,
+    # link_language: 'c',
   )
 
   libharfbuzz_icu_dep = declare_dependency(
     link_with: libharfbuzz_icu,
     include_directories: incsrc,
-    dependencies: deps)
+    dependencies: icu_dep)
 
   pkgmod.generate(libharfbuzz_icu,
     description: 'HarfBuzz text shaping library ICU integration',
+    requires: ['harfbuzz = @0@'.format(meson.project_version())],
     subdirs: [meson.project_name()],
     version: meson.project_version(),
   )
 
   install_headers(hb_icu_headers, subdir: meson.project_name())
-else
-  libharfbuzz_icu_dep = dependency('', required: false)
 endif
 
 have_gobject = conf.get('HAVE_GOBJECT', 0) == 1
@@ -555,6 +559,7 @@ configure_file(input: 'harfbuzz-config.cmake.in',
   configuration: cmake_config,
   install_dir: get_option('libdir') / 'cmake' / 'harfbuzz')
 
+libharfbuzz_gobject_dep = null_dep
 if have_gobject
   gnome = import('gnome')
 
@@ -602,17 +607,27 @@ if have_gobject
 
   libharfbuzz_gobject = library('harfbuzz-gobject', [hb_gobject_sources, enum_c, enum_h],
     include_directories: incconfig,
-    dependencies: deps,
+    dependencies: [glib_dep, gobject_dep],
     link_with: [libharfbuzz],
     cpp_args: cpp_args + extra_hb_cpp_args,
     soversion: hb_so_version,
     version: version,
     install: true,
-    link_language: chosen_linker,
+    link_language: 'c',
   )
 
   gir = find_program('g-ir-scanner', required: get_option('introspection'))
-  build_gir = gir.found() and not meson.is_cross_build()
+  build_gir = gir.found()
+
+  build_gir = build_gir and not meson.is_cross_build()
+  if not build_gir and get_option('introspection').enabled()
+    error('Introspection support is requested but it isn\'t available in cross builds')
+  endif
+
+  build_gir = build_gir and get_option('default_library') != 'static'
+  if not build_gir and get_option('introspection').enabled()
+    error('Introspection support is requested but the default library option should be shared or both')
+  endif
 
   if build_gir
     conf.set('HAVE_INTROSPECTION', 1)
@@ -643,10 +658,11 @@ if have_gobject
     link_with: libharfbuzz_gobject,
     include_directories: incsrc,
     sources: build_gir ? hb_gen_files_gir : hb_gobject_sources,
-    dependencies: deps)
+    dependencies: [glib_dep, gobject_dep])
 
   pkgmod.generate(libharfbuzz_gobject,
     description: 'HarfBuzz text shaping library GObject integration',
+    requires: ['harfbuzz = @0@'.format(meson.project_version()), 'glib-2.0', 'gobject-2.0'],
     subdirs: [meson.project_name()],
     version: meson.project_version(),
   )
@@ -656,8 +672,6 @@ else
   if get_option('introspection').enabled()
     error('introspection requires gobject to be enabled')
   endif
-
-  libharfbuzz_gobject_dep = dependency('', required: false)
 endif
 
 if get_option('tests').enabled()
@@ -672,24 +686,26 @@ if get_option('tests').enabled()
   env.set('srcdir', meson.current_source_dir())
   env.set('builddir', meson.current_build_dir())
   env.set('libs', meson.current_build_dir()) # TODO: Merge this with builddir after autotools removal
-  if not get_option('amalgam')
-    env.set('HBSOURCES', ' '.join(hb_sources))
-  endif
-  env.set('HBHEADERS', ' '.join(hb_headers))
+  HBSOURCES = []
+  foreach f : hb_sources
+    HBSOURCES += '@0@'.format(f)
+  endforeach
+  env.set('HBSOURCES', ' '.join(HBSOURCES))
+  HBHEADERS = []
+  foreach f : hb_headers
+    HBHEADERS += '@0@'.format(f)
+  endforeach
+  env.set('HBHEADERS', ' '.join(HBHEADERS))
 
   if cpp.get_id() != 'msvc' and not meson.is_cross_build() # ensure the local tools are usable
-    # See https://github.com/mesonbuild/meson/pull/6838
-    if meson.version().version_compare('>=0.54.999') and not get_option('with_libstdcxx')
-      dist_check_script += 'check-libstdc++'
-    endif
-    dist_check_script += ['check-static-inits', 'check-symbols']
+    dist_check_script += ['check-libstdc++', 'check-static-inits', 'check-symbols']
   endif
 
   foreach name : dist_check_script
     test(name, find_program(name + '.py'),
       env: env,
       depends: name == 'check-symbols' ? defs_list : [],
-      suite: ['src'],
+      suite: ['src'] + (name == 'check-static-inits' ? ['slow'] : []),
     )
   endforeach
 endif

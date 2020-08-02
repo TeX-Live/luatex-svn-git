@@ -28,7 +28,6 @@
 #include "hb.hh"
 
 #include "hb-aat-layout.hh"
-#include "hb-aat-fdsc-table.hh" // Just so we compile it; unused otherwise.
 #include "hb-aat-layout-ankr-table.hh"
 #include "hb-aat-layout-bsln-table.hh" // Just so we compile it; unused otherwise.
 #include "hb-aat-layout-feat-table.hh"
@@ -56,8 +55,7 @@ AAT::hb_aat_apply_context_t::hb_aat_apply_context_t (const hb_ot_shape_plan_t *p
 						       buffer (buffer_),
 						       sanitizer (),
 						       ankr_table (&Null (AAT::ankr)),
-						       lookup_index (0),
-						       debug_depth (0)
+						       lookup_index (0)
 {
   sanitizer.init (blob);
   sanitizer.set_num_glyphs (face->get_num_glyphs ());

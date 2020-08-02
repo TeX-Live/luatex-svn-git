@@ -1,3 +1,71 @@
+2020-08-01  Andreas Scherer  <https://ascherer.github.io>
+
+	* dvicopy.ch,
+	* dvitype.ch,
+	* gftodvi.ch,
+	* gftopk.ch,
+	* gftype.ch,
+	* mf.ch,
+	* mft.ch,
+	* patgen.ch,
+	* pktogf.ch,
+	* pktype.ch,
+	* tangle.ch,
+	* tex.ch,
+	* weave.ch: Purge non-local 'goto' labels and 'jump_out' leftovers.
+
+2020-07-25  Andreas Scherer  <https://ascherer.github.io>
+
+	* mft.ch: Swap \MF and \MP to match meaning of 'metapost' flag.
+
+2020-07-20  Andreas Scherer  <https://ascherer.github.io>
+
+	* tex.ch: Place Web2c changes together;
+	avoid overful hboxes in the amended table-of-contents.
+
+2020-07-19  Karl Berry  <karl@freefriends.org>
+
+	* doc/web2c.texi (TeX extensions): add [e][u]pTeX. Other small
+	additions to the engine descriptions.
+
+	* NEWS: mention new \tracinglostchars>=3 causing an error.
+	See pdftexdir/ChangeLog for details.
+
+2020-07-17  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile.am,
+	* Makefile.in: Avoid changefile ambiguity.
+
+2020-07-15  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: Recreate CWEB boot modules.
+
+2020-07-08  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebboot.cin,
+	* help.h: Add /old/ option '-dN' to 'help' message.
+
+2020-07-06  Karl Berry  <karl@freefriends.org>
+
+	* tex.ch (<Get user's advice...>): return early if
+	interaction<>error_stop_mode; else a nested error()
+	call in unusual interactive sequences can mess up
+	the selector value, ultimately causing a segmentation fault
+	from writing to a closed stream \write15. Fix primarily
+	from David Fuchs. Original report from Xiao Zhang,
+	https://tex.stackexchange.com/questions/551313/
+	https://tug.org/pipermail/tex-live/2020-June/045876.html
+
+2020-06-22  Karl Berry  <karl@freefriends.org>
+
+	* doc/web2c.texi (Runtime options): move from install.texi,
+	and mention expand_depth and texmf_casefold_search.
+	(Three programs): make its own chapter to reduce sectioning depth.
+	Various historical and current updates, e.g., mention (u)pTeX.
+	* doc/install.texi (Runtime options): moved.
+	* doc/ref.txi: remove some older references, use https for urls.
+
 2020-06-20  Andreas Scherer  <https://ascherer.github.io>
 
 	* cwebboot.cin: Regenerate boot module.
