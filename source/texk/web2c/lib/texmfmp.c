@@ -2498,13 +2498,33 @@ input_line (FILE *f)
       }
     }
   }
-#endif
+#endif /* WIN32 */
   last = first;
-  while (last < bufsize && (i = getc (f)) != EOF && i != '\n' && i != '\r')
-    buffer[last++] = i;
-#endif
+  do {
+    errno = 0; /* otherwise EINTR might wrongly persist */
+    while (last < bufsize && (i = getc (f)) != EOF && i != '\n' && i != '\r')
+      buffer[last++] = i;
 
-  if (i == EOF && errno != EINTR && last == first)
+    /* The story on EINTR: because we tell libc to pass interrupts
+       through (see SA_INTERRUPT above), we have to make sure that we
+       check for and ignore EINTR when getc reads an EOF; hence the
+       outer do..while loop here (and a similar loop below).
+       
+       On the other hand, we have to make sure that we detect a real
+       EOF. Otherwise, for example, typing CTRL-C and then CTRL-D to the
+       ** prompt results in an infinite loop, because we
+       (input_line) would never return false. On glibc 2.28-10 (Debian
+       10/buster), and probably other versions, errno is evidently not
+       cleared as a side effect of getc (and this is allowed).
+       Therefore we clear errno before calling getc above.
+       
+       Original report (thread following has many irrelevant diversions):
+       https://tug.org/pipermail/tex-k/2020-August/003297.html  */
+
+  } while (i == EOF && errno == EINTR);
+#endif /* not IS_pTeX */
+
+  if (i == EOF && last == first)
     return false;
 
   /* We didn't get the whole line because our buffer was too small.  */
@@ -3283,6 +3303,9 @@ find_input_file(integer s)
         }
         xfree (pathname);
     }
+    if (! kpse_in_name_ok(filename)) {
+       return NULL;                /* no permission */
+    }
     return kpse_find_tex(filename);
 }
 
@@ -3377,9 +3400,6 @@ getfilemoddate(integer s)
     if (file_name == NULL) {
         return;                 /* empty string */
     }
-    if (! kpse_in_name_ok(file_name)) {
-       return;                  /* no permission */
-    }
 
     recorder_record_input(file_name);
     /* get file status */
@@ -3421,9 +3441,6 @@ getfilesize(integer s)
     char *file_name = find_input_file(s);
     if (file_name == NULL) {
         return;                 /* empty string */
-    }
-    if (! kpse_in_name_ok(file_name)) {
-       return;                  /* no permission */
     }
 
     recorder_record_input(file_name);
@@ -3489,9 +3506,6 @@ getfiledump(integer s, int offset, int length)
     file_name = find_input_file(s);
     if (file_name == NULL) {
         return;                 /* empty string */
-    }
-    if (! kpse_in_name_ok(file_name)) {
-       return;                  /* no permission */
     }
 
     /* read file data */
@@ -3581,9 +3595,6 @@ getmd5sum(strnumber s, boolean file)
         file_name = find_input_file(s);
         if (file_name == NULL) {
             return;             /* empty string */
-        }
-        if (! kpse_in_name_ok(file_name)) {
-           return;              /* no permission */
         }
 
         /* in case of error the empty string is returned,
