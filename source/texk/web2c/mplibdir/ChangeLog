@@ -1,3 +1,7 @@
+2020-11-26  Luigi Scarso  <luigi.scarso@gmail.com>
+	* Added mp-tangle dependency to libmplib.am
+	  to fix parallel compilation
+
 2020-08-21  Luigi Scarso  <luigi.scarso@gmail.com>
 	* Changed epsilon in binary and decimal mode from 1E-52 to
           2^-173 =~0.835E-52, so that mp_solve_rising_cubic now works as
