@@ -312,6 +312,7 @@ texmf_other_scripts = \
 	accfonts/mkt1font \
 	accfonts/vpl2ovp \
 	accfonts/vpl2vpl \
+	albatross/albatross.sh \
 	arara/arara.sh \
 	attachfile2/pdfatfi.pl \
 	authorindex/authorindex \
@@ -355,6 +356,7 @@ texmf_other_scripts = \
 	getmap/getmapdl.lua \
 	glossaries/makeglossaries \
 	glossaries/makeglossaries-lite.lua \
+	hyperxmp/hyperxmp-add-bytecount.pl \
 	jfmutil/jfmutil.pl \
 	ketcindy/ketcindy.pl \
 	kotex-utils/jamo-normalize.pl \
