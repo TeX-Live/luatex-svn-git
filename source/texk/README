@@ -1,4 +1,4 @@
-$Id: README 54456 2020-03-21 22:04:56Z karl $
+$Id: README 57051 2020-12-03 10:39:54Z hironobu $
 Copyright 2006-2020 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -34,7 +34,7 @@ chktex 1.7.6 - checked 15mar20
 cjkutils 4.8.4 - checked 18apr15
   http://cjk.ffii.org/cjk-4.8.4.tar.gz
 
-detex 2.8.6 - checked 15mar20
+detex 2.8.9 - checked 03dec20
   https://github.com/pkubowicz/opendetex/releases
     old info: http://www.cs.purdue.edu/homes/trinkle/detex/
 
@@ -116,7 +116,8 @@ web2c - maintained here, by us - core web2c, plain tex, etc.
        aleph - maintained here
         ctie - CTAN
         cweb - https://github.com/ascherer/cwebbin
-               (original Knuth, ftp://ftp.cs.stanford.edu/pub/cweb/)
+               (original Knuth, ftp://ftp.cs.stanford.edu/pub/cweb/
+               and ftp://ftp.cs.stanford.edu/pub/ctwill/)
        eptex - https://github.com/texjporg/tex-jp-build
                also: https://osdn.jp/projects/eptex
         etex - maintained here

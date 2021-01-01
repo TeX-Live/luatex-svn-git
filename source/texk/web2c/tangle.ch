@@ -52,9 +52,11 @@
 @z
 
 @x [2] Eliminate the |end_of_TANGLE| label.
-@d end_of_TANGLE = 9999 {go here to wrap it up}
+calls the `|jump_out|' procedure, which goes to the label |end_of_TANGLE|.
 
+@d end_of_TANGLE = 9999 {go here to wrap it up}
 @y
+calls the `|jump_out|' procedure.
 @z
 @x
 label end_of_TANGLE; {go here to finish}
@@ -78,7 +80,7 @@ procedure initialize;
 @x [8] Constants: increase id lengths, for TeX--XeT and tex2pdf.
 @!buf_size=100; {maximum length of input line}
 @y
-@!buf_size=3000; {maximum length of input line}
+@!buf_size=1000; {maximum length of input line}
 @z
 @x
 @!max_bytes=45000; {|1/ww| times the number of bytes in identifiers,
@@ -93,9 +95,9 @@ procedure initialize;
   strings, and module names; must be less than 65536}
 @!max_toks=65535; {|1/zz| times the number of bytes in compressed \PASCAL\ code;
   must be less than 65536}
-@!max_names=10000; {number of identifiers, strings, module names;
+@!max_names=10239; {number of identifiers, strings, module names;
   must be less than 10240}
-@!max_texts=10000; {number of replacement texts, must be less than 10240}
+@!max_texts=10239; {number of replacement texts, must be less than 10240}
 @z
 
 @x
@@ -193,6 +195,16 @@ rewrite (Pascal_file, pascal_name);
 @z
 
 @x [34] Fix `jump_out'.
+and jumps out of the program. This is the only non-local |goto| statement
+in \.{TANGLE}. It is used when no recovery from a particular error has
+been provided.
+
+Some \PASCAL\ compilers do not implement non-local |goto| statements.
+@^system dependencies@>
+In such cases the code that appears at label |end_of_TANGLE| should be
+copied into the |jump_out| procedure, followed by a call to a system procedure
+that terminates the program.
+
 @d fatal_error(#)==begin new_line; print(#); error; mark_fatal; jump_out;
   end
 
@@ -201,9 +213,11 @@ procedure jump_out;
 begin goto end_of_TANGLE;
 end;
 @y
+and jumps out of the program.
+
 @d jump_out==uexit(1)
 @d fatal_error(#)==begin new_line; write(stderr, #);
-     error; mark_fatal; uexit(1);
+     error; mark_fatal; jump_out;
   end
 @z
 
@@ -242,7 +256,7 @@ the replacement text.
 @d parametric2=4 {second type of parametric macros have this |ilk|}
 @z
 
-@x [50] unambig_length is a variabe now
+@x [50] unambig_length is a variable now
 @!chopped_id:array [0..unambig_length] of ASCII_code; {chopped identifier}
 @y
 @!chopped_id:array [0..max_id_length] of ASCII_code; {chopped identifier}
@@ -670,7 +684,7 @@ begin
     getopt_return_val := getopt_long_only (argc, argv, '', long_options,
                                            address_of (option_index));
     if getopt_return_val = -1 then begin
-      {End of arguments; we exit the loop below.} ;
+      do_nothing; {End of arguments; we exit the loop below.}
 
     end else if getopt_return_val = "?" then begin
       usage (my_name);
@@ -787,7 +801,7 @@ long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr (current_option);
 
-@ Strict comparisions.
+@ Strict comparisons.
 @.-strict@>
 
 @<Define the option...@> =
@@ -797,7 +811,7 @@ long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr (current_option);
 
-@ Loose comparisions.
+@ Loose comparisons.
 @.-loose@>
 
 @<Define the option...@> =
@@ -807,7 +821,7 @@ long_options[current_option].flag := 0;
 long_options[current_option].val := 0;
 incr (current_option);
 
-@ Loose comparisions.
+@ Loose comparisons.
 @.-length@>
 
 @<Define the option...@> =

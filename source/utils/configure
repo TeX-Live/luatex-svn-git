@@ -3220,9 +3220,8 @@ test "x$enable_web2c" = xno || {
   need_zlib=yes
 }
 
-# $Id: web2c.ac 54824 2020-04-21 18:43:36Z lscarso $
-# texk/web2c/ac/web2c.ac: configure.ac fragment for the TeX Live subdirectory texk/web2c/
-## configure options for TeX and MF
+# texk/web2c/ac/web2c.ac: configure.ac fragment for TL subdir
+# configure options for TeX and MF
 
 # Check whether --with-banner-add was given.
 if test "${with_banner_add+set}" = set; then :
@@ -3528,7 +3527,7 @@ if test "${enable_xetex_synctex+set}" = set; then :
 fi
 
 test "x$enable_web2c:$enable_xetex" = xyes:yes && {
-  need_poppler=yes
+  need_pplib=yes
   need_libpng=yes
   need_freetype2=yes
   need_teckit=yes
@@ -4080,12 +4079,7 @@ ac_script='s/[\\$]/&&/g;s/;s,x,x,$//'
 program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 
 if test x"${MISSING+set}" != xset; then
-  case $am_aux_dir in
-  *\ * | *\	*)
-    MISSING="\${SHELL} \"$am_aux_dir/missing\"" ;;
-  *)
-    MISSING="\${SHELL} $am_aux_dir/missing" ;;
-  esac
+  MISSING="\${SHELL} '$am_aux_dir/missing'"
 fi
 # Use eval to expand $SHELL
 if eval "$MISSING --is-lightweight"; then

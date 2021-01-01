@@ -1,4 +1,4 @@
-$Id: README 54824 2020-04-21 18:43:36Z lscarso $
+$Id: README 57237 2020-12-27 02:02:34Z kakuto $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -9,27 +9,24 @@ bypassing or using the original one.
 
 See also comments in ../texk/README.
 
-pplib 2.05.0 - checked 21apr20
-  https://github.com/contextgarden/pplib
-
 cairo 1.16.0 - checked 20oct18
   http://cairographics.org/releases/
 
-freetype2 2.10.1 - checked 02jul19
+freetype2 2.10.4 - checked 21oct20
   http://savannah.nongnu.org/download/freetype/
 
 gd 2.3.0 - checked 10apr20
   https://github.com/libgd/libgd/releases
 
-gmp 6.2.0 - checked 20jan20
+gmp 6.2.1 - checked 15nov20
   http://ftp.gnu.org/gnu/gmp/
 
 graphite2 1.3.14 - checked 10apr20
   http://sourceforge.net/projects/silgraphite/files/graphite2/
   (requires C++11)
 
-harfbuzz 2.6.4 - checked 30oct19
-  http://www.freedesktop.org/software/harfbuzz/release/
+harfbuzz 2.7.4 - checked 27dec20
+  https://github.com/harfbuzz/harfbuzz/releases/download/2.7.4/
 
 icu 63.1 - checked 8jan19
   http://download.icu-project.org/files/icu4c/
@@ -49,18 +46,17 @@ lua 5.3.5 - checked 21jul18
 luajit 2.1.0-beta3 - checked 20jun17
   http://luajit.org/download/LuaJIT-2.1.0-beta3.tar.gz
 
-mpfr 4.0.2 - checked 1jan19
+mpfr 4.1.0 - checked 12jul20
   http://ftp.gnu.org/gnu/mpfr/
 
 pixman 0.40.0 - checked 21apr20
   http://cairographics.org/releases/
 
-poppler 0.68.0 - checked 20aug18
-  http://poppler.freedesktop.org/ - used by xetex
-  (requires C++11)
+pplib 2.05.0 - checked 21apr20
+  https://github.com/contextgarden/pplib
 
-teckit 2.5.9 - checked 03may19
-  https://github.com/silnrsi/teckit/archive/2.5.9.tar.gz
+teckit 2.5.10 - checked 06may20
+  https://github.com/silnrsi/teckit/archive/2.5.10.tar.gz
 
 xpdf 4.02 - checked 29sep19
   http://www.xpdfreader.com/download.html

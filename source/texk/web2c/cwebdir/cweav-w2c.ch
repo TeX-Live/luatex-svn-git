@@ -28,6 +28,19 @@
 @z
 
 @x
+\def\botofcontents{\vfill
+@y
+\def\covernote{\vbox{%
+@z
+
+@x
+}
+@y
+}}
+\datecontentspage
+@z
+
+@x
 @s not_eq normal @q unreserve a C++ keyword @>
 @y
 @z
@@ -53,8 +66,8 @@ extern int strncmp(); /* compare up to $n$ string characters */
 extern char* strncpy(); /* copy up to $n$ string characters */
 @y
 @ For string handling we include the {\mc ANSI C} system header file instead
-of predeclaring the standard system functions |strlen|, |strcmp|, |strcpy|,
-|strncmp|, and |strncpy|.
+of predeclaring the standard system functions |@!strlen|, |@!strcmp|,
+|@!strcpy|, |@!strncmp|, and |@!strncpy|.
 @^system dependencies@>
 
 @<Include files@>=
@@ -125,8 +138,10 @@ char **av@t\2\2@>) /* argument values */
 
 @x
 @d max_scraps 2000 /* number of tokens in \CEE/ texts being parsed */
+@d stack_size 400 /* number of simultaneous output levels */
 @y
 @d max_scraps 10000 /* number of tokens in \CEE/ texts being parsed */
+@d stack_size 2000 /* number of simultaneous output levels */
 @z
 
 @x
@@ -1851,12 +1866,10 @@ print_stats(void) {
 @x
 @** Index.
 @y
-@** Extensions for modern {\tt CWEB}.
-
-The following sections introduce code changes and extensions that have been
-created by numerous contributors over the course of a quarter century. They
-make \.{CWEB} adhere to modern coding standards and introduce new or improved
-features.
+@** Extensions for modern {\tt CWEB}.  The following sections introduce changes
+and extensions to the code that have been created by numerous contributors over
+the course of a quarter century. They make \.{CWEB} adhere to modern coding
+standards and introduce new or improved features.
 
 Care has been taken to keep the original section numbering intact, so this new
 section should have the same number as the original ``\&{250.~Index},'' and

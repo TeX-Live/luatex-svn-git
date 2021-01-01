@@ -2943,12 +2943,7 @@ program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 if test x"${MISSING+set}" != xset; then
-  case $am_aux_dir in
-  *\ * | *\	*)
-    MISSING="\${SHELL} \"$am_aux_dir/missing\"" ;;
-  *)
-    MISSING="\${SHELL} $am_aux_dir/missing" ;;
-  esac
+  MISSING="\${SHELL} '$am_aux_dir/missing'"
 fi
 # Use eval to expand $SHELL
 if eval "$MISSING --is-lightweight"; then
@@ -14045,6 +14040,7 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <stdarg.h>
+                                                  #include <stdio.h>
                                                   char buf[16];
                                                   va_list ap;
 int
@@ -14074,7 +14070,9 @@ if test "$cross_compiling" = yes; then :
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-char buf[4] = "abc";
+#include <stdarg.h>
+                                 #include <stdio.h>
+                                 char buf[4] = "abc";
 int
 main ()
 {
@@ -14103,7 +14101,9 @@ else
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-char buf[4] = "abc";
+#include <stdarg.h>
+                                                 #include <stdio.h>
+                                                 char buf[4] = "abc";
 int
 main ()
 {
