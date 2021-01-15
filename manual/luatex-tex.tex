@@ -249,7 +249,8 @@ readable (like \prm {tracingcommands} and \prm {parindent}).
 
 \topicindex{parameters+internal}
 
-\libindex{set}           \libindex{get}
+\libindex{set}
+\libindex{get}
 
 For all the parameters in this section, it is possible to access them directly
 using their names as index in the \type {tex} table, or by using one of the
@@ -357,6 +358,10 @@ These are read|-|only:
 tex.deadcycles
 tex.insertpenalties
 tex.parshape
+tex.interlinepenalties
+tex.clubpenalties
+tex.widowpenalties
+tex.displaywidowpenalties
 tex.prevgraf
 tex.spacefactor
 \stoptyping
@@ -605,6 +610,8 @@ tex.currentifbranch
 
 \libindex{scantoks}
 
+\libindex{getmark}
+
 \TEX's attributes (\lpr {attribute}), counters (\prm {count}), dimensions (\prm
 {dimen}), skips (\prm {skip}, \prm {muskip}) and token (\prm {toks}) registers
 can be accessed and written to using two times five virtual sub|-|tables of the
@@ -740,6 +747,12 @@ tex.scantoks("global",0,"$\int\limits^1_2$")
 
 In the function|-|based interface, it is possible to define values globally by
 using the string \type {global} as the first function argument.
+
+There is a dedicated getter for marks: \type {getmark} that takes two arguments.
+The first argument is one of \type {top}, \type {bottom}, \type {first}, \type
+{splitbottom} or \type {splitfirst}, and the second argument is a marks class
+number. When no arguments are given the current maximum number of classes is
+returned.
 
 \stopsubsection
 
@@ -2063,8 +2076,7 @@ most intriguing.
 \NC \type{scan_toks}      \NC definer, expand    \NC returns a table of tokens tokens \NC \NR
 \NC \type{scan_code}      \NC bitset             \NC returns a character if its category is in the given bitset (representing catcodes) \NC \NR
 \NC \type{scan_string}    \NC                    \NC returns a string given between \type {{}}, as \type {\macro} or as sequence of characters with catcode 11 or 12 \NC \NR
-\NC \type{scan_argument}  \NC                    \NC this one is simular to \type {scanstring} but also accepts a \type {\cs}
-                                                     (which then get expanded) \NC \NR
+\NC \type{scan_argument}  \NC boolean            \NC this one is simular to \type {scanstring} but also accepts a \type {\cs} \NC \NR
 \NC \type{scan_word}      \NC                    \NC returns a sequence of characters with catcode 11 or 12 as string \NC \NR
 \NC \type{scan_csname}    \NC                    \NC returns \type {foo} after scanning \type {\foo} \NC \NR
 \NC \type{scan_list}      \NC                    \NC picks up a box specification and returns a \type {[h|v]list} node \NC \NR
@@ -2079,6 +2091,11 @@ we expect math units. When scanning tokens we can indicate that we are defining 
 macro, in which case the result will also provide information about what
 arguments are expected and in the result this is separated from the meaning by a
 separator token. The \type {expand} flag determines if the list will be expanded.
+
+The \type {scan_argument} function expands the given argument. When a braced
+argument is scanned, expansion can be prohibited by passing \type {false}
+(default is \type {true}). In case of a control sequence passing \type {false}
+will result in a one|-|level expansion (the meaning of the macro).
 
 The string scanner scans for something between curly braces and expands on the
 way, or when it sees a control sequence it will return its meaning. Otherwise it
@@ -2291,6 +2308,9 @@ accepts a string and returns a boolean:
 \starttyping
 local okay = token.is_defined("foo")
 \stoptyping
+
+When a second argument to \type {is_defined} is \type {true} the check is for an
+undefined control sequence (only), otherwise any undefined command gives true.
 
 The largest character possible is returned by \type {biggest_char}, just in case you
 need to know that boundary condition.
