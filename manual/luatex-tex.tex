@@ -1934,23 +1934,33 @@ the executable after loading and executing the startup file.
     \type {false} disables \TEX's normal file open|-|close feedback (the
     assumption is that callbacks will take care of that)
 \NC \NR
-\NC \type{file_line_error}  \NC boolean  \NC false
+\NC \type{file_line_error} \NC boolean \NC false
 \NC
     do \type {file:line} style error messages
 \NC \NR
-\NC \type{halt_on_error}    \NC boolean  \NC false
+\NC \type{halt_on_error} \NC boolean \NC false
 \NC
     abort run on the first encountered error
 \NC \NR
-\NC \type{formatname}       \NC string   \NC
+\NC \type{formatname} \NC string \NC
 \NC
     if no format name was given on the command line, this key will be tested first
     instead of simply quitting
 \NC \NR
-\NC \type{jobname}        \NC string   \NC
+\NC \type{jobname} \NC string \NC
 \NC
     if no input file name was given on the command line, this key will be tested
     first instead of simply giving up
+\NC \NR
+\NC \type{level_chr} \NC number \NC
+\NC
+    character to put in front of traced macros (see next value)
+\NC \NR
+\NC \type{level_max} \NC number \NC
+\NC
+    when larger than zero the input nesting level will be shown when \type
+    {\tracingmacros} is set; levels above this value will be clipped with
+    the level shown up front
 \NC \NR
 \LL
 \stoptabulate
@@ -1974,16 +1984,15 @@ and|/|or console.
 \libindex{write}
 
 \startfunctioncall
-texio.write(<string> target | <integer> stream, <string> s, ...)
+texio.write(<string> target, <string> s, ...)
 texio.write(<string> s, ...)
 \stopfunctioncall
 
 Without the \type {target} argument, writes all given strings to the same
 location(s) \TEX\ writes messages to at this moment. If \prm {batchmode} is in
 effect, it writes only to the log, otherwise it writes to the log and the
-terminal. The optional \type {target} can be one of four  possibilities: \type
-{term}, \type {log}, \type {term and log} or a valid integer of a stream 
-opened for writing.
+terminal. The optional \type {target} can be one of three possibilities: \type
+{term}, \type {log} or \type {term and log}.
 
 Note: If several strings are given, and if the first of these strings is or might
 be one of the targets above, the \type {target} must be specified explicitly to

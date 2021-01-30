@@ -1,3 +1,7 @@
+2021-01-30 Luigi Scarso <luigi.scarso@gmail.com> 
+    * level_max and level_chr determing what gets put in front of
+      macro tracing lines (variant on suggestion by PO on implementors list)(H. Hagen)
+
 2021-01-13 Luigi Scarso <luigi.scarso@gmail.com> 
     * pdftex compatibility hack (H. Hagen)
 
