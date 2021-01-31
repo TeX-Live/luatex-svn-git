@@ -63,6 +63,7 @@ LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 #define is_new_mathfont(A)   ((font_math_params(A) >0) && (math_old_par == 0))
 #define is_old_mathfont(A,B) ((font_math_params(A)==0) && (font_params(A)>=(B)))
 #define do_new_math(A)       ((font_math_params(A) >0) && (font_oldmath(A) == 0) && (math_old_par == 0))
+#define protect_glyph(A)     subtype(A)=256
 
 #include "ptexlib.h"
 #include "lua/luatex-api.h"
@@ -1149,6 +1150,7 @@ static pointer char_box(internal_font_number f, int c, pointer bb)
     subtype(b) = math_char_list ;
     reset_attributes(b, bb);
     p = new_glyph(f, c);
+    protect_glyph(p);
     reset_attributes(p, bb);
     list_ptr(b) = p;
     return b;
@@ -4261,6 +4263,7 @@ static pointer check_nucleus_complexity(halfword q, scaled * delta, int cur_styl
                     *delta = char_italic(cur_f, cur_c);
                 }
                 p = new_glyph(cur_f, cur_c);
+                protect_glyph(p);
                 reset_attributes(p, node_attr(nucleus(q)));
                 if (do_new_math(cur_f)) {
                     if (get_char_cat_code(cur_c) == 11) {
