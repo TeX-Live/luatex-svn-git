@@ -1,7 +1,8 @@
 2021-01-31 Luigi Scarso <luigi.scarso@gmail.com> 
     * mark math glyphs as protected (in order to prevent processing
       as text in base mode) (H.Hagen)
-
+    * removed width/ic compensation for traditional math code path
+      (see [Dev-luatex] Duplicated italic correction in do_delimiter ) (H.Hagen)
 
 2021-01-30 Luigi Scarso <luigi.scarso@gmail.com> 
     * level_max and level_chr determing what gets put in front of

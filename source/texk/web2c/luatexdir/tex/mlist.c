@@ -1651,13 +1651,18 @@ static pointer do_delimiter(pointer q, pointer d, int s, scaled v, boolean flat,
             if (same != NULL && x == c) {
                 *same = emas;
             }
+            /*tex
+                Here italic is added to width in traditional fonts which makes the delimiter get
+                the real width. An \OPENTYPE\ font already has the right width.
+            */
             b = char_box(f, c, att);
-            if (!do_new_math(f)) {
-                /*tex Italic gets added to width. */
-                width(b) += char_italic(f, c);
-            }
+            /*tex
+                There is one case where |delta| (ic) gets subtracted but only for a traditional
+                font. In that case the traditional width (which is fake width + italic) becomes
+                less and the delta is added. See (**). (On the mailing list font |ntxexx| was
+                mentioned as test case by MK.)
+            */
             if (delta != NULL) {
-                /*tex This used to be (f, x). */
                 *delta = char_italic(f, c);
             }
             if (stack != NULL)
@@ -3084,9 +3089,18 @@ static scaled make_op(pointer q, int cur_style)
                 x = do_delimiter(q, y, text_size, ok_size, false, cur_style, true, NULL, &delta, NULL);
                 if (delta != 0) {
                     if (do_new_math(cur_f)) {
-                        /*tex we never added italic correction */
+                        /*tex
+                            As we never added italic correction we don't need to compensate. The ic
+                            is stored in a special field of the node and applied in some occasions.
+                        */
                     } else if ((subscr(q) != null) && (subtype(q) != op_noad_type_limits)) {
-                        /*tex remove italic correction */
+                        /*tex
+                            Here we (selectively) remove the italic correction that always gets added
+                            in a traditional font. See (**). In \OPENTYPE\ mode we insert italic kerns,
+                            but in traditional mode it's width manipulation. This actually makes sense
+                            because those fonts have a fake width and the italic correction sets that
+                            right.
+                        */
                         width(x) -= delta;
                     }
                 }
