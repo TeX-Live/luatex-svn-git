@@ -1969,6 +1969,16 @@ Note: the numeric values that match web2c parameters are only used if \type
 {kpse_init} is explicitly set to \type {false}. In all other cases, the normal
 values from \type {texmf.cnf} are used.
 
+You can kick in your own nesting level visualizer, for instance:
+
+\stoptyping
+callback.register("input_level_string",function(n)
+    if tex.tracingmacros > 1 then
+        return "! " .. string.rep(">",n) .. " "
+    end
+end)
+\stoptyping
+
 \stopsection
 
 \startsection[title={The \type {texio} library}][library=texio]
