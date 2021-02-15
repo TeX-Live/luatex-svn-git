@@ -1,4 +1,4 @@
-% language=uk
+% engine=luatex language=uk
 
 % lua.newtable
 
@@ -1971,12 +1971,30 @@ values from \type {texmf.cnf} are used.
 
 You can kick in your own nesting level visualizer, for instance:
 
-\stoptyping
+\starttyping
 callback.register("input_level_string",function(n)
+         if tex.tracingmacros > 0 and tex.count.tracingstacklevels > 0 then
     if tex.tracingmacros > 1 then
         return "! " .. string.rep(">",n) .. " "
     end
 end)
+\stoptyping
+
+Or, in sync with other engines (not checked):
+
+\newcount\tracingstacklevels
+
+\starttyping
+\directlua {
+  callback.register("input_level_string", function(n)
+    if tex.tracingmacros > 0 then
+      local l = tex.count.tracingstacklevels
+      if l > 0 then
+        return string.rep("~",l) .. string.rep(".",n-l)
+      end
+    end
+  end)
+}
 \stoptyping
 
 \stopsection
