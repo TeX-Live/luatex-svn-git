@@ -1,3 +1,24 @@
+2021-03-08  Karl Berry  <karl@tug.org>
+
+	* doc/glue.web,
+	* doc/webman.tex: add these Knuth files here, since nowhere
+	else seems better. PDF output for them is in the knuth page.
+
+2021-02-25  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: CWEB release 4.2.
+
+2021-02-24  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: Code review.
+
+2021-02-22  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: Code review.
+
 2021-02-20  Andreas Scherer  <https://ascherer.github.io>
 
 	* ctangleboot.cin,
