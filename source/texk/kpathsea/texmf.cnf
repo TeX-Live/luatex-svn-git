@@ -823,7 +823,7 @@ buf_size = 200000
 % for all known free hyphenation patterns to be loaded simultaneously
 % (as TeX Live does).
 %
-trie_size = 1000000
+trie_size = 1100000
 
 hyph_size = 8191        % prime number of hyphenation exceptions, >610, <65535
                         % http://primes.utm.edu/curios/page.php/8191.html
@@ -832,7 +832,7 @@ nest_size = 500         % simultaneous semantic levels (e.g., groups)
 max_in_open = 15        % simultaneous input files and error insertions, 
                         % also applies to MetaPost
 param_size = 10000      % simultaneous macro parameters, also applies to MP
-save_size  = 200000     % for saving values outside current group
+save_size  = 80000      % for saving values outside current group
 stack_size = 5000       % simultaneous input sources
 
 % Limit on recursive expansion calls so TeX has a chance to quit nicely
