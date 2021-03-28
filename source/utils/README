@@ -1,26 +1,30 @@
-$Id: README 57561 2021-01-30 06:52:36Z kakuto $
+$Id: README 58400 2021-03-15 22:10:16Z karl $
 Public domain.  Originally written 2005 by Karl Berry.
 
 Extra utilities we (optionally) compile for TeX Live.
 See comments in ../texk/README.
 
-asymptote 2.68 - checked 2jan21
+asymptote 2.70 - checked 15mar21
   update to TL from CTAN, to include prebuilt doc.
-  see http://tug.org/texlive/build.html#asymptote
+  see https://tug.org/texlive/build.html#asymptote
   and tlpkg/bin/tl-update-asy
 
 autosp 2021-01-07 - checked 08jan21
-  http://ctan.org/pkg/autosp
+  https://ctan.org/pkg/autosp
+
+axodraw2 2.1.1c - checked 5mar21
+  https://ctan.org/pkg/axodraw2
+  (also has files in Master; ctan2tl will install)
 
 devnag - from devanagari package installed in texmf-dist.
 
 lacheck - maintained here, by us
 
 m-tx 0.63a - checked 29apr18
-  http://ctan.org/pkg/m-tx/
+  https://ctan.org/pkg/m-tx/
 
 pmx 2.9.4a - checked 30jan21
-  http://ctan.org/pkg/pmx/
+  https://ctan.org/pkg/pmx/
 
 ps2eps 1.68 - checked 10may12
   http://tm.uka.de/~bless/ps2eps
@@ -32,7 +36,7 @@ texdoctk - reluctantly maintained here in TL
   If anyone would like to resume development, just let us know.
   
 tpic2pdftex 1.97 - checked 10may12
-  http://ctan.org/pkg/tpic2pdftex/
+  https://ctan.org/pkg/tpic2pdftex/
 
 vlna 1.5 - checked 10may12
   ftp://math.feld.cvut.cz/pub/olsak/vlna/
@@ -40,7 +44,7 @@ vlna 1.5 - checked 10may12
 xindy - see just below
 
 xpdfopen 0.86 - checked 9jul18
-  http://ctan.org/pkg/xpdfopen/
+  https://ctan.org/pkg/xpdfopen/
   http://cs.acadiau.ca/~jdiamond/xpdfopen/
 
 
@@ -64,7 +68,7 @@ mkdir $clisp_toolsdir
 
 wget=wget  # or "curl -O" or whatever
 
-libsigsegv_ver=libsigsegv-2.12
+libsigsegv_ver=libsigsegv-2.13
 cd $clisp_basedir
 $wget http://ftp.gnu.org/gnu/libsigsegv/$libsigsegv_ver.tar.gz
 gzip -dc $libsigsegv_ver.tar.gz | tar xf -
@@ -108,13 +112,19 @@ cd $clisp_ver
 #  modules/syscalls/configure.orig > modules/syscalls/configure
 # On FreeBSD/amd64: add --disable-mmap.
 #
+# Do not link with ncurses, we don't need it and versions differ.
+ac_cv_search_tgetent=" "; export ac_cv_search_tgetent
+#
 ./configure CPPFLAGS=-DUNIX_BINARY_DISTRIB --prefix=$clisp_toolsdir \
-  --without-readline --without-dynamic-modules --without-termcap-ncurses \
+  --without-readline --without-dynamic-modules \
   --disable-nls \
   --with-libsigsegv-prefix=$clisp_toolsdir \
   --with-libiconv-prefix=$clisp_toolsdir \
   $clisp_builddir \
 && (cd $clisp_builddir && make)
+
+Then the files we want are $clisp_builddir/lisp.run and lispinit.mem,
+to be installed as <tlbindir>/xindy.{run,mem}.
 
 There may be clisp test failures relating to sockets on some
 systems. Since xindy doesn't use sockets, we can ignore those for TL.

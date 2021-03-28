@@ -19,6 +19,8 @@ LuaTeX; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ptexlib.h"
 
+static int nesting = 0;
+# define max_nesting 1000
 static void scan_expr(void);
 
 /*tex
@@ -2093,7 +2095,8 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                 */
                 s = match_token + cur_chr;
                 get_token();
-                if (cur_cmd == left_brace_cmd) {
+             /* if (cur_cmd == left_brace_cmd) { */
+                if (cur_tok < left_brace_limit) {
                     hash_brace = cur_tok;
                     store_new_token(cur_tok);
                     store_new_token(end_match_token);
@@ -2101,7 +2104,10 @@ halfword scan_toks(boolean macro_def, boolean xpand)
                 }
                 if (t == nine_token) {
                     print_err("You already have nine parameters");
-                    help1("I'm going to ignore the # sign you just used.");
+                    help2(
+                        "I'm going to ignore the # sign you just used,",
+                        "as well as the token that followed it."
+                    );
                     error();
                 } else {
                     incr(t);
@@ -2515,7 +2521,17 @@ static void scan_expr(void)
     a = arith_error;
     b = false;
     p = null;
-    /*tex Scan and evaluate an expression |e| of type |l|. */
+    /*tex 
+     
+         Scan and evaluate an expression |e| of type |l|. 
+         To avoid an infinite recursion we set|max_nesting| as upper limit. 
+         This limit is unrelated to the expansion limit |expand_depth| and it cannot be modify at compile time.
+
+     */
+    nesting++;
+    if (nesting > max_nesting) {
+        formatted_error("tex", "\\*expr can only be nested %d deep",max_nesting);
+    }
   RESTART:
     r = expr_none;
     e = 0;
@@ -2744,4 +2760,5 @@ static void scan_expr(void)
     arith_error = a;
     cur_val = e;
     cur_val_level = l;
+    nesting--;
 }

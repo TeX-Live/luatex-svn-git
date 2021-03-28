@@ -3774,7 +3774,9 @@ tex_prereq = texd.h $(am__append_127)
 tex_ch_srcs = \
 	tex.web \
 	tex.ch \
-	enctex.ch \
+	enctexdir/enctex1.ch \
+	enctexdir/enctex-tex.ch \
+	enctexdir/enctex2.ch \
 	$(tex_ch_synctex) \
 	tex-binpool.ch
 
@@ -4267,7 +4269,9 @@ etex_ch_srcs = \
 	etexdir/tex.ch0 \
 	tex.ch \
 	zlib-fmt.ch \
-	enctex.ch \
+	enctexdir/enctex1.ch \
+	enctexdir/enctex-tex.ch \
+	enctexdir/enctex2.ch \
 	$(etex_ch_synctex) \
 	etexdir/tex.ch1 \
 	etexdir/tex.ech \
@@ -4302,6 +4306,7 @@ ptex_prereq = ptexd.h ptexdir/ptex_version.h $(am__append_135)
 ptex_web_srcs = \
 	tex.web \
 	tex.ch \
+	tracingstacklevels.ch \
 	zlib-fmt.ch
 
 ptex_ch_srcs = \
@@ -4361,6 +4366,7 @@ eptex_web_srcs = \
 	etexdir/etex.ch \
 	etexdir/tex.ch0 \
 	tex.ch \
+	tracingstacklevels.ch \
 	zlib-fmt.ch \
 	etexdir/tex.ech
 
@@ -4405,6 +4411,7 @@ uptex_prereq = uptexd.h ptexdir/ptex_version.h \
 uptex_web_srcs = \
 	tex.web \
 	tex.ch \
+	tracingstacklevels.ch \
 	zlib-fmt.ch
 
 uptex_ch_srcs = \
@@ -4469,6 +4476,7 @@ euptex_web_srcs = \
 	etexdir/etex.ch \
 	etexdir/tex.ch0 \
 	tex.ch \
+	tracingstacklevels.ch \
 	zlib-fmt.ch \
 	etexdir/tex.ech
 
@@ -4539,8 +4547,11 @@ pdftex_ch_srcs = \
 	pdftexdir/pdftex.web \
 	pdftexdir/tex.ch0 \
 	tex.ch \
+	tracingstacklevels.ch \
 	zlib-fmt.ch \
-	enctex.ch \
+	enctexdir/enctex1.ch \
+	enctexdir/enctex-pdftex.ch \
+	enctexdir/enctex2.ch \
 	$(pdftex_ch_synctex) \
 	pdftexdir/pdftex.ch \
 	pdftexdir/char-warning-pdftex.ch \
@@ -5228,6 +5239,7 @@ xetex_ch_srcs = \
 	xetexdir/xetex.web \
 	xetexdir/tex.ch0 \
 	tex.ch \
+	tracingstacklevels.ch \
 	$(xetex_ch_synctex) \
 	xetexdir/xetex.ch \
 	$(xetex_post_ch_synctex) \
@@ -21051,12 +21063,11 @@ tangleboot-web2c: tangleboot.p $(web2c_depend)
 .pin.p:
 	$(cp_silent)cp -f $< $@
 $(tangleboot_OBJECTS): $(tangleboot_DEPENDENCIES)
-ctangle.c: ctangleboot$(EXEEXT) cwebdir/comm-w2c.h cwebdir/ctangle.w cwebdir/ctang-w2c.ch ctangleboot-sh
+ctangle.c: common-ctangle cwebdir/ctangle.w cwebdir/ctang-w2c.ch
 	@$(ctangleboot) ctangle ctang-w2c
-cweb.c: common-ctangle
+cweb.c: common-ctangle cwebdir/common.w cwebdir/comm-w2c.ch
 	@$(ctangleboot) common comm-w2c cweb.c
-common-ctangle: ctangleboot$(EXEEXT) cwebdir/common.w cwebdir/comm-w2c.ch ctangleboot-sh
-	@$(ctangleboot) common comm-w2c cweb.c
+common-ctangle: ctangleboot$(EXEEXT) cwebdir/comm-w2c.h ctangleboot-sh
 $(ctangleboot_OBJECTS): $(ctangleboot_DEPENDENCIES)
 # ctangleboot.cin and cwebboot.cin are in the distribution
 .cin.c:

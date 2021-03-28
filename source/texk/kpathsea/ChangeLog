@@ -1,3 +1,31 @@
+2021-03-23  Karl Berry  <karl@tug.org>
+
+	* TL'21.
+
+2021-03-18  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (save_size): reset to 80000 since that is what
+	sup_save_size is set to in tex.ch. Found by Christian Schenk,
+	tex-live 18 Mar 2021 18:39:04.
+
+2021-03-08  Karl Berry  <karl@freefriends.org>
+
+	* tests/cnfline/texmf.cnf (maxpr.lt-kpsewhich): set this,
+	for --enable-shared builds.
+	https://tug.org/pipermail/tex-k/2021-March/003490.html
+	* tests/cnfline.test: unset maxpr othervar, just in case
+	they are set in the environment. Maybe unset on an unset variable
+	is portable enough nowadays?
+
+2021-02-17  Karl Berry  <karl@freefriends.org>
+
+	* doc/kpathsea.texi,
+	* version.ac (kpse_dev): no /dev for 6.3.3.
+	* NEWS,
+	* doc/kpathsea.texi,
+	* kpsewhich.c,
+	* texmf.cnf: copyright 2021.
+
 2020-12-05  TANAKA Takuji  <ttk@t-lab.opal.ne.jp>
 
 	* knj.[ch]: Add new functions win32_fprintf(), win32_perror().
