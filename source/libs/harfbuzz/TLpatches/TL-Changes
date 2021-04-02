@@ -1,0 +1,29 @@
+Changes applied to the harfbuzz-2.7.4/ tree as obtained from:
+	https://github.com/harfbuzz/harfbuzz/releases/download/2.7.4/
+
+Removed:
+	COPYING
+	Makefile.in
+	aclocal.m4
+	ar-lib
+	compile
+	config.guess
+	config.sub
+	configure
+	depcomp
+	gtk-doc.make
+	install-sh
+	ltmain.sh
+	missing
+	test-driver
+	src/Makefile.in
+	src/hb-version.h
+
+        unused dirs:
+	docs
+	m4
+	meson-cc-tests
+	perf
+	subprojects
+	test
+	util
