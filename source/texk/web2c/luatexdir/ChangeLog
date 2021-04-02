@@ -1,3 +1,6 @@
+2021-02-28 Luigi Scarso <luigi.scarso@gmail.com>
+    * Also accept par in math after halign and eqn when in supress mode (HH)
+
 2021-03-23 Karl Berry <karl@tug.org>
     * TL'21.
 
