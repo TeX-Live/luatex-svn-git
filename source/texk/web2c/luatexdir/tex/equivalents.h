@@ -310,8 +310,9 @@ the |number_regs| \.{\\dimen} registers.
 #  define fixup_boxes_code 117
 #  define glyph_dimensions_code 118
 #  define math_defaults_mode_code 119                                   /* > 0 : latex preferences */
+#  define discretionary_ligature_mode_code 120
 
-#  define math_option_code 120
+#  define math_option_code 121
 
 #  define mathoption_int_base_code (math_option_code+1)                 /* one reserve */
 #  define mathoption_int_last_code (mathoption_int_base_code+8)
@@ -813,6 +814,7 @@ extern halfword last_cs_name;
 #define fixup_boxes_par                    int_par(fixup_boxes_code)
 #define glyph_dimensions_par               int_par(glyph_dimensions_code)
 #define math_defaults_mode_par             int_par(math_defaults_mode_code)
+#define discretionary_ligature_mode_par    int_par(discretionary_ligature_mode_code)
 
 /* */
 

@@ -177,6 +177,7 @@ void initialize_commands(void)
     primitive_luatex("fixupboxesmode", assign_int_cmd, int_base + fixup_boxes_code, int_base);
     primitive_luatex("glyphdimensionsmode", assign_int_cmd, int_base + glyph_dimensions_code, int_base);
     primitive_luatex("mathdefaultsmode", assign_int_cmd, int_base + math_defaults_mode_code, int_base);
+    primitive_luatex("discretionaryligaturemode", assign_int_cmd, int_base + discretionary_ligature_mode_code, int_base);
 
     /*tex
 

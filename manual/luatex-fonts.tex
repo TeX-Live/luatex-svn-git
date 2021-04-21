@@ -1,4 +1,4 @@
-% language=uk
+% language=uk engine=luatex
 
 \environment luatex-style
 
@@ -860,6 +860,51 @@ This is an iterator over each of the defined \TEX\ fonts. The first returned
 value is the index in \type {font.fonts}, the second the font itself, as a \LUA\
 table. The indices are listed incrementally, but they do not always form an array
 of consecutive numbers: in some cases there can be holes in the sequence.
+
+\startsubsection[title={\type{\glyphdimensionsmode}}]
+
+Already in the early days of \LUATEX\ the decision was made to calculate the
+effective height and depth of glyphs in a way that reflected the applied vertical
+offset. The height got that offset added, the depth only when the offset was
+larger than zero. We can now control this in more detail with this mode
+parameter. An offset is added to the height and|/|or subtracted from the depth.
+The effective values are never negative. The zero mode is the default.
+
+\starttabulate[|l|pl|]
+\DB value     \BC effect \NC\NR
+\TB
+\NC \type {0} \NC the old behavior: add the offset to the height and only subtract
+                  the offset only from the depth when it is positive \NC \NR
+\NC \type {1} \NC add the offset to the height and subtract it from the depth \NC \NR
+\NC \type {2} \NC add the offset to the height and subtract it from the depth but
+                  keep the maxima of the current and previous results \NC \NR
+\NC \type {3} \NC use the height and depth of the glyph, so no offset is applied \NC \NR
+\LL
+\stoptabulate
+
+\stopsubsection
+
+\startsubsection[title={\type {\discretionaryligaturemode}}]
+
+This parameter controls how complex ligatures interact with discretionaries (as
+injected by the hyphenator). The non||zero values prevent the construction of
+so called init and select discretionaries.
+
+\definefontfeature[ligmodetest][default][mode=base]
+\definefont       [ligmodefont][Serif*ligmodetest]
+
+\hyphenation{xx-f-f-i-xx}
+
+\starttabulate[|p|p|p|]
+    \DB 0 \BC 1 \BC 2 \NC \NR
+    \TB
+    \NC \ligmodefont \discretionaryligaturemode0 \hsize1pt xxffixx
+    \NC \ligmodefont \discretionaryligaturemode1 \hsize1pt xxffixx
+    \NC \ligmodefont \discretionaryligaturemode2 \hsize1pt xxffixx \NC \NR
+    \LL
+\stoptabulate
+
+\stopsubsection
 
 \stopsection
 
