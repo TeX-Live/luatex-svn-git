@@ -1,3 +1,17 @@
+2021-06-15  Karl Berry  <karl@freefriends.org>
+
+	* dvicopy.web: erroneous '/'; also switch to "Unix" in text.
+
+2021-06-06  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: CWEB release 4.4.
+
+2021-05-18  Karl Berry  <karl@freefriends.org>
+
+	* README,
+	* PROJECTS: updates.
+
 2021-05-07  Karl Berry  <karl@freefriends.org>
 
 	* tex.ch (sup_save_size): increase to 30000000
