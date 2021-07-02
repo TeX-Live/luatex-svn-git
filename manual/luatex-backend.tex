@@ -93,6 +93,12 @@ normally~1 but when set to~2 some data will not be written to the file in order
 to comply with the standard. What minor version you set depends on what \PDF\
 features you use. This is out of control of \LUATEX.
 
+One can set the major version number to~2 but we cannot guarantee that the engine
+adapts itself correctly, because there is no public and free specification that
+we know of. Also, user constructed annotations are not checked and just passed
+to the file. On the other hand, the \PDF\ that the engine generated is rather
+simple and not that version depending.
+
 \stopsubsection
 
 \startsubsection[title={\type {getcreationdate}}]
