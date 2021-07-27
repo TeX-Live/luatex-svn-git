@@ -565,6 +565,7 @@ make_lua_key(advance);\
 make_lua_key(after_assignment);\
 make_lua_key(after_display);\
 make_lua_key(after_group);\
+make_lua_key(partoken_name);\
 make_lua_key(after_output);\
 make_lua_key(afterdisplaypenalty);\
 make_lua_key(align);\
@@ -1276,6 +1277,7 @@ init_lua_key(advance);\
 init_lua_key(after_assignment);\
 init_lua_key(after_display);\
 init_lua_key(after_group);\
+init_lua_key(partoken_name);\
 init_lua_key(after_output);\
 init_lua_key(afterdisplaypenalty);\
 init_lua_key(align);\
@@ -2036,6 +2038,7 @@ use_lua_key(advance);
 use_lua_key(after_assignment);
 use_lua_key(after_display);
 use_lua_key(after_group);
+use_lua_key(partoken_name);
 use_lua_key(after_output);
 use_lua_key(afterdisplaypenalty);
 use_lua_key(align);
