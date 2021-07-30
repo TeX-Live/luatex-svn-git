@@ -1869,7 +1869,7 @@ static void mplib_stroked(lua_State * L, struct mp_stroked_object *h)
 static void mplib_text(lua_State * L, struct mp_text_object *h)
 {
     if (FIELD(text)) {
-        lua_pushstring(L, h->text_p);
+        lua_pushlstring(L, h->text_p, h->text_l);
     } else if (FIELD(dsize)) {
         mplib_push_number(L, (h->font_dsize / 16));
     } else if (FIELD(font)) {
