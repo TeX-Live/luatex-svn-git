@@ -235,7 +235,7 @@ static int font_set_var_named_instance(lua_State *L) {
   Font *f = (Font *)luaL_checkudata(L, 1, "harfbuzz.Font");
   unsigned int instance = luaL_checkinteger(L, 2);
 
-  hb_font_set_var_named_instance(*f, instance);
+  hb_font_set_var_named_instance(*f, instance - 1);
   return 0;
 }
 
