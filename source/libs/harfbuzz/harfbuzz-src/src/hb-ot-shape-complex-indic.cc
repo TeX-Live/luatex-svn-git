@@ -257,7 +257,7 @@ struct indic_shape_plan_t
 static void *
 data_create_indic (const hb_ot_shape_plan_t *plan)
 {
-  indic_shape_plan_t *indic_plan = (indic_shape_plan_t *) calloc (1, sizeof (indic_shape_plan_t));
+  indic_shape_plan_t *indic_plan = (indic_shape_plan_t *) hb_calloc (1, sizeof (indic_shape_plan_t));
   if (unlikely (!indic_plan))
     return nullptr;
 
@@ -300,7 +300,7 @@ data_create_indic (const hb_ot_shape_plan_t *plan)
 static void
 data_destroy_indic (void *data)
 {
-  free (data);
+  hb_free (data);
 }
 
 static indic_position_t
@@ -960,7 +960,8 @@ initial_reordering_indic (const hb_ot_shape_plan_t *plan,
   hb_syllabic_insert_dotted_circles (font, buffer,
 				     indic_broken_cluster,
 				     OT_DOTTEDCIRCLE,
-				     OT_Repha);
+				     OT_Repha,
+				     POS_END);
 
   foreach_syllable (buffer, start, end)
     initial_reordering_syllable_indic (plan, font->face, buffer, start, end);

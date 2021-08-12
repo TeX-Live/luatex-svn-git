@@ -328,10 +328,6 @@ struct OffsetTo : Offset<OffsetType, has_null>
 	    hb_enable_if (hb_is_convertible (Base, void *))>
   friend Type& operator + (OffsetTo &offset, Base &&base) { return offset ((void *) base); }
 
-  Type& serialize (hb_serialize_context_t *c, const void *base)
-  {
-    return * (Type *) Offset<OffsetType>::serialize (c, base);
-  }
 
   template <typename ...Ts>
   bool serialize_subset (hb_subset_context_t *c, const OffsetTo& src,
@@ -351,6 +347,23 @@ struct OffsetTo : Offset<OffsetType, has_null>
       s->add_link (*this, s->pop_pack ());
     else
       s->pop_discard ();
+
+    return ret;
+  }
+
+
+  template <typename ...Ts>
+  bool serialize_serialize (hb_serialize_context_t *c, Ts&&... ds)
+  {
+    *this = 0;
+
+    Type* obj = c->push<Type> ();
+    bool ret = obj->serialize (c, hb_forward<Ts> (ds)...);
+
+    if (ret)
+      c->add_link (*this, c->pop_pack ());
+    else
+      c->pop_discard ();
 
     return ret;
   }

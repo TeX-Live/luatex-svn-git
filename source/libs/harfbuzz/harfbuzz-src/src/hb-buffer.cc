@@ -136,8 +136,8 @@ hb_buffer_t::enlarge (unsigned int size)
   if (unlikely (hb_unsigned_mul_overflows (new_allocated, sizeof (info[0]))))
     goto done;
 
-  new_pos = (hb_glyph_position_t *) realloc (pos, new_allocated * sizeof (pos[0]));
-  new_info = (hb_glyph_info_t *) realloc (info, new_allocated * sizeof (info[0]));
+  new_pos = (hb_glyph_position_t *) hb_realloc (pos, new_allocated * sizeof (pos[0]));
+  new_info = (hb_glyph_info_t *) hb_realloc (info, new_allocated * sizeof (info[0]));
 
 done:
   if (unlikely (!new_pos || !new_info))
@@ -717,14 +717,14 @@ hb_buffer_destroy (hb_buffer_t *buffer)
 
   hb_unicode_funcs_destroy (buffer->unicode);
 
-  free (buffer->info);
-  free (buffer->pos);
+  hb_free (buffer->info);
+  hb_free (buffer->pos);
 #ifndef HB_NO_BUFFER_MESSAGE
   if (buffer->message_destroy)
     buffer->message_destroy (buffer->message_data);
 #endif
 
-  free (buffer);
+  hb_free (buffer);
 }
 
 /**
@@ -1363,6 +1363,11 @@ hb_buffer_get_glyph_infos (hb_buffer_t  *buffer,
  * Returns @buffer glyph position array.  Returned pointer
  * is valid as long as @buffer contents are not modified.
  *
+ * If buffer did not have positions before, the positions will be
+ * initialized to zeros, unless this function is called from
+ * within a buffer message callback (see hb_buffer_set_message_func()),
+ * in which case %NULL is returned.
+ *
  * Return value: (transfer none) (array length=length):
  * The @buffer glyph position array.
  * The value valid as long as buffer has not been modified.
@@ -1373,11 +1378,16 @@ hb_glyph_position_t *
 hb_buffer_get_glyph_positions (hb_buffer_t  *buffer,
 			       unsigned int *length)
 {
-  if (!buffer->have_positions)
-    buffer->clear_positions ();
-
   if (length)
     *length = buffer->len;
+
+  if (!buffer->have_positions)
+  {
+    if (unlikely (buffer->message_depth))
+      return nullptr;
+
+    buffer->clear_positions ();
+  }
 
   return (hb_glyph_position_t *) buffer->pos;
 }

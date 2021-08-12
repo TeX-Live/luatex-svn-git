@@ -1,25 +1,14 @@
-Changes applied to the harfbuzz-2.8.1/ tree as obtained from:
-	https://github.com/harfbuzz/harfbuzz/releases/download/2.8.1/
+Changes applied to the harfbuzz-2.8.2/ tree as obtained from:
+	https://github.com/harfbuzz/harfbuzz/releases/download/2.8.2/
 
 Removed:
 	COPYING
-	Makefile.in
-	aclocal.m4
-	ar-lib
-	compile
-	config.guess
-	config.sub
-	configure
-	depcomp
-	gtk-doc.make
-	install-sh
-	ltmain.sh
-	missing
-	test-driver
-	src/Makefile.in
 	src/hb-version.h
 
         unused dirs:
+	.c1
+	.circleci
+	.github
 	docs
 	m4
 	perf

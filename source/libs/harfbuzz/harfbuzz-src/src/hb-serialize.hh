@@ -82,7 +82,7 @@ struct hb_serialize_context_t
 
     struct link_t
     {
-      bool is_wide: 1;
+      unsigned width: 3;
       bool is_signed: 1;
       unsigned whence: 2;
       unsigned position: 28;
@@ -254,7 +254,7 @@ struct hb_serialize_context_t
     current = current->next;
     revert (obj->head, obj->tail);
     obj->fini ();
-    object_pool.free (obj);
+    object_pool.release (obj);
   }
 
   /* Set share to false when an object is unlikely sharable with others
@@ -354,7 +354,6 @@ struct hb_serialize_context_t
 		 whence_t whence = Head,
 		 unsigned bias = 0)
   {
-    static_assert (sizeof (T) == 2 || sizeof (T) == 4, "");
     if (unlikely (in_error ())) return;
 
     if (!objidx)
@@ -365,7 +364,7 @@ struct hb_serialize_context_t
 
     auto& link = *current->links.push ();
 
-    link.is_wide = sizeof (T) == 4;
+    link.width = sizeof (T);
     link.is_signed = hb_is_signed (hb_unwrap_type (T));
     link.whence = (unsigned) whence;
     link.position = (const char *) &ofs - current->head;
@@ -405,15 +404,19 @@ struct hb_serialize_context_t
 	offset -= link.bias;
 	if (link.is_signed)
 	{
-	  if (link.is_wide)
+	  assert (link.width == 2 || link.width == 4);
+	  if (link.width == 4)
 	    assign_offset<int32_t> (parent, link, offset);
 	  else
 	    assign_offset<int16_t> (parent, link, offset);
 	}
 	else
 	{
-	  if (link.is_wide)
+	  assert (link.width == 2 || link.width == 3 || link.width == 4);
+	  if (link.width == 4)
 	    assign_offset<uint32_t> (parent, link, offset);
+	  else if (link.width == 3)
+	    assign_offset<uint32_t, 3> (parent, link, offset);
 	  else
 	    assign_offset<uint16_t> (parent, link, offset);
 	}
@@ -544,7 +547,11 @@ struct hb_serialize_context_t
     unsigned int len = (this->head - this->start)
 		     + (this->end  - this->tail);
 
-    char *p = (char *) malloc (len);
+    // If len is zero don't hb_malloc as the memory won't get properly
+    // cleaned up later.
+    if (!len) return hb_bytes_t ();
+
+    char *p = (char *) hb_malloc (len);
     if (unlikely (!p)) return hb_bytes_t ();
 
     memcpy (p, this->start, this->head - this->start);
@@ -559,17 +566,17 @@ struct hb_serialize_context_t
     hb_bytes_t b = copy_bytes ();
     return hb_blob_create (b.arrayZ, b.length,
 			   HB_MEMORY_MODE_WRITABLE,
-			   (char *) b.arrayZ, free);
+			   (char *) b.arrayZ, hb_free);
   }
 
   const hb_vector_t<object_t *>& object_graph() const
   { return packed; }
 
   private:
-  template <typename T>
+  template <typename T, unsigned Size = sizeof (T)>
   void assign_offset (const object_t* parent, const object_t::link_t &link, unsigned offset)
   {
-    auto &off = * ((BEInt<T> *) (parent->head + link.position));
+    auto &off = * ((BEInt<T, Size> *) (parent->head + link.position));
     assert (0 == off);
     check_assign (off, offset, HB_SERIALIZE_ERROR_OFFSET_OVERFLOW);
   }

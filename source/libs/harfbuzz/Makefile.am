@@ -34,6 +34,7 @@ AM_CXXFLAGS = $(VISIBILITY_CXXFLAGS) $(WARNING_CXXFLAGS)
 
 libharfbuzz_dependencies =
 libharfbuzz_a_SOURCES =  \
+	@HARFBUZZ_TREE@/src/failing-alloc.c \
 	@HARFBUZZ_TREE@/src/hb-algs.hh \
 	@HARFBUZZ_TREE@/src/hb-atomic.hh \
 	@HARFBUZZ_TREE@/src/hb-bimap.hh \
@@ -168,6 +169,7 @@ libharfbuzz_a_SOURCES += \
 	@HARFBUZZ_TREE@/src/hb-ot-color.cc \
 	@HARFBUZZ_TREE@/src/hb-ot-color-colr-table.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-color-cpal-table.hh \
+	@HARFBUZZ_TREE@/src/hb-ot-color-colrv1-closure.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-color-sbix-table.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-color-svg-table.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-map.cc \
