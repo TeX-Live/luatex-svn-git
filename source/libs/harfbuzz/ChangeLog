@@ -1,8 +1,7 @@
-2021-08-12  Luigi Scarso  <luigi.scarso@gmail.com>
+2021-08-29  Akira Kakuto  <kakuto@jcom.zaq.ne.jp>
 
-	Import harfbuzz-2.8.2.
-	* include/Makefile.am, Makefile.am, version.ac: Adjusted.
-
+	Import harfbuzz-2.9.0.
+	* Makefile.am, version.ac: Adjusted.
 
 2021-05-06  Akira Kakuto  <kakuto@w32tex.org>
 

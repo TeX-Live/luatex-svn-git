@@ -1,4 +1,4 @@
-## $Id: Makefile.am 58898 2021-04-17 22:31:16Z kakuto $
+## $Id: Makefile.am 60356 2021-08-29 04:06:16Z kakuto $
 ## Proxy Makefile.am to build harfbuzz for TeX Live.
 ##
 ##   Copyright 2016-2017 Karl Berry <tex-live@tug.org>
@@ -34,7 +34,6 @@ AM_CXXFLAGS = $(VISIBILITY_CXXFLAGS) $(WARNING_CXXFLAGS)
 
 libharfbuzz_dependencies =
 libharfbuzz_a_SOURCES =  \
-	@HARFBUZZ_TREE@/src/failing-alloc.c \
 	@HARFBUZZ_TREE@/src/hb-algs.hh \
 	@HARFBUZZ_TREE@/src/hb-atomic.hh \
 	@HARFBUZZ_TREE@/src/hb-bimap.hh \
@@ -65,6 +64,8 @@ libharfbuzz_a_SOURCES =  \
 	@HARFBUZZ_TREE@/src/hb-map.cc \
 	@HARFBUZZ_TREE@/src/hb-machinery.hh \
 	@HARFBUZZ_TREE@/src/hb-meta.hh \
+	@HARFBUZZ_TREE@/src/hb-ms-feature-ranges.cc \
+	@HARFBUZZ_TREE@/src/hb-ms-feature-ranges.hh \
 	@HARFBUZZ_TREE@/src/hb-mutex.hh \
 	@HARFBUZZ_TREE@/src/hb-null.hh \
 	@HARFBUZZ_TREE@/src/hb-number-parser.hh \
@@ -81,6 +82,7 @@ libharfbuzz_a_SOURCES =  \
 	@HARFBUZZ_TREE@/src/hb-ot-cff2-table.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-gasp-table.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-color-cbdt-table.hh \
+	@HARFBUZZ_TREE@/src/hb-ot-color-colrv1-closure.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-cmap-table.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-face.cc \
 	@HARFBUZZ_TREE@/src/hb-ot-face.hh \
@@ -102,6 +104,7 @@ libharfbuzz_a_SOURCES =  \
 	@HARFBUZZ_TREE@/src/hb-pool.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-post-macroman.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-post-table.hh \
+	@HARFBUZZ_TREE@/src/hb-ot-post-table-v2subset.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-tag.cc \
 	@HARFBUZZ_TREE@/src/hb-ot-tag-table.hh \
 	@HARFBUZZ_TREE@/src/hb-sanitize.hh \
@@ -169,7 +172,6 @@ libharfbuzz_a_SOURCES += \
 	@HARFBUZZ_TREE@/src/hb-ot-color.cc \
 	@HARFBUZZ_TREE@/src/hb-ot-color-colr-table.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-color-cpal-table.hh \
-	@HARFBUZZ_TREE@/src/hb-ot-color-colrv1-closure.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-color-sbix-table.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-color-svg-table.hh \
 	@HARFBUZZ_TREE@/src/hb-ot-map.cc \

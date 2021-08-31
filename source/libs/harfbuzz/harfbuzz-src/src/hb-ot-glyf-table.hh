@@ -45,6 +45,10 @@ namespace OT {
  */
 #define HB_OT_TAG_loca HB_TAG('l','o','c','a')
 
+#ifndef HB_MAX_COMPOSITE_OPERATIONS
+#define HB_MAX_COMPOSITE_OPERATIONS 100000
+#endif
+
 
 struct loca
 {
@@ -209,13 +213,15 @@ struct glyf
 		if (!plan->old_gid_for_new_gid (new_gid, &subset_glyph.old_gid))
 		  return subset_glyph;
 
-		if (new_gid == 0 && !plan->notdef_outline)
+		if (new_gid == 0 &&
+                    !(plan->flags & HB_SUBSET_FLAGS_NOTDEF_OUTLINE))
 		  subset_glyph.source_glyph = Glyph ();
 		else
 		  subset_glyph.source_glyph = glyf.glyph_for_gid (subset_glyph.old_gid, true);
-		if (plan->drop_hints) subset_glyph.drop_hints_bytes ();
-		else subset_glyph.dest_start = subset_glyph.source_glyph.get_bytes ();
-
+		if (plan->flags & HB_SUBSET_FLAGS_NO_HINTING)
+                  subset_glyph.drop_hints_bytes ();
+		else
+                  subset_glyph.dest_start = subset_glyph.source_glyph.get_bytes ();
 		return subset_glyph;
 	      })
     | hb_sink (glyphs)
@@ -391,9 +397,12 @@ struct glyf
   {
     typedef const CompositeGlyphChain *__item_t__;
     composite_iter_t (hb_bytes_t glyph_, __item_t__ current_) :
-      glyph (glyph_), current (current_)
-    { if (!check_range (current)) current = nullptr; }
-    composite_iter_t () : glyph (hb_bytes_t ()), current (nullptr) {}
+        glyph (glyph_), current (nullptr), current_size (0)
+    {
+      set_next (current_);
+    }
+
+    composite_iter_t () : glyph (hb_bytes_t ()), current (nullptr), current_size (0) {}
 
     const CompositeGlyphChain &__item__ () const { return *current; }
     bool __more__ () const { return current; }
@@ -401,23 +410,36 @@ struct glyf
     {
       if (!current->has_more ()) { current = nullptr; return; }
 
-      const CompositeGlyphChain *possible = &StructAfter<CompositeGlyphChain,
-							 CompositeGlyphChain> (*current);
-      if (!check_range (possible)) { current = nullptr; return; }
-      current = possible;
+      set_next (&StructAtOffset<CompositeGlyphChain> (current, current_size));
     }
     bool operator != (const composite_iter_t& o) const
     { return glyph != o.glyph || current != o.current; }
 
-    bool check_range (const CompositeGlyphChain *composite) const
+
+    void set_next (const CompositeGlyphChain *composite)
     {
-      return glyph.check_range (composite, CompositeGlyphChain::min_size)
-	  && glyph.check_range (composite, composite->get_size ());
+      if (!glyph.check_range (composite, CompositeGlyphChain::min_size))
+      {
+        current = nullptr;
+        current_size = 0;
+        return;
+      }
+      unsigned size = composite->get_size ();
+      if (!glyph.check_range (composite, size))
+      {
+        current = nullptr;
+        current_size = 0;
+        return;
+      }
+
+      current = composite;
+      current_size = size;
     }
 
     private:
     hb_bytes_t glyph;
     __item_t__ current;
+    unsigned current_size;
   };
 
   enum phantom_point_index_t
@@ -503,8 +525,8 @@ struct glyf
       const Glyph trim_padding () const
       {
 	/* based on FontTools _g_l_y_f.py::trim */
-	const char *glyph = bytes.arrayZ;
-	const char *glyph_end = glyph + bytes.length;
+	const uint8_t *glyph = (uint8_t*) bytes.arrayZ;
+	const uint8_t *glyph_end = glyph + bytes.length;
 	/* simple glyph w/contours, possibly trimmable */
 	glyph += instruction_len_offset ();
 
@@ -1079,18 +1101,28 @@ struct glyf
       return needs_padding_removal ? glyph.trim_padding () : glyph;
     }
 
-    void
-    add_gid_and_children (hb_codepoint_t gid, hb_set_t *gids_to_retain,
-			  unsigned int depth = 0) const
+    unsigned
+    add_gid_and_children (hb_codepoint_t gid,
+			  hb_set_t *gids_to_retain,
+			  unsigned depth = 0,
+			  unsigned operation_count = 0) const
     {
-      if (unlikely (depth++ > HB_MAX_NESTING_LEVEL)) return;
+      if (unlikely (depth++ > HB_MAX_NESTING_LEVEL)) return operation_count;
+      if (unlikely (operation_count++ > HB_MAX_COMPOSITE_OPERATIONS)) return operation_count;
       /* Check if is already visited */
-      if (gids_to_retain->has (gid)) return;
+      if (gids_to_retain->has (gid)) return operation_count;
 
       gids_to_retain->add (gid);
 
-      for (auto &item : glyph_for_gid (gid).get_composite_iterator ())
-	add_gid_and_children (item.get_glyph_index (), gids_to_retain, depth);
+      auto it = glyph_for_gid (gid).get_composite_iterator ();
+      while (it)
+      {
+        auto item = *(it++);
+        operation_count +=
+            add_gid_and_children (item.get_glyph_index (), gids_to_retain, depth, operation_count);
+      }
+
+      return operation_count;
     }
 
 #ifdef HB_EXPERIMENTAL_API
@@ -1264,9 +1296,10 @@ struct glyf
 	  const_cast<CompositeGlyphChain &> (_).set_glyph_index (new_gid);
       }
 
-      if (plan->drop_hints) Glyph (dest_glyph).drop_hints ();
+      if (plan->flags & HB_SUBSET_FLAGS_NO_HINTING)
+        Glyph (dest_glyph).drop_hints ();
 
-      if (plan->overlaps_flag)
+      if (plan->flags & HB_SUBSET_FLAGS_SET_OVERLAPS_FLAG)
         Glyph (dest_glyph).set_overlaps_flag ();
 
       return_trace (true);

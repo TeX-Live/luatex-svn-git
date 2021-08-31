@@ -54,7 +54,7 @@ struct DeltaSetIndexMap
     TRACE_SERIALIZE (this);
     if (unlikely (output_map.length && ((((inner_bit_count-1)&~0xF)!=0) || (((width-1)&~0x3)!=0))))
       return_trace (false);
-    if (unlikely (!c->extend_min (*this))) return_trace (false);
+    if (unlikely (!c->extend_min (this))) return_trace (false);
 
     format = ((width-1)<<4)|(inner_bit_count-1);
     mapCount = output_map.length;
@@ -272,7 +272,7 @@ struct hvarvvar_subset_plan_t
     index_map_plans[0].init (*index_maps[0], outer_map, inner_sets, plan);
     if (index_maps[0] == &Null (DeltaSetIndexMap))
     {
-      retain_adv_map = plan->retain_gids;
+      retain_adv_map = plan->flags & HB_SUBSET_FLAGS_RETAIN_GIDS;
       outer_map.add (0);
       for (hb_codepoint_t gid = 0; gid < plan->num_output_glyphs (); gid++)
       {

@@ -151,7 +151,7 @@ hb_ot_shape_planner_t::compile (hb_ot_shape_plan_t           &plan,
 
   bool has_gsub = hb_ot_layout_has_substitution (face);
   bool has_gpos = !disable_gpos && hb_ot_layout_has_positioning (face);
-  if (0)
+  if (false)
     ;
 #ifndef HB_NO_AAT_SHAPE
   else if (hb_aat_layout_has_positioning (face) && !(has_gsub && has_gpos))
@@ -173,6 +173,8 @@ hb_ot_shape_planner_t::compile (hb_ot_shape_plan_t           &plan,
       plan.apply_kern = true;
 #endif
   }
+
+  plan.apply_fallback_kern = !(plan.apply_gpos || plan.apply_kerx || plan.apply_kern);
 
   plan.zero_marks = script_zero_marks &&
 		    !plan.apply_kerx &&
@@ -274,11 +276,12 @@ hb_ot_shape_plan_t::position (hb_font_t   *font,
   else if (this->apply_kerx)
     hb_aat_layout_position (this, font, buffer);
 #endif
+
 #ifndef HB_NO_OT_KERN
-  else if (this->apply_kern)
+  if (this->apply_kern)
     hb_ot_layout_kern (this, font, buffer);
 #endif
-  else
+  else if (this->apply_fallback_kern)
     _hb_ot_shape_fallback_kern (this, font, buffer);
 
 #ifndef HB_NO_AAT_SHAPE
@@ -371,6 +374,10 @@ hb_ot_shape_collect_features (hb_ot_shape_planner_t          *planner,
       map->add_feature (horizontal_features[i]);
   else
   {
+    /* We only apply `vert` feature. See:
+     * https://github.com/harfbuzz/harfbuzz/commit/d71c0df2d17f4590d5611239577a6cb532c26528
+     * https://lists.freedesktop.org/archives/harfbuzz/2013-August/003490.html */
+
     /* We really want to find a 'vert' feature if there's any in the font, no
      * matter which script/langsys it is listed (or not) under.
      * See various bugs referenced from:
@@ -551,6 +558,7 @@ hb_insert_dotted_circle (hb_buffer_t *buffer, hb_font_t *font)
   info.cluster = buffer->cur().cluster;
   info.mask = buffer->cur().mask;
   (void) buffer->output_info (info);
+
   buffer->swap_buffers ();
 }
 
@@ -1157,8 +1165,6 @@ hb_ot_shape_internal (hb_ot_shape_context_t *c)
 
   _hb_buffer_allocate_unicode_vars (c->buffer);
 
-  c->buffer->clear_output ();
-
   hb_ot_shape_initialize_masks (c);
   hb_set_unicode_props (c->buffer);
   hb_insert_dotted_circle (c->buffer, c->font);
@@ -1168,7 +1174,8 @@ hb_ot_shape_internal (hb_ot_shape_context_t *c)
   hb_ensure_native_direction (c->buffer);
 
   if (c->plan->shaper->preprocess_text &&
-    c->buffer->message(c->font, "start preprocess-text")) {
+      c->buffer->message(c->font, "start preprocess-text"))
+  {
     c->plan->shaper->preprocess_text (c->plan, c->buffer, c->font);
     (void) c->buffer->message(c->font, "end preprocess-text");
   }
