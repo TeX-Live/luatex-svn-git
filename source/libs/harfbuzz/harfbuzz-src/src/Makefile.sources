@@ -19,6 +19,9 @@ HB_BASE_sources = \
 	hb-array.hh \
 	hb-atomic.hh \
 	hb-bimap.hh \
+	hb-bit-page.hh \
+	hb-bit-set.hh \
+	hb-bit-set-invertible.hh \
 	hb-blob.cc \
 	hb-blob.hh \
 	hb-buffer-serialize.cc \
@@ -140,6 +143,7 @@ HB_BASE_sources = \
 	hb-ot-tag-table.hh \
 	hb-ot-tag.cc \
 	hb-ot-var-avar-table.hh \
+	hb-ot-var-common.hh \
 	hb-ot-var-fvar-table.hh \
 	hb-ot-var-gvar-table.hh \
 	hb-ot-var-hvar-table.hh \

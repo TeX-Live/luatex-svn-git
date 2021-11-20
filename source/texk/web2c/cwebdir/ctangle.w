@@ -75,7 +75,7 @@ is modified.
 two phases: First it reads the source file, saving the \CEE/ code in
 compressed form; then it shuffles and outputs the code.
 
-Please read the documentation for \.{common}, the set of routines common
+Please read the documentation for \.{COMMON}, the set of routines common
 to \.{CTANGLE} and \.{CWEAVE}, before proceeding further.
 
 @c
@@ -1493,8 +1493,8 @@ skip_limbo(void)
     while (*loc!='@@') loc++;
     if (loc++<=limit) {
       char c=*loc++;
-      if (ccode[(eight_bits)c]==new_section) break;
       switch (ccode[(eight_bits)c]) {
+        case new_section: return;
         case translit_code: @<Read in transliteration of a character@>@; break;
         case format_code: case '@@': break;
         case control_text: if (c=='q' || c=='Q') {

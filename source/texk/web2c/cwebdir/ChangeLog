@@ -1,3 +1,61 @@
+2021-11-14  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* po/cweb-tl.pot,
+	* po/de/cweb-tl.po: More generic point of interest.
+
+2021-11-12  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangle.w,
+	* cweave.w: Consistently refer to the COMMON module.
+
+2021-10-31  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctproofmac.tex,
+	* cttwinxmac.tex,
+	* ctwill-mini.ch,
+	* ctwimac.tex,
+	* cweave.w,
+	* cwebmac.tex,
+	* cwebman.tex,
+	* texinputs/pdfctwimac.tex: Restore '\T' macro backward compatibility.
+
+2021-10-24  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfwebtocfront.tex: Restore 'classic' PDF layout.
+
+2021-10-14  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctproofmac.tex,
+	* cttwinxmac.tex,
+	* ctwimac.tex,
+	* texinputs/pdfctwimac.tex: Fix 'base 2' for 'p' exponent.
+
+2021-10-11  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* ctang-w2c.ch,
+	* ctwill-w2c.ch,
+	* cweav-w2c.ch: CWEB 4.6 pre-release RC2.
+
+2021-09-16  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-{bs,vms,w2c,w32}.ch,
+	* common.c,
+	* common.h,
+	* ctang-vms.ch,
+	* ctangle.c,
+	* ctangle.w,
+	* ctwill-{mini,w2c}.ch,
+	* cweav-{vms,w2c}.ch,
+	* cweave.w,
+	* cwebmac.tex,
+	* cwebman-w2c.ch,
+	* po/de/web2c-help.po,
+	* po/web2c-help.pot,
+	* prod-{cweave,twill}.w,
+	* prod.w: CWEB 4.6 pre-release.
+
 2021-07-14  Andreas Scherer  <https://ascherer.github.io>
 
 	* Makefile,

@@ -451,7 +451,7 @@ char check_file_name[max_file_name_length]; /* name of |check_file| */
 @x
 show_banner=show_happiness=show_progress=make_xrefs=true;
 @y
-make_xrefs=check_for_change=true;
+make_xrefs=true;
 @z
 
 @x
@@ -601,32 +601,15 @@ else {
 @ @<Scan arguments and open output files@>=
 scan_args();
 if (program==ctangle) {
-  if ((C_file=fopen(C_file_name,"a"))==NULL)
+  if (check_for_change) @<Open intermediate \CEE/ output file@>@;
+  else if ((C_file=fopen(C_file_name,"wb"))==NULL)
     fatal(_("! Cannot open output file "), C_file_name);
-@.Cannot open output file@>
-  else fclose(C_file); /* Test accessability */
-  strcpy(check_file_name,C_file_name);
-  if(check_file_name[0]!='\0') {
-    char *dot_pos=strrchr(check_file_name,'.');
-    if(dot_pos==NULL) strcat(check_file_name,".ttp");
-    else strcpy(dot_pos,".ttp");
-  }
-  if ((C_file=fopen(check_file_name,"wb"))==NULL)
-    fatal(_("! Cannot open output file "), check_file_name);
 @.Cannot open output file@>
 }
 else {
-  if ((tex_file=fopen(tex_file_name,"a"))==NULL)
+  if (check_for_change) @<Open intermediate \TEX/ output file@>@;
+  else if ((tex_file=fopen(tex_file_name,"wb"))==NULL)
     fatal(_("! Cannot open output file "), tex_file_name);
-  else fclose(tex_file); /* Test accessability */
-  strcpy(check_file_name,tex_file_name);
-  if(check_file_name[0]!='\0') {
-    char *dot_pos=strrchr(check_file_name,'.');
-    if(dot_pos==NULL) strcat(check_file_name,".wtp");
-    else strcpy(dot_pos,".wtp");
-  }
-  if ((tex_file=fopen(check_file_name,"wb"))==NULL)
-    fatal(_("! Cannot open output file "), check_file_name);
 }
 @z
 
@@ -664,7 +647,46 @@ string texmf_locale;@/
 #endif
 char separators[]=SEPARATORS;
 
-@* Temporary file output.  Before we leave the program we have to make
+@* Temporary file output. Most \CEE/ projects are controlled by a \.{Makefile}
+that automatically takes care of the temporal dependecies between the different
+source modules. It may be convenient that \.{CWEB} doesn't create new output
+for all existing files, when there are only changes to some of them. Thus the
+\.{make} process will only recompile those modules where necessary. You can
+activate this feature with the `\.{+c}' command-line option. The idea and basic
+implementation of this mechanism can be found in the program \.{NUWEB} by
+Preston Briggs, to whom credit is due.
+
+@<Open intermediate \CEE/ output file@>= {
+  if ((C_file=fopen(C_file_name,"a"))==NULL)
+    fatal(_("! Cannot open output file "), C_file_name);
+@.Cannot open output file@>
+  else fclose(C_file); /* Test accessability */
+  strcpy(check_file_name,C_file_name);
+  if(check_file_name[0]!='\0') {
+    char *dot_pos=strrchr(check_file_name,'.');
+    if(dot_pos==NULL) strcat(check_file_name,".ttp");
+    else strcpy(dot_pos,".ttp");
+  }
+  if ((C_file=fopen(check_file_name,"wb"))==NULL)
+    fatal(_("! Cannot open output file "), check_file_name);
+}
+
+@ @<Open intermediate \TEX/ output file@>= {
+  if ((tex_file=fopen(tex_file_name,"a"))==NULL)
+    fatal(_("! Cannot open output file "), tex_file_name);
+@.Cannot open output file@>
+  else fclose(tex_file); /* Test accessability */
+  strcpy(check_file_name,tex_file_name);
+  if(check_file_name[0]!='\0') {
+    char *dot_pos=strrchr(check_file_name,'.');
+    if(dot_pos==NULL) strcat(check_file_name,".wtp");
+    else strcpy(dot_pos,".wtp");
+  }
+  if ((tex_file=fopen(check_file_name,"wb"))==NULL)
+    fatal(_("! Cannot open output file "), check_file_name);
+}
+
+@ Before we leave the program we have to make
 sure that the output files are correctly written.
 
 @<Remove the temporary file...@>=
@@ -804,7 +826,7 @@ Modules for dealing with help messages and version info.
 
 @ @<Display help message and |exit|@>=
 cb_usagehelp(program==ctangle ? CTANGLEHELP :
-  program==cweave ? CWEAVEHELP : CTWILLHELP, NULL);
+  program==cweave ? CWEAVEHELP : CTWILLHELP);
 @.--help@>
 
 @ Special variants from Web2c's `\.{lib/usage.c}', adapted for
@@ -813,7 +835,7 @@ cb_usagehelp(program==ctangle ? CTANGLEHELP :
 
 @<Predecl...@>=
 static void cb_usage (const_string str);@/
-static void cb_usagehelp (const_string *message, const_string bug_email);@/
+static void cb_usagehelp (const_string *message);@/
 
 @ @c
 static void cb_usage (const_string str)
@@ -828,10 +850,8 @@ static void cb_usage (const_string str)
   history=fatal_message; exit(wrap_up());
 }
 
-static void cb_usagehelp (const_string *message, const_string bug_email)
+static void cb_usagehelp (const_string *message)
 {
-  if (!bug_email)
-    bug_email = "tex-k@@tug.org";
   textdomain("web2c-help");
 @.web2c-help.mo@>
   while (*message) {
@@ -841,7 +861,7 @@ static void cb_usagehelp (const_string *message, const_string bug_email)
   }
   textdomain("cweb-tl");
 @.cweb-tl.mo@>
-  printf(_("\nEmail bug reports to %s.\n"), bug_email);
+  printf(_("\nPackage home page: %s.\n"), "https://ctan.org/pkg/cweb");
   textdomain("cweb");
 @.cweb.mo@>
   history=spotless; exit(wrap_up());

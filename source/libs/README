@@ -1,4 +1,5 @@
-$Id: README 60361 2021-08-29 06:22:34Z kakuto $
+
+$Id: README 61007 2021-11-09 06:27:55Z kakuto $
 Public domain.  Originally created by Karl Berry, 2005.
 
 Libraries we compile for TeX Live.
@@ -12,10 +13,10 @@ See also comments in ../texk/README.
 cairo 1.16.0 - checked 20oct18
   http://cairographics.org/releases/
 
-freetype2 2.10.4 - checked 21oct20
-  http://savannah.nongnu.org/download/freetype/
+freetype2 2.11.0 - checked 01sep21
+  http://download.savannah.gnu.org/releases/freetype/
 
-gd 2.3.2 - checked 28aug21
+gd 2.3.3 - checked 13sep21
   https://github.com/libgd/libgd/releases
 
 gmp 6.2.1 - checked 15nov20
@@ -25,8 +26,8 @@ graphite2 1.3.14 - checked 10apr20
   http://sourceforge.net/projects/silgraphite/files/graphite2/
   (requires C++11)
 
-harfbuzz 2.9.0 - checked 29aug21
-  https://github.com/harfbuzz/harfbuzz/releases/download/2.9.0/
+harfbuzz 3.1.1 - checked 09nov21
+  https://github.com/harfbuzz/harfbuzz/releases/download/3.1.1/
 
 icu 68.2 - checked 13feb21
   http://download.icu-project.org/files/icu4c/
@@ -55,8 +56,8 @@ pixman 0.40.0 - checked 21apr20
 pplib 2.05.0 - checked 21apr20
   https://github.com/contextgarden/pplib
 
-teckit 2.5.10 - checked 06may20
-  https://github.com/silnrsi/teckit/archive/2.5.10.tar.gz
+teckit 2.5.11 - checked 09nov21
+  https://github.com/silnrsi/teckit/archive/2.5.11.tar.gz
 
 xpdf 4.03 - checked 01feb21
   http://www.xpdfreader.com/download.html
