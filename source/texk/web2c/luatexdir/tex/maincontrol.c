@@ -1942,13 +1942,29 @@ displays.
 
 */
 
+static int only_dirs(halfword n)
+{
+    while (n) {
+        if (type(n) == local_par_node || type(n) == dir_node) {
+            n = vlink(n);
+        } else {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void end_graf(int line_break_context)
 {
     if (mode == hmode) {
-        if ((head == tail) || (vlink(head) == tail)) {
-            if (vlink(head) == tail)
-                flush_node(vlink(head));
-            /*tex |null| paragraphs are ignored, all contain a |local_paragraph| node */
+        /*tex
+            We ignore |null| paragraphs, that is those that only have a local par node
+            and possibly a few dir nodes injected automatically.
+        */
+        if (head == tail) {
+            pop_nest();
+        } else if (only_dirs(vlink(head))) {
+            flush_node(vlink(head));
             pop_nest();
         } else {
             line_break(false, line_break_context);

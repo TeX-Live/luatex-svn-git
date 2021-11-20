@@ -1,3 +1,51 @@
+2021-11-20 Luigi Scarso <luigi.scarso@gmail.com>
+    * Ignore paragraphs with only a local par node followed by direction synchronization
+    nodes (paragraphs like that are seen as empty paragraphs) (HH)
+
+2021-08-28 Luigi Scarso <luigi.scarso@gmail.com>
+    *more efficient fontdimen allocation (HH)
+
+2021-08-12 Luigi Scarso <luigi.scarso@gmail.com>
+    *mplibdir: Fix _findfirst handle truncation on Windows x86_64. 
+     Thanks to Richard Copley.
+
+2021-08-08 Luigi Scarso <luigi.scarso@gmail.com>
+    *Improvements for glyph_stream_provider with TTF fonts (MK)
+
+2021-08-04 Luigi Scarso <luigi.scarso@gmail.com>
+    *Fix named instance inconsistency in luaharfbuzz (MK)
+
+2021-08-03 Luigi Scarso <luigi.scarso@gmail.com>
+    *luaharfbuzz: Provide interface for variable fonts (M.Krüger)
+
+2021-07-30 Luigi Scarso <luigi.scarso@gmail.com>
+    *patch for luamplib  to process string with "char 0"; fixed also mplib_text 
+
+2021-07-30 Luigi Scarso <luigi.scarso@gmail.com>
+    *patch for luamplib  to process string with "char 0"
+
+2021-07-27 Luigi Scarso <luigi.scarso@gmail.com>
+    *partoken primitives (HH & PO)
+
+2021-07-27 Luigi Scarso <luigi.scarso@gmail.com>
+    *Sync with TeX Live revision 60088.
+
+2021-07-27 Luigi Scarso <luigi.scarso@gmail.com>
+    *automake-1.16.4; initialize limit to avoid printing some garbage.
+
+2021-07-02 Luigi Scarso <luigi.scarso@gmail.com>
+    *ePNG /Smask for  pdf 2.0
+
+2021-07-02 Luigi Scarso <luigi.scarso@gmail.com>
+    *sync with upstream texlive; autoconf-2.71.
+
+2021-05-10 Luigi Scarso <luigi.scarso@gmail.com>
+    *MetaPost: fixed the patch on the stack overflow.
+
+2021-05-09 Luigi Scarso <luigi.scarso@gmail.com>
+    *Impose mp->stack_size < 1001 in @d push_input to avoid 
+     stack overflow due infinite recursion of macro expansion (thanks to A. Kakuto).
+
 2021-04-21 Luigi Scarso <luigi.scarso@gmail.com>
     *\discretionaryligaturemode: optionally block select disc creation 
     (see [Dev-luatex] [PATCH] Nested discretionaries M.F. Krüger) (HH)
