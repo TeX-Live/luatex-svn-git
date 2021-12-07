@@ -1,3 +1,6 @@
+2021-12-07 Luigi Scarso <luigi.scarso@gmail.com>
+    * Fixed a typo in maincontrol.c (thanks to Hironobu Yamashita)
+
 2021-11-20 Luigi Scarso <luigi.scarso@gmail.com>
     * Ignore paragraphs with only a local par node followed by direction synchronization
     nodes (paragraphs like that are seen as empty paragraphs) (HH)
