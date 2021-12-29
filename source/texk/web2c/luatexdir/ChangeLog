@@ -1,3 +1,20 @@
+2021-12-29 Luigi Scarso <luigi.scarso@gmail.com>
+    * Correctly print \write for the error message 
+      "Forbidden control sequence found while scanning text of"
+      (thanks to Hironobu Yamashita)
+
+2021-12-27 Luigi Scarso <luigi.scarso@gmail.com>
+    * fixed a typo in a tex comment.
+
+2021-12-24 Luigi Scarso <luigi.scarso@gmail.com>
+    * Metapost: make sure that an already open VF is closed before to read a new one
+
+2021-12-21 Luigi Scarso <luigi.scarso@gmail.com>
+    * fixed os.uname on 64 bit Windows (A. Kakuto, L. Scarso)
+
+2021-12-13 Luigi Scarso <luigi.scarso@gmail.com>
+    * fixed a typo in equivalents.c (user202729 @ https://chat.stackexchange.com/transcript/41/2021/12/12)
+
 2021-12-07 Luigi Scarso <luigi.scarso@gmail.com>
     * Fixed a typo in maincontrol.c (thanks to Hironobu Yamashita)
 
