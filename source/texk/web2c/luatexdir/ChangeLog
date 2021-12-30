@@ -1,5 +1,6 @@
 2021-12-30 Luigi Scarso <luigi.scarso@gmail.com>
     * struct dest (M.Krüger)
+    * fixed  a 'Conditional jump or move depends on uninitialised value(s)' msg from valgrind
 
 2021-12-29 Luigi Scarso <luigi.scarso@gmail.com>
     * Correctly print \write for the error message 
