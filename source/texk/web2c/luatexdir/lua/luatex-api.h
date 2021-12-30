@@ -1142,6 +1142,7 @@ make_lua_key(streamprovider);\
 make_lua_key(stretch);\
 make_lua_key(stretch_order);\
 make_lua_key(string);\
+make_lua_key(struct_id);\
 make_lua_key(style);\
 make_lua_key(sub);\
 make_lua_key(subfont);\
@@ -1841,6 +1842,7 @@ init_lua_key(streamprovider);\
 init_lua_key(stretch);\
 init_lua_key(stretch_order);\
 init_lua_key(string);\
+init_lua_key(struct_id);\
 init_lua_key(style);\
 init_lua_key(sub);\
 init_lua_key(subfont);\
@@ -2615,6 +2617,7 @@ use_lua_key(streamprovider);
 use_lua_key(stretch);
 use_lua_key(stretch_order);
 use_lua_key(string);
+use_lua_key(struct_id);
 use_lua_key(style);
 use_lua_key(sub);
 use_lua_key(subfont);
