@@ -1,3 +1,150 @@
+2021-11-14  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebboot.cin: More generic point of interest.
+
+2021-11-07  Marcel Kr\"uger  <tex@2krueger.de>
+
+	* showstream.ch: new primitive \showstream.
+	* NEWS: mention this.
+
+	* eptexdir/am/eptex.am (eptex_web_srcs),
+	* euptexdir/am/euptex.am (euptex_web_srcs),
+	* pdftexdir/am/pdftex.am (pdftex_ch_srcs),
+	* xetexdir/am/xetex.am (xetex_ch_srcs): include showstream.ch.
+
+	* enctexdir/enctex-pdftex.ch: rearrange constants.
+	
+	* luatexdir/tex/commands.c (initialize_etex_commands): primitive_etex.
+	* luatexdir/tex/equivalents.h (show_stream_code, show_stream_par):
+	new #define.
+	(math_option_code): increment.
+	* luatexdir/tex/mainbody.c (main_initialize): show_stream_par=-1.
+	* luatexdir/tex/maincontrol.c (show_whatever): implement \showstream.
+
+2021-11-03  Karl Berry  <karl@freefriends.org>
+
+	* am/texmf.am (install-mf-links) [WIN32]: install via libtool,
+	the same change as made for dvipdfmx.
+	https://tug.org/pipermail/dvipdfmx/2021-October/000301.html
+
+2021-10-11  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: CWEB 4.6 pre-release RC2.
+
+2021-09-21  Karl Berry  <karl@freefriends.org>
+
+	* ac/web2c.ac (kpse_tex_progs): include hitex, disabled by default.
+	* Makefile.am: include hitexdir/am/hitex.am.
+	* hitexdir: new directory.
+
+2021-09-16  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile.in,
+	* am/cweb.am,
+	* ctangleboot.cin,
+	* cwebboot.cin,
+	* help.h: CWEB 4.6 pre-release.
+
+2021-07-25  Karl Berry  <karl@freefriends.org>
+
+	* Makefile.am (proglib_sources): laboriously list all of lib/*.c
+	except texmfmp.c as dependencies, since texmfmp.c is not a
+	dependency of lib.a.
+
+2021-07-25  Petr Olsak  <petr@olsak.net>
+	and Karl Berry  <karl@freefriends.org>
+	and Hironori Kitagawa  <h_kitagawa2001@yahoo.co.jp>
+
+	* partoken.ch: new primitives \partokenname and \partokencontext.
+	* NEWS: mention this.
+
+	* partoken-102.ch (max_command): split off @d since different for pTeX.
+	* enctexdir/enctex-pdftex.ch: rearrange constants.
+	* uptexdir/uptex-m.ch (max_command): now partoken_name is last.
+	* ptexdir/ptex-base.ch (max_command): now partoken_name is last.
+	(insert_group, vcenter_group): remove constant lines from change
+	hunks so that partoken.ch can apply.
+
+	* eptexdir/am/eptex.am (eptex_web_srcs),
+	* euptexdir/am/euptex.am (euptex_web_srcs),
+	* ptexdir/am/ptex.am (ptex_web_srcs),
+	* uptexdir/am/uptex.am (uptex_web_srcs): include partoken.ch.
+	* xetexdir/am/xetex.am (xetex_ch_srcs),
+	* pdftexdir/am/pdftex.am (pdftex_ch_srcs): include partoken.ch
+	and partoken-102.ch.
+
+	* pdftexdir/tests/partoken.test: test it.
+	* tests/partoken-ok.tex,
+	* tests/partoken-xfail.tex: new test files.
+	* tests/cmr10.pfb: needed since the partoken test typesets text.
+	* pdftexdir/am/pdftex.am (pdftex_tests): new test.
+	(pdftexdir/tests/partoken.log): new log.
+	(EXTRA_DIST): new test files.
+	(DISTCLEANFILES): remove new log files.
+
+	* pdftexdir/tests/cnfline.test: use nonstopmode so errors are on
+	terminal, following partoken.test.
+
+2021-07-25  Karl Berry  <karl@freefriends.org>
+
+	* tex.ch: restore "strings are different" change from 2021-07-22.
+
+2021-07-25  Hironori Kitagawa  <h_kitagawa2001@yahoo.co.jp>
+
+	* tex.ch: add section numbers for changes on 2021-07-19.
+
+2021-07-22  Karl Berry  <karl@freefriends.org>
+
+	* tex.ch (50.1308): when fmt loading fails because the string
+	checksums are different, say that explicitly, not just
+	"different executable".
+
+2021-07-19  Hironori Kitagawa  <h_kitagawa2001@yahoo.co.jp>
+
+	* tex.ch (term_input, @<Input for \.{\\read} from the terminal@>):
+	initialize limit to avoid printing some garbage.
+	https://tug.org/pipermail/tex-k/2021-July/003630.html
+
+2021-07-14  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: CWEB release 4.5.
+
+2021-06-15  Karl Berry  <karl@freefriends.org>
+
+	* dvicopy.web: erroneous '/'; also switch to "Unix" in text.
+
+2021-06-06  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: CWEB release 4.4.
+
+2021-05-18  Karl Berry  <karl@freefriends.org>
+
+	* README,
+	* PROJECTS: updates.
+
+2021-05-07  Karl Berry  <karl@freefriends.org>
+
+	* tex.ch (sup_save_size): increase to 30000000
+	(could be max_halfword). Found by Christian Schenk,
+	tex-live 18 Mar 2021 18:39:04.
+
+2021-05-07  Karl Berry  <karl@freefriends.org>
+
+	* doc/web2c.texi,
+	* doc/ref.txi: typos.
+
+2021-04-13  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangleboot.cin,
+	* cwebboot.cin: CWEB release 4.3.
+
+2021-03-24  Andreas Scherer  <https://ascherer.github.io>
+
+	* help.h: New options for CTANGLE, CWEAVE and CTWILL.
+
 2021-03-23  Karl Berry  <karl@tug.org>
 
 	* TL'21.
@@ -7,6 +154,11 @@
 	* doc/glue.web,
 	* doc/webman.tex: add these Knuth files here, since nowhere
 	else seems better. PDF output for them is in the knuth-pdf package.
+
+2021-03-06  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile.in,
+	* am/cweb.am: Patch refsort and twinx with changefiles.
 
 2021-02-25  Andreas Scherer  <https://ascherer.github.io>
 

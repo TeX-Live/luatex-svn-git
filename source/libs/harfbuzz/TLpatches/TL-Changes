@@ -1,5 +1,5 @@
-Changes applied to the harfbuzz-2.7.4/ tree as obtained from:
-	https://github.com/harfbuzz/harfbuzz/releases/download/2.7.4/
+Changes applied to the harfbuzz-3.2.0/ tree as obtained from:
+	https://github.com/harfbuzz/harfbuzz/releases/download/3.2.0/
 
 Removed:
 	COPYING
@@ -22,7 +22,6 @@ Removed:
         unused dirs:
 	docs
 	m4
-	meson-cc-tests
 	perf
 	subprojects
 	test

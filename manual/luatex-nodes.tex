@@ -1002,7 +1002,7 @@ what you generate.
 \NC                    \NC string   \NC the destination name \NC \NR
 \NC \type{dest_type}   \NC number   \NC type of destination \NC \NR
 \NC \type{xyz_zoom}    \NC number   \NC the zoom factor (times 1000) \NC \NR
-\NC \type{objnum}      \NC number   \NC the \PDF\ object number \NC \NR
+\NC \type{objnum}      \NC number   \NC the \PDF\ object number; for structure references the \PDF\ object number of the linked structure element \NC \NR
 \LL
 \stoptabulate
 
@@ -1016,10 +1016,13 @@ objects.
 \TB
 \NC \type{action_type} \NC number           \NC the kind of action involved \NC \NR
 \NC \type{action_id}   \NC number or string \NC token list reference or string \NC \NR
-\NC \type{named_id}    \NC number           \NC the index of the destination \NC \NR
+\NC \type{named_id}    \NC number           \NC are \type {dest_id} and \type {struct_id} string values? \NC \NR
 \NC \type{file}        \NC string           \NC the target filename \NC \NR
 \NC \type{new_window}  \NC number           \NC the window state of the target \NC \NR
 \NC \type{data}        \NC string           \NC the name of the destination \NC \NR
+\NC \type{struct_id}   \NC nil              \NC the action does not reference a structure destination \NC \NR
+\NC                    \NC number           \NC id of the referenced structure destination \NC \NR
+\NC                    \NC string           \NC name of the referenced structure destination \NC \NR
 \LL
 \stoptabulate
 

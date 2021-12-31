@@ -17,15 +17,15 @@
 @q Please send comments, suggestions, etc. to tex-k@@tug.org.            @>
 
 @x
-\def\title{CTANGLE (Version 4.2)}
+\def\title{CTANGLE (Version 4.5)}
 @y
-\def\title{CTANGLE (Version 4.2 [\TeX~Live])}
+\def\title{CTANGLE (Version 4.5 [\TeX~Live])}
 @z
 
 @x
-  \centerline{(Version 4.2)}
+  \centerline{(Version 4.5)}
 @y
-  \centerline{(Version 4.2 [\TeX~Live])}
+  \centerline{(Version 4.5 [\TeX~Live])}
 @z
 
 @x
@@ -41,9 +41,9 @@
 @z
 
 @x
-@d banner "This is CTANGLE (Version 4.2)"
+@d banner "This is CTANGLE (Version 4.5)"
 @y
-@d banner "This is CTANGLE, Version 4.2"
+@d banner "This is CTANGLE, Version 4.5"
   /* will be extended by the \TeX~Live |versionstring| */
 @z
 
@@ -57,6 +57,14 @@
 @i common.h
 @y
 @i comm-w2c.h
+@z
+
+@x
+@ @d max_texts 2500 /* number of replacement texts, must be less than 10240 */
+@d max_toks 270000 /* number of bytes in compressed \CEE/ code */
+@y
+@ @d max_texts 10239 /* number of replacement texts, must be less than 10240 */
+@d max_toks 1000000 /* number of bytes in compressed \CEE/ code */
 @z
 
 @x
@@ -78,9 +86,9 @@
 @z
 
 @x
-      overflow("output files");
+    else overflow("output files");
 @y
-      overflow(_("output files"));
+    else overflow(_("output files"));
 @z
 
 @x
@@ -113,14 +121,14 @@ for (an_output_file=end_output_files; an_output_file>cur_out_file;) {
     an_output_file--;
     sprint_section_name(output_file_name,*an_output_file);
     fclose(C_file);
-    C_file=fopen(output_file_name,"wb");
-    if (C_file ==0) fatal("! Cannot open output file ",output_file_name);
+    if ((C_file=fopen(output_file_name,"wb"))==NULL)
+      fatal("! Cannot open output file ",output_file_name);
 @.Cannot open output file@>
     if (show_progress) { printf("\n(%s)",output_file_name); update_terminal; }
     cur_line=1;
     stack_ptr=stack+1;
-    cur_name= (*an_output_file);
-    cur_repl= (text_pointer)cur_name->equiv;
+    cur_name=*an_output_file;
+    cur_repl=(text_pointer)cur_name->equiv;
     cur_byte=cur_repl->tok_start;
     cur_end=(cur_repl+1)->tok_start;
     while (stack_ptr > stack) get_output();
@@ -128,35 +136,42 @@ for (an_output_file=end_output_files; an_output_file>cur_out_file;) {
 }
 @y
 @<Write all the named output files@>=
-fclose(C_file); C_file=NULL;
-@<Update the primary result when it has changed@>@;
+if (check_for_change) {
+  fclose(C_file); C_file=NULL;
+  @<Update the primary result when it has changed@>@;
+}
 for (an_output_file=end_output_files; an_output_file>cur_out_file;) {
-    an_output_file--;
-    sprint_section_name(output_file_name,*an_output_file);
-    if ((C_file=fopen(output_file_name,"a"))==NULL)
+  an_output_file--;
+  sprint_section_name(output_file_name,*an_output_file);
+  if (check_for_change) @<Open the intermediate output file@>@;
+  else {
+    fclose(C_file);
+    if ((C_file=fopen(output_file_name,"wb"))==NULL)
       fatal(_("! Cannot open output file "),output_file_name);
 @.Cannot open output file@>
-    else fclose(C_file); /* Test accessability */
-    if((C_file=fopen(check_file_name,"wb"))==NULL)
-      fatal(_("! Cannot open output file "),check_file_name);
-    if (show_progress) { printf("\n(%s)",output_file_name); update_terminal; }
-    cur_line=1;
-    stack_ptr=stack+1;
-    cur_name= (*an_output_file);
-    cur_repl= (text_pointer)cur_name->equiv;
-    cur_byte=cur_repl->tok_start;
-    cur_end=(cur_repl+1)->tok_start;
-    while (stack_ptr > stack) get_output();
-    flush_buffer(); fclose(C_file); C_file=NULL;
+  }
+  if (show_progress) { printf("\n(%s)",output_file_name); update_terminal; }
+  cur_line=1;
+  stack_ptr=stack+1;
+  cur_name=*an_output_file;
+  cur_repl=(text_pointer)cur_name->equiv;
+  cur_byte=cur_repl->tok_start;
+  cur_end=(cur_repl+1)->tok_start;
+  while (stack_ptr > stack) get_output();
+  flush_buffer();
+  if (check_for_change) {
+    fclose(C_file); C_file=NULL;
     @<Update the secondary results when they have changed@>@;
+  }
 }
-strcpy(check_file_name,""); /* We want to get rid of the temporary file */
+if (check_for_change)
+  strcpy(check_file_name,""); /* We want to get rid of the temporary file */
 @z
 
 @x
-          else if (a<050000) { confusion("macro defs have strange char");}
+          else if (a<050000) confusion("macro defs have strange char");
 @y
-          else if (a<050000) { confusion(_("macro defs have strange char"));}
+          else if (a<050000) confusion(_("macro defs have strange char"));
 @z
 
 @x
@@ -190,15 +205,15 @@ strcpy(check_file_name,""); /* We want to get rid of the temporary file */
 @z
 
 @x
-    case translit_code: err_print("! Use @@l in limbo only"); continue;
+  case translit_code: err_print("! Use @@l in limbo only"); continue;
 @y
-    case translit_code: err_print(_("! Use @@l in limbo only")); continue;
+  case translit_code: err_print(_("! Use @@l in limbo only")); continue;
 @z
 
 @x
-        err_print("! Double @@ should be used in control text");
+      err_print("! Double @@ should be used in control text");
 @y
-        err_print(_("! Double @@ should be used in control text"));
+      err_print(_("! Double @@ should be used in control text"));
 @z
 
 @x
@@ -238,15 +253,21 @@ strcpy(check_file_name,""); /* We want to get rid of the temporary file */
 @z
 
 @x
-  if (loc>=limit) err_print("! Verbatim string didn't end");
+if (loc>=limit) err_print("! Verbatim string didn't end");
 @y
-  if (loc>=limit) err_print(_("! Verbatim string didn't end"));
+if (loc>=limit) err_print(_("! Verbatim string didn't end"));
 @z
 
 @x
-@d app_repl(c)  {if (tok_ptr==tok_mem_end) overflow("token"); *tok_ptr++=c;}
+@d app_repl(c) {
+  if (tok_ptr==tok_mem_end) overflow("token");
+  else *(tok_ptr++)=(eight_bits)c;
+}
 @y
-@d app_repl(c) {if (tok_ptr==tok_mem_end) overflow(_("token")); *tok_ptr++=c;}
+@d app_repl(c) {
+  if (tok_ptr==tok_mem_end) overflow(_("token"));
+  else *(tok_ptr++)=(eight_bits)c;
+}
 @z
 
 @x
@@ -286,9 +307,9 @@ case output_defs_code: if (t!=section_name) err_print(_("! Misplaced @@h"));
 @z
 
 @x
-    err_print("! Definition flushed, must start with identifier");
+  err_print("! Definition flushed, must start with identifier");
 @y
-    err_print(_("! Definition flushed, must start with identifier"));
+  err_print(_("! Definition flushed, must start with identifier"));
 @z
 
 @x
@@ -317,43 +338,53 @@ case output_defs_code: if (t!=section_name) err_print(_("! Misplaced @@h"));
 
 @x
   puts("\nMemory usage statistics:");
-  printf("%ld names (out of %ld)\n",
+  printf("%td names (out of %ld)\n",
           (ptrdiff_t)(name_ptr-name_dir),(long)max_names);
-  printf("%ld replacement texts (out of %ld)\n",
+  printf("%td replacement texts (out of %ld)\n",
           (ptrdiff_t)(text_ptr-text_info),(long)max_texts);
-  printf("%ld bytes (out of %ld)\n",
+  printf("%td bytes (out of %ld)\n",
           (ptrdiff_t)(byte_ptr-byte_mem),(long)max_bytes);
-  printf("%ld tokens (out of %ld)\n",
+  printf("%td tokens (out of %ld)\n",
 @y
   puts(_("\nMemory usage statistics:"));
-  printf(_("%ld names (out of %ld)\n"),
+  printf(_("%td names (out of %ld)\n"),
           (ptrdiff_t)(name_ptr-name_dir),(long)max_names);
-  printf(_("%ld replacement texts (out of %ld)\n"),
+  printf(_("%td replacement texts (out of %ld)\n"),
           (ptrdiff_t)(text_ptr-text_info),(long)max_texts);
-  printf(_("%ld bytes (out of %ld)\n"),
+  printf(_("%td bytes (out of %ld)\n"),
           (ptrdiff_t)(byte_ptr-byte_mem),(long)max_bytes);
-  printf(_("%ld tokens (out of %ld)\n"),
+  printf(_("%td tokens (out of %ld)\n"),
 @z
 
 @x
 @** Index.
 @y
-@** Extensions to \.{CWEB}.  The following sections introduce new or improved
-features that have been created by numerous contributors over the course of a
-quarter century.
+@** Extensions to {\tentex CWEB}.  The following sections introduce new or
+improved features that have been created by numerous contributors over the
+course of a quarter century.
 
 Care has been taken to keep the original section numbering intact, so this new
 material should nicely integrate with the original ``\&{104.~Index}.''
 
-@* Output file update.  Most \CEE/ projects are controlled by a
-\.{Makefile} that automatically takes care of the temporal dependecies
-between the different source modules.  It is suitable that \.{CWEB} doesn't
-create new output for all existing files, when there are only changes to
-some of them. Thus the \.{make} process will only recompile those modules
-where necessary. The idea and basic implementation of this mechanism can
-be found in the program \.{NUWEB} by Preston Briggs, to whom credit is due.
+@* Output file update. Most \CEE/ projects are controlled by a \.{Makefile}
+that automatically takes care of the temporal dependecies between the different
+source modules. It may be convenient that \.{CWEB} doesn't create new output
+for all existing files, when there are only changes to some of them. Thus the
+\.{make} process will only recompile those modules where necessary. You can
+activate this feature with the `\.{+c}' command-line option. The idea and basic
+implementation of this mechanism can be found in the program \.{NUWEB} by
+Preston Briggs, to whom credit is due.
 
-@<Update the primary result...@>=
+@<Open the intermediate output file@>= {
+  if ((C_file=fopen(output_file_name,"a"))==NULL)
+    fatal(_("! Cannot open output file "),output_file_name);
+@.Cannot open output file@>
+  else fclose(C_file); /* Test accessability */
+  if((C_file=fopen(check_file_name,"wb"))==NULL)
+    fatal(_("! Cannot open output file "),check_file_name);
+}
+
+@ @<Update the primary result...@>=
 if((C_file=fopen(C_file_name,"r"))!=NULL) {
   @<Set up the comparison of temporary output@>@;
   @<Create the primary output depending on the comparison@>@;
@@ -361,14 +392,13 @@ if((C_file=fopen(C_file_name,"r"))!=NULL) {
   rename(check_file_name,C_file_name); /* This was the first run */
 
 @ @<Set up the comparison of temporary output@>=
-  char x[BUFSIZ],y[BUFSIZ];
-  int x_size,y_size,comparison=false;
+  boolean comparison=false;
 
   if((check_file=fopen(check_file_name,"r"))==NULL)
     fatal(_("! Cannot open output file "),check_file_name);
 @.Cannot open output file@>
 
-  if (temporary_output) @<Compare the temporary output...@>@;
+  @<Compare the temporary output...@>@;
 
   fclose(C_file); C_file=NULL;
   fclose(check_file); check_file=NULL;
@@ -377,10 +407,10 @@ if((C_file=fopen(C_file_name,"r"))!=NULL) {
 
 @<Compare the temporary output to the previous output@>=
 do {
-  x_size = fread(x,1,BUFSIZ,C_file);
-  y_size = fread(y,1,BUFSIZ,check_file);
-  comparison = (x_size == y_size); /* Do not merge these statements! */
-  if(comparison) comparison = !memcmp(x,y,x_size);
+  char x[BUFSIZ],y[BUFSIZ];
+  int x_size = fread(x,sizeof(char),BUFSIZ,C_file);
+  int y_size = fread(y,sizeof(char),BUFSIZ,check_file);
+  comparison = (x_size == y_size) && !memcmp(x,y,x_size);
 } while(comparison && !feof(C_file) && !feof(check_file));
 
 @ Note the superfluous call to |remove| before |rename|.  We're using it to
@@ -400,13 +430,13 @@ instead of to a file (in \.{@@(...@@>}) to \.{/dev/null} or \.{/dev/stdout} or
 to a file and finally get rid of that file.
 
 @<Update the secondary results...@>=
-if(0==strcmp("/dev/stdout",output_file_name))
+if(0==strcmp("/dev/stdout",output_file_name))@/
   @<Redirect temporary output to \.{/dev/stdout}@>@;
-else if(0==strcmp("/dev/stderr",output_file_name))
+else if(0==strcmp("/dev/stderr",output_file_name))@/
   @<Redirect temporary output to \.{/dev/stderr}@>@;
-else if(0==strcmp("/dev/null",output_file_name))
+else if(0==strcmp("/dev/null",output_file_name))@/
   @<Redirect temporary output to \.{/dev/null}@>@;
-else { /* Hopefully a \\{regular} output file */
+else { /* Hopefully a regular output file */
   if((C_file=fopen(output_file_name,"r"))!=NULL) {
     @<Set up the comparison of temporary output@>@;
     @<Create the secondary output depending on the comparison@>@;
@@ -429,7 +459,7 @@ else {
 @<Redirect temporary output to \.{/dev/stdout}@>={
   @<Setup system redirection@>@;
   do {
-    in_size = fread(in_buf,1,BUFSIZ,check_file);
+    in_size = fread(in_buf,sizeof(char),BUFSIZ,check_file);
     in_buf[in_size]='\0';
     fprintf(stdout,"%s",in_buf);
   } while(!feof(check_file));@/
@@ -442,7 +472,7 @@ else {
 @<Redirect temporary output to \.{/dev/stderr}@>={
   @<Setup system redirection@>@;
   do {
-    in_size = fread(in_buf,1,BUFSIZ,check_file);
+    in_size = fread(in_buf,sizeof(char),BUFSIZ,check_file);
     in_buf[in_size]='\0';
     fprintf(stderr,"%s",in_buf);
   } while(!feof(check_file));@/
@@ -453,18 +483,19 @@ else {
 @ No copying necessary, just remove the temporary output file.
 
 @<Redirect temporary output to \.{/dev/null}@>={
-  int comparison=true;
+  boolean comparison=true;
   @<Create the secondary output...@>@;
 }
 
 @ @<Setup system redirection@>=
 char in_buf[BUFSIZ+1];
-int in_size,comparison=true;
+int in_size;
+boolean comparison=true;
 if((check_file=fopen(check_file_name,"r"))==NULL)
   fatal(_("! Cannot open output file "),check_file_name);
 @.Cannot open output file@>
 
-@* Put ``version'' information in a single spot.
+@* Print ``version'' information.
 Don't do this at home, kids! Push our local macro to the variable in \.{COMMON}
 for printing the |banner| and the |versionstring| from there.
 

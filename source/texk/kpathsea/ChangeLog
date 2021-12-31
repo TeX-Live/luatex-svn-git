@@ -1,3 +1,34 @@
+2021-11-01  Marcel Fabian Krueger  <tex@2krueger.de>
+
+	* str-list.c (str_list_uniqify): compare each input element
+	against the elements to be returned, to keep the ordering of the
+	result the same as the input.  Then the first result in a list
+	from kpsewhich -a will be the same as the result of just kpsewhich.
+
+2021-05-14  Karl Berry  <karl@tug.org>
+
+	* texmf.cnf (TEXINPUTS.optex): new definition for new format.
+	Move some other definitions around for consistency, but no changes.
+
+2021-05-07  Karl Berry  <karl@freefriends.org>
+
+	* texmf.cnf (save_size): re-increase to 200000
+	with parallel change to tex.ch.
+
+2021-04-22  Karl Berry  <karl@freefriends.org>
+
+	* doc/kpathsea.texi (TeX directory structure): link to
+	ctan.org/pkg/tds instead of http://mirror.ctan.org.
+
+2021-04-17  Karl Berry  <karl@tug.org>
+
+	* version.ac: now 6.3.4/dev since TL'21 is released.
+
+2021-04-07  Akira Kakuto  <kakuto@w32tex.org>
+
+	* knj.c, readable.c: Fix a bug that the "nul" device given in
+	a full-path form, such as c:/usr/work/nul was not readable.
+
 2021-03-23  Karl Berry  <karl@tug.org>
 
 	* TL'21.

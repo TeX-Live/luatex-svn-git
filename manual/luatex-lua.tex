@@ -339,7 +339,7 @@ be done with \type {lfs.attributes}. The additional function \type
 {lfs.shortname} takes a file name and returns its short name on \type {win32}
 platforms. Finally, for non|-|\type {win32} platforms only, we provided \type
 {lfs.readlink} that takes an existing symbolic link as argument and returns its
-name. However, the \type library evolved so we have dropped these in favour of
+name. However, the \type {lfs} library evolved so we have dropped these in favour of
 pure \LUA\ variants. The \type {shortname} helper is obsolete and now just
 returns the name.
 
@@ -372,7 +372,7 @@ piecemeal: \libidx {string} {utfvalues}, \libidx {string} {utfcharacters},
     \type {string.utfcharacters(s)}: a string with a single \UTF-8 token in it
 \stopitem
 \startitem
-    \type {string.cWharacters(s)}: a string containing one byte
+    \type {string.characters(s)}: a string containing one byte
 \stopitem
 \startitem
     \type {string.characterpairs(s)}: two strings each containing one byte or an
@@ -421,7 +421,7 @@ and \libidx {string} {utflength}.
     the given code points
 \stopitem
 \startitem
-    \type {string.utflength(s)}: returns the length oif the given string
+    \type {string.utflength(s)}: returns the length of the given string
 \stopitem
 \stopitemize
 

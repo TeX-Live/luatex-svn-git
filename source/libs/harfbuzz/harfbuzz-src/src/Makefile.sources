@@ -19,6 +19,9 @@ HB_BASE_sources = \
 	hb-array.hh \
 	hb-atomic.hh \
 	hb-bimap.hh \
+	hb-bit-page.hh \
+	hb-bit-set.hh \
+	hb-bit-set-invertible.hh \
 	hb-blob.cc \
 	hb-blob.hh \
 	hb-buffer-serialize.cc \
@@ -47,6 +50,8 @@ HB_BASE_sources = \
 	hb-map.cc \
 	hb-map.hh \
 	hb-meta.hh \
+	hb-ms-feature-ranges.cc \
+	hb-ms-feature-ranges.hh \
 	hb-mutex.hh \
 	hb-null.hh \
 	hb-number.cc \
@@ -118,13 +123,13 @@ HB_BASE_sources = \
 	hb-ot-shape-complex-indic.hh \
 	hb-ot-shape-complex-khmer.cc \
 	hb-ot-shape-complex-khmer.hh \
-	hb-ot-shape-complex-machine-index.hh \
 	hb-ot-shape-complex-myanmar.cc \
 	hb-ot-shape-complex-myanmar.hh \
+	hb-ot-shape-complex-syllabic.cc \
+	hb-ot-shape-complex-syllabic.hh \
 	hb-ot-shape-complex-thai.cc \
-	hb-ot-shape-complex-use-table.cc \
+	hb-ot-shape-complex-use-table.hh \
 	hb-ot-shape-complex-use.cc \
-	hb-ot-shape-complex-use.hh \
 	hb-ot-shape-complex-vowel-constraints.cc \
 	hb-ot-shape-complex-vowel-constraints.hh \
 	hb-ot-shape-complex.hh \
@@ -138,6 +143,7 @@ HB_BASE_sources = \
 	hb-ot-tag-table.hh \
 	hb-ot-tag.cc \
 	hb-ot-var-avar-table.hh \
+	hb-ot-var-common.hh \
 	hb-ot-var-fvar-table.hh \
 	hb-ot-var-gvar-table.hh \
 	hb-ot-var-hvar-table.hh \
@@ -167,6 +173,7 @@ HB_BASE_sources = \
 	hb-unicode.hh \
 	hb-utf.hh \
 	hb-vector.hh \
+	hb-priority-queue.hh \
 	hb.hh \
 	$(NULL)
 
@@ -255,6 +262,8 @@ HB_SUBSET_sources = \
 	hb-number.hh \
 	hb-ot-cff1-table.cc \
 	hb-ot-cff2-table.cc \
+	hb-ot-color-colrv1-closure.hh \
+	hb-ot-post-table-v2subset.hh \
 	hb-static.cc \
 	hb-subset-cff-common.cc \
 	hb-subset-cff-common.hh \
@@ -266,10 +275,9 @@ HB_SUBSET_sources = \
 	hb-subset-input.hh \
 	hb-subset-plan.cc \
 	hb-subset-plan.hh \
-	hb-subset-plan.hh \
 	hb-subset.cc \
 	hb-subset.hh \
-	hb-subset.hh \
+	hb-repacker.hh \
 	$(NULL)
 
 HB_SUBSET_headers = \

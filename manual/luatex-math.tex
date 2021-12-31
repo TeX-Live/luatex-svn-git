@@ -1,4 +1,4 @@
-% language=uk
+% language=uk engine=luatex
 
 \environment luatex-style
 
@@ -1575,6 +1575,40 @@ Because there are quite some math related parameters and values, it is possible
 to limit tracing. Only when \type {tracingassigns} and|/|or \type
 {tracingrestores} are set to~2 or more they will be traced.
 
+\subsection {Math options with \lpr {mathdefaultsmode}}
+
+This option has been introduced because \LATEX\ developers wanted some of the
+defaults to be different from the ones that were set in stone when we froze
+\LUATEX. The default values are:
+
+\starttabulate[|l|c|c|]
+\DB                 \BC scanning \BC rendering \NC \NR
+\TB
+\NC radical/root    \NC cramped  \NC cramped   \NC \NR
+\NC under delimiter \NC cramped  \NC supstyle  \NC \NR
+\NC over delimiter  \NC cramped  \NC substyle  \NC \NR
+\NC delimiter under \NC cramped  \NC current   \NC \NR
+\NC delimiter over  \NC cramped  \NC current   \NC \NR
+\LL
+\stoptabulate
+
+When \type {\mathdefaultsmode} is larger than zero, we have:
+
+\starttabulate[|l|c|c|]
+\DB                 \BC scanning \BC rendering \NC \NR
+\TB
+\NC radical/root    \NC cramped  \NC cramped   \NC \NR
+\NC under delimiter \NC substyle \NC substyle  \NC \NR
+\NC over delimiter  \NC supstyle \NC supstyle  \NC \NR
+\NC delimiter under \NC current  \NC current   \NC \NR
+\NC delimiter over  \NC cramped  \NC cramped   \NC \NR
+\LL
+\stoptabulate
+
+It is outside the scope of this manual to discuss the rationale behind these
+defaults. The zero values date back from the early times. If needed you can
+explicitly set the style in the content argument.
+
 \subsection {Math options with \lpr {mathoption}}
 
 The logic in the math engine is rather complex and there are often no universal
@@ -1588,7 +1622,7 @@ This option was introduced for testing purposes when the math engine got split
 code paths and it forces the engine to treat new fonts as old ones with respect
 to italic correction etc. There are no guarantees given with respect to the final
 result and unexpected side effects are not seen as bugs as they relate to font
-properties. Ther eis currently only one option:
+properties. There is currently only one option:
 
 \startbuffer
 \mathoption old 1

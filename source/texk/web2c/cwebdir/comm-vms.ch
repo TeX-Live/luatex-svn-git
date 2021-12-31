@@ -18,8 +18,8 @@ modified:
 #include <stdbool.h> /* definition of |@!bool|, |@!true| and |@!false| */
 #include <stddef.h> /* definition of |@!ptrdiff_t| */
 #include <stdint.h> /* definition of |@!uint8_t| and |@!uint16_t| */
-#include <stdlib.h> /* definition of |@!getenv| and |@!exit| */
 #include <stdio.h> /* definition of |@!printf| and friends */
+#include <stdlib.h> /* definition of |@!getenv| and |@!exit| */
 #include <string.h> /* definition of |@!strlen|, |@!strcmp| and so on */
 @y
 #include ctype /* definition of |@!isalpha|, |@!isdigit| and so on */
@@ -27,14 +27,14 @@ modified:
 #include stdbool /* definition of |@!bool|, |@!true| and |@!false| */
 #include stddef /* definition of |@!ptrdiff_t| */
 #include stdint /* definition of |@!uint8_t| and |@!uint16_t| */
-#include stdlib /* definition of |@!getenv| and |@!exit| */
 #include stdio /* definition of |@!printf| and friends */
+#include stdlib /* definition of |@!getenv| and |@!exit| */
 #include string /* definition of |@!strlen|, |@!strcmp| and so on */
 @z
 
 @x section 68 (01-FEB-1992 ST)
 programs are started. Here, for instance, we pass the operating system
-a status of 0 if and only if only harmless messages were printed.
+a status of |EXIT_SUCCESS| if and only if only harmless messages were printed.
 @y
 programs are started. Here, for instance, we pass VAX/VMS
 a status of |SS$_NORMAL| if and only if only harmless
@@ -67,7 +67,7 @@ An omitted change file argument means that the
 null device |"NL:"| should be used, when no changes are desired.
 @z
 
-@x section 76 (1987 BL) (01-FEB-1992 ST) (05-APR-1992 DEK)
+@x section 75 (1987 BL) (01-FEB-1992 ST) (05-APR-1992 DEK)
   strcpy(change_file_name,"/dev/null");
 @y
   strcpy(change_file_name,"NL:");

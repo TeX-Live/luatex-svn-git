@@ -19,14 +19,13 @@ EXTRA_DIST = \
 	replace-enum-strings.cmake \
 	meson.build \
 	meson_options.txt \
-	subprojects/expat.wrap \
-	subprojects/fontconfig.wrap \
+	subprojects/cairo.wrap \
 	subprojects/freetype2.wrap \
 	subprojects/glib.wrap \
-	subprojects/libffi.wrap \
-	subprojects/proxy-libintl.wrap \
-	subprojects/zlib.wrap \
 	subprojects/google-benchmark.wrap \
+	subprojects/ragel.wrap \
+	subprojects/packagefiles/ragel/meson.build \
+	subprojects/ttf-parser.wrap \
 	perf/meson.build \
 	perf/perf-draw.hh \
 	perf/perf-extents.hh \
@@ -40,8 +39,7 @@ EXTRA_DIST = \
 	perf/texts/en-words.txt \
 	perf/texts/fa-monologue.txt \
 	perf/texts/fa-thelittleprince.txt \
-	meson-cc-tests/intel-atomic-primitives-test.c \
-	meson-cc-tests/solaris-atomic-operations.c \
+	mingw-configure.sh \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \

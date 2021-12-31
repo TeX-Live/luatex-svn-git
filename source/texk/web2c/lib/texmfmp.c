@@ -1065,6 +1065,25 @@ maininit (int ac, string *av)
 #endif /* TeX */
 }
 
+#if defined(_MSC_VER) && _MSC_VER > 1600
+#include <crtdbg.h>
+void
+myInvalidParameterHandler(const wchar_t* expression,
+   const wchar_t* function, 
+   const wchar_t* file, 
+   unsigned int line, 
+   uintptr_t pReserved)
+{
+/* After updating a compiler from Visual Studio 2010 to
+   Visual Studio 2015, XeTeX exits with the code 0xc0000417,
+   that means "invalid paremeter in CRT detected".
+   Probably it is safe to ignore the error.
+   So I use a handler which smiply return.
+*/
+   return;
+}
+#endif /* defined(_MSC_VER) ... */
+
 /* main: Set up for reading the command line, which will happen in
    `maininit' and `topenin', then call the main body, plus
    special Windows/Kanji initializations.  */
@@ -1080,6 +1099,13 @@ main (int ac, string *av)
   _wildcard (&ac, &av);
   _response (&ac, &av);
 #endif
+
+#if defined(_MSC_VER) && _MSC_VER > 1600
+   _invalid_parameter_handler oldHandler, newHandler;
+   newHandler = myInvalidParameterHandler;
+   oldHandler = _set_invalid_parameter_handler(newHandler);
+   _CrtSetReportMode(_CRT_ASSERT, 0);
+#endif /* defined(_MSC_VER) ... */
 
 #ifdef WIN32
   av[0] = kpse_program_basename (av[0]);
@@ -2624,29 +2650,49 @@ calledit (packedASCIIcode *filename,
      and a non-file for the insert. https://tex.stackexchange.com/q/552113 
      
      Therefore, we have to traverse down input_stack (not input_file),
-     looking for name_field values >17, which correspond to open
-     files, and then the index_field value of that entry tells us the
+     looking for large enough name_field values corresponding to open
+     files. Then the index_field value of that entry tells us the
      corresponding element of input_file, which is what we need to close.
+     Additionally we have to skip all entries with state_field 0 since these
+     correspond to token lists and not input files.
 
-     We test for >17 because name_field=0 means the terminal,
-     name_field=1..16 means \openin stream n - 1,
-     name_field=17 means an invalid stream number (for read_toks).
-     Although ... seems like we should close any opened \openin files also.
-     Whoever is reading this, please implement that? Sigh.
+     We test for name_field<=255, following tex.web, because the first
+     256 strings are static, initialized by TeX. (Well, many more
+     strings are initialized, but we'll follow tex.web.)
      
-     Description in modules 300--304 of tex.web: "Input stacks and states."
+     For the record, name_field=0 means the terminal,
+     name_field=1..16 means \openin stream n - 1,
+     name_field=17 means an invalid stream number (for read_toks),
+     name_field=18..19 means \scantokens pseudo-files (except for
+     original TeX of course). But 255 suffices for us.
      
      Here, we do not have to look at cur_input, the global variable
      which is effectively the top of input_stack, because it will always
      be a terminal (non-file) interaction -- the one where the user
-     typed "e" to start the edit.  */
+     typed "e" to start the edit.
+     
+     In addition, state_field will be zero for token lists. Skip those too.
+     (Does not apply to Metafont.)
+
+     Description in modules 300--304 of tex.web: "Input stacks and states".
+     
+     We should close any opened \openin files also. Whoever is reading
+     this, please implement that?  */
  {  
   int is_ptr; /* element of input_stack, 0 < input_ptr */  
   for (is_ptr = 0; is_ptr < inputptr; is_ptr++) {
-    if (inputstack[is_ptr].namefield <= 17) {
+#ifdef TeX
+    if (inputstack[is_ptr].statefield == 0 /* token list */
+        || inputstack[is_ptr].namefield <= 255) { /* can't be filename */
+#elif defined(MF)
+    if (inputstack[is_ptr].namefield <= 255) {
+#else
+#error "Unable to identify program" /* MetaPost doesn't use this file */
+#endif
         ; /* fprintf (stderr, "calledit: skipped input_stack[%d], ", is_ptr);
-             fprintf (stderr, "namefield=%d <= 17\n",
-                      inputstack[is_ptr].namefield); */
+             fprintf (stderr, "namefield=%d <= 255 or statefield=%d == 0\n",
+                      inputstack[is_ptr].namefield,
+                      inputstack[is_ptr].statefield); */
     } else {
       FILE *f;
       /* when name_field > 17, index_field specifies the element of

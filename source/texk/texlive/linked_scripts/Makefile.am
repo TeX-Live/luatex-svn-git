@@ -1,7 +1,7 @@
-## $Id: Makefile.am 57089 2020-12-07 22:10:16Z karl $
+## $Id: Makefile.am 61207 2021-12-02 21:56:38Z karl $
 ## Makefile.am for the TeX Live subdirectory texk/texlive/linked_scripts/
 ##
-## Copyright 2016-2020 Karl Berry <tex-live@tug.org>
+## Copyright 2016-2021 Karl Berry <tex-live@tug.org>
 ## Copyright 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
@@ -87,6 +87,8 @@ texmf_shell_scripts = \
 	texlive-extra/texconfig-sys.sh \
 	texlive-extra/texconfig.sh \
 	texlive-extra/texlinks.sh \
+	texlive-extra/xetex-unsafe.sh \
+	texlive-extra/xelatex-unsafe.sh \
 	texosquery/texosquery.sh \
 	texosquery/texosquery-jre5.sh \
 	texosquery/texosquery-jre8.sh \
@@ -165,6 +167,7 @@ texmf_other_scripts = \
 	lilyglyphs/lily-image-commands.py \
 	lilyglyphs/lily-rebuild-pdfs.py \
 	ltximg/ltximg.pl \
+	luafindfont/luafindfont.lua \
 	luaotfload/luaotfload-tool.lua \
 	lwarp/lwarpmk.lua \
 	m-tx/m-tx.lua \
@@ -179,6 +182,7 @@ texmf_other_scripts = \
 	multibibliography/multibibliography.pl \
 	musixtex/musixflx.lua \
 	musixtex/musixtex.lua \
+	optexcount/optexcount \
 	pax/pdfannotextractor.pl \
 	pdfcrop/pdfcrop.pl \
 	pdflatexpicscale/pdflatexpicscale.pl \

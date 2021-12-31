@@ -2,7 +2,7 @@
 @setfilename tlbuild.info
 
 @set version 2021
-@set month-year February 2021
+@set month-year September 2021
 
 @set mytitle Building @TeX{} Live (@value{version})
 @settitle @value{mytitle}
@@ -497,22 +497,26 @@ in the @code{pdftex} development source (details at
 tree.
 
 @cindex C++11, removing dependent sources
-Some libraries and programs require C++11.  If you want to build with
-an older compiler lacking such support, you need to (re)move those
-source directories; specifying @code{--disable} for them does not
-suffice, unfortunately.  Specifically, before running @code{configure}:
+Some libraries and programs require C++11; one such is XeTeX.  If you
+want to build with an older compiler lacking such support, you need to
+(re)move those source directories; unfortunately, specifying
+@code{--disable} for them does not suffice.  It's also necessary to
+specify @code{--disable-xetex} explicitly. Specifically, before
+running @code{configure --disable-xetex ...}:
 
 @example
-rm -rf libs/icu libs/graphite2 texk/dvisvgm
+rm -rf libs/icu libs/graphite2 texk/dvisvgm texk/web2c/xetexdir
 @end example
 
 @vindex --enable-missing @r{to ignore dependencies}
 Also, even with @code{--disable-all-pkgs}, dependencies are (currently)
-checked.  For instance, if a (non-MacOSX) system does not have
+checked.  One notable case: if a (non-MacOSX) system does not have
 @code{fontconfig}, Xe@TeX{} cannot be built (@pxref{Prerequisites}),
 and @code{configure} will terminate even with @code{--disable-xetex}.
 To proceed without such dependencies, specify @code{--enable-missing}
-also.  (Patches to improve this would be most welcome.)
+also.
+
+Patches to improve all this would be most welcome.
 
 @vindex CC=@var{c-compiler}
 @vindex CXX=@var{c++-compiler}
@@ -543,7 +547,8 @@ original @TeX{}:
 @example
 cd Work        # top build directory
 ../configure --without-x --disable-shared --disable-all-pkgs \
-             --enable-tex --disable-synctex -C CFLAGS=-g CXXFLAGS=-g
+             --enable-tex --disable-synctex --disable-xetex \
+             --enable-missing -C CFLAGS=-g CXXFLAGS=-g
 make
 cd texk/web2c  # cd engine build directory
 make tex       # must specify target
@@ -551,9 +556,12 @@ make tex       # must specify target
 
 The first @code{make} run will configure everything, and even build
 the libraries, even though the packages are disabled.
+
 The source tree can be cut down to just what is needed for the given
 engine (the separate pdf@TeX{} and Lua@TeX{} source repositories do
-this, for example), but see caveats in previous section.
+this, for example), but see caveats in previous section.  When the
+@code{--disable-xetex} and @code{--enable-missing} options are needed
+is also explained in the previous section.
 
 If you want to debug an X-related program or shared library setup, or
 other variants, change the @code{configure} options
@@ -1527,7 +1535,7 @@ modifications documented in @file{TLpatches/*}, and a wrapper
 @file{xindy-src}.
 
 The @code{xindy} build requires a @file{make} that supports a
-@code{VPATH} build, can handle all targets, and do not refer to
+@code{VPATH} build, can handle all targets, and does not refer to
 @code{$@{top_srcdir@}} or @code{$@{top_builddir@}}.  The fragment
 @code{xindy/ac/withenable.ac} contains
 
@@ -1611,6 +1619,7 @@ Please maintain @file{foo/ChangeLog} for all TL changes.
 
 @menu
 * Adding a new program module::
+* Adding a new engine::
 * Adding a new generic library module::
 * Adding a new @TeX{}-specific library module::
 @end menu
@@ -1743,14 +1752,46 @@ builds from scratch.
 After final success, don't forget to commit. (Or email the TL
 maintainers with the patch.)
 
-@cindex engine, adding new
-Caveat: adding a new @TeX{} engine is not completely different, but
-it's not all that similar, either. In that case, the work is done
-inside a new subdirectory of @file{texk/web2c/}. Many things are
-common to all the engines, other things need to be copied and possibly
-modified for each one, yet others are unique to each. No general
-recipe is possible.
+@node Adding a new engine
+@subsection Adding a new engine
 
+@cindex adding a new engine
+@cindex engine, adding new
+
+Adding a new @TeX{} engine is not completely different from adding a
+program, but it's not all that similar, either.  In this case, the main
+work is done by creating a new subdirectory of @file{texk/web2c/} for
+the engine.  The subdirectory is conventionally named ending in
+@file{dir}, like @file{pdftexdir} and @file{xetexdir}, to avoid
+clashes with executable names.
+
+The source files for the new engine should be put in this
+@file{@var{newengine}dir} subdirectory.  Also, a file
+@file{@var{newengine}dir/am/@var{newengine}.am} (e.g.,
+@file{pdftexdir/am/pdftex.am} is needed with the Makefile fragment
+needed to build it.
+
+The overall @file{web2c/Makefile.am} needs to have an @file{include}
+statement added to insert that @file{@var{newengine}.am} file.
+
+In @file{web2c/ac/web2c.ac}, a line needs to be added in the
+definition of the @code{kpse_tex_progs} variable to include it in the
+build.  That line specifies whether the new engine is built by default,
+and the additional libraries requires.
+
+For examples of building engines in CWEB, you can check the existing
+@file{hitexdir} and @file{mplibdir} directories; these are somewhat
+simpler than Lua@TeX{}.  Of course, every engine will have its own
+unique features and requirements, so existing examples will only take
+you so far.
+
+Web2c is built as one ``package'', with each subdirectory's @file{.am}
+fragment inserted with an Automake @code{include}.  This means that,
+for instance, @code{$(srcdir)} is @file{.../web2c}, not
+@file{.../webdir/enginedir}.  It is a difficult setup to come to terms
+with, but the alternative is to recurse into each engine subdirectory,
+and that would be far worse (@pxref{Directories,,, automake, GNU
+Automake}).
 
 @node Adding a new generic library module
 @subsection Adding a new generic library module

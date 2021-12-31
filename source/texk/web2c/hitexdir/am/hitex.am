@@ -1,0 +1,122 @@
+## $Id: hitex.am 61279 2021-12-11 22:28:47Z karl $
+## texk/web2c/hitexdir/am/hitex.am: Makefile fragment for HiTeX
+##
+## Copyright 2021 Martin Ruckert <ruckert@cs.hm.edu>
+## You may freely use, modify and/or distribute this file.
+
+if HITEX
+bin_PROGRAMS += hitex hishrink histretch
+endif HITEX
+EXTRA_PROGRAMS += hitex hishrink histretch
+
+# convenience target to build all the programs here.
+hiall: hitex hishrink histretch
+
+## Debugging for the parser as usual.
+## Except we eschew all lex/yacc steps in the Makefile here; see below.
+## AM_YFLAGS = -d -v -Wno-yacc
+
+hitex_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) 
+hitex_CPPFLAGS += -I$(srcdir)/libmd5
+hitex_CPPFLAGS += -DINIT -DSTAT -DDEBUG
+hitex_LDADD = $(KPATHSEA_LIBS) $(ZLIB_LIBS) libmd5.a
+hitex_LDADD += libmd5.a
+hitex_DEPENDENCIES = $(KPATHSEA_DEPEND) $(ZLIB_DEPEND) libmd5.a
+#
+histretch_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) -I$(srcdir)/hitexdir
+histretch_LDADD = $(ZLIB_LIBS)
+histretch_DEPENDENCIES = $(ZLIB_DEPEND)
+#
+# The -I$(srcdir)/hitexdir is so the compiler can find the *parser.h file.
+hishrink_CPPFLAGS = $(AM_CPPFLAGS) $(ZLIB_INCLUDES) -I$(srcdir)/hitexdir
+hishrink_LDADD = $(ZLIB_LIBS)
+hishrink_DEPENDENCIES = $(ZLIB_DEPEND)
+
+# HiTeX CWEB sources
+hitex_web = hitexdir/hiformat.w hitexdir/hitex.w
+
+# Creating several files: need stamp file and two rules with identical recipes
+hi_ctangle_sh = CWEBINPUTS=$(srcdir)/hitexdir AM_V_P=$(AM_V_P) $(SHELL) ./tangle-sh $@ $(CTANGLE)
+
+# HiTeX C/yacc/lex sources generated using ctangle.
+# For each cweb (.w) source file, list the files generated.
+hiformat_c_h_l_y = hibasetypes.h hierror.h hiformat.h \
+        himktables.c \
+	hiput.c hiput.h \
+	higet.c higet.h \
+	hilexer.l hiparser.y \
+	hishrink.c histretch.c
+hitex_c = hitex.c 
+
+$(hiformat_c_h_l_y): hiformat-tangle
+	$(hi_ctangle_sh) hiformat
+#
+hiformat-tangle: ctangle$(EXEEXT) hitexdir/hiformat.w tangle-sh
+	$(hi_ctangle_sh) hiformat
+
+$(hitex_c): hitex-tangle
+	$(hi_ctangle_sh) hitex
+#
+hitex-tangle: ctangle$(EXEEXT) hitexdir/hitex.w tangle-sh
+	$(hi_ctangle_sh) hitex
+
+# Generating hitables.c using himktables.
+hitables.c: himktables
+	./himktables > $@ || { rm -f hitables.c; exit 1; }
+
+# hitex
+nodist_hitex_SOURCES = hitables.c hiput.c $(hitex_c)
+
+# histretch
+nodist_histretch_SOURCES = hitables.c histretch.c
+
+# The actual sources for the lexer and parser are in hiformat.w.
+# However, to simplify life with Automake (a little), we specify the
+# generated .[ch] files here as if they were the sources, and don't try
+# to have Automake support the derivation from .w, or even from the .[ly].
+#
+nodist_hishrink_SOURCES = hitables.c \
+  hitexdir/hilexer.c \
+  hitexdir/hiparser.c hitexdir/hiparser.h \
+  hishrink.c
+
+# hitex and hishrink both need (at least) some of the sources generated
+# from hiformat.w.
+#
+$(hitex_OBJECTS): $(hiformat_c_h_l_y)
+$(hishrink_OBJECTS): $(hiformat_c_h_l_y)
+#
+# By the way, the $(BUILT_SOURCES) suggestion in the Automake manual for
+# this does not work for us, because we want to be able to invoke
+# specific targets (hiall, hitex, hishrink, ...), and $(BUILT_SOURCES)
+# is only a dependency on general targets (all, install, ...).
+
+EXTRA_DIST += hitexdir/ChangeLog $(hitex_web)
+
+DISTCLEANFILES += $(nodist_hitex_SOURCES)
+DISTCLEANFILES += $(nodist_hishrink_SOURCES) $(nodist_histretch_SOURCES)
+DISTCLEANFILES += hiformat-tangle hitex-tangle
+
+## HiTeX tests
+#
+hitex_tests = hitexdir/tests/hello.test \
+  hitexdir/tests/rule.test
+
+hitexdir/tests/hello.log: hitex$(EXEEXT) histretch$(EXEEXT)
+hitexdir/tests/rule.log: hitex$(EXEEXT) histretch$(EXEEXT) hishrink$(EXEEXT)
+
+EXTRA_DIST += $(hitex_tests)
+
+if HITEX
+TESTS += $(hitex_tests)
+endif HITEX
+
+## hello.test
+EXTRA_DIST += hitexdir/tests/hello.tex 
+DISTCLEANFILES += hello.log
+
+## rule.test
+EXTRA_DIST += hitexdir/tests/rule.tex 
+DISTCLEANFILES += rule.log
+
+# (end of hitex.am)

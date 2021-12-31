@@ -1,3 +1,173 @@
+2021-12-05  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* ctwill-mini.ch,
+	* ctwill-w2c.ch,
+	* cwebman-w2c.ch: Active link to the CTWILL user manual.
+
+2021-11-26  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctwill-mini.ch,
+	* cweave.w: Reshuffle code in CWEAVE.
+
+2021-11-22  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile,
+	* comm-w2c.h,
+	* common.h: Copyright text in common interface.
+
+2021-11-14  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* po/cweb-tl.pot,
+	* po/de/cweb-tl.po: More generic point of interest.
+
+2021-11-12  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctangle.w,
+	* cweave.w: Consistently refer to the COMMON module.
+
+2021-10-31  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctproofmac.tex,
+	* cttwinxmac.tex,
+	* ctwill-mini.ch,
+	* ctwimac.tex,
+	* cweave.w,
+	* cwebmac.tex,
+	* cwebman.tex,
+	* texinputs/pdfctwimac.tex: Restore '\T' macro backward compatibility.
+
+2021-10-24  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/pdfwebtocfront.tex: Restore 'classic' PDF layout.
+
+2021-10-14  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctproofmac.tex,
+	* cttwinxmac.tex,
+	* ctwimac.tex,
+	* texinputs/pdfctwimac.tex: Fix 'base 2' for 'p' exponent.
+
+2021-10-11  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* ctang-w2c.ch,
+	* ctwill-w2c.ch,
+	* cweav-w2c.ch: CWEB 4.6 pre-release RC2.
+
+2021-09-16  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-{bs,vms,w2c,w32}.ch,
+	* common.c,
+	* common.h,
+	* ctang-vms.ch,
+	* ctangle.c,
+	* ctangle.w,
+	* ctwill-{mini,w2c}.ch,
+	* cweav-{vms,w2c}.ch,
+	* cweave.w,
+	* cwebmac.tex,
+	* cwebman-w2c.ch,
+	* po/de/web2c-help.po,
+	* po/web2c-help.pot,
+	* prod-{cweave,twill}.w,
+	* prod.w: CWEB 4.6 pre-release.
+
+2021-07-14  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile,
+	* comm-{mac,mini,ql,w2c}.ch,
+	* comm-w2c.h,
+	* common.c,
+	* common.h,
+	* common.w,
+	* ctang-{bs,pc,ql,vms,w2c,w32}.ch,
+	* ctangle.c,
+	* ctangle.w,
+	* ctproofmac.tex,
+	* ctwill-{mini,w2c}.ch,
+	* ctwimac.tex,
+	* cweav-{bs,pc,ql,vms,w2c,w32}.ch,
+	* cweave.w,
+	* cwebmac.tex,
+	* cwebman-w2c.ch,
+	* cwebman.tex,
+	* po/cweb[-tl].pot,
+	* po/de/cweb[-tl].po,
+	* po/it/cweb.po,
+	* prod-twill.w,
+	* prod.w,
+	* texinputs/pdfctwimac.tex: CWEB 4.5 and CWEBbin 2021.5.
+
+2021-06-06  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile,
+	* comm-{mac,mini,ql,w2c}.ch,
+	* comm-w2c.h,
+	* common.c,
+	* common.h,
+	* common.w,
+	* ctang-{bs,pc,ql,vms,w2c,w32}.ch,
+	* ctangle.c,
+	* ctangle.w,
+	* ctwill-{mini,w2c}.ch,
+	* ctwimac.tex,
+	* cweav-{bs,pc,ql,vms,w2c,w32}.ch,
+	* cweave.w,
+	* cwebmac.tex,
+	* cwebman-w2c.ch,
+	* cwebman.tex,
+	* po/cweb[-tl].pot,
+	* po/de/cweb[-tl].po,
+	* po/it/cweb.po,
+	* prod-twill.w,
+	* prod.w: CWEB 4.4 and CWEBbin 2021.4.
+
+2021-03-26  Andreas Scherer  <https://ascherer.github.io>
+
+	* common.w,
+	* ctangle.c,
+	* ctangle.w,
+	* ctwill-mini.ch,
+	* ctwill-w2c.ch,
+	* cweav-w2c.ch,
+	* cweave.w,
+	* prod-twill.w,
+	* prod.w: Parameter indentation for modern function headers.
+
+2021-03-19  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile,
+	* README,
+	* comm-{bs,mac}.ch,
+	* comm-w2c.h,
+	* common.h,
+	* common.w,
+	* ctang-w2c.ch,
+	* ctangle.c,
+	* ctangle.w,
+	* ctwill-mini.ch,
+	* ctwill-w2c.ch,
+	* cweav-bs.ch,
+	* cweav-w2c.ch,
+	* cweave.w,
+	* cwebmac.tex,
+	* cwebman.tex,
+	* prod-twill.w,
+	* prod.w: Incorporate C++ material by @texdraft.
+
+2021-03-09  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile,
+	* refsort.ch,
+	* twinx.ch: Patch refsort and twinx with changefiles.
+
+	* resort.w,
+	* twinx.w: Revert to original form from the CTWILL tarball.
+
+	* twinx-startup.tex: Add example template for 'twinx'.
+
 2021-02-25  Andreas Scherer  <https://ascherer.github.io>
 
 	* Makefile,

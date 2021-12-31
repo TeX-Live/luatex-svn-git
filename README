@@ -1,4 +1,4 @@
-$Id: README 54144 2020-03-06 23:51:39Z karl $
+$Id: README 60982 2021-11-07 00:26:08Z karl $
 Public domain.  Originally written 2005 by Karl Berry.
 
 For a high-level overview of building TeX Live, see
@@ -32,41 +32,45 @@ aarch64-linux:
   gcc (Debian 8.3.0-6) 8.3.0
   ./Build --enable-arm-neon=check
 
+armhf-linux:
+  Raspbian/Raspberry Pi OS (Debian Buster)
+  gcc (Raspbian 8.3.0-6+rpi1) 8.3.0
+  ./Build --enable-xindy CLISP=${BUILD_ROOT_DIR}/clisp/clisp-build/clisp}
+
+i386-cygwin, x86_64-cygwin: gcc-10.2.0, cygwin-3.1.7
+  TL_CONFIGURE_ARGS="--enable-xindy --enable-shared CLISP=/path/to/clisp.exe
+    LDFLAGS='-Wl,--no-insert-timestamp -Wl,--stack,0x800000'" \
+  ./Build
+  
+
+i386-freebsd, amd64-freebsd:
+  Built on contextgarden, see below.
+  FreeBSD 11.4
+
+i386-linux: see travis below.
+
 i386-netbsd, amd64-netbsd:
-  NetBSD/amd64 9.0
-  gcc version 7.4.0 (nb3 20190319)
+  NetBSD/amd64 9.1
+  gcc version 7.5.0 (nb4 20200810)
     TL_MAKE=gmake CC=gcc CXX=g++ \
     CFLAGS=-D_NETBSD_SOURCE \
     CXXFLAGS='-D_NETBSD_SOURCE -std=c++11' \
     LDFLAGS='-L/usr/X11R7/lib -Wl,-rpath,/usr/X11R7/lib' \
   ./Build --enable-xindy CLISP=/usr/local/bin/clisp
-  Except that we take Nelson's asy build.
-
-i386-freebsd, amd64-freebsd:
-  http://anthesphoria.net/FreeBSD/TeXLive-2018/ has details for 2018.
-  2019 and forward built on contextgarden (see below).
-  In 2020: FreeBSD 12.1-RELEASE-p1
-  (e.g.,
-https://build.contextgarden.net/#/builders/56/builds/141/steps/2/logs/build _info
-  ) Except that we take Nelson's asy build.
-
-i386-linux: see travis below.
-
-i386-openbsd, amd64-openbsd:
-  e.g., see CONFIGURE_ARGS in the Makefile in
-  http://cvsweb.openbsd.org/cgi-bin/cvsweb/ports/print/texlive/base/
 
 i386-solaris, x86_64-solaris:
   Built on contextgarden, see below.
   Solaris 10, gcc 5.5.  See doc/README.solaris.
 
-i386-cygwin, x86_64-cygwin: gcc-4.8.2, cygwin-1.7.29.
-  ./Build (with --enable-xindy for i386).
+universal-darwin: See Master/source/mactexdoc.tar.xz.
 
-x86_64-darwin: See Master/source/mactexdoc.tar.xz.
+win32:
+  Makefiles written by hand, see Master/source/w32tex-src.tar.xz.
+  Visual Studio 2010 and Visual Studio 2015.
 
 x86_64-darwinlegacy:
   Mac OS X 10.6, clang 5.0, libc++ required
+  auxiliary installer binaries: Mac OS X 10.6, gcc -std=c99.
   https://github.com/TeXLive-M/texlive-buildbot
   http://build.contextgarden.net/waterfall?tag=c/texlive
   (These links have info on all platforms built by Mojca.)
@@ -74,7 +78,10 @@ x86_64-darwinlegacy:
 i386-linux,
 x86_64-linux,
 x86_64-linuxmusl:
-  Alpine 3.1 Docker image with musl libc 1.1.5
-  Binaries are taken from the CI testing on travis-ci
-  see the source/.travis.yaml file for details on how to build,
+  CentOS 7 Docker image with musl libc 1.1.5, plus gcc10:
+    yum -y install centos-release-scl-rh
+    yum -y install devtoolset-10-gcc-c++
+    yum install -y fontconfig-devel libX11-devel libXmu-devel libXaw-devel
+  Binaries are taken from the CI testing via github;
+  see the source/.github/* files for details on how to build,
   and tlpkg/bin/tl-update-bindir for updating binaries (in general).

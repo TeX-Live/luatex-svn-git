@@ -1,4 +1,4 @@
-## $Id: euptex.am 57769 2021-02-17 03:03:54Z karl $
+## $Id: euptex.am 61239 2021-12-07 14:32:01Z hironobu $
 ## texk/web2c/euptexdir/am/euptex.am: Makefile fragment for e-upTeX.
 ##
 ## Copyright 2015-2021 Karl Berry <tex-live@tug.org>
@@ -51,6 +51,8 @@ euptex_web_srcs = \
 	etexdir/tex.ch0 \
 	tex.ch \
 	tracingstacklevels.ch \
+	partoken.ch \
+	showstream.ch \
 	zlib-fmt.ch \
 	etexdir/tex.ech
 
@@ -70,6 +72,7 @@ euptex_ch_srcs = \
 	euptexdir/pdfstrcmp-eup-pre.ch \
 	eptexdir/pdfutils.ch \
 	euptexdir/pdfstrcmp-eup-post.ch \
+	eptexdir/suppresserrors.ch \
 	eptexdir/char-warning-eptex.ch \
 	tex-binpool.ch
 

@@ -2,7 +2,7 @@
 % This program by Silvio Levy and Donald E. Knuth
 % is based on a program by Knuth.
 % It is distributed WITHOUT ANY WARRANTY, express or implied.
-% Version 4.2 --- February 2021 (works also with later versions)
+% Version 4.5 --- July 2021 (works also with later versions)
 
 % Copyright (C) 1987,1990,1993 Silvio Levy and Donald E. Knuth
 
@@ -12,8 +12,8 @@
 
 % Permission is granted to copy and distribute modified versions of this
 % document under the conditions for verbatim copying, provided that the
-% entire resulting derived work is distributed under the terms of a
-% permission notice identical to this one.
+% entire resulting derived work is given a different name and distributed
+% under the terms of a permission notice identical to this one.
 
 % Amendments to 'common.h' resulting in this updated version were created
 % by numerous collaborators over the course of many years.
@@ -27,9 +27,7 @@
 
 First comes general stuff:
 
-@s boolean int
-@s uint8_t int
-@s uint16_t int
+@i iso_types.w
 
 @d ctangle false
 @d cweave true
@@ -48,28 +46,30 @@ extern int phase; /* which phase are we in? */
 #include <stdbool.h> /* definition of |@!bool|, |@!true| and |@!false| */
 #include <stddef.h> /* definition of |@!ptrdiff_t| */
 #include <stdint.h> /* definition of |@!uint8_t| and |@!uint16_t| */
-#include <stdlib.h> /* definition of |@!getenv| and |@!exit| */
 #include <stdio.h> /* definition of |@!printf| and friends */
+#include <stdlib.h> /* definition of |@!getenv| and |@!exit| */
 #include <string.h> /* definition of |@!strlen|, |@!strcmp| and so on */
 
 @ Code related to the character set:
 @^ASCII code dependencies@>
 
 @d and_and 04 /* `\.{\&\&}'\,; corresponds to MIT's {\tentex\char'4} */
-@d lt_lt 020 /* `\.{<<}'\,;  corresponds to MIT's {\tentex\char'20} */
-@d gt_gt 021 /* `\.{>>}'\,;  corresponds to MIT's {\tentex\char'21} */
-@d plus_plus 013 /* `\.{++}'\,;  corresponds to MIT's {\tentex\char'13} */
-@d minus_minus 01 /* `\.{--}'\,;  corresponds to MIT's {\tentex\char'1} */
-@d minus_gt 031 /* `\.{->}'\,;  corresponds to MIT's {\tentex\char'31} */
-@d non_eq 032 /* `\.{!=}'\,;  corresponds to MIT's {\tentex\char'32} */
-@d lt_eq 034 /* `\.{<=}'\,;  corresponds to MIT's {\tentex\char'34} */
-@d gt_eq 035 /* `\.{>=}'\,;  corresponds to MIT's {\tentex\char'35} */
-@d eq_eq 036 /* `\.{==}'\,;  corresponds to MIT's {\tentex\char'36} */
-@d or_or 037 /* `\.{\v\v}'\,;  corresponds to MIT's {\tentex\char'37} */
-@d dot_dot_dot 016 /* `\.{...}'\,;  corresponds to MIT's {\tentex\char'16} */
-@d colon_colon 06 /* `\.{::}'\,;  corresponds to MIT's {\tentex\char'6} */
-@d period_ast 026 /* `\.{.*}'\,;  corresponds to MIT's {\tentex\char'26} */
-@d minus_gt_ast 027 /* `\.{->*}'\,;  corresponds to MIT's {\tentex\char'27} */
+@d lt_lt 020 /* `\.{<<}'\,; corresponds to MIT's {\tentex\char'20} */
+@d gt_gt 021 /* `\.{>>}'\,; corresponds to MIT's {\tentex\char'21} */
+@d plus_plus 013 /* `\.{++}'\,; corresponds to MIT's {\tentex\char'13} */
+@d minus_minus 01 /* `\.{--}'\,; corresponds to MIT's {\tentex\char'1} */
+@d minus_gt 031 /* `\.{->}'\,; corresponds to MIT's {\tentex\char'31} */
+@d non_eq 032 /* `\.{!=}'\,; corresponds to MIT's {\tentex\char'32} */
+@d lt_eq 034 /* `\.{<=}'\,; corresponds to MIT's {\tentex\char'34} */
+@d gt_eq 035 /* `\.{>=}'\,; corresponds to MIT's {\tentex\char'35} */
+@d eq_eq 036 /* `\.{==}'\,; corresponds to MIT's {\tentex\char'36} */
+@d or_or 037 /* `\.{\v\v}'\,; corresponds to MIT's {\tentex\char'37} */
+@d dot_dot_dot 016 /* `\.{...}'\,; corresponds to MIT's {\tentex\char'16} */
+@d colon_colon 06 /* `\.{::}'\,; corresponds to MIT's {\tentex\char'6} */
+@d period_ast 026 /* `\.{.*}'\,; corresponds to MIT's {\tentex\char'26} */
+@d minus_gt_ast 027 /* `\.{->*}'\,; corresponds to MIT's {\tentex\char'27} */
+@#
+@d compress(c) if (loc++<=limit) return c
 
 @<Common code...@>=
 extern char section_text[]; /* text being sought for */
@@ -78,12 +78,16 @@ extern char *id_first; /* where the current identifier begins in the buffer */
 extern char *id_loc; /* just after the current identifier in the buffer */
 
 @ Code related to input routines:
-@d xisalpha(c) (isalpha((eight_bits)c)&&((eight_bits)c<0200))
-@d xisdigit(c) (isdigit((eight_bits)c)&&((eight_bits)c<0200))
-@d xisspace(c) (isspace((eight_bits)c)&&((eight_bits)c<0200))
-@d xislower(c) (islower((eight_bits)c)&&((eight_bits)c<0200))
-@d xisupper(c) (isupper((eight_bits)c)&&((eight_bits)c<0200))
-@d xisxdigit(c) (isxdigit((eight_bits)c)&&((eight_bits)c<0200))
+@d xisalpha(c) (isalpha((int)(c))&&((eight_bits)(c)<0200))
+@d xisdigit(c) (isdigit((int)(c))&&((eight_bits)(c)<0200))
+@d xisspace(c) (isspace((int)(c))&&((eight_bits)(c)<0200))
+@d xislower(c) (islower((int)(c))&&((eight_bits)(c)<0200))
+@d xisupper(c) (isupper((int)(c))&&((eight_bits)(c)<0200))
+@d xisxdigit(c) (isxdigit((int)(c))&&((eight_bits)(c)<0200))
+@d isxalpha(c) ((c)=='_' || (c)=='$')
+  /* non-alpha characters allowed in identifier */
+@d ishigh(c) ((eight_bits)(c)>0177)
+@^high-bit character handling@>
 
 @<Common code...@>=
 extern char buffer[]; /* where each line of input goes */
@@ -95,7 +99,7 @@ extern char *limit; /* points to the last character in the buffer */
 @f line x /* make |line| an unreserved word */
 @d max_include_depth 10 /* maximum number of source files open
   simultaneously, not counting the change file */
-@d max_file_name_length 1024
+@d max_file_name_length 60
 @d cur_file file[include_depth] /* current file */
 @d cur_file_name file_name[include_depth] /* current file name */
 @d cur_line line[include_depth] /* number of current line in current file */
@@ -130,7 +134,7 @@ extern boolean print_where; /* tells \.{CTANGLE} to print line and file info */
 
 @ Code related to identifier and section name storage:
 @d length(c) (size_t)((c+1)->byte_start-(c)->byte_start) /* the length of a name */
-@d print_id(c) term_write((c)->byte_start,length((c))) /* print identifier */
+@d print_id(c) term_write((c)->byte_start,length(c)) /* print identifier */
 @d llink link /* left link in binary search tree for section names */
 @d rlink dummy.Rlink /* right link in binary search tree for section names */
 @d root name_dir->rlink /* the root of the binary search tree
@@ -161,9 +165,9 @@ extern hash_pointer h; /* index into hash-head array */
 
 @ @<Predecl...@>=
 extern boolean names_match(name_pointer,const char *,size_t,eight_bits);@/
-extern name_pointer id_lookup(const char *,const char *,char);
+extern name_pointer id_lookup(const char *,const char *,eight_bits);
    /* looks up a string in the identifier table */
-extern name_pointer section_lookup(char *,char *,int); /* finds section name */
+extern name_pointer section_lookup(char *,char *,boolean); /* finds section name */
 extern void init_node(name_pointer);@/
 extern void init_p(name_pointer,eight_bits);@/
 extern void print_prefix_name(name_pointer);@/
@@ -175,7 +179,7 @@ extern void sprint_section_name(char *,name_pointer);
 @d harmless_message 1 /* |history| value when non-serious info was printed */
 @d error_message 2 /* |history| value when an error was noted */
 @d fatal_message 3 /* |history| value when we had to stop prematurely */
-@d mark_harmless {if (history==spotless) history=harmless_message;}
+@d mark_harmless if (history==spotless) history=harmless_message
 @d mark_error history=error_message
 @d confusion(s) fatal("! This can't happen: ",s)
 @.This can't happen@>
@@ -192,8 +196,8 @@ extern void overflow(const char *); /* succumb because a table has overflowed */
 @ Code related to command line arguments:
 @d show_banner flags['b'] /* should the banner line be printed? */
 @d show_progress flags['p'] /* should progress reports be printed? */
-@d show_stats flags['s'] /* should statistics be printed at end of run? */
 @d show_happiness flags['h'] /* should lack of errors be announced? */
+@d show_stats flags['s'] /* should statistics be printed at end of run? */
 @d make_xrefs flags['x'] /* should cross references be output? */
 
 @<Common code...@>=
@@ -207,10 +211,8 @@ extern boolean flags[]; /* an option for each 7-bit code */
 
 @ Code related to output:
 @d update_terminal fflush(stdout) /* empty the terminal output buffer */
-@d new_line putchar('\n') @d putxchar putchar
+@d new_line putchar('\n')
 @d term_write(a,b) fflush(stdout),fwrite(a,sizeof(char),b,stdout)
-@d C_printf(c,a) fprintf(C_file,c,a)
-@d C_putc(c) putc(c,C_file) /* isn't \CEE/ wonderfully consistent? */
 
 @<Common code...@>=
 extern FILE *C_file; /* where output of \.{CTANGLE} goes */
@@ -228,16 +230,14 @@ extern void print_stats(void);
 handle \TEX/, so they should be sufficient for most applications of
 \.{CWEB}.
 
-@d max_bytes 1000000 /* the number of bytes in identifiers,
-  index entries, and section names */
-@d max_toks 1000000 /* number of bytes in compressed \CEE/ code */
-@d max_names 10239 /* number of identifiers, strings, section names;
-  must be less than 10240 */
-@d max_sections 4000 /* greater than the total number of sections */
-@d max_texts 10239 /* number of replacement texts, must be less than 10240 */
-@d longest_name 10000 /* file and section names and section texts shouldn't be longer than this */
-@d stack_size 500 /* number of simultaneous levels of macro expansion */
-@d buf_size 1000 /* maximum length of input line, plus one */
+@d buf_size 100 /* maximum length of input line, plus one */
+@d longest_name 10000 /* file names, section names, and section texts
+   shouldn't be longer than this */
 @d long_buf_size (buf_size+longest_name) /* for \.{CWEAVE} */
+@d max_bytes 90000 /* the number of bytes in identifiers,
+  index entries, and section names; must be less than $2^{24}$ */
+@d max_names 4000 /* number of identifiers, strings, section names;
+  must be less than 10240 */
+@d max_sections 2000 /* greater than the total number of sections */
 
 @ End of \.{COMMON} interface.

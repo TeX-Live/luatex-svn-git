@@ -257,13 +257,11 @@ struct hb_language_item_t {
   bool operator == (const char *s) const
   { return lang_equal (lang, s); }
 
-  hb_language_item_t & operator = (const char *s) {
-    /* If a custom allocated is used calling strdup() pairs
-    badly with a call to the custom free() in fini() below.
-    Therefore don't call strdup(), implement its behavior.
-    */
+  hb_language_item_t & operator = (const char *s)
+  {
+    /* We can't call strdup(), because we allow custom allocators. */
     size_t len = strlen(s) + 1;
-    lang = (hb_language_t) malloc(len);
+    lang = (hb_language_t) hb_malloc(len);
     if (likely (lang))
     {
       memcpy((unsigned char *) lang, s, len);
@@ -274,16 +272,15 @@ struct hb_language_item_t {
     return *this;
   }
 
-  void fini () { free ((void *) lang); }
+  void fini () { hb_free ((void *) lang); }
 };
 
 
-/* Thread-safe lock-free language list */
+/* Thread-safe lockfree language list */
 
 static hb_atomic_ptr_t <hb_language_item_t> langs;
 
-#if HB_USE_ATEXIT
-static void
+static inline void
 free_langs ()
 {
 retry:
@@ -294,11 +291,10 @@ retry:
   while (first_lang) {
     hb_language_item_t *next = first_lang->next;
     first_lang->fini ();
-    free (first_lang);
+    hb_free (first_lang);
     first_lang = next;
   }
 }
-#endif
 
 static hb_language_item_t *
 lang_find_or_insert (const char *key)
@@ -311,28 +307,26 @@ retry:
       return lang;
 
   /* Not found; allocate one. */
-  hb_language_item_t *lang = (hb_language_item_t *) calloc (1, sizeof (hb_language_item_t));
+  hb_language_item_t *lang = (hb_language_item_t *) hb_calloc (1, sizeof (hb_language_item_t));
   if (unlikely (!lang))
     return nullptr;
   lang->next = first_lang;
   *lang = key;
   if (unlikely (!lang->lang))
   {
-    free (lang);
+    hb_free (lang);
     return nullptr;
   }
 
   if (unlikely (!langs.cmpexch (first_lang, lang)))
   {
     lang->fini ();
-    free (lang);
+    hb_free (lang);
     goto retry;
   }
 
-#if HB_USE_ATEXIT
   if (!first_lang)
-    atexit (free_langs); /* First person registers atexit() callback. */
-#endif
+    hb_atexit (free_langs); /* First person registers atexit() callback. */
 
   return lang;
 }
@@ -601,6 +595,9 @@ hb_script_get_horizontal_direction (hb_script_t script)
     case HB_SCRIPT_CHORASMIAN:
     case HB_SCRIPT_YEZIDI:
 
+    /* Unicode-14.0 additions */
+    case HB_SCRIPT_OLD_UYGHUR:
+
       return HB_DIRECTION_RTL;
 
 
@@ -675,8 +672,8 @@ hb_version_string ()
  * Tests the library version against a minimum value,
  * as three integer components.
  *
- * Return value: True if the library is equal to or greater than
- * the test value, false otherwise
+ * Return value: %true if the library is equal to or greater than
+ * the test value, %false otherwise
  *
  * Since: 0.9.30
  **/
@@ -1003,6 +1000,21 @@ parse_one_variation (const char **pp, const char *end, hb_variation_t *variation
 
 /**
  * hb_variation_from_string:
+ * @str: (array length=len) (element-type uint8_t): a string to parse
+ * @len: length of @str, or -1 if string is %NULL terminated
+ * @variation: (out): the #hb_variation_t to initialize with the parsed values
+ *
+ * Parses a string into a #hb_variation_t.
+ *
+ * The format for specifying variation settings follows. All valid CSS
+ * font-variation-settings values other than 'normal' and 'inherited' are also
+ * accepted, though, not documented below.
+ *
+ * The format is a tag, optionally followed by an equals sign, followed by a
+ * number. For example `wght=500`, or `slnt=-7.5`.
+ *
+ * Return value:
+ * %true if @str is successfully parsed, %false otherwise
  *
  * Since: 1.4.2
  */
@@ -1029,6 +1041,13 @@ hb_variation_from_string (const char *str, int len,
 
 /**
  * hb_variation_to_string:
+ * @variation: an #hb_variation_t to convert
+ * @buf: (array length=size) (out): output string
+ * @size: the allocated size of @buf
+ *
+ * Converts an #hb_variation_t into a %NULL-terminated string in the format
+ * understood by hb_variation_from_string(). The client in responsible for
+ * allocating big enough size for @buf, 128 bytes is more than enough.
  *
  * Since: 1.4.2
  */
@@ -1055,9 +1074,11 @@ hb_variation_to_string (hb_variation_t *variation,
 
 /**
  * hb_color_get_alpha:
- * color: a #hb_color_t we are interested in its channels.
+ * @color: an #hb_color_t we are interested in its channels.
  *
- * Return value: Alpha channel value of the given color
+ * Fetches the alpha channel of the given @color.
+ *
+ * Return value: Alpha channel value
  *
  * Since: 2.1.0
  */
@@ -1069,9 +1090,11 @@ uint8_t
 
 /**
  * hb_color_get_red:
- * color: a #hb_color_t we are interested in its channels.
+ * @color: an #hb_color_t we are interested in its channels.
  *
- * Return value: Red channel value of the given color
+ * Fetches the red channel of the given @color.
+ *
+ * Return value: Red channel value
  *
  * Since: 2.1.0
  */
@@ -1083,9 +1106,11 @@ uint8_t
 
 /**
  * hb_color_get_green:
- * color: a #hb_color_t we are interested in its channels.
+ * @color: an #hb_color_t we are interested in its channels.
  *
- * Return value: Green channel value of the given color
+ * Fetches the green channel of the given @color.
+ *
+ * Return value: Green channel value
  *
  * Since: 2.1.0
  */
@@ -1097,9 +1122,11 @@ uint8_t
 
 /**
  * hb_color_get_blue:
- * color: a #hb_color_t we are interested in its channels.
+ * @color: an #hb_color_t we are interested in its channels.
  *
- * Return value: Blue channel value of the given color
+ * Fetches the blue channel of the given @color.
+ *
+ * Return value: Blue channel value
  *
  * Since: 2.1.0
  */

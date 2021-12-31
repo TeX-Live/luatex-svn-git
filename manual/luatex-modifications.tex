@@ -1,4 +1,4 @@
-% language=uk
+% language=us engine=luatex runpath=texruns:manuals/luatex
 
 \environment luatex-style
 
@@ -504,6 +504,14 @@ The above let's itself summarize as: we took the 32 bit aspects and much of the
 directional mechanisms and merged it into the \PDFTEX\ code base as starting
 point for further development. Then we simplified directionality, fixed it and
 opened it up.
+
+\stopsubsection
+
+\startsubsection[title=Changes from anywhere]
+
+The \type {\partokenname} and \type {\partokencontext} primitives are taken from
+the \PDFTEX\ change file posted on the implementers list. They are explained in
+the \PDFTEX\ manual and are classified as \ETEX\ extensions.
 
 \stopsubsection
 
@@ -1128,6 +1136,14 @@ Anything more complex that this, like combination of skips and penalties, or
 kerns, should be handled in the input or macro package because there is no way we
 can predict the expected behaviour. In fact, the \lpr {linedir} is just a
 convenience extra which could also have been implemented using node list parsing.
+
+Directions are complicated by the fact that they often need to work over groups
+so a separate grouping related stack is used. A side effect is that there can be
+paragraphs with only a local par node followed by direction synchronization
+nodes. Paragraphs like that are seen as empty paragraphs and therefore ignored.
+Because \type {\noindent} doesn't inject anything but a \type {\indent} injects
+an box, paragraphs with only an indent and directions are handles as paragraphs
+with content.
 
 \stopsubsection
 
