@@ -1,3 +1,6 @@
+2021-12-31 Luigi Scarso <luigi.scarso@gmail.com>
+    * drop (for the moment) \showstream
+
 2021-12-30 Luigi Scarso <luigi.scarso@gmail.com>
     * struct dest (M.Krüger)
     * fixed  a 'Conditional jump or move depends on uninitialised value(s)' msg from valgrind
