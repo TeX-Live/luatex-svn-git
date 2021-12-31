@@ -1,0 +1,18 @@
+#! /bin/sh -vx
+# $Id: pltotf.test 45809 2017-11-15 00:36:56Z karl $
+# Copyright 2017 Karl Berry <tex-live@tug.org>
+# Copyright 2009-2015 Peter Breitenlohner <tex-live@tug.org>
+# You may freely use, modify and/or distribute this file.
+
+test -d tests || mkdir -p tests
+
+./pltotf -help || exit 1
+
+./pltotf -version || exit 1
+
+./pltotf -verbose $srcdir/tests/badpl && exit 1
+
+./pltotf -verbose $srcdir/tests/cmr10 tests/xcmr10 || exit 1
+
+cmp $srcdir/tests/cmr10.tfm tests/xcmr10.tfm || exit 1
+

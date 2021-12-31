@@ -1,0 +1,20 @@
+#! /bin/sh -vx
+# $Id: dvitype.test 45809 2017-11-15 00:36:56Z karl $
+# Copyright 2017 Karl Berry <tex-live@tug.org>
+# Copyright 2009-2012 Peter Breitenlohner <tex-live@tug.org>
+# You may freely use, modify and/or distribute this file.
+
+test -d tests || mkdir -p tests
+
+if tfmpath=`$KPSEWHICH cmbx10.tfm`; then
+
+  TEXMFCNF=$srcdir/../kpathsea \
+    TFMFONTS=`dirname "$tfmpath"` \
+    ./dvitype -show-opcodes $srcdir/tests/story >tests/xstory.dvityp || exit 1
+
+fi
+
+TEXMFCNF=$srcdir/../kpathsea \
+  TFMFONTS=$srcdir/tests \
+  ./dvitype --p=\*.\*.2 $srcdir/tests/pagenum.dvi >tests/xpagenum.typ || exit 1
+

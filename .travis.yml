@@ -1,0 +1,82 @@
+language: generic
+
+
+sudo: required
+services: docker
+
+# Avoid timestamping issues
+before_script:
+  - find . -name \*.info -exec touch '{}' \;
+  - touch ./source/texk/web2c/web2c/web2c-lexer.c
+  - touch ./source/texk/web2c/web2c/web2c-parser.c
+  - touch ./source/texk/web2c/web2c/web2c-parser.h
+
+env:
+  global:
+    - JOBS_IF_PARALLEL=2
+
+matrix:
+  include:
+    - os: linux
+      env: package=luatex-bin-x86_64.tar.gz
+      script: |
+        docker run \
+        -e JOBS_IF_PARALLEL="${JOBS_IF_PARALLEL}" \
+        -v ${TRAVIS_BUILD_DIR}:/luatex -w /luatex \
+        -it debian:jessie sh -c \
+        "apt-get update; apt-get install -y --no-install-recommends bash gcc g++ make; ./build.sh --parallel --jit"
+    - os: linux
+      env: package=luatex-bin-i386.tar.gz
+      script: |
+        docker run \
+        -e JOBS_IF_PARALLEL="${JOBS_IF_PARALLEL}" \
+        -v ${TRAVIS_BUILD_DIR}:/luatex -w /luatex \
+        -it i386/debian:jessie sh -c \
+        "apt-get update; apt-get install -y --no-install-recommends bash gcc g++ make; ./build.sh --parallel --jit"
+    - os: linux
+      env: package=luatex-bin-arm32v7.tar.gz
+      install:
+        - sudo apt-get install -y binfmt-support qemu-user-static
+        - update-binfmts --display
+        - sudo update-binfmts --enable qemu-arm
+      script: |
+        docker run \
+        -e JOBS_IF_PARALLEL="${JOBS_IF_PARALLEL}" \
+        -v /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static \
+        -v ${TRAVIS_BUILD_DIR}:/luatex -w /luatex \
+        -it arm32v7/debian:jessie sh -c \
+        "apt-get update; apt-get install -y --no-install-recommends bash gcc g++ make; ./build.sh --parallel --jit"
+    - os: linux
+      env: package=luatex-bin-x86_64-musl.tar.gz
+      script: |
+        docker run \
+        -e JOBS_IF_PARALLEL="${JOBS_IF_PARALLEL}" \
+        -v ${TRAVIS_BUILD_DIR}:/luatex -w /luatex \
+        -it alpine:3.1 sh -c \
+        "apk update; apk add --no-progress bash gcc g++ make; ./build.sh --parallel --jit"
+    - os: osx
+      env: package=luatex-bin-x86_64-osx.tar.gz
+      script: ./build.sh --parallel --jit
+
+  # ARM build tends to run out of time.
+  allow_failures:
+    - env: package=luatex-bin-arm32v7.tar.gz
+
+before_deploy:
+  - if [ -n "$package" ]; then tar czvf ${package} -C build/texk/web2c luajittex luatex ; fi
+  - export LUATEX_VERSION=`grep luatex_version_string source/texk/web2c/luatexdir/luatex.c | cut -d '"' -f 2`
+  - export LUATEX_SVN_REVISION=`grep -Eo "[0-9]+" source/texk/web2c/luatexdir/luatex_svnversion.h`
+  - git config --local user.name "Travis CI"
+  - git config --local user.email "https://travis-ci.org/"
+  - git tag -f "${LUATEX_VERSION}-svn${LUATEX_SVN_REVISION}"
+
+deploy:
+  provider: releases
+  api_key: $GH_TOKEN
+  file: $package
+  skip_cleanup: true
+  on:
+    branch: trunk
+    overwrite: true
+    tags: false
+    condition: $package != ""
