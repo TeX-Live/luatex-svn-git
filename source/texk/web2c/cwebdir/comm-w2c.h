@@ -2,7 +2,7 @@
 % This program by Silvio Levy and Donald E. Knuth
 % is based on a program by Knuth.
 % It is distributed WITHOUT ANY WARRANTY, express or implied.
-% Version 4.5 --- July 2021 (works also with later versions)
+% Version 4.6 --- December 2021 (works also with later versions)
 
 % Copyright (C) 1987,1990,1993 Silvio Levy and Donald E. Knuth
 
@@ -45,10 +45,21 @@ are placed in the context of the `|_|'~macro.  This is just a shortcut for the
 `|@!gettext|' function from the ``GNU~gettext utilities.'' For systems that do
 not have this library installed, we wrap things for neutral behavior without
 internationalization.
+For backward compatibility with pre-{\mc ANSI} compilers, we replace the
+``standard'' header file `\.{stdbool.h}' with the
+{\mc KPATHSEA\spacefactor1000} interface `\.{simpletypes.h}'.
 
 @d _(s) gettext(s)
 
 @<Include files@>=
+#include <ctype.h> /* definition of |@!isalpha|, |@!isdigit| and so on */
+#include <kpathsea/simpletypes.h> /* |@!boolean|, |@!true| and |@!false| */
+#include <stddef.h> /* definition of |@!ptrdiff_t| */
+#include <stdint.h> /* definition of |@!uint8_t| and |@!uint16_t| */
+#include <stdio.h> /* definition of |@!printf| and friends */
+#include <stdlib.h> /* definition of |@!getenv| and |@!exit| */
+#include <string.h> /* definition of |@!strlen|, |@!strcmp| and so on */
+@#
 #ifndef HAVE_GETTEXT
 #define HAVE_GETTEXT 0
 #endif
@@ -58,14 +69,6 @@ internationalization.
 #else
 #define gettext(a) a
 #endif
-@#
-#include <ctype.h> /* definition of |@!isalpha|, |@!isdigit| and so on */
-#include <kpathsea/simpletypes.h> /* |@!boolean|, |@!true| and |@!false| */
-#include <stddef.h> /* definition of |@!ptrdiff_t| */
-#include <stdint.h> /* definition of |@!uint8_t| and |@!uint16_t| */
-#include <stdio.h> /* definition of |@!printf| and friends */
-#include <stdlib.h> /* definition of |@!getenv| and |@!exit| */
-#include <string.h> /* definition of |@!strlen|, |@!strcmp| and so on */
 
 @ Code related to the character set:
 @^ASCII code dependencies@>
