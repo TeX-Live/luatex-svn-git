@@ -1,3 +1,33 @@
+2022-01-22  Hironori Kitagawa  <h_kitagawa2001@yahoo.co.jp>
+
+	* texmfmem.h: Change type of str_pool to unsigned short for pTeX.
+	  We use only 0--511, and use flag 0x100 for Japanese char.
+
+2022-01-21  Karl Berry  <karl@freefriends.org>
+
+	* ac/web2c.ac (kpse_tex_progs): enable hitex by default.
+
+2022-01-18  Karl Berry  <karl@freefriends.org>
+
+	* doc/web2c.texi (TeX extensions): mention pdftex manual and
+	ltnews31.pdf as primary documentation for the cross-engine
+	functionality.
+	(Introduction): mention TeX Live and teTeX.	
+
+2022-01-16  Andreas Scherer  <https://ascherer.github.io>
+
+	* weave.ch: Add a third layer to 'byte_mem'.
+
+2022-01-15  Andreas Scherer  <https://ascherer.github.io>
+
+	* tangle.ch,
+	* tangleboot.pin,
+	* weave.ch: Adapt WEB to general conventions.
+
+2022-01-12  Marcel Kr\"uger  <tex@2krueger.de>
+
+	* showstream.ch: if (selector<no_print), rather than <log_only.
+
 2022-01-11  Marcel Kr\"uger  <tex@2krueger.de>
 
 	* showstream.ch: adjust selector for show_stream.
