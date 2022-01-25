@@ -1,3 +1,16 @@
+2022-01-10  Karl Berry  <karl@freefriends.org>
+
+	* Makefile.am: copyright 2022.
+
+2022-01-09  Andreas Scherer  <https://ascherer.github.io>
+
+	* twill.man,
+	* weave.man:New manpage for TWILL.
+
+2021-12-26  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctwill.man: CWEB 4.6 release.
+
 2021-11-13  Andreas Scherer  <https://ascherer.github.io>
 
 	* ctwill.man,

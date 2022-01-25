@@ -9,12 +9,12 @@ that allows >64K arrays. If you need lots of bytes and toks, try the
 alternate change files with -bs suffix instead of -pc.
 
 @x section 1
-@d banner "This is CTANGLE (Version 4.5)"
+@d banner "This is CTANGLE (Version 4.6)"
 @y
-@d banner "This is CTANGLE (Version 4.5pc)"
+@d banner "This is CTANGLE (Version 4.6pc)"
 @z
 @x section 17
-@d max_bytes 90000 /* the number of bytes in identifiers,
+@d max_bytes 100000 /* the number of bytes in identifiers,
   index entries, and section names; must be less than $2^{24}$ */
 @y (note that CWEAVE itself needs only about 42K toks)
 @d max_bytes (unsigned)60000 /* the number of bytes in identifiers,

@@ -2,7 +2,7 @@
 % This program by Silvio Levy and Donald E. Knuth
 % is based on a program by Knuth.
 % It is distributed WITHOUT ANY WARRANTY, express or implied.
-% Version 4.5 --- July 2021
+% Version 4.6 --- December 2021
 
 % Copyright (C) 1987,1990,1993,2000 Silvio Levy and Donald E. Knuth
 
@@ -32,11 +32,11 @@
 \def\skipxTeX{\\{skip\_\TEX/}}
 \def\copyxTeX{\\{copy\_\TEX/}}
 
-\def\title{CWEAVE (Version 4.5)}
+\def\title{CWEAVE (Version 4.6)}
 \def\topofcontents{\null\vfill
   \centerline{\titlefont The {\ttitlefont CWEAVE} processor}
   \vskip 15pt
-  \centerline{(Version 4.5)}
+  \centerline{(Version 4.6)}
   \vfill}
 \def\botofcontents{\vfill
 \noindent
@@ -67,7 +67,7 @@ Crusius, and others who have contributed improvements.
 The ``banner line'' defined here should be changed whenever \.{CWEAVE}
 is modified.
 
-@d banner "This is CWEAVE (Version 4.5)"
+@d banner "This is CWEAVE (Version 4.6)"
 
 @c
 @<Include files@>@/
@@ -111,13 +111,13 @@ possible changes from this \.{COMMON} interface consistently.
 
 @i common.h
 
-@ The following parameters were sufficient in the original \.{WEAVE} to
-handle \TEX/, so they should be sufficient for most applications of \.{CWEAVE}.
+@ The following parameters are sufficient to handle \TEX/ (converted to
+\.{CWEB}), so they should be sufficient for most applications of \.{CWEAVE}.
 
 @d line_length 80 /* lines of \TEX/ output have at most this many characters;
   should be less than 256 */
-@d max_refs 20000 /* number of cross-references; must be less than 65536 */
-@d max_scraps 2000 /* number of tokens in \CEE/ texts being parsed */
+@d max_refs 30000 /* number of cross-references; must be less than 65536 */
+@d max_scraps 5000 /* number of tokens in \CEE/ texts being parsed */
 
 @* Data structures exclusive to {\tt CWEAVE}.
 As explained in \.{common.w}, the field of a |name_info| structure
@@ -335,9 +335,9 @@ that is unoccupied by replacement text is called |tok_ptr|, and the first
 unused location of |tok_start| is called |text_ptr|.
 Thus, we usually have |*text_ptr==tok_ptr|.
 
-@d max_toks 20000 /* number of symbols in \CEE/ texts being parsed;
+@d max_toks 30000 /* number of symbols in \CEE/ texts being parsed;
   must be less than 65536 */
-@d max_texts 4000 /* number of phrases in \CEE/ texts being parsed;
+@d max_texts 8000 /* number of phrases in \CEE/ texts being parsed;
   must be less than 10240 */
 
 @<Private...@>=
@@ -1838,7 +1838,7 @@ static char cat_name[256][12]; /* |12==strlen("struct_head")+1| */
 
 @ This code allows \.{CWEAVE} to display its parsing steps.
 
-@d print_cat(c) fputs(cat_name[c],stdout)
+@d print_cat(c) fputs(cat_name[c],stdout) /* symbolic printout of a category */
 
 @ The token lists for translated \TEX/ output contain some special control
 symbols as well as ordinary characters. These control symbols are
@@ -3765,7 +3765,7 @@ typedef struct {
 } output_state;
 typedef output_state *stack_pointer;
 
-@ @d stack_size 400 /* number of simultaneous output levels */
+@ @d stack_size 2000 /* number of simultaneous output levels */
 @d cur_end cur_state.end_field /* current ending location in |tok_mem| */
 @d cur_tok cur_state.tok_field /* location of next output token in |tok_mem| */
 @d cur_mode cur_state.mode_field /* current mode of interpretation */

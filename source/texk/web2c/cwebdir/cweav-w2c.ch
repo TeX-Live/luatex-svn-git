@@ -17,15 +17,15 @@
 @q Please send comments, suggestions, etc. to tex-k@@tug.org.            @>
 
 @x
-\def\title{CWEAVE (Version 4.5)}
+\def\title{CWEAVE (Version 4.6)}
 @y
-\def\title{CWEAVE (Version 4.5 [\TeX~Live])}
+\def\title{CWEAVE (Version 4.6 [\TeX~Live])}
 @z
 
 @x
-  \centerline{(Version 4.5)}
+  \centerline{(Version 4.6)}
 @y
-  \centerline{(Version 4.5 [\TeX~Live])}
+  \centerline{(Version 4.6 [\TeX~Live])}
 @z
 
 @x
@@ -41,9 +41,9 @@
 @z
 
 @x
-@d banner "This is CWEAVE (Version 4.5)"
+@d banner "This is CWEAVE (Version 4.6)"
 @y
-@d banner "This is CWEAVE, Version 4.5"
+@d banner "This is CWEAVE, Version 4.6"
   /* will be extended by the \TeX~Live |versionstring| */
 @z
 
@@ -60,8 +60,8 @@
 @z
 
 @x
-@d max_refs 20000 /* number of cross-references; must be less than 65536 */
-@d max_scraps 2000 /* number of tokens in \CEE/ texts being parsed */
+@d max_refs 30000 /* number of cross-references; must be less than 65536 */
+@d max_scraps 5000 /* number of tokens in \CEE/ texts being parsed */
 @y
 @d max_refs 65535 /* number of cross-references; must be less than 65536 */
 @d max_scraps 5000 /* number of tokens in \CEE/ texts being parsed */
@@ -74,9 +74,9 @@
 @z
 
 @x
-@d max_toks 20000 /* number of symbols in \CEE/ texts being parsed;
+@d max_toks 30000 /* number of symbols in \CEE/ texts being parsed;
   must be less than 65536 */
-@d max_texts 4000 /* number of phrases in \CEE/ texts being parsed;
+@d max_texts 8000 /* number of phrases in \CEE/ texts being parsed;
   must be less than 10240 */
 @y
 @d max_toks 65535 /* number of symbols in \CEE/ texts being parsed;
