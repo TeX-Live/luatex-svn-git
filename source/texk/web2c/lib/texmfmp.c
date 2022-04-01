@@ -667,6 +667,9 @@ runpopen (char *cmd, const char *mode)
   char *safecmd = NULL;
   char *cmdname = NULL;
   int allow;
+#if IS_pTeX && !defined(WIN32)
+  char *cmd2 = NULL;
+#endif
 
 #ifdef WIN32
   char *pp;
@@ -676,14 +679,27 @@ runpopen (char *cmd, const char *mode)
   }
 #endif
 
+#if IS_pTeX && !defined(WIN32)
+  cmd2 = (char *)ptenc_from_internal_enc_string_to_utf8((unsigned char *)cmd);
+  if (!cmd2) cmd2=(char *)cmd;
+#endif
+
   /* If restrictedshell == 0, any command is allowed. */
   if (restrictedshell == 0)
     allow = 1;
   else
+#if IS_pTeX && !defined(WIN32)
+    allow = shell_cmd_is_allowed (cmd2, &safecmd, &cmdname);
+#else
     allow = shell_cmd_is_allowed (cmd, &safecmd, &cmdname);
+#endif
 
   if (allow == 1)
+#if IS_pTeX && !defined(WIN32)
+    f = popen (cmd2, mode);
+#else
     f = popen (cmd, mode);
+#endif
   else if (allow == 2)
     f = popen (safecmd, mode);
   else if (allow == -1)
@@ -692,6 +708,9 @@ runpopen (char *cmd, const char *mode)
   else
     fprintf (stderr, "\nrunpopen command not allowed: %s\n", cmdname);
 
+#if IS_pTeX && !defined(WIN32)
+  if (cmd!=cmd2) free(cmd2);
+#endif
   if (safecmd)
     free (safecmd);
   if (cmdname)
@@ -3379,11 +3398,19 @@ string
 find_input_file(integer s)
 {
     string filename;
-
+#if IS_pTeX && !defined(WIN32)
+    string fname0; string fname1 = NULL;
+#endif
 #if defined(XeTeX)
     filename = gettexstring(s);
 #else
     filename = makecfilename(s);
+#endif
+#if IS_pTeX && !defined(WIN32)
+   fname0 = ptenc_from_internal_enc_string_to_utf8(filename);
+   if (fname0) {
+       fname1 = filename; filename = fname0;
+   }
 #endif
     /* Look in -output-directory first, if the filename is not
        absolute.  This is because we want the pdf* functions to
@@ -3393,14 +3420,26 @@ find_input_file(integer s)
 
         pathname = concat3(output_directory, DIR_SEP_STRING, filename);
         if (!access(pathname, R_OK) && !dir_p (pathname)) {
+#if IS_pTeX && !defined(WIN32)
+            if (fname1) free(filename);
+#endif
             return pathname;
         }
         xfree (pathname);
     }
     if (! kpse_in_name_ok(filename)) {
+#if IS_pTeX && !defined(WIN32)
+       if (fname1) free(filename);
+#endif
        return NULL;                /* no permission */
     }
+#if IS_pTeX && !defined(WIN32)
+    fname0 = kpse_find_tex(filename);
+    if (fname1) free(filename);
+    return fname0;
+#else
     return kpse_find_tex(filename);
+#endif
 }
 
 #if !defined(XeTeX)
