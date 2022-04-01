@@ -1,0 +1,67 @@
+.TH OPL2OFM 1 "8 March 2022" "Web2C @VERSION@"
+.PP 
+.SH "NAME" 
+opl2ofm \- convert Omega and TeX property-list files to font-metric files
+.PP 
+.SH "SYNOPSIS" 
+.PP 
+.B opl2ofm
+.RI [ OPTIONS ]
+.IR OPLFILE [ \fB.opl\fP ]
+.RI [ OFMFILE [ \fB.ofm\fP ]]
+.PP 
+.SH "DESCRIPTION" 
+.PP 
+\fBopl2ofm\fP translates a property-list format file, \fIOPLFILE\fP,
+into the binary Omega Font Metric format\&.  The program writes to
+standard output (by default) or to a file specified as
+\fIOFMFILE\fP\&.
+.PP 
+The program also works with TeX PL files, producing TeX TFM files\&.
+(\fBopl2ofm\fP is based on the WEB source code for \fBpltotf\fP(1)\&.)
+.PP 
+.SH "OPTIONS" 
+.PP 
+.IP 
+.IP "\fB-help\fP" 
+display a brief summary of syntax and options 
+.IP "\fB-verbose\fP" 
+display progress reports
+.IP "\fB-version\fP" 
+output version information and exit
+.IP 
+.PP 
+.SH "BUGS" 
+.PP 
+Email bug reports to <https://lists.tug.org/tex-k>
+(mailing list); good to check if the same bug is present in
+\fBpltotf\fP(1)\&.
+.PP 
+.SH "SEE ALSO" 
+.PP 
+\fBomega\fP(1), \fBofm2opl\fP(1), \fBpltotf\fP(1),
+\fBtftopl\fP(1)\&.
+.PP 
+.SH "AUTHOR" 
+.PP 
+According to the WEB documentation:
+.PP 
+.RS 
+The first \fBPLtoTF\fP program was designed by Leo Guibas in the
+summer of 1978\&.  Contributions by Frank Liang, Doug Wyatt, and Lyle
+Ramshaw also had a significant effect on the evolution of the present
+code\&.
+.PP 
+Extensions for an enhanced ligature mechanism were added by D\&.E\&. Knuth
+in 1989\&.
+.PP 
+Extensions to handle extended font metric files (``OFM\&'\&') were added
+by John Plaice in December 1995 and January 1996, resulting in the new
+program \fBOPL2OFM\fP\&.
+.RE 
+.PP 
+The primary authors of Omega were John Plaice and Yannis Haralambous.
+Omega (and Aleph) are now maintained as part of TeX Live.
+.PP 
+This manual page was written by C\&.M\&. Connelly for the Debian
+GNU/Linux system\&. It is also now maintained as part of TeX Live.

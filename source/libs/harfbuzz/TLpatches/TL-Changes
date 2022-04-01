@@ -1,0 +1,28 @@
+Changes applied to the harfbuzz-3.4.0/ tree as obtained from:
+	https://github.com/harfbuzz/harfbuzz/releases/download/3.4.0/
+
+Removed:
+	COPYING
+	Makefile.in
+	aclocal.m4
+	ar-lib
+	compile
+	config.guess
+	config.sub
+	configure
+	depcomp
+	gtk-doc.make
+	install-sh
+	ltmain.sh
+	missing
+	test-driver
+	src/Makefile.in
+	src/hb-version.h
+
+        unused dirs:
+	docs
+	m4
+	perf
+	subprojects
+	test
+	util
