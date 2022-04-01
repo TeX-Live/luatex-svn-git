@@ -1,3 +1,30 @@
+2022-03-21  Karl Berry  <karl@tug.org>
+
+	* TL'22 release.
+
+2022-03-08  Karl Berry  <karl@freefriends.org>
+
+	* ofm2opl.man,
+	* opl2ofm.man,
+	* ovf2ovp.man,
+	* ovp2ovf.man,
+	* ttf2afm.man: update contact info.
+	Report from G\"unter Essers,
+	https://tug.org/pipermail/tex-k/2022-March/003776.html
+
+2022-03-03  Andreas Scherer  <https://ascherer.github.io>
+
+	* tangle.man: Clarify the creation of the pool file name.
+
+2022-03-02  Andreas Scherer  <https://ascherer.github.io>
+
+	* tangle.man,
+	* weave.man: Describe the third file name on the commandline.
+
+2022-02-26  Karl Berry  <karl@tug.org>
+
+	* Makefile.am (web_man_sources): add twill.man.
+
 2022-02-02  Andreas Scherer  <https://ascherer.github.io>
 
 	* ctwill.man: CWEB 4.7 release.
