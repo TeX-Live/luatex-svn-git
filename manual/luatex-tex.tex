@@ -2707,6 +2707,9 @@ will search the disk as well as the \type {ls-R} databases.
 This is used for the size argument of the formats \type {pk}, \type {gf}, and
 \type {bitmap font}. \stopitemize
 
+If \type {--output-directory} is specified and the value is a relative pathname,
+the file is searched first here and if it fails it will be searched in the standard tree.
+
 \stopsubsection
 
 \startsubsection[title={\type {lookup}}]
@@ -2740,6 +2743,10 @@ The options match commandline arguments from \type {kpsewhich}:
                                       ends with the given string(s) \NC \NR
 \LL
 \stoptabulate
+
+If \type {--output-directory} is specified and the value is a relative pathname,
+the file is searched first here and then in the standard tree.
+
 
 \stopsubsection
 
