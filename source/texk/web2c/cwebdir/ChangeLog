@@ -1,3 +1,131 @@
+2022-07-02  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebmac.tex,
+	* texinputs/pdfctwimac.tex: Fix \ifpdf logic.
+
+2022-06-20  Andreas Scherer  <https://ascherer.github.io>
+
+	* texinputs/dcwebmac.tex,
+	* texinputs/dcwebstrings.tex,
+	* texinputs/fcwebman.tex,
+	* texinputs/icwebmac.tex: Update translated macros.
+
+2022-06-19  Andreas Scherer  <https://ascherer.github.io>
+
+	* comm-w2c.ch,
+	* ctwill-mini.ch,
+	* cwebmac.tex,
+	* cwebman-w2c.ch,
+	* cwebman.tex,
+	* texinputs/dctproofmac.tex,
+	* texinputs/dctwimac.tex,
+	* texinputs/pdfctwimac.tex: Use 'iftex.sty' for TeX engine tests.
+
+2022-06-18  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebmac.tex: Fix \pdfURL for 'valid' output.
+
+2022-06-17  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile: New target for CTAN packaging.
+	* cwebmac.tex: Fix two bugs from 2002 and 2000.
+
+2022-06-05  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile,
+	* comm-mac.ch,
+	* comm-mini.ch,
+	* comm-ql.ch,
+	* comm-w2c.ch,
+	* comm-w2c.h,
+	* common.h,
+	* common.w,
+	* ctang-bs.ch,
+	* ctang-pc.ch,
+	* ctang-ql.ch,
+	* ctang-vms.ch,
+	* ctang-w2c.ch,
+	* ctang-w32.ch,
+	* ctangle.c,
+	* ctangle.w,
+	* ctwill-w2c.ch,
+	* cweav-bs.ch,
+	* cweav-pc.ch,
+	* cweav-ql.ch,
+	* cweav-vms.ch,
+	* cweav-w2c.ch,
+	* cweav-w32.ch,
+	* cweave.w,
+	* cwebmac.tex,
+	* cwebman-w2c.ch,
+	* cwebman.tex,
+	* po/cweb-tl.pot,
+	* po/cweb.pot,
+	* po/de/cweb-tl.po,
+	* po/de/cweb.po,
+	* po/it/cweb.po,
+	* prod-cweave.w,
+	* prod-twill.w,
+	* prod.w: CWEB 4.8 release.
+
+2022-06-05  Andreas Scherer  <https://ascherer.github.io>
+
+	* cweave.w,
+	* cwebman-w2c.ch,
+	* cwebman.tex: Update borderline cases.
+
+2022-06-04  Andreas Scherer  <https://ascherer.github.io>
+
+	* cwebman.tex: Update codes in Appendices.
+
+2022-05-31  Andreas Scherer  <https://ascherer.github.io>
+
+	* common.w: Amend reference to COMMON interface.
+
+2022-05-29  Andreas Scherer  <https://ascherer.github.io>
+
+	* cweave.w: DRY up section 120.
+
+2022-05-28  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctwill-w2c.ch,
+	* cweav-w2c.ch,
+	* cweave.w,
+	* prod-cweave.w,
+	* prod-twill.w,
+	* prod.w: Improve productions 33, 118, and 153.
+
+2022-05-27  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctwill-mini.ch,
+	* ctwill-w2c.ch,
+	* cweav-w2c.ch,
+	* cweave.w,
+	* prod-cweave.w,
+	* prod-twill.w,
+	* prod.w: Unambiguous prductions 83 and 121.
+
+2022-05-23  Andreas Scherer  <https://ascherer.github.io>
+
+	* Makefile,
+	* ctwill-w2c.ch,
+	* cweave.w,
+	* prod-cweave.w,
+	* prod.w: Fix production rule 117 similar to rule 35.
+
+2022-05-03  Andreas Scherer  <https://ascherer.github.io>
+
+	* cweave.w,
+	* prod-cweave.w,
+	* prod-twill.w,
+	* prod.w: Use non-breaking thin space for simple cast.
+
+2022-04-30  Andreas Scherer  <https://ascherer.github.io>
+
+	* ctwill-w2c.ch,
+	* cweav-w2c.ch,
+	* cweave.w: Fix a preprocessor issue (gb_io.w).
+
 2022-03-10  Andreas Scherer  <https://ascherer.github.io>
 
 	* Makefile,
