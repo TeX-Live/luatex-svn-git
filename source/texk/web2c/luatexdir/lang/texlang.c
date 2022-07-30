@@ -705,6 +705,7 @@ static void do_exception(halfword wordstart, halfword r, char *replacement)
             /*tex check if we have two exceptions in a row */
             if (uword[i + 1] == '{') {
                 i--;
+t = alink(t);
             }
         } else {
             t = vlink(t);
