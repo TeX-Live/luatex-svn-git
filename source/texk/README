@@ -1,4 +1,4 @@
-$Id: README 63453 2022-05-31 15:40:57Z karl $
+$Id: README 64660 2022-10-09 00:06:04Z takuji $
 Copyright 2006-2022 TeX Users Group.
 You may freely use, modify and/or distribute this file.
 
@@ -62,7 +62,7 @@ dvipos - maintained here, by us
 
 dvipsk - maintained here, by us
 
-dvisvgm 2.13.3 - checked 28feb22
+dvisvgm 2.14 - checked 29aug22
   https://dvisvgm.de/Downloads/
   https://github.com/mgieseki/dvisvgm
   https://ctan.org/pkg/dvisvgm
@@ -107,7 +107,7 @@ ttf2pk2 - maintained here, by us
 
 ttfdump - maintained here, by us, since Taiwan upstream apparently gone.
 
-upmendex 1.01 - by Takuji Tanaka
+upmendex 1.05 - by Takuji Tanaka
   https://ctan.org/pkg/upmendex
   https://github.com/t-tk/upmendex-package
 

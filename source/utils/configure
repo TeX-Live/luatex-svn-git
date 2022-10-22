@@ -4291,6 +4291,7 @@ esac
 
 test "x$enable_web2c:$enable_mflua" = xyes:yes && {
   need_lua53=yes
+  need_potrace=yes
 }
 # Check whether --enable-mfluajit was given.
 if test ${enable_mfluajit+y}
@@ -4318,6 +4319,7 @@ esac
 
 test "x$enable_web2c:$enable_mfluajit" = xyes:yes && {
   need_luajit=yes
+  need_potrace=yes
 }
 
 # Check whether --with-mf-x-toolkit was given.
