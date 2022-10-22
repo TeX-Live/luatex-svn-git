@@ -1,4 +1,4 @@
-## $Id: Makefile.am 61780 2022-01-28 22:36:18Z karl $
+## $Id: Makefile.am 64447 2022-09-19 22:37:09Z karl $
 ## Makefile.am for the TeX Live subdirectory texk/texlive/linked_scripts/
 ##
 ## Copyright 2016-2022 Karl Berry <tex-live@tug.org>
@@ -75,6 +75,7 @@ texmf_shell_scripts = \
 	pdfxup/pdfxup \
 	pst-pdf/ps4pdf \
 	simpdftex/simpdftex \
+	texaccents/texaccents.sno \
 	texlive-extra/allcm.sh \
 	texlive-extra/allneeded.sh \
 	texlive-extra/dvi2fax.sh \
@@ -114,7 +115,7 @@ texmf_other_scripts = \
 	bundledoc/bundledoc \
 	cachepic/cachepic.tlu \
 	checkcites/checkcites.lua \
-	citation-style-language/citeproc.lua \
+	citation-style-language/citeproc-lua.lua \
 	chklref/chklref.pl \
 	cjk-gs-integrate/cjk-gs-integrate.pl \
 	clojure-pamphlet/pamphletangler \
@@ -228,7 +229,7 @@ texmf_other_scripts = \
 	texlive/mktexmf \
 	texlive/mktexpk \
 	texlive/mktextfm \
-	texlive/rungs.tlu \
+	texlive/rungs.lua \
 	texlive/tlmgr.pl \
 	texlive/updmap-sys.sh \
 	texlive/updmap-user.sh \

@@ -107,6 +107,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/kpse-cairo-flags.m4 \
 	$(top_srcdir)/m4/kpse-options.m4 \
 	$(top_srcdir)/m4/kpse-pixman-flags.m4 \
 	$(top_srcdir)/m4/kpse-pkgs.m4 \
+	$(top_srcdir)/m4/kpse-potrace-flags.m4 \
 	$(top_srcdir)/m4/kpse-pplib-flags.m4 \
 	$(top_srcdir)/m4/kpse-ptexenc-flags.m4 \
 	$(top_srcdir)/m4/kpse-setup.m4 \

@@ -1,3 +1,7 @@
+2022-10-22  Luigi Scarso <luigi.scarso@gmail.com> 
+     * porting texlive patch r53155 -- WORK IN PROGRESS
+
+
 2022-09-29  Luigi Scarso <luigi.scarso@gmail.com> 
      * Fixed an infinite loop with --halt-on-error option (K.Berry)
 
